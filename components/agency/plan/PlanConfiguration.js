@@ -9,7 +9,7 @@ import AgentSelectSnackMessage, {
 import { useEffect } from "react";
 import Image from "next/image";
 import { formatDecimalValue, handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
-import SubDuration, { LanguagesSelection } from "./SubDuration";
+import SubDuration from "./SubDuration";
 import SideUI from "./SideUI";
 import PlanFeatures from "./PlanFeatures";
 import ConfigureSideUI from "./ConfigureSideUI";
@@ -55,8 +55,8 @@ export default function PlanConfiguration({
     const [noOfContacts, setNoOfContacts] = useState("");
     const [noOfSeats, setNoOfSeats] = useState("");
     const [costPerAdditionalSeat, setCostPerAdditionalSeat] = useState("");
-    const [language, setLanguage] = useState("");
-    const [languageTitle, setLanguageTitle] = useState("");
+    const [language, setLanguage] = useState("english");
+    const [languageTitle, setLanguageTitle] = useState("English and Spanish Compatible");
     const [trialValidForDays, setTrialValidForDays] = useState("");
     //upgrade Plan popup variable
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false);
@@ -65,6 +65,7 @@ export default function PlanConfiguration({
     const [allowedFeatures, setAllowedFeatures] = useState([]);
 
     const [features, setFeatures] = useState({
+        allowLanguageSelection: false,
         toolsActions: false,
         calendars: false,
         liveTransfer: false,
@@ -77,6 +78,7 @@ export default function PlanConfiguration({
         allowTeamSeats: false,
     });
     const [agencyAllowedFeatures, setAgencyAllowedFeatures] = useState({
+        allowLanguageSelection: false,
         toolsActions: false,
         calendars: false,
         liveTransfer: false,
@@ -91,6 +93,11 @@ export default function PlanConfiguration({
 
     //features list
     const featuresList = [
+        {
+            label: "Multilingual",
+            tooltip: "Allow the agents to switch between languages in the same conversation",
+            stateKey: "allowLanguageSelection",
+        },
         {
             label: "Tools & Actions",
             tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
@@ -199,7 +206,7 @@ export default function PlanConfiguration({
             });
         }
 
-        if (language) {
+        if (languageTitle) {
             extraFeatures.push({
                 id: "language",
                 text: `${languageTitle}`,
@@ -231,7 +238,7 @@ export default function PlanConfiguration({
         // console.log("custom features list 2.1", customFeaturesList)
 
         setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
-    }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats, basicsData]);
+    }, [features, language, languageTitle, noOfAgents, noOfContacts, customFeatures, noOfSeats, basicsData]);
 
 
 
@@ -296,6 +303,12 @@ export default function PlanConfiguration({
             setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent);
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
             setFeatures({
+                allowLanguageSelection:
+                    dynamicFeatures?.allowLanguageSelection ??
+                    dynamicFeatures?.allowLanguageSwitch ??
+                    (typeof configurationData?.language === "string"
+                        ? configurationData?.language?.toLowerCase() === "multilingual"
+                        : false),
                 toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
                 calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
                 liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
@@ -310,11 +323,28 @@ export default function PlanConfiguration({
             setTrialValidForDays(configurationData?.trialValidForDays);
             setNoOfSeats(configurationData?.noOfSeats);
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
-            setLanguageTitle(configurationData?.languageTitle);
-            setLanguage(configurationData?.language);
+            const incomingLanguage = typeof configurationData?.language === "string"
+                ? configurationData.language.trim().toLowerCase()
+                : "english";
+            const isMultilingual = incomingLanguage === "multilingual";
+            setLanguage(isMultilingual ? "multilingual" : "english");
+            setLanguageTitle(isMultilingual ? "Multilingual Compatible" : (configurationData?.languageTitle || "English and Spanish Compatible"));
             setCustomFeatures(configurationData?.customFeatures || []);
         }
     }, [configurationData]);
+
+    useEffect(() => {
+        if (!agencyAllowedFeatures.allowLanguageSelection) {
+            setFeatures((prev) => {
+                if (!prev.allowLanguageSelection) {
+                    return prev;
+                }
+                return { ...prev, allowLanguageSelection: false };
+            });
+            setLanguage("english");
+            setLanguageTitle("English and Spanish Compatible");
+        }
+    }, [agencyAllowedFeatures.allowLanguageSelection]);
 
     //reset values after plan added
     const handleResetValues = () => {
@@ -322,10 +352,11 @@ export default function PlanConfiguration({
         setNoOfContacts("");
         setCostPerAdditionalAgent("");
         setCostPerAdditionalSeat("");
-        setLanguage("");
-        setLanguageTitle("");
+        setLanguage("english");
+        setLanguageTitle("English and Spanish Compatible");
         setTrialValidForDays("");
         setFeatures({
+            allowLanguageSelection: false,
             toolsActions: false,
             calendars: false,
             liveTransfer: false,
@@ -598,8 +629,12 @@ export default function PlanConfiguration({
         const localData = localStorage.getItem("User");
         if (localData) {
             const LD = JSON.parse(localData);
-            const dynamicFeatures = LD?.user?.planCapabilities;
+            const dynamicFeatures = LD?.user?.planCapabilities || {};
+            const planType = LD?.user?.plan?.type?.toLowerCase?.() || "";
+            const canUseMultilingual = planType === "growth" || planType === "scale";
+
             setAgencyAllowedFeatures({
+                allowLanguageSelection: canUseMultilingual,
                 toolsActions: dynamicFeatures?.allowToolsAndActions,
                 calendars: dynamicFeatures?.allowCalendarIntegration,
                 liveTransfer: dynamicFeatures?.allowLiveCallTransfer,
@@ -631,8 +666,25 @@ export default function PlanConfiguration({
     }
     //switch btns for plan features
     const handleToggle = (key) => {
+        if (key === "allowLanguageSelection" && !agencyAllowedFeatures.allowLanguageSelection) {
+            setLanguage("english");
+            setLanguageTitle("English and Spanish Compatible");
+            return;
+        }
+
         setFeatures((prev) => {
             const newState = { ...prev, [key]: !prev[key] };
+
+            if (key === "allowLanguageSelection") {
+                const nextValue = !prev.allowLanguageSelection;
+                if (nextValue) {
+                    setLanguage("multilingual");
+                    setLanguageTitle("Multilingual Compatible");
+                } else {
+                    setLanguage("english");
+                    setLanguageTitle("English and Spanish Compatible");
+                }
+            }
 
             // if allowTeamSeats just got enabled, scroll down
             if (key === "allowTeamSeats" || key === "allowTrial" && !prev.allowTeamSeats && newState.allowTeamSeats) {
@@ -853,15 +905,6 @@ export default function PlanConfiguration({
                                     }}
                                 />
                             </div>
-                            <LanguagesSelection
-                                language={language}
-                                languageTitle={languageTitle}
-                                setLanguage={setLanguage}
-                                setLanguageTitle={setLanguageTitle}
-                                selectedLanguage={selectedPlan?.dynamicFeatures?.allowLanguageSelection}
-                            />
-
-
                             <PlanFeatures
                                 featuresList={featuresList}
                                 features={features}
@@ -1046,4 +1089,3 @@ const styles = {
         // marginLeft: "10px",
     },
 };
-

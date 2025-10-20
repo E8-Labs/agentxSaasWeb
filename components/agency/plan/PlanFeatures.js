@@ -37,7 +37,9 @@ export default function PlanFeatures({
         >
             <div className="pt-2" styles={{ fontSize: "15px", fontWeight: "700" }}>Features</div>
             <div className="flex flex-col gap-1 w-full mt-6">
-                {featuresList.map((item) => (
+                {featuresList.map((item) => {
+                    const isLocked = !agencyAllowedFeatures[item.stateKey];
+                    return (
                     <div
                         key={item.stateKey}
                     >
@@ -102,6 +104,7 @@ export default function PlanFeatures({
                             <Switch
                                 checked={features[item.stateKey]}
                                 onChange={() => handleToggle(item.stateKey)}
+                                disabled={isLocked}
                                 sx={{
                                     "& .MuiSwitch-switchBase.Mui-checked": {
                                         color: "white",
@@ -110,7 +113,6 @@ export default function PlanFeatures({
                                         backgroundColor: "#7902DF",
                                     },
                                 }}
-                                disabled={!agencyAllowedFeatures[item.stateKey]}
                             />
                         </div>
                         {item.stateKey === "allowTeamSeats" && features.allowTeamSeats && (
@@ -127,8 +129,8 @@ export default function PlanFeatures({
                                             const value = e.target.value.replace(/[^0-9]/g, "");
                                             setNoOfSeats(value ? Number(value) : 0);
                                         }}
-                                    />
-                                </div>
+                                />
+                            </div>
 
                                 {/* Price Additional Seats */}
                                 <div className="w-1/2">

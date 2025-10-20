@@ -67,20 +67,17 @@
 // }
 
 export function formatFractional2(price) {
-    // Handle null, undefined, or empty string
     if (price == null || price === undefined || price === "") {
-        return "0.00";
+        return "0";
     }
 
     const num = Number(price);
-    if (isNaN(num) || num === 0) {
-        return "0.00";
+    if (Number.isNaN(num)) {
+        return "0";
     }
 
-    // Round to 2 decimal places and always show 2 decimal places
-    const rounded = Number(num.toFixed(2));
-
-    // Always return with 2 decimal places for consistency in price display
-    return rounded.toFixed(2);
+    return new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    }).format(num);
 }
-

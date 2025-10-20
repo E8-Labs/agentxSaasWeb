@@ -67,13 +67,13 @@ function DowngradePlanPopup({
 
                             <div className="flex flex-col items-center justify-center w-full ">
                                 <div
-                                    className="text-center text-base font-normal"
+                                    className="text-center text-sm font-normal"
                                 >
                                     {`This means you’ll lose access to the premium features below starting ${nxtCharge}. Still want to move forward?`}
                                 </div>
 
                                 <div
-                                    className="text-center text-base font-normal mt-2"
+                                    className="text-center text-sm font-normal mt-2 mb-1"
                                 >
                                     {`You’ll lose access to`}
                                 </div>
