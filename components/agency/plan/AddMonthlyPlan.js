@@ -487,7 +487,7 @@ export default function AddMonthlyPlan({
 
               {allowTrial && (
                 <>
-                  <label style={styles.labels}>Duration of Trial</label>
+                  <label style={styles.labels}>Duration of Trial [Day]</label>
 
                   <div className="flex flex-row items-center border rounded-md px-2 mt-1">
                     <input

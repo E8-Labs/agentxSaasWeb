@@ -18,7 +18,7 @@ export const TwilioWarning = ({
 }) => {
   const router = useRouter();
 
-  // console.log("User data passed to twilio is", agencyData);
+  console.log("User data passed to twilio is", agencyData);
 
   //code for modal
   const [showAddKeyModal, setShowAddKeyModal] = useState(false);
