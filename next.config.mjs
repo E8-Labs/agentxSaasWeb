@@ -2,6 +2,42 @@ import {withSentryConfig} from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
+    // Optimize build performance
+    swcMinify: true,
+    experimental: {
+        // Reduce memory usage during build
+        memoryBasedWorkersCount: true,
+        // Optimize bundle size
+        optimizePackageImports: ['@mui/material', '@mui/icons-material', 'axios', 'moment'],
+    },
+    // Webpack optimizations for large projects
+    webpack: (config, { isServer }) => {
+        // Increase memory limit for webpack
+        config.infrastructureLogging = {
+            level: 'error',
+        };
+        
+        // Optimize chunk splitting
+        if (!isServer) {
+            config.optimization.splitChunks = {
+                chunks: 'all',
+                cacheGroups: {
+                    vendor: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: 'vendors',
+                        chunks: 'all',
+                    },
+                    mui: {
+                        test: /[\\/]node_modules[\\/]@mui[\\/]/,
+                        name: 'mui',
+                        chunks: 'all',
+                    },
+                },
+            };
+        }
+        
+        return config;
+    },
     images: {
         remotePatterns: [
           {
@@ -53,8 +89,8 @@ silent: !process.env.CI,
 // For all available options, see:
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-// Upload a larger set of source maps for prettier stack traces (increases build time)
-widenClientFileUpload: true,
+// Reduce source map upload to save memory during build
+widenClientFileUpload: false,
 
 // Uncomment to route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
 // This can increase your server load as well as your hosting bill.
@@ -70,4 +106,13 @@ disableLogger: true,
 // https://docs.sentry.io/product/crons/
 // https://vercel.com/docs/cron-jobs
 automaticVercelMonitors: true,
+
+// Reduce memory usage during build
+hideSourceMaps: true,
+disableServerWebpackPlugin: false,
+disableClientWebpackPlugin: false,
+}, {
+// Additional Sentry options to reduce build memory
+silent: true,
+dryRun: false,
 });

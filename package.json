@@ -6,7 +6,8 @@
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
-    "build": "set NODE_OPTIONS=--max-old-space-size=4096 && next build"
+    "build": "NODE_OPTIONS='--max-old-space-size=16384' next build",
+    "build:no-sentry": "NODE_OPTIONS='--max-old-space-size=16384' NEXT_PUBLIC_SENTRY_DSN='' next build"
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",
