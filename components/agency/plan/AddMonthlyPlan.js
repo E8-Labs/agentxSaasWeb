@@ -165,10 +165,13 @@ export default function AddMonthlyPlan({
       });
     }
 
-    if (configurationData?.language) {
+    const languageLabel = typeof configurationData?.language === 'string' ? configurationData?.language : '';
+    console.log("Language label is", languageLabel);
+
+    if (languageLabel) {
       extraFeatures.push({
         id: "language",
-        text: `${configurationData?.language?.toUpperCase()}`,
+        text: languageLabel,
       });
     }
 
