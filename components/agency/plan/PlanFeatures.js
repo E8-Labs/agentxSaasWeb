@@ -184,7 +184,8 @@ export default function PlanFeatures({
                             </div>
                         )}
                     </div>
-                ))}
+                );
+                })}
             </div>
             {
                 features?.allowTrial && (
