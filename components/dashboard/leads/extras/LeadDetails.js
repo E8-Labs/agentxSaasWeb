@@ -937,15 +937,16 @@ const LeadDetails = ({
   };
 
   const getCommunicationTypeIcon = (item) => {
+    console.log("item.communication", item.communicationType)
     if (item.communicationType == "sms") {
-      return "/otherAssets/smsIcon.png" 
+      return "/otherAssets/smsIcon.png"
     } else if (item.communicationType == "email") {
       return "/otherAssets/email.png"
-    } else if (item.callOutcome) {
+    } else if (item.communicationType == "call") {
       return "/otherAssets/callIcon.png"
-    }else if(item.communicationType == "web") {
+    } else if (item.communicationType == "web") {
       return "/otherAssets/webhook2.svg"
-    }else return "/otherAssets/callIcon.png"
+    } else return "/otherAssets/callIcon.png"
   }
 
   const handleCopy = async (id) => {
@@ -1390,7 +1391,7 @@ const LeadDetails = ({
                               className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
                             // onClick={() => handleToggleClick(item.id)}
                             >
-                              {selectedLeadsDetails?.firstName.slice(0, 1)}
+                              {selectedLeadsDetails?.firstName?.slice(0, 1) || '-'}
                             </div>
                             <div
                               className="truncate"
@@ -2232,7 +2233,7 @@ const LeadDetails = ({
                                   className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
                                 // onClick={() => handleToggleClick(item.id)}
                                 >
-                                  {myTeamAdmin?.name.slice(0, 1)}
+                                  {myTeamAdmin?.name?.slice(0, 1)}
                                 </div>
                               )}
                             </div>
@@ -2275,10 +2276,10 @@ const LeadDetails = ({
                                       //   handleToggleClick(item.id)
                                       // }
                                       >
-                                        {item?.name.slice(0, 1)}
+                                        {item?.name?.slice(0, 1)}
                                       </div>
                                     )}
-                                    {item.name}
+                                    {item?.name}
                                   </button>
                                 </div>
                               );
@@ -2673,12 +2674,12 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.callActivity.map(
                                 (item, index) => {
                                   const initialTextLength = Math.ceil(
-                                    item.transcript?.length * 0.1
+                                    item?.transcript?.length * 0.1
                                   ); // 40% of the text
-                                  const initialText = item.transcript?.slice(
-                                    0,
-                                    initialTextLength
-                                  );
+                                  const initialText = item.transcript//?.slice(
+                                  // 0,
+                                  // initialTextLength
+                                  // );
                                   return (
                                     <div key={index}>
                                       <div className="mt-4">
@@ -2705,7 +2706,7 @@ const LeadDetails = ({
                                             <div className="h-full w-full">
                                               <div className="flex flex-row items-center justify-between">
                                                 <div className="flex flex-row items-center gap-1">
-                                                 <Image
+                                                  <Image
                                                     src={getCommunicationTypeIcon(item)}
                                                     height={15}
                                                     width={15}
@@ -2743,7 +2744,7 @@ const LeadDetails = ({
                                                         showColor(item),
                                                     }}
                                                   ></div>
-                                                 
+
                                                   {
                                                     getOutcome(item)
                                                   }
