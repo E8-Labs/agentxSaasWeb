@@ -202,7 +202,29 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                     setLoading(false)
                     if (response.data.status === true) {
                         console.log('plans list is: ', response.data.data);
-                        let plansList = response.data.data;
+                        let plansList = response.data.data?.map((plan) => {
+                            const normalizedTitle = plan?.title?.toLowerCase?.() || "";
+                            const features = Array.isArray(plan?.features) ? [...plan.features] : [];
+
+                            const ensureFeature = (label) => {
+                                if (!features.some((feature) => feature?.text?.toLowerCase?.() === label.toLowerCase())) {
+                                    features.push({ text: label });
+                                }
+                            };
+
+                            if (normalizedTitle === "growth") {
+                                ensureFeature("Multilingual");
+                            }
+
+                            if (normalizedTitle === "starter") {
+                                ensureFeature("English or Spanish Compatible");
+                            }
+
+                            return {
+                                ...plan,
+                                features,
+                            };
+                        }) || [];
                         const monthly = [];
                         const quarterly = [];
                         const yearly = [];

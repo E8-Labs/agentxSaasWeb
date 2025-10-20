@@ -64,6 +64,7 @@ export default function AddMonthlyPlan({
 
   //agency features
   const [features, setFeatures] = useState({
+    allowLanguageSelection: false,
     toolsActions: false,
     calendars: false,
     liveTransfer: false,
@@ -79,8 +80,35 @@ export default function AddMonthlyPlan({
   //custom featurs
   const [customFeatures, setCustomFeatures] = useState([]);
 
+  const resolveLanguageLabel = (languageValue, languageTitle) => {
+    if (typeof languageTitle === "string" && languageTitle.trim().length > 0) {
+      return languageTitle.trim();
+    }
+
+    if (typeof languageValue !== "string") {
+      return "";
+    }
+
+    const normalized = languageValue.trim().toLowerCase();
+
+    if (normalized === "multilingual") {
+      return "Multilingual";
+    }
+
+    if (normalized === "english" || normalized === "english or spanish") {
+      return "English or Spanish";
+    }
+
+    return languageValue;
+  };
+
   //features list
   const featuresList = [
+    {
+      label: "Multilingual",
+      tooltip: "Allow the agents to switch between languages in the same conversation",
+      stateKey: "allowLanguageSelection",
+    },
     {
       label: "Tools & Actions",
       tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
@@ -165,8 +193,7 @@ export default function AddMonthlyPlan({
       });
     }
 
-    const languageLabel = typeof configurationData?.language === 'string' ? configurationData?.language : '';
-    console.log("Language label is", languageLabel);
+    const languageLabel = resolveLanguageLabel(configurationData?.language, configurationData?.languageTitle);
 
     if (languageLabel) {
       extraFeatures.push({
@@ -284,6 +311,12 @@ export default function AddMonthlyPlan({
     setCustomFeatures(configurationData?.customFeatures || []);
     const dynamicFeatures = configurationData?.features;
     setFeatures({
+      allowLanguageSelection:
+        dynamicFeatures?.allowLanguageSelection ??
+        dynamicFeatures?.allowLanguageSwitch ??
+        (typeof configurationData?.language === "string"
+          ? configurationData.language.toLowerCase() === "multilingual"
+          : false),
       toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
       calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
       liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,

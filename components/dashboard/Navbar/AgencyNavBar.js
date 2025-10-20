@@ -293,7 +293,7 @@ const AgencyNavBar = () => {
       uneselected: "/agencyNavbarIcons/unSelectedSubAccountIcon.png",
     }, {
       id: 5,
-      name: "Activity Logs",
+      name: "Activity",
       href: "/agency/dashboard/callLogs",
       selected: "/agencyNavbarIcons/callLogSel.png",
       uneselected: "/agencyNavbarIcons/callLogUnSel.png",
