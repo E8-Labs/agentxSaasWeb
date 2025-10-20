@@ -631,7 +631,8 @@ export default function PlanConfiguration({
             const LD = JSON.parse(localData);
             const dynamicFeatures = LD?.user?.planCapabilities || {};
             const planType = LD?.user?.plan?.type?.toLowerCase?.() || "";
-            const canUseMultilingual = planType === "growth" || planType === "scale";
+            const canUseMultilingual =
+                planType.includes("growth") || planType.includes("scale");
 
             setAgencyAllowedFeatures({
                 allowLanguageSelection: canUseMultilingual,

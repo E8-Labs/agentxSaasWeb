@@ -105,7 +105,7 @@ export default function AddMonthlyPlan({
   //features list
   const featuresList = [
     {
-      label: "Multilingual",
+      label: "Multilingual Compatible",
       tooltip: "Allow the agents to switch between languages in the same conversation",
       stateKey: "allowLanguageSelection",
     },

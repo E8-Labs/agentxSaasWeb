@@ -211,9 +211,9 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                     features.push({ text: label });
                                 }
                             };
-
+                            // TODO: Replace this when the language features are added to the API response
                             if (normalizedTitle === "growth") {
-                                ensureFeature("Multilingual");
+                                ensureFeature("Multilingual Compatible");
                             }
 
                             if (normalizedTitle === "starter") {
