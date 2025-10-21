@@ -152,6 +152,12 @@ const AgencySupportAndWidget = () => {
         billingAndSupport: true,
         billingAndSupportUrl: billingAndSupport,
       }
+    } else if (from === "resourceHub") {
+      setAddResourceHubLoader(true);
+      return {
+        resourceHub: true,
+        resourceHubUrl: resourceHub,
+      }
     }
   }
 
@@ -188,6 +194,12 @@ const AgencySupportAndWidget = () => {
         billingAndSupport: false,
         billingAndSupportUrl: "",
       }
+    } else if (from === "resourceHubDel") {
+      setDelResourceHubLoader(true);
+      return {
+        resourceHub: false,
+        resourceHubUrl: "",
+      }
     }
   }
 
@@ -209,6 +221,10 @@ const AgencySupportAndWidget = () => {
     } else if (editTitleIndex === 3) {
       return {
         billingAndSupportTitle: showEditModalTitle,
+      }
+    } else if (editTitleIndex === 4) {
+      return {
+        resourceHubTitle: showEditModalTitle,
       }
     }
   }
@@ -236,7 +252,14 @@ const AgencySupportAndWidget = () => {
       console.log("Response of user settings api is", response);
       if (response) {
         if (response.data.status === true) {
-          setShowSnackMessage("Link updated");
+          // if (from?.endsWith("Del")) {
+          //   setShowSnackMessage("Deleted Widget");
+          // } else 
+          if (from?.endsWith("UpdateTitle")) {
+            setShowSnackMessage("Title updated");
+          } else {
+            setShowSnackMessage("Link updated");
+          }
           setShowSnackType(SnackbarTypes.Success);
           setAddSuportWebCalendar(false);
           setAddSky(false);
@@ -272,6 +295,8 @@ const AgencySupportAndWidget = () => {
     setDelHireTeamLoader(false);
     setDelBillingAndSupportLoader(false);
     setShowEditModalLoader(false);
+    setAddResourceHubLoader(false);
+    setDelResourceHubLoader(false);
   }
 
   return (

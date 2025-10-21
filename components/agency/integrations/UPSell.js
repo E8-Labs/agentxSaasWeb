@@ -66,8 +66,8 @@ const UPSell = () => {
                 console.log("response of get user settings api is", response)
                 const Data = response?.data?.data;
                 setPhonePrice(Data?.phonePrice || "");
-                setDncPrice(settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03);
-                setPerplexityEnrichmentPrice(settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05);
+                setDncPrice(Data?.dncPrice || "");
+                setPerplexityEnrichmentPrice(Data?.enrichmentPrice || "");
                 setSettingsData(Data);
                 setAllowUpSellPhone(Data?.upsellPhoneNumber);
                 setAllowDNC(Data?.upsellDnc);
@@ -178,6 +178,9 @@ const UPSell = () => {
                     setShowSnackType(SnackbarTypes.Error);
                 }
                 handleResetLoaders();
+                if (from?.endsWith("Del")) {
+                    resetInputFields(from, response.data.data);
+                }
             }
         }
         catch (error) {
@@ -194,6 +197,19 @@ const UPSell = () => {
         setDelPhoneLoader(false);
         setDelDNCLoader(false);
         setDelPerplexityEnrichmentLoader(false);
+    }
+
+    //reset input fields
+    const resetInputFields = (from, data) => {
+        if (from === "phonePriceDel") {
+            setPhonePrice(data?.phonePrice);
+        } else if (from === "dncPriceDel") {
+            // setDelDNCLoader(true);
+            setDncPrice(data?.dncPrice);
+        } else if (from === "enrichmentPriceDel") {
+            // setDelPerplexityEnrichmentLoader(true);
+            setPerplexityEnrichmentPrice(data?.enrichmentPrice);
+        }
     }
 
     return (
@@ -364,7 +380,7 @@ const UPSell = () => {
                                         settingsData?.dncPrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${(settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03).toFixed(2)}
+                                                    Your cost is ${settingsData?.dncPrice.toFixed(2)}
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddDNC(true);
@@ -465,7 +481,7 @@ const UPSell = () => {
                                         settingsData?.enrichmentPrice && (
                                             <div className='flex flex-row items-center justify-between w-full mt-2'>
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${(settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05).toFixed(2)}/mo for each enrichmen
+                                                    Your cost is ${settingsData?.enrichmentPrice.toFixed(2)}/mo for each enrichmen
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddPerplexityEnrichment(true);

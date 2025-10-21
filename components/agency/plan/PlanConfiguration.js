@@ -186,7 +186,8 @@ export default function PlanConfiguration({
             .filter(item => features[item.stateKey])
             .map(item => ({
                 id: item.stateKey,
-                text: item.label,
+                // text: item.label,
+                text: item.label === "Multilingual" ? "Multilingual Compatible" : item.label,
             }));
 
 
@@ -630,12 +631,12 @@ export default function PlanConfiguration({
         if (localData) {
             const LD = JSON.parse(localData);
             const dynamicFeatures = LD?.user?.planCapabilities || {};
-            const planType = LD?.user?.plan?.type?.toLowerCase?.() || "";
+            const planType = LD?.user?.plan?.title?.toLowerCase?.() || "";
             const canUseMultilingual =
                 planType.includes("growth") || planType.includes("scale");
 
             setAgencyAllowedFeatures({
-                allowLanguageSelection: canUseMultilingual,
+                allowLanguageSelection: dynamicFeatures?.allowLanguageSelection,
                 toolsActions: dynamicFeatures?.allowToolsAndActions,
                 calendars: dynamicFeatures?.allowCalendarIntegration,
                 liveTransfer: dynamicFeatures?.allowLiveCallTransfer,

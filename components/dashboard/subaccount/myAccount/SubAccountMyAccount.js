@@ -189,7 +189,7 @@ function SubAccountMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 6;
+    let number = Number(tab) || 5;
     // //console.log;
     const userData = localStorage.getItem("User");
     if (userData) {
@@ -198,7 +198,7 @@ function SubAccountMyAccount() {
     }
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(6);
+      setParamsInSearchBar(5);
     }
   }, []);
 
