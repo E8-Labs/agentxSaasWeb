@@ -701,8 +701,8 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                                                                     <Image
                                                                                                         src="/otherAssets/infoLightDark.png"
                                                                                                         alt="info"
-                                                                                                        width={14}
-                                                                                                        height={14}
+                                                                                                        width={12}
+                                                                                                        height={12}
                                                                                                         className="cursor-pointer rounded-full"
                                                                                                     />
                                                                                                 </Tooltip>

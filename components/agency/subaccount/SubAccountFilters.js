@@ -117,7 +117,7 @@ const SubAccountFilters = ({
                         <div className="flex flex-row gap-2 mt-2">
                             {/* MinBalance */}
                             <div className="w-1/2">
-                                <label style={styles.regular}>Min Balance</label>
+                                <label style={styles.regular}>Min Credits</label>
                                 <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
                                     <input
                                         style={styles.inputs}
@@ -135,7 +135,7 @@ const SubAccountFilters = ({
 
                             {/* MaxBalance*/}
                             <div className="w-1/2">
-                                <label style={styles.regular}>Max Balance</label>
+                                <label style={styles.regular}>Max Credits</label>
                                 <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
                                     <input
                                         style={styles.inputs}

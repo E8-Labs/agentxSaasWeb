@@ -1002,7 +1002,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     cursor: "pointer",
                                 }}
                             >
-                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={15} height={15} className="cursor-pointer rounded-full"
                                 // onClick={() => setIntroVideoModal2(true)}
                                 />
                             </div>

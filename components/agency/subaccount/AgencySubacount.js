@@ -28,6 +28,7 @@ import SubAccountFilters from "./SubAccountFilters";
 import { useUser } from "@/hooks/redux-hooks";
 import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
 import getProfileDetails from "@/components/apis/GetProfile";
+import { formatFractional2 } from "../plan/AgencyUtilities";
 
 
 function AgencySubacount({
@@ -451,15 +452,22 @@ function AgencySubacount({
   };
 
   const fetchProfileData = async () => {
-    const profileResponse = await getProfileDetails();
-    if (profileResponse) {
-      console.log("habibi twilio status is", profileResponse?.data?.data?.isTwilioConnected);
-      if (profileResponse?.data?.data?.isTwilioConnected) {
-        setNoTwillio(false);
-      } else {
-        setNoTwillio(true);
-        // setUserProfile(profileResponse.data.data);
+    try {
+      setInitialLoader(true);
+      const profileResponse = await getProfileDetails();
+      if (profileResponse) {
+        console.log("habibi twilio status is", profileResponse?.data?.data?.isTwilioConnected);
+        if (profileResponse?.data?.data?.isTwilioConnected) {
+          setNoTwillio(false);
+        } else {
+          setNoTwillio(true);
+          // setUserProfile(profileResponse.data.data);
+        }
+        setInitialLoader(false);
       }
+    } catch (err) {
+      setInitialLoader(false);
+      console.log("Err occured in get profile at subacc screen is", err)
     }
   }
 
@@ -755,7 +763,7 @@ function AgencySubacount({
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       {/* (item.LeadModel?.phone) */}
-                      <div style={styles.text2}>${item.totalSpend || 0}</div>
+                      <div style={styles.text2}>${formatFractional2(item.totalSpend || 0)}</div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>

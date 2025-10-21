@@ -46,7 +46,7 @@ const TwillioWarning = ({
                                 }}
                             >
                                 {/* <div style={{ width: "20%" }} /> */}
-                                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                                <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Heads Up!
                                 </div>
                                 <div
@@ -61,7 +61,7 @@ const TwillioWarning = ({
                             </div>
 
                             <div className="mt-6">
-                                <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                <div style={{ fontWeight: "600", fontSize: 17 }}>
                                     Add your Twilio API Keys to start calls.
                                 </div>
                             </div>

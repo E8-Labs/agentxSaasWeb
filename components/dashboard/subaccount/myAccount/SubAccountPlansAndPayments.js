@@ -1422,7 +1422,7 @@ function SubAccountPlansAndPayments({
                                                                                 cursor: "pointer",
                                                                             }}
                                                                         >
-                                                                            <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                                                                            <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={12} height={12} className="cursor-pointer rounded-full"
                                                                             />
                                                                         </div>
                                                                     </Tooltip>

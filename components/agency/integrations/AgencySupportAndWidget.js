@@ -54,6 +54,14 @@ const AgencySupportAndWidget = () => {
   const [delBillingAndSupportLoader, setDelBillingAndSupportLoader] = useState(false);
   const [isInValidUrlBillingAndSupport, setIsInValidUrlBillingAndSupport] = useState(false);
   const [billingAndSupportTitle, setBillingAndSupportTitle] = useState("");
+  //resource hub
+  const [allowResourceHub, setAllowResourceHub] = useState(false);
+  const [addResourceHub, setAddResourceHub] = useState(false);
+  const [addResourceHubLoader, setAddResourceHubLoader] = useState(false);
+  const [resourceHub, setResourceHub] = useState("");
+  const [delResourceHubLoader, setDelResourceHubLoader] = useState(false);
+  const [isInValidUrlResourceHub, setIsInValidUrlResourceHub] = useState(false);
+  const [resourceHubTitle, setResourceHubTitle] = useState("");
   //initial loader
   const [initialLoader, setInitialLoader] = useState(false);
   //edit title modal states
@@ -101,6 +109,9 @@ const AgencySupportAndWidget = () => {
         setFeedBackTitle(Data?.giveFeedbackTitle);
         setHireTeamTitle(Data?.hireTeamTitle);
         setBillingAndSupportTitle(Data?.billingAndSupportTitle);
+        setAllowResourceHub(Data?.resourceHub || false);
+        setResourceHub(Data?.resourceHubUrl || "");
+        setResourceHubTitle(Data?.resourceHubTitle);
       }
     } catch (err) {
       console.log("Error occured in api is", err);
@@ -847,7 +858,7 @@ const AgencySupportAndWidget = () => {
                   }
                 </div>
               </div>
-              <div>
+              <div className='border-b'>
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
                     <div className='flex flex-row items-center gap-2'>
@@ -987,6 +998,172 @@ const AgencySupportAndWidget = () => {
                               disabled={isInValidUrlBillingAndSupport || !billingAndSupport}
                             >
                               {isInValidUrlBillingAndSupport ? "Invalid URL" : "Save"}
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+
+                  <EditTitleModal
+                    open={showEditModal}
+                    handleClose={() => {
+                      setShowEditModal(false);
+                    }}
+                    title={showEditModalTitle}
+                    setTitle={setShowEditModalTitle}
+                    loader={showEditModalLoader}
+                    setLoader={setShowEditModalLoader}
+                    handleSave={() => {
+                      setShowEditModalLoader(true);
+                      handleUserSettings(`${showEditModalTitle}UpdateTitle`);
+                      // setShowEditModalLoader(false);
+                      // setShowEditModal(false);
+                    }}
+                  />
+
+                </div>
+              </div>
+              <div>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
+                    <div className='flex flex-row items-center gap-2'>
+                      <div style={styles.subHeading}>
+                        {settingsData?.resourceHubTitle || "Resource Hub"}
+                      </div>
+                      <Tooltip
+                        title="Allow your users to get help with Resource Hub."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#ffffff", // Ensure white background
+                              color: "#333", // Dark text color
+                              fontSize: "16px",
+                              fontWeight: '500',
+                              padding: "10px 15px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: "#ffffff", // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <Image src={"/svgIcons/infoIcon.svg"}
+                          height={16} width={16} alt="*"
+                        />
+                      </Tooltip>
+                      <button onClick={() => {
+                        setEditTitleIndex(4);
+                        setShowEditModal(true);
+                        setShowEditModalTitle(resourceHubTitle);
+                      }}>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={14}
+                          width={14}
+                        />
+                      </button>
+                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                      {
+                        delResourceHubLoader ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          settingsData?.resourceHubTitle && (
+                            <Switch
+                              checked={allowResourceHub}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowResourceHub(checked);
+
+                                if (allowResourceHub === false) {
+                                  setAddResourceHub(true);
+                                } else {
+                                  if (settingsData?.resourceHubUrl) {
+                                    handleUserSettings("resourceHubDel")
+                                  } else {
+                                    setResourceHub("");
+                                    setAddResourceHub(false);
+                                  }
+                                }
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                  backgroundColor: '#7902DF',
+                                },
+                              }}
+                            />
+                          )
+                        )
+                      }
+                    </div>
+                  </div>
+                  {
+                    settingsData?.resourceHubUrl && (
+                      <div className='flex flex-row items-center justify-between w-full mt-2'>
+                        <div style={styles.subHeading}>
+                          URL: {settingsData?.resourceHubUrl || ""}
+                        </div>
+                        <button className="flex flex-row items-center gap-2" onClick={() => {
+                          setAddResourceHub(true);
+                        }}>
+                          <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                          <Image
+                            alt="*"
+                            src={"/assets/editPen.png"}
+                            height={16}
+                            width={16}
+                          />
+                        </button>
+                      </div>
+                    )
+                  }
+                  {
+                    addResourceHub && (
+                      <div className="flex flex-row items-center justify-center gap-2 mb-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your URL"
+                            value={resourceHub}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              const validUrl = isValidUrl(value);
+                              setResourceHub(value);
+                              setTimeout(() => {
+                                if (value && !validUrl) {
+                                  setIsInValidUrlResourceHub(true);
+                                } else {
+                                  setIsInValidUrlResourceHub(false);
+                                }
+                              }, 400);
+                            }}
+                          />
+                        </div>
+                        {
+                          addResourceHubLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { handleUserSettings("resourceHub") }}
+                              className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlResourceHub || !resourceHub ? "bg-btngray text-black" : "bg-purple text-white"}`}
+                              style={{ fontSize: "15px", fontWeight: "500" }}
+                              disabled={isInValidUrlResourceHub || !resourceHub}
+                            >
+                              {isInValidUrlResourceHub ? "Invalid URL" : "Save"}
                             </button>
                           )
                         }
