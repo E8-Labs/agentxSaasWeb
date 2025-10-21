@@ -41,7 +41,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   const [searchValue, setSearchValue] = useState("");
 
-  const [activeTab, setActiveTab] = useState(isFromAgency ? "All Activities" : "All Calls");
+  const [activeTab, setActiveTab] = useState("All Activities");
 
 
   const [callDetails, setCallDetails] = useState([]);
@@ -386,7 +386,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           className="pl-10 mt-5"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
-          {isFromAgency ? "Activity Logs" : "Call Logs"}
+          {"Activities"}
         </div>
         {
           !selectedAgency && (
@@ -592,7 +592,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                           <div style={styles.text}>Time</div>
                         </div>
                       */}
-                      <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
+                      <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                         <div style={styles.text}>More</div>
                       </div>
                     </div>
@@ -679,7 +679,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
+                            <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                               <button
                                 onClick={() => {
                                   setselectedLeadsDetails(item);

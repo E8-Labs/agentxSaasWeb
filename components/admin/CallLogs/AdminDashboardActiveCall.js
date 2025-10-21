@@ -12,7 +12,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { getReadableStatus } from "@/utilities/UserUtility";
 
-function AdminDashboardActiveCall({ isFromAgency }) {
+function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
   const Limit = 30;
   const LimitPerPage = 20;
   const [user, setUser] = useState(null);
@@ -76,10 +76,9 @@ function AdminDashboardActiveCall({ isFromAgency }) {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    // //console.log;
-    // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
+
   };
 
   const handleClosePopup = () => {
@@ -95,11 +94,12 @@ function AdminDashboardActiveCall({ isFromAgency }) {
     // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
-    // setSelectedLeadsList([]);
-    // setFilteredSelectedLeadsList([]);
+    setSelectedLeadsList([]);
+    setFilteredSelectedLeadsList([]);
+    setHasMoreLeads(true);
     setShowLeadDetailsModal(true);
+    fetchLeadsInBatch(item);
   };
-
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
@@ -133,7 +133,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
       const formattedDate = startTime.format('MMM DD');
       return `Scheduled - ${formattedDate}`;
     } else {
-      return getReadableStatus(item.status); 
+      return getReadableStatus(item.status);
     }
 
     // Return the regular readable status for past or current calls
@@ -422,34 +422,39 @@ function AdminDashboardActiveCall({ isFromAgency }) {
     }
   };
 
-  const fetchLeadsInBatch = async (batch) => {
+
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstCall = false;
+      let firstApiCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
       if (selectedLeadsList.length == 0) {
-        firstCall = false;
+        firstApiCall = true;
         if (leadsInBatchLocalData) {
           //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
           //console.log;
-          setSelectedLeadsList(leads);
-          setFilteredSelectedLeadsList(leads);
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
           //console.log;
         }
+      } else {
+        //console.log;
       }
 
       const token = user.token; // Extract JWT token
-
-      const response = await fetch(
-        "/api/calls/leadsInABatch" +
-        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
+      console.log(
+        "Api Call Leads : ",
+       path
+      );
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -470,7 +475,8 @@ function AdminDashboardActiveCall({ isFromAgency }) {
         //   JSON.stringify(data.data)
         // );
 
-        if (firstCall) {
+        console.log("Response of leads list detail", data.data)
+        if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
           localStorage.setItem(
@@ -491,13 +497,12 @@ function AdminDashboardActiveCall({ isFromAgency }) {
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error("Failed to fetch leads in batch:", data);
       }
     } catch (error) {
       console.error("Error fetching leads in batch:", error);
     }
   };
-
   const fetchCallsInBatch = async (batch) => {
     //console.log;
     try {
@@ -637,9 +642,8 @@ function AdminDashboardActiveCall({ isFromAgency }) {
           <button
             className="text-start outline-none"
             onClick={() => {
-              setShowDetailsModal(true);
-              setHasMoreCalls(true);
-              fetchCallsInBatch(SelectedItem);
+                handleShowLeads(SelectedAgent, SelectedItem)
+
               // handleShowDetails();
             }}
           >
@@ -890,8 +894,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
                                     onClick={() => {
-                                      fetchLeadsInBatch(item);
-                                      handleShowLeads(agent, item);
+                                       handleShowLeads(agent, item);
                                     }}
                                   >
                                     {item?.totalLeads}
@@ -1392,7 +1395,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                         </div>
                       ) : !leadsLoading ? (
                         <div className="text-center mt-6 text-3xl">
-                          No Call Found
+                          No Activities Found
                         </div>
                       ) : (
                         <div className="text-center mt-6 text-3xl">

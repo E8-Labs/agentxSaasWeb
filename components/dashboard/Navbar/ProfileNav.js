@@ -1344,15 +1344,7 @@ const ProfileNav = () => {
               </div>
 
               {/* Socket Connection Status Indicator */}
-              <div className="absolute top-2 right-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${socketStatus === 'connected' ? 'bg-green-500' :
-                    socketStatus === 'connecting' ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`}
-                  title={`Socket: ${socketStatus}`}
-                />
-              </div>
+             
             </Link>
 
 

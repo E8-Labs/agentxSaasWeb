@@ -32,7 +32,7 @@ function AdminCallLogs({ selectedUser }) {
             needHelp={false} />
         </div>
         <div style={{ fontSize: 24, fontWeight: '600' }}>
-          Call Log
+        Activity
         </div>
 
       </div>
