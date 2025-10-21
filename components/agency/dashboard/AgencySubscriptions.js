@@ -938,7 +938,7 @@ function AgencySubscriptions({
                   color: "#000",
                 }}
               >
-                Customer Lifetime Value
+              Monthly Recurring Revenue
               </div>
             </div>
 

@@ -1070,7 +1070,7 @@ function AdminSubscriptions() {
                   <div
                     style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
                   >
-                   Total Referrals
+                    Total Referrals
                   </div>
                 </div>
 
@@ -1141,7 +1141,7 @@ function AdminSubscriptions() {
                 color: "#000",
               }}
             >
-              Customer Lifetime Value
+              Monthly Recurring Revenue
             </div>
           </div>
 
@@ -1351,7 +1351,7 @@ function AdminSubscriptions() {
                     marginTop: 20,
                   }}
                 >
-                  <div style={{ fontWeight: "500", fontSize: 14,}}>
+                  <div style={{ fontWeight: "500", fontSize: 14, }}>
                     End Date
                   </div>
                   <div className="mt-5">
