@@ -11,6 +11,7 @@ import Image from "next/image";
 import { formatDecimalValue, handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
 import SubDuration from "./SubDuration";
 import SideUI from "./SideUI";
+import { formatFractional2 } from "./AgencyUtilities";
 
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
@@ -388,16 +389,16 @@ export default function AddMonthlyPlan({
   };
 
   // Format numeric strings with two decimals without discarding whole number part
-  const formatFractional2 = (raw) => {
-    if (raw === null || raw === undefined || raw === "") {
-      return "";
-    }
-    const num = Number(raw);
-    if (Number.isNaN(num)) {
-      return "";
-    }
-    return num.toFixed(2);
-  };
+  // const formatFractional2 = (raw) => {
+  //   if (raw === null || raw === undefined || raw === "") {
+  //     return "";
+  //   }
+  //   const num = Number(raw);
+  //   if (Number.isNaN(num)) {
+  //     return "";
+  //   }
+  //   return num.toFixed(2);
+  // };
 
 
   //handle next

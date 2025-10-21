@@ -1512,7 +1512,7 @@ function UpgradePlanContent({
                                             Total:
                                         </div>
                                         <div className=" text-3xl font-semibold  ">
-                                            {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
+                                            {currentSelectedPlan ? `$${formatFractional2(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice))}` : "$0"}
                                         </div>
                                     </div>
                                 </div>

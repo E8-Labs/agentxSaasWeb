@@ -28,6 +28,7 @@ import AgentSelectSnackMessage, {
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 import moment from "moment";
 import { getNextChargeDate } from "@/components/userPlans/UserPlanServices";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 // import Apis from '../Apis/Apis';
 
 const AgencyAddCard = ({
@@ -325,11 +326,11 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice);
+            return "$" + formatFractional2(selectedPlan.originalPrice);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + formatDecimalValue((selectedPlan.originalPrice * 3));
+            return "$" + formatFractional2((selectedPlan.originalPrice * 3));
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + formatDecimalValue((selectedPlan.originalPrice * 12));
+            return "$" + formatFractional2((selectedPlan.originalPrice * 12));
         } else {
             return "-";
         }
@@ -687,7 +688,7 @@ const AgencyAddCard = ({
                                 */}
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: ${(selectedPlan?.originalPrice * 12)?.toLocaleString()}</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>${formatDecimalValue(selectedPlan?.originalPrice)}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>${formatFractional2(selectedPlan?.originalPrice)}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">
