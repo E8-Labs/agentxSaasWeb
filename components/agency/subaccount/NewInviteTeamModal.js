@@ -400,7 +400,7 @@ const NewInviteTeamModal = ({
                                                     {index > 0 && (
                                                         <button
                                                             onClick={() => handleRemoveMember(index)}
-                                                            className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
+                                                            className="text-red-500 hover:text-black text-sm ms-2 text-bold"
                                                         >
                                                             ✕
                                                         </button>

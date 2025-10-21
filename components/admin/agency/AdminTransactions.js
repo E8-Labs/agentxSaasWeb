@@ -161,12 +161,9 @@ function AdminTransactions() {
               <div className="text-sm text-gray-600">Total Amount</div>
               <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalAmount)}</div>
             </div>
+            
             <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-sm text-gray-600">Agency Net</div>
-              <div className="text-2xl font-bold text-blue-600">{formatCurrency(summary.totalAgencyNet)}</div>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-sm text-gray-600">Platform Fees</div>
+              <div className="text-sm text-gray-600">Collected Total </div>
               <div className="text-2xl font-bold text-purple-600">{formatCurrency(summary.totalPlatformFees)}</div>
             </div>
           </div>
@@ -270,7 +267,7 @@ function AdminTransactions() {
             {/* Search */}
             <Input
               type="text"
-              placeholder="Search agency or subaccount..."
+              placeholder="Search by agency name, agency owner name and subaccount name."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className="col-span-2"
@@ -320,7 +317,7 @@ function AdminTransactions() {
                   onClick={() => {
                     // TODO: Redirect to subaccount details
                     console.log('Navigate to subaccount:', transaction.subaccountId);
-                    setSelectedSubAccount(transaction)
+                    // setSelectedSubAccount(transaction)
                   }}
                 >
                   {transaction.subaccountName}

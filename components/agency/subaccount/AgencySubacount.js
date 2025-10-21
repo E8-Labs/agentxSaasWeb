@@ -19,6 +19,7 @@ import CreateSubAccountModal from "./CreateSubAccountModal";
 import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
 import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
+import ViewSubAccountXBar from "./ViewSubAccountXBar";
 import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
@@ -46,6 +47,8 @@ function AgencySubacount({
   const [openInvitePopup, setOpenInvitePopup] = useState(false);
   //code for show plans
   const [showPlans, setShowPlans] = useState(false);
+  //code for show XBar plans
+  const [showXBarPlans, setShowXBarPlans] = useState(false);
   const [userData, setUserData] = useState(null);
 
   //snack msages
@@ -91,6 +94,7 @@ function AgencySubacount({
   const { user: reduxUser, setUser: setReduxUser } = useUser();
   //twilio warning modal
   const [noTwillio, setNoTwillio] = useState(false);
+  const [showXBarPopup, setShowXBarPopup] = useState(false);  
 
   //redux data
   useEffect(() => {
@@ -157,30 +161,33 @@ function AgencySubacount({
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
+      getLocalData();
       //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan(selectedAgency);
       const xBarOptions = await getXBarOptions(selectedAgency);
       let stripeStatus = null;
-      if (selectedAgency) {
-        stripeStatus = selectedAgency.stripeConnected
-      } else {
-        stripeStatus = CheckStripe();
-      }
-
-      if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
-        setShowModal(true);
-      } else {
-        setShowSnackType(SnackbarTypes.Error);
-        if (monthlyPlans.length === 0) {
-          setShowSnackMessage("You'll need to add plans to create subaccounts ");
-        } else if (xBarOptions.length === 0) {
-          setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
-        } else if (!stripeStatus) {
-          setShowSnackMessage("You're Stripe account has not been connected.");
-        } else if (agencyData?.isTwilioConnected === false) {
-          setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+      setTimeout(() => {
+        if (selectedAgency) {
+          stripeStatus = selectedAgency.stripeConnected
+        } else {
+          stripeStatus = CheckStripe();
         }
-      }
+
+        if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
+          setShowModal(true);
+        } else {
+          setShowSnackType(SnackbarTypes.Error);
+          if (monthlyPlans.length === 0) {
+            setShowSnackMessage("You'll need to add plans to create subaccounts ");
+          } else if (xBarOptions.length === 0) {
+            setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+          } else if (!stripeStatus) {
+            setShowSnackMessage("You're Stripe account has not been connected.");
+          } else if (agencyData?.isTwilioConnected === false) {
+            setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+          }
+        }
+      }, 100);
 
     } catch (error) {
       console.error("Error occured in api is", error);
@@ -847,6 +854,16 @@ function AgencySubacount({
                         >
                           View Plans
                         </button>
+
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowXBarPlans(true);
+                            handleClosePopover();
+                          }}
+                        >
+                          View XBar
+                        </button>
                         <button
                           className="px-4  hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
@@ -932,6 +949,22 @@ function AgencySubacount({
                       setShowSnackType(SnackbarTypes.Success);
                     }
                     setShowPlans(false)
+                  }}
+                  selectedUser={userData}
+                />
+              )
+            }
+
+            {
+              showXBarPlans && (
+                <ViewSubAccountXBar
+                  showXBar={showXBarPlans}
+                  hideXBar={(d) => {
+                    if (d) {
+                      setShowSnackMessage("XBar Plans Updated");
+                      setShowSnackType(SnackbarTypes.Success);
+                    }
+                    setShowXBarPlans(false)
                   }}
                   selectedUser={userData}
                 />

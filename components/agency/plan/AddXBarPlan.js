@@ -28,6 +28,7 @@ export default function AddXBarPlan({
   const [minutes, setMinutes] = useState("");
   const [addPlanLoader, setAddPlanLoader] = useState(false);
   const [minCostErr, setMinCostErr] = useState(false);
+  const [isDefaultPlan, setIsDefaultPlan] = useState(false);
 
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
@@ -53,6 +54,7 @@ export default function AddXBarPlan({
         setDiscountedPrice(OriginalPrice);
       }
       setMinutes(selectedPlan?.minutes);
+      setIsDefaultPlan(selectedPlan?.isDefault || false);
     }
   }, [selectedPlan]);
 
@@ -98,6 +100,7 @@ export default function AddXBarPlan({
     setOriginalPrice("")
     setDiscountedPrice("")
     setMinutes("")
+    setIsDefaultPlan(false)
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
@@ -127,6 +130,7 @@ export default function AddXBarPlan({
         formData.append("percentageDiscount", 0)
       }
       formData.append("minutes", minutes);
+      formData.append("isDefault", isDefaultPlan);
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key} = ${value}`);
@@ -198,6 +202,7 @@ export default function AddXBarPlan({
         100 - (originalPrice / discountedPrice) * 100
       );
       formData.append("minutes", minutes);
+      formData.append("isDefault", isDefaultPlan);
 
       const response = await axios.put(url, formData, {
         headers: {
@@ -503,6 +508,25 @@ export default function AddXBarPlan({
                       setMinutes(valid);
                     }}
                   />
+
+                  {/* Default Plan Toggle */}
+                  <div className="flex flex-row items-center justify-between mb-4">
+                    <label style={styles.labels}>Default Xbar Option</label>
+                    <Switch
+                      checked={isDefaultPlan}
+                      onChange={(e) => setIsDefaultPlan(e.target.checked)}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#7902DF',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#7902DF',
+                        },
+                      }}
+                    />
+                  </div>
+
+                
                 </div>
 
 
@@ -552,6 +576,7 @@ export default function AddXBarPlan({
             originalPrice={originalPrice}
             discountedPrice={discountedPrice}
             minutes={minutes}
+            isDefaultPlan={isDefaultPlan}
           />
         </div>
       </Box>

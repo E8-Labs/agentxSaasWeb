@@ -263,7 +263,7 @@ const UPSell = () => {
                                         settingsData?.phonePrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.phonePrice || 0}/mo for each number
+                                                    Your cost is ${(settingsData?.phonePrice || 0).toFixed(2)}/mo for each number
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddUpSellPhone(true);
@@ -364,7 +364,7 @@ const UPSell = () => {
                                         settingsData?.dncPrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03}
+                                                    Your cost is ${(settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03).toFixed(2)}
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddDNC(true);
@@ -465,7 +465,7 @@ const UPSell = () => {
                                         settingsData?.enrichmentPrice && (
                                             <div className='flex flex-row items-center justify-between w-full mt-2'>
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05}
+                                                    Your cost is ${(settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05).toFixed(2)}/mo for each enrichmen
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddPerplexityEnrichment(true);

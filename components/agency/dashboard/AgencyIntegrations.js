@@ -12,6 +12,7 @@ import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning';
 import CustomNotifications from '../integrations/CustomNotifications';
 import Apis from '@/components/apis/Apis';
 import { UpdateProfile } from '@/components/apis/UpdateProfile';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 function AgencyIntegrations({ selectedAgency }) {
 
@@ -23,6 +24,11 @@ function AgencyIntegrations({ selectedAgency }) {
     const [agencyData, setAgencyData] = useState(null);
     //copy link loader
     const [copyLinkLoader, setCopyLinkLoader] = useState(false);
+    const [showSnackMessage, setShowSnackMessage] = useState({
+        type: SnackbarTypes.Error,
+        message: "",
+        isVisible: false
+    });
 
     //fetch local data
     useEffect(() => {
@@ -136,6 +142,14 @@ function AgencyIntegrations({ selectedAgency }) {
         //     width: "100%"
         // }}
         >
+            <AgentSelectSnackMessage
+                isVisible={showSnackMessage.isVisible}
+                hide={() => {
+                    setShowSnackMessage({ type: SnackbarTypes.Error, message: "", isVisible: false });
+                }}
+                message={showSnackMessage.message}
+                type={showSnackMessage.type}
+            />
             <div className='flex w-full flex-row items-center justify-between px-5 py-5 border-b'>
 
                 <div style={{
@@ -217,6 +231,11 @@ function AgencyIntegrations({ selectedAgency }) {
                             <button
                                 className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
                                 onClick={() => {
+                                    if(!agencyData?.twilio?.twilAuthToken){
+                                        setShowSnackMessage("Connect your Twilio first");
+                                        setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
+                                        return;
+                                    }
                                     if (agencyData?.plan?.title !== "Scale" && agencyData?.agencyOnboardingLink === null) {
                                         setShowCopyLinkWarning(true);
                                         upgradeProfile();

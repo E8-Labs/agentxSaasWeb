@@ -8,6 +8,7 @@ import moment from 'moment';
 import SelectedUserDetails from '../users/SelectedUserDetails';
 import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
 import { Searchbar } from '@/components/general/MuiSearchBar';
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities';
 
 
 function AdminAgencyDetails() {
@@ -133,8 +134,8 @@ function AdminAgencyDetails() {
                   <div style={styles.text2}>{item.subAccountsCount}</div>
                 </div>
                 <div className="w-1/12"><div style={styles.text2}>{item.plan.title}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>${Number(item.totalSpent).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} min</div></div>
+                <div className="w-1/12"><div style={styles.text2}>${formatFractional2(item.totalSpent)}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} credits</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{moment(item.renewal).format("MM/DD/YYYY")}</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{item.agentsCount}</div></div>
                 <div className="w-2/12">
