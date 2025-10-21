@@ -552,23 +552,30 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
                       {
-                        !isFromAgency && (
+                        !isFromAgency ? (
                           <div className="min-w-[200px] flex-shrink-0">
                             <div style={styles.text}>Agency Name</div>
                           </div>
+                        ) : (
+                          <div className="min-w-[200px] flex-shrink-0">
+                            <div style={styles.text}>Sub Account</div>
+                          </div>
                         )
                       }
-                      <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>List Name</div>
+                      <div className="w-[250px] flex-shrink-0">
+                        <div style={styles.text}>Name</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Agent Name</div>
+                        <div style={styles.text}>Agent</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0 ">
-                        <div style={styles.text}>Agent Number</div>
+                        <div style={styles.text}>Contact</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Contact Number</div>
+                        <div style={styles.text}>Pipeline</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Stage</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Type</div>
@@ -578,7 +585,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         <div style={styles.text}>Status</div>
                       </div>
                       <div className="min-w-[400px] flex-shrink-0">
-                        <div style={styles.text}>Date/Time</div>
+                        <div style={styles.text}>Date</div>
                       </div>
                       {/*
                         <div className="min-w-[200px] flex-shrink-0">
@@ -601,27 +608,28 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
                             {
-                              !isFromAgency && (
-                                <div className="min-w-[200px] flex-shrink-0">
+                              !isFromAgency ? (
+                                <div className="min-w-[200px] flex-shrink-0 capitalize">
                                   <div style={styles.text2}>
                                     {item.agency?.name || "AgentX Main Admin"}
                                   </div>
                                 </div>
+                              ) : (
+                                <div className="min-w-[200px] flex-shrink-0 capitalize">
+                                  <div style={styles.text2}>
+                                    {item.user?.name || "-"}
+                                  </div>
+                                </div>
                               )
                             }
-                            <div className="min-w-[200px] flex-shrink-0 flex flex-row gap-2 items-center">
-                              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                {item.user?.name?.slice(0, 1).toUpperCase()}
-                              </div>
-                              <div style={styles.text2}>
-                                {item.user?.name
-                                  ? item.user.name.length > 10
-                                    ? item.user.name.slice(0, 10) + "..."
-                                    : item.user.name
-                                  : ""}
+                            <div className="w-[250px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
+                              <div className="truncate w-full capitalize" style={styles.text2}>
+                                {
+                                  item.LeadModel?.firstName + " " + item.LeadModel?.lastName
+                                  || "-"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
                               <div style={styles.text2}>
                                 {item.agent?.name ? (
                                   <div>{item.agent.name}</div>
@@ -632,16 +640,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             </div>
                             <div className="min-w-[200px] flex-shrink-0 ">
                               <div style={styles.text2}>
-                                {item.agent?.phoneNumber ? (
-                                  <div>{item.agent.phoneNumber}</div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                            </div>
-                            <div className="min-w-[200px] flex-shrink-0">
-                              {/* (item.LeadModel?.phone) */}
-                              <div style={styles.text2}>
                                 {item.LeadModel?.phone ? (
                                   <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
                                 ) : (
@@ -650,28 +648,37 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                              <div style={styles.text2}>
+                                {item?.pipeline ? item?.pipeline?.title : "-"}
+                              </div>
+                            </div>
+                           
+
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                              <div style={styles.text2}>
+                                {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
+                              </div>
+                            </div>
+
+                             <div className="min-w-[200px] flex-shrink-0 capitalize">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0">
+
+                            <div className="min-w-[200px] flex-shrink-0 capitalize ">
                               <div style={styles.text2}>
-                                {item?.callOutcome ? item?.callOutcome : "Ongoing"}
+                                {item?.status ? item?.status : "-"}
                               </div>
                             </div>
+
                             <div className="min-w-[400px] flex-shrink-0">
                               <div style={styles.text2}>
                                 {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                               </div>
                             </div>
-                            {/*
-                              <div className="min-w-[200px] flex-shrink-0">
-                                <div style={styles.text2}>
-                                  
-                                </div>
-                              </div>
-                            */}
+
                             <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
                               <button
                                 onClick={() => {
@@ -698,7 +705,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         className="text-center mt-4"
                         style={{ fontWeight: "bold", fontSize: 20 }}
                       >
-                        No call log found
+                        No activities found
                       </div>
                     )}
                   </div>
@@ -984,7 +991,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             )}
 
           </div>
-        
+
         ) : "No Activities found"}
       </div>
     </div>

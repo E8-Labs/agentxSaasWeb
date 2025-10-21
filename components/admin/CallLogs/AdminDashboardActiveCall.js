@@ -10,7 +10,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
-// import { getReadableStatus } from "@/utilities/UserUtility";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
 function AdminDashboardActiveCall({ isFromAgency }) {
   const Limit = 30;
@@ -132,10 +132,11 @@ function AdminDashboardActiveCall({ isFromAgency }) {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
       return `Scheduled - ${formattedDate}`;
+    } else {
+      return getReadableStatus(item.status); 
     }
 
     // Return the regular readable status for past or current calls
-    // return getReadableStatus(item.status); 
   }
 
   //code to get agents
@@ -675,9 +676,6 @@ function AdminDashboardActiveCall({ isFromAgency }) {
         <div className="w-2/12">
           <div style={styles.text}>Agent</div>
         </div>
-        <div className="w-2/12">
-          <div style={styles.text}>List Name</div>
-        </div>
         <div className="w-1/12">
 
           <button className=""
@@ -720,6 +718,10 @@ function AdminDashboardActiveCall({ isFromAgency }) {
 
         </div>
         <div className="w-1/12">
+          <div style={styles.text}>List Name</div>
+        </div>
+
+        <div className="w-1/12 whitespace-nowrap">
           <button className=""
             onClick={() => {
 
@@ -882,11 +884,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                     )
                                   }</div>
                                 </div>
-                                <div className="w-2/12">
-                                  <div style={styles.text2}>
-                                    {item.Sheet?.sheetName || "-"}
-                                  </div>
-                                </div>
+
                                 <div className="w-1/12">
                                   <button
                                     style={styles.text2}
@@ -898,6 +896,11 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                   >
                                     {item?.totalLeads}
                                   </button>
+                                </div>
+                                <div className="w-1/12">
+                                  <div className="truncate" style={styles.text2}>
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
                                 </div>
                                 <div className="w-1/12">
                                   {item?.createdAt ? (
@@ -1438,9 +1441,9 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                   Other Tags
                 </div>
                 <div>
-                 <CloseBtn  onClick={() => {
+                  <CloseBtn onClick={() => {
                     setExtraTagsModal(false);
-                  }}/>
+                  }} />
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
@@ -1491,7 +1494,7 @@ export default AdminDashboardActiveCall;
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
+    color: "#000000",
     fontWeight: "500",
   },
   text2: {

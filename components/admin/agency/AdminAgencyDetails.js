@@ -91,7 +91,7 @@ function AdminAgencyDetails() {
         <div className="w-2/12"><div style={styles.text}>Sub Account</div></div>
         <div className="w-1/12"><div style={styles.text}>Plan</div></div>
         <div className="w-1/12"><div style={styles.text}>Total Spent</div></div>
-        <div className="w-1/12"><div style={styles.text}>Min Used</div></div>
+        <div className="w-1/12"><div style={styles.text}>Credits Used</div></div>
         <div className="w-1/12"><div style={styles.text}>Renewal</div></div>
         <div className="w-1/12"><div style={styles.text}>Agents</div></div>
         <div className="w-2/12"><div style={styles.text}>Created</div></div>
