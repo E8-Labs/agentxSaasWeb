@@ -657,15 +657,7 @@ const AdminLeadDetails = ({
 
     };
 
-    const handleCopy = async (id) => {
-        try {
-            await navigator.clipboard.writeText(id);
-            setShowSuccessSnack("Call ID copied to the clipboard.");
-            setShowSuccessSnack2(true);
-        } catch (err) {
-            console.error("Failed to copy: ", err);
-        }
-    };
+    
 
     const handleCopy = async (id) => {
         try {

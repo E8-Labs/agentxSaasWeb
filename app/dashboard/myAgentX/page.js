@@ -2981,29 +2981,15 @@ function Page() {
 
   // ////console.log
   const handleWebhookClick = (assistantId, baseUrl) => {
-    let url = baseUrl + "api/agent/demoAi/" + assistantId
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Webhook URL Copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
-  };
-
-  const handleWebhookClick = () => {
     if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle("Unlock your Web Agent")
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
     } else {
-
-      let modelId = showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""
-
-      let url = demoBaseUrl + "api/agent/demoAi/" + modelId
+      // Use provided parameters or fallback to defaults
+      let modelId = assistantId || showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""
+      let url = (baseUrl || demoBaseUrl) + "api/agent/demoAi/" + modelId
+      
       navigator.clipboard
         .writeText(url)
         .then(() => {
