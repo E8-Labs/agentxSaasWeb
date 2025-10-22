@@ -25,6 +25,7 @@ import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { checkReferralCode } from "@/components/userPlans/UserPlanServices";
 // import Apis from '../Apis/Apis';
 
 const AddCardDetails = ({
@@ -45,6 +46,7 @@ const AddCardDetails = ({
   ////console.log
 
   const [inviteCode, setInviteCode] = useState("");
+  const typingTimeout = useRef(null);
 
   const [addCardLoader, setAddCardLoader] = useState(false);
   const [credentialsErr, setCredentialsErr] = useState(false);
@@ -67,6 +69,10 @@ const AddCardDetails = ({
 
   //disable continue btn after the card added
   const [disableContinue, setDisableContinue] = useState(false);
+
+  //invite code loader
+  const [inviteCodeLoader, setInviteCodeLoader] = useState(false);
+  const [isValidCode, setIsValidCode] = useState("");
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -323,6 +329,42 @@ const AddCardDetails = ({
     Plan720Min: "Plan720",
   };
 
+  //invite code input field handle change
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setInviteCode(value);
+
+    // Clear any previous timeout
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    // Set a new timeout to run after 500ms of no typing
+    if (value.trim().length > 0) {
+      typingTimeout.current = setTimeout(() => {
+        isValidReferralCode(value);
+      }, 500);
+    } else {
+      setIsValidCode("");
+    }
+  };
+
+  //referal code chek
+  const isValidReferralCode = async (value) => {
+    console.log("Api data for invalid referral code", value.trim());
+    setInviteCodeLoader(true);
+    const response = await checkReferralCode(value.trim());
+    console.log("response of isvalidcode api is", response);
+    if (response) {
+      if (response.status === true) {
+        setIsValidCode("Valid");
+      } else {
+        setIsValidCode("Invalid");
+      }
+    }
+    setInviteCodeLoader(false);
+  }
+
   return (
     <div style={{ width: "100%" }}>
       <AgentSelectSnackMessage
@@ -468,24 +510,32 @@ const AddCardDetails = ({
 
       {/* Optional input field for agent x invite code */}
 
-      <div
-        className="mt-8"
-        style={{
-          fontWeight: "400",
+      <div className="w-full flex flex-row items-center justify-between mt-8">
+        <div
+          // className="mt-8"
+          style={{
+            fontWeight: "400",
 
-          fontSize: 14,
-          color: "#4F5B76",
-        }}
-      >
-        {`Referral Code (optional)`}
+            fontSize: 14,
+            color: "#4F5B76",
+          }}
+        >
+          {`Referral Code (optional)`}
+        </div>
+        {
+          inviteCodeLoader ? (
+            <span className="text-sm">Checking...</span>
+          ) : (
+            <span className={`text-sm ${isValidCode === "Valid" ? "text-green" : "text-red"}`}>{isValidCode}</span>
+          )
+        }
       </div>
 
       <div className="mt-4">
         <input
           value={inviteCode}
-          onChange={(e) => {
-            setInviteCode(e.target.value);
-          }}
+          onChange={handleChange}
+          disabled={inviteCodeLoader}
           className="outline-none focus:ring-0 w-full h-[50px]"
           style={{
             color: "#000000",
@@ -555,8 +605,11 @@ const AddCardDetails = ({
             <CircularProgress size={30} />
           </div>
         ) : (
-          <div className="flex flex-row justify-end items-center mt-8 w-full">
-            {CardAdded && CardExpiry && CVC && agreeTerms ? (
+          <div
+            className="flex flex-row justify-end items-center mt-8 w-full"
+          //  && isValidCode === "Valid" && !inviteCodeLoader
+          >
+            {CardAdded && CardExpiry && CVC && agreeTerms && (!inviteCode || (isValidCode === "Valid" && !inviteCodeLoader)) ? (
               <button
                 onClick={handleAddCard}
                 disabled={disableContinue}

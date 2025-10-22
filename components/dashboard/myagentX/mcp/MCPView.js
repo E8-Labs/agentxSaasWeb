@@ -415,7 +415,7 @@ function MCPView({
                         });
                     }}
                 />
-                <div className="flex mt-6 flex-row items-center justify-between w-[97%]">
+                <div className="flex flex-row items-center justify-between w-[97%]">
                     <div className="flex flex-row items-center gap-2">
                         <div className="text-[15px] font-[600] ">
                             Tools

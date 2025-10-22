@@ -54,6 +54,7 @@ export default function AddMonthlyPlanAnimation({
                 costPerAdditionalAgent: selectedPlan?.dynamicFeatures?.costPerAdditionalAgent,
                 noOfSeats: selectedPlan?.dynamicFeatures?.maxTeamMembers,
                 costPerAdditionalSeat: selectedPlan?.dynamicFeatures?.costPerAdditionalTeamSeat,
+                allowLanguageSelection: selectedPlan?.dynamicFeatures?.allowLanguageSelection,
                 customFeatures: customFeatures,
             }
             console.log("Object for edit plan is", object)

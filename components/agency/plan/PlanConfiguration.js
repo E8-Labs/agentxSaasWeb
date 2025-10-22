@@ -207,12 +207,12 @@ export default function PlanConfiguration({
             });
         }
 
-        if (languageTitle) {
-            extraFeatures.push({
-                id: "language",
-                text: `${languageTitle}`,
-            });
-        }
+        // if (languageTitle) {
+        //     extraFeatures.push({
+        //         id: "language",
+        //         text: `${languageTitle}`,
+        //     });
+        // }
 
         if (basicsData?.minutes) {
             extraFeatures.push({
@@ -304,12 +304,12 @@ export default function PlanConfiguration({
             setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent);
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
             setFeatures({
-                allowLanguageSelection:
-                    dynamicFeatures?.allowLanguageSelection ??
-                    dynamicFeatures?.allowLanguageSwitch ??
-                    (typeof configurationData?.language === "string"
-                        ? configurationData?.language?.toLowerCase() === "multilingual"
-                        : false),
+                // allowLanguageSelection:
+                //     dynamicFeatures?.allowLanguageSelection ??
+                //     dynamicFeatures?.allowLanguageSwitch ??
+                //     (typeof configurationData?.language === "string"
+                //         ? configurationData?.language?.toLowerCase() === "multilingual"
+                //         : false),
                 toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
                 calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
                 liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
@@ -320,6 +320,7 @@ export default function PlanConfiguration({
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
+                allowLanguageSelection: dynamicFeatures?.allowLanguageSelection,
             });
             setTrialValidForDays(configurationData?.trialValidForDays);
             setNoOfSeats(configurationData?.noOfSeats);
@@ -336,12 +337,12 @@ export default function PlanConfiguration({
 
     useEffect(() => {
         if (!agencyAllowedFeatures.allowLanguageSelection) {
-            setFeatures((prev) => {
-                if (!prev.allowLanguageSelection) {
-                    return prev;
-                }
-                return { ...prev, allowLanguageSelection: false };
-            });
+            // setFeatures((prev) => {
+            //     if (!prev.allowLanguageSelection) {
+            //         return prev;
+            //     }
+            //     return { ...prev, allowLanguageSelection: false };
+            // });
             setLanguage("english");
             setLanguageTitle("English and Spanish Compatible");
         }

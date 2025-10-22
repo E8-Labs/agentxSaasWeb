@@ -104,6 +104,7 @@ import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
 import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import ActionsTab from "@/components/dashboard/myagentX/ActionsTab";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -2566,60 +2567,60 @@ function Page() {
   const handleAddNewAgent = (event) => {
 
     try {
-    // event.preventDefault();
-    // setShowMoreAgentsPopup(true)
-    // return
+      // event.preventDefault();
+      // setShowMoreAgentsPopup(true)
+      // return
 
-    // Combined plan checking - use Redux as primary, localStorage as fallback
-    // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
+      // Combined plan checking - use Redux as primary, localStorage as fallback
+      // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
 
-    // Use Redux plan capabilities as primary source
-    if (reduxUser?.planCapabilities) {
-      // console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
-      if (!canCreateAgent) {
-        if (isFreePlan && currentAgents >= 1) {
-          // console.log('🚫 [DASHBOARD] Free plan user has reached limit');
-          setShowUpgradeModal(true)
-          return
-        } else if (currentAgents >= maxAgents) {
-          // console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities');
+      // Use Redux plan capabilities as primary source
+      if (reduxUser?.planCapabilities) {
+        // console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
+        if (!canCreateAgent) {
+          if (isFreePlan && currentAgents >= 1) {
+            // console.log('🚫 [DASHBOARD] Free plan user has reached limit');
+            setShowUpgradeModal(true)
+            return
+          } else if (currentAgents >= maxAgents) {
+            // console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities');
+            setShowMoreAgentsPopup(true)
+            setMoreAgentsPopupType("newagent")
+            return
+          }
+        }
+      } else {
+        // Fallback to localStorage logic (from test branch)
+        // console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
+
+        // Check if user is on free plan and has reached their limit
+        if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+          if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+            // console.log('Free plan user has reached limit');
+            setShowUpgradeModal(true)
+            return
+          }
+        }
+
+        // Check if paid plan user has reached their agent limit
+        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+          // console.log('Paid plan user is over the allowed capabilities');
           setShowMoreAgentsPopup(true)
           setMoreAgentsPopupType("newagent")
           return
         }
       }
-    } else {
-      // Fallback to localStorage logic (from test branch)
-      // console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
 
-      // Check if user is on free plan and has reached their limit
-      if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
-        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-          // console.log('Free plan user has reached limit');
-          setShowUpgradeModal(true)
-          return
-        }
-      }
-
-      // Check if paid plan user has reached their agent limit
-      if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-        // console.log('Paid plan user is over the allowed capabilities');
-        setShowMoreAgentsPopup(true)
-        setMoreAgentsPopupType("newagent")
-        return
-      }
-    }
-
-    // User can create agent - proceed to creation
-    // console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
-    const data = {
-      status: true,
-    };
-    localStorage.setItem("fromDashboard", JSON.stringify(data));
-    console.log("routing to createagent from add new agent function")
-    setTimeout(() => {
-      router.push('/createagent');
-    }, 0);
+      // User can create agent - proceed to creation
+      // console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
+      console.log("routing to createagent from add new agent function")
+      setTimeout(() => {
+        router.push('/createagent');
+      }, 0);
     } catch (error) {
       console.error("Error in handleAddNewAgent:", error);
     }
@@ -3078,7 +3079,7 @@ function Page() {
           <div style={{ fontSize: 24, fontWeight: "600" }}
             onClick={() => {
               console.log("routing to createagent from agents title")
-             router.push('/createagent')
+              router.push('/createagent')
             }}
           >
             Agents
@@ -3666,14 +3667,14 @@ function Page() {
           if (moreAgentsPopupType === "duplicate") {
             setShowMoreAgentsPopup(false);
             handleDuplicate()
-          } else if(moreAgentsPopupType === "newagent"){
+          } else if (moreAgentsPopupType === "newagent") {
             handleAddAgentByMoreAgentsPopup()
 
             // router.push('/createagent')
             // setShowMoreAgentsPopup(false);
           } else {
-          //  router.push('/createagent')
-          //  setShowMoreAgentsPopup(false);
+            //  router.push('/createagent')
+            //  setShowMoreAgentsPopup(false);
             handleAddAgentByMoreAgentsPopup()
           }
         }}
@@ -4047,10 +4048,10 @@ function Page() {
                         setTitle("Unlock your Web Agent")
                         setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
                       } else {
-                      
-                      setFetureType("webhook")
-                      setSelectedAgentForWebAgent(showDrawerSelectedAgent)
-                      setShowWebAgentModal(true)
+
+                        setFetureType("webhook")
+                        setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                        setShowWebAgentModal(true)
                       }
                     }}
                   >
@@ -5180,7 +5181,21 @@ function Page() {
                     }
                   ></div>
 
-                  {/* Calendar Section */}
+                  <ActionsTab
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    setSelectedAgent={setShowDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                    setShowUpgradeModal={setShowUpgradeModal}
+                    activeTab={activeTab}
+                    showDrawerSelectedAgent={showDrawerSelectedAgent}
+                    setShowAddScoringModal={setShowAddScoringModal}
+                  />
+
+                  {/* Calendar Section 
                   <UserCalender
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
@@ -5190,15 +5205,15 @@ function Page() {
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
                     setShowUpgradeModal={setShowUpgradeModal}
-                  />
+                  />*/}
 
-                  {/* Lead Scoring Section */}
+                  {/* Lead Scoring Section 
                   <LeadScoring
                     activeTab={activeTab}
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
 
-                  />
+                  />*/}
                 </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -6013,7 +6028,7 @@ function Page() {
         open={showWebAgentModal}
         onClose={() => setShowWebAgentModal(false)}
         agentName={selectedAgentForWebAgent?.name || ""}
-        modelId={selectedAgentForWebAgent?.modelIdVapi ||selectedAgentForWebAgent?.agentUuid || ""}
+        modelId={selectedAgentForWebAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""}
         agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
         onOpenAgent={handleOpenAgentInNewTab}
         onShowNewSmartList={handleShowNewSmartList}
@@ -6072,8 +6087,8 @@ function Page() {
         agentName={selectedAgentForEmbed?.name || ""}
         isEmbedFlow={true}
         embedCode={embedCode}
-        // fetureType={fetureType}
-        // onCopyUrl={handleWebhookClick}
+      // fetureType={fetureType}
+      // onCopyUrl={handleWebhookClick}
       />
 
 
