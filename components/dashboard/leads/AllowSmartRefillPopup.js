@@ -64,7 +64,7 @@ const AllowSmartRefillPopup = ({
             Turn on Smart Refill
           </div>
           <div style={{ fontSize: "15px", fontWeight: "500", color: "#00000080" }}>
-            Mins in your account: {convertSecondsToMinDuration(userLocalDetails?.totalSecondsAvailable || 0)}
+            Credits in your account: {(userLocalDetails?.totalSecondsAvailable || 0) / 60} 
           </div>
         </div>
         <div
@@ -74,7 +74,7 @@ const AllowSmartRefillPopup = ({
             fontWeight: "500",
           }}
         >
-          {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
+          {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has credits to work with.`}
         </div>
         <div className="w-full flex flex-row items-center mt-6 outline-none border-none gap-2">
           {smartRefillLoaderLater ? (

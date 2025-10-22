@@ -27,9 +27,15 @@ import { useEffect } from "react";
 import { PersistanceKeys } from "@/constants/Constants";
 import AgencyActivity from "./AgencyActivity";
 import AgencySubscriptions from "./AgencySubscriptions";
+import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
-export default function AgencyDashboard() {
+export default function AgencyDashboard({
+  selectedAgency
+}) {
   const [user, setUser] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
 
   useEffect(() => {
     console.log('check 1',)
@@ -46,12 +52,16 @@ export default function AgencyDashboard() {
 
   return (
     <div className="flex w-full items-center flex-row justify-start">
-      <div className="py-6">
+      <div className="py-6 w-full">
         <div
-          className="pl-10"
+          className="px-10 flex flex-row items-cetner justify-between w-full"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
           Analytics
+
+          <div className="flex flex-row items-center gap-2">
+            <NotficationsDrawer />
+          </div>
         </div>
         {/* Tabs for navigation */}
         <Tabs defaultValue="user-activity" className="mb-6 w-full">
@@ -62,17 +72,17 @@ export default function AgencyDashboard() {
           </TabsList>
 
           <TabsContent value="user-activity">
-            <AgencyActivity user={user} />
+            <AgencyActivity user={user} selectedAgency={selectedAgency} />
           </TabsContent>
           {/* <TabsContent value="engagement">
             <AgenyEngagements />
           </TabsContent> */}
 
           <TabsContent value="subscription">
-            <AgencySubscriptions />
+            <AgencySubscriptions selectedAgency={selectedAgency} />
           </TabsContent>
         </Tabs>
-        
+
       </div>
     </div>
   );

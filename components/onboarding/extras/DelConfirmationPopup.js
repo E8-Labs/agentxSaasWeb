@@ -1,10 +1,14 @@
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
 
 const DelConfirmationPopup = ({
     showDeleteModal,
-    handleClose
+    handleClose,
+    handleDelete,
+    delLoading,
+    selectedPlan
 }) => {
 
 
@@ -51,59 +55,71 @@ const DelConfirmationPopup = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleClose} />
                                 </div>
                             </div>
 
                             <div className="mt-6">
-                                <div style={{ fontWeight: "600", fontSize: 22 }}>
-                                    Are you sure?
-                                </div>
-                                <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                    This cannot be undone<br />
 
-                                    This plan is currently assigned to active customers. Deleting it will remove access for all assigned users and may disrupt their service.
+                                <div>
+                                    {
+                                        selectedPlan.subscriberCount > 0 ? (
+                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                Cannot delete plan with active subscriptions. <br />
+                                                Please move subscribers to a new plan before deleting this plan.
+                                                {/*Delete are you sure and this cannot be undone*/}
+                                            </div>
+                                        ) : (
+                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                Are you sure to delete {selectedPlan.title} plan. <br />
+                                                This cannot be undone.
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-4 flex flex-row items-center gap-4 mt-6">
-                            <button onClick={handleClose} className="w-1/2">
-                                Cancel
-                            </button>
-                            <div className="w-1/2">
-                                {/*delLoader ? (
-                                    <div className="flex flex-row iems-center justify-center w-full mt-4">
-                                        <CircularProgress size={25} />
+                        {
+                            !selectedPlan.subscriberCount > 0 && (
+                                <div className="mt-4 flex flex-row items-center gap-4 mt-6">
+                                    <button
+                                        onClick={handleClose}
+                                        className="outline-none w-1/2 border"
+                                        style={{
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                        }}>
+                                        Cancel
+                                    </button>
+                                    <div className="w-1/2">
+                                        {delLoading ? (
+                                            <div className="flex flex-row iems-center justify-center w-full mt-4">
+                                                <CircularProgress size={25} />
+                                            </div>
+                                        ) : (
+                                            <button
+                                                className={`outline-none ${selectedPlan.subscriberCount > 0 ? "bg-btngray" : "bg-red"}`}
+                                                style={{
+                                                    color: selectedPlan.subscriberCount > 0 ? "black" : "white",
+                                                    height: "50px",
+                                                    borderRadius: "10px",
+                                                    width: "100%",
+                                                    fontWeight: 600,
+                                                    fontSize: "20",
+                                                }}
+                                                onClick={handleDelete}
+                                                disabled={selectedPlan.subscriberCount > 0}
+                                            >
+                                                Yes! Delete Plan
+                                            </button>
+                                        )}
                                     </div>
-                                ) : (*/}
-                                <button
-                                    className="outline-none bg-red"
-                                    style={{
-                                        color: "white",
-                                        height: "50px",
-                                        borderRadius: "10px",
-                                        width: "100%",
-                                        fontWeight: 600,
-                                        fontSize: "20",
-                                    }}
-                                // onClick={handleDeleteUser}
-                                >
-                                    Yes! Delete Plan
-                                </button>
-                                {/*})*/}
-                            </div>
-                        </div>
+                                </div>
+                            )
+                        }
                     </div>
                 </Box>
             </Modal>

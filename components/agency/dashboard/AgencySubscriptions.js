@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import Image from "next/image";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 import {
   XAxis,
@@ -30,7 +31,9 @@ import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import moment from "moment";
 
-function AgencySubscriptions() {
+function AgencySubscriptions({
+  selectedAgency
+}) {
   // const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let manu = [
     {
@@ -142,7 +145,7 @@ function AgencySubscriptions() {
   // Transform data into required format
   const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map(
     (planName, index) => ({
-      name: planName,
+      name: planName || "",
       value: analyticData.subscription.activePlans[planName] || 0,
       color: colors[index % colors.length],
     })
@@ -152,7 +155,7 @@ function AgencySubscriptions() {
 
   const reActivationChartData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
     (planName, index) => ({
-      name: planName,
+      name: planName || "",
       value: analyticData.subscription.cancellations[planName] || 0,
       color: colors[index % colors.length],
     })
@@ -209,30 +212,22 @@ function AgencySubscriptions() {
       if (data) {
         let u = JSON.parse(data);
 
-        console.log(u.token);
+        // console.log(u.token);
 
         let path = Apis.AdminAnalytics;
+        let seperator = "?"
         if (customeRange) {
           path =
-            path + "?startDate=" +
+            path + seperator + "startDate=" +
             subscriptionStartDate +
             "&endDate=" +
-            subscriptionEndDate
+            subscriptionEndDate;
 
+          seperator = "&"
 
-          // "?subscriptionStartDate=" +
-          // subscriptionStartDate +
-          // "&subscriptionEndDate=" +
-          // subscriptionEndDate +
-          // "&planStartDate=" +
-          // planStartDate +
-          // "&planEndDate=" +
-          // planEndDate +
-          // subscriptionEndDate +
-          // "&subscriptionUpgradeStartDate=" +
-          // upgradeStartDate +
-          // "&subscriptionUpgradeEndDate=" +
-          // upgradeEndDate;
+        }
+        if (selectedAgency) {
+          path = path + seperator + `userId=${selectedAgency.id}`
         }
 
         console.log("Api path is ", path);
@@ -295,71 +290,12 @@ function AgencySubscriptions() {
   };
 
   return (
-    <div
-      className="flex flex-col items-center justify-center w-full h-[88vh]"
-      style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "45rem" }}
-    >
-      <div className="flex flex-col items-start w-11/12 mt-10 gap-3">
-
-        <div className="flex flex-row gap-5 items-center w-full border">
-          <div style={{ fontSize: 48, fontWeight: "400", color: "#000" }}>
-            Subscription<span style={{ color: "#00000047" }}> Performance</span>
-          </div>
-
-          {/* Range date Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="
-                  px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                  flex flex-row items-center gap-1
-                "
-              >
-                <p>
-                  {selectedSubRange
-                    ? selectedSubRange
-                    : "Select Range"}
-                </p>
-                <Image
-                  src={"/svgIcons/downArrow.svg"}
-                  height={20}
-                  width={24}
-                  alt="*"
-                />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="bg-white border rounded-lg shadow-md"
-              style={{ minWidth: "8rem", width: "100%" }} // Match button width
-            >
-              <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                <DropdownMenuItem
-                  className="hover:bg-gray-100 px-3"
-                  onClick={() => {
-                    setSubscriptionEndDate(
-                      moment(currantDate).format("YYYY-MM-DD")
-                    );
-                    setSubscriptionStartDate("2025-01-01");
-                    setSelectedSubRange("All Time");
-                    getAdminAnalytics(false);
-                    setShowCustomRange(false)
-
-                  }}
-                >
-                  All Time
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setShowCustomRangePopup("Subscription");
-                    setSelectedSubRange("Custom Range");
-                  }}
-                  className="hover:bg-gray-100 px-3"
-                >
-                  Custom Range
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    analyticData ? (
+      <div
+        className="flex flex-col items-center justify-center w-full h-[88vh]"
+        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "40rem" }}
+      >
+        <div className="flex flex-col items-start w-11/12 mt-10 gap-3">
 
           {/* Show filters here in a row*/}
           {
@@ -395,144 +331,127 @@ function AgencySubscriptions() {
             </div>
           }
 
-
-        </div>
-
-        <div className="flex w-full flex-row items-start gap-3 mt-4">
-          <div className="flex flex-col w-8/12">
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
-            >
-              <div className="flex flex-col w-full items-start">
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "700",
-                    color: "#0E0E0E",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  New Subscriptions{" "}
-                  <span
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "500",
-                      color: "#00000060",
-                    }}
-                  >
-                    Number of new paid users over a period of time
-                  </span>
-                </div>
-                <div className="w-full flex flex-row items-start justify-between">
-                  <div className="flex flex-col items-center">
-                    <div
-                      style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
-                    >
-                      {totalNewSubscriptions}
-                    </div>
-                  </div>
-
-                  <div className="w-full flex flex-row items-center gap-4 justify-end">
-
-
-
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex w-full flex-row items-center gap-8 mt-5 overflow-x-auto">
-                {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
-                  <div
-                    key={planName}
-                    className="flex flex-row items-center gap-2 flex-shrink-0"
-                  >
-                    <div
-                      className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
-                      style={{ backgroundColor: colors[index % colors.length] }}
-                    ></div>
-                    <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                      {planName}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex w-full">
-                <LineChart
-                  width={800}
-                  height={317}
-                  data={subscriptionChartData}
-                  margin={{
-                    top: 20,
-                    right: 20,
-                    left: 20,
-                    bottom: 20,
-                  }}
-                >
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    tick={{ fontSize: 12, fill: "#6b7280" }}
-                    tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    tick={{ fontSize: 12, fill: "#6b7280" }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      padding: "10px",
-                    }}
-                    itemStyle={{ color: "#111827" }}
-                    labelStyle={{ color: "#6b7280" }}
-                  />
-
-                  {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
-                    <Line
-                      key={planName}
-                      type="monotone"
-                      dataKey={planName}
-                      stroke={colors[index % colors.length] || "#000"}
-                      strokeWidth={2}
-                      dot={false}
-                    />
-                  ))}
-                </LineChart>
-              </div>
-
-            </div>
-
-            <div className="flex flex-row gap-3 w-full -ml-3 mt-3">
+          <div className="flex w-full flex-row items-start gap-3">
+            <div className="flex flex-col w-8/12">
               <div
                 style={{ border: "2px solid white" }}
-                className="
-                  flex w-6/12 flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+                className="flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
               >
-                <div className="w-full flex flex-col items-center px-5 border">
-                  <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex flex-col w-full items-start">
+                  <div className="flex flex-row items-center gap-4 justify-start">
                     <div
-                      style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "700",
+                        color: "#0E0E0E",
+                        whiteSpace: "nowrap",
+                      }}
                     >
-                      Plans
+                      New Subscriptions{" "}
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: "500",
+                          color: "#00000060",
+                        }}
+                      >
+                        Number of new paid users over a period of time
+                      </span>
+                    </div>
+                    {/* Range date Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="
+                px-4 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
+                flex flex-row items-center gap-1
+              "
+                        >
+                          <p>
+                            {selectedSubRange
+                              ? selectedSubRange
+                              : "Select Range"}
+                          </p>
+                          <Image
+                            src={"/svgIcons/downArrow.svg"}
+                            height={20}
+                            width={24}
+                            alt="*"
+                          />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className="bg-white border rounded-lg shadow-md"
+                        style={{ minWidth: "8rem", width: "100%" }} // Match button width
+                      >
+                        <DropdownMenuGroup style={{ cursor: "pointer" }}>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-100 px-3"
+                            onClick={() => {
+                              setSubscriptionEndDate(
+                                moment(currantDate).format("YYYY-MM-DD")
+                              );
+                              setSubscriptionStartDate("2025-01-01");
+                              setSelectedSubRange("All Time");
+                              getAdminAnalytics(false);
+                              setShowCustomRange(false)
+
+                            }}
+                          >
+                            All Time
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setShowCustomRangePopup("Subscription");
+                              setSelectedSubRange("Custom Range");
+                            }}
+                            className="hover:bg-gray-100 px-3"
+                          >
+                            Custom Range
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <div className="w-full flex flex-row items-start justify-between">
+                    <div className="flex flex-col items-center">
+                      <div
+                        style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
+                      >
+                        {totalNewSubscriptions}
+                      </div>
                     </div>
 
+                    <div className="w-full flex flex-row items-center gap-4 justify-end">
 
 
+
+                    </div>
                   </div>
+                </div>
 
-                  <BarChart
-                    zIndex={1}
-                    width={400}
-                    height={300}
-                    data={planChartData}
+                <div className="flex w-full flex-row items-center gap-8 mt-5 overflow-x-auto">
+                  {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                    <div
+                      key={planName}
+                      className="flex flex-row items-center gap-2 flex-shrink-0"
+                    >
+                      <div
+                        className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
+                        style={{ backgroundColor: colors[index % colors.length] }}
+                      ></div>
+                      <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
+                        {planName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex w-full">
+                  <LineChart
+                    width={800}
+                    height={317}
+                    data={subscriptionChartData}
                     margin={{
                       top: 20,
                       right: 20,
@@ -540,22 +459,20 @@ function AgencySubscriptions() {
                       bottom: 20,
                     }}
                   >
-                    {/* X-Axis */}
                     <XAxis
-                      dataKey="name"
+                      dataKey="month"
                       tickLine={false}
                       axisLine={false}
+                      tickMargin={10}
                       tick={{ fontSize: 12, fill: "#6b7280" }}
+                      tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")}
                     />
-
-                    {/* Y-Axis */}
                     <YAxis
                       tickLine={false}
                       axisLine={false}
+                      tickMargin={10}
                       tick={{ fontSize: 12, fill: "#6b7280" }}
                     />
-
-                    {/* Tooltip */}
                     <Tooltip
                       contentStyle={{
                         borderRadius: "8px",
@@ -563,44 +480,251 @@ function AgencySubscriptions() {
                         border: "1px solid #e5e7eb",
                         padding: "10px",
                       }}
-                      formatter={(value, name, props) => {
-                        const { percentage, count } = props.payload;
-                        if (percentage && count) {
-                          return `${percentage} (${count})`;
-                        }
-                        return value;
-                      }}
+                      itemStyle={{ color: "#111827" }}
                       labelStyle={{ color: "#6b7280" }}
                     />
 
-                    {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
-                    />
-                  </BarChart>
+                    {Object.keys(analyticData?.planSubscriptionStats || {}).length > 0 ? (
+                      Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                        <Line
+                          key={planName}
+                          type="monotone"
+                          dataKey={planName}
+                          stroke={colors[index % colors.length] || "#000"}
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      ))
+                    ) : (
+                      <Line
+                        type="monotone"
+                        dataKey="fallback"
+                        stroke="#ccc"
+                        strokeWidth={2}
+                        dot={false}
+                        isAnimationActive={false}
+                        data={[
+                          { month: moment().subtract(1, "month").format("MMM DD"), fallback: 0 },
+                          { month: moment().format("MMM DD"), fallback: 0 }
+                        ]}
+                      />
+                    )}
+
+                  </LineChart>
                 </div>
+
               </div>
 
+              <div className="flex flex-row gap-3 w-full -ml-3 mt-3">
+                <div
+                  style={{ border: "2px solid white" }}
+                  className="
+                  flex w-6/12 flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+                >
+                  <div className="w-full flex flex-col items-center px-5 border">
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <div
+                        style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
+                      >
+                        Plans
+                      </div>
+
+
+
+                    </div>
+
+                    <BarChart
+                      zIndex={1}
+                      width={400}
+                      height={300}
+                      data={planChartData}
+                      margin={{
+                        top: 20,
+                        right: 20,
+                        left: 20,
+                        bottom: 20,
+                      }}
+                    >
+                      {/* X-Axis */}
+                      <XAxis
+                        dataKey="name"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                      />
+
+                      {/* Y-Axis */}
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                      />
+
+                      {/* Tooltip */}
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "8px",
+                          backgroundColor: "white",
+                          border: "1px solid #e5e7eb",
+                          padding: "10px",
+                        }}
+                        formatter={(value, name, props) => {
+                          const { percentage, count } = props.payload;
+                          if (percentage && count) {
+                            return `${percentage} (${count})`;
+                          }
+                          return value;
+                        }}
+                        labelStyle={{ color: "#6b7280" }}
+                      />
+
+                      {/* Bars */}
+                      {planChartData.length > 0 ? (
+                        <Bar
+                          zIndex={1}
+                          dataKey="value"
+                          fill="#7902DF"
+                          isAnimationActive={true}
+                          radius={[4, 4, 0, 0]}
+                          barSize={20}
+                        />
+                      ) : (
+                        <Bar
+                          dataKey="fallback"
+                          fill="#ccc"
+                          radius={[4, 4, 0, 0]}
+                          barSize={20}
+                          isAnimationActive={false}
+                          data={[
+                            { name: "No Plan", fallback: 2 },
+                            { name: "No Plan", fallback: 3 }
+                          ]}
+                        />
+                      )}
+
+                    </BarChart>
+                  </div>
+                </div>
+
+                <div
+                  style={{ border: "2px solid white" }}
+                  className="
+                                    flex w-6/12 flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+                >
+                  <div className="w-full flex flex-col items-center px-5">
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <div>
+                        <div
+                          style={{
+                            fontSize: 18,
+                            fontWeight: "700",
+                            color: "#000",
+                          }}
+                        >
+                          Reactivation Rate
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            fontWeight: "500",
+                            color: "#00000060",
+                          }}
+                        >
+                          Churned users who return
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <BarChart
+                      zIndex={1}
+                      width={400}
+                      height={300}
+                      data={reActivationChartData}
+                      margin={{
+                        top: 20,
+                        right: 20,
+                        left: 20,
+                        bottom: 20,
+                      }}
+                    >
+                      {/* X-Axis */}
+                      <XAxis
+                        dataKey="name"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                      />
+
+                      {/* Y-Axis */}
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fontSize: 12, fill: "#6b7280" }}
+                      />
+
+                      {/* Tooltip */}
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "8px",
+                          backgroundColor: "white",
+                          border: "1px solid #e5e7eb",
+                          padding: "10px",
+                        }}
+                        formatter={(value, name, props) => {
+                          const { percentage, count } = props.payload;
+                          if (percentage && count) {
+                            return `${percentage} (${count})`;
+                          }
+                          return value;
+                        }}
+                        labelStyle={{ color: "#6b7280" }}
+                      />
+
+                      {/* Bars */}
+                      {
+                        reActivationChartData.length > 0 ? (
+                          <Bar
+                            zIndex={1}
+                            dataKey="value"
+                            fill="#7902DF"
+                            radius={[4, 4, 0, 0]}
+                            barSize={20}
+                          />
+                        ) : (
+                          <Bar
+                            dataKey="fallback"
+                            fill="#ccc"
+                            radius={[4, 4, 0, 0]}
+                            barSize={20}
+                            isAnimationActive={false}
+                            data={[
+                              { name: "No User", fallback: 2 },
+                              { name: "No User", fallback: 1 }
+                            ]}
+                          />
+                        )
+                      }
+
+                    </BarChart>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex w-4/12 flex-col gap-3">
               <div
                 style={{ border: "2px solid white" }}
                 className="
-                                    flex w-6/12 flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+                            flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
               >
-                <div className="w-full flex flex-col items-center px-5">
-                  <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex w-full flex-col ">
+                  <div className="w-full flex flex-row justify-between items-center">
                     <div>
                       <div
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "700",
-                          color: "#000",
-                        }}
+                        style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
                       >
-                        Reactivation Rate
+                        Subscription Upgrade Rate
                       </div>
                       <div
                         style={{
@@ -609,129 +733,112 @@ function AgencySubscriptions() {
                           color: "#00000060",
                         }}
                       >
-                        Churned users who return
+                        Percentage of users who convert to paid plans.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex flex-row justify-end items-center gap-4">
+
+
+                  </div>
+
+
+
+                  <div className="w-full flex flex-row items-center gap- mt-8">
+                    <PieChart width={150} height={150}>
+                      <Pie
+                        data={UpgateRateData}
+                        innerRadius={60}
+                        outerRadius={65}
+                        dataKey="value"
+                        startAngle={90}
+                        endAngle={-270}
+                        paddingAngle={1}
+                      >
+                        {UpgateRateData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2">
+                        {testPlans.map((item, index) => (
+                          <div key={index} className="flex flex-row items-center gap-2">
+                            <div
+                              className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
+                              style={{ backgroundColor: colors[index % colors.length] }}
+                            ></div>
+                            <p
+                              style={{
+                                fontSize: 15,
+                                fontWeight: "500",
+                                color: "#000",
+                              }}
+                            >
+                              {item} - {analyticData?.subscription?.upgradeBreakdown?.[item] || 0} users
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{ border: "2px solid white" }}
+                className="
+                            flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+              >
+                <div className="flex w-full flex-col ">
+                  <div className="w-full flex flex-row justify-between items-center">
+                    <div>
+                      <div
+                        style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
+                      >
+                        Cancelled Plans
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: "500",
+                          color: "#00000060",
+                        }}
+                      >
+                        Tracks users discontinuing their subscriptions.
                       </div>
                     </div>
 
                   </div>
 
-                  <BarChart
-                    zIndex={1}
-                    width={400}
-                    height={300}
-                    data={reActivationChartData}
-                    margin={{
-                      top: 20,
-                      right: 20,
-                      left: 20,
-                      bottom: 20,
-                    }}
-                  >
-                    {/* X-Axis */}
-                    <XAxis
-                      dataKey="name"
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fontSize: 12, fill: "#6b7280" }}
-                    />
-
-                    {/* Y-Axis */}
-                    <YAxis
-                      tickLine={false}
-                      axisLine={false}
-                      tick={{ fontSize: 12, fill: "#6b7280" }}
-                    />
-
-                    {/* Tooltip */}
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: "8px",
-                        backgroundColor: "white",
-                        border: "1px solid #e5e7eb",
-                        padding: "10px",
-                      }}
-                      formatter={(value, name, props) => {
-                        const { percentage, count } = props.payload;
-                        if (percentage && count) {
-                          return `${percentage} (${count})`;
-                        }
-                        return value;
-                      }}
-                      labelStyle={{ color: "#6b7280" }}
-                    />
-
-                    {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
-                    />
-                  </BarChart>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex w-4/12 flex-col gap-3">
-            <div
-              style={{ border: "2px solid white" }}
-              className="
-                            flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
-            >
-              <div className="flex w-full flex-col ">
-                <div className="w-full flex flex-row justify-between items-center">
-                  <div>
-                    <div
-                      style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
-                    >
-                      Subscription Upgrade Rate
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: "500",
-                        color: "#00000060",
-                      }}
-                    >
-                      Percentage of users who convert to paid plans.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full flex flex-row justify-end items-center gap-4">
-
-
-                </div>
-
-
-
-                <div className="w-full flex flex-row items-center gap- mt-8">
-                  <PieChart width={150} height={150}>
-                    <Pie
-                      data={UpgateRateData}
-                      innerRadius={60}
-                      outerRadius={65}
-                      dataKey="value"
-                      startAngle={90}
-                      endAngle={-270}
-                      paddingAngle={1}
-                    >
-                      {UpgateRateData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-
-                  <div className="flex flex-col gap-2">
+                  <div className="w-full flex flex-row items-start gap- mt-8">
+                    <PieChart width={150} height={150}>
+                      <Pie
+                        data={cancellationsRateData}
+                        innerRadius={60}
+                        outerRadius={65}
+                        dataKey="value"
+                        startAngle={90}
+                        endAngle={-270}
+                        paddingAngle={1}
+                      >
+                        {cancellationsRateData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
                     <div className="flex flex-col gap-2">
-                      {testPlans.map((item, index) => (
-                        <div key={index} className="flex flex-row items-center gap-2">
+                      {cancellationsRateData.map((item, index) => (
+                        <div key={item.name} className="flex flex-row items-center gap-2">
                           <div
                             className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
-                            style={{ backgroundColor: colors[index % colors.length] }}
+                            style={{ backgroundColor: item.color }}
                           ></div>
                           <p
                             style={{
@@ -740,400 +847,332 @@ function AgencySubscriptions() {
                               color: "#000",
                             }}
                           >
-                            {item} - {analyticData?.subscription?.upgradeBreakdown?.[item] || 0} users
+                            {item.name} - {item.value} users
                           </p>
                         </div>
                       ))}
                     </div>
 
-
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              style={{ border: "2px solid white" }}
-              className="
+              <div
+                style={{ border: "2px solid white" }}
+                className="
                             flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
-            >
-              <div className="flex w-full flex-col ">
-                <div className="w-full flex flex-row justify-between items-center">
-                  <div>
+              >
+                <div className="flex w-full flex-col ">
+                  <div className="w-full flex flex-row justify-between items-center">
                     <div
                       style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
                     >
-                      Cancelled Plans
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: "500",
-                        color: "#00000060",
-                      }}
-                    >
-                      Tracks users discontinuing their subscriptions.
+                      Total Referrals
                     </div>
                   </div>
 
-                </div>
-
-                <div className="w-full flex flex-row items-start gap- mt-8">
-                  <PieChart width={150} height={150}>
-                    <Pie
-                      data={cancellationsRateData}
-                      innerRadius={60}
-                      outerRadius={65}
-                      dataKey="value"
-                      startAngle={90}
-                      endAngle={-270}
-                      paddingAngle={1}
-                    >
-                      {cancellationsRateData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                  <div className="flex flex-col gap-2">
-                    {cancellationsRateData.map((item, index) => (
-                      <div key={item.name} className="flex flex-row items-center gap-2">
-                        <div
-                          className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
-                          style={{ backgroundColor: item.color }}
-                        ></div>
-                        <p
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            color: "#000",
-                          }}
-                        >
-                          {item.name} - {item.value} users
-                        </p>
-                      </div>
-                    ))}
+                  <div style={{ fontSize: 48, fontWeight: 300, color: "#000" }}>
+                    {analyticData?.referralCodeRate}
                   </div>
-
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full flex flex-row items-center gap-3">
+            <div
+              style={{ border: "2px solid white" }}
+              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
+            >
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-purple">CLV</h3>
+
+
+              </div>
+
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+              >
+                ${analyticData?.clv}
+              </div>
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
+                }}
+              >
+                Customer Lifetime Value (CLV)
               </div>
             </div>
 
             <div
               style={{ border: "2px solid white" }}
-              className="
-                            flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
+              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
             >
-              <div className="flex w-full flex-col ">
-                <div className="w-full flex flex-row justify-between items-center">
-                  <div
-                    style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
-                  >
-                    Total Referrals
-                  </div>
-                </div>
-
-                <div style={{ fontSize: 48, fontWeight: 300, color: "#000" }}>
-                  {analyticData?.referralCodeRate}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full flex flex-row items-center gap-3">
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-purple">CLV</h3>
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-purple">MRR</h3>
 
 
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
-            >
-              ${analyticData?.clv}
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              Customer Lifetime Value (CLV)
-            </div>
-          </div>
-
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-purple">MRR</h3>
-
-
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
-            >
-              ${analyticData?.mrr}
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              Customer Lifetime Value
-            </div>
-          </div>
-
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-purple">ARR</h3>
-
-
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
-            >
-              ${analyticData?.arr}
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              Annual Recurring Revenue (ARR)
-            </div>
-          </div>
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-purple">NRR</h3>
-
-
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
-            >
-              ${analyticData?.nrr}
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              Net Revenue Retention (NRR)
-            </div>
-          </div>
-        </div>
-
-        <div style={{ fontSize: 48, fontWeight: "300", marginTop: 20 }}>
-          Customer Acquistion
-        </div>
-
-        <div className="w-full flex flex-row items-center gap-3 mb-10">
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-purple">CAC</h3>
-
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-            >
-              $802
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              Customer Acquisition Cost
-            </div>
-          </div>
-
-          <div
-            style={{ border: "2px solid white" }}
-            className="flex flex-col p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-          >
-            {/* Title */}
-            <div className="flex items-center justify-between">
-              <div className="h-[30px] w-[30px] rounded-full flex flex-col bg-white items-center justify-center">
-                <Image
-                  src={"/svgIcons/purpleClockIcon.svg"}
-                  height={20}
-                  width={20}
-                  alt="*"
-                />
               </div>
 
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+              >
+                ${analyticData?.mrr}
+              </div>
 
-            </div>
-
-            {/* Value */}
-            <div
-              style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-            >
-              $802
-            </div>
-
-            {/* Subtitle */}
-            <div
-              style={{
-                whiteSpace: "nowrap",
-                fontSize: 15,
-                fontWeight: "700",
-                color: "#000",
-              }}
-            >
-              CAC Payback Period
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Custom range popup */}
-
-      <Modal
-        open={showCustomRangePopup != null}
-        onClose={() => setShowCustomRangePopup(null)}
-        BackdropProps={{
-          timeout: 200,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div style={{ width: "100%" }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
-            >
+              {/* Subtitle */}
               <div
                 style={{
-                  width: "100%",
-                  direction: "row",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
                 }}
               >
-                <div style={{ fontWeight: "500", fontSize: 17 }}>
-                  Select Date
-                </div>
+              Monthly Recurring Revenue
+              </div>
+            </div>
 
-                <button
-                  onClick={() => {
-                    setShowCustomRangePopup(null);
-                    setSelectedSubRange("All Time")
-                  }}
-                >
+            <div
+              style={{ border: "2px solid white" }}
+              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
+            >
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-purple">ARR</h3>
+
+
+              </div>
+
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+              >
+                ${analyticData?.arr}
+              </div>
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
+                }}
+              >
+                Annual Recurring Revenue (ARR)
+              </div>
+            </div>
+            <div
+              style={{ border: "2px solid white" }}
+              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
+            >
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-purple">NRR</h3>
+
+
+              </div>
+
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+              >
+                ${analyticData?.nrr}
+              </div>
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
+                }}
+              >
+                Net Revenue Retention (NRR)
+              </div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 48, fontWeight: "300", marginTop: 20 }}>
+            Customer Acquistion
+          </div>
+
+          <div className="w-full flex flex-row items-center gap-3 mb-10">
+            <div
+              style={{ border: "2px solid white" }}
+              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
+            >
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-purple">CAC</h3>
+
+              </div>
+
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
+              >
+                $802
+              </div>
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
+                }}
+              >
+                Customer Acquisition Cost
+              </div>
+            </div>
+
+            <div
+              style={{ border: "2px solid white" }}
+              className="flex flex-col p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
+            >
+              {/* Title */}
+              <div className="flex items-center justify-between">
+                <div className="h-[30px] w-[30px] rounded-full flex flex-col bg-white items-center justify-center">
                   <Image
-                    src={"/assets/blackBgCross.png"}
+                    src={"/svgIcons/purpleClockIcon.svg"}
                     height={20}
                     width={20}
                     alt="*"
                   />
-                </button>
+                </div>
+
+
               </div>
 
-              <div className=" w-full flex flex-row items-center justify-between">
-                <div
-                  style={{
-
-                    marginTop: 20,
-                  }}
-                >
-                  <div style={{ fontWeight: "500", fontSize: 14 }}>
-                    Start Date
-                  </div>
-                  <div className="mt-5">
-                    <CalendarPicker onSelectDate={handleStartDateSelect} />
-                  </div>
-                </div>
-                <div
-                  style={{
-                    marginTop: 20,
-                  }}
-                >
-                  <div style={{ fontWeight: "500", fontSize: 14, }}>
-                    End Date
-                  </div>
-                  <div className="mt-5">
-                    <CalendarPicker onSelectDate={handleEndDateSelect} />
-                  </div>
-                </div>
+              {/* Value */}
+              <div
+                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
+              >
+                $802
               </div>
-              <button
-                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                style={{ height: "50px" }}
-                onClick={() => {
-                  getAdminAnalytics(true);
-                  setShowCustomRangePopup(null);
-                  setShowCustomRange(true)
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  whiteSpace: "nowrap",
+                  fontSize: 15,
+                  fontWeight: "700",
+                  color: "#000",
                 }}
               >
-                Continue
-              </button>
+                CAC Payback Period
+              </div>
             </div>
           </div>
-        </Box>
-      </Modal>
-    </div>
+        </div>
+
+        {/* Custom range popup */}
+
+        <Modal
+          open={showCustomRangePopup != null}
+          onClose={() => setShowCustomRangePopup(null)}
+          BackdropProps={{
+            timeout: 200,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box
+            className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+            sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+          >
+            <div style={{ width: "100%" }}>
+              <div
+                className="max-h-[60vh] overflow-auto"
+                style={{ scrollbarWidth: "none" }}
+              >
+                <div
+                  style={{
+                    width: "100%",
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ fontWeight: "500", fontSize: 17 }}>
+                    Select Date
+                  </div>
+
+                  <CloseBtn
+                    onClick={() => {
+                      setShowCustomRangePopup(null);
+                      setSelectedSubRange("All Time")
+                    }}
+                  />
+                </div>
+
+                <div className=" w-full flex flex-row items-center justify-between">
+                  <div
+                    style={{
+
+                      marginTop: 20,
+                    }}
+                  >
+                    <div style={{ fontWeight: "500", fontSize: 14 }}>
+                      Start Date
+                    </div>
+                    <div className="mt-5">
+                      <CalendarPicker onSelectDate={handleStartDateSelect} />
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 20,
+                    }}
+                  >
+                    <div style={{ fontWeight: "500", fontSize: 14, }}>
+                      End Date
+                    </div>
+                    <div className="mt-5">
+                      <CalendarPicker onSelectDate={handleEndDateSelect} />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                  style={{ height: "50px" }}
+                  onClick={() => {
+                    getAdminAnalytics(true);
+                    setShowCustomRangePopup(null);
+                    setShowCustomRange(true)
+                  }}
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+    ) : (
+      <div className="w-[90%] h-[84svh] flex items-center justify-center ml-5">
+        <Image
+          alt="placeholder" src="/agencyIcons/activityPlaceholder.png" width={900} height={900}
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+    )
   );
 }
 

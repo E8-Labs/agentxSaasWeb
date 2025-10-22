@@ -27,7 +27,7 @@ const Header = ({
         <div className="w-4/12">
           <Image
             className="ms-6 hidden md:flex"
-            src="/assets/agentX.png"
+            src="/assets/assignX.png"
             style={{ height: "29px", width: "122px", resize: "contain" }}
             height={29}
             width={122}

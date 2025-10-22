@@ -701,7 +701,7 @@ function SubAccountBasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      //console.log;
+      console.log("Data to update area is", data);
 
       // return
       await UpdateProfile(data);
@@ -717,7 +717,7 @@ function SubAccountBasicInfo() {
       let data = {
         userIndustry: selectedIndustries, //[selectedArea.join()]
       };
-      //console.log;
+      console.log("Data to update area is", data);
 
       // return
       await UpdateProfile(data);
@@ -734,7 +734,7 @@ function SubAccountBasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      //console.log;
+      console.log("Data to update service is", data);
 
       // return
       await UpdateProfile(data);
@@ -1412,7 +1412,7 @@ function SubAccountBasicInfo() {
                 }}
               >
                 <input
-                  type="number"
+                  // type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
@@ -1460,7 +1460,7 @@ function SubAccountBasicInfo() {
               >
                 {userType === UserTypes.DebtCollectorAgent
                   ? " Balance Size of Debts "
-                  : "Average Project Size (kW)"}
+                  : "Average Project Size (kw)"}
               </div>
 
               <div

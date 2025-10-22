@@ -353,7 +353,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         }}
                       >
                         <div
-                          className="h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
+                          className="h-[100px] sm:h-[110px] md:h-[130px] lg:h-[150px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
                           style={{ backgroundColor: "#FAF9FF" }}
                         >
                           <img
@@ -392,7 +392,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
 
                         </div>
                         <div
-                          className="text-center mt-4 pb-4 text-sm sm:text-md md:text-lg"
+                          className="text-center mt-2 pb-2 text-sm sm:text-base md:text-base"
                           style={{
                             fontWeight: "600",
                             // fontSize: 17,

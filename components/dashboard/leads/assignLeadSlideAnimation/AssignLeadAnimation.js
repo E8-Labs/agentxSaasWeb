@@ -9,6 +9,9 @@ import axios from "axios";
 import dayjs from "dayjs";
 import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import { PersistanceKeys } from "@/constants/Constants";
+import { GetTimezone } from "@/utilities/utility";
+import AgentSelectSnackMessage from "../AgentSelectSnackMessage";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -35,6 +38,7 @@ export default function AssignLeadAnimation({
     filters,
     totalLeads,
     userProfile,
+    sheetId,
     //after lead assigned
     handleCloseAssignLeadModal
 }) {
@@ -72,6 +76,8 @@ export default function AssignLeadAnimation({
     //handle Assign after values added
     const [shouldAssignLead, setShouldAssignLead] = useState(false);
 
+    const [showTimeError, setShowTimeError] = useState(null)
+
     useEffect(() => {
         if (shouldAssignLead) {
             handleAssignLead();
@@ -108,7 +114,7 @@ export default function AssignLeadAnimation({
     //assign lead
     const handleAssignLead = async () => {
 
-        let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+        let userTimeZone = GetTimezone();
         const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
         const currentHour = selectedDate.hour(); // Get the current hour (0-23)
         const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -119,24 +125,24 @@ export default function AssignLeadAnimation({
 
         const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
         const isBeforeEndTime =
-            currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
-        if (
-            isAfterStartTime && // After 7:00 AM
-            isBeforeEndTime // Before 8:30 PM
-        ) {
-            console.log(
-                "✅ Selected time is between 7 AM and 8:30 PM.",
-                selectedDate.format()
-            );
-            // setSelectedDateTime(selectedDate);
-        } else {
-            //console.log;
-            // setInvalidTimeMessage(
-            //   "Calls only between 7am-8:30pm"
-            //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
-            // );
-            // return;
+            currentHour < 21 //|| (currentHour === 19 && currentMinute <= 0); // Before 8:30 PM
+
+        if (!CallNow) {
+            if (
+                isAfterStartTime && // After 7:00 AM
+                isBeforeEndTime // Before 8:30 PM
+            ) {
+                console.log(
+                    "✅ Selected time is between 7 AM and 9 PM.",
+                    selectedDate.format()
+                );
+                // setSelectedDateTime(selectedDate);
+            } else {
+                setShowTimeError("Calls can only be scheduled between 7 AM to 9 PM")
+                return
+            }
         }
+
 
         // return;
 
@@ -180,7 +186,7 @@ export default function AssignLeadAnimation({
                 dncCheck: isDncChecked ? true : false,
             };
 
-            // console.log("Data sending in api is", Apidata);
+            console.log("Data sending in assign lead api api is", Apidata);
             // return;
             if (filters && selectedAll) {
                 Apidata = {
@@ -210,12 +216,34 @@ export default function AssignLeadAnimation({
 
             // //console.log;
 
+            window.dispatchEvent(
+                new CustomEvent(PersistanceKeys.AssigningLeads, {
+                    detail: {
+                        uploading: true
+                    }
+                })
+            );
+            setTimeout(() => {
+                handleClose({
+                    status: false,
+                    showSnack: "Lead assigned",
+                    disSelectLeads: true,
+                });
+                resetValues();
+            }, 3000);
+
+            //   return
+
+
             const response = await axios.post(ApiPath, Apidata, {
                 headers: {
                     Authorization: "Bearer " + AuthToken,
                     "Content-Type": "application/json",
                 },
+                timeout: 120000, //  Set timeout to 2 minutes (in milliseconds)
             });
+
+
 
             const endTime = Date.now(); // record end time
             const duration = endTime - startTime; // in milliseconds
@@ -247,6 +275,16 @@ export default function AssignLeadAnimation({
                 // //console.log;
                 setCurrentIndex(0);
                 if (response.data.status === true) {
+
+
+                    window.dispatchEvent(
+                        new CustomEvent(PersistanceKeys.LeadsAssigned, {
+                            detail: {
+                                uploading: true
+                            }
+                        })
+                    );
+
                     handleClose({
                         status: false,
                         showSnack: "Lead assigned",
@@ -349,6 +387,13 @@ export default function AssignLeadAnimation({
                 className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
             >
                 <div className="relative flex justify-center items-center w-full">
+                    <AgentSelectSnackMessage
+                        isVisible={showTimeError != null}
+                        hide={() => {
+                            setShowTimeError(null)
+                        }}
+                        message={showTimeError}
+                    />
                     <AnimatePresence initial={false} custom={direction}>
                         {currentIndex === 0 && (
                             <motion.div

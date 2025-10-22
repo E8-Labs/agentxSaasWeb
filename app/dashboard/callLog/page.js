@@ -11,11 +11,12 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
 import LeadLoading from "@/components/dashboard/leads/LeadLoading";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import moment from "moment";
 
 function Page() {
   // //console.log;
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("All Calls");
+  const [activeTab, setActiveTab] = useState("All Activities");
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
@@ -35,7 +36,7 @@ function Page() {
         className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Call Log</div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>Activity</div>
 
         <div className="flex flex-row items-center gap-4">
           <NotficationsDrawer user={user} />
@@ -45,14 +46,16 @@ function Page() {
               right: 0,
               bottom: 0
             }}>
-            <DashboardSlider
-              needHelp={false} />
+            {/*
+              <DashboardSlider
+                needHelp={false} />
+            */}
           </div>
         </div>
       </div>
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
+        {["All Activities", "Campaign Activity"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -68,7 +71,7 @@ function Page() {
       </div>
 
       <div className="w-full">
-        {activeTab === "All Calls" ? (
+        {activeTab === "All Activities" ? (
           <AllCalls user={user} />
         ) : activeTab === "Scheduled" ? (
           <SheduledCalls user={user} />

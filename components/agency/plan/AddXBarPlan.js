@@ -8,6 +8,8 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import Image from "next/image";
 import { min } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import XBarSideUI from "./XBarSideUI";
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddXBarPlan({
@@ -15,6 +17,8 @@ export default function AddXBarPlan({
   handleClose,
   onPlanCreated,
   agencyPlanCost,
+  isEditPlan,
+  selectedPlan
 }) {
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
@@ -24,18 +28,49 @@ export default function AddXBarPlan({
   const [minutes, setMinutes] = useState("");
   const [addPlanLoader, setAddPlanLoader] = useState(false);
   const [minCostErr, setMinCostErr] = useState(false);
+  const [isDefaultPlan, setIsDefaultPlan] = useState(false);
 
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
+
+  //plan passed is
+  const [planPassed, setPlanPassed] = useState(null);
+
+  //check if is edit plan is true then store the predefault values
+  useEffect(() => {
+    console.log("Test log xbars")
+    if (selectedPlan) {
+      setPlanPassed(selectedPlan);
+      console.log("Value of selected plan passed is", selectedPlan);
+      setTitle(selectedPlan?.title);
+      setTag(selectedPlan?.tag ?? "");
+      setPlanDescription(selectedPlan?.planDescription);
+      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2));
+      const OriginalPrice = selectedPlan?.originalPrice
+      if (OriginalPrice > 0) {
+        setDiscountedPrice(OriginalPrice);
+      }
+      setMinutes(selectedPlan?.minutes);
+      setIsDefaultPlan(selectedPlan?.isDefault || false);
+    }
+  }, [selectedPlan]);
+
   //auto check minCostError
   useEffect(() => {
     if (originalPrice && minutes) {
-      const P = (originalPrice * 100) / minutes;
+      const P = originalPrice / minutes;
       console.log("Calculated price is", P);
-      if (P < 20) {
+      if (P < agencyPlanCost) {
+        const cal = originalPrice * minutes;
         setMinCostErr(true);
-      } else if (P >= 20) {
+        // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
+        setSnackBannerMsg(`Bonus credits should be less than ${(originalPrice / agencyPlanCost).toFixed(2)}`);  //${agencyPlanCost.toFixed(2)} or less than //add formatfractional function here to remove extra .00
+        setSnackBannerMsgType(SnackbarTypes.Warning);
+      } else if (P > agencyPlanCost) {
+        setSnackBannerMsg(null);
         setMinCostErr(false);
       }
     }
@@ -65,9 +100,11 @@ export default function AddXBarPlan({
     setOriginalPrice("")
     setDiscountedPrice("")
     setMinutes("")
+    setIsDefaultPlan(false)
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
+    setAddPlanLoader(false);
   }
 
   //code to add plan
@@ -83,13 +120,21 @@ export default function AddXBarPlan({
       formData.append("title", title);
       formData.append("tag", tag);
       formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice);
-      formData.append("discountedPrice", originalPrice * minutes);
-      formData.append(
-        "percentageDiscount",
-        100 - (originalPrice / discountedPrice) * 100
-      );
+      formData.append("originalPrice", discountedPrice || 0);
+      formData.append("discountedPrice", originalPrice);
+      if (discountedPrice > 0) {
+        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
+          100).toFixed(2);
+        formData.append("percentageDiscount", percentage);
+      } else {
+        formData.append("percentageDiscount", 0)
+      }
       formData.append("minutes", minutes);
+      formData.append("isDefault", isDefaultPlan);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} = ${value}`);
+      }
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -112,9 +157,9 @@ export default function AddXBarPlan({
           window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
 
           setSnackMsg(response.data.message);
+          handleResetValues()
           setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);
-          handleResetValues()
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
@@ -127,6 +172,83 @@ export default function AddXBarPlan({
       setAddPlanLoader(false);
     }
   };
+
+  //code to update plan
+  const handleUpdatePlanClick = async () => {
+    try {
+      setAddPlanLoader(true);
+      console.log("Working and the passed plan item is", planPassed);
+
+      // const ApiPath = Apis.addXBarOptions; //vincecamuto
+      const url = `${Apis.updateAgencyXBar}/${planPassed.id}`;
+      const Token = AuthToken();
+      console.log("Url for udate ageny is", url);
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("tag", tag);
+      formData.append("planDescription", planDescription);
+      formData.append("originalPrice", discountedPrice || 0);
+      if (discountedPrice > 0) {
+        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
+          100).toFixed(2);
+        formData.append("percentageDiscount", percentage);
+        formData.append("discountedPrice", originalPrice);
+      } else {
+        formData.append("discountedPrice", 0);
+      }
+      formData.append(
+        "percentageDiscount",
+        100 - (originalPrice / discountedPrice) * 100
+      );
+      formData.append("minutes", minutes);
+      formData.append("isDefault", isDefaultPlan);
+
+      const response = await axios.put(url, formData, {
+        headers: {
+          Authorization: "Bearer " + Token,
+        },
+      });
+
+      if (response) {
+        console.log("Response of add xbars api is", response.data);
+        setAddPlanLoader(false);
+        onPlanCreated(response);
+        if (response.data.status === true) {
+          //update the xbars state on localstorage to update checklist
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.plansXbarAdded = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Success);
+          handleResetValues()
+          handleClose(response.data.message);
+        } else if (response.data.status === false) {
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Error);
+        }
+      }
+    } catch (error) {
+      setAddPlanLoader(false);
+      console.error("Error is", error.message);
+    } finally {
+      setAddPlanLoader(false);
+    }
+  };
+
+  const shouldContinue = () => {
+    if (!title || !planDescription || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minCostErr) {
+      return true
+      // || !tag|| minutes === "0"
+    } else {
+      return false
+    }
+  }
 
   const styles = {
     labels: {
@@ -199,7 +321,7 @@ export default function AddXBarPlan({
     },
     originalPrice: {
       // textDecoration: "line-through",
-      color: "#7902DF",
+      color: "#00000020",
       fontSize: 18,
       fontWeight: "600",
     },
@@ -207,19 +329,20 @@ export default function AddXBarPlan({
       color: "#000000",
       fontWeight: "700",
       fontSize: 22,
-      marginLeft: "10px",
+      // marginLeft: "10px",
     },
   };
 
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleClose("");
-      }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-      <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="bg-none max-w-[80%] w-[95%] h-[90vh] border-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <AgentSelectSnackMessage
           isVisible={snackMsg !== null}
           message={snackMsg}
@@ -229,8 +352,17 @@ export default function AddXBarPlan({
           type={snackMsgType}
         />
 
-        <div className="w-full flex flex-row h-[100%] items-start">
-          <div className="w-6/12 h-[100%] p-6">
+        <AgentSelectSnackMessage
+          isVisible={snackBannerMsg !== null}
+          message={snackBannerMsg}
+          hide={() => {
+            // setSnackMsg(null);
+          }}
+          type={snackBannerMsgType}
+        />
+
+        <div className="w-full flex flex-row h-[100%] items-start justify-center">
+          <div className="w-6/12 h-[100%] p-6 bg-white rounded-tl-xl rounded-bl-xl shadow-lg">
             <div
               className="overflow-y-auto h-[90%] scrollbar-hide"
               style={{
@@ -239,11 +371,11 @@ export default function AddXBarPlan({
               }}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">New XBar Option</h2>
+                <h2 className="text-xl font-semibold">{isEditPlan ? "Edit Plan" : "New XBar Option"}</h2>
               </div>
 
               {/* Plan Name */}
-              <label style={styles.labels}>Plan Name</label>
+              <label style={styles.labels}>XBar Name</label>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -255,7 +387,7 @@ export default function AddXBarPlan({
               />
 
               {/* Tag Option */}
-              <label style={styles.labels}>Tag Option</label>
+              <label style={styles.labels}>Tag</label>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
@@ -282,17 +414,34 @@ export default function AddXBarPlan({
                 <div className="w-full">
                   {/* Price */}
                   <label style={styles.labels}>Price</label>
-                  <input
-                    style={styles.inputs}
-                    type="number"
-                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder="00"
-                    value={originalPrice}
-                    onChange={(e) => {
-                      setOriginalPrice(e.target.value);
-                    }}
-                  />
-                  {minCostErr && (
+                  <div className={`border ${minCostErr ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                    <div className="" style={styles.inputs}>
+                      $
+                    </div>
+                    <input
+                      style={styles.inputs}
+                      type="text"
+                      className={`w-full border border-none outline-none focus:outline-none focus:ring-0 focus:border-none rounded`}
+                      placeholder=""
+                      value={originalPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        // if (valid === 0) {
+                        //   setSnackMsg("Price cannot be zero");
+                        //   setSnackMsgType(SnackbarTypes.Warning);
+                        // }
+                        setOriginalPrice(valid);
+                      }}
+                    />
+                  </div>
+                  {/*minCostErr && (
                     <div className="flex flex-row items-center gap-2 mb-4">
                       <Image
                         src={"/agencyIcons/InfoIcon.jpg"}
@@ -304,107 +453,96 @@ export default function AddXBarPlan({
                         className="flex items-center gap-1"
                         style={{ fontSize: "15px", fontWeight: "500" }}
                       >
-                        {/*<AiOutlineInfoCircle className="text-sm" />*/}
                         Min cost per min is 20 cents
                       </p>
                     </div>
-                  )}
+                  )*/}
+
+
 
                   {/* Strikethrough Price */}
                   <label style={styles.labels}>
                     Strikethrough Price (Optional)
                   </label>
+                  <div className={`border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                    <div className="" style={styles.inputs}>
+                      $
+                    </div>
+                    <input
+                      style={styles.inputs}
+                      type="text"
+                      className="w-full border border-none outline-none focus:outline-none focus:ring-0 focus:border-none rounded"
+                      placeholder=""
+                      value={discountedPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setDiscountedPrice(valid);
+                      }}
+                    />
+                  </div>
+
+                  {/* Minutes */}
+                  <label style={styles.labels}>Bonus Credits</label>
                   <input
                     style={styles.inputs}
-                    type="number"
+                    type="text"
                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder="00"
-                    value={discountedPrice}
+                    placeholder=""
+                    value={minutes}
                     onChange={(e) => {
-                      setDiscountedPrice(e.target.value);
+                      const value = e.target.value;
+                      // Allow only digits and one optional period
+                      const sanitized = value.replace(/[^0-9.]/g, '');
+
+                      // Prevent multiple periods
+                      const valid = sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized;
+                      setMinutes(valid);
                     }}
                   />
+
+                  {/* Default Plan Toggle */}
+                  <div className="flex flex-row items-center justify-between mb-4">
+                    <label style={styles.labels}>Default Xbar Option</label>
+                    <Switch
+                      checked={isDefaultPlan}
+                      onChange={(e) => setIsDefaultPlan(e.target.checked)}
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: '#7902DF',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                          backgroundColor: '#7902DF',
+                        },
+                      }}
+                    />
+                  </div>
+
+                
                 </div>
 
-                {/*<div className="bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full">
-                  <div
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 15,
-                      color: "#00000050",
-                    }}
-                  >
-                    Margin Calculation
-                  </div>
-                  <div
-                    className="flex flex-row items-center justify-between"
-                    style={styles.inputs}
-                  >
-                    <div>Your Price</div>
-                    <div>${originalPrice}/ min</div>
-                    <div>${(originalPrice * minutes).toFixed(2)}</div>
-                  </div>
-                  <div
-                    className="flex flex-row items-center justify-between mt-4"
-                    style={styles.inputs}
-                  >
-                    <div>Your Cost</div>
-                    <div>${agencyPlanCost}/ min</div>
-                    <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
-                  </div>
-                  {minutes && originalPrice && (
-                    <div className="w-full">
-                      <div
-                        className="flex flex-row items-center justify-between mt-4"
-                        style={{ ...styles.inputs, color: getClr() }}
-                      >
-                        <div>Your Profit</div>
-                        <div>
-                          ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
-                        </div>
-                        <div>
-                          $
-                          {((originalPrice - agencyPlanCost) * minutes).toFixed(
-                            2
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className="text-end w-full mt-2"
-                        style={{ color: getClr() }}
-                      >
-                        {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                          100
-                        ).toFixed(2)}
-                        %
-                      </div>
-                    </div>
-                  )}
-                </div>*/}
+
               </div>
 
-              {/* Minutes */}
-              <label style={styles.labels}>Minutes</label>
-              <input
-                style={styles.inputs}
-                type="number"
-                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                placeholder="000"
-                value={minutes}
-                onChange={(e) => {
-                  setMinutes(e.target.value);
-                }}
-              />
             </div>
 
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
+                disabled={addPlanLoader}
                 onClick={() => {
+                  handleResetValues();
                   handleClose("");
                 }}
-                className="text-purple-600 font-semibold"
+                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
               >
                 Cancel
               </button>
@@ -412,147 +550,34 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className="bg-purple w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg"
-                  onClick={handleAddPlanClick}
+                  className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
+                  // onClick={handleAddPlanClick}
+                  onClick={() => {
+                    if (isEditPlan) {
+                      handleUpdatePlanClick();
+                    } else {
+                      handleAddPlanClick();
+                    }
+                  }}
+                  disabled={shouldContinue()}
                 >
-                  Create Plan
+                  {isEditPlan ? "Update" : "Create Plan"}
                 </button>
               )}
             </div>
           </div>
 
-          <div
-            className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
-            style={{
-              backgroundImage: "url('/agencyIcons/addPlanBg.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="p-6 flex flex-col items-center h-[100%]">
-              <div className="flex justify-end w-full items-center h-[5%]">
-                <button
-                  onClick={() => {
-                    handleClose("");
-                  }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    alt="*"
-                    height={14}
-                    width={14}
-                  />
-                </button>
-              </div>
-              {/*
-                            (allowTrial && trialValidForDays) && (
-                                <div className='w-11/12 rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2'>
-                                    <div className='flex flex-row items-center gap-2'>
-                                        <Image
-                                            src={"/agencyIcons/batchIcon.jpg"}
-                                            alt='*'
-                                            height={24}
-                                            width={24}
-                                        />
-                                        <div style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
-                                            First {trialValidForDays} Days Free
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        */}
-              <div className="w-11/12 h-[80%] flex flex-col items-center justify-center">
-                <div
-                  className="px-4 py-1 pb-4"
-                  style={{
-                    ...styles.pricingBox,
-                    border: "none",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div
-                    style={{
-                      ...styles.triangleLabel,
-                      borderTopRightRadius: "15px",
-                    }}
-                  ></div>
-                  {
-                    discountedPrice && minutes && (
-                      <span style={styles.labelText}>
-                        {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                          100
-                        ).toFixed(0) || "-"}
-                        %
-                      </span>
-                    )
-                  }
-                  <div
-                    className="flex flex-row items-start gap-3"
-                    style={styles.content}
-                  >
-                    <div className="w-full">
-                      <div className="flex flex-row items-center gap-3">
-                        <div
-                          style={{
-                            color: "#151515",
-                            fontSize: 22,
-                            fontWeight: "600",
-                          }}
-                        >
-                          {title || "My Plan"}
-                        </div>
-                        {tag ? (
-                          <div
-                            className="rounded-full bg-purple text-white p-3 py-2"
-                            style={{ fontSize: 10, fontWeight: "500" }}
-                          >
-                            {tag} 🔥
-                          </div>
-                        ) : (
-                          <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />
-                        )}
-                      </div>
-                      <div className="flex flex-row items-center justify-between mt-2">
-                        <div className="flex flex-col justify-start">
-                          {planDescription ? (
-                            <div
-                              className=""
-                              style={{
-                                color: "#00000060",
-                                fontSize: 15,
-                                //   width: "60%",
-                                fontWeight: "500",
-                              }}
-                            >
-                              {planDescription}
-                            </div>
-                          ) : (
-                            <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
-                          )}
-                        </div>
-                        <div className="flex flex-row items-center">
-                          {originalPrice && (
-                            <div style={styles.originalPrice}>
-                              ${(originalPrice * minutes).toFixed(2)}
-                            </div>
-                          )}
-                          {discountedPrice && (
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
-                                ${discountedPrice}
-                              </div>
-                              <p style={{ color: "#15151580" }}></p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <XBarSideUI
+            handleResetValues={handleResetValues}
+            handleClose={handleClose}
+            title={title}
+            tag={tag}
+            planDescription={planDescription}
+            originalPrice={originalPrice}
+            discountedPrice={discountedPrice}
+            minutes={minutes}
+            isDefaultPlan={isDefaultPlan}
+          />
         </div>
       </Box>
     </Modal>
@@ -573,7 +598,7 @@ export default function AddXBarPlan({
 //                 <div
 //                     className='rounded-full bg-purple text-white p-3 py-2'
 //                     style={styles.text}>
-//                     {tag} 🔥
+//                     {tag}
 //                 </div>
 //             ) : (
 //                 <div

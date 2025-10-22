@@ -28,6 +28,8 @@ import { getLocalLocation } from "@/components/onboarding/services/apisServices/
 import { PersistanceKeys } from "@/constants/Constants";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { color } from "framer-motion";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AgencySignUp = ({
   handleContinue,
@@ -308,6 +310,12 @@ const AgencySignUp = ({
         formData.append("campaignee", campainee);
       }
 
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
+
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);
@@ -336,12 +344,27 @@ const AgencySignUp = ({
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
+          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           console.log("agency signup data is", response.data.data);
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
           if (typeof document !== "undefined") {
             setCookie(response.data.data.user, document);
+          }
+
+          // Track signup for affiliate marketing
+          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
+          if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
+            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          } else {
+            console.log("[DEBUG] agentxTrackSignup not available");
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
           }
 
           let screenWidth = 1000;
@@ -479,13 +502,14 @@ const AgencySignUp = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="w-full flex flex-row items-center justify-start gap-2 mt-4">
+      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+        style={{ backgroundColor: '' }}>
+        <div className="w-full flex flex-row items-center justify-start gap-2">
           <div className="w-6/12">
             <div className="flex flex-col items-start w-full h-[90%]">
               <div
-                className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-                style={{ textAlign: "left" }}
+                className="mt-6 w-11/12"
+                style={{ textAlign: "left", fontSize: 22, fontWeight: "600", }}
               >
                 Create Your AI Agency
               </div>
@@ -506,7 +530,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Name"
-                  className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                  className="border border-[#00000010] px-2 outline-none focus:outline-none focus:ring-0 h-[40px]"
                   ref={(el) => (inputsFields.current[0] = el)}
                   style={{ ...styles.inputStyle, marginTop: "8px" }}
                   value={userName}
@@ -534,7 +558,7 @@ const AgencySignUp = ({
                   }}
                 />
 
-                <div className="flex flex-row items-center w-full justify-between mt-6">
+                <div className="flex flex-row items-center w-full justify-between mt-4">
                   <div style={styles.headingStyle}>
                     {`What's your email address`}
                   </div>
@@ -578,7 +602,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Email address"
-                  className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                  className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0"
                   style={{ ...styles.inputStyle, marginTop: "8px" }}
                   value={userEmail}
                   onChange={(e) => {
@@ -634,7 +658,7 @@ const AgencySignUp = ({
                   }}
                 />
 
-                <div className="flex flex-row items-center justify-between w-full mt-6">
+                <div className="flex flex-row items-center justify-between w-full mt-4">
                   <div style={styles.headingStyle}>
                     {`What's your phone number`}
                   </div>
@@ -702,11 +726,11 @@ const AgencySignUp = ({
                   <PhoneInput
                     ref={(el) => (inputsFields.current[2] = el)}
                     className="border outline-none bg-white"
-country={"us"} // restrict to US only
+                    country={"us"} // restrict to US only
                     onlyCountries={["us"]}
                     disableDropdown={true}
                     countryCodeEditable={false}
-                    disableCountryCode={false}                    value={userPhoneNumber}
+                    disableCountryCode={false} value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
                       locationLoader
@@ -719,7 +743,7 @@ country={"us"} // restrict to US only
                       width: "100%",
                       borderWidth: "0px",
                       backgroundColor: "transparent",
-                      paddingLeft: "60px",
+                      paddingLeft: "30px",
                       paddingTop: "20px",
                       paddingBottom: "20px",
                     }}
@@ -743,9 +767,9 @@ country={"us"} // restrict to US only
                   />
                 </div>
 
-                <div className="flex flex-row items-center gap-4 w-full">
+                <div className="flex flex-row items-center gap-4 w-full mt-4">
                   <div className="w-6/12">
-                    <div style={styles.headingStyle} className="mt-6">
+                    <div style={styles.headingStyle}>
                       {`Agency Name`}
                     </div>
                     <input
@@ -755,7 +779,7 @@ country={"us"} // restrict to US only
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Agency Name"
-                      className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={company}
                       onChange={(e) => {
@@ -769,7 +793,7 @@ country={"us"} // restrict to US only
                     />
                   </div>
                   <div className="w-6/12">
-                    <div style={styles.headingStyle} className="mt-6">
+                    <div style={styles.headingStyle}>
                       Website (optional)
                     </div>
                     <input
@@ -779,7 +803,7 @@ country={"us"} // restrict to US only
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Website"
-                      className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={website}
                       onChange={(e) => {
@@ -794,7 +818,7 @@ country={"us"} // restrict to US only
                   </div>
                 </div>
 
-                <div style={styles.headingStyle} className="mt-6 mb-2">
+                <div style={styles.headingStyle} className="mt-4 mb-2">
                   Agency Size
                 </div>
                 <FormControl fullWidth>
@@ -809,6 +833,7 @@ country={"us"} // restrict to US only
                       return selected.label;
                     }}
                     sx={{
+                      height: "40px",
                       border: "1px solid #00000020", // Default border
                       "&:hover": {
                         border: "1px solid #00000020", // Same border on hover
@@ -821,6 +846,7 @@ country={"us"} // restrict to US only
                       },
                       "&.MuiSelect-select": {
                         py: 0, // Optional padding adjustments
+                        height: "40px",
                       },
                     }}
                     MenuProps={{
@@ -886,7 +912,7 @@ country={"us"} // restrict to US only
                   }}
                 >
                   <Box
-                    className="lg:w-8/12 sm:w-full sm:w-10/12 w-full"
+                    className="lg:w-7/12 sm:w-full sm:w-10/12 w-full"
                     sx={styles.verifyPopup}
                   >
                     <div className="flex flex-row justify-center w-full">
@@ -898,26 +924,19 @@ country={"us"} // restrict to US only
                           borderRadius: "13px",
                         }}
                       >
-                        <div className="flex flex-row justify-end">
-                          <button onClick={handleClose}>
-                            <Image
-                              src={"/assets/crossIcon.png"}
-                              height={40}
-                              width={40}
-                              alt="*"
-                            />
-                          </button>
+                        <div className="flex flex-row justify-between items-center">
+                          <div
+                            style={{
+                              fontSize: 26,
+                              fontWeight: "700",
+                            }}
+                          >
+                            Verify phone number
+                          </div>
+                          <CloseBtn onClick={handleClose} />
                         </div>
                         <div
-                          style={{
-                            fontSize: 26,
-                            fontWeight: "700",
-                          }}
-                        >
-                          Verify phone number
-                        </div>
-                        <div
-                          className="mt-8"
+                          className="mt-4"
                           style={{ ...styles.inputStyle, color: "#00000060" }}
                         >
                           Enter code that was sent to number ending with *
@@ -1122,107 +1141,53 @@ country={"us"} // restrict to US only
             </div>
           </div>
 
-          <div className="flex w-6/12 flex-col items-center justify-center">
-            <Image
-              className="object-contain"
-              src={"/agencyIcons/signupLogo.jpg"}
-              height={620}
-              width={620}
-              alt="*"
-            />
-
-            {/* Side Box Code */}
-            {/* <div
-                            className="absolute bottom-10 right-6 sm:right-10 w-60 sm:w-4/12"
-                        // style={{
-                        //     position: "absolute",
-                        //     right: "3%",
-                        //     bottom: "10%"
-                        // }}
-                        >
-                            <div className="w-8/12 flex flex-col items-end mb-4">
-                                <div className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
-                                    style={{ fontWeight: "700" }}>
-                                    {company || "Agency Name"}
-                                </div>
-                                <Image
-                                    className="object-contain"
-                                    src={'/agencyIcons/poweredByIcon.png'}
-                                    height={22} width={177} alt='*'
-                                />
-                            </div>
-                            <div className="bg-white w-7/12 flex flex-row justify-center items-start shadow-xl pb-6 rounded-xl">
-                                <div className="w-9/12 bg-white shadow-xl rounded-xl px-4">
-                                    <div className="flex flex-row items-center gap-3 pt-6">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/man.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div style={styles.sideBoxTxt}>
-                                            {userName ? userName : "Agency Owner"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/web.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
-                                            {website ? website : "Website"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/email.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
-                                            {userEmail ? userEmail : "Email"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4 pb-6">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/building.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div style={styles.sideBoxTxt}>
-                                            {size ? size.label : "Agency Size"}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                                </div>*/}
-            {/*parent div*/}
-            <div className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 max-w-full">
-              {/*this one agency name div*/}
-              <div className="inline-flex flex-col items-end mb-4">
-                <div
-                  className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
-                  style={{ fontWeight: "700", whiteSpace: "nowrap" }}
-                >
-                  {(company || "Agency Name").length > 20
-                    ? (company || "Agency Name").slice(0, 20) + '...'
-                    : (company || "Agency Name")}
+          <div className="flex w-6/12 flex-col items-center justify-start">
+            {/*
+              <Image
+                className="object-contain"
+                src={"/agencyIcons/signupLogo.png"}
+                height={570}
+                width={570}
+                alt="*"
+              />
+            */}
+            <div
+              className="w-full bg-transparent flex flex-col items-center justify-end"
+              style={{
+                backgroundImage: "url('/agencyIcons/signupLogo.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                height: "580px",
+                width: "580px"
+              }}
+            >
+              <div
+                className="inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl" //absolute bottom-10 right-0 sm:right-40
+              // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+              >
+                <div className="inline-flex flex-col items-start w-full px-6">
+                  <div
+                    className="
+      truncate w-full
+      text-[23px] sm:text-[28px] md:text-[33px] lg:text-[38px] xl:text-[43px]
+      text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF]
+      text-start
+    "
+                    style={{ fontWeight: "700" }}
+                  >
+                    {company || "Agency Name"}
+                  </div>
                 </div>
-                <Image
-                  className="object-contain"
-                  src={"/agencyIcons/poweredByIcon.png"}
-                  height={22}
-                  width={177}
-                  alt="*"
-                />
-              </div>
-              {/* This is getting width of the agncy name div or parent div */}
-              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-fit px-4">
-                <div className="bg-white shadow-xl rounded-xl px-4 pb-4">
+                <div className="inline-flex flex-col items-end w-full mb-4 px-6">
+                  <Image
+                    className="object-contain"
+                    src={"/agencyIcons/poweredByIcon.png"}
+                    height={22}
+                    width={177}
+                    alt="*"
+                  />
+                </div>
+                <div className="pb-4 w-full px-6">
                   {[
                     {
                       src: "/agencyIcons/man.jpg",
@@ -1243,20 +1208,22 @@ country={"us"} // restrict to US only
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-row items-center gap-3 mt-4 first:pt-6 min-w-0"
+                      className="flex flex-row items-center gap-3 mt-4 first:pt-2 min-w-0"
                     >
                       <Image alt="*" src={item.src} height={32} width={32} />
                       <div
                         className="truncate"
-                        style={{ ...styles.sideBoxTxt, maxWidth: "20rem" }}
+                        style={{ ...styles.sideBoxTxt }}
                       >
-                        {item?.label?.length > 13 ? item?.label?.slice(0, 13) + '...' : item?.label}
+                        {item?.label}
+                        {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>

@@ -11,7 +11,9 @@ const Page = () => {
         <TwilioHeader />
       </div>
       <div className='h-[90vh]'>
-        <Cnammain />
+        {/*
+          <Cnammain />
+        */}
       </div>
     </div>
   )

@@ -2,18 +2,20 @@ import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp } from '@phosphor-ic
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
 import ClaimNumber from '../myagentX/ClaimNumber';
 import Link from 'next/link';
+import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService';
 
 const AgencyChecklist = ({ userDetails }) => {
 
     const router = useRouter();
 
     // console.log("User data recieved to check list on agency side is", userDetails?.user?.checkList?.checkList);
-    const [showList, setShowList] = useState(true);
+    const [showList, setShowList] = useState(false);
+    const [loader, setLoader] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
 
@@ -27,14 +29,21 @@ const AgencyChecklist = ({ userDetails }) => {
         const D = localStorage.getItem("User");
         if (D) {
             const LocalData = JSON.parse(D);
+            const LD = LocalData?.user;
             const T = LocalData?.user?.checkList?.checkList;
+            const canAcceptPaymentsAgencyccount = LD?.canAcceptPaymentsAgencyccount;
+            console.log("Agency checklist is", T);
             // const T = userDetails?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
             let percentage = 0;
 
+            if (canAcceptPaymentsAgencyccount) {
+                percentage = 20
+            }
+
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 25; //16.67;
+                    percentage += 20; //16.67;
                 }
             }
 
@@ -45,10 +54,11 @@ const AgencyChecklist = ({ userDetails }) => {
             console.log("percentage of check list is", percentage);   // Output: 60
 
             setCheckList([
-                { id: 1, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
-                { id: 2, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
-                { id: 3, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },
-                { id: 4, label: 'Add Subaccount', status: T?.subaccountAdded, route: "/agency/dashboard/subAccounts" },
+                { id: 1, label: 'Add Stripe', status: LD?.canAcceptPaymentsAgencyccount, route: "/agency/dashboard/integration" },
+                { id: 2, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
+                { id: 3, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
+                { id: 4, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },
+                { id: 5, label: 'Add Subaccount', status: T?.subaccountAdded, route: "/agency/dashboard/subAccounts" },
                 // { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
                 // { id: 6, label: 'Claim a number', status: false, route: "" }
             ]);
@@ -84,11 +94,11 @@ const AgencyChecklist = ({ userDetails }) => {
                 progressValue < 100 && (
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
                         <button
-                            className='w-full flex flex-rw items-center justify-between outline-none border-none ps-2'
+                            className='w-full flex flex-rw items-center justify-between outline-none border-none px-4'
                             onClick={() => { setShowList(!showList) }}>
                             <div>
                                 <div className='font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px] whitespace-nowrap overflow-hidden text-ellipsis'>
-                                    Agency Checklist
+                                    Checklist
                                 </div>
                                 <div>
                                     <ProgressBar value={progressValue} />
@@ -110,41 +120,40 @@ const AgencyChecklist = ({ userDetails }) => {
                                 <div>
                                     {
                                         checkList?.map((item) => (
-                                            <Link
-                                                href={item.route}
+                                            <button
+                                                // href={item.route}
                                                 key={item.id}
-                                                className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
-                                                // onClick={() => {
-                                                //     if (item.label === "Connect a calendar") {
-                                                //         setShowAddCalendar(true);
-                                                //     } else if (item.label === "Claim a number") {
-                                                //         setShowClaimPopup(true);
-                                                //     } else {
-                                                //         const D = {
-                                                //             status: true
-                                                //         }
-                                                //         localStorage.setItem("isFromCheckList", JSON.stringify(D))
-                                                //         // window.open(item.route, "_blank");
-                                                //         router.push(item.route);
-                                                //     }
-                                                // }}
+                                                className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full border-none outline-none'
+                                                onClick={async () => {
+                                                    if (item.label === "Add Stripe") {
+                                                        await getStripeLink(setLoader);
+                                                    } else {
+                                                        window.location.href = item.route
+                                                    }
+                                                }}
                                                 disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
-                                                    {item.status === true ? <Image
-                                                        className='ms-2'
-                                                        src={"/agencyIcons/Check.jpg"}
-                                                        alt='*'
-                                                        height={20}
-                                                        width={20}
-                                                    /> :
+                                                    {item.status === true ?
                                                         <Image
                                                             className='ms-2'
-                                                            src={"/agencyIcons/unCheck.jpg"}
+                                                            src={"/agencyIcons/Check.jpg"}
                                                             alt='*'
                                                             height={20}
                                                             width={20}
-                                                        />}
+                                                        /> :
+                                                        <div className="h-[18px] w-[18px] rounded-full bg-btngray ms-2">
+                                                        </div>
+                                                    }
+                                                    {/*
+                                                        <Image
+                                                        className='ms-2'
+                                                        src={"/agencyIcons/unCheck.jpg"}
+                                                        alt='*'
+                                                        height={20}
+                                                        width={20}
+                                                    />
+                                                    */}
                                                     <div
                                                         // style={styles.text}
                                                         // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}
@@ -154,8 +163,14 @@ const AgencyChecklist = ({ userDetails }) => {
                                                         {item.label}
                                                     </div>
                                                 </div>
-                                                <CaretRight size={20} />
-                                            </Link>
+                                                {
+                                                    item.label === "Add Stripe" && loader ? (
+                                                        <CircularProgress size={15} />
+                                                    ) : (
+                                                        <CaretRight size={20} />
+                                                    )
+                                                }
+                                            </button>
                                         ))
                                     }
                                 </div>
@@ -197,4 +212,4 @@ const AgencyChecklist = ({ userDetails }) => {
     )
 }
 
-export default AgencyChecklist
+export default AgencyChecklist;

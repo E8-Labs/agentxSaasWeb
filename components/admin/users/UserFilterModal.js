@@ -16,7 +16,7 @@ import {
 import { CalendarPicker } from "./CalendarPicker";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
-
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 const styles = {
   heading: {
     fontWeight: "700",
@@ -211,13 +211,11 @@ export function UserFilterModal({
         <div className="w-full flex flex-col items-center justify-start ">
           <div className="flex flex-row items-center justify-between w-full">
             <div>Filter</div>
-            <button
+            <CloseBtn
               onClick={() => {
                 onDismissCallback();
               }}
-            >
-              <img src={"/assets/cross.png"} height={17} width={17} alt="*" />
-            </button>
+            />
           </div>
           <div className="mt-2 w-full overflow-auto h-[85%] p-4">
 

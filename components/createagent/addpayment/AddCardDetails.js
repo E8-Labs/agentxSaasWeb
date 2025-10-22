@@ -36,6 +36,8 @@ const AddCardDetails = ({
   togglePlan,
   setAddPaymentSuccessPopUp,
   textBelowContinue = "",
+  selectedUser,
+  fromAdmin = false
 }) => {
   const stripeReact = useStripe();
   const elements = useElements();
@@ -62,6 +64,9 @@ const AddCardDetails = ({
 
   //agree terms
   const [agreeTerms, setAgreeTerms] = useState(true);
+
+  //disable continue btn after the card added
+  const [disableContinue, setDisableContinue] = useState(false);
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -152,9 +157,10 @@ const AddCardDetails = ({
   //function to add card
   const handleAddCard = async (e) => {
     setAddCardLoader(true);
-
+    setDisableContinue(true);
     if (stop) {
       stop(false);
+      setDisableContinue(false);
     }
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -165,6 +171,7 @@ const AddCardDetails = ({
     // //console.log;
     const AuthToken = D.token;
     if (!stripeReact || !elements) {
+      setDisableContinue(false);
       return;
     } else {
       ////console.log;
@@ -200,6 +207,7 @@ const AddCardDetails = ({
       setAddCardErrtxt(
         result.error.message || "Error confirming payment method"
       );
+      setDisableContinue(false);
       // setStatus(`Error: ${result.error.message}`);
     } else {
       // console.log("Result", JSON.stringify(result.setupIntent));
@@ -209,10 +217,20 @@ const AddCardDetails = ({
 
       // Save paymentMethod ID to your server (for later cron charging)
       // Step 3: Send payment method ID to backend to attach to customer
-      const requestBody = {
-        source: id,
-        inviteCode: inviteCode,
-      };
+
+      let requestBody = null;
+      if (fromAdmin) {
+        requestBody = {
+          source: id,
+          inviteCode: inviteCode,
+          userId: selectedUser.id
+        };
+      } else {
+        requestBody = {
+          source: id,
+          inviteCode: inviteCode,
+        };
+      }
       console.log("Request data sending in api is", requestBody);
       const addCardRes = await fetch(Apis.addCard, {
         method: "POST",
@@ -226,13 +244,15 @@ const AddCardDetails = ({
       const result2 = await addCardRes.json();
       console.log("Result is ", result2);
       setAddCardLoader(false);
-      if (result2.status) {
+      if (result2.status === true) {
         setAddCardSuccess(true);
+        // console.log("This is check 1 test")
         if (!togglePlan) handleClose(result);
         if (togglePlan) handleSubscribePlan();
       } else {
         setAddCardFailure(true);
         setAddCardErrtxt(result2.message);
+        setDisableContinue(false);
       }
     }
   };
@@ -367,7 +387,7 @@ const AddCardDetails = ({
               color: "#4F5B76",
             }}
           >
-            Exp
+            Exp Date
           </div>
           <div
             className="mt-2 px-3 py-1 border"
@@ -408,14 +428,18 @@ const AddCardDetails = ({
               color: "#4F5B76",
             }}
           >
-            CVC
+            CVV
           </div>
           <div
             className="mt-2 px-3 py-1 border"
             style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
           >
             <CardCvcElement
-              options={elementOptions}
+              // options={elementOptions}
+              options={{
+                ...elementOptions,
+                placeholder: "CVV", // 👈 add this
+              }}
               style={{
                 width: "100%",
                 padding: "8px",
@@ -506,7 +530,7 @@ const AddCardDetails = ({
           )}
         </button>
         <div
-          className="flex flex-row items-center gap-2"
+          className="flex flex-row items-center gap-1"
           style={{
             fontWeight: "500",
             fontSize: 15
@@ -535,7 +559,8 @@ const AddCardDetails = ({
             {CardAdded && CardExpiry && CVC && agreeTerms ? (
               <button
                 onClick={handleAddCard}
-                className="bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3"
+                disabled={disableContinue}
+                className={`${disableContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"} w-full h-[50px] rounded-xl px-8 py-3`}
                 style={{ fontWeight: "600", fontSize: 17 }}
               >
                 Continue

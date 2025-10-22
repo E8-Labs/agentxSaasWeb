@@ -28,6 +28,7 @@ function BasicInfo() {
   const projectSizeRef = useState(null)
   const clientsPerMonthRef = useState(null)
   const casesPerMonthRef = useState(null)
+  const teritorryRef = useState(null)
 
 
   const [focusedName, setFocusedName] = useState(false);
@@ -106,6 +107,7 @@ function BasicInfo() {
   const [loading11, setLoading11] = useState(false);
   const [loading12, setLoading12] = useState(false);
   const [loading13, setLoading13] = useState(false);
+  const [loading14, setLoading14] = useState(false);
 
   const [srviceLoader, setServiceLoader] = useState(false);
   const [areaLoading, setAreaLoading] = useState(false);
@@ -228,7 +230,7 @@ function BasicInfo() {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-      //console.log;
+      console.log("user data is",userData)
 
       setUserRole(userData?.user?.userRole);
       setUserType(userData?.user?.userType);
@@ -247,7 +249,7 @@ function BasicInfo() {
       setClientType2(userData?.user?.clientType);
 
       setCompany(userData?.user?.company);
-      // setProjectSize(userData?.user?.projectSizeKw);
+      setTeritorry(userData?.user?.territory);
       setWebsiteUrl(userData?.user?.website);
       setCompanyAffiliation(userData?.user?.firmOrCompanyAffiliation);
       setClientsPerMonth(userData?.user?.averageMonthlyClients);
@@ -530,6 +532,23 @@ function BasicInfo() {
     }
   };
 
+  const handleTeritorrySave = async () => {
+    try {
+      setLoading14(true);
+
+      let data = {
+        territory: teritorry,
+      };
+      await UpdateProfile(data);
+      setLoading14(false);
+      setIsTeritorryChanged(false);
+    } catch (e) {
+      // //console.log;
+    }
+  };
+
+
+
   const handleCompanyAffiliationSave = async () => {
     try {
       setLoading11(true);
@@ -733,7 +752,7 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      //console.log;
+      console.log("Data to update area is", data);
 
       // return
       await UpdateProfile(data);
@@ -766,7 +785,7 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      //console.log;
+      console.log("Data to update service is", data);
 
       // return
       await UpdateProfile(data);
@@ -834,7 +853,8 @@ function BasicInfo() {
                 document.cookie =
                   "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
               }
-              router.push("/");
+              // router.push("/");
+              window.location.href = "/";
             }}
           >
             Log Out
@@ -1182,7 +1202,74 @@ function BasicInfo() {
               </div>
             </>
           ) : (
-            ""
+            (userType && userType === UserTypes.General) ||
+              (userType && userType === UserTypes.Reception) ?
+              (
+                <>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "700",
+                      color: "#000",
+                      marginTop: "4vh",
+                    }}
+                  >
+                    Teritorry
+                  </div>
+
+                  <div
+                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                    style={{
+                      border: `1px solid ${focusedTerritory ? "#8a2be2" : "#00000010"
+                        }`,
+                      transition: "border-color 0.3s ease",
+                    }}
+                  >
+                    <input
+                      ref={teritorryRef}
+                      className="w-11/12 outline-none focus:ring-0"
+                      onFocus={() => setFocusedTerritory(true)}
+                      onBlur={() => setFocusedTerritory(false)}
+                      value={teritorry}
+                      onChange={(event) => {
+                        setTeritorry(event.target.value);
+                        setIsTeritorryChanged(true);
+                      }}
+                      type="text"
+                      placeholder="Teritorry"
+                      style={{ border: "0px solid #000000", outline: "none" }}
+                    />
+                    {isTeritorryChanged ?
+                      (loading14 ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            handleTeritorrySave();
+                          }}
+                          style={{
+                            color: " #8a2be2",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Save
+                        </button>
+                      )) : (
+                        <button
+                          onClick={() => {
+                            teritorryRef.current?.focus();
+                          }}
+                        >
+                          <Image src={'/svgIcons/editIcon.svg'}
+                            width={24} height={24} alt="*"
+                          />
+                        </button>
+                      )}
+                  </div>
+                </>
+              ) : ""
+
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
@@ -1254,6 +1341,8 @@ function BasicInfo() {
           ) : (userType && userType === UserTypes.SolarRep) ||
             (userType && userType === UserTypes.SalesDevRep) ||
             (userType && userType === UserTypes.MarketerAgent) ||
+            (userType && userType === UserTypes.General) ||
+            (userType && userType === UserTypes.Reception) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
@@ -1543,7 +1632,7 @@ function BasicInfo() {
               >
                 <input
                   ref={installationVolumeRef}
-                  type="number"
+                  // type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
@@ -1601,7 +1690,7 @@ function BasicInfo() {
               >
                 {userType === UserTypes.DebtCollectorAgent
                   ? " Balance Size of Debts "
-                  : "Average Project Size (kW)"}
+                  : "Average Project Size (kw)"}
               </div>
 
               <div
@@ -1706,8 +1795,8 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  )):(
-                     <button
+                  )) : (
+                    <button
                       onClick={() => {
                         clientsPerMonthRef.current?.focus();
                       }}
@@ -1741,8 +1830,8 @@ function BasicInfo() {
                 }}
               >
                 <input
-                ref={casesPerMonthRef}
-                
+                  ref={casesPerMonthRef}
+
                   type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedCasesPerMonth(true)}
@@ -1771,8 +1860,8 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  )):(
-                     <button
+                  )) : (
+                    <button
                       onClick={() => {
                         casesPerMonthRef.current?.focus();
                       }}

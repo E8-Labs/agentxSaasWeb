@@ -1,3 +1,4 @@
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
@@ -12,7 +13,8 @@ const DelAdminUser = ({
     handleClosePauseModal,
     handlePaueUser,
     pauseLoader,
-    selectedUser
+    selectedUser,
+    selectedAccount
 }) => {
 
     return (
@@ -58,17 +60,7 @@ const DelAdminUser = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleClose} />
                                 </div>
                             </div>
 
@@ -144,8 +136,8 @@ const DelAdminUser = ({
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                                     {
-                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
-                                    } {selectedUser?.name}
+                                        selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
+                                    } {selectedUser?.name} {selectedAccount?.name}
                                 </div>
                                 <div
                                     style={{
@@ -154,24 +146,14 @@ const DelAdminUser = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClosePauseModal}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleClosePauseModal} />
                                 </div>
                             </div>
 
                             <div className="mt-6">
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Are you sure to  {
-                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                        selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
                                     }?
                                 </div>
                             </div>
@@ -205,7 +187,7 @@ const DelAdminUser = ({
                                         onClick={handlePaueUser}
                                     >
                                         Yes!  {
-                                            selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                            selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
                                         }
                                     </button>
                                 )}

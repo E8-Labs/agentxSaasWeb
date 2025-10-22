@@ -31,6 +31,19 @@ import LoginComponent from "@/components/auth/LoginComponent";
 const Page = ({ length = 6, onComplete }) => {
 
   useEffect(() => {
+    const inputs = document.querySelectorAll('input, textarea');
+
+    inputs.forEach((el) => {
+      el.setAttribute('autocorrect', 'off');
+      el.setAttribute('autocomplete', 'off');
+      el.setAttribute('spellcheck', 'false');
+      el.setAttribute('autocapitalize', 'off');
+      // el.setAttribute('inputmode', 'text'); // optional
+    });
+  }, []);
+
+
+  useEffect(() => {
     const handleChunkError = (e) => {
       if (e.message?.includes('ChunkLoadError')) {
         console.error('Chunk load failed. Reloading...');

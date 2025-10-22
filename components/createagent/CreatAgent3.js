@@ -14,6 +14,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import CycleArray from "../onboarding/extras/CycleArray";
 import { PersistanceKeys } from "@/constants/Constants";
+import PlansService from "@/utilities/PlansService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -45,6 +46,39 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
       setShouldContinue(false);
     }
   }, [togglePlan, agreeTerms]);
+
+  // Load plans on component mount
+  useEffect(() => {
+    loadOnboardingPlans();
+  }, []);
+
+  // Function to load plans for onboarding context
+  const loadOnboardingPlans = async () => {
+    try {
+      // Load main plans with trial
+      const mainPlansData = await PlansService.getCachedPlans(
+        'onboarding_plans_main',
+        'regular',
+        'onboarding',
+        true
+      );
+      setPlans(mainPlansData);
+
+      // Load secondary plans 
+      const secondaryPlansData = await PlansService.getCachedPlans(
+        'onboarding_plans_secondary',
+        'regular',
+        'default',
+        false
+      );
+      setPlans2(secondaryPlansData);
+    } catch (error) {
+      console.error('Error loading onboarding plans:', error);
+      // Set fallback plans
+      setPlans(PlansService.getFallbackPlans('onboarding', true));
+      setPlans2(PlansService.getFallbackPlans('default', false));
+    }
+  };
 
 
   useEffect(() => {
@@ -218,101 +252,9 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
     },
   ];
 
-  const plans = [
-    {
-      id: 1,
-      startFreeLabel: "Free",
-      mints: 30,
-      calls: 125,
-      isTrial: true,
-      trial: "7 Day Trial",
-      details: "Perfect to start for free, then $45 to continue.",
-      originalPrice: "45",
-      discountPrice: "Free Trial",
-      planStatus: "Free",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      isTrial: false,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      isTrial: false,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      isTrial: false,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
-
-  const plans2 = [
-    {
-      id: 1,
-      mints: 30,
-      isTrial: true,
-      calls: 125,
-      details: "Great for trying out AI sales agents",
-      originalPrice: "",
-      discountPrice: "$45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      isTrial: false,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      isTrial: false,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      isTrial: false,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
+  // Plans will be loaded dynamically from API
+  const [plans, setPlans] = useState([]);
+  const [plans2, setPlans2] = useState([]);
 
   const styles = {
     headingStyle: {
@@ -398,7 +340,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center  h-[100svh]"
     >
-      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 bg-red">
+      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[100vh] sm:h-[90vh] py-4 bg-red">
         <div className="flex flex-col h-[100%]  ">
           {/*for small size screen i agreeto terms and conditions*/}
           <div className="overflow-auto sm:overflow-none">
@@ -626,7 +568,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                             </div>
                             <div className="flex flex-row items-center justify-end space-x-1 ">
                               <div className="line-through text-gray-500 text-sm">
-                                ${item.originalPrice}
+                                {item?.originalPrice ? `$${item.originalPrice}` : ""}
                               </div>
                               <div
                                 className="flex flex-row justify-start items-start "
@@ -758,7 +700,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
             <TermsText />
             </div>*/}
           {selectedPlan && (
-            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2  bottom-[1%] sm:bottom-[8%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
+            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[1%] sm:bottom-[8%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
               {/* <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
@@ -887,23 +829,27 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                 </div>
 
                 {selectedPlan?.id > 1 ? (
-                  <div
-                    className="text-center mt-4 md:text-[17px] md:font-[600]" //style={styles.headingStyle}
+                  <div style={{
+                    // fontSize: 16,
+                    // fontWeight: "600",
+                    color: "#00000060",
+                  }}
+                    className="text-center text-[14px] font-[400] mt-4 sm:text-[17px] sm:font-[500]" //style={styles.headingStyle}
                   >
                     Your minutes will renew monthly or after using{" "}
                     {selectedPlan?.mints} mins
                   </div>
                 ) : (
-                <div
-                  className="text-center test-14 font-[500] mt-4 sm:text-[17px] sm:font-[500]"
-                  style={{
-                    // fontSize: 16,
-                    // fontWeight: "600",
-                    color: "#00000060",
-                  }}
-                >
-                  Payment starts after 7 days
-                </div>
+                  <div
+                    className="text-center text-[14px] font-[400] mt-4 sm:text-[17px] sm:font-[500]"
+                    style={{
+                      // fontSize: 16,
+                      // fontWeight: "600",
+                      color: "#00000060",
+                    }}
+                  >
+                    Payment starts after 7 days trial
+                  </div>
                 )}
 
                 <Elements stripe={stripePromise}>
@@ -992,7 +938,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       // if (selectedPlan.id === 1) {
                       //   setShowSubscribeplan2(true);
                       // } else {
-                        router.push("/createagent/desktop");
+                      router.push("/createagent/desktop");
                       // }
                       // //console.log;
                     } else {
@@ -1000,7 +946,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       // if (selectedPlan.id === 1) {
                       //   setShowSubscribeplan2(true);
                       // } else {
-                        handleContinue();
+                      handleContinue();
                       // }
                     }
                   }}
@@ -1097,6 +1043,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       className="w-full mt-4"
                       onClick={(e) => handleTogglePlanClick2(item)}
                     >
+
                       <div
                         className="px-4 py-1 pb-4"
                         style={{

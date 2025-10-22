@@ -25,7 +25,7 @@ const AddSellerKyc = ({
   SellerUrgencyData,
   mainAgentId,
   allKYCs,
-  selectedUser
+  selectedUser = null
 }) => {
   //console.log;
   //console.log
@@ -662,12 +662,15 @@ const AddSellerKyc = ({
         mainAgentId: AgentId,
 
       };
-      if (UserDetails.user.userType === "admin") {
+      if (selectedUser) {
         data.userId = selectedUser.id
       }
       //console.log;
       // return;
       ApiData = data;
+
+      console.log("APi data is :",ApiData)
+      // console.log("Auth thoken is",AuthToken)
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -677,7 +680,7 @@ const AddSellerKyc = ({
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of add kyc api is",response.data)
         if (response.data.status === true) {
           handleCloseSellerKyc();
           handleAddSellerKycData(response.data.data);
@@ -761,7 +764,7 @@ const AddSellerKyc = ({
         <div className="h-[62vh]" style={{ scrollbarWidth: "none" }}>
           {/* header */}
           {/* <Header /> */}
-          {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
+          {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full">
             <div
@@ -1042,35 +1045,33 @@ const AddSellerKyc = ({
                         }}
                       />
                     </div>
-                    {/*
-                      <div className="mt-4 mx-2" style={styles.headingStyle}>
-                        Sample Answers
-                      </div>
-  
-                      <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-                        {inputs.map((input, index) => (
-                          <div
-                            key={input.id}
-                            className="w-full flex flex-row items-center gap-4 mt-4"
-                          >
-                            <input
-                              className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                              style={{
-                                width: "95%",
-                                borderColor: "#00000020",
-                                fontWeight: "500",
-                                fontSize: 15,
-                              }}
-                              placeholder={`Sample Answer`}
-                              value={input.value}
-                              onChange={(e) =>
-                                handleInputChange(input.id, e.target.value)
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    */}
+                    {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
+                      Sample Answers
+                    </div>
+
+                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+                      {inputs.map((input, index) => (
+                        <div
+                          key={input.id}
+                          className="w-full flex flex-row items-center gap-4 mt-4"
+                        >
+                          <input
+                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
+                            style={{
+                              width: "95%",
+                              borderColor: "#00000020",
+                              fontWeight: "500",
+                              fontSize: 15,
+                            }}
+                            placeholder={`Sample Answer`}
+                            value={input.value}
+                            onChange={(e) =>
+                              handleInputChange(input.id, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>*/}
 
                     {/* <div className=' mx-2' style={{ height: "50px" }}>
                                             {
@@ -1088,8 +1089,8 @@ const AddSellerKyc = ({
                     <div className="w-full h-[80px]">
                       {
                         // inputs.filter((input) => input.value.trim() !== "")
-                        // .length === 3 &&
-                        newQuestion ? (
+                        //   .length === 3 &&
+                          newQuestion ? (
                           <button
                             className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
                             style={{ ...styles.headingStyle, height: "50px" }}

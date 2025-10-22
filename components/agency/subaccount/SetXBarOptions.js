@@ -10,7 +10,7 @@ import UserType from "@/components/onboarding/UserType";
 
 
 export default function SetXBarOptions({
-    onClose, selectedMonthlyPlans, xBars, formData, closeModal, selectedUserType
+    onClose, selectedMonthlyPlans, xBars, formData, closeModal, selectedUserType, selectedAgency
 }) {
 
     const [xBarPlans, setXBarPlans] = useState([]);
@@ -32,7 +32,7 @@ export default function SetXBarOptions({
     const getPlansList = async () => {
         try {
             setLoading(true)
-            const plans = await getXBarOptions();
+            const plans = await getXBarOptions(selectedAgency);
             setLoading(false)
             console.log("x bar Plans list recieved is", plans);
             setXBarPlans(plans);
@@ -64,7 +64,7 @@ export default function SetXBarOptions({
             }
 
 
-            const ApiData = {
+            let ApiData = {
                 name: formData.subAccountName,
                 phone: formData.userPhoneNumber,
                 email: formData.userEmail,
@@ -79,10 +79,17 @@ export default function SetXBarOptions({
                         email: item.email
                     })),
                 monthlyPlans: selectedMonthlyPlans,
-                xbarPlans: selectedXBarPlans
+                xbarPlans: selectedXBarPlans,
+                smartRefill: formData.isSmartRefill,
+                allowSubaccountTwilio: formData.allowSubaccountTwilio,
 
             }
-
+            if (selectedAgency) {
+                ApiData = {
+                    ...ApiData,
+                    userId: selectedAgency.id
+                }
+            }
             console.log("Api data is", ApiData);
             // return
             const response = await axios.post(ApiPath, ApiData, {
@@ -124,7 +131,6 @@ export default function SetXBarOptions({
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Select XBar Options</h2>
-                <button onClick={() => { handleBack() }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
@@ -174,7 +180,7 @@ export default function SetXBarOptions({
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => { handleBack() }}
-                    className="text-purple-700 font-medium w-2/6"
+                    className="text-purple-700 font-medium w-2/6 rounded-lg border"
                 >
                     Back
                 </button>

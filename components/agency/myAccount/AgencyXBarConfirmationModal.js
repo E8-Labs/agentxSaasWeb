@@ -64,7 +64,8 @@ export default function AgencyXBarConfirmationModal({
           onClick={onClose}
           variant="outlined"
           sx={{
-            borderColor: "#ddd",
+            // borderColor: "#ddd",
+            border: "none",
             color: "#000",
             fontWeight: "bold",
             textTransform: "none",

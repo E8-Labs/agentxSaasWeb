@@ -22,182 +22,8 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { Searchbar } from "@/components/general/MuiSearchBar";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { allIntegrations } from "@/constants/Constants";
 
-const allIntegrations = [
-  {
-    title: "Mailchimp",
-    url: "https://zapier.com/apps/mailchimp/integrations/myagentx",
-    description:
-      "Automatically nurture AgentX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
-    icon: "/svgIcons/MailchimpIcon.svg",
-  },
-  {
-    title: "ActiveCampaign",
-    url: "https://zapier.com/apps/activecampaign/integrations/myagentx",
-    description:
-      "Send AgentX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
-    icon: "/svgIcons/ActiveCampaignIcon.svg",
-  },
-  {
-    title: "ClickUp",
-    url: "https://zapier.com/apps/clickup/integrations/myagentx",
-    description:
-      "Create follow-up tasks in ClickUp for AgentX leads to ensure no opportunity is missed.",
-    icon: "/svgIcons/ClickUpIcon.svg",
-  },
-  {
-    title: "Trello",
-    url: "https://zapier.com/apps/trello/integrations/myagentx",
-    description:
-      "Organize AgentX leads into Trello boards for tracking follow-up actions and collaboration with your team.",
-    icon: "/svgIcons/TrelloIcon.svg",
-  },
-  {
-    title: "Asana",
-    url: "https://zapier.com/apps/asana/integrations/myagentx",
-    description:
-      "Add tasks for AgentX lead follow-ups in Asana to keep your pipeline moving forward.",
-    icon: "/svgIcons/AsanaIcon.svg",
-  },
-  {
-    title: "Slack",
-    url: "https://zapier.com/apps/slack/integrations/myagentx",
-    description:
-      "Receive instant updates in Slack when AgentX nurtures a lead or books an appointment.",
-    icon: "/svgIcons/SlackIcon.svg",
-  },
-  {
-    title: "Shopify",
-    url: "https://zapier.com/apps/shopify/integrations/myagentx",
-    description:
-      "Sync Shopify customers to AgentX for personalized follow-ups and repeat business outreach.",
-    icon: "/svgIcons/ShopifyIcon.svg",
-  },
-  {
-    title: "Stripe",
-    url: "https://zapier.com/apps/stripe/integrations/myagentx",
-    description:
-      "Automatically update AgentX lead profiles when payments are received through Stripe for nurturing upsell opportunities.",
-    icon: "/svgIcons/StripeIcon.svg",
-  },
-  {
-    title: "PayPal",
-    url: "https://zapier.com/apps/paypal/integrations/myagentx",
-    description:
-      "Track PayPal transactions in AgentX and follow up with leads to build long-term relationships",
-    icon: "/svgIcons/PayPalIcon.svg",
-  },
-  {
-    title: "Google Sheets",
-    url: "https://zapier.com/apps/google-sheets/integrations/myagentx",
-    description:
-      "Add new leads from Google Sheets to AgentX for AI-driven follow-ups and nurturing.",
-    icon: "/svgIcons/GoogleSheetsIcon.svg",
-  },
-  {
-    title: "Zoho",
-    url: "https://zapier.com/apps/zoho-forms/integrations/myagentx",
-    description:
-      "Sync Zoho CRM leads with AgentX for automated follow-ups and timely engagement.",
-    icon: "/svgIcons/ZohoIcon.svg",
-  },
-  {
-    title: "FUB",
-    url: "https://zapier.com/apps/follow-up-boss/integrations/myagentx",
-    description:
-      "Send FUB leads to AgentX to ensure consistent nurturing through AI-powered communication.",
-    icon: "/svgIcons/FUBIcon.svg",
-  },
-  {
-    title: "HubSpot",
-    url: "https://zapier.com/apps/hubspot/integrations/myagentx",
-    description:
-      "Integrate HubSpot contacts with AgentX to automate follow-ups and streamline your pipeline.",
-    icon: "/svgIcons/HubSpotIcon.svg",
-  },
-  {
-    title: "Clio Grow",
-    url: "https://zapier.com/apps/clio/integrations/myagentx",
-    description:
-      "Capture Clio Grow client leads and let AgentX handle the nurturing and scheduling.",
-    icon: "/svgIcons/ClioGrowIcon.svg",
-  },
-  {
-    title: "Close",
-    url: "https://zapier.com/apps/close/integrations/myagentx",
-    description:
-      "Update Close opportunities with AgentX follow-up progress to streamline sales efforts.",
-    icon: "/svgIcons/closeIcon.svg",
-  },
-  {
-    title: "KV Core",
-    url: "https://zapier.com/apps/kvcore/integrations/myagentx",
-    description:
-      "Send KV Core leads to AgentX to automate follow-ups and improve conversion rates.",
-    icon: "/svgIcons/KVCoreIcon.svg",
-  },
-  {
-    title: "Typeform",
-    url: "https://zapier.com/apps/typeform/integrations/myagentx",
-    description:
-      "Capture Typeform responses as leads in AgentX for instant follow-up and nurturing.",
-    icon: "/svgIcons/Typeform.svg",
-  },
-  {
-    title: "JotForm",
-    url: "https://zapier.com/apps/jotform/integrations/myagentx",
-    description:
-      "Add Jotform submissions to AgentX to kickstart AI-driven lead engagement and follow-up.",
-    icon: "/svgIcons/JotformIcon.svg",
-  },
-  {
-    title: "Facebook Ads (Instant form)",
-    url: "https://zapier.com/apps/facebook-lead-ads/integrations/myagentx",
-    description:
-      "Sync Facebook leads to AgentX for immediate qualifying, follow-ups and lead nurturing. Speed to lead! ",
-    icon: "/svgIcons/FacebookIcon.svg",
-  },
-  {
-    title: "Wix forms",
-    url: "https://zapier.com/apps/wix/integrations/myagentx",
-    description:
-      "Turn Wix form submissions into AgentX leads for automated nurturing and engagement.",
-    icon: "/svgIcons/WixformsIcon.svg",
-  },
-  {
-    title: "Calendly",
-    url: "https://zapier.com/apps/calendly/integrations/myagentx",
-    description:
-      "Automatically update AgentX when appointments are scheduled in Calendly to ensure timely follow-ups.",
-    icon: "/svgIcons/CalendlyIcon.svg",
-  },
-  {
-    title: "Cal.com",
-    url: "https://zapier.com/apps/calcom/integrations/myagentx",
-    description:
-      "Sync Cal.com bookings with AgentX for seamless scheduling and lead engagement.",
-    icon: "/svgIcons/Cal.comIcon.svg",
-  },
-  {
-    title: "GHL",
-    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
-    description:
-      "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
-    icon: "/svgIcons/GHLIcon.svg",
-  }, {
-    title: "Pipedrive",
-    url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
-    description:
-      "Connect Pipedrive with AgentX for seamless deal tracking and smart sales automation.",
-    icon: "/svgIcons/PipedriveIcon.svg",
-  }, {
-    title: "Salesforce",
-    url: "https://zapier.com/apps/salesforce/integrations/myagentx",
-    description:
-      "Streamline Salesforce CRM with AgentX for effortless lead tracking and workflow automation.",
-    icon: "/svgIcons/SalesforceIcon.svg",
-  },
-];
 function AdminIntegration({ selectedUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false);
   const [myKeys, setMyKeys] = useState([]);
@@ -408,7 +234,7 @@ function AdminIntegration({ selectedUser }) {
                 }}
               >
                 <div className="flex flex-row items-center justify-between ">
-                  <div> AgentX API Keys</div>
+                  <div> API Keys</div>
                   {showKeysBox ? (
                     <CaretUp size={20} />
                   ) : (
@@ -505,7 +331,7 @@ function AdminIntegration({ selectedUser }) {
                           textDecorationLine: "underline",
                         }}
                       >
-                        {myKeys.length > 0 ? "Refresh" : "Genrate New Api Key"}
+                        {myKeys.length > 0 ? "Refresh" : "Genrate"}
                       </div>
                     </button>
                   )}

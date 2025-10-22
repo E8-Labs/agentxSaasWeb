@@ -39,6 +39,7 @@ import EnrichConfirmModal from "@/components/dashboard/leads/EnrichCofirmModal";
 import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPerplexityModal";
 import AdminLeads from "./AdminLeads";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);
@@ -1216,18 +1217,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowUploadLeadModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => { setShowUploadLeadModal(false) }} />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Leads
@@ -1593,7 +1583,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 font-bold text-xl text-[#6b7280] rounded-xl h-[50px]"
                     onClick={() => {
                       setShowDelCol(false);
                     }}
@@ -1690,18 +1680,11 @@ const AdminLeads1 = ({ selectedUser }) => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowPopUp(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div
                   className="w-full text-center mt-2"

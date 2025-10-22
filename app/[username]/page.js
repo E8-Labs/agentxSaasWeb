@@ -22,6 +22,7 @@ import { setCookie } from "@/utilities/cookies";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760;
@@ -445,7 +446,7 @@ const Page = ({ length = 6, onComplete }) => {
           <div className="w-full gap-3 h-[10%] flex flex-row items-end">
             <Image
               className=""
-              src="/assets/agentX.png"
+              src="/assets/assignX.png"
               style={{ height: "29px", width: "122px", resize: "contain" }}
               height={29}
               width={122}
@@ -695,7 +696,7 @@ const Page = ({ length = 6, onComplete }) => {
             },
           }}
         >
-          <Box className="lg:w-8/12 sm:w-10/12 w-10/12" sx={styles.verifyPopup}>
+          <Box className="lg:w-7/12 sm:w-10/12 w-10/12" sx={styles.verifyPopup}>
             <div className="flex flex-row justify-center w-full">
               <div
                 className="sm:w-7/12 w-full"
@@ -705,30 +706,19 @@ const Page = ({ length = 6, onComplete }) => {
                   borderRadius: "13px",
                 }}
               >
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowVerifyPopup(false);
+                <div className="flex flex-row justify-between items-center">
+                  <div
+                    style={{
+                      fontSize: 26,
+                      fontWeight: "700",
                     }}
                   >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                    Verify phone number
+                  </div>
+                  <CloseBtn onClick={() => setShowVerifyPopup(false)} />
                 </div>
                 <div
-                  style={{
-                    fontSize: 26,
-                    fontWeight: "700",
-                  }}
-                >
-                  Verify phone number
-                </div>
-                <div
-                  className="mt-8"
+                  className="mt-4"
                   style={{ ...styles.inputStyle, color: "#00000060" }}
                 >
                   Enter code that was sent to number ending with *

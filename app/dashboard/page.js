@@ -12,7 +12,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import moment, { duration } from "moment";
+import moment from "moment";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,10 @@ import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 import { convertSecondsToMinDuration } from "@/utilities/utility";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { Elements } from "@stripe/react-stripe-js";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import { loadStripe } from "@stripe/stripe-js";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const Page = () => {
   const router = useRouter();
@@ -47,6 +51,19 @@ const Page = () => {
   //variables for popover
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  });
+
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -108,8 +125,9 @@ const Page = () => {
   function GetDashboardDataFromLocalStorage(api) {
     let d = localStorage.getItem(api);
     if (d) {
-      // //console.log;
       let json = JSON.parse(d);
+      console.log("Dashboard data is", json)
+
       let stats = json.stats;
       let comp = json.statsComparison;
       setStatsDetails(stats);
@@ -290,15 +308,21 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
 
-      {/* Slider code */}
-      <div
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+      />
+      {/* Slider code<div
         style={{
           position: "absolute",
           right: 0,
           bottom: 0
         }}>
         <DashboardSlider />
-      </div>
+      </div> */}
+
 
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
@@ -346,7 +370,7 @@ const Page = () => {
                     <div
                       style={{ fontSize: 15, fontWeight: "400", color: "#000" }}
                     >
-                      Total calls made
+                      Total Activity
                     </div>
                     <div
                       style={{
@@ -490,20 +514,18 @@ const Page = () => {
                               color: "#fff",
                             }}
                           >
-                            Mins Balance
+                            Balance
                           </div>
 
                           <div
-                            className="lg:text-4xl md:text-2xl sm:text-xl text-lg font-bold text-white"
+                            className="lg:text-2xl md:text-3xl sm:text-xl text-lg font-bold text-white"
                             style={{
                               // fontSize: 40,
                               fontWeight: "400",
                               color: "#fff",
                             }}
                           >
-                            {convertSecondsToMinDuration(
-                              userDetails?.totalSecondsAvailable || 0
-                            )}
+                            {(userDetails?.totalSecondsAvailable / 60).toFixed(2)} AI Credits
                           </div>
                         </div>
                       </div>
@@ -521,9 +543,7 @@ const Page = () => {
                         <button
                           className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
                           onClick={() => {
-                            const openBilling = true;
-                            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-                            router.push("/dashboard/myAccount?tab=2");
+                              setShowUpgradePlanPopup(true)
                           }}
                         >
                           <Image
@@ -625,12 +645,42 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={statsDetails?.formattedAvDuration || "-"}
+                      // value={
+                      //   statsDetails?.formattedAvDuration ?
+                      //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
+                      //     : "-"
+                      // }
+                      value={statsDetails?.formattedAvDuration && statsDetails?.formattedAvDuration != "N/A"  ? statsDetails?.formattedAvDuration : "-" }
                       borderSide="border-l-2"
+                    />
+
+                    {/* Card: credits used */}
+                    <Card
+                      icon="/otherAssets/creditsUsedIcons.png"
+                      title="Credits Used"
+                      value={statsDetails?.creditsUsed || "-"}
+                      borderSide="border-t-2"
+                    />
+
+                    {/* Card: Emails Sent */}
+                    <Card
+                      icon="/otherAssets/emailSentIcon.png"
+                      title="Emails Sent"
+                      value={statsDetails?.emailsSent || "-"}
+                      borderSide="border-l-2 border-t-2"
+                    />
+
+                    {/* Card: Texts send */}
+                    <Card
+                      icon="/otherAssets/smsSentIcon.png"
+                      title="Texts Sent"
+                      
+                      value={statsDetails?.smsSents || "-"}
+                      borderSide="border-l-2 border-t-2"
                     />
                   </div>
 
-                 {/* <div className="w-full flex flex-row items-center justify-between mt-4">
+                  {/* <div className="w-full flex flex-row items-center justify-between mt-4">
                     <div
                       className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
                       style={{
@@ -749,6 +799,17 @@ const Page = () => {
               </div>
             </div>
           </div>
+
+          <Elements stripe={stripePromise}>
+            <UpgradePlan
+              open={showUpgradePlanPopup}
+              handleClose={() => {
+                setShowUpgradePlanPopup(false)
+              }}
+              // setShowSnackMsg={setShowSnackMsg}
+
+            />
+          </Elements>
         </div>
       )}
     </div>

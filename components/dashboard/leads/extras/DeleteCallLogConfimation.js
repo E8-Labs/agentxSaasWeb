@@ -59,7 +59,7 @@ function DeleteCallLogConfimation({
 
                         <div className="flex flex-row items-center gap-4 mt-6">
                             <button
-                                className="w-6/12 border rounded py-2 text-purple font-[600]"
+                                className="w-6/12 text-[#6b7280] py-2  font-[600]"
                                 onClick={() => {
                                     setShowConfirmationPopup(null);
                                 }}

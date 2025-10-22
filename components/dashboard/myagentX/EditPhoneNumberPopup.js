@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import Image from "next/image";
 import parsePhoneNumberFromString from "libphonenumber-js";
-
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 export const EditPhoneNumberModal = ({
   title = "Call Back Number",
   number = "",
@@ -79,9 +79,7 @@ export const EditPhoneNumberModal = ({
       >
         <div className="w-full flex flex-row items-center justify-between">
           <div className="w-10"></div>
-          <button onClick={close}>
-            <Image src={"/svgIcons/cross.svg"} height={24} width={24} alt="*" />
-          </button>
+         <CloseBtn onClick={close}/>
         </div>
 
         <div

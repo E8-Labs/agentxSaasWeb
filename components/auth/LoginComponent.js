@@ -24,6 +24,7 @@ import {
   getLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
+import getProfileDetails from "../apis/GetProfile";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginComponent = ({ length = 6, onComplete }) => {
@@ -100,14 +101,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     const localData = localStorage.getItem("User");
     if (localData) {
       let d = JSON.parse(localData);
+      getProfileDetails()
       // //console.log;
 
       // set user type in global variable
 
       if (d.user.userType == "admin") {
         router.push("/admin");
-      } else if (d.user.userType == "Agency") {
+      } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
         router.push("/agency/dashboard");
+      } else if (d.user.userRole == "AgencySubAccount") {
+        if (d.user.plan) {
+          router.push("/dashboard");
+        } else {
+          router.push("/subaccountInvite/subscribeSubAccountPlan");
+        }
       } else {
         router.push("/dashboard");
       }
@@ -456,7 +464,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              setCookie(response.data.user, document, twoHoursFromNow);
+              setCookie(response.data.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
           } else {
@@ -484,12 +492,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
                   } else if (response.data.data.user.userRole == "AgencySubAccount") {
-                    router.push("/dashboard");
-                  } else if (response.data.data.user.userRole == "Agency") {
+                    if (response.data.data.user.plan) {
+                      router.push("/dashboard");
+                    } else {
+                      router.push("/subaccountInvite/subscribeSubAccountPlan");
+                    }
+                  } else if (response.data.data.user.userRole == "Agency" || response.data.data.user.agencyTeammember === true) {
                     router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/myAgentX");
                   }
+                  return
                   // if (data.data.user.userType == "admin") {
                   //   router.push("/admin");
                   // } 
@@ -554,24 +567,68 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   //verify code
+  // const handleVerifyInputChange = (e, index) => {
+  //   const { value } = e.target;
+  //   if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+  //   const newValues = [...VerifyCode];
+  //   newValues[index] = value;
+  //   setVerifyCode(newValues);
+
+  //   // Move focus to the next field if a number is entered
+  //   if (value && index < length - 1) {
+  //     verifyInputRef.current[index + 1].focus();
+  //   }
+
+  //   // Trigger onComplete callback if all fields are filled
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join("")); // Convert array to a single string here
+  //   }
+  // };
+
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+    // If value is longer than 1, assume it's a paste/autofill
+    if (value.length > 1) {
+      const newValues = Array(length).fill('');
+      value.slice(0, length).split('').forEach((char, i) => {
+        if (/[0-9]/.test(char)) {
+          newValues[i] = char;
+        }
+      });
+
+      setVerifyCode(newValues);
+
+      // Focus last filled or next empty
+      const lastFilledIndex = newValues.findLastIndex(val => val !== '');
+      const focusIndex = Math.min(lastFilledIndex + 1, length - 1);
+      verifyInputRef.current[focusIndex]?.focus();
+
+      // Trigger onComplete if all fields filled
+      if (newValues.every((num) => num !== '') && onComplete) {
+        onComplete(newValues.join(''));
+      }
+
+      return;
+    }
+
+    // Normal single digit input
+    if (!/[0-9]/.test(value) && value !== '') return;
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
     setVerifyCode(newValues);
 
-    // Move focus to the next field if a number is entered
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1].focus();
+      verifyInputRef.current[index + 1]?.focus();
     }
 
-    // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join("")); // Convert array to a single string here
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
     }
   };
+
 
   const handleBackspace = (e, index) => {
     if (e.key === "Backspace") {
@@ -666,7 +723,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         <div className="w-full gap-3 h-[10%] flex flex-row items-end">
           <Image
             className=""
-            src="/assets/agentX.png"
+            src="/assets/assignX.png"
             style={{ height: "29px", width: "122px", resize: "contain" }}
             height={29}
             width={122}
@@ -816,6 +873,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 Sign Up
               </Link>
             </div>
+
+            {/* Login with calendar */}
+            <div>
+
+            </div>
+
           </div>
         </div>
 

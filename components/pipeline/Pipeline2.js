@@ -335,10 +335,20 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         AuthToken = UserDetails.token;
       }
 
+      let isFromAgencyOrAdmin = null;
+      const FromAgencyOrAdmin = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      if (FromAgencyOrAdmin) {
+        const R = JSON.parse(FromAgencyOrAdmin);
+        isFromAgencyOrAdmin = R;
+      }
+
       //////console.log;
 
-      const ApiPath = Apis.uniqueColumns;
-      //////console.log;
+      let ApiPath = Apis.uniqueColumns;
+      if(isFromAgencyOrAdmin){
+        ApiPath = `${Apis.uniqueColumns}?userId=${isFromAgencyOrAdmin.subAccountData.id}`
+      }
+      console.log("Api path for get unques columns is ", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -578,6 +588,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           console.log("Is from agency or admin", isFromAgencyOrAdmin);
           if (isFromAgencyOrAdmin?.isFromAgency === "admin") {
             router.push("/admin");
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
+          } else if (isFromAgencyOrAdmin?.isFromAgency === "subaccount") {
+            router.push("/agency/dashboard/subAccounts");//agency
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
           } else {
             router.push("/dashboard/myAgentX");
@@ -1052,7 +1065,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex flex-row items-center gap-10 mt-10">
+                  <div className="flex flex-row items-center gap-8 mt-10">
                     {advanceSettingType.map((item, index) => (
                       <button
                         key={item.id}
@@ -1060,6 +1073,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                           ...styles.inputStyle,
                           color:
                             item.id === settingToggleClick ? "#7902DF" : "",
+                          marginLeft: item.id === 2 ? 10 : 0
                         }}
                         onClick={(e) => {
                           handleAdvanceSettingToggleClick(item.id);

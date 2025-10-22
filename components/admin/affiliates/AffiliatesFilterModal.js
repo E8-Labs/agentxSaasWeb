@@ -16,6 +16,7 @@ import {
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import CustomSlider from "./CustomSlider";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const styles = {
     heading: {
@@ -128,13 +129,9 @@ export function AffiliatesFilterModal({
                 <div className="w-full flex flex-col items-center justify-start ">
                     <div className="flex flex-row items-center justify-between w-full">
                         <div>Filter</div>
-                        <button
-                            onClick={() => {
-                                onDismissCallback();
-                            }}
-                        >
-                            <img src={"/assets/cross.png"} height={17} width={17} alt="*" />
-                        </button>
+                       <CloseBtn  onClick={() => {
+                        onDismissCallback();
+                    }}/>
                     </div>
                     <div className="mt-2 w-full overflow-auto h-[85%] p-4">
 

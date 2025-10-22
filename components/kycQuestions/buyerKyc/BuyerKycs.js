@@ -750,43 +750,41 @@ const BuyerKycs = ({ handleContinue }) => {
                         }}
                       />
                     </div>
-                    {/*
-                      <div className="mt-4 mx-2" style={styles.headingStyle}>
-                        Sample Answers
-                      </div>
-  
-                      <div
-                        className="mt-2 mx-2"
-                        style={{ fontWeight: "500", fontSize: 12 }}
-                      >
-                        What are possible answers leads will give to this
-                        question?
-                      </div>
-  
-                      <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4">
-                        {inputs.map((input, index) => (
-                          <div
-                            key={input.id}
-                            className="w-full flex flex-row items-center gap-4 mt-4"
-                          >
-                            <input
-                              className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                              style={{
-                                width: "95%",
-                                borderColor: "#00000020",
-                                fontWeight: "500",
-                                fontSize: 15,
-                              }}
-                              placeholder={`Sample Answer`}
-                              value={input.value}
-                              onChange={(e) =>
-                                handleInputChange(input.id, e.target.value)
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    */}
+                    <div className="mt-4 mx-2" style={styles.headingStyle}>
+                      Sample Answers
+                    </div>
+
+                    {/*<div
+                      className="mt-2 mx-2"
+                      style={{ fontWeight: "500", fontSize: 12 }}
+                    >
+                      What are possible answers leads will give to this
+                      question?
+                    </div>
+
+                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4">
+                      {inputs.map((input, index) => (
+                        <div
+                          key={input.id}
+                          className="w-full flex flex-row items-center gap-4 mt-4"
+                        >
+                          <input
+                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
+                            style={{
+                              width: "95%",
+                              borderColor: "#00000020",
+                              fontWeight: "500",
+                              fontSize: 15,
+                            }}
+                            placeholder={`Sample Answer`}
+                            value={input.value}
+                            onChange={(e) =>
+                              handleInputChange(input.id, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>*/}
 
                     {/* <div style={{ height: "50px" }}>
  {

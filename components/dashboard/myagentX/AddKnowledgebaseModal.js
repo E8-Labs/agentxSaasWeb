@@ -15,6 +15,7 @@ import { User } from "lucide-react";
 
 import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
 import Apis from "@/components/apis/Apis";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
@@ -525,24 +526,22 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <Typography variant="h6" fontWeight="bold">
               Knowledge Base
             </Typography>
-            <IconButton
-              onClick={() => {
-                setTitle("");
-                setUrl("");
-                setSelectedDocument(null);
-                setSelectedFileName("");
-                setFileName("");
-                if (fileInputRef && fileInputRef.current) {
-                  fileInputRef.current.value = "";
-                }
-                // setSelectedType("Text");
-                setText("");
-                setDocTitle("")
-                onClose();
-              }}
-            >
-              <Close />
-            </IconButton>
+            <CloseBtn
+            onClick={() => {
+              setTitle("");
+              setUrl("");
+              setSelectedDocument(null);
+              setSelectedFileName("");
+              setFileName("");
+              if (fileInputRef && fileInputRef.current) {
+                fileInputRef.current.value = "";
+              }
+              // setSelectedType("Text");
+              setText("");
+              setDocTitle("")
+              onClose();
+            }}
+            />
           </Box>
 
           <Typography variant="subtitle1" sx={{ mb: 2 }}>

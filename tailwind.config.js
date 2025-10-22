@@ -16,17 +16,51 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         white60: "#FFFFFF40",
-        purple: "#7902DF",
+        // purple: "#7902DF",
         btngray: "#E0E0E0",
         purple10: "#7902DF10",
         purple60: "#7902DF60",
-        green: "#01CB76",
+        "violet-blue": "#5B0EFF",
+        // green: "#01CB76",
         lightGreen: "#01CB7610",
-        red: "#FF4E4E",
+        // red: "#FF4E4E",
         purple2: "#1C55FF",
         lightBlue: "#402fff10",
         brdColor: "#15151510",
         grayclr75: "#757575",
+        // Transaction type colors
+        blue: {
+          100: "#DBEAFE",
+          800: "#1E40AF",
+        },
+        scrollBarPurple: "#7902DF",
+        purple: {
+          DEFAULT: "#7902DF",
+          100: "#F3E8FF", 
+          800: "#6B21A8",
+        },
+        green: {
+          DEFAULT: "#01CB76",
+          100: "#DCFCE7",
+          800: "#166534", 
+        },
+        orange: {
+          100: "#FED7AA",
+          800: "#9A3412",
+        },
+        red: {
+          DEFAULT: "#FF4E4E",
+          100: "#FEE2E2", 
+          800: "#991B1B",
+        },
+        indigo: {
+          100: "#E0E7FF",
+          800: "#3730A3",
+        },
+        gray: {
+          100: "#F3F4F6",
+          800: "#1F2937",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -89,9 +123,10 @@ module.exports = {
   plugins: [
     require("tailwind-scrollbar")({ nocompatible: true }), //scrollbar plugin
     require("@tailwindcss/aspect-ratio"),
+    require("tailwind-scrollbar-hide"), 
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
-    require("tailwind-scrollbar"),
+    // require("tailwind-scrollbar"),
     require("tailwindcss-animate"),
   ],
   variants: {

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Apis from "@/components/apis/Apis";
 import { AuthToken } from "../plan/AuthDetails";
 import axios from "axios";
-import { Box, CircularProgress, Modal } from "@mui/material";
+import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import SelectedUserDetails from "@/components/admin/users/SelectedUserDetails";
 import InviteTeamModal from "./InviteTeamModal";
 import AgentSelectSnackMessage, {
@@ -19,22 +19,37 @@ import CreateSubAccountModal from "./CreateSubAccountModal";
 import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
 import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
+import ViewSubAccountXBar from "./ViewSubAccountXBar";
 import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
+import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
+import { copyAgencyOnboardingLink } from "@/components/constants/constants";
+import SubAccountFilters from "./SubAccountFilters";
+import { useUser } from "@/hooks/redux-hooks";
+import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
+import getProfileDetails from "@/components/apis/GetProfile";
+import { formatFractional2 } from "../plan/AgencyUtilities";
 
-function AgencySubacount() {
+
+function AgencySubacount({
+  selectedAgency
+}) {
   const [subAccountList, setSubAccountsList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [moreDropdown, setmoreDropdown] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(false);
-  const [agencyData, setAgencyData] = useState("");
+  const [agencyData, setAgencyData] = useState(null);
   const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false);
 
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false);
   //code for show plans
   const [showPlans, setShowPlans] = useState(false);
+  //code for show XBar plans
+  const [showXBarPlans, setShowXBarPlans] = useState(false);
   const [userData, setUserData] = useState(null);
 
   //snack msages
@@ -46,11 +61,89 @@ function AgencySubacount() {
   //del subAcc
   const [delLoader, setDelLoader] = useState(false);
   const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
-  
+
+  //variables for dropdown
+  // const [accountAnchorel, setAccountAnchorel] = useState(null);
+  // const openAccountDropDown = Boolean(accountAnchorel);
+  // const accountId = accountAnchorel ? "accountAnchor" : undefined;
+
+  // state variables for dropdown
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeAccount, setActiveAccount] = useState(null);
+
+  //filter and search variable
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+
+  //subaccount filters variables
+  //balance spent
+  const [minSpent, setMinSpent] = useState("");
+  const [maxSpent, setMaxSpent] = useState("");
+  const [maxBalance, setMaxBalance] = useState("");
+  const [minBalance, setMinBalance] = useState("");
+  //plan id
+  const [selectPlanId, setSelectPlanId] = useState(null);
+  //account status
+  const [accountStatus, setAccountStatus] = useState("");
+
+  //applied filters list
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  //local plans
+  const [plansList, setPlansList] = useState([]);
+
+  //stores redux data
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  //twilio warning modal
+  const [noTwillio, setNoTwillio] = useState(false);
+  const [showXBarPopup, setShowXBarPopup] = useState(false);  
+
+  //redux data
+  useEffect(() => {
+    refreshUserData()
+  }, [])
+
+  //prints the reduux local data
+  // useEffect(() => {
+  //   console.log("Yalla habibi redux data", reduxUser)
+  //   if (reduxUser?.isTwilioConnected) {
+  //     setNoTwillio(false);
+  //   } else {
+  //     setNoTwillio(true);
+  //   }
+  // }, [reduxUser]);
+
+  //user profile data
+  useEffect(() => {
+    fetchProfileData();
+  }, [])
+
   useEffect(() => {
     getLocalData();
     getSubAccounts();
+    fetchPlans();
   }, []);
+
+  //dropdown popover functions
+  const handleTogglePopover = (event, item) => {
+    if (activeAccount === item.id) {
+      // same row clicked again → close
+      setAnchorEl(null);
+      setActiveAccount(null);
+    } else {
+      // open for this row
+      setAnchorEl(event.currentTarget);
+      setActiveAccount(item.id);
+      setUserData(item);
+      setSelectedItem(item);
+      setmoreDropdown(item.id);
+    }
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+    setActiveAccount(null);
+  };
+
 
   // get agency data from local
 
@@ -58,27 +151,44 @@ function AgencySubacount() {
     let data = localStorage.getItem("User");
     if (data) {
       let u = JSON.parse(data);
-
-      setAgencyData(u.user);
+      if (selectedAgency) {
+        setAgencyData(selectedAgency);
+      } else {
+        setAgencyData(u.user);
+      }
     }
   };
 
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
-      const monthlyPlans = await getMonthlyPlan();
-      const xBarOptions = await getXBarOptions();
-
-      if (monthlyPlans.length > 0 && xBarOptions.length > 0) {
-        setShowModal(true);
-      } else {
-        setShowSnackType(SnackbarTypes.Error);
-        if (monthlyPlans.length === 0) {
-          setShowSnackMessage("You'll need to add plans to create subaccounts ");
-        } else if (xBarOptions.length === 0) {
-          setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+      getLocalData();
+      //pass the selectedAgency id to check the status
+      const monthlyPlans = await getMonthlyPlan(selectedAgency);
+      const xBarOptions = await getXBarOptions(selectedAgency);
+      let stripeStatus = null;
+      setTimeout(() => {
+        if (selectedAgency) {
+          stripeStatus = selectedAgency.stripeConnected
+        } else {
+          stripeStatus = CheckStripe();
         }
-      }
+
+        if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
+          setShowModal(true);
+        } else {
+          setShowSnackType(SnackbarTypes.Error);
+          if (monthlyPlans.length === 0) {
+            setShowSnackMessage("You'll need to add plans to create subaccounts ");
+          } else if (xBarOptions.length === 0) {
+            setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+          } else if (!stripeStatus) {
+            setShowSnackMessage("You're Stripe account has not been connected.");
+          } else if (agencyData?.isTwilioConnected === false) {
+            setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+          }
+        }
+      }, 100);
 
     } catch (error) {
       console.error("Error occured in api is", error);
@@ -92,11 +202,44 @@ function AgencySubacount() {
   };
 
   // /code for getting the subaccouts list
-  const getSubAccounts = async () => {
+  const getSubAccounts = async (filterData = null) => {
     console.log("Trigered get subaccounts");
+    if (filterData) {
+      console.log("Trigered get subaccounts to filter", filterData);
+    }
     try {
       setInitialLoader(true);
-      const ApiPAth = Apis.getAgencySubAccount;
+
+      let ApiPAth = Apis.getAgencySubAccount;
+      const queryParams = [];
+
+      if (selectedAgency) {
+        queryParams.push(`userId=${selectedAgency.id}`);
+      }
+
+      if (filterData) {
+        Object.entries({
+          minSpent: filterData.minSpent,
+          maxSpent: filterData.maxSpent,
+          minBalance: filterData.minBalance,
+          maxBalance: filterData.maxBalance,
+          profile_status: filterData.accountStatus,
+          planId: filterData.selectPlanId,
+        }).forEach(([key, value]) => {
+          if (value !== "" && value !== null && value !== undefined) {
+            queryParams.push(`${key}=${value}`);
+          }
+        });
+      }
+
+      // minSpent=100000&minBalance=430&maxSpent=6000&maxBalance=1000
+
+      if (queryParams.length > 0) {
+        ApiPAth += "?" + queryParams.join("&");
+      }
+
+
+      console.log("Api path for dashboard monthly plans api is", ApiPAth)
       const Token = AuthToken();
       // console.log(Token);
       const response = await axios.get(ApiPAth, {
@@ -109,7 +252,13 @@ function AgencySubacount() {
       if (response) {
         console.log("Response of get subaccounts api is", response.data);
         setSubAccountsList(response.data.data);
+        setFilteredList(response.data.data);
         setInitialLoader(false);
+        if (filterData) {
+          setShowFilterModal(false)
+          setShowSnackMessage("Filter Applied");
+          setShowSnackType(SnackbarTypes.Success);
+        }
       }
     } catch (error) {
       console.error("Error occured in getsub accounts is", error);
@@ -142,6 +291,8 @@ function AgencySubacount() {
             setShowSnackMessage(response.data.message);
             setShowPauseConfirmationPopup(false);
             setmoreDropdown(null);
+            setSelectedItem(null);
+            getSubAccounts();
           }
           console.log("response.data.data", response.data);
         }
@@ -181,6 +332,8 @@ function AgencySubacount() {
           setDelLoader(false);
           setShowDelConfirmationPopup(false);
           setmoreDropdown(null);
+          setSelectedItem(null);
+          getSubAccounts();
         }
       }
     } catch (error) {
@@ -188,6 +341,135 @@ function AgencySubacount() {
       setDelLoader(false);
     }
   };
+
+  //get clor of profile status
+  const getProfileStatus = (status) => {
+    if (status.profile_status === "paused") {
+      return (
+        <div style={{ color: "orange" }}>
+          Paused
+        </div>
+      )
+    } else if (status.profile_status === "deleted") {
+      return (
+        <div className="text-red">
+          Deleted
+        </div>
+      )
+    } else if (status.profile_status === "active") {
+      return (
+        <div className="text-green">
+          Active
+        </div>
+      )
+    } else if (status.profile_status === "cancelled") {
+      return (
+        <div className="text-grayclr75">
+          Cancelled
+        </div>
+      )
+    } else if (status.profile_status === "pending") {
+      return (
+        <div className="text-grayclr75">
+          Pending
+        </div>
+      )
+    } else if (status.profile_status === "cancelled") {
+      return (
+        <div className="text-red-800">
+          Cancelled
+        </div>
+      )
+    }
+  }
+
+  //get the subaccpunt plans status
+  const getPlanStatus = (item) => {
+    if (item.planStatus && item.planStatus.status === "cancelled") {
+      return "Cancelled"
+    } else {
+      return "No Plan"
+    }
+  }
+
+  //fetch local plans
+  const fetchPlans = async () => {
+    const localPlans = localStorage.getItem("agencyMonthlyPlans");
+    if (localPlans) {
+      setPlansList(JSON.parse(localPlans));
+      console.log("Plans list is", JSON.parse(localPlans));
+    }
+  }
+
+  //search change
+  const handleSearchChange = (value) => {
+    setSearchValue(value);
+
+    if (!value) {
+      setFilteredList(subAccountList); // reset if empty
+    } else {
+      const lower = value.toLowerCase();
+      setFilteredList(
+        subAccountList.filter(
+          (item) =>
+            item.name?.toLowerCase().includes(lower) ||
+            item.email?.toLowerCase().includes(lower) || // optional
+            item.phone?.toLowerCase().includes(lower)   // optional
+        )
+      );
+    }
+  };
+
+  const refreshUserData = async () => {
+    console.log('🔄 REFRESH USER DATA STARTED');
+    try {
+      console.log('🔄 Calling getProfileDetails...');
+      const profileResponse = await getProfileDetails();
+      console.log('🔄 getProfileDetails response:', profileResponse);
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
+
+        // Update Redux and localStorage with fresh data
+        console.log("updating redux user", freshUserData)
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+  const fetchProfileData = async () => {
+    try {
+      setInitialLoader(true);
+      const profileResponse = await getProfileDetails();
+      if (profileResponse) {
+        console.log("habibi twilio status is", profileResponse?.data?.data?.isTwilioConnected);
+        if (profileResponse?.data?.data?.isTwilioConnected) {
+          setNoTwillio(false);
+        } else {
+          setNoTwillio(true);
+          // setUserProfile(profileResponse.data.data);
+        }
+        setInitialLoader(false);
+      }
+    } catch (err) {
+      setInitialLoader(false);
+      console.log("Err occured in get profile at subacc screen is", err)
+    }
+  }
 
   return (
     <div className="w-full flex flex-col items-center ">
@@ -202,26 +484,25 @@ function AgencySubacount() {
 
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
-            style={{
-              fontSize: 29,
-              fontWeight: "700",
-              color: "black",
-            }}
-          >
-            Sub Accounts
+          style={{
+            fontSize: 29,
+            fontWeight: "700",
+            color: "black",
+          }}
+        >
+          Sub Accounts
           {/* <EditAgencyName
             flex={true} /> */}
 
         </div>
 
-        <div>
+        <div className="flex flex-row items-center gap-2">
           <NotficationsDrawer />
         </div>
       </div>
 
-      {/* Code for twilio warning */}
-      <TwilioWarning
-        agencyData={agencyData}
+      {/* Code for twilio warning <TwilioWarning
+        // agencyData={agencyData}
         showSuccess={(d) => {
           setShowSnackMessage(d);
           setShowSnackType(SnackbarTypes.Success);
@@ -230,13 +511,29 @@ function AgencySubacount() {
           console.log("Twilio connected status", d);
           setTwilioConnectedStatus(d.status);
         }}
+      /> */}
+
+      <TwillioWarning
+        open={noTwillio}
+        handleClose={(d) => {
+          setNoTwillio(false);
+          if (d) {
+            // refreshUserData();
+            setShowSnackMessage("Twilio Connected");
+            setShowSnackType(SnackbarTypes.Success);
+          }
+        }}
+      // showSuccess={(d) => {
+      //   setShowSnackMessage(d);
+      //   setShowSnackType(SnackbarTypes.Success);
+      // }}
       />
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
         <div
           className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
           style={{
-            backgroundImage: "url('/agencyIcons/subAccBg.jpg')",
+            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",///agencyIcons/subAccBg.jpg
             backgroundSize: "cover",
             backgroundPosition: "center",
             // borderRadius:'20px'
@@ -246,15 +543,15 @@ function AgencySubacount() {
             style={{
               fontSize: 29,
               fontWeight: "700",
-              color: "black",
+              color: "white",
             }}
           >
-            Total Sub Accounts: {subAccountList?.length || 0}
+            Total Sub Accounts: {filteredList?.length || 0}
           </div>
 
           <button
             disabled={twililoConectedStatus}
-            className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+            className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium border-none outline-none"
             onClick={() => {
               handleCheckPlans();
             }}
@@ -262,10 +559,115 @@ function AgencySubacount() {
             Create Sub Account
           </button>
         </div>
+        <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
+          <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
+            <input
+              style={{ fontSize: 15 }}
+              type="text"
+              placeholder="Search by name, status or plan"
+              className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+              value={searchValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                // handleSearchChange(value);
+                setSearchValue(value);
+                handleSearchChange(value);
+              }}
+            />
+            <Image
+              src={"/otherAssets/searchIcon.png"}
+              alt="Search"
+              width={20}
+              height={20}
+            />
+          </div>
+          <div className="w-[75vw] flex flex-row items-center gap-4">
+            <div className="flex flex-row items-center gap-4 flex-shrink-0 w-[90%]">
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  setShowFilterModal(true);
+                }}
+              >
+                <Image
+                  src={"/otherAssets/filterBtn.png"}
+                  height={36}
+                  width={36}
+                  alt="Search"
+                />
+              </button>
+
+              {/* Filter Pills Row */}
+              <div
+                className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[90%]"
+                style={{
+                  scrollbarWidth: "none", // Firefox
+                  msOverflowStyle: "none", // IE/Edge
+                }}
+              >
+                {appliedFilters && Object.entries(appliedFilters).map(([key, value]) => {
+                  if (!value) return null;
+
+                  const labels = {
+                    minSpent: "Min Spent",
+                    maxSpent: "Max Spent",
+                    minBalance: "Min Balance",
+                    maxBalance: "Max Balance",
+                    selectPlanId: "Plan",
+                    accountStatus: "Status",
+                  };
+
+                  let displayValue = value;
+                  if (key === "selectPlanId") {
+                    const plan = plansList?.find((p) => p.id === value);
+                    displayValue = plan ? plan.title : value;
+                  }
+
+                  return (
+                    <div
+                      key={key}
+                      className="flex-shrink-0 px-4 py-2 bg-[#402FFF10] text-purple rounded-[25px] flex flex-row items-center gap-2"
+                    >
+                      <div className="text-[15px] font-medium">
+                        {labels[key] || key}: {displayValue}
+                      </div>
+                      <button
+                        className="outline-none flex-shrink-0"
+                        onClick={() => {
+                          const { [key]: removed, ...newFilters } = appliedFilters;
+                          setAppliedFilters(newFilters);
+
+                          if (key === "minSpent") setMinSpent("");
+                          if (key === "maxSpent") setMaxSpent("");
+                          if (key === "minBalance") setMinBalance("");
+                          if (key === "maxBalance") setMaxBalance("");
+                          if (key === "selectPlanId") setSelectPlanId(null);
+                          if (key === "accountStatus") setAccountStatus("");
+
+                          getSubAccounts(newFilters);
+                        }}
+                      >
+                        <Image
+                          src={"/otherAssets/crossIcon.png"}
+                          height={16}
+                          width={16}
+                          alt="remove"
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
-          <div className="w-3/12">
+          <div className="w-2/12">
             <div style={styles.text}>Sub Account</div>
+          </div>
+          <div className="w-1/12">
+            <div style={styles.text}>Status</div>
           </div>
           <div className="w-2/12 ">
             <div style={styles.text}>Plan</div>
@@ -282,9 +684,11 @@ function AgencySubacount() {
           <div className="w-2/12">
             <div style={styles.text}>Renewal</div>
           </div>
-          <div className="w-1/12">
-            <div style={styles.text}>Teams</div>
-          </div>
+          {/*
+            <div className="w-1/12">
+              <div style={styles.text}>Teams</div>
+            </div>
+          */}
           <div className="w-1/12">
             <div style={styles.text}>Action</div>
           </div>
@@ -300,22 +704,32 @@ function AgencySubacount() {
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >
-            {subAccountList?.length > 0 ? (
+            {filteredList?.length > 0 ? (
               <div>
-                {subAccountList.map((item) => (
+                {filteredList.map((item) => (
                   <div
                     key={item.id}
                     style={{ cursor: "pointer" }}
-                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
+                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
+                  // onClick={(e) => handleTogglePopover(e, item)}
+                  // onClick={(event) => {
+                  //   if (activeAccount === item.id) {
+                  //     // same row clicked again → close
+                  //     setAnchorEl(null);
+                  //     setActiveAccount(null);
+                  //   } else {
+                  //     // open for this row
+                  //     setAnchorEl(event.currentTarget);
+                  //     setActiveAccount(item.id);
+                  //     setUserData(item);
+                  //     setSelectedItem(item);
+                  //     setmoreDropdown(item.id);
+                  //     setSelectedUser(item);
+                  //   }
+                  // }}
                   >
                     <div
-                      className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
-                    // onClick={() => {
-                    //     // // //console.log;
-                    //     // setselectedLeadsDetails(item);
-                    //     // setShowDetailsModal(true);
-                    // }}
-                    >
+                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0" onClick={() => { setSelectedUser(item); }}>
                       {item.thumb_profile_image ? (
                         <Image
                           src={item.thumb_profile_image}
@@ -339,44 +753,52 @@ function AgencySubacount() {
                         {item.name}
                       </div>
                     </div>
-                    <div className=" w-2/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
+                      <div style={styles.text2}>{item?.profile_status ? <div>{getProfileStatus(item)}</div> : "-"}</div>
+                    </div>
+                    <div className=" w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
-                        {item.plan?.title || "No Plan"}
+                        {item.plan?.name || getPlanStatus(item)}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       {/* (item.LeadModel?.phone) */}
-                      <div style={styles.text2}>${item.amountSpent || 0}</div>
+                      <div style={styles.text2}>${formatFractional2(item.totalSpend || 0)}</div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
-                        {convertSecondsToMinDuration(
+                        {/*convertSecondsToMinDuration(
                           item.totalSecondsAvailable || 0
-                        )}
+                        )*/}
+                        {convertTime(item?.totalSecondsAvailable) || 0}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>{item.totalLeads}</div>
                     </div>
-                    <div className="w-2/12">
+                    <div className="w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
                         {item.nextChargeDate
                           ? moment(item.nextChargeDate).format("MMMM DD,YYYY")
                           : "-"}
                       </div>
                     </div>
-                    <div className="w-1/12">{item.teamMembers}</div>
+                    {/*
+                      <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>{item.teamMembers}</div>
+                    */}
 
                     <div className="w-1/12 relative">
                       <button
                         disabled={twililoConectedStatus}
-                        id={`dropdown-toggle-${item.id}`}
-                        onClick={() => {
-                          setUserData(item);
-                          setmoreDropdown(
-                            moreDropdown === item.id ? null : item.id
-                          )
-                        }}
+                        id={`account-popover-toggle-${item.id}`}
+                        onClick={(e) => handleTogglePopover(e, item)}
+                      // onClick={() => {
+                      //   setUserData(item);
+                      //   setmoreDropdown(
+                      //     moreDropdown === item.id ? null : item.id
+                      //   );
+                      //   setSelectedItem(item);
+                      // }}
                       >
                         <Image
                           src={"/svgIcons/threeDotsIcon.svg"}
@@ -386,128 +808,204 @@ function AgencySubacount() {
                         />
                       </button>
 
-                      {moreDropdown === item.id && (
-                        <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[180px]">
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              setSelectedUser(item);
-                            }}
-                          // setmoreDropdown(null)
-                          >
-                            View Detail
-                          </button>
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              setOpenInvitePopup(true);
-                            }}
-                          >
-                            Invite Team
-                          </button>
-                          {/* Code for invite team modal */}
-                          {openInvitePopup && (
-                            <NewInviteTeamModal
-                              openInvitePopup={openInvitePopup}
-                              userID={moreDropdown}
-                              handleCloseInviteTeam={(data) => {
-                                setOpenInvitePopup(false);
-                                if (data === "showSnack") {
-                                  setShowSnackMessage("Invite Sent");
-                                  setmoreDropdown(null);
-                                }
-                              }}
-                            />
-                          )}
-
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              console.log(selectedUser);
-                              setShowPlans(true);
-                            }}
-                          >
-                            View Plans
-                          </button>
-
-                          {
-                            showPlans && (
-                              <ViewSubAccountPlans
-                                showPlans={setShowPlans}
-                                hidePlans={() => { setShowPlans(false) }}
-                                selectedUser={userData}
-                              />
-                            )
-                          }
-
-                          <div>
-                            {pauseLoader ? (
-                              <CircularProgress size={25} />
-                            ) : (
-                              <button
-                                className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                                onClick={() => {
-                                  // handlePause();
-                                  setShowPauseConfirmationPopup(true);
-                                }}
-                              >
-                                Pause
-                              </button>
-                            )}
-                          </div>
-
-                          {
-                            showPauseConfirmationPopup && (
-                              <DelAdminUser
-                                showPauseModal={showPauseConfirmationPopup}
-                                handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
-                                handlePaueUser={handlePause}
-                                pauseLoader={pauseLoader}
-                                selectedUser={selectedUser}
-                              />
-                            )
-                          }
-
-                          {delLoader ? (
-                            <CircularProgress size={25} />
-                          ) : (
-                            <button
-                              className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                              onClick={() => {
-                                // handleDeleteUser();
-                                setShowDelConfirmationPopup(true);
-                              }}
-                            >
-                              Delete
-                            </button>
-                          )}
-
-                          {
-                            showDelConfirmationPopup && (
-                              <DelAdminUser
-                                showDeleteModal={showDelConfirmationPopup}
-                                handleClose={() => { setShowDelConfirmationPopup(false) }}
-                                handleDeleteUser={handleDeleteUser}
-                                delLoader={delLoader}
-                                selectedUser={selectedUser}
-                              />
-                            )
-                          }
-
-                        </div>
-                      )}
                     </div>
+
+                    {/* Popover unique per row */}
+                    <Popover
+                      id={`account-popover-${item.id}`}
+                      open={activeAccount === item.id}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopover}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                      }}
+                      PaperProps={{
+                        elevation: 6,
+                        style: {
+                          boxShadow:
+                            "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
+                          borderRadius: "12px",
+                          // border: "1px solid black",
+                        },
+                      }}
+                    >
+                      <div className="rounded-[10px] inline-flex flex-col gap-4 w-[200px] shadow-lg">
+                        <button
+                          className="px-4 pt-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setSelectedUser(item);
+                            handleClosePopover();
+                          }}
+                        >
+                          View Detail
+                        </button>
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setOpenInvitePopup(true);
+                            handleClosePopover();
+                          }}
+                        >
+                          Invite Team
+                        </button>
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowPlans(true);
+                            // handleClosePopover();
+                          }}
+                        >
+                          View Plans
+                        </button>
+
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowXBarPlans(true);
+                            handleClosePopover();
+                          }}
+                        >
+                          View XBar
+                        </button>
+                        <button
+                          className="px-4  hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowPauseConfirmationPopup(true);
+                            // handleClosePopover();
+                          }}
+                        >
+                          {item?.profile_status === "paused" ? "Reinstate" : "Pause"}
+                        </button>
+                        <button
+                          className="px-4 pb-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowDelConfirmationPopup(true);
+                            // handleClosePopover();
+                          }}
+                          disabled={item?.profile_status === "deleted"}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </Popover>
+
                   </div>
                 ))}
               </div>
             ) : (
               <div
-                className="text-center mt-4"
+                className="text-center flex flex-col items-center w-full"
                 style={{ fontWeight: "bold", fontSize: 20 }}
               >
-                No sub-account found
+                <Image
+                  alt='*'
+                  src={"/agencyIcons/subaccountPlaceholder.png"} //subaccountPlaceholder //nosubAccount
+                  height={230}
+                  width={420}
+                />
+                <div className="flex flex-col items-center gap-6" style={{ marginTop: "-120px" }}>
+                  <div style={{ fontWeight: "600", fontSize: "22px" }} className="text-center">
+                    No Sub-Account Found
+                  </div>
+                  {/*
+                   <div style={{ fontWeight: "600", fontSize: "12px" }} className="text-center">
+                     {`Looks like you don’t have any sub-accounts`}
+                   </div>
+                   <button
+                     disabled={twililoConectedStatus}
+                     className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+                     onClick={() => {
+                       handleCheckPlans();
+                     }}
+                   >
+                     Create Subaccount
+                   </button>
+                 */}
+                </div>
               </div>
             )}
+
+
+            {openInvitePopup && (
+              <NewInviteTeamModal
+                openInvitePopup={openInvitePopup}
+                userID={moreDropdown}
+                handleCloseInviteTeam={(data) => {
+                  setOpenInvitePopup(false);
+                  if (data === "showSnack") {
+                    setShowSnackMessage("Invite Sent");
+                    setmoreDropdown(null);
+                    setSelectedItem(null);
+                  }
+                }}
+              />
+            )}
+
+
+            {
+              showPlans && (
+                <ViewSubAccountPlans
+                  showPlans={setShowPlans}
+                  hidePlans={(d) => {
+                    if (d) {
+                      setShowSnackMessage("Plans Updated");
+                      setShowSnackType(SnackbarTypes.Success);
+                    }
+                    setShowPlans(false)
+                  }}
+                  selectedUser={userData}
+                />
+              )
+            }
+
+            {
+              showXBarPlans && (
+                <ViewSubAccountXBar
+                  showXBar={showXBarPlans}
+                  hideXBar={(d) => {
+                    if (d) {
+                      setShowSnackMessage("XBar Plans Updated");
+                      setShowSnackType(SnackbarTypes.Success);
+                    }
+                    setShowXBarPlans(false)
+                  }}
+                  selectedUser={userData}
+                />
+              )
+            }
+
+            {
+              showPauseConfirmationPopup && (
+                <DelAdminUser
+                  selectedAccount={selectedItem}
+                  showPauseModal={showPauseConfirmationPopup}
+                  handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                  handlePaueUser={handlePause}
+                  pauseLoader={pauseLoader}
+                  selectedUser={selectedUser}
+                />
+              )
+            }
+
+            {
+              showDelConfirmationPopup && (
+                <DelAdminUser
+                  showDeleteModal={showDelConfirmationPopup}
+                  handleClose={() => { setShowDelConfirmationPopup(false) }}
+                  handleDeleteUser={handleDeleteUser}
+                  delLoader={delLoader}
+                  selectedUser={selectedUser}
+                />
+              )
+            }
+
+
+
           </div>
         )}
 
@@ -529,7 +1027,33 @@ function AgencySubacount() {
             getSubAccounts();
             setShowModal(false);
           }}
+          selectedAgency={selectedAgency}
         // handleCloseModal={() => { handleCloseModal() }}
+        />
+
+        {/* Code for filters modal */}
+        <SubAccountFilters
+          open={showFilterModal}
+          handleClose={() => { setShowFilterModal(false) }}
+          initialLoader={initialLoader}
+          handleApplyFilters={(data) => {
+            setAppliedFilters(data);
+            setShowFilterModal(false);
+            console.log("FilterData is", data)
+            getSubAccounts(data);
+          }}
+          minSpent={minSpent}
+          maxSpent={maxSpent}
+          maxBalance={maxBalance}
+          minBalance={minBalance}
+          selectPlanId={selectPlanId}
+          accountStatus={accountStatus}
+          setMinSpent={setMinSpent}
+          setMaxSpent={setMaxSpent}
+          setMaxBalance={setMaxBalance}
+          setMinBalance={setMinBalance}
+          setSelectPlanId={setSelectPlanId}
+          setAccountStatus={setAccountStatus}
         />
 
         {/* Code for subaccount modal */}
@@ -562,11 +1086,15 @@ function AgencySubacount() {
               from="subaccount"
               selectedUser={selectedUser}
               // agencyUser={true}
+              hideViewDetails={true}
               handleDel={() => {
                 // setUsers((prev) => prev.filter((u) =>
                 //     u.id != selectedUser.id
                 // ))
                 // setSelectedUser(null)
+              }}
+              handleClose={() => {
+                setSelectedUser(null);
               }}
             />
           </Box>

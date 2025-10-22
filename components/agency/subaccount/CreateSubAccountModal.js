@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal, Box, Switch } from '@mui/material';
+import { Modal, Box, Switch, Tooltip } from '@mui/material';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import PhoneInput from "react-phone-input-2";
@@ -12,6 +12,7 @@ import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import agents from '@/components/onboarding/extras/AgentsList';
 import SellSeatsModal from '@/components/onboarding/extras/SellSeatsModal';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 export default function CreateSubAccountModal({ onClose, onContinue, formData }) {
 
@@ -141,6 +142,26 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             roundedImage: false,
         },
         {
+            id: 14,
+            title: "Reception Agent",
+            agentType: "Reception Agent",
+            // icon: "/usertype/avt2.png",
+            icon: "/agencyIcons/agentsView/receptionAgent.jpg",
+            areaOfFocusTitle: "What area do you focus on?",
+            userType: "ReceptionAgent",
+            roundedImage: false,
+        },
+        {
+            id: 15,
+            title: "General Agent",
+            agentType: "General Agent",
+            // icon: "/usertype/avt2.png",
+            icon: "/agencyIcons/agentsView/generalAgent.jpg",
+            areaOfFocusTitle: "What area do you focus on?",
+            userType: "GeneralAgent",
+            roundedImage: false,
+        },
+        {
             id: 100,
             title: "Website Agent",
             agentType: "Website Agent",
@@ -184,6 +205,10 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     const [showSellSeatsModal, setShowSellSeatsModal] = useState(false);
     const [fullName, setFullName] = useState("");
     const [seats, setSeats] = useState("");
+    //stores smart refill
+    const [isSmartRefill, setIsSmartRefill] = useState(true);
+
+    const [allowTwillio, setAllowTwillio] = useState(false)
 
     //show sell seats modal
     useEffect(() => {
@@ -236,6 +261,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setFullName("");
             setSeats("");
             setAlowSellSeats(false);
+            // setIsSmartRefill(false);
         }
         if (formData) {
             setSubAccountName(formData.subAccountName);
@@ -245,6 +271,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setTeamMembers(formData.teamMembers);
             setFullName(formData.fullName);
             setSeats(formData.seats);
+            setIsSmartRefill(formData.isSmartRefill);
             setAlowSellSeats(false);
             setErrorMessage("");
             setValidEmail("");
@@ -500,33 +527,15 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
         console.log('selectedtype', selectedUserType)
 
-        // return
-
-        // if (!subAccountName) {
-        //     setShowErrorSnack("Enter SubAccount Name")
-        //     return
-        // }
-
-        // if (!userEmail) {
-        //     setShowErrorSnack("Enter SubAccount Email")
-        //     return
-        // }
-        // if (!userPhoneNumber) {
-        //     setShowErrorSnack("Enter SubAccount Phone Number")
-        //     return
-        // }
-        // if (!selectedUserType) {
-        //     setShowErrorSnack("Select SubAccount Agent Type")
-        //     return
-        // }
-
         const fromData = {
             userEmail: userEmail,
             userPhoneNumber: userPhoneNumber,
             teamMembers: teamMembers,
             subAccountName: subAccountName,
             fullName: fullName,
-            seats: seats
+            seats: seats,
+            isSmartRefill: isSmartRefill,
+            allowSubaccountTwilio: allowTwillio
         }
 
         // console.log(fromData);
@@ -557,13 +566,17 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     }
 
     return (
-        <div className='h-[85vh]'>
+        <div className=''>
 
-            <div className='overflow-y-auto h-[92%] scrollbar-hide'
+            <div className='overflow-y-auto scrollbar-hide'
                 style={{
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                }}>
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                    transform: "translateZ(0)",
+                    willChange: "transform",
+                    contain: "paint layout"
+                }}
+            >
 
                 <AgentSelectSnackMessage
                     isVisible={showErrorSnack != null ? true : false}
@@ -573,18 +586,16 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 />
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
-                        &times;
-                    </button>
+                    <CloseBtn onClick={onClose} />
                 </div>
 
                 <div style={styles.headings}>
-                    Account Owner Name
+                    Sub Account Name
                 </div>
                 <input
                     type="text"
                     className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                    placeholder="Type here..."
+                    placeholder="Name"
                     style={styles.inputs}
                     value={subAccountName}
                     onChange={(e) => { setSubAccountName(e.target.value) }}
@@ -593,19 +604,19 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 <div
                     className='mb-4'
                     style={styles.headings}>
-                    Sub Account Name
+                    Account Owner Name
                 </div>
 
                 <div className='w-full flex flex-row items-center gap-2'>
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div style={styles.inputs}>
                             Full Name
                         </div>
                         <div>
                             <input
-                                type="email"
+                                type="Full Name"
                                 className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Type here..."
+                                placeholder="Name"
                                 value={fullName}
                                 onChange={(e) => { setFullName(e.target.value) }}
                                 style={styles.inputs}
@@ -613,14 +624,14 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                     </div>
                     {/* Sub Acc Email */}
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div className="flex flex-row items-center w-full justify-between">
                             <div style={styles.inputs}>
                                 Email
                             </div>
                             <div>
                                 {emailLoader ? (
-                                    <p className='text-purple' style={{ ...styles.errmsg, }}>
+                                    <p className='text-black' style={{ ...styles.errmsg, }}>
                                         Checking ...
                                     </p>
                                 ) : (
@@ -651,9 +662,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                         <div>
                             <input
-                                type="email"
+                                type="Email"
                                 className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Type here..."
+                                placeholder="Email"
                                 style={styles.inputs}
                                 value={userEmail}
                                 onChange={(e) => {
@@ -693,7 +704,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                     </div>
                     {/* Sub Acc Phone */}
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div className='flex flex-row items-center justify-between'>
                             <div style={styles.inputs}>
                                 Phone Number
@@ -701,7 +712,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             <div className=''>
                                 {locationLoader && (
                                     <p
-                                        className="text-purple"
+                                        className="text-black"
                                         style={{ ...styles.errmsg, height: "20px" }}
                                     >
                                         Getting location ...
@@ -759,7 +770,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             <PhoneInput
                                 specialLabel=""
                                 className="border outline-none bg-white"
-                                country={countryCode} // Set the default country
+                                country="us" // Set the default country
                                 value={userPhoneNumber}
                                 onChange={handlePhoneNumberChange}
                                 placeholder={
@@ -773,7 +784,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     width: "100%",
                                     borderWidth: "0px",
                                     backgroundColor: "transparent",
-                                    paddingLeft: "60px",
+                                    paddingLeft: "35px",
                                     paddingTop: "20px",
                                     paddingBottom: "20px",
                                 }}
@@ -788,7 +799,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     maxHeight: "150px",
                                     overflowY: "auto",
                                 }}
-                                countryCodeEditable={true}
+                                countryCodeEditable={false}
+                                disableDropdown={true}
                                 defaultMask={loading ? "Loading..." : undefined}
                             />
                         </div>
@@ -798,56 +810,84 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
                 {/* Code for allow sell seats */}
-                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-                    <div style={styles.inputs}>
-                        {
-                            seats ? (
-                                <div>
-                                    Sell Seats(${seats}/seat)
-                                </div>
-                            ) : (
-                                <div>
-                                    Sell Seats / Month
-                                </div>
-                            )
-                        }
-                    </div>
-                    <div className='flex flex-row items-center gap-4'>
-                        
-                        <Switch
-                            checked={alowSellSeats}
-                            onChange={(e) => setAlowSellSeats(e.target.checked)}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: 'white',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
-                                },
-                            }}
-                        />
-                    </div>
-                </div>
-
-                {/* Sell Seats Modal
-                        <SellSeatsModal
-                            seats={seats}
-                            showModal={showSellSeatsModal}
-                            closeModal={(d) => {
-                                if (d) {
-                                    setShowSellSeatsModal(false);
-                                    setSeats(d);
-                                } else {
-                                    setShowSellSeatsModal(false);
-                                    setAlowSellSeats(false);
+                {/*
+                    <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+    
+                        <div className="flex flex-row items-center gap-2">
+                            <div style={styles.inputs}>
+                                {
+                                    seats ? (
+                                        <div>
+                                            Sell Seats(${seats}/seat)
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            Sell Seats / Month
+                                        </div>
+                                    )
                                 }
-                            }}
-                        /> */}
-                {
+                            </div>
+    
+                            <Tooltip
+                                title="Maximize revenue by selling seats per month to any org." //"If the lead has given consent, no need to run against DNC"
+                                arrow
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "14px",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                        },
+                                    },
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        color: "#000000",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={15} height={15} className="cursor-pointer rounded-full"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    />
+                                </div>
+                            </Tooltip>
+                        </div>
+    
+                        <div className='flex flex-row items-center gap-4'>
+    
+                            <Switch
+                                checked={alowSellSeats}
+                                onChange={(e) => setAlowSellSeats(e.target.checked)}
+                                sx={{
+                                    '& .MuiSwitch-switchBase.Mui-checked': {
+                                        color: 'white',
+                                    },
+                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                        backgroundColor: '#7902DF',
+                                    },
+                                }}
+                            />
+                        </div>
+    
+                    </div>
+                */}
+
+                {/*
                     showSellSeatsModal && (
                         <div>
                             <div style={styles.subheading} className='mt-2'>
-                                Amount per month
+                                Price per month
                             </div>
                             <div className='border border-gray-200 rounded px-2 py-0 mt-2 flex flex-row items-center w-full'>
                                 <div className='' style={styles.subheading}>
@@ -865,150 +905,273 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             </div>
                         </div>
                     )
-                }
+                */}
 
-
-                <div className="mb-4">
-                    <p
-                        className="mb-2 mt-4"
-                        style={styles.headings}
-                    >
-                        Invite Team Members
-                    </p>
-                    <p className="mb-2"
-                        style={{
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            color: "#00000060"
-                        }}>
-                        {`Members invited in the list below won’t pay for seats.`}
-                    </p>
-                    <div className='flex fex-row ites-center w-full mb-2'>
-                        <div className="w-4/12"
-                            style={styles.inputs}>
-                            Full Name
-                        </div>
-                        <div className="w-4/12"
-                            style={styles.inputs}>
-                            Email Address
-                        </div>
-                        <div className="w-4/12"
-                            style={styles.inputs}>
-                            Phone Number
-                        </div>
-                    </div>
-                    <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
-                        {teamMembers.map((member, index) => (
-                            <div
-                                key={index}
-                                className="gap-4 flex flex-row items-center"
-                            // relative grid grid-cols-1 md:grid-cols-3
+                {/*
+                    <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                        <div className="flex flex-row items-center gap-2">
+                            <label className="text-sm font-medium">Twilio Trust Hub</label>
+    
+                            <Tooltip
+                                title="Enable Twilio for this subaccount to register their own numbers."
+                                arrow
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "14px",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                        },
+                                    },
+                                    arrow: {
+                                        sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                        },
+                                    },
+                                }}
                             >
-                                <input
-                                    type="text"
-                                    placeholder="Type here..."
-                                    className="px-3 py-2 border border-gray-300 rounded-lg w-4/12 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                    value={member.name}
-                                    onChange={(e) => handleChange(index, 'name', e.target.value)}
-                                    style={styles.inputs}
-                                />
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        color: "#000000",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Switch
+                            checked={allowTwillio}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                            onChange={(e) => {
+                                setAllowTwillio(e.target.checked)
+                            }}
+                        />
+    
+                    </div>
+                */}
 
-                                <div className='w-4/12'>
+                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                    <div className="flex flex-row items-center gap-2">
+                        <div
+                            className=""
+                            style={styles.inputs}>
+                            Smart Refill
+                        </div>
+
+                        <Tooltip
+                            title="Automatically refill credits when they run low. Keeps your sub account activities going without interruption."
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff", // Ensure white background
+                                        color: "#333", // Dark text color
+                                        fontSize: "14px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: "#ffffff", // Match tooltip background
+                                    },
+                                },
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    color: "#000000",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={15} height={15} className="cursor-pointer rounded-full"
+                                // onClick={() => setIntroVideoModal2(true)}
+                                />
+                            </div>
+                        </Tooltip>
+                    </div>
+
+                    <div>
+                        <Switch
+                            checked={isSmartRefill}
+                            onChange={(e) => setIsSmartRefill(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+
+                    </div>
+                </div>
+
+
+
+
+                {/*
+                    <div className="mb-4">
+                        <p
+                            className="mb-2 mt-4"
+                            style={styles.headings}
+                        >
+                            Invite Team Members
+                        </p>
+                        <p className="mb-2"
+                            style={{
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                color: "#00000060"
+                            }}>
+                            {`Members invited in the list below won’t pay for seats.`}
+                        </p>
+                        <div className='flex fex-row ites-center w-full mb-2'>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Full Name
+                            </div>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Email Address
+                            </div>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Phone Number
+                            </div>
+                        </div>
+    
+                        <div className="max-h-60 overflow-y-auto w-full pr-2 space-y-4">
+                            {teamMembers.map((member, index) => (
+                                <div
+                                    key={index}
+                                    className="gap-4 flex flex-row items-center"
+                                // relative grid grid-cols-1 md:grid-cols-3
+                                >
                                     <input
-                                        type="email"
-                                        placeholder="Type here..."
-                                        className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                        value={member.email}
-                                        onChange={(e) => {
-                                            handleChange(index, 'email', e.target.value);
-                                            validateMemberEmail(index, e.target.value);
-                                        }}
+                                        type="text"
+                                        placeholder="Full Name"
+                                        className="px-3 py-2 border border-gray-300 rounded-lg w-1/3 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                        value={member.name}
+                                        onChange={(e) => handleChange(index, 'name', e.target.value)}
                                         style={styles.inputs}
                                     />
-
-                                    {/* Success/Error Message */}
-                                    <div>
-                                        {member.emailError && (
-                                            <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
-                                        )}
-                                        {member.emailValid && !member.emailError && (
-                                            <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-row items-center overflow-hidden w-4/12">
-                                    <div className='w-[90%] flex flex-row items-center'>
-                                        <div className="w-full">
-                                            <PhoneInput
-                                                country={countryCode}
-                                                value={member.phone}
-                                                onChange={(value, countryData, e) => {
-                                                    handleChange(index, 'phone', value);
-                                                    // if (e?.type === 'input') {
-                                                    validateMemberPhone(index, value, countryCode);
-                                                    // }
-                                                }}
-                                                specialLabel=""
-                                                inputStyle={{
-                                                    width: "100%",
-                                                    borderWidth: "0px",
-                                                    backgroundColor: "transparent",
-                                                    paddingLeft: "45px",
-                                                    paddingTop: "14px",
-                                                    paddingBottom: "14px",
-                                                    fontSize: "15px",
-                                                    fontWeight: "500"
-                                                }}
-                                                buttonStyle={{
-                                                    border: "none",
-                                                    backgroundColor: "transparent"
-                                                }}
-                                                dropdownStyle={{
-                                                    maxHeight: "150px",
-                                                    overflowY: "auto",
-                                                }}
-                                                containerClass="border border-gray-300 rounded-lg w-full"
-                                            />
-                                            {/* Show validation */}
-                                            {member.phoneError && (
-                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
+    
+                                    <div className='w-1/3'>
+                                        <input
+                                            type="email"
+                                            placeholder="Email"
+                                            className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                            value={member.email}
+                                            onChange={(e) => {
+                                                handleChange(index, 'email', e.target.value);
+                                                validateMemberEmail(index, e.target.value);
+                                            }}
+                                            style={styles.inputs}
+                                        />
+    
+                                        <div>
+                                            {member.emailError && (
+                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
                                             )}
-                                            {member.phoneValid && !member.phoneError && (
+                                            {member.emailValid && !member.emailError && (
                                                 <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
                                             )}
                                         </div>
-
                                     </div>
-                                    {index > 0 && (
-                                        <button
-                                            onClick={() => handleRemoveMember(index)}
-                                            className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
+    
+                                    <div className="flex flex-row items-center overflow-hidden w-1/3">
+                                        <div className='w-[90%] flex flex-row items-center'>
+                                            <div className="w-full">
+                                                <PhoneInput
+                                                    country={"us"}
+                                                    value={member.phone}
+                                                    onChange={(value, countryData, e) => {
+                                                        handleChange(index, 'phone', value);
+                                                        // if (e?.type === 'input') {
+                                                        validateMemberPhone(index, value, countryCode);
+                                                        // }
+                                                    }}
+                                                    specialLabel=""
+                                                    countryCodeEditable={false}
+                                                    disableDropdown={true}
+                                                    inputStyle={{
+                                                        width: "100%",
+                                                        borderWidth: "0px",
+                                                        backgroundColor: "transparent",
+                                                        paddingLeft: "45px",
+                                                        paddingTop: "14px",
+                                                        paddingBottom: "14px",
+                                                        fontSize: "15px",
+                                                        fontWeight: "500"
+                                                    }}
+                                                    buttonStyle={{
+                                                        border: "none",
+                                                        backgroundColor: "transparent"
+                                                    }}
+                                                    dropdownStyle={{
+                                                        maxHeight: "150px",
+                                                        overflowY: "auto",
+                                                    }}
+                                                    containerClass="border border-gray-300 rounded-lg w-full"
+                                                />
+                                                {member.phoneError && (
+                                                    <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
+                                                )}
+                                                {member.phoneValid && !member.phoneError && (
+                                                    <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
+                                                )}
+                                            </div>
+    
+                                        </div>
+                                        {index > 0 && (
+                                            <button
+                                                onClick={() => handleRemoveMember(index)}
+                                                className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className='w-full flex flex-row items-center justify-start pe-4'>
+                            <button
+                                onClick={handleAddMember}
+                                className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                            >
+                                + New Member
+                            </button>
+                        </div>
                     </div>
-
-                    <div className='w-full flex flex-row items-center justify-start pe-4'>
-                        <button
-                            onClick={handleAddMember}
-                            className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
-                        >
-                           + New Member
-                        </button>
-                    </div>
-                </div>
+                */}
             </div>
 
-            <div className="flex justify-between">
-                <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
+            <div className="flex justify-between mt-8">
+                <button onClick={onClose} className="w-1/4 text-center text-purple border rounded-lg h-[40px]">Cancel</button>
                 <button
                     disabled={shouldContinue}
-                    className={`w-1/3 hover:bg-purple-700 px-6 py-2 rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
+                    className={`w-1/3 hover:bg-purple-700 px-6 h-[40px] rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                     onClick={() => { handleContinue() }}
                 >
                     Continue

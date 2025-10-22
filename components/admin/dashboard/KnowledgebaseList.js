@@ -5,7 +5,7 @@ import { CircularProgress } from "@mui/material";
 import Link from "next/link";
 
 
-const liveUrl = "https://apimyagentx.com/agentx";
+const liveUrl = "https://app.assignx.ai/agentx";
 const testUrl = "https://apimyagentx.com/agentxtest";
 
 const isProduction = typeof window !== "undefined" && process.env.NODE_ENV === "production";

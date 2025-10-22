@@ -51,15 +51,15 @@ function MyPhoneNumber() {
                 if (response) {
                     setLoading(false)
                     if (response.data.status === true) {
-                       // //console.log
+                        console.log("Response of get phone numbers", response.data.data)
                         setNumbers(response.data.data)
                     } else {
-                       // //console.log
+                        // //console.log
                     }
                 }
             } catch (e) {
                 setLoading(false)
-               // //console.log
+                // //console.log
             }
         }
     }
@@ -77,7 +77,7 @@ function MyPhoneNumber() {
             let AuthToken = null;
             if (localData) {
                 const D = JSON.parse(localData);
-               // //console.log;
+                // //console.log;
                 AuthToken = D.token
             }
 
@@ -85,11 +85,11 @@ function MyPhoneNumber() {
                 phone: selectedNumber
             }
 
-           //console.log;
+            //console.log;
 
             const ApiPath = Apis.delNumber;
 
-           // //console.log;
+            // //console.log;
 
             // return
             const response = await axios.post(ApiPath, ApiData, {
@@ -100,7 +100,7 @@ function MyPhoneNumber() {
             });
 
             if (response) {
-               //console.log;
+                //console.log;
                 if (response.data.status === true) {
                     setNumbers((prevNumbers) =>
                         prevNumbers.filter((item) => item.phoneNumber !== selectedNumber)
@@ -115,7 +115,7 @@ function MyPhoneNumber() {
             }
 
         } catch (error) {
-           console.error("Error occured in api is", error);
+            console.error("Error occured in api is", error);
             setSnackMsg(error);
             setErrType(SnackbarTypes.Error);
         } finally {
@@ -155,7 +155,7 @@ function MyPhoneNumber() {
                         marginInline: 2, // Remove default margin
                         minHeight: 0, // Adjust height to remove extra spacing
                     }}
-                    // onClick={handleMoreClose}
+                // onClick={handleMoreClose}
                 >
                     {
                         delLoader ? (
@@ -245,6 +245,13 @@ function MyPhoneNumber() {
                                                     <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
                                                         {item.phoneNumber}
                                                     </div>
+                                                    {
+                                                        item.isA2PVerified === 1 && (
+                                                            <div className='p-2 py-1 rounded-lg bg-green-100 text-green text-sm font-semibold'>
+                                                                A2P Verified
+                                                            </div>
+                                                        )
+                                                    }
                                                 </div>
                                             </div>
 
@@ -253,7 +260,7 @@ function MyPhoneNumber() {
                                                     onClick={(event) => {
                                                         setOpenMoreDropdown(true);
                                                         setMoreDropdown(event.currentTarget);
-                                                       // //console.log
+                                                        // //console.log
                                                         setSelectedNumber(item.phoneNumber)
                                                     }}>
                                                     <Image src={"/otherAssets/threeDotsIcon.png"}

@@ -604,7 +604,7 @@ const AssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("Numbers will be checked on the DNC list");
+            setShowSuccessSnack("DNC Enabled");
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -625,7 +625,7 @@ const AssignLead = ({
           // setLastStepModal(true);
         }}
       >
-        Only outbound agents assigned to a stage can make calls.
+        Only outbound agents assigned to a stage can be selected.
       </div>
 
       {initialLoader ? (

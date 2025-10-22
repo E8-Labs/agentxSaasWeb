@@ -31,12 +31,17 @@ import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOffice
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
 import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import GeneralAgentSignUp from "@/components/onboarding/otherAgentsSignUp/GeneralAgentSignUp";
 
 const Page = ({ params }) => {
   const router = useRouter();
   const [congratsPopup, setCongratsPopup] = useState(false);
   const [userType, setUserType] = useState(UserTypes.RealEstateAgent);
   const [index, setIndex] = useState(0);
+
+  const [showredirectPopup,setShowredirectPopup] = useState(false);
+
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
@@ -89,32 +94,7 @@ const Page = ({ params }) => {
       if (userType) {
         setComponents(comps.filter(Boolean));
 
-        // let oldComps = [
-        //   UserType,
-        //   UserService,
-        //   FocusArea,
-        //   userType === UserTypes.DebtCollectorAgent
-        //     ? DebtCollerterAgentSignUp
-        //     : userType === UserTypes.LawAgent
-        //     ? LawAgentSignUpMobile
-        //     : userType === UserTypes.MedSpaAgent
-        //     ? MedSpaAgentSignUpMobile
-        //     : userType === UserTypes.LoanOfficerAgent
-        //     ? LoanOfficerSignUpMobile
-        //     : BasicDetails, // Fallback
-
-        //   userType === UserTypes.DebtCollectorAgent
-        //     ? DebtCollerterAgentSignUp
-        //     : OtherDetails,
-        //   Congrats,
-        // ];
-        // setComponents(oldComps);
-
-        // console.log(
-        //   "🚀 Components from getComponentToRender:",
-        //   comps.map((c) => c?.name || "undefined")
-        // );
-      }
+}
     } else {
       let comps = getComponentToRender();
       // //console.log;
@@ -144,6 +124,8 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUp,
       [UserTypes.LawAgent]: LawAgentSignUp,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUp,
+      [UserTypes.General] : GeneralAgentSignUp,
+      [UserTypes.Reception] : GeneralAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
@@ -178,6 +160,8 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUpMobile,
       [UserTypes.LawAgent]: LawAgentSignUpMobile,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUpMobile,
+      [UserTypes.General] : GeneralAgentSignUp,
+      [UserTypes.Reception] : GeneralAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
@@ -350,6 +334,13 @@ const Page = ({ params }) => {
           userDetails={userDetails}
           setCongratsPopup={setCongratsPopup}
           handleUserTypeChange={handleUserTypeChange}
+          handleShowRedirectPopup={() => {
+            setShowredirectPopup(true);
+          }}
+        />
+        <LoaderAnimation 
+          isOpen={showredirectPopup}
+          title="Redirecting to create agent..."
         />
         <Modal
           open={congratsPopup}

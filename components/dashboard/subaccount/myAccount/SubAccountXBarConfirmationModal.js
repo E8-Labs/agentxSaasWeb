@@ -64,7 +64,7 @@ export default function SubAccountXBarConfirmationModal({
           onClick={onClose}
           variant="outlined"
           sx={{
-            borderColor: "#ddd",
+            border: "none",
             color: "#000",
             fontWeight: "bold",
             textTransform: "none",
