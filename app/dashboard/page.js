@@ -802,6 +802,9 @@ const Page = () => {
 
           <Elements stripe={stripePromise}>
             <UpgradePlan
+             setSelectedPlan={()=>{
+              console.log("setSelectedPlan is called")
+             }}
               open={showUpgradePlanPopup}
               handleClose={() => {
                 setShowUpgradePlanPopup(false)
