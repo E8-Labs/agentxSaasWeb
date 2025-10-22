@@ -559,9 +559,11 @@ const UserCalender = ({
             <div className="w-full">
               <div className="flex flex-row items-center justify-between w-[97%]">
                 <div className="flex flex-row items-center gap-2">
-                  <div className="text-[15px] font-[600] ">
-                    Calendar
-                  </div>
+                  {/*
+                    <div className="text-[15px] font-[600] ">
+                      Calendar
+                    </div>
+                  */}
 
                   <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
                     onClick={() => setIntroVideoModal2(true)}>

@@ -35,21 +35,24 @@ const ActionsTab = ({
 
     return (
         <div>
-            <div
-                className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5 mb-4'
-                style={{ width: "fit-content" }}
-            >
-                {actionsTab.map((item) => {
-                    return (
-                        <button
-                            key={item.id}
-                            className={`px-4 py-1 ${selectedActionTab === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"} border-none outline-none`}
-                            onClick={() => setSelectedActionTab(item.id)}
-                        >
-                            {item.title}
-                        </button>
-                    )
-                })}
+
+            <div className="w-full flex flex-row items-center justify-center">
+                <div
+                    className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5 mb-4'
+                    style={{ width: "fit-content" }}
+                >
+                    {actionsTab.map((item) => {
+                        return (
+                            <button
+                                key={item.id}
+                                className={`px-4 py-1 ${selectedActionTab === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"} border-none outline-none`}
+                                onClick={() => setSelectedActionTab(item.id)}
+                            >
+                                {item.title}
+                            </button>
+                        )
+                    })}
+                </div>
             </div>
 
             {
