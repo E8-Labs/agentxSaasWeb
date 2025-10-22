@@ -4,7 +4,7 @@ import React from 'react';
 const Pauseage = () => {
     return (
         <div className='w-full'>
-            <AdminDashboardCallLogs />
+            <AdminDashboardCallLogs isFromAgency={true} />
         </div>
     )
 }

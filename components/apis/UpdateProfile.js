@@ -33,8 +33,8 @@ export const UpdateProfile = async (apidata) => {
       });
 
       if (response) {
+        console.log(response.data)
         if (response.data.status === true) {
-          //console.log
           u.user = response.data.data;
 
           //// //console.log
@@ -50,6 +50,6 @@ export const UpdateProfile = async (apidata) => {
       //console.log
     }
   } catch (e) {
-    //console.log
+    console.log("error in update profile api",e)
   }
 };

@@ -25,7 +25,7 @@ const Congrats = () => {
       <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[90vh] py-4 pb-22 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="px-4 flex flex-row justify-between items-center pt-8">
           <Image
-            src="/assets/agentX.png"
+            src="/assets/assignX.png"
             style={{ height: "29px", width: "122px", resize: "contain" }}
             height={29}
             width={122}

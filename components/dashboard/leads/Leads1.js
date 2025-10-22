@@ -27,7 +27,7 @@ import TagsInput from "./TagsInput";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "./AgentSelectSnackMessage";
-import { SnackMessageTitles } from "@/components/constants/constants";
+import { getUserLocalData, SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
@@ -43,6 +43,8 @@ import ConfirmPerplexityModal from "./extras/CofirmPerplexityModal";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
+import { useUser } from "@/hooks/redux-hooks";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -116,6 +118,7 @@ const Leads1 = () => {
   const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
   //enrich toggle value
   const [isEnrichToggle, setIsEnrichToggle] = useState(false);
+  const [creditCost, setCreditCost] = useState(0);
 
 
   // Add state for batch upload persistence and progress
@@ -123,6 +126,15 @@ const Leads1 = () => {
   const [currentBatch, setCurrentBatch] = useState(0);
   const [totalBatches, setTotalBatches] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    if (data) {
+      setUser(data.user)
+    }
+  }, [])
 
 
   // //test code
@@ -158,6 +170,9 @@ const Leads1 = () => {
         setCurrentBatch(savedLeads.currentBatch);
         setTotalBatches(savedLeads.totalBatches);
         setUploadProgress(Math.floor((savedLeads.currentBatch / savedLeads.totalBatches) * 100));
+
+        // Send custom event to hide dashboard slider for resumed upload
+        window.dispatchEvent(new CustomEvent("leadUploadStart"));
       }
       let resumeData = {
 
@@ -172,7 +187,6 @@ const Leads1 = () => {
       console.log('trying to resume leads from batch ', savedLeads.currentBatch)
       handleAddLead(true, savedLeads.currentBatch, resumeData);
     }
-
   }, []);
 
 
@@ -699,19 +713,18 @@ const Leads1 = () => {
 
     setLoader(true);
 
+    if (isEnrichToggle) {
+      let enrichmentPayment = await processEnrichmentPayment();
+      console.log("enrichmentPayment", enrichmentPayment);
 
-
-  if (isEnrichToggle) {
-    let enrichmentPayment = await processEnrichmentPayment();
-    console.log("enrichmentPayment", enrichmentPayment);
-
-    if (enrichmentPayment.status === false) {
-      setShowErrSnack(enrichmentPayment.message);
-      setLoader(false);
-      return;
+      if (enrichmentPayment.status === false) {
+        setShowErrSnack(enrichmentPayment.message);
+        setLoader(false);
+        return;
+      }
     }
-  }
 
+    // return
     const localData = localStorage.getItem("User");
     let AuthToken = null;
     if (localData) {
@@ -728,6 +741,9 @@ const Leads1 = () => {
     setUploadProgress(Math.floor((startIndex / totalBatches) * 100));
     console.log("data", data);
     console.log(`Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
+
+    // Send custom event to hide dashboard slider
+    window.dispatchEvent(new CustomEvent("leadUploadStart", { detail: { update: true } }));
 
     let uploadData = {
       uploading: true,
@@ -773,8 +789,15 @@ const Leads1 = () => {
         setSuccessSnack("Leads uploaded successfully");
         setShowSuccessSnack(true);
         setLoader(false);
+
+        // Send custom event to show dashboard slider
+        window.dispatchEvent(new CustomEvent("leadUploadComplete", { detail: { update: true } }));
       }
     });
+
+    window.dispatchEvent(
+      new CustomEvent("UpdateCheckList", { detail: { update: true } })
+    );
 
   };
 
@@ -936,6 +959,8 @@ const Leads1 = () => {
   //   setIsEnrich(checked);
   // };
 
+  const { user: reduxUser } = useUser();
+
   return (
     <div className="w-full">
       {/* {
@@ -965,17 +990,17 @@ const Leads1 = () => {
         />
 
         {
-          !uploading && (
-            <div
-              style={{
-                position: "absolute",
-                right: 0,
-                bottom: 0
-              }}>
-              <DashboardSlider
-                needHelp={false} />
-            </div>
-          )
+          // !uploading && (
+          // <div
+          //   style={{
+          //     position: "absolute",
+          //     right: 0,
+          //     bottom: 0
+          //   }}>
+          //   <DashboardSlider
+          //     needHelp={false} />
+          // </div>
+          // )
         }
 
         {/* <EnrichConfirmModal /> */}
@@ -989,77 +1014,89 @@ const Leads1 = () => {
                 newListAdded={userLeads}
                 shouldSet={setData}
                 setSetData={setSetData}
+                uploading={uploading}
               />
             </div>
           ) : (
-            <div className="h-screen">
-              <div className="flex flex-row items-start justify-center mt-48 w-full">
-                <Image
-                  src={"/assets/placeholder.png"}
-                  height={145}
-                  width={710}
-                  alt="*"
-                />
-              </div>
-              <div
-                className="mt-12 ms-8 text-center"
-                style={{ fontSize: 30, fontWeight: "700" }}
-              >
-                {`Looks like you don't have any leads yet`}
-              </div>
+            <div className="h-screen flex flex-col">
 
-              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddLeadModal(true);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/addManIcon.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Upload Leads</span>
-                  </button>
-                </div>
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddNewSheetModal(true);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/smartlistIcn.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Create Smartlist</span>
-                  </button>
-                </div>
-              </div>
 
-              <div
-                className="w-full flex flex-row justify-center mt-4"
-              // style={{
-              //   position: "absolute",
-              //   bottom: "70px",
-              //   left: "50%",
-              //   transform: "translateX(-50%)",
-              // }}
-              >
-                <VideoCard
-                  duration={"11 min 27 sec"}
-                  horizontal={false}
-                  playVideo={() => {
-                    setIntroVideoModal(true);
-                  }}
-                  title=" Learn how to add leads to your CRM"
-                />
+              {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
+                <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080', padding: 20 }}>
+                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                </div>
+              )}
+
+              <div className="h-[95%] flex flex-col">
+
+                <div className="flex flex-row items-start justify-center  mt-48 w-full">
+                  <Image
+                    src={"/assets/placeholder.png"}
+                    height={100}
+                    width={710}
+                    alt="*"
+                  />
+                </div>
+                <div
+                  className="mt-12 ms-8 text-center"
+                  style={{ fontSize: 30, fontWeight: "700" }}
+                >
+                  {`Looks like you don't have any leads yet`}
+                </div>
+
+                <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddLeadModal(true);
+                      }}
+                    >
+                      <Image
+                        src={"/assets/addManIcon.png"}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Upload Leads</span>
+                    </button>
+                  </div>
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddNewSheetModal(true);
+                      }}
+                    >
+                      <Image
+                        src={"/assets/smartlistIcn.svg"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Create Smartlist</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  className="w-full flex flex-row justify-center mt-4"
+                // style={{
+                //   position: "absolute",
+                //   bottom: "70px",
+                //   left: "50%",
+                //   transform: "translateX(-50%)",
+                // }}
+                >
+                  <VideoCard
+                    duration={"11 min 27 sec"}
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal(true);
+                    }}
+                    title=" Learn how to add leads to your CRM"
+                  />
+                </div>
               </div>
             </div>
             // </div>
@@ -1104,19 +1141,12 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowAddLeadModal(false);
                       setSelectedFile(null);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Import Leads
@@ -1246,7 +1276,7 @@ const Leads1 = () => {
         {/* modal to upload lead */}
         <Modal
           open={ShowUploadLeadModal}
-          onClose={() => setShowUploadLeadModal(false)}
+          // onClose={() => setShowUploadLeadModal(false)}
           closeAfterTransition
           BackdropProps={{
             timeout: 1000,
@@ -1267,18 +1297,11 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowUploadLeadModal(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Leads
@@ -1573,6 +1596,9 @@ const Leads1 = () => {
           setIsEnrichToggle={setIsEnrichToggle}
           handleAddLead={handleAddLead}
           Loader={Loader}
+          processedData={processedData}
+          setCreditCost={setCreditCost}
+          creditCost={creditCost}
         />
         <EnrichConfirmModal
           showenrichConfirmModal={showenrichConfirmModal}
@@ -1584,12 +1610,10 @@ const Leads1 = () => {
               setShowenrichModal(false);
               setShowenrichConfirmModal(false);
             }
-            // handleAddLead(value);
-
           }}
           processedData={processedData}
           Loader={Loader}
-        />
+          creditCost={creditCost} />
 
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}
@@ -1630,7 +1654,7 @@ const Leads1 = () => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
                     onClick={() => {
                       setShowDelCol(false);
                     }}
@@ -1638,7 +1662,7 @@ const Leads1 = () => {
                     Cancel
                   </button>
                   <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 text-red font-bold text-xl text-[#6b7280] h-[50px]"
                     onClick={() => {
                       ChangeColumnName(null);
                       setShowDelCol(false);
@@ -1727,18 +1751,11 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowPopUp(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div
                   className="w-full text-center mt-2"
@@ -1842,7 +1859,7 @@ const Leads1 = () => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-full bg-purple font-bold text-white text-xl rounded-xl h-[50px]"
                     onClick={() => {
                       setWarningModal(false);
                     }}
@@ -1858,8 +1875,10 @@ const Leads1 = () => {
         {/* Modal to add lead or import lead */}
         <Modal
           open={addNewLeadModal}
-          onClose={() => setAddNewLeadModal(false)}
+          // Prevent closing on backdrop click and escape key
+          onClose={() => { }}
           closeAfterTransition
+          disableEscapeKeyDown
           BackdropProps={{
             timeout: 1000,
             sx: {

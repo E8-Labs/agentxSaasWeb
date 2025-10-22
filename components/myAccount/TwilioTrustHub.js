@@ -13,8 +13,8 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
 import IntroVideoModal from '../createagent/IntroVideoModal'
 import Image from 'next/image'
-// import { getUserLocalData } from '../constants/constants'
-
+import { getUserLocalData } from '../constants/constants'
+import TwillioUpgradeView from './TwillioUpgradeView'
 
 const TwilioTrustHub = ({
     isFromAgency,
@@ -57,16 +57,16 @@ const TwilioTrustHub = ({
     const [isFreePlan, setIsFreePlan] = useState(false)
 
 
-    // useEffect(() => {
-    //     let data = getUserLocalData()
-    //     if (data) {
-    //         let isFree = !data.user.plan.price ? true : false
-    //         setIsFreePlan(isFree)
-    //         console.log('isFree', isFree)
-    //     }
+    useEffect(() => {
+        let data = getUserLocalData()
+        if (data) {
+            let isFree = !data.user.plan?.price ? true : false
+            setIsFreePlan(isFree)
+            console.log('isFree', isFree)
+        }
 
 
-    // }, [])
+    }, [])
 
     //triger the get business profile
     useEffect(() => {
@@ -170,7 +170,6 @@ const TwilioTrustHub = ({
                     userId: selectedUser.id
                 }
             }
-            console.log("Api data in disconnect twilio is", ApiData);
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -210,103 +209,101 @@ const TwilioTrustHub = ({
         }
     }
 
-    // isFreePlan ? (
-    //     <TwillioUpgradeView />
-    // ) : (
-
-    // )
     return (
-        <div
-            className={`${!isFromAgency ? "w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto" : "w-full"}`
-            }
-            style={{
-                paddingBottom: "50px",
-                scrollbarWidth: "none", // For Firefox
-                WebkitOverflowScrolling: "touch",
-            }
-            }>
+        isFreePlan ? (
+            <TwillioUpgradeView />
+        ) : (
+            <div
+                className={`${!isFromAgency ? "w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto" : "w-full"}`}
+                style={{
+                    paddingBottom: "50px",
+                    scrollbarWidth: "none", // For Firefox
+                    WebkitOverflowScrolling: "touch",
+                }
+                }>
 
-            <AgentSelectSnackMessage
-                type={showSnack.type}
-                message={showSnack.message}
-                isVisible={showSnack.isVisible}
-                hide={() => {
-                    setShowSnack({
-                        message: "",
-                        isVisible: false,
-                        type: SnackbarTypes.Success,
-                    });
-                }}
-            />
+                <AgentSelectSnackMessage
+                    type={showSnack.type}
+                    message={showSnack.message}
+                    isVisible={showSnack.isVisible}
+                    hide={() => {
+                        setShowSnack({
+                            message: "",
+                            isVisible: false,
+                            type: SnackbarTypes.Success,
+                        });
+                    }}
+                />
 
-            {
-                loader ? (
-                    <div className='w-full flex flex-row items-center justify-center mt-6'>
-                        <CircularProgress size={35} />
-                    </div>
-                ) : (
-                    <div className='w-full'>
-                        <div className='w-full mt-2'>
-                            <CustomerProfile
-                                twilioHubData={twilioHubData?.profile}
-                                getProfileData={(d) => { getBusinessProfile(d) }}
-                                profileStatus={profileStatus}
-                                disconnectLoader={disconnectLoader}
-                                handleDisconnectTwilio={handleDisconnectTwilio}
-                                isFromAgency={isFromAgency}
-                                selectedUser={selectedUser}
-                            />
+                {
+                    loader ? (
+                        <div className='w-full flex flex-row items-center justify-center mt-6'>
+                            <CircularProgress size={35} />
                         </div>
-                        <div className='w-full mt-4'>
-                            <CenamDetails
-                                businessProfileData={twilioHubData?.profile}
-                                twilioHubData={twilioHubData?.cnam}
-                                trustProducts={twilioHubData?.trustProducts}
-                                // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
-                                profileStatus={profileStatus}
-                                selectedUser={selectedUser}
-                            />
-                        </div>
-                        <div className='w-full mt-4'>
-                            <StirDetails
-                                businessProfileData={twilioHubData?.profile}
-                                twilioHubData={twilioHubData?.shakenStir}
-                                trustProducts={twilioHubData?.trustProducts}
-                                // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
-                                profileStatus={profileStatus}
-                                selectedUser={selectedUser}
-                            />
-                        </div>
-                        <div className='w-full mt-4'>
-                            <VoiceIntegrityDetails
-                                businessProfileData={twilioHubData?.profile}
-                                twilioHubData={twilioHubData?.voiceIntegrity}
-                                trustProducts={twilioHubData?.trustProducts}
-                                // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
-                                profileStatus={profileStatus}
-                                selectedUser={selectedUser}
-                            />
-                        </div>
-                        {/*<div className='w-full mt-4'>
+                    ) : (
+                        <div className='w-full'>
+                            <div className='w-full mt-2'>
+                                <CustomerProfile
+                                    twilioHubData={twilioHubData?.profile}
+                                    getProfileData={(d) => { getBusinessProfile(d) }}
+                                    profileStatus={profileStatus}
+                                    disconnectLoader={disconnectLoader}
+                                    handleDisconnectTwilio={handleDisconnectTwilio}
+                                    isFromAgency={isFromAgency}
+                                    selectedUser={selectedUser}
+                                />
+                            </div>
+                            <div className='w-full mt-4'>
+                                <CenamDetails
+                                    businessProfileData={twilioHubData?.profile}
+                                    twilioHubData={twilioHubData?.cnam}
+                                    trustProducts={twilioHubData?.trustProducts}
+                                    // getProfileData={getBusinessProfile}
+                                    getProfileData={(d) => { getBusinessProfile() }}
+                                    profileStatus={profileStatus}
+                                    selectedUser={selectedUser}
+                                />
+                            </div>
+                            <div className='w-full mt-4'>
+                                <StirDetails
+                                    businessProfileData={twilioHubData?.profile}
+                                    twilioHubData={twilioHubData?.shakenStir}
+                                    trustProducts={twilioHubData?.trustProducts}
+                                    // getProfileData={getBusinessProfile}
+                                    getProfileData={(d) => { getBusinessProfile() }}
+                                    profileStatus={profileStatus}
+                                    selectedUser={selectedUser}
+                                />
+                            </div>
+                            <div className='w-full mt-4'>
+                                <VoiceIntegrityDetails
+                                    businessProfileData={twilioHubData?.profile}
+                                    twilioHubData={twilioHubData?.voiceIntegrity}
+                                    trustProducts={twilioHubData?.trustProducts}
+                                    // getProfileData={getBusinessProfile}
+                                    getProfileData={(d) => { getBusinessProfile() }}
+                                    profileStatus={profileStatus}
+                                    selectedUser={selectedUser}
+                                />
+                            </div>
+                            {/*<div className='w-full mt-4'>
                 <BrandedCallsDetails />
             </div>*/}
-                        <div className='w-full mt-4'>
-                            <Ap2MessagingDetails
-                                // twilioHubData={twilioHubData?.voiceIntegrity}
-                                businessProfileData={twilioHubData?.profile}
-                                profileStatus={profileStatus}
-                                selectedUser={selectedUser}
-                            />
+                            <div className='w-full mt-4'>
+                                <Ap2MessagingDetails
+                                    // twilioHubData={twilioHubData?.voiceIntegrity}
+                                    businessProfileData={twilioHubData?.profile}
+                                    profileStatus={profileStatus}
+                                    selectedUser={selectedUser}
+                                />
+                            </div>
                         </div>
-                    </div>
-                )
-            }
+                    )
+                }
 
 
-        </div>
+            </div >
+        )
     )
 }
 

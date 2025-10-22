@@ -9,7 +9,7 @@ import { CircularProgress } from '@mui/material';
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
-function AdminPhoneNumber({selectedUser}) {
+function AdminPhoneNumber({ selectedUser }) {
 
     const [openMoreDropdown, setOpenMoreDropdown] = useState("")
     const [moreDropdown, setMoreDropdown] = useState("");
@@ -42,7 +42,7 @@ function AdminPhoneNumber({selectedUser}) {
             let u = JSON.parse(data)
             try {
                 setLoading(true)
-                let path = Apis.userAvailablePhoneNumber+"?userId="+selectedUser.id
+                let path = Apis.userAvailablePhoneNumber + "?userId=" + selectedUser.id
                 console.log("path", path)
                 const response = await axios.get(path, {
                     headers: {
@@ -52,15 +52,15 @@ function AdminPhoneNumber({selectedUser}) {
                 if (response) {
                     setLoading(false)
                     if (response.data.status === true) {
-                       console.log("response", response.data.data)
+                        console.log("response", response.data.data)
                         setNumbers(response.data.data)
                     } else {
-                       //console.log
+                        //console.log
                     }
                 }
             } catch (e) {
                 setLoading(false)
-               //console.log
+                //console.log
             }
         }
     }
@@ -78,7 +78,7 @@ function AdminPhoneNumber({selectedUser}) {
             let AuthToken = null;
             if (localData) {
                 const D = JSON.parse(localData);
-               // //console.log;
+                // //console.log;
                 AuthToken = D.token
             }
 
@@ -86,11 +86,11 @@ function AdminPhoneNumber({selectedUser}) {
                 phone: selectedNumber
             }
 
-           // //console.log;
+            // //console.log;
 
             const ApiPath = Apis.delNumber;
 
-           // //console.log;
+            // //console.log;
 
             // return
             const response = await axios.post(ApiPath, ApiData, {
@@ -101,7 +101,7 @@ function AdminPhoneNumber({selectedUser}) {
             });
 
             if (response) {
-               // //console.log;
+                // //console.log;
                 if (response.data.status === true) {
                     setNumbers((prevNumbers) =>
                         prevNumbers.filter((item) => item.phoneNumber !== selectedNumber)
@@ -116,7 +116,7 @@ function AdminPhoneNumber({selectedUser}) {
             }
 
         } catch (error) {
-           // console.error("Error occured in api is", error);
+            // console.error("Error occured in api is", error);
             setSnackMsg(error);
             setErrType(SnackbarTypes.Error);
         } finally {
@@ -156,7 +156,7 @@ function AdminPhoneNumber({selectedUser}) {
                         marginInline: 2, // Remove default margin
                         minHeight: 0, // Adjust height to remove extra spacing
                     }}
-                    // onClick={handleMoreClose}
+                // onClick={handleMoreClose}
                 >
                     {
                         delLoader ? (
@@ -242,9 +242,18 @@ function AdminPhoneNumber({selectedUser}) {
                                         <div className='w-full flex flex-row items-center justify-between'>
 
                                             <div className="flex flex-col items-start gap-4">
-                                                <div className='flex flex-row items-center gap-2'>
-                                                    <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
-                                                        {item.phoneNumber}
+                                                <div className="flex flex-col items-start gap-4">
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <div className='' style={{ fontSize: 16, fontWeight: '700' }}>
+                                                            {item.phoneNumber}
+                                                        </div>
+                                                        {
+                                                            item.isA2PVerified === 1 && (
+                                                                <div className='p-2 py-1 rounded-lg bg-green-100 text-green text-sm font-semibold'>
+                                                                    A2P Verified
+                                                                </div>
+                                                            )
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -254,7 +263,7 @@ function AdminPhoneNumber({selectedUser}) {
                                                     onClick={(event) => {
                                                         setOpenMoreDropdown(true);
                                                         setMoreDropdown(event.currentTarget);
-                                                       // //console.log
+                                                        // //console.log
                                                         setSelectedNumber(item.phoneNumber)
                                                     }}>
                                                     <Image src={"/otherAssets/threeDotsIcon.png"}

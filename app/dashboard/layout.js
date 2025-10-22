@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
 import ErrorBoundary from "@/components/ErrorBoundary";
+// import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOAuthWatcher";
 import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOauthWatcher";
 
 const shouldShowServiceBanner =
@@ -45,7 +46,7 @@ export default function DashboardLayout({ children }) {
         >
           {/* Sidebar */}
           <div
-            className="h-screen w-2/12"
+            className="h-screen w-[15%]"
             style={{
               borderRight: "1px solid #00000010",
               backgroundColor: "white",
@@ -55,7 +56,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="w-10/12">
+          <div className="w-[85%]">
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />

@@ -15,12 +15,14 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import { useState } from "react";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 export default function ConfirmPerplexityModal({
   showConfirmPerplexity,
   setshowConfirmPerplexity,
   handleEnrichLead,
   loading,
+  creditCost,
 }) {
   return (
     <Dialog
@@ -36,18 +38,11 @@ export default function ConfirmPerplexityModal({
       }}
     >
       {/* Close Button */}
-      <IconButton
-        onClick={() => setshowConfirmPerplexity(false)}
-        sx={{
-          position: "absolute",
-          top: 12,
-          right: 12,
-          color: "#000",
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-
+      <div className="flex w-full justify-end">
+        <CloseBtn
+          onClick={() => setshowConfirmPerplexity(false)}
+        />
+      </div>
       {/* Modal Title */}
       <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
         Get 100 Enrichments
@@ -78,7 +73,7 @@ export default function ConfirmPerplexityModal({
         >
           <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
           <Typography sx={{ fontSize: "14px", color: "#000" }}>
-            {`Each enrichment is $0.05.`}
+            {`Each enrichment is ${creditCost?.pricePerLead}.`}
           </Typography>
         </Box>
       </Box>
@@ -96,7 +91,7 @@ export default function ConfirmPerplexityModal({
             Total Credits
           </Typography>
           <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-            100
+            {creditCost?.leadCount}
           </Typography>
         </Box>
 
@@ -111,7 +106,7 @@ export default function ConfirmPerplexityModal({
             Cost Per Credit
           </Typography>
           <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-            $0.05
+            ${creditCost?.pricePerLead}
           </Typography>
         </Box>
 
@@ -128,7 +123,7 @@ export default function ConfirmPerplexityModal({
             Total Cost
           </Typography>
           <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-            $5
+            ${creditCost?.pricePerLead * creditCost?.leadCount}
           </Typography>
         </Box>
       </DialogContent>
@@ -137,7 +132,7 @@ export default function ConfirmPerplexityModal({
       <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
         <div
           onClick={() => setshowConfirmPerplexity(false)}
-          className=" flex w-[45%] text-black font-bold text-[16px] hover:text-[#7902DF] py-3 rounded-lg
+          className=" flex w-[45%] text-[#6b7280] font-bold text-[16px] py-3 rounded-lg
                      items-center justify-center"
           style={{ textTransform: "none", cursor: "pointer" }}
         >

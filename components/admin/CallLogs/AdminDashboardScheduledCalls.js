@@ -13,10 +13,15 @@ import InfiniteScroll from "react-infinite-scroll-component";
 function AdminDashboardScheduledCalls({ }) {
 
   const Limit = 30;
+  const LimitPerPage = 20;
   const [user, setUser] = useState(null);
 
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [hasMoreLeads, setHasMoreLeads] = useState(true);
+  
+  // Pagination state
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
@@ -51,7 +56,11 @@ function AdminDashboardScheduledCalls({ }) {
   const [PauseLoader, setPauseLoader] = useState(false);
 
   useEffect(() => {
-    getAgents();
+    getAgents({
+      length: "",
+      isPagination: false,
+      sortData: null
+    });
     // getSheduledCallLogs();
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (localD) {
@@ -112,45 +121,57 @@ function AdminDashboardScheduledCalls({ }) {
   };
 
   //code to get agents
-  const getAgents = async () => {
+  const getAgents = async (passedData) => {
+    console.log("Getting scheduled calls data with params:", passedData);
 
-    //get stored scheduled calls
-    const localScheduleCalls = localStorage.getItem("adminScheduledCalls");
-    if (localScheduleCalls) {
-      const S = JSON.parse(localScheduleCalls);
-      setFilteredAgentsList(S);
-      setCallDetails(S);
-      setAgentsList(S);
+    // Check if we should load from cache (initial load with no pagination)
+    const shouldLoadFromCache = !passedData?.length && !passedData?.isPagination;
+    
+    if (shouldLoadFromCache) {
+      const localScheduleCalls = localStorage.getItem("adminScheduledCalls");
+      if (localScheduleCalls) {
+        try {
+          const S = JSON.parse(localScheduleCalls);
+          console.log("Loading scheduled calls from cache:", S.length, "items");
+          setFilteredAgentsList(S);
+          setCallDetails(S);
+          setAgentsList(S);
+          setInitialLoader(false);
+        } catch (err) {
+          console.warn("Error parsing cached scheduled calls data", err);
+          localStorage.removeItem("adminScheduledCalls");
+        }
+      } else {
+        console.log("No cached data found for scheduled calls");
+      }
     }
 
     try {
-      setInitialLoader(true);
+      setLoading(true);
+      if (passedData?.isPagination === false) {
+        setInitialLoader(true);
+      }
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // //console.log;
         AuthToken = Data.token;
       }
-
-      // //console.log;
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
       if (localAgent) {
         const agentDetails = JSON.parse(localAgent);
-        // //console.log;
-        // //console.log;
         mainAgent = agentDetails;
       }
-      // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true`;
+      
+      // Add pagination parameters
+      const offset = passedData?.length || 0;
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true&offset=${offset}&limit=${LimitPerPage}`;
 
-      ApiPath = ApiPath
+      console.log("API Path:", ApiPath);
 
-      // //console.log;
-      // return
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -159,19 +180,60 @@ function AdminDashboardScheduledCalls({ }) {
       });
 
       if (response) {
-        const D = response.data.data
-        console.log("Length of response", D.length);
+        const D = response.data.data;
+        console.log("Fetched scheduled calls from API:", D.length, "items");
+        console.log("Sample data structure:", D[0]);
 
-        localStorage.setItem("adminScheduledCalls", JSON.stringify(D));
+        // Handle pagination vs initial load differently
+        if (passedData?.isPagination) {
+          // For pagination, append to existing data
+          const updatedData = [...filteredAgentsList, ...D];
+          console.log("Appending paginated data. Total items now:", updatedData.length);
+          setFilteredAgentsList(updatedData);
+          setCallDetails(updatedData);
+          setAgentsList(updatedData);
+        } else {
+          // For initial load, replace all data
+          console.log("Replacing all data with fresh API data");
+          setFilteredAgentsList(D);
+          setCallDetails(D);
+          setAgentsList(D);
+        }
 
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+        setInitialLoader(false);
+        setLoading(false);
+
+        // Save to cache only for initial load
+        if (shouldLoadFromCache) {
+          localStorage.setItem("adminScheduledCalls", JSON.stringify(D));
+          console.log("Saved scheduled calls to cache:", D.length, "items");
+        }
+
+        if (D.length < LimitPerPage) {
+          setHasMore(false);
+        }
+      } else {
+        console.log("No data received from API:", response?.data);
       }
     } catch (error) {
-      // console.error("Error occured in get Agents api is :", error);
+      console.error("Error occurred in getting scheduled calls API:", error);
+      // If API fails and we have cached data, keep showing cached data
+      if (!shouldLoadFromCache) {
+        const cachedData = localStorage.getItem("adminScheduledCalls");
+        if (cachedData) {
+          try {
+            const parsedCachedData = JSON.parse(cachedData);
+            setFilteredAgentsList(parsedCachedData);
+            setCallDetails(parsedCachedData);
+            setAgentsList(parsedCachedData);
+          } catch (err) {
+            console.warn("Error parsing cached data after API failure", err);
+          }
+        }
+      }
     } finally {
       setInitialLoader(false);
+      setLoading(false);
     }
   };
 
@@ -502,7 +564,10 @@ function AdminDashboardScheduledCalls({ }) {
 
       <div className="w-full flex flex-row justify-between mt-2 px-10">
         <div className="w-2/12">
-          <div style={styles.text}>User</div>
+          <div style={styles.text}>Agency Name</div>
+        </div>
+        <div className="w-2/12">
+          <div style={styles.text}>Account Name</div>
         </div>
         <div className="w-2/12">
           <div style={styles.text}>Agent</div>
@@ -532,11 +597,43 @@ function AdminDashboardScheduledCalls({ }) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-[65vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
+          <div className={`h-[65vh] overflow-auto`} style={{ scrollbarWidth: "none" }} id="scrollableDiv1">
             {filteredAgentsList?.length > 0 ? (
-              <div
-                className={`h-[65vh] overflow-auto`}>
-
+              <InfiniteScroll
+                className="lg:flex hidden flex-col w-full"
+                endMessage={
+                  <p
+                    style={{
+                      textAlign: "center",
+                      paddingTop: "10px",
+                      fontWeight: "400",
+                      fontFamily: "inter",
+                      fontSize: 16,
+                      color: "#00000060",
+                    }}
+                  >
+                    {`You're all caught up`}
+                  </p>
+                }
+                scrollableTarget="scrollableDiv1"
+                dataLength={filteredAgentsList.length}
+                next={() => {
+                  if (!loading && hasMore) {
+                    getAgents({
+                      length: filteredAgentsList.length,
+                      isPagination: true,
+                      sortData: null
+                    });
+                  }
+                }}
+                hasMore={hasMore}
+                loader={
+                  <div className="w-full flex flex-row justify-center mt-8">
+                    <CircularProgress size={35} />
+                  </div>
+                }
+                style={{ overflow: "unset" }}
+              >
                 {filteredAgentsList.map((item, index) => {
                   return (
                     <div key={index}>
@@ -546,39 +643,46 @@ function AdminDashboardScheduledCalls({ }) {
                             <div
                               className="w-full flex flex-row items-center justify-between mt-10 px-10"
                               key={index}
-                            > <button className="w-2/12 flex flex-row gap-3 items-center"
-                              onClick={() => {
-                                if (item?.user?.id) {
-                                  // Open a new tab with user ID as query param
-                                  let url = ` admin/users?userId=${item?.user?.id}`
-                                  //console.log
-                                  window.open(url, "_blank");
-                                }
-                              }}
-                            >
-                                {item?.user?.thumb_profile_image ? (
-                                  <Image
-                                    className="rounded-full"
-                                    src={item?.user?.thumb_profile_image}
-                                    height={40}
-                                    width={40}
-                                    style={{
-                                      height: "40px",
-                                      width: "40px",
-                                      resize: "cover",
-                                    }}
-                                    alt="*"
-                                  />
-                                ) : (
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                    {item?.user?.name.slice(0, 1).toUpperCase()}
-                                  </div>
-                                )}
-                                <div style={styles.text2}>{item?.user?.name}</div>
+                            > 
+                              <div className="w-2/12">
+                                <div style={styles.text2}>
+                                  {item.agency?.name || "AgentX Main Admin"}
+                                </div>
+                              </div>
 
-                              </button>
+                              <button className="w-2/12 flex flex-row gap-3 items-center"
+                                onClick={() => {
+                                  if (item?.user?.id) {
+                                    // Open a new tab with user ID as query param
+                                    let url = ` admin/users?userId=${item?.user?.id}`
+                                    //console.log
+                                    window.open(url, "_blank");
+                                  }
+                                }}
+                              >
+                                  {item?.user?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={item?.user?.thumb_profile_image}
+                                      height={40}
+                                      width={40}
+                                      style={{
+                                        height: "40px",
+                                        width: "40px",
+                                        resize: "cover",
+                                      }}
+                                      alt="*"
+                                    />
+                                  ) : (
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                      {item?.user?.name.slice(0, 1).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div style={styles.text2}>{item?.user?.name}</div>
 
-                              <div className="w-2/12 flex flex-row gap-4 items-center">
+                                </button>
+
+                                <div className="w-2/12 flex flex-row gap-4 items-center">
                                 {/* {agent?.agents[0]?.thumb_profile_image ? (
                                                                 <Image
                                                                   className="rounded-full"
@@ -746,7 +850,7 @@ function AdminDashboardScheduledCalls({ }) {
                     </div>
                   );
                 })}
-              </div>
+              </InfiniteScroll>
             ) : (
               <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
                 No Call Scheduled
@@ -823,7 +927,7 @@ function AdminDashboardScheduledCalls({ }) {
                       <input
                         type="text"
                         placeholder="Search by name or phone"
-                        className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
                           const value = e.target.value;

@@ -1,5 +1,5 @@
 import { Modal, Box, Switch, CircularProgress } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AuthToken } from "./AuthDetails";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
@@ -8,6 +8,11 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { useEffect } from "react";
 import Image from "next/image";
+import { formatDecimalValue, handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
+import SubDuration from "./SubDuration";
+import SideUI from "./SideUI";
+import { formatFractional2 } from "./AgencyUtilities";
+
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddMonthlyPlan({
@@ -16,13 +21,29 @@ export default function AddMonthlyPlan({
   onPlanCreated,
   canAddPlan,
   agencyPlanCost,
+  isEditPlan,
+  selectedPlan,
+  selectedAgency,
+  handleContinue,
+  basicsData,
+  configurationData
 }) {
+
+  //auto scroll to bottom
+  const scrollContainerRef = useRef(null);
+
   const [allowTrial, setAllowTrial] = useState(false);
+  const [isDefault, setIsDefault] = useState(false);
   const [showTrailWarning, setShowTrailWarning] = useState(false);
+
+  //for Hamza update the inout fields value storing
+  //strike through is original price
+  //price/min is discoounted orice
 
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
   const [planDescription, setPlanDescription] = useState("");
+  const [planDuration, setPlanDuration] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [minutes, setMinutes] = useState("");
@@ -32,7 +53,229 @@ export default function AddMonthlyPlan({
   const [createPlanLoader, setCreatePlanLoader] = useState(false);
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
   const [minCostErr, setMinCostErr] = useState(false);
+
+  //plan passed is
+  const [planPassed, setPlanPassed] = useState(null);
+
+  //allowed features check mark list
+  const [allowedFeatures, setAllowedFeatures] = useState([]);
+
+  //agency features
+  const [features, setFeatures] = useState({
+    allowLanguageSelection: false,
+    toolsActions: false,
+    calendars: false,
+    liveTransfer: false,
+    ragKnowledgeBase: false,
+    embedBrowserWebhookAgent: false,
+    apiKey: false,
+    voicemail: false,
+    twilio: false,
+    allowTrial: false,
+    allowTeamSeats: false,
+  });
+
+  //custom featurs
+  const [customFeatures, setCustomFeatures] = useState([]);
+
+  const resolveLanguageLabel = (languageValue, languageTitle) => {
+    if (typeof languageTitle === "string" && languageTitle.trim().length > 0) {
+      return languageTitle.trim();
+    }
+
+    if (typeof languageValue !== "string") {
+      return "";
+    }
+
+    const normalized = languageValue.trim().toLowerCase();
+
+    if (normalized === "multilingual") {
+      return "Multilingual";
+    }
+
+    if (normalized === "english" || normalized === "english or spanish") {
+      return "English or Spanish";
+    }
+
+    return languageValue;
+  };
+
+  //features list
+  const featuresList = [
+    {
+      label: "Multilingual Compatible",
+      tooltip: "Allow the agents to switch between languages in the same conversation",
+      stateKey: "allowLanguageSelection",
+    },
+    {
+      label: "Tools & Actions",
+      tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
+      stateKey: "toolsActions",
+    },
+    {
+      label: "Calendars",
+      tooltip: "Sync calendars for bookings and scheduling.",
+      stateKey: "calendars",
+    },
+    {
+      label: "Live Transfer",
+      tooltip: " Allow agents to make live transfers.", //"Enable live call transfers between agents.",
+      stateKey: "liveTransfer",
+    },
+    {
+      label: "RAG Knowledge Base",
+      tooltip: "Allow users to train agents on their own custom data. Add Youtube videos, website links, documents and more.", //"Use knowledge base for better responses.",
+      stateKey: "ragKnowledgeBase",
+    },
+    {
+      label: "Embed / Browser / Webhook Agent",
+      tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
+      stateKey: "embedBrowserWebhookAgent",
+    },
+    {
+      label: "API Key",
+      tooltip: "",//Enable API access for integrations.
+      stateKey: "apiKey",
+    },
+    {
+      label: "Voicemail",
+      tooltip: "Allow agents to leave voicemails",//Enable voicemail recording.
+      stateKey: "voicemail",
+    },
+    {
+      label: "Twilio",
+      tooltip: "Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.", //"Integrate with Twilio for calls & SMS.",
+      stateKey: "twilio",
+    },
+    {
+      // label: "Allow Team Seats",
+      label: `${basicsData?.maxTeamMembers} Team Seat${basicsData?.maxTeamMembers > 1 ? "s" : ""}`,
+      tooltip: "Allow sub accounts to add and invite teams.",
+      stateKey: "allowTeamSeats",
+    },
+    {
+      label: "Allow Trial",
+      tooltip: "",//Allow trial access for users.
+      stateKey: "allowTrial",
+    },
+  ];
+
+  //set features data
+  useEffect(() => {
+    setFeaturesData();
+  }, [selectedPlan, configurationData, open])
+
+  //check marks list of allowed features
+  useEffect(() => {
+
+    console.log("configuration data passed is 99", configurationData);
+
+    // setFeaturesData();
+
+    const coreFeatures = featuresList
+      .filter(item => item.stateKey !== "allowTrial") // exclude Allow Trial
+      .filter(item => features[item.stateKey])
+      .map(item => ({
+        id: item.stateKey,
+        text: item.label,
+      }));
+
+    console.log("Yalla yalla habibi core features", coreFeatures)
+
+    const extraFeatures = [];
+
+    if (minutes) {
+      extraFeatures.push({
+        id: "minutes",
+        text: `${minutes} AI Credits`,
+      });
+    }
+
+    const languageLabel = resolveLanguageLabel(configurationData?.language, configurationData?.languageTitle);
+
+    if (languageLabel) {
+      extraFeatures.push({
+        id: "language",
+        text: languageLabel,
+      });
+    }
+
+    if (configurationData?.maxAgents) {
+      extraFeatures.push({
+        id: "agents",
+        text: `${configurationData?.maxAgents} AI Agent${configurationData?.maxAgents > 1 ? "s" : ""}`,
+      });
+    }
+
+    if (configurationData?.maxLeads) {
+      extraFeatures.push({
+        id: "contacts",
+        text: `${configurationData?.maxLeads} Contact${configurationData?.maxLeads > 1 ? "s" : ""}`,
+      });
+    }
+
+    const customFeaturesList = Array.isArray(customFeatures)
+      ? customFeatures
+        .filter((feature) => feature?.trim?.() !== "")
+        .map((feature, index) => ({
+          id: `custom_${index}`,
+          text: feature,
+        }))
+      : [];
+
+
+
+    // setAllowedFeatures([...extraFeatures]);
+    setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
+  }, [minutes, selectedPlan, configurationData, open, features, customFeatures]);
+
+  //check if is edit plan is true then store the predefault values
+  useEffect(() => {
+    console.log("Test log monthlyplan ")
+    if (selectedPlan) {
+      setPlanPassed(selectedPlan);
+      console.log("Value of selected plan passed is", selectedPlan);
+      setTitle(selectedPlan?.title);
+      setIsDefault(selectedPlan?.isDefault);
+      setTag(selectedPlan?.tag ?? "");
+      setPlanDescription(selectedPlan?.planDescription);
+      const OriginalPrice = selectedPlan?.originalPrice;
+      if (OriginalPrice > 0) {
+        setOriginalPrice(
+          selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : 0
+        );
+      }
+      const DiscountedPrice = selectedPlan?.discountedPrice / selectedPlan?.minutes
+      setDiscountedPrice(formatFractional2(DiscountedPrice));
+      setMinutes(selectedPlan?.minutes);
+      setPlanDuration(selectedPlan?.duration);
+    }
+  }, [selectedPlan])
+
+  //data restoring
+  useEffect(() => {
+    console.log("Test log monthlyplan ")
+    if (basicsData) {
+      console.log("Value passed is", basicsData);
+      setTitle(basicsData?.title);
+      setIsDefault(basicsData?.isDefault);
+      setTag(basicsData?.tag ?? "");
+      setPlanDescription(basicsData?.planDescription);
+      const OriginalPrice = basicsData?.originalPrice || (selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : "");
+      setOriginalPrice(OriginalPrice);
+      // if (OriginalPrice > 0) {
+      // }
+      const DiscountedPrice = basicsData?.discountedPrice
+      if (DiscountedPrice) {
+        setDiscountedPrice(formatFractional2(basicsData?.discountedPrice));
+      }
+      setMinutes(basicsData?.minutes);
+      setPlanDuration(basicsData?.planDuration);
+    }
+  }, [basicsData])
 
   //auto remove show trial warning
   useEffect(() => {
@@ -47,28 +290,58 @@ export default function AddMonthlyPlan({
 
   //auto check minCostError
   useEffect(() => {
-    if (originalPrice && minutes) {
-      const P = (originalPrice * 100) / minutes;
+    if (discountedPrice && minutes) {
+      const P = (discountedPrice * 100) / minutes;
       console.log("Calculated price is", P);
-      if (P < 0.2) {
-        setMinCostErr(true);
-      } else if (P >= 0.2) {
-        setMinCostErr(false);
-      }
     }
-  }, [minutes, originalPrice]);
+  }, [minutes, discountedPrice]);
+
+  //check percentage calculation
+  const checkCalulations = () => {
+    if (originalPrice > 0) {
+      console.log("OP ===", originalPrice)//updated
+      console.log("DP ===", (discountedPrice * minutes))
+      const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
+      console.log("Percenage of addmonthly plan is", percentage)
+    }
+  }
+
+  //sets the addition data
+  const setFeaturesData = () => {
+    console.log("Yalla yalla")
+    setCustomFeatures(configurationData?.customFeatures || []);
+    const dynamicFeatures = configurationData?.features;
+    setFeatures({
+      allowLanguageSelection:
+        dynamicFeatures?.allowLanguageSelection ??
+        dynamicFeatures?.allowLanguageSwitch ??
+        (typeof configurationData?.language === "string"
+          ? configurationData.language.toLowerCase() === "multilingual"
+          : false),
+      toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
+      calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
+      liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
+      ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase || dynamicFeatures?.allowRAGKnowledgeBase || false,
+      embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
+      apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
+      voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
+      twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+      allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
+      allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
+    });
+  }
 
   //profit text color
   const getClr = () => {
     const percentage =
-      ((originalPrice - agencyPlanCost) / agencyPlanCost) * 100;
+      ((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100;
 
     if (percentage >= 0 && percentage <= 50) {
       return "#FF4E4E";
     } else if (percentage > 50 && percentage <= 75) {
       return "orange";
     } else if (percentage > 75 && percentage < 100) {
-      return "yellow";
+      return "#CC5500";
     } else if (percentage >= 100) {
       return "#01CB76";
     }
@@ -85,73 +358,64 @@ export default function AddMonthlyPlan({
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
+    setAllowTrial(false)
+    setIsDefault(false)
     setTrialValidForDays("")
+    setCreatePlanLoader(false);
+    setPlanDuration("");
   }
 
-  //code to create plan
-  const handleCreatePlan = async () => {
-    try {
-      setCreatePlanLoader(true);
 
-      console.log("Working");
+  //handle allow trial change
+  const handleAllowTrialChange = (e) => {
+    // if (canAddPlan) {
+    setAllowTrial(e.target.checked);
+    setShowTrailWarning(false);
 
-      const Token = AuthToken();
-      const ApiPath = Apis.addMonthlyPlan;
-      console.log("Api path is", ApiPath);
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice);
-      formData.append("discountedPrice", originalPrice * minutes);
-      formData.append(
-        "percentageDiscount",
-        100 - (originalPrice / discountedPrice) * 100
-      );
-      formData.append("hasTrial", allowTrial);
-      formData.append("trialValidForDays", trialValidForDays);
-      formData.append("trialMinutes", "23");
-      formData.append("tag", tag);
-      formData.append("minutes", minutes);
-
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
-      }
-      // return
-
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: "Bearer " + Token,
-        },
-      });
-
-      if (response) {
-        console.log("Response of Add plan is", response.data);
-        setCreatePlanLoader(false);
-        onPlanCreated(response);
-        if (response.data.status === true) {
-          //update the monthlyplans state on localstorage to update checklist
-          const localData = localStorage.getItem("User");
-          if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.plansAdded = true;
-            localStorage.setItem("User", JSON.stringify(D));
-          }
-          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
-
-          setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Success);
-          handleClose(response.data.message);
-          handleResetValues();
-        } else if (response.data.status === false) {
-          setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Error);
+    if (e.target.checked) {
+      // Wait for the DOM to render trial inputs, then scroll
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({
+            top: scrollContainerRef.current.scrollHeight,
+            behavior: "smooth",
+          });
         }
-      }
-    } catch (error) {
-      console.error("Error occured is", error);
-      setCreatePlanLoader(false);
+      }, 100);
     }
+    // } else {
+    //   setShowTrailWarning(true);
+    // }
   };
+
+  // Format numeric strings with two decimals without discarding whole number part
+  // const formatFractional2 = (raw) => {
+  //   if (raw === null || raw === undefined || raw === "") {
+  //     return "";
+  //   }
+  //   const num = Number(raw);
+  //   if (Number.isNaN(num)) {
+  //     return "";
+  //   }
+  //   return num.toFixed(2);
+  // };
+
+
+  //handle next
+  const handleNext = () => {
+    console.log(`value of original price is${originalPrice} && is default value is ${Boolean(isDefault)}`)
+    const planData = {
+      title: title,
+      tag: tag,
+      planDescription: planDescription,
+      planDuration: planDuration,
+      originalPrice: originalPrice,
+      discountedPrice: discountedPrice,
+      minutes: minutes,
+      isDefault: isDefault
+    }
+    handleContinue(planData);
+  }
 
   const styles = {
     labels: {
@@ -195,7 +459,10 @@ export default function AddMonthlyPlan({
     pricingBox: {
       position: "relative",
       // padding: '10px',
-      borderRadius: "15px",
+      borderBottomLeftRadius: "15px",
+      borderBottomRightRadius: "15px",
+      borderTopLeftRadius: allowTrial && trialValidForDays ? "0px" : "15px",
+      borderTopRightRadius: allowTrial && trialValidForDays ? "0px" : "15px",
       // backgroundColor: '#f9f9ff',
       display: "inline-block",
       width: "100%",
@@ -232,16 +499,15 @@ export default function AddMonthlyPlan({
       color: "#000000",
       fontWeight: "700",
       fontSize: 22,
-      marginLeft: "10px",
+      // marginLeft: "10px",
     },
   };
 
   const isFormValid = () => {
     const requiredFieldsFilled =
-      title.trim() &&
-      planDescription.trim() &&
-      originalPrice &&
-      discountedPrice &&
+      title?.trim() &&
+      planDescription?.trim() &&
+      discountedPrice && //no need to replace here
       minutes;
 
     const trialValid = allowTrial ? trialValidForDays : true;
@@ -253,12 +519,13 @@ export default function AddMonthlyPlan({
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleClose("");
-      }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-      <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <Box className="bg-none rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <AgentSelectSnackMessage
           isVisible={snackMsg !== null}
           message={snackMsg}
@@ -267,7 +534,15 @@ export default function AddMonthlyPlan({
           }}
           type={snackMsgType}
         />
-        <div className="w-full flex flex-row h-[100%] items-start">
+        <AgentSelectSnackMessage
+          isVisible={snackBannerMsg !== null}
+          message={snackBannerMsg}
+          hide={() => {
+            // setSnackMsg(null);
+          }}
+          type={snackBannerMsgType}
+        />
+        <div className="w-full flex flex-row h-[100%] items-start justify-center bg-none">
           {showTrailWarning && (
             <div className="absolute left-1/2 -translate-x-1/2 top-10">
               <Image
@@ -279,8 +554,9 @@ export default function AddMonthlyPlan({
               />
             </div>
           )}
-          <div className="w-6/12 h-[100%] p-6">
+          <div className="w-6/12 h-[100%] p-6 bg-white rounded-tl-xl rounded-bl-xl shadow-lg">
             <div
+              ref={scrollContainerRef}
               className="overflow-y-auto w-full h-[90%] scrollbar-hide"
               style={{
                 scrollbarWidth: "none",
@@ -288,68 +564,113 @@ export default function AddMonthlyPlan({
               }}
             >
               <div className="mb-4" style={{ fontWeight: "600", fontSize: 18 }}>
-                New Plan
+                {isEditPlan ? "Edit Plan" : "New Plan"}
               </div>
 
-              {/* Plan Name */}
-              <label style={styles.labels}>Plan Name</label>
-              <input
-                style={styles.inputs}
-                className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                placeholder="Type here"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                }}
-              />
+              <div className="w-full flex flex-row items-center justify-center gap-2">
+                {/* Plan Name */}
+                <div className="w-1/2">
+                  <div className="w-full flex flex-row items-center justify-between pe-2">
+                    <label style={styles.labels}>Plan Name</label>
+                    <div style={styles.labels}>
+                      {title?.length || 0}/12
+                    </div>
+                  </div>
+                  <input
+                    style={styles.inputs}
+                    className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                    placeholder="Type here"
+                    value={title}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                    }}
+                    maxLength={12}
+                  />
+                </div>
 
-              {/* Tag Option */}
-              <label style={styles.labels}>Tag Option</label>
-              <input
-                style={styles.inputs}
-                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                placeholder="Popular, best deals"
-                value={tag}
-                onChange={(e) => {
-                  setTag(e.target.value);
-                }}
-              />
+                {/* Tag Option */}
+                <div className="w-1/2">
+                  <label style={styles.labels}>Tag</label>
+                  <input
+                    style={styles.inputs}
+                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                    placeholder="Popular, best deals"
+                    value={tag}
+                    onChange={(e) => {
+                      setTag(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* Description */}
-              <label style={styles.labels}>Description</label>
+              <div className="w-full flex flex-row items-center justify-between">
+                <label style={styles.labels}>Description</label>
+                <div style={styles.labels}>
+                  ({planDescription?.length || 0}/30)
+                </div>
+              </div>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                 placeholder="Type here"
+                maxLength={30}
                 value={planDescription}
                 onChange={(e) => {
                   setPlanDescription(e.target.value);
                 }}
               />
 
+              {/* Plan duration */}
+              <SubDuration
+                planDuration={planDuration}
+                setPlanDuration={setPlanDuration}
+                isEditPlan={isEditPlan}
+              />
+
               <div className="w-full flex flex-row items-center gap-2">
                 <div className="w-6/12">
                   {/* Price */}
                   <label style={styles.labels}>
-                    Price/Min {agencyPlanCost && (`Your cost is $${(agencyPlanCost).toFixed(2)}`)}
+                    {agencyPlanCost && (`Price per credit $${(agencyPlanCost).toFixed(2)}`)}
                   </label>
-                  <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                  <div className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <div className="" style={styles.inputs}>
                       $
                     </div>
                     <input
                       style={styles.inputs}
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                      placeholder="00"
-                      value={originalPrice}
+                      placeholder="0.00"
+                      value={discountedPrice}
                       onChange={(e) => {
-                        setOriginalPrice(e.target.value);
+                        // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
+                        const value = e.target.value;
+                        if (value && value < agencyPlanCost) {
+                          setSnackBannerMsg(`Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
+                          setSnackBannerMsgType(SnackbarTypes.Warning);
+                        } else {
+                          setSnackBannerMsg(null);
+                        }
+                        // setDiscountedPrice(UpdatedValue);
+                        // const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.')?.length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        const UpdatedValue = handlePricePerMinInputValue(valid);
+                        setDiscountedPrice(UpdatedValue);
                       }}
                     />
                   </div>
 
-                  {minCostErr && (
+                  {/*minCostErr && (
                     <div className="flex flex-row items-center gap-2 mb-4">
                       <Image
                         src={"/agencyIcons/InfoIcon.jpg"}
@@ -361,29 +682,30 @@ export default function AddMonthlyPlan({
                         className="flex items-center gap-1"
                         style={{ fontSize: "15px", fontWeight: "500" }}
                       >
-                        {/*<AiOutlineInfoCircle className="text-sm" />*/}
-                        Min cost per min is 20 cents
+                        Min cost per min is ${agencyPlanCost}
                       </p>
                     </div>
-                  )}
+                  )*/}
 
-                  {/* Strikethrough Price */}
-                  <label style={styles.labels}>
-                    Strikethrough Price (Optional)
-                  </label>
+                  {/* Minutes */}
+                  <label style={styles.labels}>Credits</label>
                   <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
-                    <div className="" style={styles.inputs}>
-                      $
-                    </div>
                     <input
                       style={styles.inputs}
-                      type="number"
-                      className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
-                        }`}
-                      placeholder="00"
-                      value={discountedPrice}
+                      type="text"
+                      className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+                      placeholder="0.00"
+                      value={minutes}
                       onChange={(e) => {
-                        setDiscountedPrice(e.target.value);
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setMinutes(valid);
                       }}
                     />
                   </div>
@@ -402,19 +724,27 @@ export default function AddMonthlyPlan({
                     className="flex flex-row items-center justify-between"
                     style={styles.inputs}
                   >
-                    <div>Your Price</div>
-                    <div>${originalPrice}/ min</div>
-                    <div>${(originalPrice * minutes).toFixed(2)}</div>
+                    <div>Your Credit</div>
+                    <div>${discountedPrice ? formatFractional2(discountedPrice) : "0.00"}/Credit</div>
+                    {
+                      discountedPrice && minutes && (
+                        <div>${formatDecimalValue(discountedPrice * minutes)}</div>
+                      )
+                    }
                   </div>
                   <div
                     className="flex flex-row items-center justify-between mt-4"
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>${agencyPlanCost}/ min</div>
-                    <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
+                    <div>{agencyPlanCost && `$${formatFractional2(agencyPlanCost)}`}/Credit</div>
+                    {
+                      discountedPrice && minutes && (
+                        <div>${formatDecimalValue(agencyPlanCost * minutes)}</div>
+                      )
+                    }
                   </div>
-                  {minutes && originalPrice && (
+                  {discountedPrice && minutes && ( // 
                     <div className="w-full">
                       <div
                         className="flex flex-row items-center justify-between mt-4"
@@ -422,50 +752,59 @@ export default function AddMonthlyPlan({
                       >
                         <div>Your Profit</div>
                         <div>
-                          ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                          ${formatFractional2(discountedPrice - agencyPlanCost)}/Credit
                         </div>
                         <div>
-                          $
-                          {((originalPrice - agencyPlanCost) * minutes).toFixed(
-                            2
-                          )}
+                          ${formatDecimalValue((discountedPrice - agencyPlanCost) * minutes)}
                         </div>
                       </div>
                       <div
                         className="text-end w-full mt-2"
                         style={{ color: getClr() }}
                       >
-                        {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                          100
-                        ).toFixed(2)}
-                        %
+                        {formatDecimalValue(((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100)}%
                       </div>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Minutes */}
-              <label style={styles.labels}>Minutes</label>
+
+              {/* Strikethrough Price */}
+              <label style={styles.labels}>
+                Strikethrough Price (Optional)
+              </label>
               <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                <div className="" style={styles.inputs}>
+                  $
+                </div>
                 <input
                   style={styles.inputs}
-                  type="number"
-                  className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                  placeholder="000"
-                  value={minutes}
+                  type="text"
+                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice > 0 && "line-through" //replced
+                    }`}
+                  placeholder="0.00"
+                  value={originalPrice} //replaced
                   onChange={(e) => {
-                    setMinutes(e.target.value);
+                    const value = e.target.value;
+                    // Allow only digits and one optional period
+                    const sanitized = value.replace(/[^0-9.]/g, '');
+
+                    // Prevent multiple periods
+                    const valid = sanitized.split('.').length > 2
+                      ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                      : sanitized;
+                    // setOriginalPrice(valid);
+                    setOriginalPrice(valid);
                   }}
                 />
               </div>
 
-              {/* Allow Trial */}
+              {/* Default plan */}
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">Allow Trial</label>
+                <label className="text-sm font-medium">Default Plan</label>
                 <Switch
-                  checked={allowTrial}
+                  checked={isDefault}
                   sx={{
                     '& .MuiSwitch-switchBase.Mui-checked': {
                       color: 'white',
@@ -475,41 +814,21 @@ export default function AddMonthlyPlan({
                     },
                   }}
                   onChange={(e) => {
-                    if (canAddPlan) {
-                      setAllowTrial(e.target.checked);
-                      setShowTrailWarning(false);
-                    } else {
-                      setShowTrailWarning(true);
-                    }
+                    setIsDefault(e.target.checked)
                   }}
                 />
               </div>
 
-              {allowTrial && (
-                <>
-                  <label style={styles.labels}>Duration of Trial [Day]</label>
-
-                  <div className="flex flex-row items-center border rounded-md px-2 mt-1">
-                    <input
-                      type="number"
-                      className="w-[90%] rounded p-2 border-none outline-none focus:outline-none focus:ring-0"
-                      value={trialValidForDays}
-                      onChange={(e) => {
-                        setTrialValidForDays(e.target.value);
-                      }}
-                    />
-                    <div>Days</div>
-                  </div>
-                </>
-              )}
             </div>
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
+                disabled={createPlanLoader}
                 onClick={() => {
                   handleClose("");
+                  handleResetValues();
                 }}
-                className="text-purple-600 font-semibold"
+                className="text-[#6b7280] font-semibold w-[12vw]"
               >
                 Cancel
               </button>
@@ -517,154 +836,188 @@ export default function AddMonthlyPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${isFormValid() ? "bg-purple" : "bg-[#00000020]"} w-[12vw] hover:bg-purple-700 ${isFormValid() ? "text-white" : "text-black"} font-semibold py-2 px-4 rounded-lg`}
-                  onClick={handleCreatePlan}
+                  className={` ${isFormValid() ? "bg-purple" : "bg-[#00000020]"} w-[12vw] ${isFormValid() ? "text-white" : "text-black"} font-semibold py-2 px-4 rounded-lg`}
+                  onClick={() => {
+                    handleNext();
+                    // if (isEditPlan) {
+                    //   handleUpdatePlan();
+                    // } else {
+                    //   handleCreatePlan();
+                    // }
+                  }}
                   disabled={!isFormValid()}
-
                 >
-                  Create Plan
+                  {/*isEditPlan ? "Update" : "Create Plan"*/}
+                  Continue
                 </button>
               )}
             </div>
           </div>
           <div
-            className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
-            style={{
-              backgroundImage: "url('/agencyIcons/addPlanBg.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+            className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg"
           >
-            <div className="p-6 flex flex-col items-center h-[100%]">
-              <div className="flex justify-end w-full items-center h-[5%]">
-                <button
-                  onClick={() => {
-                    handleClose("");
-                  }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    alt="*"
-                    height={14}
-                    width={14}
-                  />
-                </button>
-              </div>
-              <div className="w-11/12 h-[80%] flex flex-col items-center justify-center">
-                {allowTrial && trialValidForDays && (
-                  <div className="w-full rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
-                    <div className="flex flex-row items-center gap-2">
-                      <Image
-                        src={"/agencyIcons/batchIcon.jpg"}
-                        alt="*"
-                        height={24}
-                        width={24}
-                      />
-                      <div
-                        style={{
-                          fontWeight: "600",
-                          fontSize: 18,
-                          color: "white",
-                        }}
-                      >
-                        First {trialValidForDays} Days Free
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div
-                  className="px-4 py-1 pb-4"
-                  style={{
-                    ...styles.pricingBox,
-                    border: "none",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div
-                    style={{
-                      ...styles.triangleLabel,
-                      borderTopRightRadius: "15px",
-                    }}
-                  ></div>
-                  {
-                    discountedPrice && minutes && (
-                      <span style={styles.labelText}>
-                        {(
-                          (originalPrice / discountedPrice) *
-                          100
-                        ).toFixed(0) || "-"}
-                        %
-                      </span>
-                    )
-                  }
-                  <div
-                    className="flex flex-row items-start gap-3"
-                    style={styles.content}
-                  >
-                    <div className="w-full">
-                      <div className="flex flex-row items-center gap-3">
-                        <div
-                          style={{
-                            color: "#151515",
-                            fontSize: 22,
-                            fontWeight: "600",
-                          }}
-                        >
-                          {title || "My Plan"}
-                        </div>
-                        {tag ? (
-                          <div
-                            className="rounded-full bg-purple text-white p-3 py-2"
-                            style={{ fontSize: 10, fontWeight: "500" }}
-                          >
-                            {tag} 🔥
-                          </div>
-                        ) : (
-                          <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />
-                        )}
-                      </div>
-                      <div className="flex flex-row items-center justify-between mt-2">
-                        <div className="flex flex-col justify-start">
-                          {planDescription ? (
-                            <div
-                              className=""
-                              style={{
-                                color: "#00000060",
-                                fontSize: 15,
-                                //   width: "60%",
-                                fontWeight: "500",
-                              }}
-                            >
-                              {planDescription}
-                            </div>
-                          ) : (
-                            <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
-                          )}
-                        </div>
-                        <div className="flex flex-row items-center">
-                          {originalPrice && (
-                            <div style={styles.originalPrice}>
-                              ${(originalPrice * minutes).toFixed(2)}
-                            </div>
-                          )}
-                          {discountedPrice && (
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
-                                ${discountedPrice}
-                              </div>
-                              <p style={{ color: "#15151580" }}></p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <SideUI
+              tag={tag}
+              discountedPrice={discountedPrice}
+              title={title}
+              planDescription={planDescription}
+              trialValidForDays={trialValidForDays}
+              allowTrial={allowTrial}
+              handleClose={handleClose}
+              minutes={minutes}
+              handleResetValues={handleResetValues}
+              originalPrice={originalPrice}
+              allowedFeatures={allowedFeatures}
+            />
           </div>
         </div>
       </Box>
     </Modal>
   );
 }
+
+
+
+
+// <div
+//             className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
+//             style={{
+//               backgroundImage: "url('/agencyIcons/addPlanBg4.png')", //"url('/agencyIcons/addPlanBg.jpg')",
+//               backgroundSize: "cover",
+//               backgroundPosition: "center",
+//             }}
+//           >
+//             <div className="p-6 flex flex-col items-center h-[100%]">
+//               <div className="flex justify-end w-full items-center h-[5%]">
+//                 <button
+//                   // disabled={createPlanLoader}
+//                   onClick={() => {
+//                     handleClose("");
+//                     handleResetValues();
+//                   }}
+//                 >
+//                   <Image
+//                     src={"/assets/cross.png"}
+//                     alt="*"
+//                     height={14}
+//                     width={14}
+//                   />
+//                 </button>
+//               </div>
+//               <div className="w-11/12 h-[80%] flex flex-col items-center justify-center">
+//                 {allowTrial && trialValidForDays && (
+//                   <div className="w-full rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+//                     <div className="flex flex-row items-center gap-2">
+//                       <Image
+//                         src={"/otherAssets/batchIcon.png"}
+//                         alt="*"
+//                         height={24}
+//                         width={24}
+//                       />
+//                       <div
+//                         style={{
+//                           fontWeight: "600",
+//                           fontSize: 18,
+//                           color: "white",
+//                         }}
+//                       >
+//                         First {trialValidForDays} Days Free
+//                       </div>
+//                     </div>
+//                   </div>
+//                 )}
+//                 <div
+//                   className="px-4 py-1 pb-4"
+//                   style={{
+//                     ...styles.pricingBox,
+//                     border: "none",
+//                     backgroundColor: "white",
+//                   }}
+//                 >
+//                   <div
+//                     style={{
+//                       ...styles.triangleLabel,
+//                       borderTopRightRadius: allowTrial && trialValidForDays ? "0px" : "15px",
+//                     }}
+//                   ></div>
+//                   {/* Triangle price here */}
+//                   {
+//                     originalPrice > 0 && minutes && ( //replaced
+//                       <span style={styles.labelText}>
+//                         {checkCalulations()}
+//                         {formatDecimalValue(
+//                           // (originalPrice / originalPrice) * //replaced
+//                           (originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
+//                           100
+//                         ) || "-"}
+//                         %
+//                       </span>
+//                     )
+//                   }
+//                   <div
+//                     className="flex flex-row items-start gap-3"
+//                     style={styles.content}
+//                   >
+//                     <div className="w-full">
+//                       <div className="flex flex-row items-center gap-3">
+//                         <div
+//                           style={{
+//                             color: "#151515",
+//                             fontSize: 22,
+//                             fontWeight: "600",
+//                           }}
+//                         >
+//                           {title || "My Plan"}
+//                         </div>
+//                         {tag ? (
+//                           <div
+//                             className="rounded-full bg-purple text-white p-3 py-2"
+//                             style={{ fontSize: 14, fontWeight: "500" }}
+//                           >
+//                             {tag}
+//                           </div>
+//                         ) : (
+//                           <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />
+//                         )}
+//                       </div>
+//                       <div className="flex flex-row items-center justify-between mt-2">
+//                         <div className="flex flex-col justify-start">
+//                           {planDescription ? (
+//                             <div
+//                               className=""
+//                               style={{
+//                                 color: "#00000060",
+//                                 fontSize: 15,
+//                                 //   width: "60%",
+//                                 fontWeight: "500",
+//                               }}
+//                             >
+//                               {planDescription}
+//                             </div>
+//                           ) : (
+//                             <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
+//                           )}
+//                         </div>
+//                         <div className="flex flex-row items-center gap-2">
+//                           {originalPrice > 0 && (
+//                             <div style={styles.originalPrice} className="line-through">
+//                               ${originalPrice}
+//                             </div>
+//                           )}
+//                           {discountedPrice && minutes && (
+//                             <div className="flex flex-row justify-start items-start ">
+//                               <div style={styles.discountedPrice}>
+//                                 ${formatDecimalValue(discountedPrice * minutes)}
+//                               </div>
+//                               <p style={{ color: "#15151580" }}></p>
+//                             </div>
+//                           )}
+
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>

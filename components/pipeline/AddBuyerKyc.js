@@ -704,7 +704,7 @@ const AddBuyerKyc = ({
         <div className="h-[90%] py-4" style={{ scrollbarWidth: "none" }}>
           {/* header */}
           {/* <Header /> */}
-          {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
+          {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full">
             <div
@@ -1011,35 +1011,33 @@ const AddBuyerKyc = ({
                         }}
                       />
                     </div>
-                    {/*
-                      <div className="mt-4 mx-2" style={styles.headingStyle}>
-                        Sample Answers
-                      </div>
-  
-                      <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-                        {inputs.map((input, index) => (
-                          <div
-                            key={input.id}
-                            className="w-full flex flex-row items-center gap-4 mt-4"
-                          >
-                            <input
-                              className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
-                              style={{
-                                width: "95%",
-                                borderColor: "#00000020",
-                                fontWeight: "500",
-                                fontSize: 15,
-                              }}
-                              placeholder={`Sample Answer`}
-                              value={input.value}
-                              onChange={(e) =>
-                                handleInputChange(input.id, e.target.value)
-                              }
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    */}
+                    {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
+                      Sample Answers
+                    </div>
+
+                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+                      {inputs.map((input, index) => (
+                        <div
+                          key={input.id}
+                          className="w-full flex flex-row items-center gap-4 mt-4"
+                        >
+                          <input
+                            className="border p-2 rounded-lg px-3 outline-none mx-2 focus:outline-none focus:ring-0"
+                            style={{
+                              width: "95%",
+                              borderColor: "#00000020",
+                              fontWeight: "500",
+                              fontSize: 15,
+                            }}
+                            placeholder={`Sample Answer`}
+                            value={input.value}
+                            onChange={(e) =>
+                              handleInputChange(input.id, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>*/}
 
                     {/* <div style={{ height: "50px" }}>
                                             {
@@ -1057,8 +1055,8 @@ const AddBuyerKyc = ({
                     <div className="w-full h-[80px]">
                       {
                         // inputs.filter((input) => input.value.trim()).length ===
-                        //   3 &&
-                          newQuestion ? (
+                        // 3 && 
+                        newQuestion ? (
                           <button
                             className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
                             style={{ ...styles.headingStyle, height: "50px" }}

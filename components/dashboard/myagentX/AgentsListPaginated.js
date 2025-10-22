@@ -63,7 +63,8 @@ const AgentsListPaginated = ({
   canGetMore = true,
   from = "user",
   agencyUser,
-  initialLoader
+  initialLoader,
+  selectedUser
 }) => {
   console.log('loader for more data ')
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -86,7 +87,7 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
-
+    console.log('agentsListSeperatedParam', agentsListSeparatedParam)
   }, [agentsListSeparatedParam]);
 
   useEffect(() => {
@@ -134,7 +135,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" : "h-[75svh]"} overflow-auto pt-10 pb-12`}
+      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" ? "" : "pb-12"}`}
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
@@ -426,6 +427,7 @@ const AgentsListPaginated = ({
                     <button
                       className="bg-purple px-4 py-2 rounded-lg"
                       onClick={() => {
+                        console.log("Show test ai modal", item);
                         if (!item.phoneNumber) {
                           console.log("Show warning modal");
                           setShowWarningModal(item);
@@ -543,14 +545,16 @@ const AgentsListPaginated = ({
             ))}
           </div>
         </InfiniteScroll>
-      ) : ( 
+      ) : (
         // <div> hello</div>
         <NoAgent showBtn={
           search ? false : true
-        } 
-        title={
-          search ? "No agent found":"You have no active agents"
         }
+          from={from}
+          title={
+            search ? "No agent found" : "You have no active agents"
+          }
+          selectedUser={selectedUser}
         />
       )}
     </div>

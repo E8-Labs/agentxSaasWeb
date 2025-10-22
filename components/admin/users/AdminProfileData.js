@@ -11,6 +11,9 @@ import AdminSendFeedback from "./AdminSendFeedback";
 import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
+import SubAccountBarServices from "@/components/dashboard/subaccount/myAccount/SubAccountBarServices";
+import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";
+import BillingHistory from "@/components/myAccount/BillingHistory";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -25,24 +28,29 @@ function AdminProfileData({ selectedUser, from }) {
         },
         {
             id: 2,
-            heading: "Billing",
-            subHeading: "Manage your billing and payment methods",
+            heading: "Plans & Payment",
+            subHeading: "Manage your plans and payment method",
             icon: "/otherAssets/walletIcon.png",
         }, {
             id: 3,
+            heading: "Billing",
+            subHeading: "Manage your billing transactions",
+            icon: "/otherAssets/billingIcon.png",
+        }, {
+            id: 4,
             heading: "Phone Numbers",
             subHeading: "All agent phone numbers",
             icon: "/assets/unSelectedCallIcon.png",
         },
         {
-            id: 4,
+            id: 5,
             heading: "Twilio Trust Hub",
             subHeading: "Caller ID & compliance for trusted calls",
             icon: "/svgIcons/twilioHub.svg",
         },
 
         {
-            id: 5,
+            id: 6,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
@@ -72,19 +80,41 @@ function AdminProfileData({ selectedUser, from }) {
                     <div>
                         {
                             from === "subaccount" ? (
-                                <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
+                                <SubAccountPlansAndPayments
+                                    selectedUser={selectedUser}
+                                    hideBtns={true}
+                                    agencyView={true}
+                                />
+                            ) : (
+                                // <AdminBilling selectedUser={selectedUser} from={from} />
+                                "Show the Simple User Payments here"
+                            )
+                        }
+                    </div>
+                );
+            case 3:
+                // return <AdminBilling selectedUser={selectedUser} from={from} />;
+                return (
+                    <div>
+                        {
+                            from === "subaccount" ? (
+                                <BillingHistory hideBtns={true} selectedUser={selectedUser} />
                             ) : (
                                 <AdminBilling selectedUser={selectedUser} from={from} />
                             )
                         }
                     </div>
                 );
-            case 3:
+            case 4:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 5:
-                return <AdminXbarServices selectedUser={selectedUser} />;
-            case 4 :
-                return <TwilioTrustHub selectedUser = {selectedUser}/>
+                return <TwilioTrustHub selectedUser={selectedUser} />
+            case 6:
+                if (from === "subaccount") {
+                    return <SubAccountBarServices selectedUser={selectedUser} />;
+                } else {
+                    return <AdminXbarServices selectedUser={selectedUser} />;
+                }
 
             default:
                 return <div>Please select an option.</div>;
@@ -97,8 +127,7 @@ function AdminProfileData({ selectedUser, from }) {
             className="w-full flex flex-col items-center"
             style={{ overflow: "hidden", height: "100vh" }}
         >
-            {/* Slider code */}
-            <div
+            {/* Slider code<div
                 style={{
                     position: "absolute",
                     right: 0,
@@ -106,20 +135,19 @@ function AdminProfileData({ selectedUser, from }) {
                 }}>
                 <DashboardSlider
                     needHelp={false} />
-            </div>
+            </div> */}
+            
             <div
-                className=" w-full flex flex-row justify-between items-center py-4 px-10"
+                className=" w-full flex flex-row justify-between items-center py-4 px-10 h-full"
                 style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
             >
                 <div style={{ fontSize: 24, fontWeight: "600" }}>My Account</div>
-
-
             </div>
-            <div className="w-12/12">
+            <div className="w-12/12 h-full">
             </div>
-            <div className="w-full flex flex-row item-center pl-4">
-                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%]"
-                    style={{scrollbarWidth:"none"}}
+            <div className="w-full flex flex-row item-center pl-4 h-full">
+                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[85%] overflow-auto"
+                    style={{ scrollbarWidth: 'none' }}
                 >
                     {manuBar.map((item, index) => (
                         <div key={item.id} className="w-full">
@@ -176,10 +204,10 @@ function AdminProfileData({ selectedUser, from }) {
                 </div>
 
                 <div
-                    className="w-8/12 "
+                    className="w-8/12 h-fu''"
                     style={{
                         overflow: "auto",
-                        height: "60vh",
+                        height: "90%",
                         borderLeftWidth: 1,
                         borderBottomColor: "#00000010",
                     }}

@@ -8,11 +8,8 @@ import Footer from "@/components/onboarding/Footer";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import AddressPicker from "../test/AddressPicker";
 import LoaderAnimation from "../animations/LoaderAnimation";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import GoogleAdddressPicker from "../test/GoogleAdddressPicker";
-import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+// Removed Google Maps imports for simple string input
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import AgentSelectSnackMessage, {
@@ -20,10 +17,17 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { UserTypes } from "@/constants/UserTypes";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import UpgradePlan from "../userPlans/UpgradePlan";
+import UnlockAgentModal from "@/constants/UnlockAgentModal";
+import MoreAgentsPopup from "../dashboard/MoreAgentsPopup";
+import { useUser } from "../../hooks/redux-hooks";
+import { usePlanCapabilities } from "../../hooks/use-plan-capabilities";
+import getProfileDetails from "../apis/GetProfile";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
-  const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
-  // //console.log;
+  // Removed Google Maps API key - no longer needed
   const router = useRouter();
   const bottomRef = useRef();
   const [loaderModal, setLoaderModal] = useState(false);
@@ -57,19 +61,53 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const bottomToAddress = useRef(null); // Ref for scrolling
   const [addressSelected, setAddressSelected] = useState(null);
 
-  //code for address picker
+  //code for address input (simple string)
   const [addressValue, setAddressValue] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   const [user, setUser] = useState(null);
 
-  //shows the modal for small screens only
-  const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
+  const [showUnclockModal, setShowUnclockModal] = useState(false)
+  const [modalDesc, setModalDesc] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [showMoreAgentsModal, setShowMoreAgentsModal] = useState(false)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [pendingAgentSelection, setPendingAgentSelection] = useState(null) // Track what selection was attempted
+  const [hasAgreedToExtraCost, setHasAgreedToExtraCost] = useState(false) // Track if user agreed to pay extra
+
+  // Redux state
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  const { canCreateAgent, isFreePlan, currentAgents, maxAgents } = usePlanCapabilities();
+
+  // Removed address picker modal - no longer needed
+
+  useEffect(() => {
+    refreshUserData();
+    getSelectedUser()
+  }, [])
+
+
+  const getSelectedUser = () => {
+    let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    console.log("selected user in localstorage is", U)
+    if (U) {
+      console.log("found selected user")
+      setSelectedUser(JSON.parse(U))
+    } else {
+      console.log("slected user not found")
+    }
+  }
 
   useEffect(() => {
     setAddress(address?.label);
   }, [addressSelected]);
+
+  useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let d = JSON.parse(userData);
+      setUser(d);
+    }
+  }, [])
   // const [scollAddress, setScollAddress] = useState("");
   //// //console.log;
 
@@ -79,6 +117,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+
 
   const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -282,20 +322,223 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     return false;
   }
 
-  //code for selecting outbound calls
+  //code for selecting inbound calls
   const handleInboundCallClick = () => {
-    // setOutBoundCalls(false);
-    setInBoundCalls(!InBoundCalls);
+    const newInboundState = !InBoundCalls;
+
+    // Always allow toggling OFF
+    if (!newInboundState) {
+      setInBoundCalls(false);
+      setPendingAgentSelection(null);
+      return;
+    }
+
+    // Check limits when toggling ON
+    const limitResult = checkAgentLimits('inbound', newInboundState, OutBoundCalls);
+    console.log("limitResult is", limitResult)
+    if (limitResult.showModal) {
+      // Store what the user was trying to select
+      setPendingAgentSelection({
+        type: 'inbound',
+        inbound: newInboundState,
+        outbound: OutBoundCalls
+      });
+      return; // Don't toggle the state, just show the modal
+    } else {
+      setInBoundCalls(true);
+    }
   };
 
-  //code for selecting inbound calls
+  //code for selecting outbound calls
   const handleOutBoundCallClick = () => {
-    // setInBoundCalls(false);
-    setOutBoundCalls(!OutBoundCalls);
+    const newOutboundState = !OutBoundCalls;
+
+    // Always allow toggling OFF
+    if (!newOutboundState) {
+      setOutBoundCalls(false);
+      setPendingAgentSelection(null);
+      return;
+    }
+
+    // Check limits when toggling ON
+    const limitResult = checkAgentLimits('outbound', InBoundCalls, newOutboundState);
+    console.log("limitResult is", limitResult)
+    if (limitResult?.showModal) {
+      // Store what the user was trying to select
+      setPendingAgentSelection({
+        type: 'outbound',
+        inbound: InBoundCalls,
+        outbound: newOutboundState
+      });
+      return; // Don't toggle the state, just show the modal
+    } else {
+      setOutBoundCalls(true);
+    }
   };
+
+  // Comprehensive plan checking logic
+  const checkAgentLimits = (agentType, wouldHaveInbound, wouldHaveOutbound) => {
+    console.log('🔍 [CREATE-AGENT] Checking agent limits');
+    console.log("Redux user", reduxUser)
+
+    // Use Redux as primary source, localStorage as fallback
+    const planData = reduxUser?.planCapabilities ? {
+      isFreePlan: isFreePlan,
+      currentAgents: currentAgents,
+      maxAgents: maxAgents,
+      costPerAdditionalAgent: reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
+    } : {
+      isFreePlan: (() => {
+        const planType = user?.user?.plan?.type?.toLowerCase();
+        if (planType?.includes('free')) return true;
+        if (user?.user?.planCapabilities?.maxAgents > 1) return false;
+        return user?.user?.plan === null || user?.user?.plan?.price === 0;
+      })(),
+      currentAgents: user?.user?.currentUsage?.maxAgents || 0,
+      maxAgents: user?.user?.planCapabilities?.maxAgents || 1,
+      costPerAdditionalAgent: user?.user?.planCapabilities?.costPerAdditionalAgent || 10
+    };
+
+    console.log("Plan data is", planData)
+
+    // Calculate agents that would be created
+    let agentsToCreate = 0;
+    if (wouldHaveInbound) agentsToCreate++;
+    if (wouldHaveOutbound) agentsToCreate++;
+
+    // check if user already view pay per month window from agents page and agree it by clicking on the button
+    const isAlreadyViewedPayPerMonthWindow = localStorage.getItem("AddAgentByPayingPerMonth");
+    console.log("isAlreadyViewedPayPerMonthWindow is", isAlreadyViewedPayPerMonthWindow)
+    if (isAlreadyViewedPayPerMonthWindow != null && isAlreadyViewedPayPerMonthWindow?.status === true) {
+      return true
+    }
+
+    // console.log('📊 [CREATE-AGENT] Agent calculation complete');
+
+    // FREE PLAN LOGIC
+    // no need to check for free plan here as we are compairing currentAgents with maxAgents
+    // if (planData.isFreePlan) {
+    //   console.log('🆓 [CREATE-AGENT] Free plan detected');
+
+    //   // If user already has 1 agent, don't allow any more
+    //   if (planData.currentAgents >= 1 && planData.maxAgents > planData.currentAgents) {
+    //     console.log('🚫 [CREATE-AGENT] Free plan user has reached limit');
+    //     setModalDesc("The free plan only allows for 1 AI Agent.");
+    //     setShowUnclockModal(true);
+    //     return { showModal: true };
+    //   }
+
+    //   // If user is trying to select both types at once on free plan
+    //   if (agentsToCreate > 1) {
+    //     // console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agent types');
+    //     setModalDesc("The free plan only allows for 1 AI Agent.");
+    //     setShowUnclockModal(true);
+    //     return { showModal: true };
+    //   }
+
+    //   return { showModal: false };
+    // }
+
+    // PAID PLAN LOGIC
+    // console.log('💰 [CREATE-AGENT] Paid plan detected');
+
+    // Check if user has already reached their limit
+    if (planData.currentAgents >= planData.maxAgents) {
+      // console.log('🚫 [CREATE-AGENT] Paid plan user has reached limit');
+      // if user is on free plan then show unlock modal
+      if (planData.isFreePlan) {
+        setShowUnclockModal(true);
+        setModalDesc("The free plan only allows for 1 AI Agent.");
+        return { showModal: true };
+      }
+      // if user already view pay per month window from agents page then no need to show more agents modal
+
+      if (isAlreadyViewedPayPerMonthWindow) {
+        console.log("no need to show more agents modal, user already view pay per month window from agents page")
+        return { showModal: false }
+      }
+      setShowMoreAgentsModal(true);
+      return { showModal: true };
+    }
+
+    // Check if the selection would exceed the limit
+    if (planData.currentAgents + agentsToCreate > planData.maxAgents) {
+      // console.log('🚫 [CREATE-AGENT] Selection would exceed limit');
+      // if user is on free plan then show unlock modal
+      if (planData.isFreePlan) {
+        setShowUnclockModal(true);
+        setModalDesc("The free plan only allows for 1 AI Agent.");
+        return { showModal: true };
+      }
+      // if user already view pay per month window from agents page then no need to show more agents modal
+      if (isAlreadyViewedPayPerMonthWindow) {
+        return
+      }
+      setShowMoreAgentsModal(true);
+      return { showModal: true };
+    }
+
+    // console.log('✅ [CREATE-AGENT] Selection allowed');
+    return { showModal: false };
+  };
+
+  // Function to apply the pending agent selection when user agrees to extra cost
+  const applyPendingSelection = () => {
+    if (pendingAgentSelection) {
+      // console.log('💰 [CREATE-AGENT] Applying pending selection with extra cost');
+      setInBoundCalls(pendingAgentSelection.inbound);
+      setOutBoundCalls(pendingAgentSelection.outbound);
+      setHasAgreedToExtraCost(true);
+      setPendingAgentSelection(null);
+    }
+  };
+
+  useEffect(() => {
+    //add interval here
+    console.log("reduxUser is", reduxUser)
+    let user = localStorage.getItem("User")
+    console.log("local user is", user)
+  }, [reduxUser])
+
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    console.log('🔄 REFRESH USER DATA STARTED');
+    try {
+      console.log('🔄 Calling getProfileDetails...');
+      const profileResponse = await getProfileDetails();
+      console.log('🔄 getProfileDetails response:', profileResponse);
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
+
+        // Update Redux and localStorage with fresh data
+        console.log("updating redux user", freshUserData)
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+
+        // Update local state as well
+        setUser(updatedUserData);
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
 
   //code for creating agent api
   const handleBuildAgent = async () => {
+    // return
     try {
       setBuildAgentLoader(true);
       setLoaderModal(true);
@@ -317,12 +560,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       //code for sending the user  id if from agency subaccount flow
       let userId = null;
 
-      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      if (selectedUser && selectedUser?.id) {
 
-      if (U) {
-        const d = JSON.parse(U);
-        console.log("Subaccount data recieved on createagent_1 screen is", d);
-        userId = d.subAccountData.id;
+        console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
+        userId = selectedUser.subAccountData.id;
       }
 
       if (userId) {
@@ -341,6 +582,16 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         agentType = "outbound";
       }
       formData.append("agentType", agentType);
+
+      // Include extra cost agreement information if user agreed to pay additional
+      if (hasAgreedToExtraCost) {
+        formData.append("hasAgreedToExtraCost", "true");
+        formData.append("extraCostAmount", reduxUser?.planCapabilities?.costPerAdditionalAgent ||
+          user?.user?.planCapabilities?.costPerAdditionalAgent ||
+          10);
+        // console.log('💰 [CREATE-AGENT] Including extra cost agreement in API call');
+      }
+
       if (selectedStatus) {
         if (selectedStatus.id === 5) {
           formData.append("status", otherStatus);
@@ -395,20 +646,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           let AT = { agentType, agentName };
           localStorage.setItem("agentType", JSON.stringify(AT));
 
-          // if (LocalDetails.plan) {
-          //    // //console.log
-          //     handleSkipAddPayment();
-          // } else {
-          //    // //console.log
-          // }
-          // window.dispatchEvent(
-          //   new CustomEvent("UpdateProfile", { detail: { update: true } })
-          // );
           const L = localStorage.getItem("isFromCheckList");
-          // if(L){
-          //   const D = JSON.parse(L);
-          //   window.close()
-          // }else{
+
           const localData = localStorage.getItem("User");
           if (localData) {
             let D = JSON.parse(localData);
@@ -445,62 +684,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     setSelectedStatus((prevId) => (prevId === item ? null : item));
   };
 
-  //code for address picker
-  const {
-    placesService,
-    placePredictions,
-    getPlacePredictions,
-    isPlacePredictionsLoading,
-  } = usePlacesService({
-    apiKey: process.env.NEXT_PUBLIC_AddressPickerApiKey,
-  });
+  // Removed Google Places service - using simple string input
 
-  //function for address picker
-
-  // Function for address picker with restrictions
-  const handleSelectAddress = (placeId, description) => {
-    setAddressValue(description);
-    setShowDropdown(false); // Hide dropdown on selection
-
-    // Fetch place details if required
-    if (placesService) {
-      placesService.getDetails({ placeId }, (details) => {
-        setSelectedPlace(details);
-        // //console.log;
-      });
-    }
+  // Simple address input handler
+  const handleAddressChange = (evt) => {
+    setAddressValue(evt.target.value);
   };
-
-  // Function to fetch predictions with restrictions
-  const handleInputChange = (evt) => {
-    const input = evt.target.value;
-    setAddressValue(input);
-
-    // Fetch predictions only for US and Canada
-    getPlacePredictions({
-      input,
-      componentRestrictions: { country: ["us", "ca"] },
-    });
-  };
-
-  // Render predictions
-  const renderItem = (item) => (
-    <div
-      key={item.place_id}
-      className="prediction-item"
-      onClick={() => {
-        handleSelectAddress(item.place_id, item.description);
-        setShowAddressPickerModal(false);
-      }}
-      style={{
-        cursor: "pointer",
-        padding: "8px",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-      {item.description}
-    </div>
-  );
 
   const status = [
     {
@@ -556,7 +745,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
     >
       <div
         className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
@@ -616,7 +805,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             >
               Get started with your AI agent
             </button>
-            <div className="w-full flex flex-col  items-center max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
               <div
                 className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
                 style={{ scrollbarWidth: "none" }}
@@ -871,6 +1060,107 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   </div>
                 )}
 
+                <UnlockAgentModal
+                  open={showUnclockModal}
+                  handleClose={async (data) => {
+                    setShowUnclockModal(false)
+                    if (data) {
+                      console.log('data', data)
+                      // setSelectedUser(data)
+                      console.log("plan upgraded successfully")
+                      // Refresh user data after upgrade to get new plan capabilities
+                      const refreshSuccess = await refreshUserData();
+                      console.log("refreshSuccess:", refreshSuccess);
+                      if (refreshSuccess) {
+                        console.log('User data refreshed successfully after upgrade');
+                        // If there was a pending selection, apply it now with the new plan limits
+                        if (pendingAgentSelection) {
+                          console.log('Retrying pending selection with new plan limits...');
+                          // Clear the pending selection and recheck limits
+                          const pendingSelection = pendingAgentSelection;
+                          setPendingAgentSelection(null);
+
+                          // Apply the selection now that limits have been upgraded
+                          setInBoundCalls(pendingSelection.inbound);
+                          setOutBoundCalls(pendingSelection.outbound);
+                          console.log("Applied pending selection after upgrade");
+                        }
+                      } else {
+                        console.error("Failed to refresh user data after upgrade");
+                      }
+                    }
+                    setShowUnclockModal(false)
+                  }}
+                  desc={modalDesc}
+                />
+
+                <MoreAgentsPopup
+                  open={showMoreAgentsModal}
+                  onClose={() => {
+                    setShowMoreAgentsModal(false);
+                    setPendingAgentSelection(null); // Clear pending selection if user cancels
+                  }}
+                  onUpgrade={() => {
+                    setShowMoreAgentsModal(false);
+                    setShowUnclockModal(false); // Ensure unlock modal is closed
+                    setShowUpgradePlanModal(true);
+                    // Keep the pending selection so it can be applied after upgrade
+                    console.log('🔄 [CREATE-AGENT] User chose to upgrade plan');
+                  }}
+                  onAddAgent={() => {
+                    // Handle "Add Agent with price" - apply the pending selection
+                    setShowMoreAgentsModal(false);
+                    applyPendingSelection(); // This will set the agent states and mark as agreed to extra cost
+                    // console.log('💰 [CREATE-AGENT] User chose to add agent with additional cost');
+                  }}
+                  costPerAdditionalAgent={
+                    reduxUser?.planCapabilities?.costPerAdditionalAgent ||
+                    user?.user?.planCapabilities?.costPerAdditionalAgent ||
+                    10
+                  }
+                />
+
+                <UpgradePlan
+                  open={showUpgradePlanModal}
+                  setSelectedPlan={()=>{
+                    console.log("setSelectedPlan is called")
+                    }}
+                  handleClose={async (result) => {
+                    console.log("🔥 HANDLECLOSE CALLED WITH RESULT:", result);
+                    console.log("🔥 HANDLECLOSE FUNCTION STARTED");
+                    try {
+                      setShowUpgradePlanModal(false);
+                      setShowUnclockModal(false); // Also close the unlock modal
+                      console.log("in UpgradePlan result is", result)
+                      if (result) {
+                        console.log("plan upgraded successfully")
+                        // Refresh user data after upgrade to get new plan capabilities
+                        const refreshSuccess = await refreshUserData();
+                        console.log("refreshSuccess:", refreshSuccess);
+                        if (refreshSuccess) {
+                          console.log('User data refreshed successfully after upgrade');
+                          // If there was a pending selection, apply it now with the new plan limits
+                          if (pendingAgentSelection) {
+                            console.log('Retrying pending selection with new plan limits...');
+                            // Clear the pending selection and recheck limits
+                            const pendingSelection = pendingAgentSelection;
+                            setPendingAgentSelection(null);
+
+                            // Apply the selection now that limits have been upgraded
+                            setInBoundCalls(pendingSelection.inbound);
+                            setOutBoundCalls(pendingSelection.outbound);
+                            console.log("Applied pending selection after upgrade");
+                          }
+                        } else {
+                          console.error("Failed to refresh user data after upgrade");
+                        }
+                      }
+                    } catch (error) {
+                      console.error("Error in UpgradePlan handleClose:", error);
+                    }
+                  }}
+                />
+
                 {/* <Body /> */}
               </div>
             </div>
@@ -992,63 +1282,17 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div style={styles.headingStyle} className="mt-4">
                   {`What's the address`}
                 </div>
-                {/* Visible for large screen */}
-                <div
-                  className="hidden sm:flex mt-1 pb-4"
-                  style={{ zIndex: 15 }}
-                >
-                  <div className="w-full pb-4">
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{ border: "1px solid #00000020" }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      onChange={(evt) => {
-                        let input = evt.target.value;
-                        setAddressValue(input); // Update input field value
-                        // getPlacePredictions({
-                        //   input,
-                        //   componentRestrictions: { country: ["us", "ca"] },
-                        // });
-                        // getPlacePredictions({ input: evt.target.value });
-                        // setShowDropdown(true); // Show dropdown on input
-                      }}
-                    />
-                    {isPlacePredictionsLoading && <p>Loading...</p>}
-                    {showDropdown &&
-                      placePredictions.map((item) => renderItem(item))}
-                  </div>
+                {/* Simple address input */}
+                <div className="mt-1 pb-4">
+                  <input
+                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
+                    style={{ border: "1px solid #00000020" }}
+                    placeholder="Enter property address..."
+                    value={addressValue}
+                    onChange={handleAddressChange}
+                  />
                 </div>
 
-                {/* Visible for small screens */}
-                <div
-                  className="sm:hidden mt-1 pb-4 mb-12"
-                  style={{ zIndex: 15 }}
-                >
-                  <div
-                    className="w-full"
-                    onClick={() => {
-                      setShowAddressPickerModal(true);
-                    }}
-                  >
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{
-                        border: "1px solid #00000020",
-                        cursor: "pointer",
-                      }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      readOnly={true}
-                    // disabled={true}
-                    // onChange={(evt) => {
-                    //   setAddressValue(evt.target.value); // Update input field value
-                    //   // getPlacePredictions({ input: evt.target.value });
-                    //   // setShowDropdown(true); // Show dropdown on input
-                    // }}
-                    />
-                  </div>
-                </div>
               </div>
 
               <div
@@ -1074,72 +1318,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
       <LoaderAnimation loaderModal={loaderModal} />
 
-      {/* Modal for address picker */}
-      <Modal
-        open={showAddressPickerModal}
-        onClose={() => setShowAddressPickerModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="w-full" sx={styles.modalsStyle}>
-          <div
-            className="w-full h-[70vh] bg-white p-6 overflow-auto"
-            style={{
-              scrollbarWidth: "none",
-            }}
-          >
-            <div className="flex flex-row items-center justify-between">
-              <div>Address</div>
-              <div>
-                <button
-                  className="outline-none"
-                  onClose={() => setShowAddressPickerModal(false)}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
-              </div>
-            </div>
-            <div className="sm:hidden mt-1 pb-4 mb-12" style={{ zIndex: 15 }}>
-              <div>
-                <input
-                  className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                  style={{
-                    border: "1px solid #00000020",
-                    cursor: "pointer",
-                  }}
-                  placeholder="Type here ..."
-                  value={addressValue}
-                  // readOnly={true}
-                  // disabled={true}
-                  // onFocus={() => {
-                  //   setShowAddressPickerModal(true);
-                  // }}
-                  onChange={(evt) => {
-                    setAddressValue(evt.target.value); // Update input field value
-                    getPlacePredictions({ input: evt.target.value });
-                    setShowDropdown(true); // Show dropdown on input
-                  }}
-                />
-                {isPlacePredictionsLoading && <p>Loading...</p>}
-                {showDropdown &&
-                  placePredictions.map((item) => renderItem(item))}
-              </div>
-            </div>
-
-            <button></button>
-          </div>
-        </Box>
-      </Modal>
 
       {/* <Modal
                 open={loaderModal}

@@ -31,6 +31,7 @@ import DncConfirmationPopup from "@/components/dashboard/leads/DncConfirmationPo
 import Tooltip from "@mui/material/Tooltip";
 import AllowSmartRefillPopup from "@/components/dashboard/leads/AllowSmartRefillPopup";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import { GetTimezone } from "@/utilities/utility";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -127,7 +128,6 @@ const AdminAssignLead = ({
       // //console.log;
 
       const ApiPath = Apis.getAgents + "?userId=" + userProfile.id + "&agentType=outbound&pipeline=true";
-      console.log("ApiPath of get get agents", ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -273,7 +273,8 @@ const AdminAssignLead = ({
   };
 
   const handleAssignLead = async () => {
-    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+    console.log('enter in function')
+    let userTimeZone = GetTimezone();
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -296,6 +297,8 @@ const AdminAssignLead = ({
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
+      console.log('wrrong time')
+
       setInvalidTimeMessage(
         "Calls only between 7am-8:30pm"
         // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
@@ -306,7 +309,8 @@ const AdminAssignLead = ({
     // return;
 
     try {
-      setLoader(true);
+      // setLoader(true); 
+      console.log('calling api')
 
       let timer = null;
       let batchSize = null;
@@ -340,6 +344,8 @@ const AdminAssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
+        userId: userProfile.id
+
       };
 
       if (selectedAll === true) {
@@ -357,6 +363,21 @@ const AdminAssignLead = ({
 
       // console.log("apidata is", Apidata)
       // return;
+      if (selectedAll === true) {
+        Apidata = {
+          pipelineId: SelectedAgents[0].pipeline.id,
+          mainAgentIds: SelectedAgents.map((item) => item.id),
+          leadIds: [],
+          startTimeDifFromNow: timer,
+          batchSize: batchSize,
+          selectedAll: selectedAll,
+          dncCheck: isDncChecked ? true : false,
+          sheetId: sheetId,
+        }
+      }
+
+      console.log("apidata is", Apidata)
+      // return;
       if (filters && selectedAll) {
         Apidata = {
           ...Apidata,
@@ -364,7 +385,7 @@ const AdminAssignLead = ({
         };
       }
 
-      console.log("Api data sending in assign leads api is", Apidata);
+      console.log("Api data sending in assignlead api is", Apidata);
       // return;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -452,6 +473,7 @@ const AdminAssignLead = ({
     if (selectedAll) {
       return totalLeads;
     } else {
+      // return totalLeads - leadIs.length;
       return leadIs.length;
       // return totalLeads;
     }
@@ -546,7 +568,7 @@ const AdminAssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("Numbers will be checked on the DNC list")
+            setShowSuccessSnack("DNC Enabled")
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -1267,15 +1289,14 @@ const AdminAssignLead = ({
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
                         const localData = localStorage.getItem("User");
-                        // if (localData) {
-                        //   const UserDetails = JSON.parse(localData);
-                        //   console.log("Selected user is", selectedUser)
-                        //   console.log(selectedUser.smartRefill);
-                        //   if (selectedUser.smartRefill === false) {
-                        //     setShowSmartRefillPopUp(true);
-                        //     return;
-                        //   }
-                        // }
+                        if (localData) {
+                          const UserDetails = JSON.parse(localData);
+                          console.log(UserDetails.user.smartRefill)
+                          if (UserDetails.user.smartRefill === false) {
+                            setShowSmartRefillPopUp(true);
+                            // return;
+                          }
+                        }
                         handleAssignLead();
                         // handleAssigLead()
                       }}

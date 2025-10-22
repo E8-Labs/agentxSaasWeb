@@ -9,6 +9,7 @@ import Apis from "../apis/Apis";
 import { CircularProgress } from "@mui/material";
 import { PersistanceKeys } from "@/constants/Constants";
 import { GetAreasOfFocusForUser } from "@/utilities/AreaOfFocus";
+import { UserTypes } from "@/constants/UserTypes";
 
 const FocusArea = ({
   handleContinue,
@@ -41,10 +42,13 @@ const FocusArea = ({
     const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails);
     if (focusData) {
       const FocusAreaDetails = JSON.parse(focusData);
-      //console.log;
+      console.log("FocusAreaDetails.userTypeTitle",FocusAreaDetails.userTypeTitle)
       setFocusArea(FocusAreaDetails.focusAreaId);
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle);
-      if (FocusAreaDetails.userTypeTitle !== "RealEstateAgent") {
+      if (FocusAreaDetails.userTypeTitle !== UserTypes.RealEstateAgent &&
+        FocusAreaDetails.userTypeTitle !== UserTypes.General &&
+        FocusAreaDetails.userTypeTitle !== UserTypes.Reception
+       ) {
         setShowOtherInput(true);
       }
     }
@@ -367,7 +371,8 @@ const FocusArea = ({
                   </button>
                 ))}
 
-                {showOtherInput && (
+                {
+                  showOtherInput && (
                   <div className="border-none outline-none">
                     <div
                       className="border bg-white flex flex-row items-start pt-3 w-full rounded-2xl"

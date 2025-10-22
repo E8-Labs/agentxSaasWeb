@@ -10,6 +10,7 @@ import {
   Alert,
   Slide,
   Fade,
+  CircularProgress,
 } from "@mui/material";
 import {
   notFound,
@@ -32,6 +33,19 @@ import {
 import Vapi from "@vapi-ai/web";
 import { VoiceWavesComponent } from "../askSky/askskycomponents/voice-waves";
 import { AudioWaveActivity } from "../askSky/askskycomponents/AudioWaveActivity";
+import { agentImage } from "@/utilities/agentUtilities";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
+// Shadcn UI Components
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import CloseBtn from "../globalExtras/CloseBtn";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -43,15 +57,13 @@ const backgroundImage = {
   overflow: "hidden",
 };
 
-
 const Creator = ({ agentId, name }) => {
   const router = useRouter();
   const buttonRef = useRef(null);
-  const buttonRef2 = useRef(null);
-  const buttonRef3 = useRef(null);
-  const buttonRef4 = useRef(null);
-  const buttonRef5 = useRef(null);
   const buttonRef6 = useRef(null);
+  const profileBoxRef = useRef(null);
+  const createAIButtonRef = useRef(null);
+  const endCallButtonRef = useRef(null);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -78,8 +90,91 @@ const Creator = ({ agentId, name }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+  const [vapiAgent, setVapiAgent] = useState(null);
+  const [assistantOverrides, setAssistantOverrides] = useState(null);
+
+  // Modal and form states
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+  const [smartListFields, setSmartListFields] = useState({});
+  const [smartListData, setSmartListData] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validation functions
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+
+
+  const validatePhoneNumber = (phoneNumber) => {
+    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode?.toUpperCase()
+    );
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      setErrorMessage("Invalid");
+    } else {
+      setErrorMessage("");
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // setCheckPhoneResponse(null);
+      // //console.log;
+
+      timerRef.current = setTimeout(() => {
+        checkPhoneNumber(phoneNumber);
+      }, 300);
+    }
+  };
+
+  const isValidPhone = (phone) => {
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phone}`,
+    );
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.firstName?.trim() &&
+      formData.lastName?.trim() &&
+      // formData.email?.trim() &&
+      isValidEmail(formData.email) &&
+      formData.phone?.trim() &&
+      isValidPhone(formData.phone)
+    );
+  };
+
+  //agent details by id
+  const [agentDetails, setAgentDetails] = useState(null);
+  const [profileLoader, setProfileLoader] = useState(true);
 
   const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY;
+
+  //fetch user profile data
+  useEffect(() => {
+    getUserByAgentId()
+    // Load saved form data on component mount
+    loadSavedFormData()
+  }, []);
 
   // User loading messages to fake feedback...
   useEffect(() => {
@@ -93,7 +188,6 @@ const Creator = ({ agentId, name }) => {
       return () => clearTimeout(timer);
     }
   }, [loading]);
-
 
   useEffect(() => {
     const handleResize = () => {
@@ -129,27 +223,361 @@ const Creator = ({ agentId, name }) => {
     return () => mediaQuery.removeEventListener("change", handleResize); // Cleanup listener on component unmount
   }, []);
 
+  // Function to remove duplicates from analysisPlan structure
+  const removeDuplicatesFromAnalysisPlan = (assistantOverrides) => {
+    if (!assistantOverrides || !assistantOverrides.analysisPlan) {
+      return assistantOverrides;
+    }
+
+    const analysisPlan = assistantOverrides.analysisPlan;
+
+    // Remove duplicates from structuredDataPlan.schema.required array
+    if (analysisPlan.structuredDataPlan &&
+      analysisPlan.structuredDataPlan.schema &&
+      analysisPlan.structuredDataPlan.schema.required &&
+      Array.isArray(analysisPlan.structuredDataPlan.schema.required)) {
+
+      const originalLength = analysisPlan.structuredDataPlan.schema.required.length;
+      analysisPlan.structuredDataPlan.schema.required = [...new Set(analysisPlan.structuredDataPlan.schema.required)];
+      const newLength = analysisPlan.structuredDataPlan.schema.required.length;
+
+      if (originalLength !== newLength) {
+        console.log(`Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`);
+      }
+    }
+
+    // Ensure unique properties in structuredDataPlan.schema.properties
+    if (analysisPlan.structuredDataPlan &&
+      analysisPlan.structuredDataPlan.schema &&
+      analysisPlan.structuredDataPlan.schema.properties &&
+      typeof analysisPlan.structuredDataPlan.schema.properties === 'object') {
+
+      const uniqueProperties = {};
+      const seenKeys = new Set();
+
+      for (const [key, value] of Object.entries(analysisPlan.structuredDataPlan.schema.properties)) {
+        if (!seenKeys.has(key)) {
+          uniqueProperties[key] = value;
+          seenKeys.add(key);
+        } else {
+          console.warn(`Duplicate property key found in analysisPlan.structuredDataPlan.schema.properties: ${key}`);
+        }
+      }
+
+      analysisPlan.structuredDataPlan.schema.properties = uniqueProperties;
+      console.log(`Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`);
+    }
+
+    return assistantOverrides;
+  };
+
+  //get user details by agentId
+  const getUserByAgentId = async () => {
+    try {
+      setProfileLoader(true);
+      const response = await callApiGet(`${Apis.getUserByAgentVapiId}/${agentId}`)
+      // await axios.get(
+      //   `${Apis.getUserByAgentVapiId}/${agentId}`
+      // );
+      console.log("Response of getagent details by id is", response);
+      if (response) {
+        setAgentDetails(response)
+        setVapiAgent(response?.data?.data?.agent)
+
+        // Clean assistantOverrides to remove duplicates
+        const cleanedOverrides = removeDuplicatesFromAnalysisPlan(response?.data?.data?.assistantOverrides);
+        setAssistantOverrides(cleanedOverrides)
+
+        setSmartListData(response?.data?.data?.smartList)
+        console.log("Smart list data:", response?.data?.data?.smartList);
+      }
+      setProfileLoader(false);
+    } catch (error) {
+      console.log("Error occured in fetch user details by agent id", error);
+      setProfileLoader(false);
+    } finally {
+      setProfileLoader(false);
+    }
+  }
+
+  const callApiGet = async (path) => {
+    const response = await axios.get(
+      path
+    );
+    return response;
+  }
+  const callApiPost = async (path, data) => {
+
+    const response = await axios.post(
+      path,
+      data
+    );
+    return response
+  }
+
+  // Form handling functions
+  const handleFormDataChange = (field, value) => {
+    console.log(`Updating form field ${field} with value:`, value);
+    const newFormData = {
+      ...formData,
+      [field]: value
+    };
+    setFormData(newFormData);
+
+    // Save to localStorage
+    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
+      formData: newFormData,
+      smartListFields: smartListFields
+    }));
+  };
+
+  const handleSmartListFieldChange = (field, value) => {
+    console.log(`Updating smart list field ${field} with value:`, value);
+    const newSmartListFields = {
+      ...smartListFields,
+      [field]: value
+    };
+    setSmartListFields(newSmartListFields);
+
+    // Save to localStorage
+    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
+      formData: formData,
+      smartListFields: newSmartListFields
+    }));
+  };
+
+  // Load saved form data from localStorage
+  const loadSavedFormData = () => {
+    try {
+      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        console.log("Loading saved form data:", parsedData);
+        setFormData(parsedData.formData || {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+        });
+        setSmartListFields(parsedData.smartListFields || {});
+      }
+    } catch (error) {
+      console.error("Error loading saved form data:", error);
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log("Closing lead modal");
+    setShowLeadModal(false);
+    // Keep form data persistent - don't clear on close
+  };
+
+  const handleModalOpen = () => {
+    console.log("Opening lead modal");
+    loadSavedFormData(); // Load saved data when opening
+    setShowLeadModal(true);
+  };
+
+  const handleClearForm = () => {
+    console.log("Clearing form data");
+    localStorage.removeItem(`leadForm_${agentId}`);
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    });
+    setSmartListFields({});
+    console.log("Form data cleared successfully");
+  };
+
+  const handleFormSubmit = async () => {
+    console.log("Submitting form data:", { formData, smartListFields });
+    setIsSubmitting(true);
+
+    try {
+      // Prepare extraColumns from smart list fields
+      const extraColumns = {};
+      Object.entries(smartListFields).forEach(([key, value]) => {
+        if (value && value.trim()) {
+          extraColumns[key] = value;
+        }
+      });
+
+      // Prepare lead_details object
+      const leadDetails = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        email: formData.email,
+        extraColumns: extraColumns
+      };
+
+      console.log("Sending lead details:", leadDetails);
+
+      // Call API with lead details
+      const response = await callApiPost(
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+        { lead_details: leadDetails }
+      );
+
+      console.log("API response:", response);
+
+      if (response && response.data && response.data.data) {
+        const { totalSecondsAvailable } = response.data.data.user;
+        console.log("User total seconds available:", totalSecondsAvailable);
+
+        if (totalSecondsAvailable < 120) {
+          console.log("Insufficient balance, showing error");
+          setSnackbarMessage("Insufficient Balance");
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
+          return;
+        }
+        // Update assistant overrides with new data
+        const newAssistantOverrides = response.data.data.assistantOverrides;
+        if (newAssistantOverrides) {
+          // Clean assistantOverrides to remove duplicates
+          const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
+          setAssistantOverrides(cleanedNewOverrides);
+          console.log("Updated assistant overrides:", cleanedNewOverrides);
+
+          // Keep form data persistent - don't clear after submission
+          console.log("Form submitted successfully, keeping data persistent");
+
+          // Close modal and start call with new overrides
+          handleModalClose();
+          handleStartCallWithOverrides(newAssistantOverrides);
+        } else {
+          // Keep form data persistent - don't clear after submission
+          console.log("Form submitted successfully, keeping data persistent");
+
+          // Close modal and start call with existing overrides
+          handleModalClose();
+          handleStartCall();
+        }
+      }
+
+
+
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setSnackbarMessage("Error submitting lead details. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Handle button click
-  const handleInitiateVapi = () => {
-    handleStartCall();
+  const handleInitiateVapi = async () => {
+    console.log("handleInitiateVapi called");
+    console.log("Smart list data:", smartListData);
+
+    // Check if agent has smartList attached
+    if (smartListData && smartListData.id) {
+      // Check if we have persisted data
+      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const { formData: savedFormData, smartListFields: savedSmartListFields } = parsedData;
+
+          // Check if all required fields are filled and valid
+          const isValidSavedData = (
+            savedFormData?.firstName?.trim() &&
+            savedFormData?.lastName?.trim() &&
+            savedFormData?.email?.trim() &&
+            isValidEmail(savedFormData.email) &&
+            savedFormData?.phone?.trim() &&
+            isValidPhone(savedFormData.phone)
+          );
+
+          if (isValidSavedData) {
+            console.log("Found persisted form data, submitting directly:", parsedData);
+
+            // Use the saved data to make API call directly
+            setIsSubmitting(true);
+            try {
+              const extraColumns = {};
+              Object.entries(savedSmartListFields || {}).forEach(([key, value]) => {
+                if (value && value.trim()) {
+                  extraColumns[key] = value;
+                }
+              });
+
+              const leadDetails = {
+                firstName: savedFormData.firstName,
+                lastName: savedFormData.lastName,
+                phone: savedFormData.phone,
+                email: savedFormData.email,
+                extraColumns: extraColumns
+              };
+
+              const response = await callApiPost(
+                `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+                { lead_details: leadDetails }
+              );
+
+              if (response && response.data && response.data.data) {
+                const { totalSecondsAvailable } = response.data.data.user;
+
+                if (totalSecondsAvailable < 120) {
+                  setSnackbarMessage("Insufficient Balance");
+                  setSnackbarSeverity("error");
+                  setSnackbarOpen(true);
+                  return;
+                }
+
+                const newAssistantOverrides = response.data.data.assistantOverrides;
+                if (newAssistantOverrides) {
+                  const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
+                  setAssistantOverrides(cleanedNewOverrides);
+                  handleStartCallWithOverrides(newAssistantOverrides);
+                } else {
+                  handleStartCall();
+                }
+              }
+            } catch (error) {
+              console.error("Error submitting persisted form data:", error);
+              setSnackbarMessage("Error starting call. Please try again.");
+              setSnackbarSeverity("error");
+              setSnackbarOpen(true);
+            } finally {
+              setIsSubmitting(false);
+            }
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing saved form data:", error);
+        }
+      }
+
+      // If no persisted data or incomplete data, show modal
+      console.log("No complete persisted data found, showing modal");
+      handleModalOpen();
+    } else {
+      console.log("No smart list found, starting call directly");
+      handleStartCall();
+    }
   };
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY);
-    console.log('vapInstance', API_KEY)
+    console.log("vapInstance", API_KEY);
     setVapi(vapiInstance);
-    vapiInstance.on("call-start", () => {
-      console.log("📞 CALL-START: Call started");
+    vapiInstance.on("call-start", (call) => {
+      console.log("📞 CALL-START: Call started", call);
       setLoading(false);
       setOpen(true);
-
     });
     vapiInstance.on("call-end", () => {
       console.log("📞 CALL-END: Call ended");
       setIsSpeaking(false);
       setOpen(false);
-      setloadingMessage("")
+      setloadingMessage("");
     });
     vapiInstance.on("speech-start", () => {
       console.log("🎤 SPEECH-START: Assistant started speaking");
@@ -178,49 +606,80 @@ const Creator = ({ agentId, name }) => {
   }, []);
 
   async function handleStartCall(voice) {
-    // Check if user has sufficient minutes before starting call
-    const response = await axios.get(
-      `${Apis.getUserByAgentVapiId}/${agentId}`
-    );
+    console.log("handleStartCall called with voice:", voice);
+    try {
 
-    if (response.data.status && response.data.data.user) {
-      const { totalSecondsAvailable } = response.data.data.user;
+      setOpen(true);
+      console.log("Setting up call UI and starting call");
+      setLoading(true);
+      setloadingMessage("");
 
-      if (totalSecondsAvailable < 120) {
-        setSnackbarMessage("Insufficient Balance");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
+      if (voice) {
+        console.log("Setting voice interface");
+        setVoiceOpen(true);
+      } else {
+        console.log("Setting chat interface");
+        setChatOpen(true);
       }
+
+      await startCall();
+    } catch (error) {
+      console.error("Error checking user minutes:", error);
+      setSnackbarMessage("Error checking available minutes. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
-
-
-    setOpen(true)
-    console.log('trying to start call',)
-    setLoading(true);
-    setloadingMessage("")
-
-    if (voice) {
-      setVoiceOpen(true);
-    } else {
-      setChatOpen(true);
-    }
-
-    await startCall();
-
-    // if (!voice) {
-    //   muteAssistantAudio(true);
-    // }
   }
 
-  async function startCall() {
-    console.log("starting call")
+  async function startCall(overrides = null) {
+    console.log("starting call");
     if (vapi) {
-      vapi.start(agentId);
+      // Use overrides passed as parameter (from form submission) or fall back to state
+      const overridesToUse = overrides || assistantOverrides;
+
+      // Remove variableValues field before passing to VAPI
+      let cleanedOverrides = overridesToUse;
+      if (overridesToUse && overridesToUse.variableValues !== undefined) {
+        cleanedOverrides = { ...overridesToUse };
+        delete cleanedOverrides.variableValues;
+        console.log("Removed variableValues from overrides:", cleanedOverrides);
+      }
+
+      console.log("Current assistant overrides:", overridesToUse);
+      console.log("Cleaned overrides for VAPI:", cleanedOverrides);
+      console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
+      if (agentDetails?.data?.data?.smartList) {//change this to check if agent has smart list attached
+
+        console.log('agentId before starting call', agentId)
+        vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
+      } else {
+        console.log("Agent has no smart list, starting call directly");
+        vapi.start(agentId)
+      }
+      vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
     } else {
       console.error("Vapi instance not initialized");
     }
   }
+
+  // Function to start call with specific overrides from form submission
+  const handleStartCallWithOverrides = async (newOverrides) => {
+    console.log("handleStartCallWithOverrides called with overrides:", newOverrides);
+    try {
+      setOpen(true);
+      console.log("Setting up call UI and starting call with new overrides");
+      setLoading(true);
+      setloadingMessage("");
+
+      // Start call with the new overrides directly
+      await startCall(newOverrides);
+    } catch (error) {
+      console.error("Error starting call with overrides:", error);
+      setSnackbarMessage("Error starting call. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   async function handleCloseCall() {
     await vapi?.stop();
@@ -236,6 +695,68 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
+  // const handleMouseMove = (event) => {
+  //   const centerX = window.innerWidth / 2;
+  //   const centerY = window.innerHeight / 2;
+  //   const x = event.clientX;
+  //   const y = event.clientY;
+
+  //   setMousePosition({ x, y });
+
+  //   // Check if the mouse is within 150px of the center
+  //   if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
+  //     setBoxVisible(false); // Hide the box
+  //     return;
+  //   }
+
+  //   // Check if the mouse is over buttonRef
+  //   if (buttonRef.current) {
+  //     const rect = buttonRef.current.getBoundingClientRect();
+  //     if (
+  //       x >= rect.left &&
+  //       x <= rect.right &&
+  //       y >= rect.top &&
+  //       y <= rect.bottom
+  //     ) {
+  //       setBoxVisible(false); // Hide the animation when hovering over buttonRef
+  //       return;
+  //     }
+  //   }
+
+  //   setBoxVisible(true);
+
+  // };
+
+  // const handleMouseMove = (event) => {
+  //   const centerX = window.innerWidth / 2;
+  //   const centerY = window.innerHeight / 2;
+  //   const x = event.clientX;
+  //   const y = event.clientY;
+
+  //   setMousePosition({ x, y });
+
+  //   // Check if the mouse is within 150px of the center
+  //   if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
+  //     setBoxVisible(false); // Hide the box
+  //     return;
+  //   }
+
+  //   // Check if the mouse is over buttonRef or createAIButtonRef
+  //   if (
+  //     (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
+  //     (createAIButtonRef.current && isMouseOverRef(createAIButtonRef, x, y)) ||
+  //     (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) ||
+  //     (profileBoxRef.current && isMouseOverRef(profileBoxRef, x, y))
+  //   ) {
+  //     setBoxVisible(false); // Hide the animation when hovering over either buttonRef or createAIButtonRef
+  //     return;
+  //   }
+
+  //   setBoxVisible(true);
+  // };
+
+  // Helper function to check if mouse is over a specific element
+
   const handleMouseMove = (event) => {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
@@ -250,56 +771,61 @@ const Creator = ({ agentId, name }) => {
       return;
     }
 
-    // Check if the mouse is over buttonRef
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      if (
-        x >= rect.left &&
-        x <= rect.right &&
-        y >= rect.top &&
-        y <= rect.bottom
-      ) {
-        setBoxVisible(false); // Hide the animation when hovering over buttonRef
-        return;
-      }
+    // Check if the mouse is over any of the refs (buttonRef, createAIButtonRef, endCallButtonRef, profileBoxRef)
+    if (
+      (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
+      (createAIButtonRef.current && isMouseOverRef(createAIButtonRef, x, y)) ||
+      (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) ||  // Check for endCallButtonRef
+      (profileBoxRef.current && isMouseOverRef(profileBoxRef, x, y))
+    ) {
+      setBoxVisible(false); // Hide the animation when hovering over any of the refs
+      return;
     }
-  }
+
+    setBoxVisible(true); // Show the box when not hovering over the refs
+  };
+
+  // Helper function to check if mouse is over a specific element
+  const isMouseOverRef = (ref, x, y) => {
+    const rect = ref.current.getBoundingClientRect();
+    // Log the position and check if it's correctly identifying the bounding box
+    console.log("Checking mouse position over element:", rect);
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
+
+  // const isMouseOverRef = (ref, x, y) => {
+  //   const rect = ref.current.getBoundingClientRect();
+  //   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  // };
+
 
   const showCallUI = () => {
     return (
       <div className="flex flex-col w-full items-center justify-center">
-        {
-          loading || !open ? (
-            <p className="mt-10 italic">{loadingMessage}</p>
-          ) : (
-            isSpeaking ? (
-              <VoiceWavesComponent
-                className="mt-12"
-
-              />
-            ) :
-              <AudioWaveActivity
-                isActive={isSpeaking}
-                barCount={25}
-                className="mt-10"
-              />
-          )
-        }
+        {loading || !open ? (
+          <p className="mt-10 italic">{loadingMessage}</p>
+        ) : isSpeaking ? (
+          <VoiceWavesComponent className="mt-12" />
+        ) : (
+          <AudioWaveActivity
+            isActive={isSpeaking}
+            barCount={25}
+            className="mt-10"
+          />
+        )}
 
         {open && (
           <button
-            ref={buttonRef}
             onClick={handleCloseCall}
             className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
           >
             End Call
           </button>
-        )
-        }
-
+        )}
       </div>
-    )
-  }
+    );
+  };
 
   const gifBackgroundImageSmallScreen = {
     backgroundImage: 'url("/assets/applogo2.png")', // Ensure the correct path
@@ -330,6 +856,55 @@ const Creator = ({ agentId, name }) => {
         className="  overflow-y-hidden"
         onMouseMove={handleMouseMove}
       >
+        <div
+          ref={profileBoxRef}
+          style={{
+            position: "absolute",
+            left: 20,
+            top: 25
+          }}
+        >
+          <div
+            className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none"
+          >
+            {
+              profileLoader ? (
+                <CircularProgress size={15} />
+              ) : (
+                <div className="border border-[#ffffff] rounded-full">
+                  {agentImage(agentDetails?.data?.data?.agent)}
+                </div>
+              )
+            }
+            <div style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
+              {/*agentDetails?.data?.data?.agent?.name*/}
+              {agentDetails?.data?.data?.agent?.name &&
+                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1).toLowerCase()}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom button */}
+        <div
+          ref={createAIButtonRef}
+          style={{
+            position: "absolute",
+            left: 20,
+            bottom: 25
+          }}>
+          <button
+            className="rounded-full border border-[#ffffff] bg-purple60 flex flex-row items-center gap-2 h-[52px] px-4 outline-none"
+            onClick={() => { window.open("https://www.assignx.ai/", '_blank') }}
+          >
+            <Image
+              src={"/assets/stars.png"}
+              alt="phone"
+              height={20}
+              width={20}
+            />
+            <div className="text-white" style={{ fontSize: "17px", fontWeight: "500" }}>Build your AI</div>
+          </button>
+        </div>
 
         {/* Animating Image */}
         <div
@@ -354,6 +929,8 @@ const Creator = ({ agentId, name }) => {
                                     <Image onClick={handleInitiateVapi} src="/mainAppGif.gif" alt='gif' style={{ backgroundColor: "red", borderRadius: "50%" }} height={600} width={600} />
                                 </div> */}
 
+
+
             <div
               style={gifBackgroundImage}
               className="flex flex-row justify-center items-center"
@@ -373,14 +950,11 @@ const Creator = ({ agentId, name }) => {
                 width={600}
               />
             </div>
-
           </button>
-
-          {
-            showCallUI()
-          }
+          <div ref={endCallButtonRef}>
+            {showCallUI()}
+          </div>
         </div>
-
 
         {/* visible on small screens only */}
         <div
@@ -401,7 +975,7 @@ const Creator = ({ agentId, name }) => {
             }}
           >
             {/* <div className='px-4 py-2 rounded-lg -mb-8' style={{ fontSize: 14, fontWeight: '500', fontFamily: 'inter', backgroundColor: '#ffffff50' }}>
-                                    Tap to call
+                                    Click to Talk
                                 </div> */}
             <motion.div
               animate={{
@@ -423,7 +997,7 @@ const Creator = ({ agentId, name }) => {
                 position: "relative", // Required for positioning the triangle
               }}
             >
-              Tap to call
+              Click to Talk
               {/* Triangle at the bottom center */}
               <div
                 style={{
@@ -442,7 +1016,6 @@ const Creator = ({ agentId, name }) => {
 
             <div
               style={gifBackgroundImageSmallScreen}
-
               className="flex flex-row justify-center items-center"
             >
               <Image
@@ -459,11 +1032,10 @@ const Creator = ({ agentId, name }) => {
                 width={200}
               />
             </div>
-
           </button>
-          {
-            showCallUI()
-          }
+          <div ref={buttonRef}>
+            {showCallUI()}
+          </div>
         </div>
 
         {/* Mouse Following Box Animation */}
@@ -503,13 +1075,211 @@ const Creator = ({ agentId, name }) => {
                     fontSize: 14,
                   }}
                 >
-                  Tap to call
+                  Click to Talk
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Lead Details Modal */}
+      <Modal
+        open={showLeadModal}
+        onClose={handleModalClose}
+        closeAfterTransition
+        BackdropProps={{
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(5px)",
+          },
+        }}
+      >
+        <Box
+          className="xl:w-4/12 lg:w-4/12 sm:w-6/12 w-5/12"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+            backgroundColor: "white",
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Scrollable Content */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 24,
+            paddingBottom: 0
+          }}>
+            <div className="flex flex-row items-center justify-between w-full">
+              <div style={{ fontWeight: "500", fontSize: 15 }}>
+                Get Started
+              </div>
+              <CloseBtn onClick={handleModalClose} />
+            </div>
+
+            <div className="w-full">
+              {/* Basic Fields */}
+              <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                <span style={{ fontWeight: "500", fontSize: 15 }}>Contact Info</span>
+              </div>
+
+              <div className="mt-4 space-y-4">
+                <div>
+                  <input
+                    value={formData.firstName}
+                    onChange={(e) => handleFormDataChange('firstName', e.target.value)}
+                    placeholder="First Name"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    value={formData.lastName}
+                    onChange={(e) => handleFormDataChange('lastName', e.target.value)}
+                    placeholder="Last Name"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+
+
+                <div>
+                  <input
+                    value={formData.email}
+                    onChange={(e) => handleFormDataChange('email', e.target.value)}
+                    placeholder="Email"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+                <div>
+                  <PhoneInput
+                    country={"us"}
+                    value={formData.phone}
+                    onChange={(value) => handleFormDataChange('phone', value)}
+                    placeholder="Enter Phone Number"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl"
+                    style={{
+                      borderRadius: "12px",
+                      outline: "none",
+                      boxShadow: "none",
+                      border: "1px solid #00000020",
+                    }}
+                    inputStyle={{
+                      width: "100%",
+                      borderWidth: "0px",
+                      backgroundColor: "transparent",
+                      paddingLeft: "60px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                      height: "53px",
+                      outline: "none",
+                      boxShadow: "none",
+                      fontWeight: "500",
+                      fontSize: 15,
+                    }}
+                    buttonStyle={{
+                      border: "none",
+                      backgroundColor: "transparent",
+                      outline: "none",
+                    }}
+                    dropdownStyle={{
+                      maxHeight: "150px",
+                      overflowY: "auto",
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Smart List Fields */}
+              {smartListData && smartListData.columns && smartListData.columns.length > 0 && (
+                <>
+                  <div className="mt-8" style={{ fontWeight: "500", fontSize: 15 }}>
+                    Additional Info
+                  </div>
+                  <div className="mt-4 space-y-4">
+                    {smartListData.columns.map((column, index) => (
+                      <div key={index}>
+                        <input
+                          value={smartListFields[column.columnName] || ''}
+                          onChange={(e) => handleSmartListFieldChange(column.columnName, e.target.value)}
+                          placeholder={column.columnName.charAt(0).toUpperCase() + column.columnName.slice(1)}
+                          className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                          style={{
+                            fontWeight: "500",
+                            fontSize: 15,
+                            border: "1px solid #00000020",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Buttons */}
+          <div style={{
+            padding: 24,
+            paddingTop: 16,
+            borderTop: '1px solid #00000010'
+          }}>
+            <div className="flex flex-row gap-3">
+             
+              {isSubmitting ? (
+                <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
+                  <CircularProgress
+                    size={25}
+                    sx={{ color: "#7902DF" }}
+                  />
+                </div>
+              ) : (
+                <button
+                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid()
+                    ? "bg-purple"
+                    : "bg-gray-400"
+                    }`}
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 16.8,
+                  }}
+                  onClick={handleFormSubmit}
+                  disabled={!isFormValid()}
+                >
+                  Continue
+                </button>
+              )}
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       {/* Snackbar for error messages */}
       <Snackbar

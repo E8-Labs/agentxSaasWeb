@@ -150,6 +150,73 @@ export function TranscriptViewer({ callId }) {
     }
   };
 
+  const dumyMsg = [
+    {
+      id: 483809,
+      message: "Hi. It's Sky. Let's get started. What can I help with?",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483810,
+      message: "How do I know when the agent is calling?",
+      sender: "human",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483811,
+      message: "Thanks for sharing that. Just to make su...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483813,
+      message: "Great. Let me walk you through how you can check when a...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483809,
+      message: "Hi. It's Sky. Let's get started. What can I help with?",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483810,
+      message: "How do I know when the agent is calling?",
+      sender: "human",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483811,
+      message: "Thanks for sharing that. Just to make su...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+  ];
+
+
   useEffect(() => {
     GetCallTranscript()
   }, [callId])
@@ -186,6 +253,7 @@ export function TranscriptViewer({ callId }) {
     return result;
   }
   
+
 
 
   const GetCallTranscript = async () => {

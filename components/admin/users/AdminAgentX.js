@@ -73,12 +73,11 @@ import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPagin
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
-import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
 import DuplicateButton from "@/components/animation/DuplicateButton";
+import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
-
-
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -87,9 +86,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://apimyagentx.com/agentx/"
+      ? "https://app.assignx.ai/agentx/"
       : "https://apimyagentx.com/agentxtest/";
-
 
   const voiceExpressivenessList = [
     {
@@ -274,6 +272,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [previousCalenders, setPreviousCalenders] = useState([]);
   const [showModelLoader, setShowModelLoader] = useState(false);
   const [openGptManu, setOpenGptManu] = useState("");
+  const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
 
   const [selectedGptManu, setSelectedGptManu] = useState(models[0]);
 
@@ -309,12 +308,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
 
-
+  //for duplicationg agent
   const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false);
   const [duplicateLoader, setDuplicateLoader] = useState(false);
-
-
-
 
   const searchTimeoutRef = useRef(null);
 
@@ -354,7 +350,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
-      if (flatExtraColumns.hasOwnProperty(key)) {
+      if (flatExtraColumns?.hasOwnProperty(key)) {
         updatedInputValues[key] = flatExtraColumns[key];
       }
     });
@@ -454,6 +450,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowModelLoader(false);
     setOpenGptManu(null);
   };
+
   //handle duplicate agent
   const handleDuplicate = async () => {
     console.log("Duplicate agent clicked");
@@ -520,6 +517,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   };
 
+  //copy and vapi widget-code
+  const handleWebhookClick = (assistantId, baseUrl) => {
+    let url = baseUrl + "api/agent/demoAi/" + assistantId
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        // alert("Embed code copied to clipboard!");
+        setShowSuccessSnack("Webhook URL Copied");
+        setIsVisibleSnack(true);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
 
   const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
@@ -538,26 +549,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         console.error("Failed to copy text: ", err);
       });
   };
-
-
-
-
-  const handleWebhookClick = (assistantId, baseUrl) => {
-    let url = baseUrl + "api/agent/demoAi/" + assistantId
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Webhook URL Copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
-  };
-
-
-
 
   //function for numbers width
   //code for update agent api
@@ -1307,7 +1298,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       }
 
       for (let [key, value] of formData.entries()) {
-        //// //console.log;
+        console.log(key, value)
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -1534,27 +1525,28 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    //// //console.log;
+    console.log("agent for matching", agent)
     const agentData = mainAgentsList.filter((prevAgent) => {
       //// //console.log;
+      console.log('prev agent is', prevAgent.id)
+
       if (prevAgent.id === agent.mainAgentId) {
         return true;
       } else {
         return false;
       }
     });
-    //// //console.log;
+    console.log("agent data after compair", agentData)
     if (typeof agentData == undefined || agentData == null) {
       return;
     }
-    ////console.log;
+    console.log("agent data after null check", agentData)
     setKYCList(agentData[0]?.kyc);
 
     ////console.log;
-    //// //console.log;
+    console.log("matcheing agent", agentData)
     // setMainAgentId(agentData[0]?.id);
-    setMainAgentId(agent.mainAgentId);
-
+    setMainAgentId(agent.mainAgentId)
     let firstAgent = agentData[0];
     //// //console.log;
     setUserPipeline(firstAgent?.pipeline);
@@ -1626,10 +1618,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   //function to handle input field change
-  const handleInputChange = (index, value) => {
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      [index]: value, // Update the specific index value
+  const handleInputChange = (key, value) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [key]: value,
     }));
   };
 
@@ -1729,7 +1721,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         AuthToken = localData.token;
       }
 
-      const newArray = scriptKeys.map((key) => ({
+      const newArray = scriptKeys.map((key, index) => ({
         [key]: inputValues[key] || "", // Use the input value or empty string if not set
       }));
 
@@ -1880,43 +1872,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         },
       });
 
-      // if (response) {
-      //   //console.log;
-      //   setPaginationLoader(false);
-      //   let agents = response.data.data || [];
-      //   console.log("Agents from api", agents);
-      //   if (!search) {
-      //     setAllAgentsList(agents)
-
-      //   }
-      //   setOldAgentsList(agents)
-      //   if (agents.length >= 6) {
-      //     setCanGetMore(true);
-      //   } else {
-      //     setPaginationLoader(false);
-      //     setCanGetMore(false);
-      //   }
-
-      //   if (search) {
-      //     setAgentsListSeparated(agents);
-      //     return
-      //   }
-
-      //   let newList = [...mainAgentsList]; // makes a shallow copy
-      //   if (Array.isArray(agents) && agents.length > 0) {
-      //     newList.push(...agents); // append all agents at once
-      //   }
-
-      //   console.log("Agents after pushing", newList);
-
-      //   localStorage.setItem(
-      //     PersistanceKeys.LocalStoredAgentsListMain,
-      //     JSON.stringify(newList)
-      //   );
-
-      //   setMainAgentsList(newList);
-      // }
-
       if (response) {
         //console.log;
         setPaginationLoader(false);
@@ -1971,26 +1926,34 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function to add new agent
   const handleAddNewAgent = (event) => {
+    event.preventDefault();
     console.log('selectedUser create agent', selectedUser)
     // return
-    event.preventDefault();
-    const data = {
-      status: true,
-    };
-    localStorage.setItem("fromDashboard", JSON.stringify(data));
-    const d = {
-      subAccountData: selectedUser,
-      isFromAgency: from,
-    };
+    if (selectedUser?.plan) {
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
+      const d = {
+        subAccountData: selectedUser,
+        isFromAgency: from,
+      };
 
-    let u = {
-      user: selectedUser,
-      isFrom: from,
+      let u = {
+        user: selectedUser,
+        isFrom: from,
+      }
+
+      localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(d));
+
+      // router.push("/createagent");
+      window.location.href = "/createagent";
+    } else {
+      console.log("User has no plan subscribed");
+      setIsVisibleSnack2(true);
+      setShowErrorSnack("User has no plan subscribed")
     }
 
-    localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(d));
-
-    router.push("/createagent");
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2051,8 +2014,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   ////console.log);
 
   const handleChangeVoice = async (event) => {
+    console.log("voice changed")
     setShowVoiceLoader(true);
-    const selectedVoice = filteredVoices.find(
+    const selectedVoice = voicesList.find(
       (voice) => voice.name === event.target.value
     );
 
@@ -2456,7 +2420,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       </div>
 
       <div
-        className="w-full flex flex-row justify-between items-center py-4 px-10"
+        className="w-full flex flex-row justify-between items-center"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Agent</div>
@@ -2492,7 +2456,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         </div>
       </div>
 
-      <div className="w-full items-center h-full overflow-hidden" style={{}}>
+      <div className="w-full items-center h-[100%] overflow-hidden" style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
@@ -2536,13 +2500,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             canGetMore={canGetMore}
             paginationLoader={paginationLoader}
             from="Admin"
+            selectedUser={selectedUser}
           />
         )}
 
         {/* code to add new agent */}
-        <Link
+        <button
           className="w-full py-6 flex justify-center items-center"
-          href="/createagent"
           style={{
             marginTop: 40,
             border: "1px dashed #7902DF",
@@ -2563,7 +2527,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           >
             <Plus weight="bold" size={22} /> Add New Agent
           </div>
-        </Link>
+        </button>
       </div>
 
       {/* Test ai modal */}
@@ -2639,12 +2603,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     setErrorMessage("");
                   }}
                 >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
+                  <CloseBtn onClick={() => {}} />
                 </button>
               </div>
 
@@ -2843,6 +2802,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 type={SnackbarTypes.Success}
                 message={showSuccessSnack}
               />
+              <div>
+                <AgentSelectSnackMessage
+                  isVisible={isVisibleSnack2}
+                  hide={() => setIsVisibleSnack2(false)}
+                  message={showErrorSnack}
+                  type={SnackbarTypes.Error}
+                />
+              </div>
               {/* Agent TOp Info */}
               <div className="flex flex-row items-start justify-between w-full mt-2 ">
                 <div className="flex flex-row items-start justify-start mt-2 gap-4">
@@ -3146,6 +3113,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
               </div>
 
+              {/* Test Code */}
+
               {/* Center Stats View  */}
               <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
                 <Card
@@ -3399,6 +3368,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       >
                         Voice
                       </div>
+
+
                       <div
                         style={{
                           // width: "115px",
@@ -3432,7 +3403,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     <div style={{ color: "#aaa" }}>Select</div>
                                   );
 
-                                const selectedVoice = filteredVoices.find(
+                                const selectedVoice = voicesList.find(
                                   (voice) => voice.name === selected
                                 );
 
@@ -3475,9 +3446,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 },
                               }}
                             >
-                              {filteredVoices.map((item, index) => {
+                              {voicesList.map((item, index) => {
                                 const selectedVoiceName = (id) => {
-                                  const voiceName = filteredVoices.find(
+                                  const voiceName = voicesList.find(
                                     (voice) => voice.voice_id === id
                                   );
                                   return voiceName?.name || "Unknown";
@@ -3517,10 +3488,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                           if (preview === item.preview) {
                                             if (audio) {
                                               audio.pause();
+                                              audio.removeEventListener("ended", () => { });
                                             }
                                             setPreview(null);
                                           } else {
-                                            setPreview(item.preview);
+
                                             playVoice(item.preview);
                                           }
                                         }}
@@ -4254,7 +4226,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
-                    setSelectedAgent={setShowDrawerSelectedAgent}
+                    selectGHLCalendar={selectGHLCalendar}
+                    setSelectGHLCalendar={setSelectGHLCalendar}
                   />
                 </div>
               ) : activeTab === "Pipeline" ? (
@@ -4369,19 +4342,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setDelAgentModal(false);
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => setDelAgentModal(false)} />
                 </div>
               </div>
 
@@ -4391,7 +4352,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">Cancel</button>
+              <button className="w-1/2 outline-none text-[#6b7280] h-[50px] outline-none">Cancel</button>
               <div className="w-1/2">
                 {DelLoader ? (
                   <div className="flex flex-row iems-center justify-center w-full">
@@ -4545,19 +4506,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setShowRenameAgentPopup(null);
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => setShowRenameAgentPopup(null)} />
                 </div>
               </div>
 
@@ -4640,7 +4589,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <button onClick={() => {
                     setShowWarningModal(false);
                   }} className='outline-none'>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                    <CloseBtn onClick={() => setShowWarningModal(false)} />
                   </button>
                 </div>
               </div> */}
@@ -4654,18 +4603,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 >
                   Reassign Number
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowConfirmationModal(null);
                   }}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
+                />
+
               </div>
 
               <div
@@ -4784,19 +4727,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      handleCloseScriptModal();
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => handleCloseScriptModal()} />
                 </div>
               </div>
 
@@ -5180,18 +5111,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               }}
             >
               <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setIntroVideoModal(false);
-                  }}
-                >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
+                <CloseBtn onClick={() => setIntroVideoModal(false)} />
               </div>
 
               <div
@@ -5245,14 +5165,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             >
               <div>
                 <div className="flex flex-row justify-end">
-                  <button onClick={handleCloseClaimPopup}>
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={handleCloseClaimPopup} />
                 </div>
                 <div
                   style={{

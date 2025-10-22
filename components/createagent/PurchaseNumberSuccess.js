@@ -11,7 +11,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
         if (Data) {
             const localData = JSON.parse(Data);
             setPurchaseNumber(localData);
-           // //console.log;
+        //    console.log("Purchase number data", localData);
         }
     }, []);
 

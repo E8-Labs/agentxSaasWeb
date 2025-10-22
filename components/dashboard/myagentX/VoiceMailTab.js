@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import NoVoicemailView from './NoVoicemailView'
 import Image from 'next/image'
 import AddVoiceMail from './AddVoiceMail'
@@ -11,6 +11,10 @@ import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import EditVoicemailModal from './EditVoicemailModal';
 import { getAgentsListImage } from '@/utilities/agentUtilities';
+import { getUserLocalData } from '@/components/constants/constants';
+import UpgradeModal from '@/constants/UpgradeModal';
+import getProfileDetails from '@/components/apis/GetProfile';
+import UpgardView from '@/constants/UpgardView';
 
 
 function VoiceMailTab({
@@ -19,7 +23,8 @@ function VoiceMailTab({
   setMainAgentsList,
   selectedUser = null,
   kycsData,
-  uniqueColumns
+  uniqueColumns,
+
 }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
@@ -32,6 +37,22 @@ function VoiceMailTab({
   const [showMessage, setShowMessage] = useState(null)
   const [messageType, setMessageType] = useState(null)
   const [showEditPopup, setShowEditPopup] = useState(false)
+
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  })
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  }, [])
+
+
 
   const playVoice = (url) => {
     // console.log('url', url)
@@ -282,15 +303,40 @@ function VoiceMailTab({
           setShowMessage(null);
         }}
       />
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+      />
       {
         agent?.voicemail == null ? (
-          <NoVoicemailView
-            openModal={() => {
-              setShowAddNewPopup(true)
-              // console.log('open')
-            }}
-            showAddBtn={true}
-          />
+          user?.agencyCapabilities?.allowVoicemail === false ? (
+
+            <UpgardView
+              title={"Enable Voicemail"}
+              subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+              setShowSnackMsg={setShowSnackMsg}
+            />
+          ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
+            <UpgardView
+              title={"Enable Voicemail"}
+              subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+              setShowSnackMsg={setShowSnackMsg}
+            />
+          ) : (
+            <NoVoicemailView
+              openModal={() => {
+                if (user?.planCapabilities.allowVoicemailSettings) {
+                  setShowAddNewPopup(true)
+                } else {
+                  setShowUpgradeModal(true)
+                }
+                // console.log('open')
+              }}
+              showAddBtn={true}
+            />
+          )
 
         ) : (
           <div className='w-full flex flex-col gap-3 items-center'>
@@ -395,6 +441,16 @@ function VoiceMailTab({
         uniqueColumns={uniqueColumns}
       />
 
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+
+        title={"Unlock voicemail"}
+        subTitle={"Upgrade to unlock voice mail feature"}
+        buttonTitle={"No Thanks"}
+      />
     </div>
   )
 }

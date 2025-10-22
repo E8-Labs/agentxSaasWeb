@@ -235,7 +235,7 @@ function AdminScheduledCalls({ selectedUser }) {
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
       console.log(
         "Api Call Leads : ",
-        path
+       path
       );
       const response = await fetch(path,
         {
@@ -423,9 +423,11 @@ function AdminScheduledCalls({ selectedUser }) {
         <div className="w-3/12">
           <div style={styles.text}>Agent</div>
         </div>
-        <div className="w-2/12 ">
-          <div style={styles.text}>Objective</div>
-        </div>
+        
+          <div className="w-2/12 ">
+            <div style={styles.text}>List Name</div>
+          </div>
+        
         <div className="w-1/12">
           <div style={styles.text}>Leads</div>
         </div>
@@ -465,21 +467,21 @@ function AdminScheduledCalls({ selectedUser }) {
                             >
                               <div className="w-3/12 flex flex-row gap-4 items-center">
 
-                                <div style={{ width: "fit-content" }}>
-                                  {getAgentsListImage(agent?.agents[0])}
-                                </div>
+                                {getAgentImageWithMemoji(agent)}
 
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
-                              <div className="w-2/12 ">
-                                {agent?.agents[0]?.agentObjective ? (
-                                  <div style={styles.text2}>
-                                    {agent.agents[0]?.agentObjective}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
+
+                                <div className="w-2/12 ">
+                                  {agent?.agents[0]?.agentObjective ? (
+                                    <div style={styles.text2}>
+                                      {agent.Sheet.sheetName}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+
                               <div className="w-1/12">
                                 <button
                                   style={styles.text2}
@@ -622,7 +624,7 @@ function AdminScheduledCalls({ selectedUser }) {
         )}
       </div>
 
-      {/* Leads list modal goes here */}
+     {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
         onClose={() => setShowLeadDetailsModal(false)}
@@ -688,7 +690,7 @@ function AdminScheduledCalls({ selectedUser }) {
                       <input
                         type="text"
                         placeholder="Search by name or phone"
-                        className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
                           const value = e.target.value;
@@ -830,7 +832,7 @@ function AdminScheduledCalls({ selectedUser }) {
                         </div>
                       ) : !leadsLoading ? (
                         <div className="text-center mt-6 text-3xl">
-                          No Call Found
+                          No activities found
                         </div>
                       ) : (
                         <div className="text-center mt-6 text-3xl">

@@ -85,16 +85,44 @@ function AdminXbarServices({ selectedUser }) {
   }, []);
 
   //array of plans
-  const defaultPlan = XBarPlans
-
-  const [plans, setPlans] = useState(defaultPlan);
+  const defaultPlan = XBarPlans;
+  const [plans, setPlans] = useState([]);
+  const [getPlansLoader, setGetPlansLoader] = useState(true);
 
   useEffect(() => {
     getProfile();
     getCardsList();
   }, []);
+
+  useEffect(() => {
+    console.log("Passed client data is", selectedUser)
+    console.log("Toggle plan passed is", togglePlan);
+    console.log("Current plan passed is", currentPlan);
+  }, [togglePlan, currentPlan])
+
+  useEffect(() => {
+    setGetPlansLoader(true);
+    const Data = localStorage.getItem("User");
+    let localData = null
+    if (Data) {
+      const D = JSON.parse(Data);
+      localData = D.user
+    }
+    if (role === "Agency" || localData.agencyTeamMember === true) {
+      getPlans()
+    } else {
+      setPlans(defaultPlan);
+      setGetPlansLoader(false);
+    }
+  }, [role]);
+
+  useEffect(() => {
+    console.log("Status of get plans loader is", getPlansLoader)
+  }, [getPlansLoader])
+
   const getPlans = async () => {
     try {
+      setGetPlansLoader(true);
       const Token = AuthToken();
       const ApiPath = Apis.getSubAccountPlans + "?userId=" + selectedUser.id;
       const response = await axios.get(ApiPath, {
@@ -107,28 +135,25 @@ function AdminXbarServices({ selectedUser }) {
       if (response) {
         console.log("Response of get plans api is", response.data.data);
         setPlans(response.data.data.xbarPlans);
+        setGetPlansLoader(false);
       }
 
     } catch (error) {
       console.error("Error occured in getting plans", error);
+      setGetPlansLoader(false);
     }
   }
 
-  useEffect(() => {
-    if (role === "Agency") {
-      getPlans()
-    }
-  }, [role])
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
+      setGetPlansLoader(true);
       let response = await AdminGetProfileDetails(selectedUser.id);
-      console.log("resopnse of admin get profile api is", response)
-
+      //console.log;
       if (response) {
+        console.log("Response of get profile apis is",response)
         setRole(response?.userRole)
-        let togglePlan = response.supportPlan;
-        console.log('togglePlan', response)
+        let togglePlan = response?.supportPlan;
         // let togglePlan = plan?.type;
         let planType = null;
         // if (plan.status == "active") {
@@ -141,12 +166,14 @@ function AdminXbarServices({ selectedUser }) {
             planType = 3;
           }
         } else {
-          let type = plans?.find((item) => item.title === togglePlan);
-          planType = type?.id;
+          let type = plans?.find((item) => item?.title === togglePlan);
+          // planType = type?.id;
+          console.log("Passed support plan id is", selectedUser?.supportPlan)
+          planType = selectedUser?.supportPlan;
         }
         // }
-        setUserLocalData(response?.data?.data);
-        console.log("plan type is ", response?.data?.data)
+        setUserLocalData(response);
+        console.log("plan type is ", response)
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -247,7 +274,7 @@ function AdminXbarServices({ selectedUser }) {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          let msg = togglePlan;
+          let msg
           if (togglePlan == "Enterprise") {
             msg = "Scale"
           }
@@ -440,52 +467,60 @@ function AdminXbarServices({ selectedUser }) {
           </div>
         </div>
 
-        {plans?.map((item, index) => (
-          <button
-            key={item.id}
-            className="w-9/12 mt-4 outline-none"
-            onClick={(e) => handleTogglePlanClick(item)}
-          >
-            <div
-              className="px-4 py-1 pb-4"
-              style={{
-                ...styles.pricingBox,
-                border:
-                  item.id === togglePlan
-                    ? "2px solid #7902DF"
-                    : "1px solid #15151520",
-                backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-              }}
-            >
-              <div
-                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-              ></div>
-              <span style={styles.labelText}>{item.planStatus}</span>
-              <div
-                className="flex flex-row items-start gap-3"
-                style={styles.content}
-              >
-                <div className="mt-1">
-                  <div>
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={"/svgIcons/checkMark.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/svgIcons/unCheck.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className="w-full">
-                  {/* {item.id === currentPlan && (
+        {
+          getPlansLoader ? (
+            <div className="mt-4">
+              <CircularProgress size={25} />
+            </div>
+          ) : (
+            <div className="w-full flex flex-col items-center">
+              {plans?.map((item, index) => (
+                <button
+                  key={item.id}
+                  className="w-9/12 mt-4 outline-none"
+                  onClick={(e) => handleTogglePlanClick(item)}
+                  disabled={Number(item.id) === Number(togglePlan)}
+                >
+                  <div
+                    className="px-4 py-1 pb-4"
+                    style={{
+                      ...styles.pricingBox,
+                      border:
+                        Number(item.id) === Number(togglePlan)
+                          ? "2px solid #7902DF"
+                          : "1px solid #15151520",
+                      backgroundColor: Number(item.id) === Number(togglePlan) ? "#402FFF05" : "",
+                    }}
+                  >
+                    <div
+                      style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                    ></div>
+                    <span style={styles.labelText}>{item.planStatus}</span>
+                    <div
+                      className="flex flex-row items-start gap-3"
+                      style={styles.content}
+                    >
+                      <div className="mt-1">
+                        <div>
+                          {Number(item.id) === Number(togglePlan) ? (
+                            <Image
+                              src={"/svgIcons/checkMark.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={"/svgIcons/unCheck.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-full">
+                        {/* {item.id === currentPlan && (
                     <div
                       className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                       style={{
@@ -498,81 +533,84 @@ function AdminXbarServices({ selectedUser }) {
                     </div>
                   )} */}
 
-                  <div className="flex flex-row items-center gap-3">
-                    <div
-                      style={{
-                        color: "#151515",
-                        fontSize: 20,
-                        fontWeight: "600",
-                      }}
-                    >
-                      {role && role === "Agency" ? item.title : item.PlanTitle}
-                    </div>
-                    {item.status && (
-                      <div
-                        className="flex px-2 py-1 bg-purple rounded-full text-white"
-                        style={{ fontSize: 11.6, fontWeight: "500" }}
-                      >
-                        {item.status}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center justify-between">
-                    <div className="flex flex-col justify-start">
-
-                      {
-                        item.details ?
-                          item.details?.map((det, index) => {
-                            return (
-                              <div
-                                className=""
-                                style={{
-                                  color: "#15151590",
-                                  fontSize: 12,
-                                  //   width: "60%",
-                                  fontWeight: "600",
-                                }}
-                                key={index}
-                              >
-                                {det}
-                              </div>
-                            );
-                          }) : (
-                            <div
-                              className=""
-                              style={{
-                                color: "#15151590",
-                                fontSize: 12,
-                                //   width: "60%",
-                                fontWeight: "600",
-                              }}
-
-                            >
-                              {item.planDescription}
-                            </div>
-                          )
-
-                      }
-                    </div>
-                    <div className="flex flex-row items-center">
-                      <div style={item.discountPrice ? styles.originalPrice : styles.discountedPrice}>
-                        {item.originalPrice && <div>${item.originalPrice}</div>}
-                      </div>
-                      {item.discountPrice &&
-                        <div className="flex flex-row justify-start items-start ">
-                          <div style={styles.discountedPrice}>
-                            ${item.discountPrice}
+                        <div className="flex flex-row items-center gap-3">
+                          <div
+                            style={{
+                              color: "#151515",
+                              fontSize: 20,
+                              fontWeight: "600",
+                            }}
+                          >
+                            {role === "Agency" || selectedUser.agencyTeamMember === true?item?.title:item.PlanTitle}
                           </div>
-                          <p style={{ color: "#15151580" }}></p>
+                          {item.status && (
+                            <div
+                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              style={{ fontSize: 11.6, fontWeight: "500" }}
+                            >
+                              {item.status}
+                            </div>
+                          )}
                         </div>
-                      }
+                        <div className="flex flex-row items-center justify-between">
+                          <div className="flex flex-col justify-start">
+
+                            {
+                              item.details ?
+                                item.details?.map((det, index) => {
+                                  return (
+                                    <div
+                                      className=""
+                                      style={{
+                                        color: "#15151590",
+                                        fontSize: 12,
+                                        //   width: "60%",
+                                        fontWeight: "600",
+                                      }}
+                                      key={index}
+                                    >
+                                      {det}
+                                    </div>
+                                  );
+                                }) : (
+                                  <div
+                                    className=""
+                                    style={{
+                                      color: "#15151590",
+                                      fontSize: 12,
+                                      //   width: "60%",
+                                      fontWeight: "600",
+                                    }}
+
+                                  >
+                                    {item.planDescription}
+                                  </div>
+                                )
+
+                            }
+                          </div>
+                          <div className="flex flex-row items-center">
+                            <div style={item.discountPrice ? styles.originalPrice : styles.discountedPrice}>
+                              {item.originalPrice && <div>${item.originalPrice}</div>}
+                            </div>
+                            {item.discountPrice &&
+                              <div className="flex flex-row justify-start items-start ">
+                                <div style={styles.discountedPrice}>
+                                  ${item.discountPrice}
+                                </div>
+                                <p style={{ color: "#15151580" }}></p>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </button>
+              ))}
             </div>
-          </button>
-        ))}
+          )
+        }
 
         <div className="flex flex-col w-full items-center justify-center">
           {subscribePlanLoader ? (

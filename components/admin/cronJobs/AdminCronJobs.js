@@ -13,7 +13,7 @@ function AdminCronJobs({ isActive = true }) {
 
   useEffect(() => {
     fetchCronJobs();
-
+    
     // Auto-refresh every 10 seconds when component is visible and active
     const interval = setInterval(() => {
       // Only refresh if the document is visible (user is on this tab) and component is active
@@ -21,16 +21,16 @@ function AdminCronJobs({ isActive = true }) {
         fetchCronJobs();
       }
     }, 10000);
-
+    
     // Also refresh when user comes back to the tab
     const handleVisibilityChange = () => {
       if (!document.hidden && isActive) {
         fetchCronJobs();
       }
     };
-
+    
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
+    
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -47,7 +47,7 @@ function AdminCronJobs({ isActive = true }) {
   const fetchCronJobs = async () => {
     // Don't fetch if component is not active
     if (!isActive) return;
-
+    
     try {
       setRefreshing(true);
       const localData = localStorage.getItem("User");
@@ -89,7 +89,7 @@ function AdminCronJobs({ isActive = true }) {
   const restartCronJob = async (processType, jobName) => {
     try {
       setRestarting(prev => ({ ...prev, [processType]: true }));
-
+      
       const localData = localStorage.getItem("User");
       const AuthToken = localData ? JSON.parse(localData).token : null;
 
@@ -166,8 +166,8 @@ function AdminCronJobs({ isActive = true }) {
   };
 
   const shouldShowRestartButton = (job) => {
-    return job.healthStatus === 'critical' ||
-           job.status === 'stuck' ||
+    return job.healthStatus === 'critical' || 
+           job.status === 'stuck' || 
            (job.elapsedTimeMinutes && job.elapsedTimeMinutes > 10);
   };
 
@@ -194,7 +194,7 @@ function AdminCronJobs({ isActive = true }) {
               <CheckCircle className="h-6 w-6 text-gray-400" />
             </div>
           </div>
-
+          
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
@@ -204,7 +204,7 @@ function AdminCronJobs({ isActive = true }) {
               <Clock className="h-6 w-6 text-blue-500" />
             </div>
           </div>
-
+          
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
@@ -214,7 +214,7 @@ function AdminCronJobs({ isActive = true }) {
               <XCircle className="h-6 w-6 text-red-500" />
             </div>
           </div>
-
+          
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm border">
             <div className="flex items-center justify-between">
               <div>
@@ -238,8 +238,8 @@ function AdminCronJobs({ isActive = true }) {
             </div>
           )}
         </div>
-        <button
-          onClick={fetchCronJobs}
+        <button 
+          onClick={fetchCronJobs} 
           disabled={refreshing}
           className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium disabled:opacity-50"
         >

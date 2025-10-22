@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
-import { Modal, Box } from "@mui/material";
+import { Modal, Box, CircularProgress } from "@mui/material";
 
-const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, }) => {
+const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, videoDescription, showLoader = false }) => {
   const modalStyles = {
     position: "fixed",
     top: "50%",
@@ -61,6 +61,13 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, }) => {
             {videoTitle || "Learn more about assigning leads"}
           </div>
 
+          <div
+            className="text-center"
+            style={{ fontWeight: "600", fontSize: 18 }}
+          >
+            {videoDescription || ""}
+          </div>
+
           {/* Video Section */}
           <div className="mt-6">
             {/* <iframe
@@ -75,19 +82,27 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, }) => {
                 borderRadius: 15,
               }}
             /> */}
-            <video
-              controls
-              autoPlay
-              muted={false}
-              style={{
-                width: "100%",
-                height: "50vh",
-                borderRadius: 15,
-              }}
-            >
-              <source src={videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            {
+              showLoader ? (
+                <div className="w-full flex flex-row items-center justify-center mt-4">
+                  <CircularProgress />
+                </div>
+              ) : (
+                <video
+                  controls
+                  autoPlay
+                  muted={false}
+                  style={{
+                    width: "100%",
+                    height: "50vh",
+                    borderRadius: 15,
+                  }}
+                >
+                  <source src={videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              )
+            }
           </div>
         </div>
       </Box>

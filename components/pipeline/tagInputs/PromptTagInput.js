@@ -14,7 +14,10 @@ export const PromptTagInput = ({
   saveUpdates,
   from,
   isEdit = true,
-  limit
+  limit,
+  isSubject = false,
+  placeholder = "Type here...",
+  editTitle
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -428,7 +431,7 @@ export const PromptTagInput = ({
           onClick={() => {
             setShowScriptModal(true);
           }}
-          placeholder="Type here..."
+          placeholder={placeholder}
           value={text}
           maxLength={limit}
           readOnly
@@ -438,11 +441,12 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: showSaveChangesBtn
-              ? window.innerHeight <= 900
-                ? "calc(100vh - 670px)"
-                : "calc(100vh - 730px)"
-              : "calc(100vh - 650px)",
+            height: isSubject ? "7vh" :
+              showSaveChangesBtn
+                ? window.innerHeight <= 900
+                  ? "calc(100vh - 670px)"
+                  : "calc(100vh - 730px)"
+                : "calc(100vh - 650px)",
             // maxHeight:"28vh",
             resize: "none",
             // backgroundColor:'red'
@@ -450,52 +454,56 @@ export const PromptTagInput = ({
           }}
         // disabled={true}
         />
-        <div className="h-[50px] flex flex-col justify-center">
-          <button
-            onClick={() => {
-              setShowScriptModal(true);
-            }}
-          >
-            <FrameCorners size={18} />
-          </button>
-        </div>
+        {
+          !isSubject && (
+            <div className="h-[50px] flex flex-col justify-center">
+              <button
+                onClick={() => {
+                  setShowScriptModal(true);
+                }}
+              >
+                <FrameCorners size={18} />
+              </button>
+            </div>
+          )
+        }
       </div>
 
       {/*popupVisible && filteredOptions.length > 0 && (
- <div
- style={{
- position: "absolute",
- top: `${popupPosition.top}px`,
- left: `${popupPosition.left}px`,
- height: "200px",
- backgroundColor: "white",
- border: "1px solid lightgray",
- borderRadius: "5px",
- boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
- zIndex: 1000,
- padding: "10px",
- minWidth: "150px",
- }}
- >
- {filteredOptions.map((option) => (
- <div
- key={option}
- onClick={() => handleOptionSelect(option)}
- style={{
- padding: "5px 10px",
- cursor: "pointer",
- // borderBottom: "1px solid lightgray",
- }}
- onMouseEnter={(e) =>
- (e.target.style.backgroundColor = "lightblue")
- }
- onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
- >
- {option}
- </div>
- ))}
- </div>
- )*/}
+        <div
+          style={{
+            position: "absolute",
+            top: `${popupPosition.top}px`,
+            left: `${popupPosition.left}px`,
+            height: "200px",
+            backgroundColor: "white",
+            border: "1px solid lightgray",
+            borderRadius: "5px",
+            boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+            zIndex: 1000,
+            padding: "10px",
+            minWidth: "150px",
+          }}
+        >
+          {filteredOptions.map((option) => (
+            <div
+              key={option}
+              onClick={() => handleOptionSelect(option)}
+              style={{
+                padding: "5px 10px",
+                cursor: "pointer",
+                // borderBottom: "1px solid lightgray",
+              }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = "lightblue")
+              }
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )*/}
 
       <Modal
         open={showScriptModal}
@@ -541,24 +549,38 @@ export const PromptTagInput = ({
                   </button>
                 </div>
 
-                <div
-                  className="text-start sm:font-24 font-16"
-                  style={{ fontWeight: "700" }}
-                >
-                  {isEdit ? "Edit" : "Add"} {from}
+                <div className="flex flex-row items-center justify-between">
+                  {
+                    from === "CreateEmail" ? (
+                      < div
+                        className="text-start sm:font-24 font-16"
+                        style={{ fontWeight: "700" }}
+                      >
+                        {editTitle}
+                      </div>
+                    ) : (
+                      <div
+                        className="text-start sm:font-24 font-16"
+                        style={{ fontWeight: "700" }}
+                      >
+                        {isEdit ? "Edit" : "Add"} {from}
+                      </div>
+                    )
+                  }
+
+                  {
+                    from === "Voicemail" && (
+                      <div>
+                        <div style={{
+                          fontSize: 14, fontWeight: '500', color: '#00000060'
+                        }}>
+                          {text?.length}/200
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
 
-                {
-                  from === "Voicemail" && (
-                    <div className="w-full flex flex-col items-end jutstify-end">
-                      <div style={{
-                        fontSize: 14, fontWeight: '500', color: '#00000060'
-                      }}>
-                        {text?.length}/200
-                      </div>
-                    </div>
-                  )
-                }
               </div>
 
               <div style={{ position: "relative", height: "80%" }}>
@@ -681,6 +703,6 @@ export const PromptTagInput = ({
           </div>
         </Box>
       </Modal>
-    </div>
+    </div >
   );
 };

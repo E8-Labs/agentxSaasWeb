@@ -24,11 +24,22 @@ import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import UpgardView from "@/constants/UpgardView";
+import { useUser } from "@/hooks/redux-hooks";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
   const router = useRouter();
   const selectRef = useRef(null);
+
+  // Redux user state
+  const { user: userData, setUser: setUserData, token } = useUser();
+
+  // Log current userData state
+  console.log("🔥 CREATEAGENT4 - Current userData from Redux:", userData);
+  console.log("🔥 CREATEAGENT4 - Agency capabilities:", userData?.agencyCapabilities);
+  console.log("🔥 CREATEAGENT4 - Plan capabilities:", userData?.planCapabilities);
 
   //agent type
   const [agentType, setAgentType] = useState("");
@@ -66,6 +77,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
   const [errorMessage, setErrorMessage] = useState(false);
   const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
+
+  const [updatedUserData, setUpdatedUserData] = useState(null);
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Error,
+    message: "",
+    isVisible: false
+  });
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -215,14 +233,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // //console.log;
 
       setReassignLoader(item);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      // Use Redux token instead of localStorage
+      if (!token) {
+        console.error("No token available");
+        setReassignLoader(null);
+        return;
+      }
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
 
       if (agentDetails) {
         // //console.log;
@@ -248,7 +266,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
           "Content-Type": "application/json",
         },
       });
@@ -337,42 +355,49 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const getAvailabePhoneNumbers = async () => {
     
     try {
-      let AuthToken = null;
+      console.log("Trigered the get numbers api");
+      // Use Redux token instead of AuthToken()
+      if (!token) {
+        console.error("No token available");
+        return;
+      }
 
-      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
       let userId = null;
-
+      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      console.log("check 343")
       if (U) {
-        const d = JSON.parse(U);
+        // const d = JSON.parse(U);
         // console.log("Subaccount data recieved on createagent_1 screen is", d);
-        userId = d.subAccountData.id;
+        // userId = d.subAccountData.id;
+        try {
+          const d = JSON.parse(U);
+          console.log("Subaccount data recieved");
+          userId = d.subAccountData.id;
+        } catch (e) {
+          console.error("Failed to parse isFromAdminOrAgency", e);
+        }
       }
 
-      // const agentDetails = localStorage.getItem("agentDetails");
-      const LocalData = localStorage.getItem("User");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
       // //console.log;
       let ApiPath = null;
-      
       if (U) {
+        console.log("UserId is", userId);
         ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`;
       } else {
+        console.log("UserId is not found");
         ApiPath = Apis.userAvailablePhoneNumber;
       }
       console.log("ApiPath on create agent is", ApiPath);
+      // //console.log;
 
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
         },
       });
 
       if (response) {
-        // //console.log;
         console.log("Numbers list iis", response.data.data);
         setPreviousNumber(response.data.data);
       }
@@ -388,15 +413,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // //console.log;
     // const isInboundOnly = isInboundOnly()
     try {
-      setAssignLoader(true);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      // setAssignLoader(true);
+      // Use Redux token instead of localStorage
+      if (!token) {
+        console.error("No token available");
+        setAssignLoader(false);
+        return;
+      }
       let MyAgentData = null;
       const agentDetails = localStorage.getItem("agentDetails");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
 
       if (agentDetails) {
         // //console.log;
@@ -424,7 +449,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return;
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
         },
       });
 
@@ -433,7 +458,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         console.log("Check 1")
         if (response.data.status === true) {
           setOpenCalimNumDropDown(false);
-          handleContinue();
+          // handleContinue();
           const calimNoData = {
             officeNo: officeNumber,
             userNumber: selectNumber,
@@ -523,6 +548,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
       // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
+          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        />
         <div>
           {/* Video Card */}
           <IntroVideoModal
@@ -555,7 +586,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             />
           </div>
           <div
-            className="flex flex-col items-center px-4 w-full h-[65vh] overflow-auto"
+            className="flex flex-col items-center px-4 w-full h-[67vh] overflow-auto"
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -566,7 +597,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {`Let's talk digits`}
             </div>
             <div
-              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[55vh] overflow-auto"
+              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
               // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
               style={{ scrollbarWidth: "none" }}
             >
@@ -574,9 +605,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 {`Select a phone number you'd like to use to call with`}
               </div>
 
-              <div className="border rounded-lg">
-                <Box className="w-full">
-                  <FormControl className="w-full">
+              <div
+                className="border rounded-lg"
+                style={{
+                  height: "clamp(60px, 65px, 70px)",
+                  fontSize: "clamp(11px, 2vw, 13px)"
+                }}
+              >
+                <Box className="w-full h-full">
+                  <FormControl className="w-full h-full  justify-center">
                     <Select
                       ref={selectRef}
                       open={openCalimNumDropDown}
@@ -612,7 +649,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       {previousNumber.map((item, index) => (
                         <MenuItem
                           key={index}
-                          style={styles.dropdownMenu}
+                          style={{
+                            ...styles.dropdownMenu,
+                            fontSize: "clamp(11px, 2vw, 13px)",
+                            padding: "clamp(4px, 0.8vw, 8px)",
+                            minHeight: "clamp(30px, 35px, 40px)",
+                          }}
                           value={
                             item?.phoneNumber?.startsWith("+")
                               ? item?.phoneNumber.slice(1)
@@ -634,6 +676,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 item
                               );
                               // AssignNumber
+                            }else{
+                              AssignNumber();
                             }
                           }}
                         >
@@ -699,6 +743,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <i>Get your own unique phone number.</i>{" "}
                         <button
                           className="text-purple underline"
+                          style={{ fontSize: "clamp(10px, 2vw, 14px)" }}
                           onClick={() => {
                             setShowClaimPopup(true);
                           }}
@@ -786,48 +831,64 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </button>
 
               <div
-                className="flex flex-row items-center gap-4 overflow-x-auto h-[80px]"
+                className="flex flex-row items-center overflow-x-auto"
                 style={{
                   scrollbarWidth: "none",
                   overflowY: "hidden",
-                  height: "80px", // Ensures the height is always fixed
+                  height: "clamp(40px, 45px, 50px)",
                   flexShrink: 0,
+                  paddingBottom: "3px",
+                  gap: "clamp(5px, 1.2vw, 10px)",
                 }}
               >
-                <div className="flex flex-row items-center gap-4">
+                <div
+                  className="flex flex-row items-center min-w-full"
+                  style={{ gap: "clamp(5px, 1.2vw, 10px)" }}
+                >
                   {previousNumber.map((item, index) => (
                     <button
-                      className="flex flex-row items-center justify-center w-[271px] h-[71px]"
                       key={index}
+                      className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                       style={{
                         ...styles.callBackStyles,
+                        width: "clamp(100px, 22vw, 220px)",
+                        height: "clamp(30px, 35px, 40px)",
+                        fontSize: "clamp(9px, 1.8vw, 13px)",
                         border:
                           userSelectedNumber === item
                             ? "2px solid #7902DF"
                             : "1px solid #15151550",
                         backgroundColor:
                           userSelectedNumber === item
-                            ? "2px solid #402FFF15"
-                            : "",
+                            ? "#402FFF15"
+                            : "#fff",
+                        minWidth: "clamp(85px, 18vw, 150px)",
+                        maxWidth: "220px",
+                        whiteSpace: "nowrap",
+                        padding: "clamp(5px, 0.8vw, 10px)",
                       }}
-                      onClick={(e) => {
-                        handleSelectedNumberClick(item);
-                      }}
+                      onClick={() => handleSelectedNumberClick(item)}
                     >
                       Use {formatPhoneNumber(item.phoneNumber)}
                     </button>
                   ))}
                   <button
-                    className="flex flex-row items-center justify-center h-[71px]"
+                    className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                     style={{
                       ...styles.callBackStyles,
-                      width: "242px",
+                      width: "clamp(100px, 22vw, 200px)",
+                      height: "clamp(30px, 35px, 40px)",
+                      fontSize: "clamp(9px, 1.8vw, 13px)",
                       border: useOfficeNumber
                         ? "2px solid #7902DF"
                         : "1px solid #15151550",
                       backgroundColor: useOfficeNumber
-                        ? "2px solid #402FFF15"
-                        : "",
+                        ? "#402FFF15"
+                        : "#fff",
+                      minWidth: "clamp(85px, 18vw, 150px)",
+                      maxWidth: "200px",
+                      whiteSpace: "nowrap",
+                      padding: "clamp(5px, 0.8vw, 9px)",
                     }}
                     onClick={handleOfficeNumberClick}
                   >
@@ -838,7 +899,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {showOfficeNumberInput ? (
                 <div className="w-full">
-                  <div className="mt-4" style={styles.dropdownMenu}>
+                  <div className="mt-2" style={styles.dropdownMenu}>
                     Enter your cell or office number
                   </div>
 
@@ -873,88 +934,163 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     }}
                   // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
-
-                  <div
-                    className="mt-2"
-                    style={{ fontWeight: "500", fontSize: 11, color: "red" }}
-                  >
-                    {officeErrorMessage}
-                  </div>
+                  {officeErrorMessage && (
+                    <div
+                      className="mt-2"
+                      style={{ fontWeight: "500", fontSize: 11, color: "red" }}
+                    >
+                      {officeErrorMessage}
+                    </div>
+                  )}
                 </div>
               ) : (
                 ""
               )}
 
               {/* Phone number input here */}
+              {
 
-              <div className="w-full">
-                <div style={styles.headingStyle}>
-                  What number should we forward live transfers to when a lead
-                  wants to talk to you?
-                </div>
-                <PhoneInput
-                  className="border outline-none bg-white"
-                  country={"us"} // restrict to US only
-                  onlyCountries={["us"]}
-                  disableDropdown={true}
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={callBackNumber}
-                  onChange={handleCallBackNumberChange}
-                  // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                  placeholder={"Enter Phone Number"}
-                  // disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: "7px" }}
-                  inputStyle={{
-                    width: "100%",
-                    borderWidth: "0px",
-                    backgroundColor: "transparent",
-                    paddingLeft: "60px",
-                    paddingTop: "12px",
-                    paddingBottom: "12px",
-                  }}
-                  buttonStyle={{
-                    border: "none",
-                    backgroundColor: "transparent",
-                  }}
-                  dropdownStyle={{
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                  }}
-                // defaultMask={locationLoader ? "Loading..." : undefined}
-                />
-                <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                  {errorMessage}
-                </div>
-              </div>
+                (userData?.userRole === "AgencySubAccount" && userData?.agencyCapabilities?.allowLiveCallTransfer === false)
+                  // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true) 
+                  ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <UpgardView
+                        setShowSnackMsg={setShowSnackMsg}
+                        title={"Enable Live Transfer"}
+                        subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                        userData={userData}
+                        onUpgradeSuccess={(userData) => {
+                          console.log("🔥 CREATEAGENT4 - LT:Upgrade successful", userData);
+                          console.log("🔥 CREATEAGENT4 - UserData type check:", {
+                            hasToken: userData?.hasOwnProperty('token'),
+                            hasUser: userData?.hasOwnProperty('user'),
+                            isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
+                            dataStructure: Object.keys(userData || {})
+                          });
 
-              <div className="flex flex-row items-center gap-4 justify-start">
-                <button onClick={handleToggleClick}>
-                  {toggleClick ? (
-                    <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
-                      style={{ height: "24px", width: "24px" }}
-                    >
-                      <Image
-                        src={"/assets/whiteTick.png"}
-                        height={8}
-                        width={10}
-                        alt="*"
+                          console.log("🔥 CREATEAGENT4 - About to call setUpdatedUserData");
+                          setUpdatedUserData(userData);
+                          console.log("🔥 CREATEAGENT4 - About to call setUserData (Redux)");
+                          setUserData(userData);
+                          console.log("🔥 CREATEAGENT4 - Both setters called successfully");
+
+                          // Verify localStorage was updated
+                          setTimeout(() => {
+                            const localStorageData = localStorage.getItem("User");
+                            console.log("🔥 CREATEAGENT4 - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+                          }, 100);
+                        }}
+                      // handleContinue={handleContinue}
                       />
                     </div>
+
                   ) : (
-                    <div
-                      className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                      style={{ height: "24px", width: "24px" }}
-                    ></div>
-                  )}
-                </button>
-                <div
-                  style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}
-                >
-                  {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
-                </div>
-              </div>
+                    userData?.planCapabilities?.allowLiveCallTransfer === true ? (
+                      <div>
+                        <div className="w-full">
+                          <div style={styles.headingStyle}>
+                            What number should we forward live transfers to when a lead
+                            wants to talk to you?
+                          </div>
+                          <PhoneInput
+                            className="border outline-none bg-white"
+                            country={"us"} // restrict to US only
+                            onlyCountries={["us"]}
+                            disableDropdown={true}
+                            countryCodeEditable={false}
+                            disableCountryCode={false}
+                            value={callBackNumber}
+                            onChange={handleCallBackNumberChange}
+                            // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                            placeholder={"Enter Phone Number"}
+                            // disabled={loading} // Disable input if still loading
+                            style={{ borderRadius: "7px" }}
+                            inputStyle={{
+                              width: "100%",
+                              borderWidth: "0px",
+                              backgroundColor: "transparent",
+                              paddingLeft: "60px",
+                              paddingTop: "12px",
+                              paddingBottom: "12px",
+                            }}
+                            buttonStyle={{
+                              border: "none",
+                              backgroundColor: "transparent",
+                            }}
+                            dropdownStyle={{
+                              maxHeight: "150px",
+                              overflowY: "auto",
+                            }}
+                          // defaultMask={locationLoader ? "Loading..." : undefined}
+                          />
+                          <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                            {errorMessage}
+                          </div>
+                        </div>
+                        <div className="flex flex-row items-center gap-4 justify-start">
+                          <button onClick={handleToggleClick}>
+                            {toggleClick ? (
+                              <div
+                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              >
+                                <Image
+                                  src={"/assets/whiteTick.png"}
+                                  height={8}
+                                  width={10}
+                                  alt="*"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              ></div>
+                            )}
+                          </button>
+                          <div
+                            style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}
+                          >
+                            {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      < div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                        <div className="w-full h-full flex items-center justify-center">
+                          <UpgardView
+                            setShowSnackMsg={setShowSnackMsg}
+                            title={"Enable Live Transfer"}
+                            subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                            userData={userData}
+                            onUpgradeSuccess={(userData) => {
+                              console.log("🔥 CREATEAGENT4 - Second LT:Upgrade successful", userData);
+                              console.log("🔥 CREATEAGENT4 - Second - UserData type check:", {
+                                hasToken: userData?.hasOwnProperty('token'),
+                                hasUser: userData?.hasOwnProperty('user'),
+                                isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
+                                dataStructure: Object.keys(userData || {})
+                              });
+
+                              console.log("🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData");
+                              setUpdatedUserData(userData);
+                              console.log("🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)");
+                              setUserData(userData);
+                              console.log("🔥 CREATEAGENT4 - Second - Both setters called successfully");
+
+                              // Verify localStorage was updated
+                              setTimeout(() => {
+                                const localStorageData = localStorage.getItem("User");
+                                console.log("🔥 CREATEAGENT4 - Second - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+                              }, 100);
+                            }}
+                          // handleContinue={handleContinue}
+                          />
+                        </div>
+                      </div>
+                    )
+                  )
+              }
 
               {/* <Body /> */}
             </div>
@@ -973,7 +1109,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 handleContinue();
               } else {
                 console.log("With api call");
+                setAssignLoader(true);
                 AssignNumber();
+                handleContinue();
               }
             }}
             handleBack={handleBack}
@@ -1110,7 +1248,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </Box>
         </Modal>
       </div>
-    </div>
+    </div >
   );
 };
 

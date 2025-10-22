@@ -20,7 +20,7 @@ import Apis from "@/components/apis/Apis";
 const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || "";
 const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || "Unknown Voice";
 
-export default function UsersWithPipelines({ open, onClose, user,from }) {
+export default function UsersWithPipelines({ open, onClose, user, from }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -102,18 +102,18 @@ export default function UsersWithPipelines({ open, onClose, user,from }) {
         <List sx={{ width: "100%", mt: 2, overflow: "scroll" }}>
           {users.map((user, index) => (
             <ListItem key={user.id} style={{ cursor: 'pointer' }}
-            onClick={() => {
-              if (user.id) {
-                // Open a new tab with user ID as query param
-                let url = ` admin/users?userId=${user.id}`
-
-                if (from === "agency"){
-                  url = `/agency/users?userId=${user.id}`
+              onClick={() => {
+                if (user.id) {
+                  // Open a new tab with user ID as query param
+                  let url = ` admin/users?userId=${user.id}`
+                  console.log("This is testing", from);
+                  if (from === "agency") {
+                    url = `/agency/users?userId=${user.id}&agencyUser=true`
+                  }
+                  //console.log
+                  window.open(url, "_blank");
                 }
-                //console.log
-                window.open(url, "_blank");
-              }
-            }}>
+              }}>
               {/* Avatar */}
               <ListItemAvatar>
                 <Avatar src={user.thumb_profile_image} alt={user.name} />

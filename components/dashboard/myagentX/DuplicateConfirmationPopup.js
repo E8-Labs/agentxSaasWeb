@@ -1,11 +1,13 @@
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const DuplicateConfirmationPopup = ({
     open,
     handleClose,
-    handleDuplicate
+    handleDuplicate,
+    duplicateLoader = false
 }) => {
 
 
@@ -52,17 +54,9 @@ const DuplicateConfirmationPopup = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
+                                    <CloseBtn
                                         onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    />
                                 </div>
                             </div>
 
@@ -76,32 +70,32 @@ const DuplicateConfirmationPopup = ({
 
                         <div className="mt-4 flex flex-row items-center gap-4 mt-6 ">
                             <button
-                                className="w-1/2 hover:text-purple outline-none border rounded-lg h-[50px]"
+                                className="w-1/2 text-[#6b7280] h-[50px]"
                                 onClick={handleClose}
                             >
                                 Cancel
                             </button>
                             <div className="w-1/2">
-                                {/*delLoader ? (
+                                {duplicateLoader ? (
                                     <div className="flex flex-row iems-center justify-center w-full mt-4">
                                         <CircularProgress size={25} />
                                     </div>
-                                ) : (*/}
-                                <button
-                                    className="outline-none bg-purple"
-                                    style={{
-                                        color: "white",
-                                        height: "50px",
-                                        borderRadius: "10px",
-                                        width: "100%",
-                                        fontWeight: 600,
-                                        fontSize: "20",
-                                    }}
-                                    onClick={handleDuplicate}
-                                >
-                                    Yes. Duplicate
-                                </button>
-                                {/*})*/}
+                                ) : (
+                                    <button
+                                        className="outline-none bg-purple"
+                                        style={{
+                                            color: "white",
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            width: "100%",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                        }}
+                                        onClick={handleDuplicate}
+                                    >
+                                        Yes. Duplicate
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

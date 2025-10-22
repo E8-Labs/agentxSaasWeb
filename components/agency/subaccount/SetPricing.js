@@ -4,11 +4,13 @@ import { Check } from "@phosphor-icons/react"; // Optional: replace with your ow
 import SetXBarOptions from "./SetXBarOptions";
 import { getMonthlyPlan } from "./GetPlansList";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import Image from "next/image";
+import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 
 
 
 export default function SetPricing({
-    onClose, onContinue, monPlans
+    onClose, onContinue, monPlans, selectedAgency
 }) {
 
     const [monthlyPlans, setMonthlyPlans] = useState([]);
@@ -44,7 +46,7 @@ export default function SetPricing({
     //function to get plans list
     const getPlansList = async () => {
         try {
-            const plans = await getMonthlyPlan();
+            const plans = await getMonthlyPlan(selectedAgency);
             console.log("Plans list recieved is", plans);
             setMonthlyPlans(plans);
         } catch (error) {
@@ -85,40 +87,68 @@ export default function SetPricing({
             />
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Set Pricing Plans</h2>
-                <button onClick={() => { handleBack() }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
-                sx={{
-                    '&::-webkit-scrollbar': { display: 'none' },
+                style={{
+                    // '&::-webkit-scrollbar': { display: 'none' },
                     scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
+                    msOverflowStyle: 'none',
+                    transform: "translateZ(0)",      // force GPU compositing
+                    willChange: "transform",         // hint browser about scrolling
+                    contain: "paint layout"
                 }}>
                 {monthlyPlans.map((plan, index) => (
                     <div
                         key={index}
-                        className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition"
                         onClick={() => toggleSelection(plan.id)}
+                        className="cursor-pointer"
                     >
-                        <div className="w-[80%]">
-                            <h3 className="font-semibold text-gray-900">
-                                {plan.title} | {plan.minutes || "X"}mins
-                            </h3>
-                            <p className="text-sm text-gray-500">{plan.planDescription}</p>
-                            <p className="mt-1 font-medium text-lg text-gray-800">
-                                ${plan.discountedPrice}/<span className="text-sm text-gray-400">Mo*</span>
-                            </p>
-                        </div>
-
-                        <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
-                            style={{
-                                borderColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
-                                backgroundColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "transparent",
-                            }}
+                        {plan.hasTrial && (
+                            <div className="w-full overflow-hidden rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                                <div className="flex flex-row items-center gap-2">
+                                    <Image
+                                        src={"/otherAssets/batchIcon.png"}
+                                        alt="*"
+                                        height={24}
+                                        width={24}
+                                        loading="eager"
+                                    />
+                                    <div
+                                        style={{
+                                            fontWeight: "600",
+                                            fontSize: 18,
+                                            color: "white",
+                                        }}
+                                    >
+                                        First {plan.hasTrial == true && (`${plan.trialValidForDays}`)} Days Free
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <div
+                            className={`flex justify-between items-center border ${plan.hasTrial ? "rounded-b-lg" : "rounded-lg"} p-4 hover:shadow transition`}
                         >
-                            {selectedPlans.includes(plan.id) && (
-                                <Check size={16} color="#fff" />
-                            )}
+                            <div className="w-[80%]">
+                                <h3 className="font-semibold text-gray-900">
+                                    {plan.title} | {plan.minutes || "X"} Credits{" "}
+                                </h3>
+                                <p className="text-sm text-gray-500">{plan.planDescription}</p>
+                                <p className="mt-1 font-medium text-lg text-gray-800">
+                                    <span className="line-through text-[#00000090]">${formatDecimalValue(plan.originalPrice)}</span> ${formatDecimalValue(plan.discountedPrice)}/<span className="text-sm text-gray-400">Mo*</span>
+                                </p>
+                            </div>
+
+                            <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
+                                style={{
+                                    borderColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
+                                    backgroundColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "transparent",
+                                }}
+                            >
+                                {selectedPlans.includes(plan.id) && (
+                                    <Check size={16} color="#fff" />
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -127,7 +157,7 @@ export default function SetPricing({
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => { handleBack() }}
-                    className="text-purple-700 font-medium w-2/6"
+                    className="text-purple-700 font-medium w-2/6 border rounded-lg"
                 >
                     Back
                 </button>
@@ -135,7 +165,7 @@ export default function SetPricing({
                     onClick={() => {
                         handleContinue()
                     }}
-                    className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? "bg-[#00000020] text-black": "bg-purple text-white"}`}
+                    className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                 >
                     Continue
                 </button>

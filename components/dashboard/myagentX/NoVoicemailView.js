@@ -7,7 +7,7 @@ function NoVoicemailView({
     openModal, showAddBtn, title = "No Voicemail", subTitle = "You don't have a voicemail added"
 }) {
     return (
-        <div className='flex flex-col items-center justify-center mt-6'>
+        <div className='flex flex-col items-center justify-center mt-6 w-full'>
             <Image src={"/svgIcons/noVoicemailIcon.svg"}
                 height={50} width={193} alt='*'
             />

@@ -5,9 +5,11 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { getReadableStatus } from "@/utilities/UserUtility";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 function AdminActiveCalls({ selectedUser }) {
   const Limit = 30;
@@ -79,12 +81,26 @@ function AdminActiveCalls({ selectedUser }) {
     setSelectedItem(item);
     setSelectedLeadsList([]);
     setFilteredSelectedLeadsList([]);
-    setHasMoreLeads(true);
     setShowLeadDetailsModal(true);
-    fetchLeadsInBatch(item);
+    fetchLeadsInBatch(item)
   };
 
 
+
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    }
+
+    // Return the regular readable status for past or current calls
+    // return getReadableStatus(item.status); 
+  }
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
@@ -348,34 +364,39 @@ function AdminActiveCalls({ selectedUser }) {
     }
   };
 
-  const fetchLeadsInBatch = async (batch) => {
-    console.log("Trigerred api to get leads in batch");
+
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
+    //console.log;
     try {
-      let firstCall = false;
+      let firstApiCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
       if (selectedLeadsList.length == 0) {
-        firstCall = false;
+        firstApiCall = true;
         if (leadsInBatchLocalData) {
           //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
-          console.log("List of ____", leads);
-          setSelectedLeadsList(leads);
-          setFilteredSelectedLeadsList(leads);
+          //console.log;
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
           //console.log;
         }
+      } else {
+        //console.log;
       }
 
       const token = user.token; // Extract JWT token
-
-      const response = await fetch(
-        "/api/calls/leadsInABatch" +
-        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
+      console.log(
+        "Api Call Leads : ",
+       path
+      );
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -396,7 +417,8 @@ function AdminActiveCalls({ selectedUser }) {
         //   JSON.stringify(data.data)
         // );
 
-        if (firstCall) {
+        console.log("Response of leads list detail", data.data)
+        if (firstApiCall) {
           setSelectedLeadsList(data.data);
           console.log("List of ____", data.data);
           setFilteredSelectedLeadsList(data.data);
@@ -419,7 +441,7 @@ function AdminActiveCalls({ selectedUser }) {
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error("Failed to fetch leads in batch:", data);
       }
     } catch (error) {
       console.error("Error fetching leads in batch:", error);
@@ -509,6 +531,29 @@ function AdminActiveCalls({ selectedUser }) {
     }
   }
 
+  function formatName(name) {
+    if (typeof name !== "string" || name.length === 0) return "-";
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  }
+
+  function getAgentNameForActiviti(agent) {
+    // console.log("agents in getAgentNameForActiviti", agent)
+    const agents = agent?.agents || [];
+
+    if (agents?.length > 0) {
+      let name = agents[0]?.name || "-";
+
+      if (agents[0].agentType === "outbound") {
+        return formatName(name);
+      } else {
+        if (agents.length > 1) {
+          return formatName(name);
+        }
+      }
+    }
+    return "-";
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
       <Popover
@@ -565,6 +610,7 @@ function AdminActiveCalls({ selectedUser }) {
             className="text-start outline-none"
             onClick={() => {
               handleShowLeads(SelectedAgent,SelectedItem)
+
             }}
           >
             View Details
@@ -590,9 +636,11 @@ function AdminActiveCalls({ selectedUser }) {
         <div className="w-3/12">
           <div style={styles.text}>Agent</div>
         </div>
-        <div className="w-2/12 ">
-          <div style={styles.text}>Objective</div>
-        </div>
+        {/*
+          <div className="w-2/12 ">
+            <div style={styles.text}>Objective</div>
+          </div>
+        */}
         <div className="w-1/12">
           <div style={styles.text}>Leads</div>
         </div>
@@ -630,39 +678,21 @@ function AdminActiveCalls({ selectedUser }) {
                             key={index}
                           >
                             <div className="w-3/12 flex flex-row gap-4 items-center">
-                              {agent?.agents[0]?.thumb_profile_image ? (
-                                <Image
-                                  className="rounded-full"
-                                  src={agent?.agents[0].thumb_profile_image}
-                                  height={40}
-                                  width={40}
-                                  style={{
-                                    height: "40px",
-                                    width: "40px",
-                                    resize: "cover",
-                                  }}
-                                  alt="*"
-                                />
-                              ) : (
-                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                  {agent.name.slice(0, 1).toUpperCase()}
-                                </div>
-                              )}
-                              {/* <div>
-                                  {getAgentsListImage(agent?.agents[0])}
-                                </div> */}
-
-                              <div style={styles.text2}>{agent.name}</div>
+                              {getAgentImageWithMemoji(agent)}
+                            
+                              <div style={styles.text2}>{getAgentNameForActiviti(agent)}</div>
                             </div>
-                            <div className="w-2/12 ">
-                              {agent?.agents[0]?.agentObjective ? (
-                                <div style={styles.text2}>
-                                  {agent.agents[0]?.agentObjective}
-                                </div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
+                            {/*
+                              <div className="w-2/12 ">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div style={styles.text2}>
+                                    {agent.agents[0]?.agentObjective}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                            */}
                             <div className="w-1/12">
                               <button
                                 style={styles.text2}
@@ -685,7 +715,7 @@ function AdminActiveCalls({ selectedUser }) {
                                 "-"
                               )}
                             </div>
-                            <div className="w-2/12">{item.status}</div>
+                            <div className="w-2/12">{getCallStatusWithSchedule(item.status)}</div>
                             <div className="w-1/12">
                               <button
                                 aria-describedby={id}
@@ -793,7 +823,7 @@ function AdminActiveCalls({ selectedUser }) {
                       <input
                         type="text"
                         placeholder="Search by name or phone"
-                        className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
                           const value = e.target.value;
@@ -817,9 +847,10 @@ function AdminActiveCalls({ selectedUser }) {
                         color: "#00000070",
                       }}
                     >
-                      <div className="w-3/12">Name</div>
+                      <div className="w-2/12">Name</div>
                       <div className="w-2/12">Phone Number</div>
-                      <div className="w-3/12">Address</div>
+                      <div className="w-2/12">Address</div>
+                      <div className="w-2/12">List Name</div>
                       <div className="w-2/12">Tag</div>
                       <div className="w-2/12">Stage</div>
                     </div>
@@ -879,7 +910,7 @@ function AdminActiveCalls({ selectedUser }) {
                                   className="flex flex-row items-center mt-4"
                                   style={{ fontSize: 15, fontWeight: 500 }}
                                 >
-                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                  <div className="w-2/12 flex flex-row items-center gap-2 truncate">
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
                                       {item?.firstName?.charAt(0).toUpperCase()}
                                     </div>
@@ -892,8 +923,11 @@ function AdminActiveCalls({ selectedUser }) {
                                   <div className="w-2/12 truncate">
                                     {item?.phone || "-"}
                                   </div>
-                                  <div className="w-3/12 truncate">
+                                  <div className="w-2/12 truncate">
                                     {item?.address || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {SelectedItem?.Sheet?.sheetName || "-"}
                                   </div>
                                   <div className="w-2/12">
                                     {item.tags.length > 0 ? (
@@ -984,18 +1018,11 @@ function AdminActiveCalls({ selectedUser }) {
                   Other Tags
                 </div>
                 <div>
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setExtraTagsModal(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/blackBgCross.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">

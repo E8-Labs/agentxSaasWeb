@@ -23,6 +23,9 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
+import PlansService from "@/utilities/PlansService";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -77,7 +80,7 @@ function AdminBilling({ selectedUser, from }) {
       status: "Best Value",
     },
   ];
-  const [plans, setPlans] = useState(defaultPlans);
+  const [plans, setPlans] = useState([]);
 
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
@@ -115,18 +118,7 @@ function AdminBilling({ selectedUser, from }) {
     useState(false);
 
   const [allowSmartRefill, setAllowSmartRefill] = useState(false);
-  //checks for smart refill
-  useEffect(() => {
-    const d = localStorage.getItem("User");
-    if (d) {
-      const Data = JSON.parse(d);
-      console.log("Smart refill is", Data.user.smartRefill);
-      setAllowSmartRefill(Data.user.smartRefill);
-    }
-    getProfile();
-    getPaymentHistory();
-    // getCardsList();
-  }, []);
+
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -141,6 +133,8 @@ function AdminBilling({ selectedUser, from }) {
   useEffect(() => {
     if (from === "subaccount") {
       getPlans();
+    } else {
+      loadPlansForBilling();
     }
   }, [selectedUser])
 
@@ -170,9 +164,15 @@ function AdminBilling({ selectedUser, from }) {
   ];
 
   useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      setAllowSmartRefill(Data.user.smartRefill);
+    }
     getProfile();
     getPaymentHistory();
-    getCardsList();
+    // getCardsList();
   }, []);
 
   //function to get subaccount plans
@@ -196,6 +196,22 @@ function AdminBilling({ selectedUser, from }) {
       console.error("Error occured in getting plans", error);
     }
   }
+
+  // Function to load plans for billing context
+  const loadPlansForBilling = async () => {
+    try {
+      const plansData = await PlansService.getCachedPlans(
+        'billing_plans',
+        'regular',
+        'billing',
+        false
+      );
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Error loading billing plans:', error);
+      setPlans(PlansService.getFallbackPlans('billing', false));
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -242,7 +258,9 @@ function AdminBilling({ selectedUser, from }) {
   };
 
   //functiion to get cards list
+  //this function is commented temporarily
   const getCardsList = async () => {
+    console.log("Get cards api trigered");
     try {
       setGetCardLoader(true);
 
@@ -271,7 +289,7 @@ function AdminBilling({ selectedUser, from }) {
       });
 
       if (response) {
-        //console.log;
+        console.log("Response of get cars api is", response.data);
         if (response.data.status === true) {
           setCards(response.data.data);
         }
@@ -719,148 +737,28 @@ function AdminBilling({ selectedUser, from }) {
           </div>
         </div>
 
-        <button
-          className=""
-          onClick={() => {
-            setAddPaymentPopup(true);
-          }}
-        >
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: "500",
-              color: "#7902DF",
-              textDecorationLine: "underline",
+        {/*
+          <button
+            className=""
+            onClick={() => {
+              setAddPaymentPopup(true);
             }}
           >
-            Add New Card
-          </div>
-        </button>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+                color: "#7902DF",
+                textDecorationLine: "underline",
+              }}
+            >
+              Add New Card
+            </div>
+          </button>
+        */}
       </div>
 
-      <div className="w-full">
-        {getCardLoader ? (
-          <div
-            className="h-full w-full flex flex-row items-center justify-center"
-            style={{
-              marginTop: 20,
-            }}
-          >
-            <CircularProgress size={35} />
-          </div>
-        ) : (
-          <div className="w-full">
-            {cards.length > 0 ? (
-              <div
-                className="w-full flex flex-row gap-4"
-                style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  display: "flex",
-                  scrollbarWidth: "none",
-                  WebkitOverflowScrolling: "touch",
-                  height: "",
-                  marginTop: 20,
-                  // border:'2px solid red'
-                  scrollbarWidth: "none",
-                  overflowY: "hidden",
-                  height: "", // Ensures the height is always fixed
-                  flexShrink: 0,
-                }}
-              >
-                {cards.map((item) => (
-                  <div className="flex-shrink-0 w-5/12" key={item.id}>
-                    <button
-                      className="w-full outline-none"
-                      onClick={() => makeDefaultCard(item)}
-                    >
-                      <div
-                        className={`flex items-start justify-between w-full p-4 border rounded-lg `}
-                        style={{
-                          backgroundColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#4011FA05"
-                              : "transparent",
-                          borderColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#7902DF"
-                              : "#15151510",
-                        }}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
-                            style={{
-                              borderWidth:
-                                item.isDefault || selectedCard?.id === item.id
-                                  ? 3
-                                  : 1,
-                            }}
-                          ></div>
-                          {/* Card Details */}
-                          <div className="flex flex-col items-start">
-                            <div className="flex flex-row items-center gap-3">
-                              <div
-                                style={{
-                                  fontSize: "16px",
-                                  fontWeight: "700",
-                                  color: "#000",
-                                }}
-                              >
-                                ****{item.last4}
-                              </div>
-                              {
-                                // makeDefaultCardLoader ? (
-                                //   <CircularProgress size={20} />
-                                // ) :
-
-                                item.isDefault && (
-                                  <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                    style={{ fontSize: 11, fontWeight: "500" }}
-                                  >
-                                    Default
-                                  </div>
-                                )
-                              }
-                            </div>
-                            <div
-                              style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "#909090",
-                              }}
-                            >
-                              {item.brand} Card
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card Logo */}
-                        <div>
-                          <Image
-                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                            alt="Card Logo"
-                            width={50}
-                            height={50}
-                          />
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div
-                className="text-start mt-12"
-                style={{ fontSize: 18, fontWeight: "600" }}
-              >
-                No payment method added
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <SmartRefillCard selectedUser={selectedUser} />
 
       {/* Code for smart refill */}
       <SmartRefillCard selectedUser={selectedUser} />
@@ -1115,7 +1013,7 @@ function AdminBilling({ selectedUser, from }) {
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-10 px-10"
               >
                 <div className="w-3/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -1123,7 +1021,7 @@ function AdminBilling({ selectedUser, from }) {
                   </div>
                 </div>
                 <div className="w-3/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-3/12 items-start">
                   <div
@@ -1212,6 +1110,8 @@ function AdminBilling({ selectedUser, from }) {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
+                  fromAdmin={true}
+                  selectedUser={selectedUser}
                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>

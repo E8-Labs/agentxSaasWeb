@@ -1,10 +1,14 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
 
 // //console.log;
-const BasePath =
+let BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
     : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
+
+// Plans API Base URL (temporary ngrok URL)
+// BasePath = "https://65ea59dbae33.ngrok-free.app/";
+
 
 console.log(
   "Current environment is",
@@ -42,6 +46,7 @@ const Apis = {
   getLeads: `${BasePath}api/leads/getLeads`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
+  attachSmartList: `${BasePath}api/agent/attachSmartList`,
   assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
   uniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
   CheckEmail: `${BasePath}api/user/checkEmailExists`,
@@ -88,6 +93,7 @@ const Apis = {
   deleteLead: `${BasePath}api/leads/deleteLead`,
   getProfileData: `${BasePath}api/user/myProfile`,
   getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
+  getUserByAgentVapiIdWithLeadDetails: `${BasePath}api/agent/getUserByAgentWithLeadDetails`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
@@ -127,6 +133,7 @@ const Apis = {
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
   deleteAffiliate: `${BasePath}api/admin/deleteAffiliate`,
   adminStats: `${BasePath}api/admin/adminStats`,
+  
 
   getUsersForAffiliate: `${BasePath}api/admin/usersForAffiliate`,
 
@@ -184,6 +191,7 @@ const Apis = {
   //subaccount plan apis
   getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
   subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
+  updateSubAccountPlansFromAgency: `${BasePath}api/agency/updateSubaccountPlans`,
 
   //add comment
   addComment: `${BasePath}api/leads/addCommentOnTranscript`,
@@ -225,15 +233,46 @@ const Apis = {
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
   handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
-  processPayment: `${BasePath}api/leads/process-enrichment-payment`,
-  
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
+  getAdminTransactions: `${BasePath}api/admin/transactions`,
 
 
   templets : `${BasePath}api/templates`,
   gmailAccount :`${BasePath}api/mail/accounts`,
   connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+  a2pNumbers :`${BasePath}api/agent/getA2PVerifiedNumbers`,
+
+  agencyActivityData: `${BasePath}api/admin/stats`,
+
+  // New Dynamic Plans API Endpoints
+  getPlans: `${BasePath}api/plans`,
+  getPlanById: `${BasePath}api/plans`,
+  createPlan: `${BasePath}api/plans`,
+  updatePlan: `${BasePath}api/plans`,
+  togglePlanStatus: `${BasePath}api/plans`,
+  getAllPlansAdmin: `${BasePath}api/plans/admin/all`,
+   
+  
+  initiateCancelation : `${BasePath}api/user/cancellation/initiate`,
+  pauseSubscription:`${BasePath}api/user/cancellation/pause`,
+  continueToGift :`${BasePath}api/user/cancellation/continue-to-gift`,
+  claimGiftMins :`${BasePath}api/user/cancellation/claim-gift`,
+  continueToDiscount :`${BasePath}api/user/cancellation/continue-to-discount`,
+  purchaseDiscountedMins :`${BasePath}api/user/cancellation/purchase-discount`,
+  completeCancelatiton :`${BasePath}api/user/cancellation/complete`,
+  sendEmailToLead :`${BasePath}api/templates/send-email`,
+  sendSMSToLead :`${BasePath}api/templates/send-sms`,
+
+  validateReferralCode : `${BasePath}api/user/validateReferralCode`,
+
+
+
+  // Call Analytics API
+  getCallAnalytics: `${BasePath}api/admin/call-analytics`,
+  
+  // Payment Charges API
+  getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
   // Cron Jobs API
   getCronStatus: `${BasePath}api/admin/cron/status`,
@@ -242,6 +281,33 @@ const Apis = {
   getCronJobStatus: `${BasePath}api/admin/cron/status`,
   getCronConfig: `${BasePath}api/admin/cron/config`,
   restartCronJob: `${BasePath}api/admin/cron/restart`,
+
+
+  //subaccount section apis
+  requestFeatureFromAgency: `${BasePath}api/user/requestFeature`,
+
+  // Scoring APIs
+  getScoringTemplates: `${BasePath}api/agent/scoring-templates`,
+  getAgentScoring: `${BasePath}api/agent/scoring`,
+  createAgentScoring: `${BasePath}api/agent/scoring`,
+  deleteAgentScoring: `${BasePath}api/agent/scoring`,
+  copyAgentScoring: `${BasePath}api/agent/scoring`,
+  
+  exportLeads: `${BasePath}api/leads/export-csv`,
+  
+
+  //agency integrations
+  userSettings: `${BasePath}api/settings`,
+  getUserSettings: `${BasePath}api/settings`,
+
+  calculateCreditCost: `${BasePath}api/user/calculate-charge`,
+  processPayment: `${BasePath}api/leads/process-enrichment-payment`,
+
+  //stripe apis
+  createStripeLoginLink: `${BasePath}/api/agency/createStripeLoginLink`,
+  
+  //transaction details
+  getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
 };
 
 export default Apis;

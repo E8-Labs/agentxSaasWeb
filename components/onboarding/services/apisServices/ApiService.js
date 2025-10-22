@@ -1,4 +1,8 @@
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
+import getProfileDetails from "@/components/apis/GetProfile";
+import { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { PersistanceKeys } from "@/constants/Constants";
 import CircularLoader from "@/utilities/CircularLoader";
 import axios from "axios";
 
@@ -22,7 +26,8 @@ export const AssignTeamMember = async (ApiData) => {
     //   leadId: leadId,
     //   teamMemberUserId: teamMemberUserId,
     // };
-    // //console.log;
+    console.log("Api data sending in assign lead to team api is", ApiData);
+    // return;
 
     const ApiPath = Apis.AssignLeadToTeam;
     // //console.log
@@ -35,6 +40,7 @@ export const AssignTeamMember = async (ApiData) => {
     });
 
     if (response) {
+      console.log("Respose of assign lead to team is", response);
       return response;
     }
   } catch (error) {
@@ -165,3 +171,123 @@ export const getTeamsList = async () => {
     // //console.log;
   }
 };
+
+//generate the link for add stripe
+export const getStripeLink = async (setLoader, popupWindow = null) => {
+  try {
+    setLoader(true);
+    const data = await getProfileDetails();
+    console.log("Working");
+    if (data) {
+      const D = data.data.data
+      console.log("Getprofile data is", D);
+      if (D.plan) {
+        const Token = AuthToken();
+        const ApiPath = Apis.createOnboardingLink;
+        const response = await axios.post(ApiPath, null, {
+          headers: {
+            "Authorization": "Bearer " + Token
+          }
+        });
+        if (response) {
+          console.log("Route user to connect stripe");
+          console.log("Payment link is", response.data.data.url);
+          
+          // If popup window was passed, redirect it to the Stripe URL
+          if (popupWindow && !popupWindow.closed) {
+            popupWindow.location.href = response.data.data.url;
+          } else {
+            // Fallback to opening in same tab if popup was blocked
+            window.location.href = response.data.data.url;
+          }
+          setLoader(false);
+        }
+        // router.push("/agency/verify")
+      } else {
+        console.log("Need to subscribe plan");
+        const d = {
+          subPlan: false
+        }
+        localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
+        
+        // Close popup if it was opened
+        if (popupWindow && !popupWindow.closed) {
+          popupWindow.close();
+        }
+        
+        window.location.href = "/agency/onboarding";
+      }
+    }
+  } catch (error) {
+    setLoader(false);
+    
+    // Close popup on error
+    if (popupWindow && !popupWindow.closed) {
+      popupWindow.close();
+    }
+    
+    console.error("Error occured  in getVerify link api is", error);
+  }
+}
+
+//disconnect the twilio profile
+export const handleDisconnectTwilio = async ({
+  setDisConnectLoader,
+  setShowSnackMessage,
+  setShowSnackType,
+  selectedAgency
+}) => {
+  try {
+    setDisConnectLoader(true);
+    const token = AuthToken();
+    const ApiPath = Apis.disconnectTwilio;
+    let ApiData = null;
+    if (selectedAgency) {
+      ApiData = {
+        userId: selectedAgency.id
+      }
+    }
+    const response = await axios.post(ApiPath, { ApiData }, {
+      headers: {
+        "Authorization": "Bearer " + token,
+        // "Content-Type": "application/json"
+      }
+    });
+    if (response) {
+      console.log("Response of disconnect twilio api is", response);
+      const ApiResponse = response.data
+      if (ApiResponse.status === true) {
+        localStorage.removeItem(PersistanceKeys.twilioHubData);
+        // setShowSnack({
+        //   message: "Twilio disconnected.",//ApiResponse.message
+        //   isVisible: true,
+        //   type: SnackbarTypes.Success,
+        // });
+        setShowSnackMessage("Twilio disconnected");
+        setShowSnackType(SnackbarTypes.Success);
+        await getProfileDetails();
+        return true;
+        // setTwilioHubData(null);
+        // setProfileStatus(true);
+
+        // Clear polling when disconnected
+        // if (pollingInterval) {
+        //   clearInterval(pollingInterval);
+        //   setPollingInterval(null);
+        // }
+      } else {
+        // setShowSnack({
+        //   message: ApiResponse.message,
+        //   isVisible: true,
+        //   type: SnackbarTypes.Success,
+        // });
+        setShowSnackMessage(ApiResponse.message);
+        setShowSnackType(SnackbarTypes.Error);
+      }
+      setDisConnectLoader(false);
+    }
+  } catch (error) {
+    setDisConnectLoader(false);
+    console.log("Error occured in disconnet twilio api is", error);
+  }
+}

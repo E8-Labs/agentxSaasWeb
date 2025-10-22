@@ -6,7 +6,8 @@ const SelectYearlypopup = ({
     showYearlyPlan,
     continueMonthly,
     continueYearlyPlan,
-    handleClose
+    handleClose,
+    duration
 }) => {
     console.log("yearly plan is", showYearlyPlan);
     return (
@@ -48,7 +49,7 @@ const SelectYearlypopup = ({
                                 </div>
                             </div>
                             <div style={{ fontSize: 15, fontWeight: "500", color: "#00000060" }}>
-                                All annual plans get 16% discount compared to monthly plans
+                                All annual plans get 30% discount compared to monthly plans
                             </div>
                         </div>
                     </div>
@@ -62,7 +63,7 @@ const SelectYearlypopup = ({
                         <button
                             className='outline-none border rounded-xl h-[55px] w-1/2'
                             onClick={continueMonthly}>
-                            Continue Monthly
+                            Continue {duration}
                         </button>
                     </div>
 

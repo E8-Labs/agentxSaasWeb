@@ -210,7 +210,7 @@ function AdminBasicInfo({ selectedUser }) {
   const getProfile = async () => {
     try {
       let LocalData = await AdminGetProfileDetails(selectedUser.id);
-
+      console.log("Local data for selected user", LocalData);
       if (LocalData) {
         const userData = LocalData;
         await getAgentDefaultData(userData);
@@ -232,7 +232,7 @@ function AdminBasicInfo({ selectedUser }) {
         setClientType2(userData?.clientType);
 
         setCompany(userData?.company);
-        // setProjectSize(userData?.projectSizeKw);
+        setTeritorry(userData?.territory);
         setWebsiteUrl(userData?.website);
         setCompanyAffiliation(userData?.firmOrCompanyAffiliation);
         setClientsPerMonth(userData?.averageMonthlyClients);
@@ -299,7 +299,7 @@ function AdminBasicInfo({ selectedUser }) {
         });
 
         if (response) {
-          //console.log;
+          console.log("Default agent data", response.data.data);
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
           setAgentIndustries(response.data.data.userIndustry);
@@ -588,7 +588,7 @@ function AdminBasicInfo({ selectedUser }) {
             // setEmail(event.target.value)
           }}
           type="text"
-          placeholder="Email"
+          placeholder="Phone"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>
@@ -674,7 +674,73 @@ function AdminBasicInfo({ selectedUser }) {
               </div>
             </>
           ) : (
-            ""
+           (userType && userType === UserTypes.General) ||
+              (userType && userType === UserTypes.Reception) ?
+              (
+                <>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "700",
+                      color: "#000",
+                      marginTop: "4vh",
+                    }}
+                  >
+                    Teritorry
+                  </div>
+
+                  <div
+                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                    style={{
+                      border: `1px solid ${focusedTerritory ? "#8a2be2" : "#00000010"
+                        }`,
+                      transition: "border-color 0.3s ease",
+                    }}
+                  >
+                    <input
+                      ref={teritorryRef}
+                      className="w-11/12 outline-none focus:ring-0"
+                      onFocus={() => setFocusedTerritory(true)}
+                      onBlur={() => setFocusedTerritory(false)}
+                      value={teritorry}
+                      onChange={(event) => {
+                        setTeritorry(event.target.value);
+                        setIsTeritorryChanged(true);
+                      }}
+                      type="text"
+                      placeholder="Teritorry"
+                      style={{ border: "0px solid #000000", outline: "none" }}
+                    />
+                    {isTeritorryChanged ?
+                      (loading14 ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            handleTeritorrySave();
+                          }}
+                          style={{
+                            color: " #8a2be2",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Save
+                        </button>
+                      )) : (
+                        <button
+                          onClick={() => {
+                            teritorryRef.current?.focus();
+                          }}
+                        >
+                          <Image src={'/svgIcons/editIcon.svg'}
+                            width={24} height={24} alt="*"
+                          />
+                        </button>
+                      )}
+                  </div>
+                </>
+              ) : ""
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
@@ -718,6 +784,8 @@ function AdminBasicInfo({ selectedUser }) {
           ) : (userType && userType === UserTypes.SolarRep) ||
             (userType && userType === UserTypes.SalesDevRep) ||
             (userType && userType === UserTypes.MarketerAgent) ||
+            (userType && userType === UserTypes.Reception) ||
+            (userType && userType === UserTypes.General) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
@@ -894,7 +962,7 @@ function AdminBasicInfo({ selectedUser }) {
                 }}
               >
                 <input
-                  type="number"
+                  // type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
@@ -925,7 +993,7 @@ function AdminBasicInfo({ selectedUser }) {
               >
                 {userType === UserTypes.DebtCollectorAgent
                   ? " Balance Size of Debts "
-                  : "Average Project Size (kW)"}
+                  : "Average Project Size (kw)"}
               </div>
 
               <div

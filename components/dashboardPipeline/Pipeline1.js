@@ -58,6 +58,10 @@ import PipelineLoading from "./PipelineLoading";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import DashboardSlider from "../animations/DashboardSlider";
 import ConfigurePopup from "./ConfigurePopup";
+import { getUserLocalData } from "../constants/constants";
+import UpgradeModal from "@/constants/UpgradeModal";
+import CloseBtn from "../globalExtras/CloseBtn";
+import ScoringProgress from "../ui/ScoringProgress";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -302,6 +306,17 @@ const Pipeline1 = () => {
   //variables for getting woorthy call logs
   const [importantCalls, setImportantCalls] = useState([]);
   const [selectedCall, setSelectedCall] = useState("");
+
+
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  }, [])
 
   useEffect(() => {
     getImportantCalls();
@@ -586,7 +601,7 @@ const Pipeline1 = () => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-          // //console.log;
+          console.log("Leads list is", jsonData[index].leads);
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -643,10 +658,10 @@ const Pipeline1 = () => {
           selectedPipelineIndex.current == -1 ||
           pipeline.id == PipeLines[selectedPipelineIndex].id
         ) {
-          // console.log(
-          //   "Current selected is same ",
-          //   PipeLines[selectedPipelineIndex].id
-          // );
+          console.log(
+            "leads list in getpipeline details is",
+            pipelineDetails.leads
+          );
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage);
@@ -1004,6 +1019,7 @@ const Pipeline1 = () => {
       const ApiPath = Apis.UpdateStage;
       const formData = new FormData();
 
+
       formData.append("stageId", selectedStage.id);
       formData.append("stageTitle", newStageTitle);
       formData.append("color", stageColor);
@@ -1037,9 +1053,6 @@ const Pipeline1 = () => {
       for (let [key, value] of formData) {
         console.log(`${key} = ${value}`);
       }
-      // console.log("Data sending in updarte stage api is", ApiData);
-      // setAddStageLoader(false);
-      // return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1053,7 +1066,8 @@ const Pipeline1 = () => {
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
-          setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
+          // setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
+          setSnackMessage({ message: "Stage updated", type: SnackbarTypes.Success });
 
           // Update selected pipeline stages
           setSelectedPipeline((prevData) => ({
@@ -1968,7 +1982,13 @@ const Pipeline1 = () => {
                       <button
                         className="flex flex-row items-center gap-4"
                         onClick={() => {
-                          setCreatePipeline(true);
+
+                          if (user?.planCapabilities.maxPipelines > user?.currentUsage.maxPipelines) {
+                            setCreatePipeline(true);
+                          } else {
+                            setShowUpgradeModal(true)
+                          }
+
                         }}
                       >
                         <Plus size={17} weight="bold" />{" "}
@@ -2053,16 +2073,16 @@ const Pipeline1 = () => {
                     </div>
                   </Popover>
                 </div>
-                <div className="flex fex-row items-center gap-4">
+                <div className="flex fex-row items-center gap-3">
                   <div
-                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 w-[20vw] rounded-full"
-                    // style={{ borderRadius: "50px" }}
+                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 rounded-full"
+                  // style={{ borderRadius: "50px" }}
                   >
                     <input
                       style={{ MozOutline: "none" }}
                       value={searchValue}
                       onChange={handldSearch}
-                      className="outline-none bg-transparent w-full rounded-full border-none focus:outline-none focus:ring-0 w-full"
+                      className="outline-none bg-transparent  border-none focus:outline-none focus:ring-0 rounded-full"
                       placeholder="Search by name, phone or email"
                     />
                     <button className="outline-none">
@@ -2163,7 +2183,7 @@ const Pipeline1 = () => {
                               } else {
                                 setShowDelBtn(false);
                               }
-                              if (stage.identifier === "hot_lead" || stage.identifier.startsWith("custom_stage")) {
+                              if (stage.identifier.startsWith("custom_stage") || stage.identifier.startsWith("hot_lead")) {
                                 setShowConfigureBtn(true);
                               } else {
                                 setShowConfigureBtn(false);
@@ -2432,33 +2452,40 @@ const Pipeline1 = () => {
                                     key={leadIndex}
                                   >
                                     <div className="border rounded-xl px-4 py-2 h-full">
-                                      <button
-                                        className="flex flex-row items-center gap-3"
-                                        onClick={() => {
-                                          // console.log(
-                                          //   "Selected lead details are:",
-                                          //   lead
-                                          // );
-                                          setShowDetailsModal(true);
-                                          setSelectedLeadsDetails(lead.lead);
-                                          setPipelineId(lead.lead.pipeline.id);
-                                          setNoteDetails(lead.lead.notes);
-                                        }}
-                                      >
-                                        {/* T is center aligned */}
-                                        <div
-                                          className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                          style={{
-                                            height: "27px",
-                                            width: "27px",
+                                      <div className="flex flex-row items-center justify-between w-full">
+
+                                        <button
+                                          className="flex flex-row items-center gap-3"
+                                          onClick={() => {
+                                            // console.log(
+                                            //   "Selected lead details are:",
+                                            //   lead
+                                            // );
+                                            setShowDetailsModal(true);
+                                            setSelectedLeadsDetails(lead.lead);
+                                            setPipelineId(lead.lead.pipeline.id);
+                                            setNoteDetails(lead.lead.notes);
                                           }}
                                         >
-                                          {lead.lead.firstName.slice(0, 1)}
-                                        </div>
-                                        <div style={styles.paragraph}>
-                                          {lead.lead.firstName}
-                                        </div>
-                                      </button>
+                                          {/* T is center aligned */}
+                                          <div
+                                            className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                            style={{
+                                              height: "27px",
+                                              width: "27px",
+                                            }}
+                                          >
+                                            {lead.lead.firstName.slice(0, 1)}
+                                          </div>
+                                          <div style={styles.paragraph}>
+                                            {lead.lead.firstName}
+                                          </div>
+                                        </button>
+                                        {/* show results on hover */}
+                                        {lead.lead.scoringDetails && lead.lead.scoringDetails?.questions?.length > 0 && (
+                                          <ScoringProgress value={lead.lead.scoringDetails?.totalScore} maxValue={10} questions={lead.lead.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
+                                        )}
+                                      </div>
                                       <div className="flex flex-row items-center justify-between w-full mt-2">
                                         <div
                                           className="text-[#00000060]"
@@ -2976,6 +3003,22 @@ const Pipeline1 = () => {
                           </div>
                         </Popover>
                       </div>
+                      {/*
+                        <input
+                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                          placeholder="Ex: Does the human express interest getting a CMA "
+                          style={{
+                            border: "1px solid #00000020",
+                            fontWeight: "500",
+                            fontSize: 15,
+                          }}
+                          value={action}
+                          onChange={(e) => {
+                            setAction(e.target.value);
+                          }}
+                        />
+                      */}
+
                       <textarea
                         className="min-h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                         placeholder="Ex: Does the human express interest getting a CMA "
@@ -3064,6 +3107,8 @@ const Pipeline1 = () => {
                       {!isEditingStage && (
                       )}*/}
 
+                      {/*!isEditingStage && (
+                      )*/}
                       <>
                         <div className="flex flex-row items-center gap-2 mt-4">
                           <p style={{ fontWeight: "600", fontSize: 15 }}>
@@ -3914,20 +3959,13 @@ const Pipeline1 = () => {
                     <div style={{ fontWeight: "600", fontSize: 22 }}>
                       Rearrange Stages
                     </div>
-                    <button
+                    <CloseBtn
                       onClick={() => {
                         setShowStagesPopup(false);
                         handleCloseStagePopover();
                         setShowReorderBtn(false);
                       }}
-                    >
-                      <Image
-                        src={"/assets/cross.png"}
-                        height={14}
-                        width={14}
-                        alt="*"
-                      />
-                    </button>
+                    />
                   </div>
 
                   <div
@@ -3990,6 +4028,19 @@ const Pipeline1 = () => {
               </div>
             </Box>
           </Modal>
+
+
+          <UpgradeModal
+            open={showUpgradeModal}
+            handleClose={() => {
+              setShowUpgradeModal(false)
+            }}
+
+            title={"You've Hit Your pipeline Limit"}
+            subTitle={"Upgrade to add more pipelines"}
+            buttonTitle={"No Thanks"}
+            functionality="pipeline"
+          />
           {/* Modal for lead details */}
           {showDetailsModal && (
             <LeadDetails

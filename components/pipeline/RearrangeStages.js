@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 const RearrangeStages = ({
   stages,
@@ -681,19 +682,11 @@ const RearrangeStages = ({
                           justifyContent: "end",
                         }}
                       >
-                        <button
+                        <CloseBtn
                           onClick={() => {
                             handleCloseAddStage();
                           }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
+                        />
                       </div>
                     </div>
 

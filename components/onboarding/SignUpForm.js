@@ -25,8 +25,9 @@ import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 
-const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete, handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -287,6 +288,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         formData.append("campaignee", campainee);
       }
 
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
+
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);
@@ -316,12 +323,27 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          //console.log;
+
+          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
           if (typeof document !== "undefined") {
             setCookie(response.data.data.user, document);
+          }
+
+          // Track signup for affiliate marketing
+          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
+          if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
+            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          } else {
+            console.log("[DEBUG] agentxTrackSignup not available");
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
           }
 
           let screenWidth = 1000;
@@ -336,7 +358,19 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           } else {
             //console.log;
             // handleContinue();
-            router.push("/createagent")
+            handleShowRedirectPopup()
+            let user = response.data.data.user
+            console.log('user', user)
+            // return
+            if (user.userRole === "AgencySubAccount") {
+              localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+                JSON.stringify(response.data.data)
+              )
+            }
+              // router.push("/subaccountInvite/subscribeSubAccountPlan")
+            // } else {
+              router.push("/createagent")
+            // }
           }
         }
       }
@@ -370,8 +404,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
       if (response) {
         // //console.log;
+        console.log("Data of check email api is", response);
         if (response.data.status === true) {
-          // //console.log;
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);
@@ -1006,14 +1040,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 </Box>
               </Modal>
 
-              {/* <SnackMessages
+              <SnackMessages
                 message={response.message}
                 isVisible={isVisible}
                 setIsVisible={(visible) => {
                   setIsVisible(visible);
                 }}
                 success={response.status}
-              /> */}
+              />
             </div>
           </div>
         </div>

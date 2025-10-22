@@ -1,10 +1,14 @@
 "use client";
 
+import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan.js";
 import ErrorBoundary from "@/components/ErrorBoundary.js";
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import { PersistanceKeys } from "@/constants/Constants.js";
+import { User } from "lucide-react";
 import dynamic from "next/dynamic.js";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation"
+
 
 const CreateAgent1 = dynamic(() =>
   import("../../components/createagent/CreateAgent1.js")
@@ -14,6 +18,9 @@ const CreateAgent2 = dynamic(() =>
 );
 const CreatAgent3 = dynamic(() =>
   import("../../components/createagent/CreatAgent3.js")
+);
+const UserPlans = dynamic(() =>
+  import("../../components/userPlans/UserPlans.js")
 );
 const CreateAgent4 = dynamic(() =>
   import("../../components/createagent/CreateAgent4.js")
@@ -40,8 +47,14 @@ function EmptyPage() {
 
 const Page = () => {
   // //console.log;
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const stepFromUrl = parseInt(searchParams.get("step") || "1", 10);
+  const [index, setIndex] = useState(stepFromUrl);
+
   const [user, setUser] = useState(null);
-  const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
     EmptyPage,
     // CreateAgent1,
@@ -51,8 +64,19 @@ const Page = () => {
   ]);
 
   const [windowSize, setWindowSize] = useState(null);
+  const [subAccount, setSubaccount] = useState(null)
 
-  let CurrentComp = components[index];
+  let CurrentComp = components[index - 1] || EmptyPage;
+  useEffect(() => {
+    const currentStep = searchParams.get("step");
+    if (currentStep !== index.toString()) {
+      router.replace(`?step=${index}`);
+    }
+  }, [index, router, searchParams]);
+
+  // console.log("Rendering step:", index, components[index]);
+
+
 
   useEffect(() => {
     let size = null;
@@ -102,6 +126,7 @@ const Page = () => {
             setComponents([
               CreateAgent1,
               // CreatAgent3,
+              // UserPlans,
               CreateAgent4,
               CreateAgentVoice,
             ]);
@@ -109,29 +134,46 @@ const Page = () => {
           }
         } else {
           if (windowSize < 640) {
-            // setComponents([
-            //   <BuildAgentName />,
-            //   <BuildAgentTask />,
-            //   <BuildAgentObjective />,
-            //   <CreatAgent3 smallTerms={true} />, // pass value here
-            // ]);
-            setComponents([
-              BuildAgentName,
-              BuildAgentTask,
-              BuildAgentObjective,
-              CreatAgent3,
-              // CreateAgent4,
-              // CreateAgentVoice,
-            ]);
+            if (subAccount) {
+              setComponents([
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+                SubAccountPlan,
+                // CreateAgent4,
+                // CreateAgentVoice,
+              ]);
+            } else {
+
+              setComponents([
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+                UserPlans,
+                // CreateAgent4,
+                // CreateAgentVoice,
+              ]);
+            }
             // setIndex(3)
           } else {
-            setComponents([
-              CreateAgent1,
-              CreatAgent3,
-              CreateAgent4,
-              CreateAgentVoice,
-              // setIndex(3)
-            ]);
+            if (subAccount) {
+              setComponents([
+                CreateAgent1,
+                SubAccountPlan,
+                CreateAgent4,
+                CreateAgentVoice,
+                // setIndex(3)
+              ]);
+            }
+            else {
+              setComponents([
+                CreateAgent1,
+                UserPlans,
+                CreateAgent4,
+                CreateAgentVoice,
+                // setIndex(3)
+              ]);
+            }
           }
         }
       } else {
@@ -147,21 +189,24 @@ const Page = () => {
 
   }, [windowSize]);
 
+
+  useEffect(() => {
+    checkIsFromOnboarding()
+  }, [])
+
+  const checkIsFromOnboarding = () => {
+    let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
+    if (data) {
+      let subAcc = JSON.parse(data)
+      setSubaccount(subAcc)
+    }
+  }
+
   // Function to proceed to the next step
-  const handleContinue = () => {
-    // //console.log;
-    setIndex(index + 1);
-  };
+  const handleContinue = () => setIndex((prev) => prev + 1);
+  const handleBack = () => setIndex((prev) => Math.max(prev - 1, 0));
+  const handleSkipAddPayment = () => setIndex((prev) => prev + 2);
 
-  const handleBack = () => {
-    // //console.log;
-    setIndex(index - 1);
-  };
-
-  const handleSkipAddPayment = () => {
-    // //console.log;
-    setIndex(index + 2);
-  };
 
   //function to get the agent Details
   const [AgentDetails, setAgentDetails] = useState({
@@ -194,35 +239,37 @@ const Page = () => {
 
   return (
     <ErrorBoundary>
-      <div
-        style={backgroundImage}
-        className="overflow-y-none flex flex-row justify-center items-center"
-      >
-        {windowSize > 640 && (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: -1, // Ensure the video stays behind content
-            }}
-          >
-            <BackgroundVideo />
-          </div>
-        )}
-        <CurrentComp
-          handleContinue={handleContinue}
-          handleBack={handleBack}
-          handleSkipAddPayment={handleSkipAddPayment}
-          getAgentDetails={getAgentDetails}
-          AgentDetails={AgentDetails}
-          user={user}
-          screenWidth={windowSize}
-        />
-      </div>
+      <Suspense fallback={<div></div>}>
+        <div
+          style={backgroundImage}
+          className="overflow-y-none flex flex-row justify-center items-center"
+        >
+          {windowSize > 640 && (
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                zIndex: -1, // Ensure the video stays behind content
+              }}
+            >
+              <BackgroundVideo />
+            </div>
+          )}
+          <CurrentComp
+            handleContinue={handleContinue}
+            handleBack={handleBack}
+            handleSkipAddPayment={handleSkipAddPayment}
+            getAgentDetails={getAgentDetails}
+            AgentDetails={AgentDetails}
+            user={user}
+            screenWidth={windowSize}
+          />
+        </div>
+      </Suspense>
     </ErrorBoundary>
   );
 };

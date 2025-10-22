@@ -38,6 +38,9 @@ import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import LawAgentOtherDetails from "./LawAgentOtherDetails";
 import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { SnackMessageTitles } from "@/components/constants/constants";
+import GeneralAgentOtherDetails from "./GeneralAgentOtherDetails";
 
 const OtherDetails = ({
   handleContinue,
@@ -45,6 +48,7 @@ const OtherDetails = ({
   length = 6,
   onComplete,
   userDetails,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -105,7 +109,7 @@ const OtherDetails = ({
   const [urlErrorMessage, setUrlErrorMessage] = useState("");
 
 
-
+  const [snackMessage, setSnackMessage] = useState(null)
   const [territory, setTerritory] = useState("");
   const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState("");
   const [averageMonthlyClients, setAverageMonthlyClients] = useState("");
@@ -257,6 +261,15 @@ const OtherDetails = ({
         }
       }
 
+    } else if (userData?.userTypeTitle === UserTypes.General || userData?.userTypeTitle === UserTypes.Reception) {
+      if (companyName && userFarm) {
+        setShouldContinue(false);
+      } else if (!companyName || !userFarm) {
+        {
+          setShouldContinue(true);
+        }
+      }
+
     }
 
     else {
@@ -364,24 +377,68 @@ const OtherDetails = ({
 
   //code for handling verify code changes
 
+  // const handleVerifyInputChange = (e, index) => {
+  //   const { value } = e.target;
+  //   if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+  //   const newValues = [...VerifyCode];
+  //   newValues[index] = value;
+  //   setVerifyCode(newValues);
+
+  //   // Move focus to the next field if a number is entered
+  //   if (value && index < length - 1) {
+  //     verifyInputRef.current[index + 1].focus();
+  //   }
+
+  //   // Trigger onComplete callback if all fields are filled
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join("")); // Convert array to a single string here
+  //   }
+  // };
+
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+    // If value is longer than 1, assume it's a paste/autofill
+    if (value.length > 1) {
+      const newValues = Array(length).fill('');
+      value.slice(0, length).split('').forEach((char, i) => {
+        if (/[0-9]/.test(char)) {
+          newValues[i] = char;
+        }
+      });
+
+      setVerifyCode(newValues);
+
+      // Focus last filled or next empty
+      const lastFilledIndex = newValues.findLastIndex(val => val !== '');
+      const focusIndex = Math.min(lastFilledIndex + 1, length - 1);
+      verifyInputRef.current[focusIndex]?.focus();
+
+      // Trigger onComplete if all fields filled
+      if (newValues.every((num) => num !== '') && onComplete) {
+        onComplete(newValues.join(''));
+      }
+
+      return;
+    }
+
+    // Normal single digit input
+    if (!/[0-9]/.test(value) && value !== '') return;
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
     setVerifyCode(newValues);
 
-    // Move focus to the next field if a number is entered
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1].focus();
+      verifyInputRef.current[index + 1]?.focus();
     }
 
-    // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join("")); // Convert array to a single string here
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
     }
   };
+
 
   const handleBackspace = (e, index) => {
     if (e.key === "Backspace") {
@@ -394,31 +451,62 @@ const OtherDetails = ({
     }
   };
 
-  const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData("text").slice(0, length);
-    const newValues = pastedText
-      .split("")
-      .map((char) => (/[0-9]/.test(char) ? char : ""));
-    setVerifyCode(newValues);
+  // const handlePaste = (e) => {
+  //   console.log("Handle paste trigered");
+  //   const pastedText = e.clipboardData.getData("text").slice(0, length);
+  //   const newValues = pastedText
+  //     .split("")
+  //     .map((char) => (/[0-9]/.test(char) ? char : ""));
+  //   setVerifyCode(newValues);
 
-    // Set each input's value and move focus to the last filled input
-    newValues.forEach((char, index) => {
-      verifyInputRef.current[index].value = char;
-      if (index === newValues.length - 1) {
-        verifyInputRef.current[index].focus();
+  //   // Set each input's value and move focus to the last filled input
+  //   newValues.forEach((char, index) => {
+  //     verifyInputRef.current[index].value = char;
+  //     if (index === newValues.length - 1) {
+  //       verifyInputRef.current[index].focus();
+  //     }
+  //   });
+
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join(""));
+  //   }
+  // };
+
+  //code for number verification
+
+  const handlePaste = (e) => {
+    e.preventDefault(); // Prevent default paste behavior
+
+    const pastedText = e.clipboardData.getData('text').slice(0, length);
+    const newValues = Array(length).fill(''); // Start with empty array
+
+    // Fill the array with pasted digits
+    pastedText.split('').forEach((char, index) => {
+      if (index < length && /[0-9]/.test(char)) {
+        newValues[index] = char;
       }
     });
 
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join(""));
+    setVerifyCode(newValues);
+
+    // Focus on the last filled input or the next empty one
+    const lastFilledIndex = newValues.findLastIndex(val => val !== '');
+    const focusIndex = lastFilledIndex === -1 ? 0 : Math.min(lastFilledIndex + 1, length - 1);
+
+    setTimeout(() => {
+      verifyInputRef.current[focusIndex]?.focus();
+    }, 0);
+
+    // Trigger onComplete if all fields are filled
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
     }
   };
 
-  //code for number verification
   const handleVerifyCode = () => {
     // //console.log);
     setPhoneVerifiedSuccessSnack(true);
-   
+
     handleRegister();
   };
 
@@ -524,19 +612,33 @@ const OtherDetails = ({
             setCookie(response.data.data.user, document);
           }
 
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
+          }
+
           // handleContinue();
 
           const screenWidth = window.innerWidth; // Get current screen width
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
-             setShowVerifyPopup(false)
+            setShowVerifyPopup(false)
             setCongratsPopup(true);
             // //console.log;
           } else {
             // //console.log;
             handleContinue();
           }
+        } else {
+          setSnackMessage(response.data.message)
         }
       }
     } catch (error) {
@@ -629,6 +731,21 @@ const OtherDetails = ({
             setUserBrokage={setUserBrokage}
             setUserFarm={setUserFarm}
             setUserTransaction={setUserTransaction}
+            handleVerifyPopup={handleVerifyPopup}
+
+          />
+        )
+      }
+      if (userData?.userTypeTitle === UserTypes.General
+        || userData.userTypeTitle == UserTypes.Reception
+      ) {
+        return (
+          <GeneralAgentOtherDetails
+            inputsFields={inputsFields}
+            company={companyName}
+            userFarm={userFarm}
+            setCompany={setCompanyName}
+            setUserFarm={setUserFarm}
             handleVerifyPopup={handleVerifyPopup}
 
           />
@@ -811,6 +928,12 @@ const OtherDetails = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
+      <AgentSelectSnackMessage
+        isVisible={snackMessage != null}
+        message={snackMessage}
+        type={SnackbarTypes.Error}
+        hide={() => setSnackMessage(null)}
+      />
       <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header 84svh */}
@@ -1061,8 +1184,23 @@ const OtherDetails = ({
                             fontWeight: "700",
                           }}
                           onClick={() => {
-                            router.push("/createagent");
+                            handleShowRedirectPopup()
+                            // router.push("/createagent");
+                            window.open("/embedCalendar", "_blank");
+                            // window.close();
                           }}
+                        // onClick={() => {
+                        //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
+                        //   handleShowRedirectPopup();
+                        //   if (newTab && typeof newTab.document !== 'undefined') {
+                        //     newTab.document.write(`
+                        //     <script>
+                        //       window.opener && window.opener.close();  // Step 2: close current tab
+                        //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
+                        //     </script>
+                        //   `);
+                        //   }
+                        // }}
                         >
                           Get Started
                         </button>
@@ -1072,7 +1210,7 @@ const OtherDetails = ({
                 </Box>
               </Modal>
 
-             
+
             </div>
           </div>
         </div>

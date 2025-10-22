@@ -15,7 +15,8 @@ const EditModal = ({
     selectedItem,
     editName,
     kycsData,
-    uniqueColumns
+    uniqueColumns,
+    scrollOffset,
 }) => {
 
     const [updateTitle, setUpdatedTitle] = useState("");
@@ -165,6 +166,34 @@ const EditModal = ({
                         Description
                     </div>
                     {/*
+                        <GreetingTagInput
+                            greetTag={updatedDescription}
+                            kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={(text) => {
+                                setUpdatedDescription(text);
+                            }}
+                            scrollOffset={scrollOffset}
+                        />
+                    */}
+
+                    <PromptTagInput
+                        promptTag={updatedDescription}
+                        kycsList={kycsData}
+                        uniqueColumns={uniqueColumns}
+                        tagValue={setUpdatedDescription}
+                        scrollOffset={scrollOffset}
+                        showSaveChangesBtn={updatedDescription}
+                        from={editName}
+                        isEdit={true}
+                        saveUpdates={async () => {
+                            // await updateAgent();
+                            // setShowObjectionsSaveBtn(false);
+                            // setOldObjective(objective);
+                        }}
+                    />
+
+                    {/*
                         <TextareaAutosize
                             maxRows={5}
                             className="outline-none focus:outline-none focus:ring-0 p-2 w-full"
@@ -176,37 +205,6 @@ const EditModal = ({
                             }}
                         />
                     */}
-                    {/*
-                        <GreetingTagInput
-                            greetTag={updatedDescription}
-                            kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={(text) => {
-                                setUpdatedDescription(text);
-                            }}
-                        // scrollOffset={scrollOffset}
-                        />
-                    */}
-
-                    <div className="mt-4 w-full">
-                        <PromptTagInput
-                            promptTag={updatedDescription}
-                            kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setUpdatedDescription}
-                            // scrollOffset={scrollOffset}
-                            showSaveChangesBtn={updatedDescription}
-                            from={editName}
-                            isEdit={true}
-                            saveUpdates={async () => {
-                                // await updateAgent();
-                                // setShowObjectionsSaveBtn(false);
-                                // setOldObjective(objective);
-                            }}
-                        />
-
-                        {/* <DynamicDropdown /> */}
-                    </div>
 
                 </div>
 

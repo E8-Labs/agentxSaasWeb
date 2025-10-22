@@ -179,10 +179,12 @@ const Pipeline1 = ({ handleContinue }) => {
   //code to get pipelines
   const getPipelines = async () => {
     try {
+      //TODO: @Arslan @Hamza tell me why do we have two different keys to store a user's data on localstorage from admin?
+      // Getting pipelines is different and getting a2p number is using diff key. Why is that?
+      // I have consolidated the logic here  and on the @PipelineStages.js file. Let's discuss it and consolidate into one.
       console.log("Trigered getpipelines")
-
       let selectedUserLocalData = localStorage.getItem("selectedUser")
-      if (!selectedUserLocalData) {
+      if(!selectedUserLocalData){
         selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       }
       // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
@@ -195,13 +197,15 @@ const Pipeline1 = ({ handleContinue }) => {
       let ApiPath = Apis.getPipelines + "?liteResource=true"
 
       if (selectedUser) {
+        //TODO: @Arslan @Hamza tell me why are we using selectedUser?.subAccountData?.id instead of selectedUser?.id here
+        // I am commenting it for now.
         // ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        if (selectedUser?.subAccountData?.id) {
+        if(selectedUser?.subAccountData?.id){
           ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        } else {
+        }else{
           ApiPath = ApiPath + "&userId=" + selectedUser?.id;
         }
-
+        
       }
 
       console.log("ApiPath is", ApiPath);
@@ -285,37 +289,62 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-    // //console.log;
-    // //console.log;
-    // //console.log;
-    // //console.log;
+
     setRowsByIndex((prev) => ({
       ...prev,
-      [leadIndex]: prev[leadIndex].map((row) =>
+      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
         row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row
       ),
     }));
   };
 
-  const addRow = (index) => {
+  const addRow = (index, action = "call", templateData = null) => {
+    console.log('addRow called with:', {
+      index,
+      action,
+      templateData
+    });
+    
     setRowsByIndex((prev) => {
-      let id = (prev[index]?.length || 0) + 1;
-      // //console.log;
-      // //console.log;
-      // //console.log;
-      if ((prev[index]?.length || 0) > 0) {
-        let array = prev[index];
-        // //console.log;
-        let lastRow = array[array.length - 1];
-        id = lastRow.id + 1;
+      const list = prev[index] ?? [];
+      const nextId = list.length ? list[list.length - 1].id + 1 : 1;
+
+      const newRow = {
+        id: nextId,
+        waitTimeDays: 0,
+        waitTimeHours: 0,
+        waitTimeMinutes: 0,
+        action, // "call" | "sms" | "email"
+        communicationType: action, // Set communicationType to match action
+      };
+
+      console.log('Base newRow before template data:', newRow);
+
+      // Add template information for email and SMS actions
+      if (templateData) {
+        console.log('Adding template data for action:', action);
+        console.log('templateData received:', templateData);
+        
+        // Add all template data to the row
+        Object.keys(templateData).forEach(key => {
+          if (templateData[key] !== undefined) {
+            newRow[key] = templateData[key];
+            console.log(`Setting newRow.${key} = ${templateData[key]}`);
+          }
+        });
+        
+        console.log('newRow after adding template data:', newRow);
+      } else {
+        console.log('No template data provided');
       }
-      // //console.log;
+
+      console.log('Final newRow:', newRow);
 
       return {
         ...prev,
         [index]: [
-          ...(prev[index] || []),
-          { id: id, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
+          ...list,
+          newRow,
         ],
       };
     });
@@ -324,12 +353,34 @@ const Pipeline1 = ({ handleContinue }) => {
   const removeRow = (leadIndex, rowId) => {
     setRowsByIndex((prev) => ({
       ...prev,
-      [leadIndex]: prev[leadIndex].filter((row) => row.id !== rowId),
+      [leadIndex]: (prev[leadIndex] ?? []).filter((row) => row.id !== rowId),
     }));
+  };
+
+  const updateRow = (leadIndex, rowId, updatedData) => {
+    console.log(`Updating row ${rowId} in stage ${leadIndex} with data:`, updatedData);
+    
+    setRowsByIndex((prev) => {
+      const updatedRows = {
+        ...prev,
+        [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
+          if (row.id === rowId) {
+            const updatedRow = { ...row, ...updatedData };
+            console.log('Updated row result:', updatedRow);
+            return updatedRow;
+          }
+          return row;
+        }),
+      };
+      
+      console.log('Updated rowsByIndex state:', updatedRows);
+      return updatedRows;
+    });
   };
 
   const printAssignedLeadsData = async () => {
     console.log("print clicked", assignedLeads);
+    // return
     setPipelineLoader(true);
 
     const allData = Object.keys(assignedLeads)
@@ -350,6 +401,9 @@ const Pipeline1 = ({ handleContinue }) => {
       .filter((item) => item !== null); // Filter out null values
 
     console.log("All Data ", allData);
+    
+  
+    
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
@@ -357,7 +411,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
     //getting local agent data then sending the cadence accordingly
     const agentDetails = localStorage.getItem("agentDetails");
-    console.log("Agent Details ", agentDetails);
+    // console.log("Agent Details ", agentDetails);
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
@@ -376,6 +430,7 @@ const Pipeline1 = ({ handleContinue }) => {
                   waitTimeDays: 3650,
                   waitTimeHours: 0,
                   waitTimeMinutes: 0,
+                  communicationType : "call"
                 },
               ],
             },
@@ -392,10 +447,10 @@ const Pipeline1 = ({ handleContinue }) => {
 
     // //console.log;
 
-    // console.log(
-    //   "Cadence data storing on local storage is :",
-    //   JSON.stringify(cadenceData)
-    // );
+    console.log(
+      "Cadence data storing on local storage is :",
+      cadence
+    );
 
     if (cadenceData) {
       localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
@@ -477,15 +532,6 @@ const Pipeline1 = ({ handleContinue }) => {
     setSelectedPipelineStages(selectedItem.stages);
     setOldStages(selectedItem.stages);
   };
-
-  // const handleSelectNextChange = (event) => {
-  //     const selectedValue = event.target.value;
-  //     setNextStage(selectedValue);
-  //     // Find the selected item from the pipelinesDetails array
-  //     const selectedItem = selectedPipelineStages.find(item => item.stageTitle === selectedValue);
-  //    // //console.log;
-  //     setSelectedNextStage(selectedItem);
-  // }
 
   const handleSelectNextChange = (index, event) => {
     const selectedValue = event.target.value;
@@ -663,15 +709,16 @@ const Pipeline1 = ({ handleContinue }) => {
             />
           </div>
 
-          <div className="flex flex-col items-center px-4 w-full">
+          <div className="flex flex-col items-center justify-center px-4 w-full">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
             >
               Pipeline and Stages
             </div>
+
             <div
-              className="mt-4 w-6/12 gap-4 flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
               style={{ scrollbarWidth: "none" }}
             >
               {pipelinesDetails.length > 1 && (
@@ -741,6 +788,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 rowsByIndex={rowsByIndex}
                 removeRow={removeRow}
                 addRow={addRow}
+                updateRow={updateRow}
                 nextStage={nextStage}
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}

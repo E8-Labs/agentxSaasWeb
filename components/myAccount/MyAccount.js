@@ -13,12 +13,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import BarServices from "./BarServices";
 import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
 import TwilioTrustHub from "./TwilioTrustHub";
-
+import NewBilling from "./NewBilling";
+import BillingHistory from "./BillingHistory";
+import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
+import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";    
+import { getUserLocalData } from "../constants/constants";
 function MyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(5);
+  const [tabSelected, setTabSelected] = useState(6);
 
   const manuBar = [
     {
@@ -29,26 +33,32 @@ function MyAccount() {
     },
     {
       id: 2,
-      heading: "Billing",
-      subHeading: "Manage your billing and payment methods",
+      heading: "Plans & Payment",
+      subHeading: "Manage your plans and payment method ",
       icon: "/otherAssets/walletIcon.png",
     },
     {
       id: 3,
+      heading: "Billing",
+      subHeading: "Manage your billing transactions",
+      icon: "/otherAssets/billingIcon.png",
+    },
+    {
+      id: 4,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
     },
     {
-      id: 4,
+      id: 5,
       heading: "My Phone Numbers",
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Invite Agents",
-      subHeading: "Get 60 minutes ",
+      subHeading: "Get 60 credits ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
     {
@@ -71,18 +81,24 @@ function MyAccount() {
     // },
     {
       id: 7,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
+    },
+    {
+      id: 8,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
+      id: 9,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 9,
+      id: 10,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -91,16 +107,26 @@ function MyAccount() {
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-
+  const [userLocalData, setUserLocalData] = useState(null);
+  //select the invite teams by default
   useEffect(() => {
-    const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
-    // //console.log;
-    setTabSelected(number);
-    if (!tab) {
-      setParamsInSearchBar(5);
+
+    const data = getUserLocalData();
+    setUserLocalData(data.user);
+
+    const tab = searchParams.get("tab");
+    const number = Number(tab);
+
+    const exists = manuBar.find((item) => item.id === number);
+    if (exists) {
+      setTabSelected(number);
+    } else {
+      setTabSelected(6); // Default to Invite Agents
+      setParamsInSearchBar(6);
+      // console.log("Setting the tab value");
     }
   }, []);
+
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -120,38 +146,41 @@ function MyAccount() {
       case 1:
         return <BasicInfo />;
       case 2:
-        return <Billing />;
+        if (isSubaccountTeamMember(userLocalData)) {
+          return <SubAccountPlansAndPayments />;
+        } else {
+          return <NewBilling />;
+        }
+        return <NewBilling />;
       case 3:
-        return <BarServices />;
+        return <BillingHistory />;
       case 4:
-        return <MyPhoneNumber />;
+        return <BarServices />;
       case 5:
-        return <InviteAgentX />;
+        return <MyPhoneNumber />;
       case 6:
+        return <InviteAgentX />;
+      case 7:
         return <TwilioTrustHub />;
-      // case 6:
-      //   return <Support />;
-      // case 7:
-      //   return <SendFeedback />;
       default:
         return <div>Please select an option.</div>;
     }
   };
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 7) {
+    if (item.id === 8) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 8) {
+    } else if (item.id === 9) {
       window.open(
         "/privacy-policy",
         "_blank"
       );
       return
-    } else if (item.id === 9) {
+    } else if (item.id === 10) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
@@ -182,7 +211,7 @@ function MyAccount() {
       </div>
 
       <div className="w-full flex flex-row item-center pl-4 h-[100%]">
-        <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
+        <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
               <button
@@ -205,28 +234,26 @@ function MyAccount() {
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />
                   <div
-                    className="flex flex-col gap-1 items-start"
-                    style={{
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
+                    className="flex flex-col gap-1 items-start text-start"
+                  // style={{
+                  //   whiteSpace: "nowrap",
+                  //   overflow: "hidden",
+                  //   textOverflow: "ellipsis",
+                  // }}
                   >
                     <div
                       style={{
                         fontSize: 16,
                         fontWeight: "700",
                         color: "#000",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        textAlign: "left",
                       }}
                     >
                       {item.heading}
                     </div>
 
                     <div
-                      style={{ fontSize: 13, fontWeight: "500", color: "#000" }}
+                      style={{ fontSize: 13, fontWeight: "500", color: "#000", textAlign: "left", }}
                     >
                       {item.subHeading}
                     </div>
@@ -238,12 +265,12 @@ function MyAccount() {
         </div>
 
         <div
-          className="w-8/12 "
+          className="w-9/12 "
           style={{
             overflow: "auto",
             height: "92vh",
             borderLeftWidth: 1,
-            borderBottomColor: "#00000010",
+            borderBottomColor: "#00000012",
           }}
         >
           {renderComponent()}

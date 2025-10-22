@@ -22,183 +22,10 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { Searchbar } from "@/components/general/MuiSearchBar";
 import DashboardSlider from "@/components/animations/DashboardSlider";
-const allIntegrations = [
-  {
-    title: "Mailchimp",
-    url: "https://zapier.com/apps/mailchimp/integrations/myagentx",
-    description:
-      "Automatically nurture AgentX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
-    icon: "/svgIcons/MailchimpIcon.svg",
-  },
-  {
-    title: "ActiveCampaign",
-    url: "https://zapier.com/apps/activecampaign/integrations/myagentx",
-    description:
-      "Send AgentX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
-    icon: "/svgIcons/ActiveCampaignIcon.svg",
-  },
-  {
-    title: "ClickUp",
-    url: "https://zapier.com/apps/clickup/integrations/myagentx",
-    description:
-      "Create follow-up tasks in ClickUp for AgentX leads to ensure no opportunity is missed.",
-    icon: "/svgIcons/ClickUpIcon.svg",
-  },
-  {
-    title: "Trello",
-    url: "https://zapier.com/apps/trello/integrations/myagentx",
-    description:
-      "Organize AgentX leads into Trello boards for tracking follow-up actions and collaboration with your team.",
-    icon: "/svgIcons/TrelloIcon.svg",
-  },
-  {
-    title: "Asana",
-    url: "https://zapier.com/apps/asana/integrations/myagentx",
-    description:
-      "Add tasks for AgentX lead follow-ups in Asana to keep your pipeline moving forward.",
-    icon: "/svgIcons/AsanaIcon.svg",
-  },
-  {
-    title: "Slack",
-    url: "https://zapier.com/apps/slack/integrations/myagentx",
-    description:
-      "Receive instant updates in Slack when AgentX nurtures a lead or books an appointment.",
-    icon: "/svgIcons/SlackIcon.svg",
-  },
-  {
-    title: "Shopify",
-    url: "https://zapier.com/apps/shopify/integrations/myagentx",
-    description:
-      "Sync Shopify customers to AgentX for personalized follow-ups and repeat business outreach.",
-    icon: "/svgIcons/ShopifyIcon.svg",
-  },
-  {
-    title: "Stripe",
-    url: "https://zapier.com/apps/stripe/integrations/myagentx",
-    description:
-      "Automatically update AgentX lead profiles when payments are received through Stripe for nurturing upsell opportunities.",
-    icon: "/svgIcons/StripeIcon.svg",
-  },
-  {
-    title: "PayPal",
-    url: "https://zapier.com/apps/paypal/integrations/myagentx",
-    description:
-      "Track PayPal transactions in AgentX and follow up with leads to build long-term relationships",
-    icon: "/svgIcons/PayPalIcon.svg",
-  },
-  {
-    title: "Google Sheets",
-    url: "https://zapier.com/apps/google-sheets/integrations/myagentx",
-    description:
-      "Add new leads from Google Sheets to AgentX for AI-driven follow-ups and nurturing.",
-    icon: "/svgIcons/GoogleSheetsIcon.svg",
-  },
-  {
-    title: "Zoho",
-    url: "https://zapier.com/apps/zoho-forms/integrations/myagentx",
-    description:
-      "Sync Zoho CRM leads with AgentX for automated follow-ups and timely engagement.",
-    icon: "/svgIcons/ZohoIcon.svg",
-  },
-  {
-    title: "FUB",
-    url: "https://zapier.com/apps/follow-up-boss/integrations/myagentx",
-    description:
-      "Send FUB leads to AgentX to ensure consistent nurturing through AI-powered communication.",
-    icon: "/svgIcons/FUBIcon.svg",
-  },
-  {
-    title: "HubSpot",
-    url: "https://zapier.com/apps/hubspot/integrations/myagentx",
-    description:
-      "Integrate HubSpot contacts with AgentX to automate follow-ups and streamline your pipeline.",
-    icon: "/svgIcons/HubSpotIcon.svg",
-  },
-  {
-    title: "Clio Grow",
-    url: "https://zapier.com/apps/clio/integrations/myagentx",
-    description:
-      "Capture Clio Grow client leads and let AgentX handle the nurturing and scheduling.",
-    icon: "/svgIcons/ClioGrowIcon.svg",
-  },
-  {
-    title: "Close",
-    url: "https://zapier.com/apps/close/integrations/myagentx",
-    description:
-      "Update Close opportunities with AgentX follow-up progress to streamline sales efforts.",
-    icon: "/svgIcons/closeIcon.svg",
-  },
-  {
-    title: "KV Core",
-    url: "https://zapier.com/apps/kvcore/integrations/myagentx",
-    description:
-      "Send KV Core leads to AgentX to automate follow-ups and improve conversion rates.",
-    icon: "/svgIcons/KVCoreIcon.svg",
-  },
-  {
-    title: "Typeform",
-    url: "https://zapier.com/apps/typeform/integrations/myagentx",
-    description:
-      "Capture Typeform responses as leads in AgentX for instant follow-up and nurturing.",
-    icon: "/svgIcons/Typeform.svg",
-  },
-  {
-    title: "JotForm",
-    url: "https://zapier.com/apps/jotform/integrations/myagentx",
-    description:
-      "Add Jotform submissions to AgentX to kickstart AI-driven lead engagement and follow-up.",
-    icon: "/svgIcons/JotformIcon.svg",
-  },
-  {
-    title: "Facebook Ads (Instant form)",
-    url: "https://zapier.com/apps/facebook-lead-ads/integrations/myagentx",
-    description:
-      "Sync Facebook leads to AgentX for immediate qualifying, follow-ups and lead nurturing. Speed to lead! ",
-    icon: "/svgIcons/FacebookIcon.svg",
-  },
-  {
-    title: "Wix forms",
-    url: "https://zapier.com/apps/wix/integrations/myagentx",
-    description:
-      "Turn Wix form submissions into AgentX leads for automated nurturing and engagement.",
-    icon: "/svgIcons/WixformsIcon.svg",
-  },
-  {
-    title: "Calendly",
-    url: "https://zapier.com/apps/calendly/integrations/myagentx",
-    description:
-      "Automatically update AgentX when appointments are scheduled in Calendly to ensure timely follow-ups.",
-    icon: "/svgIcons/CalendlyIcon.svg",
-  },
-  {
-    title: "Cal.com",
-    url: "https://zapier.com/apps/calcom/integrations/myagentx",
-    description:
-      "Sync Cal.com bookings with AgentX for seamless scheduling and lead engagement.",
-    icon: "/svgIcons/Cal.comIcon.svg",
-  },
-  {
-    title: "GHL",
-    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
-    description:
-      "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
-    icon: "/svgIcons/GHLIcon.svg",
-  },
-  {
-    title: "Pipedrive",
-    url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
-    description:
-      "Connect Pipedrive with AgentX for seamless deal tracking and smart sales automation.",
-    icon: "/svgIcons/PipedriveIcon.svg",
-  },
-  {
-    title: "Salesforce",
-    url: "https://zapier.com/apps/salesforce/integrations/myagentx",
-    description:
-      "Streamline Salesforce CRM with AgentX for effortless lead tracking and workflow automation.",
-    icon: "/svgIcons/SalesforceIcon.svg",
-  },
-];
+import { Scopes } from "@/components/dashboard/myagentX/Scopes";
+import { connectGmailAccount } from "@/components/pipeline/TempleteServices";
+import { allIntegrations } from "@/constants/Constants";
+
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false);
   const [myKeys, setMyKeys] = useState([]);
@@ -218,6 +45,9 @@ function Page() {
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
+
+  // Google auth states
+  const [googleAuthLoader, setGoogleAuthLoader] = useState(false);
 
   useEffect(() => {
     getMyApiKeys();
@@ -254,16 +84,16 @@ function Page() {
       if (response) {
         setKeyLoader(false);
 
+        console.log("response.data.data", response.data.data);
         if (response.data.status) {
-          // //console.log;
           setMyKeys(response.data.data);
         } else {
-          // //console.log;
+          console.log("response.data.message", response.data.message);
         }
       }
     } catch (e) {
       setKeyLoader(false);
-      // //console.log;
+      console.log("error in get my api keys", e);
     }
   };
 
@@ -299,22 +129,23 @@ function Page() {
         setGenrateeyLoader(false);
         setGenrateeyLoader2(false);
 
+        console.log("response.data.data", response.data.data);
         if (response.data.status) {
-          // //console.log;
           setShowCopySnak("Api key generated successfully");
           setMyKeys((prevKeys) => [...prevKeys, response.data.data]);
         } else {
-          // console.log(
-          //   "get genrate api keys api message is",
-          //   response.data.message
-          // );
+          console.log(
+            "get genrate api keys api message is",
+            response.data.message
+          );
+          setShowCopySnak(response?.data?.message || "Failed to generate API key");
         }
       }
     } catch (e) {
       setGenrateeyLoader2(false);
       setGenrateeyLoader(false);
-
-      // //console.log;
+      setShowCopySnak(e.message || "Failed to generate API key");
+      console.log("error in genrate api key", e);
     }
   };
 
@@ -355,8 +186,81 @@ function Page() {
     return maskedId;
   };
 
+  // Google OAuth handler
+  const handleGoogleAuth = () => {
+    const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
+      process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI;
+
+    const oauthUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?` +
+      new URLSearchParams({
+        client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        response_type: "code",
+        scope: Scopes.join(" "),
+        access_type: "offline",
+        prompt: "consent",
+      }).toString();
+
+    const popup = window.open(oauthUrl, "_blank", "width=500,height=600");
+
+    const listener = async (event) => {
+      if (event.data?.type === "google-auth-code") {
+        window.removeEventListener("message", listener);
+
+        try {
+          setGoogleAuthLoader(true);
+          const res = await fetch(
+            `/api/google/exchange-token?code=${event.data.code}`
+          );
+          const { tokens } = await res.json();
+
+          if (tokens?.access_token) {
+            const userInfoRes = await fetch(
+              "https://www.googleapis.com/oauth2/v2/userinfo",
+              {
+                headers: {
+                  Authorization: `Bearer ${tokens.access_token}`,
+                },
+              }
+            );
+            const userInfo = await userInfoRes.json();
+
+            const googleLoginData = {
+              ...tokens,
+              ...userInfo,
+            };
+
+            console.log("Google login details are", googleLoginData);
+            let response = await connectGmailAccount(googleLoginData);
+            setGoogleAuthLoader(false);
+
+            if (response && response.data && response.data.status == true) {
+              setShowCopySnak(response.data.message);
+            } else {
+              setShowCopySnak(response?.data?.message || "Failed to connect Google account");
+            }
+          }
+        } catch (err) {
+          console.error("Google OAuth error:", err);
+          setGoogleAuthLoader(false);
+          
+          // Check if error has response with message
+          if (err.response && err.response.data && err.response.data.message) {
+            setShowCopySnak(err.response.data.message);
+          } else {
+            setShowCopySnak("Failed to connect Google account. Please try again.");
+          }
+        }
+      }
+    };
+
+    window.addEventListener("message", listener);
+  };
+
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full h-screen flex flex-col overflow-hidden">
       <AgentSelectSnackMessage
         isVisible={showCopySnak}
         hide={() => setShowCopySnak(null)}
@@ -364,7 +268,7 @@ function Page() {
         type={SnackbarTypes.Success}
       />
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
+        className="w-full flex flex-row justify-between items-center py-4 px-4 sm:px-6 lg:px-10 flex-shrink-0"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
@@ -376,8 +280,10 @@ function Page() {
               right: 0,
               bottom: 0
             }}>
-            <DashboardSlider
-              needHelp={false} />
+           {/*
+             <DashboardSlider
+               needHelp={false} />
+           */}
           </div>
         </div>
       </div>
@@ -422,7 +328,7 @@ function Page() {
                 }}
               >
                 <div className="flex flex-row items-center justify-between ">
-                  <div> AgentX API Keys</div>
+                  <div> API Keys</div>
                   {showKeysBox ? (
                     <CaretUp size={20} />
                   ) : (
@@ -519,7 +425,7 @@ function Page() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        {myKeys.length > 0 ? "Refresh" : "Genrate New Api Key"}
+                        {myKeys.length > 0 ? "Refresh" : "Genrate"}
                       </div>
                     </button>
                   )}
@@ -634,6 +540,10 @@ function Page() {
                   </div>
                   <button
                     onClick={() => {
+                      if (integration.title === "Google") {
+                        handleGoogleAuth();
+                        return;
+                      }
                       // if (integration.title === "GHL") {
                       //   setShowCopySnak("Comming soon");
                       //   return;
@@ -642,9 +552,17 @@ function Page() {
                         window.open(integration.url, "_blank");
                       }
                     }}
-                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2"
+                    disabled={googleAuthLoader && integration.title === "Google"}
                   >
-                    Add
+                    {googleAuthLoader && integration.title === "Google" ? (
+                      <>
+                        <CircularProgress size={16} color="inherit" />
+                        Connecting...
+                      </>
+                    ) : (
+                      "Add"
+                    )}
                   </button>
                 </div>
               </div>

@@ -113,8 +113,16 @@ export function ToUppercase(text) {
     )}`
 }
 
+//decimal converter for time
+export function secondsToMinsConverter(seconds) {
+  const minutes = seconds / 60;  // Convert seconds to minutes
+  const roundedMinutes = Math.floor(minutes * 100) / 100; // Round down to 2 decimal places
+  return roundedMinutes;
+}
 
 function normalizeRedirectUri(uri) {
   if (!uri) return "";
   return uri.endsWith("/") ? uri : uri + "/";
 }
+
+//format date into 

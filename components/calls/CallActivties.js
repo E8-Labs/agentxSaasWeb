@@ -5,12 +5,13 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString, ToUppercase } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { UserTypes } from "@/constants/UserTypes";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 import { BatchStatus } from "../constants/constants";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
 function SheduledCalls({ user }) {
   const Limit = 30;
@@ -75,7 +76,7 @@ function SheduledCalls({ user }) {
     setAnchorEl(event.currentTarget);
     setSelectedAgent(agent);
     setSelectedItem(item);
-  
+
   };
 
   const handleClosePopup = () => {
@@ -122,9 +123,11 @@ function SheduledCalls({ user }) {
   };
 
   //code to get agents
-  const getScheduledOrOngoingActivityCalls = async () => {
+  const getScheduledOrOngoingActivityCalls = async (offset = 0) => {
     try {
-      setInitialLoader(true);
+      if (offset === 0) {
+        setInitialLoader(true);
+      }
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -157,11 +160,27 @@ function SheduledCalls({ user }) {
       });
 
       if (response) {
-        console.log("response is", response.data.data);
+        console.log("response is of gat active calls", response.data.data);
 
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+        let newData = response.data.data
+
+        if (offset === 0) {
+
+          setFilteredAgentsList(response.data.data);
+          setCallDetails(response.data.data);
+          setAgentsList(response.data.data);
+        } else {
+          setFilteredAgentsList((prev) => [...prev, ...newData]);
+          setCallDetails((prev) => [...prev, ...newData]);
+          setAgentsList((prev) => [...prev, ...newData]);
+
+        }
+
+        if (newData.length < Limit) {
+          setHasMoreCalls(false);
+        } else {
+          setHasMoreCalls(true);
+        }
       }
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
@@ -386,13 +405,11 @@ function SheduledCalls({ user }) {
       }
 
       const token = user.token; // Extract JWT token
-      
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
       console.log(
         "Api Call Leads : ",
         path
       );
-
       const response = await fetch(path,
         {
           method: "GET",
@@ -414,7 +431,7 @@ function SheduledCalls({ user }) {
         //   JSON.stringify(data.data)
         // );
 
-        console.log("response is", response.data);
+        console.log("Response of leads list detail", data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
@@ -528,12 +545,21 @@ function SheduledCalls({ user }) {
     }
   }
 
-  function getReadableStatus(status) {
-    if (status === BatchStatus.PausedForNonPayment) {
-      return "Paused (Non Payment)";
-    }
-    return status;
-  }
+
+
+  // function getAgentNameForActiviti(agent) {
+  //   const agents = agent.agents || [];
+  //   if (agents.length > 0) {
+  //     if (agents[0].agentType == "outbound") {
+  //       return agents[0]?.name || "-";
+  //     } else {
+  //       if (agents.length > 1) {
+  //         return agents[0]?.name || "-";
+  //       }
+  //     }
+  //   }
+  //   return "-";
+  // }
 
   // function getAgentNameForActiviti(agent) {
   //   const agents = agent.agents || [];
@@ -550,14 +576,16 @@ function SheduledCalls({ user }) {
   // }
 
   function getAgentNameForActiviti(agent) {
+    // console.log("agents in getAgentNameForActiviti", agent)
     const agents = agent?.agents || [];
+
     if (agents?.length > 0) {
       let name = agents[0]?.name || "-";
 
       if (agents[0].agentType === "outbound") {
         return formatName(name);
       } else {
-        if (agents?.length > 1) {
+        if (agents.length > 1) {
           return formatName(name);
         }
       }
@@ -566,8 +594,8 @@ function SheduledCalls({ user }) {
   }
 
   function getAgentImageForActiviti(agent) {
-    const agents = agent?.agents || [];
-    if (agents?.length > 0) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
       let img
       if (agents[0].agentType === "outbound") {
         img = agents[0]?.thumb_profile_image;
@@ -596,8 +624,7 @@ function SheduledCalls({ user }) {
           )
         }
       } else {
-        if (agents?.length > 1) {
-          // if (agents[1])
+        if (agents.length > 1) {
           img = agents[1]?.thumb_profile_image;
           if (img) {
             return (
@@ -632,9 +659,28 @@ function SheduledCalls({ user }) {
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   }
 
+
   function getFirstAlphabetFromName(agent) {
     const name = getAgentNameForActiviti(agent);
+    // console.log('name', name)
+
     return name.length > 0 ? name?.slice(0, 1).toUpperCase() : "";
+  }
+
+  // Function to get call status with scheduled date if applicable
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    }
+
+    // Return the regular readable status for past or current calls
+    return getReadableStatus(item.status);
   }
 
   return (
@@ -669,6 +715,8 @@ function SheduledCalls({ user }) {
               className="p-2 flex flex-col gap-2"
               style={{ fontWeight: "500", fontSize: 15 }}
             >
+              {
+                SelectedItem?.status !== "Completed" && (
               <div>
                 {PauseLoader ? (
                   <CircularProgress size={18} />
@@ -689,16 +737,19 @@ function SheduledCalls({ user }) {
                     }}
                   >
                     {SelectedItem?.status == "Paused"
-                      ? "Run Calls"
-                      : "Pause Calls"}
+                      ? "Run Calls" :
+                      SelectedItem?.status == "Completed" ? ""
+                        : "Pause Calls"}
                   </button>
                 )}
               </div>
+              )
+            }
 
               <button
                 className="text-start outline-none"
                 onClick={() => {
-                  handleShowLeads(SelectedAgent,SelectedItem)
+                  handleShowLeads(SelectedAgent, SelectedItem)
                 }}
               >
                 View Details
@@ -745,6 +796,8 @@ function SheduledCalls({ user }) {
             </div>
           </div>
 
+
+
           <div>
             <div
               className={`h-[70vh] overflow-auto`}
@@ -752,91 +805,110 @@ function SheduledCalls({ user }) {
             >
               {filteredAgentsList.length > 0 ? (
                 <div>
-                  {filteredAgentsList.map((item, index) => {
-                    return (
-                      <div key={index}>
-                        {item.agents.map((agent, index) => {
-                          return (
-                            <div key={index}>
-                              <div
-                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                                key={index}
-                              >
-                                <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  <div className="">
-                                    {getAgentImageForActiviti(agent)}
-                                  </div>
-                                  <div style={styles.text2}>
-                                    {getAgentNameForActiviti(agent)}
-                                  </div> 
-                                </div>
-                                <div className="w-2/12 ">
-                                  {user.user.userType ==
-                                    UserTypes.RealEstateAgent
-                                    ? `${ToUppercase(
-                                      agent?.agents[0]?.agentObjective
-                                    )}`
-                                    : `${agent?.agents[0]?.agentRole || "Other"
-                                    }`}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    style={styles.text2}
-                                    className="text-purple underline outline-none"
-                                    onClick={(event) => {
-                                      // handleShowPopup(event, item, agent);
-                                      // fetchLeadsInBatch(item);
-                                      handleShowLeads(agent, item);
-                                      // setShowDetailsModal(true);
-                                      // setHasMoreCalls(true);
-                                      // fetchCallsInBatch(SelectedItem);
-                                      // handleShowBatchCalls(item, agent, null);
-                                    }}
-                                  >
-                                    {item?.totalLeads}
-                                  </button>
-                                </div>
-                                <div className="w-1/12">
-                                  {item.Sheet?.sheetName || "-"}
-                                </div>
-                                <div className="w-2/12">
-                                  {item?.createdAt ? (
+                  <InfiniteScroll
+                    dataLength={filteredAgentsList.length}
+                    next={() => {
+
+                      getScheduledOrOngoingActivityCalls(filteredAgentsList.length);
+                    }}
+                    hasMore={hasMoreCalls}
+                    loader={
+                      <div className="flex justify-center py-4">
+                        <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                      </div>
+                    }
+                    endMessage={
+                      <p style={{ textAlign: "center", padding: "10px", color: "#00000060" }}>
+                        You’re all caught up
+                      </p>
+                    }
+                    scrollableTarget="scrollableDivMain"
+                  >
+                    {filteredAgentsList.map((item, index) => {
+                      return (
+                        <div key={index}>
+                          {item.agents.map((agent, index) => {
+                            return (
+                              <div key={index}>
+                                <div
+                                  className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                  key={index}
+                                >
+                                  <div className="w-2/12 flex flex-row gap-4 items-center">
+                                    {getAgentImageWithMemoji(agent)}
+
                                     <div style={styles.text2}>
-                                      {GetFormattedDateString(
-                                        item?.createdAt,
-                                        true
-                                      )}
+                                      {getAgentNameForActiviti(agent)}
                                     </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
-                                <div className="w-1/12">
-                                  {getReadableStatus(item.status)}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    aria-describedby={id}
-                                    variant="contained"
-                                    onClick={(event) => {
-                                      handleShowPopup(event, item, agent);
-                                    }}
-                                  >
-                                    <Image
-                                      src={"/otherAssets/threeDotsIcon.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="icon"
-                                    />
-                                  </button>
+                                  </div>
+                                  <div className="w-2/12 ">
+                                    {user.user.userType ==
+                                      UserTypes.RealEstateAgent
+                                      ? `${ToUppercase(
+                                        agent?.agents[0]?.agentObjective
+                                      )}`
+                                      : `${agent?.agents[0]?.agentRole || "Other"
+                                      }`}
+                                  </div>
+                                  <div className="w-1/12">
+                                    <button
+                                      style={styles.text2}
+                                      className="text-purple underline outline-none"
+                                      onClick={(event) => {
+                                        // handleShowPopup(event, item, agent);
+                                        // fetchLeadsInBatch(item);
+                                        handleShowLeads(agent, item);
+                                        // setShowDetailsModal(true);
+                                        // setHasMoreCalls(true);
+                                        // fetchCallsInBatch(SelectedItem);
+                                        // handleShowBatchCalls(item, agent, null);
+                                      }}
+                                    >
+                                      {item?.totalLeads}
+                                    </button>
+                                  </div>
+                                  <div className="w-1/12 truncate">
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
+                                  <div className="w-2/12">
+                                    {item?.createdAt ? (
+                                      <div style={styles.text2}>
+                                        {GetFormattedDateString(
+                                          item?.createdAt,
+                                          true
+                                        )}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </div>
+                                  <div className="w-1/12">
+                                    {getCallStatusWithSchedule(item)}
+                                  </div>
+                                  <div className="w-1/12">
+                                    <button
+                                      aria-describedby={id}
+                                      variant="contained"
+                                      onClick={(event) => {
+                                        handleShowPopup(event, item, agent);
+                                      }}
+                                    >
+                                      <Image
+                                        src={"/otherAssets/threeDotsIcon.png"}
+                                        height={24}
+                                        width={24}
+                                        alt="icon"
+                                      />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </InfiniteScroll>
                 </div>
               ) : (
                 <div
@@ -847,7 +919,7 @@ function SheduledCalls({ user }) {
                     marginTop: 20,
                   }}
                 >
-                  No Call Activity Found
+                   No activities found
                 </div>
               )}
             </div>
@@ -887,8 +959,7 @@ function SheduledCalls({ user }) {
                         fontSize: 17,
                       }}
                     >
-                      {getAgentNameForActiviti(SelectedAgent)}{" "}
-                      call activity
+                      {getAgentNameForActiviti(SelectedAgent)} Activity
                     </div>
                     <button
                       onClick={() => {
@@ -919,7 +990,7 @@ function SheduledCalls({ user }) {
                           <input
                             type="text"
                             placeholder="Search by name or phone"
-                            className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                             value={leadsSearchValue}
                             onChange={(e) => {
                               const value = e.target.value;
@@ -943,9 +1014,10 @@ function SheduledCalls({ user }) {
                             color: "#00000070",
                           }}
                         >
-                          <div className="w-3/12">Name</div>
+                          <div className="w-2/12">Name</div>
                           <div className="w-2/12">Phone Number</div>
-                          <div className="w-3/12">Address</div>
+                          <div className="w-2/12">Address</div>
+                          <div className="w-2/12">List Name</div>
                           <div className="w-2/12">Tag</div>
                           <div className="w-2/12">Stage</div>
                         </div>
@@ -1012,7 +1084,7 @@ function SheduledCalls({ user }) {
                                           fontWeight: 500,
                                         }}
                                       >
-                                        <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                        <div className="w-2/12 flex flex-row items-center gap-2 truncate">
                                           <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
                                             {item?.firstName
                                               ?.charAt(0)
@@ -1027,8 +1099,11 @@ function SheduledCalls({ user }) {
                                         <div className="w-2/12 truncate">
                                           {item?.phone || "-"}
                                         </div>
-                                        <div className="w-3/12 truncate">
+                                        <div className="w-2/12 truncate">
                                           {item?.address || "-"}
+                                        </div>
+                                        <div className="w-2/12 truncate">
+                                          {SelectedItem?.Sheet?.sheetName || "-"}
                                         </div>
                                         <div className="w-2/12">
                                           {item.tags.length > 0 ? (

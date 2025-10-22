@@ -358,7 +358,6 @@ const timeZones = [
     "America/Yellowknife"       // Mountain Time Zone (Canada)
 ];
 
-
 export default timeZones;
 
 export const timeDuration = [

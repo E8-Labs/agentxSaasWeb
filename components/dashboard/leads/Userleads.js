@@ -49,13 +49,18 @@ import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
-import { userLocalData } from "@/components/agency/plan/AuthDetails";
+import { AuthToken, userLocalData } from "@/components/agency/plan/AuthDetails";
+import UpgradeModal from "@/constants/UpgradeModal";
+import { getUserLocalData } from "@/components/constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const Userleads = ({
   handleShowAddLeadModal,
   handleShowUserLeads,
   newListAdded,
   shouldSet,
+  uploading,
   setSetData,
 }) => {
   const LimitPerPage = 30;
@@ -83,6 +88,43 @@ const Userleads = ({
   const [totalLeads, setTotalLeads] = useState(0);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [selectedLeadsList, setSelectedLeadsList] = useState([]);
+
+  // Helper function to filter out address column if no leads have address data
+  const filterAddressColumn = (columns, leads) => {
+    if (!columns || !leads || leads.length === 0) return columns;
+
+    // Check if address column exists in the columns
+    const addressColumn = columns.find(column =>
+      column.title?.toLowerCase() === 'address' ||
+      column.key?.toLowerCase() === 'address'
+    );
+
+    if (addressColumn) {
+      console.log('Address column detected:', addressColumn);
+    }
+
+    // Check if any lead has address data
+    const hasAddressData = leads.some(lead =>
+      lead.address && lead.address.trim() !== ''
+    );
+
+    console.log('Has address data in leads:', hasAddressData, 'Total leads:', leads.length);
+
+    // If no leads have address data, filter out address column
+    if (!hasAddressData && addressColumn) {
+      console.log('Filtering out address column - no leads have address data');
+      return columns.filter(column =>
+        column.title?.toLowerCase() !== 'address' &&
+        column.key?.toLowerCase() !== 'address'
+      );
+    }
+
+    if (hasAddressData && addressColumn) {
+      console.log('Keeping address column - leads have address data');
+    }
+
+    return columns;
+  };
   const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -99,6 +141,8 @@ const Userleads = ({
   const [filtersSelected, setFiltersSelected] = useState([]);
 
   const [noStageSelected, setNoStageSelected] = useState(false);
+
+  const [exportLoading, setExportLoading] = useState(false);
 
   const fromCalendarRef = useRef(null);
   const toCalendarRef = useRef(null);
@@ -141,6 +185,7 @@ const Userleads = ({
   //code for pagination variables
   const [hasMore, setHasMore] = useState(true);
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
+  const [nextCursorValue, setNextCursorValue] = useState(0);
 
   //code for delete smart list popover
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -167,6 +212,8 @@ const Userleads = ({
 
   //render status
   const isFirstRender = useRef(true);
+
+  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
 
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null);
@@ -212,6 +259,16 @@ const Userleads = ({
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const filterRef = useRef(null);
 
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  }, [])
+
   const handleChange = (event) => {
     const selectedValue = event.target.value;
 
@@ -246,8 +303,8 @@ const Userleads = ({
         setFilterLeads([]);
         setLeadsList([]);
         let filterText = getFilterText();
-        console.log("🔍 Filter text for search:", filterText);
-        handleFilterLeads(0, filterText);
+        //console.log;
+        handleFilterLeads(filterText);
         setShowNoLeadsLabel(false);
       } else {
         console.log("⚠️ Search effect - no SelectedSheetId available");
@@ -306,13 +363,6 @@ const Userleads = ({
     
     // Check localStorage usage for debugging
     checkLocalStorageUsage();
-    
-    // Cleanup function
-    return () => {
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current);
-      }
-    };
   }, []);
 
   useEffect(() => {
@@ -410,7 +460,7 @@ const Userleads = ({
     console.log("🎯 Filter text generated:", filterText);
 
     // //console.log;
-    handleFilterLeads(0, filterText);
+    handleFilterLeads(filterText);
     setShowNoLeadsLabel(false);
   }, [filtersSelected, SelectedSheetId]);
 
@@ -842,6 +892,7 @@ const Userleads = ({
       if (response) {
         //////console.log;
         if (response.data.status === true) {
+          setNextCursorValue("");
           setSheetsList((prevSheetsList) =>
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
@@ -871,7 +922,7 @@ const Userleads = ({
   };
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     let string = `sheetId=${SelectedSheetId}`;
     if (filtersSelected.length == 0) {
       if (searchLead && searchLead.length > 0) {
@@ -909,7 +960,7 @@ const Userleads = ({
   }
 
   function getFiltersObject() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     let filters = {};
     let string = `sheetId=${SelectedSheetId}`;
     if (SelectedSheetId) {
@@ -964,8 +1015,7 @@ const Userleads = ({
     console.log("💾 LeadsInSheet data:", leadsData ? "exists" : "null");
     // //console.log;
     if (!leadsData) {
-      console.log("💾 No LeadsInSheet data, checking localStorage");
-      // //console.log;
+      console.log("I am trigered check 1");
       let d = localStorage.getItem(`Leads${SelectedSheetId}`);
       if (d) {
         leadsData = JSON.parse(d);
@@ -991,14 +1041,14 @@ const Userleads = ({
     // setLeadsList([]);
     // setFilterLeads([]);
     if (leads && leads.length > 0 && leadColumns && leadColumns.length > 0) {
-      console.log("✅ Setting cached leads to state");
-      // //console.log;
       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
       let dynamicColumns = [];
       if (leads.length > 0) {
+        // Filter out address column if no leads have address data
+        const filteredColumns = filterAddressColumn(leadColumns, leads);
         dynamicColumns = [
-          ...leadColumns,
+          ...filteredColumns,
           // { title: "Tag" },
           {
             title: "More",
@@ -1012,14 +1062,13 @@ const Userleads = ({
       console.log("✅ Cached leads set successfully");
       // return
     } else {
-      console.log("❌ No valid cached leads found");
-      // //console.log;
+      console.log("I am trigered check 4");
     }
   }
 
   //function for filtering leads
-  const handleFilterLeads = async (offset = 0, filterText = null) => {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+  const handleFilterLeads = async (filterText = null) => {
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     const currentRequestVersion = ++requestVersion.current;
     
     console.log("🚀 handleFilterLeads called with:", {
@@ -1051,18 +1100,18 @@ const Userleads = ({
       //   //////console.log;
       let ApiPath = null;
       if (filterText) {
-        console.log("📝 Using filterText:", filterText);
-        ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
+        ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
-        ApiPath = ApiPath + `&offset=${offset}`;
+        if (nextCursorValue && nextCursorValue != "undefined") {
+          ApiPath = ApiPath + `&id=${nextCursorValue}`;
+        }
       } else {
-        if (offset == 0) {
-          console.log("💾 Getting locally cached leads for sheetId:", SelectedSheetId);
+        if (nextCursorValue == 0) {
           getLocallyCachedLeads();
         }
-        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
+        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&id=${nextCursorValue}`;
       }
-      console.log("🌐 ApiPath is", ApiPath);
+      console.log("Api path is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -1073,16 +1122,16 @@ const Userleads = ({
       });
 
       if (response) {
-        console.log(
-          "📊 Response of get leads filter api is api is :",
-          response.data
-        );
-        console.log("🔢 currentRequestVersion is", currentRequestVersion);
-        console.log("🔢 requestVersion.current is", requestVersion.current);
-        
-        // Always process the response if it's the latest request
-        if (currentRequestVersion >= requestVersion.current) {
-          console.log("✅ Processing response for version:", currentRequestVersion);
+        // console.log(
+        //   "Response of get leads filter api is api is :",
+        //   response.data
+        // );
+        if (currentRequestVersion === requestVersion.current) {
+          const responseData = response.data;
+          console.log("Response of get leads api is", responseData);
+          console.log("Cursor value is", responseData.nextCursor);
+          console.log("Has more value is", responseData.hasMore);
+          setNextCursorValue(responseData.nextCursor);
           if (response.data.status === true) {
             setShowFilterModal(false);
             let count = response.data.leadCount;
@@ -1092,19 +1141,11 @@ const Userleads = ({
             }
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
-            let allLeads;
 
-            setShowFilterModal(false);
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data;
-            console.log("📋 Data received:", {
-              dataLength: data.length,
-              hasColumns: !!response.data.columns,
-              columnsLength: response.data.columns?.length
-            });
-            
-            if (offset == 0) {
+            if (!nextCursorValue) {
               let sheetId = null;
               if (data.length > 0) {
                 sheetId = data[0].sheetId;
@@ -1146,8 +1187,10 @@ const Userleads = ({
                 // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
                 let dynamicColumns = [];
                 if (leads.length > 0) {
+                  // Filter out address column if no leads have address data
+                  const filteredColumns = filterAddressColumn(leadColumns, leads);
                   dynamicColumns = [
-                    ...leadColumns,
+                    ...filteredColumns,
                     // { title: "Tag" },
                     {
                       title: "More",
@@ -1169,14 +1212,14 @@ const Userleads = ({
               setFilterLeads((prevDetails) => [...prevDetails, ...data]);
             }
 
-            if (data.length < LimitPerPage) {
-              setHasMore(false);
-              console.log("🏁 No more leads to load");
-            } else {
-              setHasMore(true);
-              console.log("➡️ More leads available");
-              // handleFilterLeads(offset + 30, filterText);
-            }
+            setHasMore(responseData.hasMore);
+
+            // if (data.length < LimitPerPage) {
+            //   setHasMore(responseData.hasMore);
+            // } else {
+            //   setHasMore(true);
+            //   // handleFilterLeads(offset + 30, filterText);
+            // }
           } else {
             console.log("❌ API returned status false:", response.data);
           }
@@ -1200,142 +1243,7 @@ const Userleads = ({
     }
   };
 
-  //function for getting the leads
-  // const getLeads = async (item, offset = 0, oldSheet) => {
-  //   try {
-  //     setSheetsLoader(true);
-  //     const id = item.id;
-  //     //Set leads in cache
-  //     let leadsData = LeadsInSheet[id] || null;
-  //     if (!leadsData) {
-  //       //////console.log;
-  //       let d = localStorage.getItem(`Leads${id}`);
-  //       if (d) {
-  //         //////console.log;
-  //         leadsData = JSON.parse(d);
-  //       }
-  //     }
-  //     let leads = leadsData?.data;
-  //     let leadColumns = leadsData?.columns;
-  //     setSelectedSheetId(item.id);
-  //     setLeadsList([]);
-  //     setFilterLeads([]);
-  //     if (leads && leadColumns) {
-  //       // //////console.log
-  //       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-  //       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-  //       let dynamicColumns = [];
-  //       if (leads.length > 0) {
-  //         dynamicColumns = [
-  //           ...leadColumns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       // return
-  //     } else {
-  //       //////console.log;
-  //     }
 
-  //     // setSheetsLoader(true);
-
-  //     const localData = localStorage.getItem("User");
-  //     let AuthToken = null;
-  //     if (localData) {
-  //       const UserDetails = JSON.parse(localData);
-  //       AuthToken = UserDetails.token;
-  //     }
-
-  //     //////console.log;
-
-  //     //////console.log;
-
-  //     // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
-
-  //     const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
-  //     const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
-
-  //     let ApiPath = null;
-  //     const stages = selectedStage.join(",");
-  //     if (selectedFromDate && selectedToDate) {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-  //     } else {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
-  //     }
-
-  //     //////console.log;
-
-  //     // return
-  //     const response = await axios.get(ApiPath, {
-  //       headers: {
-  //         Authorization: "Bearer " + AuthToken,
-  //         // "Content-Type": "application/json"
-  //       },
-  //     });
-
-  //     if (response) {
-  //       //////console.log;
-  //       let leadData = [];
-  //       let leadColumns = [];
-  //       // setLeadsList(response.data.data);
-  //       // setFilterLeads(response.data.data);
-
-  //       const data = response.data.data;
-  //       //////console.log;
-  //       let firstLead = null;
-  //       if (data.length > 0) {
-  //         //////console.log;
-  //         let l = data[0];
-  //         let sheetOfLead = l.sheetId;
-  //         //////console.log;
-  //         if (item.id == sheetOfLead) {
-  //           //////console.log;
-  //           setLeadsList([...data]);
-  //           setFilterLeads([...data]);
-  //         }
-  //       }
-  //       // if (SelectedSheetId == item.id || SelectedSheetId == null) {
-  //       //   setLeadsList([...data]);
-  //       //   setFilterLeads([...data]);
-  //       // }
-
-  //       leadData = data;
-
-  //       if (leads) {
-  //         // leads = {...leads, ...data}
-  //       } else {
-  //         LeadsInSheet[id] = response.data;
-  //         localStorage.setItem(`Leads${id}`, JSON.stringify(response.data));
-  //       }
-  //       let dynamicColumns = [];
-  //       if (response.data.data.length > 0) {
-  //         dynamicColumns = [
-  //           ...response.data.columns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       leadColumns = response.data.columns;
-  //       //////console.log;
-  //       //////console.log;
-  //     }
-  //   } catch (error) {
-  //     // console.error("Error occured in api is :", error);
-  //   } finally {
-  //     setSheetsLoader(false);
-  //     //////console.log;
-  //   }
-  // };
 
   //function to add lead notes
   const handleAddLeadNotes = async () => {
@@ -2040,6 +1948,41 @@ const Userleads = ({
     }
   }
 
+  async function handleExportLeads() {
+    if (!SelectedSheetId) {
+      setSnackMessage("Select a sheet to export");
+      setShowSnackMessage(true);
+      setMessageType(SnackbarTypes.Error);
+      return;
+    }
+    try {
+      setExportLoading(true);
+      let path = Apis.exportLeads + "?sheetId=" + SelectedSheetId;
+
+      const response = await axios.get(path, {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+
+        },
+      });
+      if (response.data) {
+        console.log("response.data", response.data);
+        if (response.data.status === true) {
+          window.open(response.data.downloadUrl, "_blank");
+        } else {
+          setSnackMessage(response.data.message);
+          setShowSnackMessage(true);
+          setMessageType(SnackbarTypes.Error);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error exporting leads:", error);
+    } finally {
+      setExportLoading(false);
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
@@ -2058,7 +2001,14 @@ const Userleads = ({
             className="flex flex-row items-center justify-between w-full px-10 py-4 "
             style={{ borderBottom: "1px solid #15151510" }}
           >
-            <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+            <div className="flex fex-row items-center gap-2">
+              <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+              {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
+                <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                </div>
+              )}
+            </div>
             <div className="flex fex-row items-center gap-6">
               <button
                 style={{
@@ -2098,7 +2048,7 @@ const Userleads = ({
                     alt="*"
                   />
                 )}
-                <span style={styles.heading}>Start Calling</span>
+                <span style={styles.heading}>Start Campaign</span>
               </button>
               <div className="flex flex-col">
                 <NotficationsDrawer />
@@ -2128,6 +2078,7 @@ const Userleads = ({
                     filters={getFiltersObject()}
                     totalLeads={totalLeads}
                     userProfile={userLocalDetails} // this is the .user object doesn't include token
+                    sheetId={SelectedSheetId}
                   />
 
                   {/* <Modal
@@ -2192,14 +2143,15 @@ const Userleads = ({
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[80%]">
-                  <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
+                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[70%]">
+                  <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
                     <input
                       style={styles.paragraph}
-                      className="outline-none border-none w-full rounded-full bg-transparent focus:outline-none focus:ring-0"
+                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
                       placeholder="Search by name, email or phone"
                       value={searchLead}
                       onChange={(e) => {
+                        setNextCursorValue("");
                         const value = e.target.value;
                         setSearchLead(e.target.value);
                         handleSearchChange(value);
@@ -2229,7 +2181,7 @@ const Userleads = ({
                   </button>
                   {/* Show filters here in a row*/}
                   <div
-                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
+                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto border"
                     style={{
                       scrollbarColor: "#00000000",
                       scrollbarWidth: "none",
@@ -2252,6 +2204,7 @@ const Userleads = ({
                                 let pipeline = null;
                                 let fromDate = null;
                                 let toDate = null;
+                                setNextCursorValue("");
                                 filtersSelected.map((f, ind) => {
                                   if (index != ind) {
                                     filters.push(f);
@@ -2304,6 +2257,37 @@ const Userleads = ({
                 </div>
 
                 <div className="flex flex-row items-center gap-2">
+                  {
+                    exportLoading ? (
+                      <CircularProgress size={24} sx={{ color: "#7902DF" }} />
+                    ) : (
+                      <button
+                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
+                        style={{ fontWeight: 400, fontSize: 14 }}
+                        onClick={() => {
+                          handleExportLeads();
+                        }}
+                        disabled={exportLoading}
+                      >
+                        <div className="transition-colors duration-150">
+                          Export
+                        </div>
+                        <Image
+                          src={"/otherAssets/exportIcon.png"}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="group-hover:hidden block transition-opacity duration-150"
+                        />
+                        <Image
+                          src={"/otherAssets/exportIconPurple.png"}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="hidden group-hover:block transition-opacity duration-150"
+                        />
+                      </button>
+                    )}
 
                   {selectedLeadsList.length >= 0 && (
                     <div>
@@ -2324,13 +2308,13 @@ const Userleads = ({
                                 alt="*"
                               />
                             </button>
-                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                            <div style={{ fontSize: "15", fontWeight: "600" ,whiteSpace: "nowrap"}}>
                               Select All
                             </div>
 
                             <div
                               className="text-purple"
-                              style={{ fontSize: "15", fontWeight: "600" }}
+                              style={{ fontSize: "15", fontWeight: "600" ,whiteSpace: "nowrap"}}
                             >
                               {/* {LeadsList.length} */}
                               {getLeadSelectedCount()}
@@ -2417,6 +2401,7 @@ const Userleads = ({
                             setSelectedLeadsList([]);
                             setSelectedAll(false);
                             setSelectedLeadsList([]);
+                            setNextCursorValue("");
                             //   getLeads(item, 0);
                           }}
                         >
@@ -2493,7 +2478,18 @@ const Userleads = ({
                   style={styles.paragraph}
                   // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
-                    handleShowAddLeadModal(true);
+                    if (uploading) {
+                      setSnackMessage("Please wait. Another Lead upload is in progress.");
+                      setShowSnackMessage(true);
+                      setMessageType(SnackbarTypes.Warning);
+                      return;
+                    }
+                    if (user?.planCapabilities.maxLeads > user?.currentUsage.maxLeads) {
+
+                      handleShowAddLeadModal(true);
+                    } else {
+                      setShowUpgradeModal(true)
+                    }
                   }}
                 >
                   <Plus size={15} color="#7902DF" weight="bold" />
@@ -2527,7 +2523,7 @@ const Userleads = ({
                     dataLength={FilterLeads.length}
                     next={() => {
                       let filterText = getFilterText();
-                      handleFilterLeads(FilterLeads.length, filterText);
+                      handleFilterLeads(filterText);
                     }}
                     hasMore={hasMore}
                     loader={
@@ -2607,6 +2603,19 @@ const Userleads = ({
                 </div>
               )}
 
+
+
+              <UpgradeModal
+                open={showUpgradeModal}
+                handleClose={() => {
+                  setShowUpgradeModal(false)
+                }}
+
+                title={"You've Hit Your Leads Limit"}
+                subTitle={"Upgrade to add more Leads"}
+                buttonTitle={"No Thanks"}
+                functionality="webAgent"
+              />
               <Modal
                 open={showFilterModal}
                 closeAfterTransition
@@ -2631,18 +2640,11 @@ const Userleads = ({
                   <div className="w-full flex flex-col items-center justify-start ">
                     <div className="flex flex-row items-center justify-between w-full">
                       <div>Filter</div>
-                      <button
+                      <CloseBtn
                         onClick={() => {
                           setShowFilterModal(false);
                         }}
-                      >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={17}
-                          width={17}
-                          alt="*"
-                        />
-                      </button>
+                      />
                     </div>
                     <div className="mt-2 w-full overflow-auto h-[85%]">
                       <div className="flex flex-row items-start gap-4">
@@ -2901,6 +2903,7 @@ const Userleads = ({
                             // setFilterLeads([]);
                             setShowFilterModal(false);
                             setFiltersFromSelection();
+                            setNextCursorValue("");
                           }}
                         >
                           Apply Filter
@@ -2940,7 +2943,7 @@ const Userleads = ({
                           <div style={{ fontWeight: "500", fontSize: 15 }}>
                             New SmartList
                           </div>
-                          <button
+                          <CloseBtn
                             onClick={() => {
                               setShowAddNewSheetModal(false);
                               setNewSheetName("");
@@ -2953,14 +2956,7 @@ const Userleads = ({
                                 { id: 6, value: "" },
                               ]);
                             }}
-                          >
-                            <Image
-                              src={"/assets/cross.png"}
-                              height={15}
-                              width={15}
-                              alt="*"
-                            />
-                          </button>
+                          />
                         </div>
 
                         <div className="px-4 w-full">

@@ -50,6 +50,7 @@ import AdminGetProfileDetails from "../AdminGetProfileDetails";
 import AdminAssignLead from "./AdminAssignLead";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -84,7 +85,6 @@ const AdminLeads = ({
   const [leadColumns, setLeadColumns] = useState([]);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [toggleClick, setToggleClick] = useState([]);
-  //select all
   const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -586,6 +586,7 @@ const AdminLeads = ({
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
           setToggleClick([]);
+          setSelectedAll(false);
           setFilterLeads([]);
           setLeadsList([]);
           setShowNoLeadsLabel(true);
@@ -743,7 +744,7 @@ const AdminLeads = ({
             const data = response.data.data;
             if (offset == 0) {
               let sheetId = null;
-              if (data.length > 0) {
+              if ( data && data.length > 0) {
                 sheetId = data[0].sheetId;
                 setShowNoLeadsLabel(null);
               } else {
@@ -1324,7 +1325,7 @@ const AdminLeads = ({
 
   //code for toggle click
   const handleToggleClick = (id) => {
-    if(selectedAll){
+    if (selectedAll) {
       setSelectedAll(false);
     }
     setToggleClick((prevSelectedItems) => {
@@ -1684,22 +1685,12 @@ const AdminLeads = ({
                         }}
                       >
                         <div className="flex flex-row justify-end">
-                          <button
-                            onClick={() => {
-                              setAssignLeadModal(false);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/cross.png"}
-                              height={14}
-                              width={14}
-                              alt="*"
-                            />
-                          </button>
+                          <CloseBtn onClick={() => setAssignLeadModal(false)}/>
                         </div>
                         <div className="w-full">
                           <AdminAssignLead
                             selectedLead={toggleClick}
+                            selectedAll={selectedAll}
                             handleCloseAssignLeadModal={
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
@@ -1707,7 +1698,6 @@ const AdminLeads = ({
                             userProfile={userLocalDetails}
                             selectedUser={selectedUser}
                             totalLeads={totalLeads}
-                            selectedAll={selectedAll}
                             sheetId={SelectedSheetId}
                           />
                         </div>
@@ -1722,10 +1712,10 @@ const AdminLeads = ({
             </div>
             <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
               <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
-                <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
+                <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
                   <input
                     style={styles.paragraph}
-                    className="outline-none border-none w-full rounded-full bg-transparent focus:outline-none focus:ring-0"
+                    className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
                     placeholder="Search by name, email or phone"
                     value={searchLead}
                     onChange={(e) => {
@@ -1818,12 +1808,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters);
                             }}
                           >
-                            <Image
-                              src={"/otherAssets/crossIcon.png"}
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
+                            <CloseBtn onClick={() => {}} />
                           </button>
                         </div>
                       </div>
@@ -1870,6 +1855,7 @@ const AdminLeads = ({
                           onClick={() => {
                             setSelectedAll(true);
                             setToggleClick(FilterLeads.map((item) => item.id));
+                            setSelectedAll(true);
                           }}
                         ></button>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>
@@ -2185,18 +2171,7 @@ const AdminLeads = ({
                 <div className="w-full flex flex-col items-center justify-start ">
                   <div className="flex flex-row items-center justify-between w-full">
                     <div>Filter</div>
-                    <button
-                      onClick={() => {
-                        setShowFilterModal(false);
-                      }}
-                    >
-                      <Image
-                        src={"/assets/cross.png"}
-                        height={17}
-                        width={17}
-                        alt="*"
-                      />
-                    </button>
+                    <CloseBtn onClick={() => setShowFilterModal(false)}/>
                   </div>
                   <div className="mt-2 w-full overflow-auto h-[85%]">
                     <div className="flex flex-row items-start gap-4">
@@ -2528,27 +2503,18 @@ const AdminLeads = ({
                         <div style={{ fontWeight: "500", fontSize: 15 }}>
                           New SmartList
                         </div>
-                        <button
-                          onClick={() => {
-                            setShowAddNewSheetModal(false);
-                            setNewSheetName("");
-                            setInputs([
-                              { id: 1, value: "First Name" },
-                              { id: 2, value: "Last Name" },
-                              { id: 3, value: "Phone Number" },
-                              { id: 4, value: "" },
-                              { id: 5, value: "" },
-                              { id: 6, value: "" },
-                            ]);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/cross.png"}
-                            height={15}
-                            width={15}
-                            alt="*"
-                          />
-                        </button>
+                        <CloseBtn onClick={() => {
+                          setShowAddNewSheetModal(false);
+                          setNewSheetName("");
+                          setInputs([
+                            { id: 1, value: "First Name" },
+                            { id: 2, value: "Last Name" },
+                            { id: 3, value: "Phone Number" },
+                            { id: 4, value: "" },
+                            { id: 5, value: "" },
+                            { id: 6, value: "" },
+                          ]);
+                        }}/>
                       </div>
 
                       <div className="px-4 w-full">
@@ -2620,17 +2586,12 @@ const AdminLeads = ({
                               />
                               <div style={{ width: "5%" }}>
                                 {index > 2 && (
-                                  <button
-                                    className="outline-none border-none"
-                                    onClick={() => handleDelete(input.id)}
-                                  >
-                                    <Image
-                                      src={"/assets/blackBgCross.png"}
-                                      height={20}
-                                      width={20}
-                                      alt="*"
-                                    />
-                                  </button>
+                                    <button
+                                      className="outline-none border-none"
+                                      onClick={() => handleDelete(input.id)}
+                                    >
+                                      <CloseBtn onClick={() => handleDelete(input.id)} />
+                                    </button>
                                 )}
                               </div>
                             </div>

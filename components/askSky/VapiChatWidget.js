@@ -8,6 +8,7 @@ import axios from "axios";
 import Apis from "../apis/Apis";
 import { m } from "framer-motion";
 import Image from "next/image";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 export default function VapiChatWidget({
     assistantId = DEFAULT_ASSISTANT_ID,
@@ -285,18 +286,9 @@ export default function VapiChatWidget({
                     </>
                 )}
             </div>
-            <button
-                onClick={handleClose}
-
-                className="w-12 self-end h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
-            >
-                <Image
-                    src="/otherAssets/crossBlue.jpg"
-                    height={2}
-                    width={20}
-                    alt="cross"
-                />
-            </button>
+            <div className="self-end">
+                <CloseBtn onClick={handleClose} />
+            </div>
         </div>
     );
 }

@@ -81,6 +81,45 @@ function BarServices() {
 
   //array of plans
   const plans = XBarPlans
+  // [
+  //   {
+  //     id: 1,
+  //     PlanTitle: "Starter | 250 mins",
+  //     details: [
+  //       `1 AgentX AI | 1hrs of Support`,
+  //       `1 External Integration | 1 Calendar Integration`,
+  //     ],
+  //     originalPrice: "2,450",
+  //     discountPrice: "997",
+  //     planStatus: "40%",
+  //     status: "",
+  //   },
+  //   {
+  //     id: 2,
+  //     PlanTitle: "Professional | 750 mins",
+  //     details: [
+  //       `4 AgentX AI | 4hrs of Support`,
+  //       `2 External Integration | 2 Calendar Integration`,
+  //     ],
+  //     originalPrice: "5,900",
+  //     discountPrice: "2,997",
+  //     planStatus: "50%",
+  //     status: "Popular",
+  //   },
+  //   {
+  //     id: 3,
+  //     PlanTitle: "Scale | 1500 mins",
+  //     details: [
+  //       "Dedicated Success Manager",
+  //       `6 AgentX AI | 6hrs of Support`,
+  //       `Unlimited External Integration | Calendar Integration`,
+  //     ],
+  //     originalPrice: "8,742",
+  //     discountPrice: "3,497",
+  //     planStatus: "60%",
+  //     status: "Best Value",
+  //   },
+  // ];
 
   useEffect(() => {
     getProfile();
@@ -89,28 +128,34 @@ function BarServices() {
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
 
-      setRole(response?.data?.data?.userRole)
-      //console.log;
-      if (response) {
-        let togglePlan = response?.data?.data?.supportPlan;
-        // let togglePlan = plan?.type;
-        let planType = null;
-        // if (plan.status == "active") {
-        if (togglePlan === "Starter") {
-          planType = 1;
-        } else if (togglePlan === "Professional") {
-          planType = 2;
-        } else if (togglePlan === "Enterprise") {
-          planType = 3;
+      let data = localStorage.getItem("User")
+      if (data) {
+        let user = JSON.parse(data)
+        console.log('user', user)
+        let response = await getProfileDetails();
+
+        setRole(response?.data?.data?.userRole)
+        if (response) {
+          let togglePlan = response?.data?.data?.supportPlan;
+        console.log("response of get ",togglePlan)
+
+          // let togglePlan = plan?.type;
+          let planType = null;
+          // if (plan.status == "active") {
+          if (togglePlan === "Starter") {
+            planType = 1;
+          } else if (togglePlan === "Professional") {
+            planType = 2;
+          } else if (togglePlan === "Enterprise") {
+            planType = 3;
+          }
+          // }
+          setUserLocalData(response?.data?.data);
+          //console.log;
+          setTogglePlan(planType);
+          setCurrentPlan(planType);
         }
-        // }
-        setUserLocalData(response?.data?.data);
-        //console.log;
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
@@ -188,7 +233,7 @@ function BarServices() {
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of subscribe support plan is", response.data)
         if (response.data.status === true) {
           localDetails.user = response.data.data;
           window.dispatchEvent(
@@ -210,13 +255,13 @@ function BarServices() {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
+
           let msg = togglePlan;
-          if (togglePlan == "Enterprise") {
+          if(togglePlan == "Enterprise"){
             msg = "Scale"
           }
           setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
-        }
-        else if (response.data.status === false) {
+        } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
       }
@@ -397,7 +442,7 @@ function BarServices() {
           </div>
         </div>
 
-        <div className="w-9/12 max-h-[20%] overflow-y-auto scrollbar-hide md:max-h-[33%] lg:max-h-[45%]"
+        <div className="w-9/12 max-h-[25%] overflow-y-auto scrollbar-hide md:max-h-[38%] lg:max-h-[50%]"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -407,6 +452,7 @@ function BarServices() {
               key={item.id}
               className="w-full mt-4 outline-none"
               onClick={(e) => handleTogglePlanClick(item)}
+              disabled={item.id === togglePlan}
             >
               <div
                 className="px-4 py-1 pb-4"

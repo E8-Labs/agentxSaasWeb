@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { secondsToMinsConverter } from "@/utilities/utility";
 
 const AdminDashboard = ({ selectedUser }) => {
   const router = useRouter();
@@ -203,15 +204,16 @@ const AdminDashboard = ({ selectedUser }) => {
   // utils/convertTime.js
   function convertTime(seconds) {
     const minutes = Math.floor(seconds / 60);
+    return minutes
     const remainingSeconds = seconds % 60;
 
     // If remaining seconds are zero, return only minutes
     if (remainingSeconds === 0) {
-      return `${minutes} Min`;
+      return `${minutes}`;
     }
 
     // Otherwise, return minutes and seconds
-    return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
+    return `${minutes} ${remainingSeconds.toString().padStart(2, "0")} Sec`;
   }
 
   const backgroundImage = {
@@ -326,11 +328,13 @@ const AdminDashboard = ({ selectedUser }) => {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col mt-12 items-center w-full h-[100%]">
+        <div className="flex flex-col items-center w-full h-[100%]">
           <div className="w-full flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
+
+
 
             <div className="h-[95%] w-full flex flex-row justify-center bg-white rounded-xl">
               <div className="w-full h-[100%]">
@@ -344,7 +348,7 @@ const AdminDashboard = ({ selectedUser }) => {
                     <div
                       style={{ fontSize: 15, fontWeight: "400", color: "#000" }}
                     >
-                      Total calls made
+                      Total Activity
                     </div>
                     <div
                       style={{
@@ -488,7 +492,7 @@ const AdminDashboard = ({ selectedUser }) => {
                               color: "#fff",
                             }}
                           >
-                            Mins Balance
+                            Balance
                           </div>
 
                           <div
@@ -499,9 +503,9 @@ const AdminDashboard = ({ selectedUser }) => {
                               color: "#fff",
                             }}
                           >
-                            {convertTime(
+                            {secondsToMinsConverter(
                               selectedUser?.totalSecondsAvailable || 0
-                            )}
+                            )} AI Credits
                           </div>
                         </div>
                       </div>
@@ -623,10 +627,38 @@ const AdminDashboard = ({ selectedUser }) => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={statsDetails?.formattedAvDuration || "-"}
+                      value={statsDetails?.formattedAvDuration && statsDetails?.formattedAvDuration != "N/A" ? statsDetails?.formattedAvDuration : "-"}
+
                       borderSide="border-l-2"
                     />
+
+                    {/* Card: credits used */}
+                    <Card
+                      icon="/otherAssets/creditsUsedIcons.png"
+                      title="Credits Used"
+                      value={statsDetails?.creditsUsed || "-"}
+                      borderSide="border-t-2"
+                    />
+
+                    {/* Card: Email Sent */}
+                    <Card
+                      icon="/otherAssets/emailSentIcon.png"
+                      title="Emails Sent"
+                      value={statsDetails?.emailsSent || "-"}
+                      borderSide="border-l-2 border-t-2"
+                    />
+
+                    {/* Card: Text send */}
+                    <Card
+                      icon="/otherAssets/smsSentIcon.png"
+                      title="Texts Sent"
+
+                      value={statsDetails?.smsSents || "-"}
+                      borderSide="border-l-2 border-t-2"
+                    />
                   </div>
+
+
 
 
                 </div>

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '../apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from '../createagent/addpayment/AddCardDetails';
@@ -13,6 +13,10 @@ import { AuthToken } from '../agency/plan/AuthDetails';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 import { useRouter } from 'next/navigation';
 import SelectYearlypopup from './SelectYearlypopup';
+import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
+import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
+import CloseBtn from '../globalExtras/CloseBtn';
 
 //code for add card
 let stripePublickKey =
@@ -21,7 +25,7 @@ let stripePublickKey =
         : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyPlans() {
+function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
     const router = useRouter();
     const duration = [
@@ -37,17 +41,27 @@ function AgencyPlans() {
         },
     ]
 
+    const durationSaving = [
+        {
+            id: 2,
+            title: "save 20%",
+        }, {
+            id: 3,
+            title: "save 30%",
+        },
+    ]
+
     //hover plans state
     const [hoverPlan, setHoverPlan] = useState(null);
 
-    const [togglePlan, setTogglePlan] = useState(false);
+    const [togglePlan, setTogglePlan] = useState(null);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(null);
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
     const [yearlyPlans, setYearlyPlans] = useState([]);
     const [loading, setLoading] = useState(false)
-    const [selectedDuration, setSelectedDuration] = useState(duration[0]);
+    const [selectedDuration, setSelectedDuration] = useState(duration[2]);
     //code for add card
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
     const [subPlanLoader, setSubPlanLoader] = useState(null);
@@ -58,245 +72,31 @@ function AgencyPlans() {
     const [showYearlyPlan, setShowYearlyPlan] = useState(false);
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
-    //plan features available
-    // const planFeaturesAvailable = [
-    //     [ // Index 0
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" }
-    //     ],
-    //     [ // Index 1
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" },
-    //         { main: "Slack Support", sub: "" }
-    //     ],
-    //     [ // Index 2
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "7000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" },
-    //         { main: "Slack Support", sub: "" },
-    //         { main: "Tech Support", sub: "" }
-    //     ]
-    // ];
-
-    const planFeaturesAvailable = {
-        1: [ // Monthly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" }
-            ],
-            [ // Column 2
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" }
-            ],
-            [ // Column 3
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "7000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" },
-                { main: "Tech Support", sub: "" }
-            ]
-        ],
-        2: [ // Quarterly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" },
-                { main: "Custom Monthly Plans", sub: "" },
-                { main: "16 + Custom Engineered Voices", sub: "" }
-            ],
-            [ // Column 2
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
-            ],
-            [ // Column 3
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
-            ]
-        ],
-        3: [ // Yearly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" },
-                { main: "Custom Monthly Plans", sub: "" }
-            ],
-            [ // Column 2
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
-            ],
-            [ // Column 3
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
-            ]
-        ]
-    };
-
-
-
-    const planFeaturesUnavailable = {
-        1: [ // Monthly
-            [
-                { main: "Slack Support", sub: "" },
-                { main: "Tech Support", sub: "" }
-            ],
-            [
-                { main: "Tech Support", sub: "" }
-            ],
-            [
-                // No unavailable features
-            ]
-        ],
-        2: [ // Quarterly
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ]
-        ],
-        3: [ // Yearly
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ]
-        ]
-    };
 
 
 
     useEffect(() => {
         getPlans();
     }, []);
+
+    //if Noah said to resume this then apply this for yearly plan
+    const selectDefaultPlan = (monthly) => {
+        // if (monthlyPlans.length > 0) {
+        // setSelectedPlanIndex(1);
+        // setTogglePlan(monthly[1]?.id);
+        // setSelectedPlan(monthly[1]);
+        // console.log('monthlyPlans', monthlyPlans)
+        // }else{
+        //     console.log('no plan')
+        // }
+    }
+
+
+    useEffect(() => {
+
+        console.log('selectedPlanIndex', selectedPlanIndex)
+        console.log('togglePlan', togglePlan)
+    }, [selectedPlan, togglePlan])
 
     //continue monthly plan
     const continueMonthly = () => {
@@ -334,7 +134,7 @@ function AgencyPlans() {
 
     //handle select plan
     const handleTogglePlanClick = (item, index) => {
-        // console.log("Selected plan index is", index);
+        console.log("Selected plan index is", index, item);
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -343,6 +143,13 @@ function AgencyPlans() {
 
     //claim early access
     const handleClaimEarlyAccess = (item, index) => {
+        console.log("handleClaimEarlyAccess called with:", { item, index });
+
+        if (!item) {
+            console.error("Item is undefined in handleClaimEarlyAccess");
+            return;
+        }
+
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -395,7 +202,29 @@ function AgencyPlans() {
                     setLoading(false)
                     if (response.data.status === true) {
                         console.log('plans list is: ', response.data.data);
-                        let plansList = response.data.data;
+                        let plansList = response.data.data?.map((plan) => {
+                            const normalizedTitle = plan?.title?.toLowerCase?.() || "";
+                            const features = Array.isArray(plan?.features) ? [...plan.features] : [];
+
+                            const ensureFeature = (label) => {
+                                if (!features.some((feature) => feature?.text?.toLowerCase?.() === label.toLowerCase())) {
+                                    features.push({ text: label });
+                                }
+                            };
+                            // TODO: Replace this when the language features are added to the API response
+                            if (normalizedTitle === "growth") {
+                                ensureFeature("Multilingual Compatible");
+                            }
+
+                            if (normalizedTitle === "starter") {
+                                ensureFeature("English or Spanish Compatible");
+                            }
+
+                            return {
+                                ...plan,
+                                features,
+                            };
+                        }) || [];
                         const monthly = [];
                         const quarterly = [];
                         const yearly = [];
@@ -420,6 +249,9 @@ function AgencyPlans() {
                         setMonthlyPlans(monthly);
                         setQuaterlyPlans(quarterly);
                         setYearlyPlans(yearly);
+
+                        selectDefaultPlan(monthly)
+
                     } else {
                         console.log('Error in getting plans: ', response.data.message);
                     }
@@ -438,56 +270,64 @@ function AgencyPlans() {
         console.log('trying to subscribe')
         // code for show plan add card popup
         const D = localStorage.getItem("User");
+        let isPaymentMethodAdded = false
         if (D) {
             const userData = JSON.parse(D);
             if (userData.user.cards.length > 0) {
                 console.log("Cards are available");
+                isPaymentMethodAdded = true
             } else {
                 setAddPaymentPopUp(true);
-                return
+                // return
             }
         }
 
 
 
-        try {
-            setSubPlanLoader(planId ? planId.id : togglePlan);
-            const Token = AuthToken();
-            const ApiPath = Apis.subAgencyAndSubAccountPlans;
-            const formData = new FormData();
-            formData.append("planId", planId ? planId.id : togglePlan);
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key} = ${value}`);
-            }
-
-            const response = await axios.post(ApiPath, formData, {
-                headers: {
-                    "Authorization": "Bearer " + Token
+        if (isPaymentMethodAdded) {
+            try {
+                setSubPlanLoader(planId ? planId.id : togglePlan);
+                const Token = AuthToken();
+                const ApiPath = Apis.subAgencyAndSubAccountPlans;
+                const formData = new FormData();
+                formData.append("planId", planId ? planId.id : togglePlan);
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key} = ${value}`);
                 }
-            });
 
-            if (response) {
-                console.log("Response of subscribe subaccount plan is", response.data);
-                setSubPlanLoader(null);
-                if (response.data.status === true) {
-                    setErrorMsg(response.data.message);
-                    setSnackMsgType(SnackbarTypes.Success);
-                    localStorage.removeItem("subPlan");
-                    // router.push("/agency/dashboard");
-                    router.push("/agency/verify");
+                const response = await axios.post(ApiPath, formData, {
+                    headers: {
+                        "Authorization": "Bearer " + Token
+                    }
+                });
 
-                } else if (response.data.status === false) {
-                    setErrorMsg(response.data.message);
-                    setSnackMsgType(SnackbarTypes.Error);
-                    if (response.data.message === "No payment method added") {
-                        setAddPaymentPopUp(true);
+                if (response) {
+                    console.log("Response of subscribe subaccount plan is", response.data);
+                    setSubPlanLoader(null);
+                    if (response.data.status === true) {
+                        setErrorMsg(response.data.message);
+                        setSnackMsgType(SnackbarTypes.Success);
+                        localStorage.removeItem("subPlan");
+                        // router.push("/agency/dashboard");
+                        if (isFrom === "addPlan") {
+                            handleCloseModal(response.data.message);
+                        } else {
+                            router.push("/agency/verify");
+                        }
+
+                    } else if (response.data.status === false) {
+                        setErrorMsg(response.data.message);
+                        setSnackMsgType(SnackbarTypes.Error);
+                        if (response.data.message === "No payment method added") {
+                            setAddPaymentPopUp(true);
+                        }
                     }
                 }
-            }
 
-        } catch (error) {
-            console.error("Error occured in sub plan api is", error);
-            setSubPlanLoader(null);
+            } catch (error) {
+                console.error("Error occured in sub plan api is", error);
+                setSubPlanLoader(null);
+            }
         }
     }
 
@@ -523,13 +363,15 @@ function AgencyPlans() {
     return (
         <div
             // style={backgroundImage}
-            className="overflow-hidden flex flex-col items-center w-[90%] max-h-[90vh]"
+            className={`flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-6 max-h-[100%]" : "w-[90%] h-[90%]"}`}
         >
 
             <div
-                className="flex flex-col items-center w-full scrollbar-hide"
+                className="flex flex-col items-center w-full "
                 style={{
-                    overflow: "auto", // Prevent scrolling on the entire modal
+                    // overflow: "hidden", // Prevent scrolling on the entire modal
+                    // scrollbarWidth: "none",
+                    // msOverflowStyle: "none",scrollbar-hide
                 }}
             >
                 <AgentSelectSnackMessage
@@ -539,7 +381,7 @@ function AgencyPlans() {
                     type={snackMsgType}
                 />
 
-                <div className='flex flex-row w-full items-center justify-between'>
+                <div className='flex flex-row w-full items-end justify-between'>
 
                     <div className='flex flex-col items-start'>
                         <div
@@ -549,37 +391,59 @@ function AgencyPlans() {
                                 marginTop: 20,
                             }}
                         >
-                            {`AI Agents from just $1.50/day`}
+                            {/*`AI Agents from just $1.50/day`*/}
+                            Get an AI AaaS Agency
                         </div>
 
-                        <div
-                            style={{
+                        <div className="flex flex-row items-center gap-1">
+                            <span style={{
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}
-                        >
-                            {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
+                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
+                            <span>😉</span>
                         </div>
                     </div>
 
-                    <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] px-2 py-1 rounded-full'>
-                        {
-                            duration.map((item) => (
-                                <button key={item.id}
-                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                    onClick={() => {
-                                        setSelectedDuration(item);
-                                        getCurrentPlans();
-                                    }}
-                                >
-                                    {item.title}
-                                </button>
-                            ))
-                        }
+                    <div>
+                        <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
+                            {
+                                durationSaving.map((item) => {
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            className={`px-2 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none" : "text-[#8A8A8A]"} rounded-tl-lg rounded-tr-lg`}
+                                            style={{ fontWeight: "600", fontSize: "13px" }}
+                                        // onClick={() => {
+                                        //     setSelectedDuration(item);
+                                        //     getCurrentPlans();
+                                        // }}
+                                        >
+                                            {item.title}
+                                        </button>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div className='flex flex-row items-center gap-2 bg-[#F6F6F6] px-2 py-1 rounded-full border border-[#E8E8E8]'>
+                            {
+                                duration?.map((item) => (
+                                    <button key={item.id}
+                                        className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                        onClick={() => {
+                                            setSelectedDuration(item);
+                                            getCurrentPlans();
+                                        }}
+                                    >
+                                        {item.title}
+                                    </button>
+                                ))
+                            }
+                        </div>
                     </div>
                     <SelectYearlypopup
                         showYearlyPlan={showYearlyPlan}
+                        duration={selectedDuration?.title}
                         continueMonthly={continueMonthly}
                         continueYearlyPlan={() => {
                             continueYearlyPlan();
@@ -597,7 +461,17 @@ function AgencyPlans() {
                 // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-9/12  flex flex-row items-start gap-3 mt-10 mb-12 h-[100%] overflow-hidden'
+                        className='w-full flex flex-row items-start justify-center gap-3 mt-10 mb-12 h-[100%]'
+                        style={{
+                            overflowX: "auto",
+                            overflowY: "hidden",
+                            // display: "flex",
+                            scrollbarWidth: "none",
+                            WebkitOverflowScrolling: "touch",
+                            // marginTop: 20,
+                            // flexShrink: 0,
+                            // alignItems: "stretch", // This makes all cards the same height
+                        }}
                     >
                         {
                             loading ? (
@@ -605,13 +479,27 @@ function AgencyPlans() {
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                getCurrentPlans().map((item, index) => (
+                                getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => item ? (
                                     <button
                                         key={item.id}
-                                        onClick={() => handleTogglePlanClick(item, index)}
-                                        onMouseEnter={() => { setHoverPlan(item) }}
+                                        onClick={() => {
+                                            if (disAblePlans) { return };
+                                            handleTogglePlanClick(item, index);
+                                            const currentItem = item;
+                                            const currentIndex = index;
+                                            if (currentItem && currentItem.id) {
+                                                handleClaimEarlyAccess(currentItem, currentIndex);
+                                            } else {
+                                                console.error("Item or item.id is undefined:", currentItem);
+                                            }
+                                        }}
+                                        // disabled={disAblePlans}
+                                        onMouseEnter={() => {
+                                            console.log("Hover entered on plan", item.tag);
+                                            setHoverPlan(item)
+                                        }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
-                                        className={`w-4/12 rounded-2xl hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
                                         style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                                     >
                                         <div className='flex flex-col items-center h-auto w-full'>
@@ -655,59 +543,97 @@ function AgencyPlans() {
 
                                                         {/* Pricing */}
                                                         <div className='text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]' style={{ fontSize: 34, fontWeight: '600' }}>
+                                                            ${formatDecimalValue(item.originalPrice)}
                                                             {/*selectedDuration.title === "Monthly"
-                                                                ? `$${item.originalPrice}`
+                                                                ? formatDecimalValue(item.originalPrice)
                                                                 : selectedDuration.title === "Quarterly"
-                                                                    ? `$${(item.originalPrice / 3).toFixed(2)}`
+                                                                    ? formatDecimalValue(item.originalPrice)
                                                                     : selectedDuration.title === "Yearly"
-                                                                        ? `$${(item.originalPrice / 12).toFixed(2)}`
-                                            : ""*/}
-                                                            ${selectedDuration.title === "Monthly" && item.originalPrice} {selectedDuration.title === "Quarterly" && item.originalPrice / 3} {selectedDuration.title === "Yearly" && item.originalPrice / 12}
-
+                                                                        ? formatDecimalValue(item.originalPrice)
+                                                                        : "-"*/}
                                                         </div>
 
-                                                        <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
-                                                            {item.fee}% Rev Share
+                                                        <div className={`text-center mt-1 ${disAblePlans && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}>
+                                                            {selectedDuration.title === "Monthly"
+                                                                ? "Billed Monthly"
+                                                                : selectedDuration.title === "Quarterly"
+                                                                    ? "Billed Quarterly"
+                                                                    : selectedDuration.title === "Yearly"
+                                                                        ? "Billed Annually"
+                                                                        : "-"}
                                                         </div>
+                                                        {/*
+                                                            <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
+                                                                {item.capabilities?.affiliatePercent}% Rev Share
+                                                            </div>
+    
+                                                            <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
+                                                                ${item?.capabilities?.aiCreditRate?.toFixed(2)} per min
+                                                            </div>
+                                                        */}
 
-                                                        <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item.ratePerMin} per min
-                                                        </div>
+                                                        {
+                                                            !disAblePlans && (
+                                                                <div className="mt-3">
+                                                                    {subPlanLoader === item.id ? (
+                                                                        <div>
+                                                                            <CircularProgress size={30} />
+                                                                        </div>
+                                                                    ) : (
 
-                                                        <div className="mt-3 mb-3">
-                                                            {subPlanLoader === item.id ? (
-                                                                <div>
-                                                                    <CircularProgress size={30} />
+                                                                        <button
+                                                                            // disabled={!togglePlan}
+                                                                            className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
+                                                                            flex items-center"
+                                                                            style={{
+                                                                                fontSize: 16.8,
+                                                                                fontWeight: "600",
+                                                                                // backgroundColor:  "#00000020",
+                                                                                // color:  "#000000",
+                                                                                alignSelf: 'center'
+                                                                            }}
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                const currentItem = item;
+                                                                                const currentIndex = index;
+                                                                                console.log("selected duration is", selectedDuration);
+                                                                                console.log("currentItem:", currentItem, "currentIndex:", currentIndex);
+                                                                                if (currentItem && currentItem.id) {
+                                                                                    handleClaimEarlyAccess(currentItem, currentIndex);
+                                                                                } else {
+                                                                                    console.error("Item or item.id is undefined:", currentItem);
+                                                                                }
+                                                                            }}>
+                                                                            {selectedPlan?.id === item.id ? "Continue" : "Get Started"}
+                                                                        </button>
+                                                                    )}
                                                                 </div>
-                                                            ) : (
+                                                            )
+                                                        }
 
-                                                                <button
-                                                                    // disabled={!togglePlan}
-                                                                    className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
-                                                                    flex items-center"
-                                                                    style={{
-                                                                        fontSize: 16.8,
-                                                                        fontWeight: "600",
-                                                                        // backgroundColor:  "#00000020",
-                                                                        // color:  "#000000",
-                                                                        alignSelf: 'center'
-                                                                    }}
-                                                                    onClick={() => {
-                                                                        console.log("selected duration is", selectedDuration);
-                                                                        handleClaimEarlyAccess(item, index);
-                                                                    }}>
-                                                                    Claim Early Access
-                                                                </button>
-                                                            )}
-                                                        </div>
-
-                                                        <div className='flex flex-col gap-2'>
-
+                                                        <div className='flex flex-col gap-2 mt-3'>
+                                                            {
+                                                                item?.title?.toLowerCase() === "growth" ? (
+                                                                    <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
+                                                                        Everything in Starter, and
+                                                                    </div>
+                                                                ) :
+                                                                    item?.title?.toLowerCase() === "scale" ? (
+                                                                        <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
+                                                                            Everything in Growth, and
+                                                                        </div>
+                                                                    ) : ""
+                                                            }
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
-                                                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                                // planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
+                                                                item?.features?.map((item) => (
+                                                                    <div key={item.text} className="flex flex-row items-center gap-2 mt-1">
+                                                                        <Image
+                                                                            src="/otherAssets/selectedTickBtn.png" //"/svgIcons/greenTick.svg"
+                                                                            height={16} width={16} alt="✓"
+                                                                        />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
                                                                             style={{
@@ -718,31 +644,82 @@ function AgencyPlans() {
                                                                                 textOverflow: 'ellipsis',
                                                                             }}
                                                                         >
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                borderWidth: 0,
-                                                                            }}>
-                                                                                {label.main}
+                                                                            <div
+                                                                                // style={{
+                                                                                //     fontSize: 13,
+                                                                                //     fontWeight: '500',
+                                                                                //     textAlign: 'left',
+                                                                                //     borderWidth: 0,
+                                                                                // }}
+                                                                                style={{
+                                                                                    ...styles.regularFont, textAlign: 'left',
+                                                                                    borderWidth: 0,
+                                                                                }}>
+                                                                                {item.text}
                                                                             </div>
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                color: "#00000050"
-                                                                            }}>
-                                                                                {label.sub}
-                                                                            </div>
+                                                                            {
+                                                                                item?.subtext && (
+                                                                                    <div
+                                                                                        // style={{
+                                                                                        //     fontSize: 13,
+                                                                                        //     fontWeight: '500',
+                                                                                        //     textAlign: 'left',
+                                                                                        //     color: "#00000050"
+                                                                                        // }}
+                                                                                        style={{
+                                                                                            ...styles.regularFont, textAlign: 'left',
+                                                                                            borderWidth: 0, color: "#00000050"
+                                                                                        }}>
+                                                                                        {
+                                                                                            item?.subtext?.toLowerCase() === "upsell" ? (
+                                                                                                "(Upsell)"
+                                                                                            ) : item?.subtext?.toLowerCase() === "coming soon" ? (
+                                                                                                "(coming soon)"
+                                                                                            ) : (
+                                                                                                <Tooltip
+                                                                                                    title={item.subtext}
+                                                                                                    placement="top"
+                                                                                                    arrow
+                                                                                                    componentsProps={{
+                                                                                                        tooltip: {
+                                                                                                            sx: {
+                                                                                                                backgroundColor: "#ffffff", // Ensure white background
+                                                                                                                color: "#333", // Dark text color
+                                                                                                                fontSize: "14px",
+                                                                                                                padding: "10px 15px",
+                                                                                                                borderRadius: "8px",
+                                                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                                            },
+                                                                                                        },
+                                                                                                        arrow: {
+                                                                                                            sx: {
+                                                                                                                color: "#ffffff", // Match tooltip background
+                                                                                                            },
+                                                                                                        },
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <Image
+                                                                                                        src="/otherAssets/infoLightDark.png"
+                                                                                                        alt="info"
+                                                                                                        width={12}
+                                                                                                        height={12}
+                                                                                                        className="cursor-pointer rounded-full"
+                                                                                                    />
+                                                                                                </Tooltip>
+                                                                                            )
+                                                                                        }
+                                                                                    </div>
+                                                                                )
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 ))
                                                             }
 
 
-                                                            {
-                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
+                                                            {/*
+                                                                planFeaturesUnavailable[selectedDuration.id][index]?.map((label, labelIndex) => (
+                                                                    <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
@@ -772,7 +749,7 @@ function AgencyPlans() {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                ))}
+                                                                ))*/}
 
                                                         </div>
                                                     </div>
@@ -785,56 +762,58 @@ function AgencyPlans() {
                                         </div>
                                     </button>
 
-                                ))
+                                ) : null)
                             )
                         }
 
                     </div>
 
 
-                    <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
-
-                        <div style={{ fontSize: 24, fontWeight: '700' }}>
-                            Whitelabel
-                        </div>
-
-                        <div style={{ fontSize: 20, fontWeight: '700' }}>
-                            Contact our team
-                        </div>
-
-                        <div
-                            style={{
-                                height: '358px',
-                                width: '100%',
-                                backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                                borderRadius: 20,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: 30,
-                                marginTop: 40
-                            }}
-                        >
-                            <div style={{ fontSize: 35, fontWeight: '700', color: 'white', marginTop: 40 }}>
-                                Run your agency SaaS
+                    {/*
+                        <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
+    
+                            <div style={{ fontSize: 24, fontWeight: '700' }}>
+                                Whitelabel
                             </div>
-
-                            <button
-                                className='w-full pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple items-center
-
-                                '
+    
+                            <div style={{ fontSize: 20, fontWeight: '700' }}>
+                                Contact our team
+                            </div>
+    
+                            <div
                                 style={{
-                                    alignSelf: 'center'
+                                    height: '358px',
+                                    width: '100%',
+                                    backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                    borderRadius: 20,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: 30,
+                                    marginTop: 40
                                 }}
                             >
-                                Contact Our Team
-                            </button>
-
+                                <div style={{ fontSize: 35, fontWeight: '700', color: 'white', marginTop: 40 }}>
+                                    Run your agency SaaS
+                                </div>
+    
+                                <button
+                                    className='w-full pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple items-center
+    
+                                    '
+                                    style={{
+                                        alignSelf: 'center'
+                                    }}
+                                >
+                                    Contact Our Team
+                                </button>
+    
+                            </div>
+    
+    
                         </div>
-
-
-                    </div>
+                    */}
 
 
                 </div>
@@ -848,47 +827,35 @@ function AgencyPlans() {
                         timeout: 100,
                         sx: {
                             backgroundColor: "#00000020",
-                            // //backdropFilter: "blur(20px)",
+                            backdropFilter: "blur(15px)",
                         },
                     }}
                 >
                     <Box
-                        className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+                        className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                         sx={styles.paymentModal}
                     >
                         <div className="flex flex-row justify-center w-full ">
                             <div
-                                className="sm:w-7/12 w-full"
+                                className="w-full border-white"
                                 style={{
                                     backgroundColor: "#ffffff",
-                                    padding: 20,
+                                    padding: 0,
                                     borderRadius: "13px",
                                 }}
                             >
-                                <div className="flex flex-row justify-between items-center">
-                                    <div
-                                        style={{
-                                            fontSize: 22,
-                                            fontWeight: "600",
+                                <div className="flex flex-row justify-end w-full items-center pe-4 pt-4">
+                                    <CloseBtn
+                                        onClick={() => {
+                                            setAddPaymentPopUp(false);
+                                            setIsContinueMonthly(false);
                                         }}
-                                    >
-                                        Payment Details
-                                    </div>
-                                    <button onClick={() => {
-                                        setAddPaymentPopUp(false);
-                                        setIsContinueMonthly(false);
-                                    }}>
-                                        <Image
-                                            src={"/assets/crossIcon.png"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    />
                                 </div>
                                 <Elements stripe={stripePromise}>
-                                    <AddCardDetails
+                                    <AgencyAddCard
                                         handleClose={handleClose}
+                                        selectedPlan={selectedPlan}
                                     // togglePlan={togglePlan}
                                     />
                                 </Elements>
@@ -928,12 +895,12 @@ const styles = {
         bgcolor: "transparent",
         // p: 2,
         mx: "auto",
-        // my: "50vh",
-        // transform: "translateY(-50%)",
+        my: "50vh",
+        transform: "translateY(-50%)",
         borderRadius: 2,
-        border: "none",
+        // border: "none",
         outline: "none",
-        height: "100svh",
+        height: "60svh",
     },
     cardStyles: {
         fontSize: "14",
@@ -983,4 +950,8 @@ const styles = {
         marginLeft: "10px",
         whiteSpace: "nowrap",
     },
+    regularFont: {
+        fontSize: 16,
+        fontWeight: '400'
+    }
 };

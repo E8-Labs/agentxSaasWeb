@@ -47,7 +47,7 @@ const Page = ({ handleContinue, DefaultData }) => {
             <div className=" w-full h-[10%] px-4 flex flex-row items-center">
               <Image
                 className="ms-6"
-                src="/assets/agentX.png"
+                src="/assets/assignX.png"
                 style={{ height: "29px", width: "122px", resize: "contain" }}
                 height={29}
                 width={122}

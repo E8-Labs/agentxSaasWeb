@@ -41,8 +41,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Phone } from "lucide-react";
 import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
-import DeleteCallLogConfimation from "@/components/dashboard/leads/extras/DeleteCallLogConfimation";
 import { callStatusColors } from "@/constants/Constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -527,7 +527,9 @@ const AdminLeadDetails = ({
     //fucntion to ShowMore ActivityData transcript text
     const handleShowMoreActivityData = (item) => {
         // setIsExpanded(!isExpanded);
-
+        if (item.callOutcome === "No Answer") {
+            return;
+        }
         setIsExpandedActivity((prevIds) => {
             if (prevIds.includes(item.id)) {
                 // Unselect the item if it's already selected
@@ -665,6 +667,16 @@ const AdminLeadDetails = ({
         }
     };
 
+    const handleCopy = async (id) => {
+        try {
+            await navigator.clipboard.writeText(id);
+            setShowSuccessSnack("Call ID copied to the clipboard.");
+            setShowSuccessSnack2(true);
+        } catch (err) {
+            console.error("Failed to copy: ", err);
+        }
+    };
+
     const styles = {
         modalsStyle: {
             // height: "auto",
@@ -722,6 +734,18 @@ const AdminLeadDetails = ({
 
         return count;
     }
+
+    const showColor = (item) => {
+        let color =
+            callStatusColors[
+            Object.keys(callStatusColors).find(
+                (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
+            )
+            ] || "#000";
+
+        return color;
+    };
+
 
     return (
         <div className="h-[100svh]">
@@ -789,13 +813,11 @@ const AdminLeadDetails = ({
                                                 <div style={{ fontSize: 18, fontWeight: "700" }}>
                                                     More Info
                                                 </div>
-                                                <button
+                                                <CloseBtn
                                                     onClick={() => {
                                                         setShowDetailsModal(false);
                                                     }}
-                                                >
-                                                    <CloseIcon />
-                                                </button>
+                                                />
                                             </div>
                                             <div>
                                                 <div className="flex flex-row items-start justify-between mt-4  w-full">
@@ -1213,14 +1235,14 @@ const AdminLeadDetails = ({
                                                                             return (
                                                                                 <div
                                                                                     key={index}
-                                                                                    className="flex flex-row items-start gap-1 w-full flex-wrap"
+                                                                                    className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
                                                                                 >
                                                                                     <div className="flex flex-row items-center gap-4">
                                                                                         <div style={styles.subHeading}>
                                                                                             {capitalize(column?.title || "")}
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end flex-wrap">
+                                                                                    <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
                                                                                         <div className="flex flex-col items-end flex-grow w-full">
                                                                                             {getDetailsColumnData(
                                                                                                 column,
@@ -1260,7 +1282,7 @@ const AdminLeadDetails = ({
                                                                                                             column?.title
                                                                                                         )
                                                                                                             ? "Read Less"
-                                                                                                            : "Read More"}
+                                                                                                            : "Read Transcript"}
                                                                                                     </button>
                                                                                                 </div>
                                                                                             )}
@@ -1426,18 +1448,10 @@ const AdminLeadDetails = ({
                                                                         Other Tags
                                                                     </div>
                                                                     <div>
-                                                                        <button
-                                                                            onClick={() => {
+                                                                       <CloseBtn onClick={() => {
                                                                                 setExtraTagsModal(false);
                                                                             }}
-                                                                        >
-                                                                            <Image
-                                                                                src={"/assets/blackBgCross.png"}
-                                                                                height={20}
-                                                                                width={20}
-                                                                                alt="*"
-                                                                            />
-                                                                        </button>
+                                                                        />
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
@@ -2220,7 +2234,7 @@ const AdminLeadDetails = ({
                                                                                                                             color: "#00000070",
                                                                                                                         }}
                                                                                                                     >
-                                                                                                                        Transcript
+                                                                                                                      Call ID
                                                                                                                     </div>
 
                                                                                                                     <button
@@ -2325,7 +2339,7 @@ const AdminLeadDetails = ({
                                                                                                                         No transcript
                                                                                                                     </div>
                                                                                                                 )}
-                                                                                                                
+
                                                                                                             </div>
                                                                                                         </>
                                                                                                     ))}

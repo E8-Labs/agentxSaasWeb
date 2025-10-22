@@ -30,6 +30,10 @@ import MCPView from "./mcp/MCPView";
 import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
 import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
 import { Scopes } from "./Scopes";
+import { getUserLocalData } from "@/components/constants/constants";
+import UpgradeModal from "@/constants/UpgradeModal";
+import getProfileDetails from "@/components/apis/GetProfile";
+import { useUser } from "@/hooks/redux-hooks";
 
 const UserCalender = ({
   calendarDetails,
@@ -40,12 +44,12 @@ const UserCalender = ({
   selectedUser,
   loadingCalenders = false,
   setSelectedAgent,
-  setShowDrawerSelectedAgent
+  setShowDrawerSelectedAgent,
 }) => {
 
   const justLoggedIn = useRef(false);
 
-  console.log("calender passed is", selectedAgent);
+  // console.log("calender passed is", selectedAgent);
 
 
 
@@ -107,6 +111,19 @@ const UserCalender = ({
   const [mcpName, setMcpName] = useState("");
   const [mcpUrl, setMcpUrl] = useState("");
   const [mcpDescription, setMcpDescription] = useState("");
+
+  const [user, setUser] = useState(null)
+  const {user: reduxUser, setUser: setReduxUser, token: reduxToken} = useUser()
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  },[])
+
 
 
   useEffect(() => {
@@ -286,7 +303,9 @@ const UserCalender = ({
         // formData.append("title", calendar.title);
         formData.append("calendarType", "google");
         // formData.append("mainAgentId", "");
-        // formData.append("agentId", selectedAgent?.id);
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
         formData.append("scope", Scopes.join(" "));//"openid email profile https://www.googleapis.com/auth/calendar"
@@ -297,6 +316,9 @@ const UserCalender = ({
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
         formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
       } else if (calendar?.isFromAddGHLCal) {
         formData.append("calendarType", "ghl");
         // formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);
@@ -314,6 +336,14 @@ const UserCalender = ({
           console.log("Sending calendar id ", selectGHLCalendar?.id);
         }
         // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
+
+
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -326,12 +356,12 @@ const UserCalender = ({
         formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
 
-        // if (selectedUser) {
-        //   formData.append("userId", selectedUser?.id);
-        // }
-        // if (selectedAgent) {
-        //   formData.append("agentId", selectedAgent?.id);
-        // }
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
       }
 
       if (selectedUser) {
@@ -345,6 +375,8 @@ const UserCalender = ({
         console.log(`${key} ===== ${value}`);
       }
       // setGoogleCalenderLoader(false);
+      // return;
+
       // return;
 
       const response = await axios.post(ApiPath, formData, {
@@ -536,7 +568,16 @@ const UserCalender = ({
 
           </div>
           {allCalendars.length > 0 &&
-            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+            <button className="text-[13px] font-[500] text-purple" onClick={() => {
+              console.log("Redux token", reduxToken)
+              console.log(`User Capabilities ${JSON.stringify(reduxUser.planCapabilities)} `)
+              if (!reduxUser.planCapabilities.allowCalendarIntegration) {
+                
+                setShowUpgradeModal(true)
+              } else {
+                setShowCalendarConfirmation(true)
+              }
+            }}>
               + Add Calendar
             </button>
           }
@@ -560,7 +601,7 @@ const UserCalender = ({
                     displayEmpty // Enables placeholder
                     // IconComponent={MUICustomIcon}
                     renderValue={(selected) => {
-                      console.log("Selected Render ", selected);
+                      // console.log("Selected Render ", selected);
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
@@ -723,6 +764,17 @@ const UserCalender = ({
               )}
             </div>
 
+            <UpgradeModal
+              open={showUpgradeModal}
+              handleClose={() => {
+                setShowUpgradeModal(false)
+              }}
+
+              title={"Unlock Calendar Access"}
+              subTitle={"Upgrade to add more Calendars"}
+              buttonTitle={"No Thanks"}
+            />
+
           </div>
         ) : (
           <NoCalendarView
@@ -733,6 +785,8 @@ const UserCalender = ({
             }}
           />
         )}
+
+
 
 
         <MCPView selectedAgent={selectedAgent}

@@ -56,6 +56,7 @@ import AdminLeadDetails from "../AdminLeadDetails";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef();
@@ -1780,7 +1781,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   };
 
   return (
-    <div className="w-full flex flex-col items-start h-[77vh] mt-7">
+    <div className="w-full flex flex-col items-start h-full mt-7">
       {/* Slider code */}
       <div
         style={{
@@ -1966,13 +1967,13 @@ const AdminPipeline1 = ({ selectedUser }) => {
             </div>
             <div className="flex fex-row items-center gap-6">
               <div
-                className="flex flex-row items-center justify-between w-[22vw] border h-[50px] px-4 gap-8 rounded-full"
+                className="flex flex-row items-center justify-between w-[25vw] border h-[50px] px-4 gap-8 rounded-full"
                 // style={{ borderRadius: "50px" }}
               >
                 <input
                   style={{ MozOutline: "none" }}
                   onChange={handldSearch}
-                  className="outline-none bg-transparent w-full rounded-full mx-2 border-none focus:outline-none focus:ring-0"
+                  className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0 rounded-full"
                   placeholder="Search by name, phone email"
                 />
                 <button className="outline-none">
@@ -3606,19 +3607,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                   Add Pipeline
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setCreatePipeline(false);
                     handlePipelineClosePopover();
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
               <div className="w-full">
                 <div style={{ fontWeight: "500", fontSize: 15, marginTop: 10 }}>
@@ -3741,20 +3735,13 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                   Rearrange Stages
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowStagesPopup(false);
                     handleCloseStagePopover();
                     setShowReorderBtn(false);
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div

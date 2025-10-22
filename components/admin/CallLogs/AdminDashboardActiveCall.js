@@ -9,8 +9,10 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
-function AdminDashboardActiveCall({ }) {
+function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
   const Limit = 30;
   const LimitPerPage = 20;
   const [user, setUser] = useState(null);
@@ -74,10 +76,9 @@ function AdminDashboardActiveCall({ }) {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    // //console.log;
-    // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
+
   };
 
   const handleClosePopup = () => {
@@ -99,8 +100,6 @@ function AdminDashboardActiveCall({ }) {
     setShowLeadDetailsModal(true);
     fetchLeadsInBatch(item);
   };
-
-
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
@@ -124,23 +123,45 @@ function AdminDashboardActiveCall({ }) {
     setFilteredSelectedLeadsList(filtered);
   };
 
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    } else {
+      return getReadableStatus(item.status);
+    }
+
+    // Return the regular readable status for past or current calls
+  }
+
   //code to get agents
   const getAgents = async (passedData) => {
     console.log("Data passed is", passedData);
 
-    const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
+    // Check if we should load from cache (initial load with no pagination or sorting)
+    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && !passedData?.isPagination;
 
-    if (cache && !passedData.length && !passedData.sortData) {
-      try {
-        const parsed = JSON.parse(cache);
-        console.log("Loaded agents from cache", parsed);
-        setFilteredAgentsList(parsed);
-        setCallDetails(parsed);
-        setAgentsList(parsed);
-        return; // ✅ Skip network call if cached
-      } catch (err) {
-        console.warn("Error parsing cached agent data", err);
-        localStorage.removeItem(PersistanceKeys.LocalActiveCalls); // Corrupted cache fallback
+    if (shouldLoadFromCache) {
+      const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
+      if (cache) {
+        try {
+          const parsed = JSON.parse(cache);
+          console.log("Loading call activities from cache:", parsed.length, "items");
+          setFilteredAgentsList(parsed);
+          setCallDetails(parsed);
+          setAgentsList(parsed);
+          setInitialLoader(false);
+        } catch (err) {
+          console.warn("Error parsing cached call activities data", err);
+          localStorage.removeItem(PersistanceKeys.LocalActiveCalls);
+        }
+      } else {
+        console.log("No cached data found for call activities");
       }
     }
 
@@ -152,7 +173,7 @@ function AdminDashboardActiveCall({ }) {
 
       const token = AuthToken();
       if (!token) return;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}&scheduled=false`
       if (passedData?.sortData) {
         ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
       }
@@ -167,27 +188,40 @@ function AdminDashboardActiveCall({ }) {
 
       if (response?.data?.data) {
         const agents = response.data.data;
-        console.log("Response of paginated api is", agents);
-        if (passedData?.isPagination === false) {
+        console.log("Fetched call activities from API:", agents.length, "items");
+        console.log("Sample data structure:", agents[0]);
+
+        // Handle pagination vs initial load differently
+        if (passedData?.isPagination) {
+          // For pagination, append to existing data
+          const updatedAgents = [...filteredAgentsList, ...agents];
+          console.log("Appending paginated data. Total items now:", updatedAgents.length);
+          setFilteredAgentsList(updatedAgents);
+          setCallDetails(updatedAgents);
+          setAgentsList(updatedAgents);
+        } else {
+          // For initial load, replace all data
+          console.log("Replacing all data with fresh API data");
           setFilteredAgentsList(agents);
           setCallDetails(agents);
           setAgentsList(agents);
-        } else {
-          setFilteredAgentsList(prev => [...prev, ...agents]); // append
-          setCallDetails(prev => [...prev, ...agents]);
-          setAgentsList(prev => [...prev, ...agents]);
         }
 
-        console.log("Data is set in variables");
+        console.log("Updated call activities data in UI");
         setInitialLoader(false);
         setLoading(false);
-        //stoped temporarily
-        if (!passedData?.length && !passedData?.sortData) {
-          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
+
+        // Save to cache only for initial load (no pagination, sorting, or filters)
+        if (shouldLoadFromCache) {
+          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
+          console.log("Saved call activities to cache:", agents.length, "items");
         }
+
         if (agents.length < LimitPerPage) {
           setHasMore(false);
         }
+      } else {
+        console.log("No data received from API:", response?.data);
       }
     } catch (error) {
       console.error("Failed to fetch agents", error);
@@ -388,34 +422,39 @@ function AdminDashboardActiveCall({ }) {
     }
   };
 
-  const fetchLeadsInBatch = async (batch) => {
+
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstCall = false;
+      let firstApiCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
       if (selectedLeadsList.length == 0) {
-        firstCall = false;
+        firstApiCall = true;
         if (leadsInBatchLocalData) {
           //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
           //console.log;
-          setSelectedLeadsList(leads);
-          setFilteredSelectedLeadsList(leads);
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
           //console.log;
         }
+      } else {
+        //console.log;
       }
 
       const token = user.token; // Extract JWT token
-
-      const response = await fetch(
-        "/api/calls/leadsInABatch" +
-        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
+      console.log(
+        "Api Call Leads : ",
+       path
+      );
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -436,7 +475,8 @@ function AdminDashboardActiveCall({ }) {
         //   JSON.stringify(data.data)
         // );
 
-        if (firstCall) {
+        console.log("Response of leads list detail", data.data)
+        if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
           localStorage.setItem(
@@ -457,13 +497,12 @@ function AdminDashboardActiveCall({ }) {
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error("Failed to fetch leads in batch:", data);
       }
     } catch (error) {
       console.error("Error fetching leads in batch:", error);
     }
   };
-
   const fetchCallsInBatch = async (batch) => {
     //console.log;
     try {
@@ -515,11 +554,9 @@ function AdminDashboardActiveCall({ }) {
             JSON.stringify(data.data.pastCalls)
           );
         } else {
-          setSheduledCalllogs((prev) => [...prev, ...data.data.pastCalls]);
-          setFilteredSheduledCalllogs((prev) => [
-            ...prev,
-            ...data.data.pastCalls,
-          ]);
+          // Show API response data instead of appending to existing array
+          setSheduledCalllogs(data.data.pastCalls);
+          setFilteredSheduledCalllogs(data.data.pastCalls);
         }
 
         // setShowDetailsModal(true);
@@ -552,9 +589,10 @@ function AdminDashboardActiveCall({ }) {
     if (callsLoading) {
       return <div className="text-center mt-6 text-3xl">Loading...</div>;
     } else if (!callsLoading && sheduledCalllogs.length == 0) {
-      return <div className="text-center mt-6 text-3xl">No Call Found</div>;
+      return <div className="text-center mt-6 text-3xl">No Activity Found</div>;
     }
   }
+
 
   return (
     <div className="w-full items-start overflow-hidden">
@@ -584,34 +622,39 @@ function AdminDashboardActiveCall({ }) {
           className="p-2 flex flex-col gap-2"
           style={{ fontWeight: "500", fontSize: 15 }}
         >
-          <div>
-            {PauseLoader ? (
-              <CircularProgress size={18} />
-            ) : (
-              <button
-                className="text-start outline-none"
-                onClick={() => {
-                  if (SelectedItem?.status == "Paused") {
-                    //// //console.log
-                    setColor(true);
-                    setShowConfirmationPopup("resume Calls");
-                  } else {
-                    //// //console.log
-                    setShowConfirmationPopup("pause Calls");
-                    setColor(false);
-                  }
-                  // //console.log
-                }}
-              >
-                {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
-              </button>
-            )}
-          </div>
-
+          {
+            SelectedItem?.status !== "Completed" && (
+              <div>
+                {PauseLoader ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  <button
+                    className="text-start outline-none"
+                    onClick={() => {
+                      if (SelectedItem?.status == "Paused") {
+                        //// //console.log
+                        setColor(true);
+                        setShowConfirmationPopup("resume Calls");
+                      } else {
+                        //// //console.log
+                        setShowConfirmationPopup("pause Calls");
+                        setColor(false);
+                      }
+                      // //console.log
+                    }}
+                  >
+                    {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
+                  </button>
+                )}
+              </div>
+            )
+          }
           <button
             className="text-start outline-none"
             onClick={() => {
-              handleShowLeads(SelectedAgent,SelectedItem)
+                handleShowLeads(SelectedAgent, SelectedItem)
+
+              // handleShowDetails();
             }}
           >
             View Details
@@ -634,14 +677,18 @@ function AdminDashboardActiveCall({ }) {
       <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
       <div className="w-full flex flex-row justify-between mt-2 px-10">
+        {
+          !isFromAgency && (
+            <div className="w-2/12">
+              <div style={styles.text}>Agency Name</div>
+            </div>
+          )
+        }
         <div className="w-2/12">
-          <div style={styles.text}>User</div>
+          <div style={styles.text}>Account Name</div>
         </div>
         <div className="w-2/12">
           <div style={styles.text}>Agent</div>
-        </div>
-        <div className="w-2/12 ">
-          <div style={styles.text}>Objective</div>
         </div>
         <div className="w-1/12">
 
@@ -685,6 +732,10 @@ function AdminDashboardActiveCall({ }) {
 
         </div>
         <div className="w-1/12">
+          <div style={styles.text}>List Name</div>
+        </div>
+
+        <div className="w-1/12 whitespace-nowrap">
           <button className=""
             onClick={() => {
 
@@ -727,7 +778,7 @@ function AdminDashboardActiveCall({ }) {
         <div className="w-2/12">
           <div style={styles.text}>Call Status</div>
         </div>
-        <div className="w-1/12">
+        <div className="w-1/12 sticky right-0 z-10">
           <div style={styles.text}>Action</div>
         </div>
       </div>
@@ -795,6 +846,16 @@ function AdminDashboardActiveCall({ }) {
                                 className="w-full flex flex-row items-center justify-between mt-10 px-10"
                                 key={index}
                               >
+                                {
+                                  !isFromAgency && (
+                                    <div className="w-2/12">
+                                      <div style={styles.text2}>
+                                        {item.agency?.name || "AgentX Main Admin"}
+                                      </div>
+                                    </div>
+                                  )
+                                }
+
                                 <button className="w-2/12 flex flex-row gap-3 items-center"
                                   onClick={() => {
                                     if (item?.user?.id) {
@@ -829,11 +890,6 @@ function AdminDashboardActiveCall({ }) {
 
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
 
-
-                                  <div>
-                                    {getAgentsListImage(agent?.agents[0])}
-                                  </div>
-
                                   <div style={styles.text2}>{
                                     agent?.agents[0].agentType === "outbound" ? (
                                       agent?.agents[0]?.name
@@ -842,26 +898,22 @@ function AdminDashboardActiveCall({ }) {
                                     )
                                   }</div>
                                 </div>
-                                <div className="w-2/12 ">
-                                  {agent?.agents[0]?.agentObjective ? (
-                                    <div style={styles.text2}>
-                                      {agent.agents[0]?.agentObjective}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+
                                 <div className="w-1/12">
                                   <button
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
                                     onClick={() => {
-                                      fetchLeadsInBatch(item);
-                                      handleShowLeads(agent, item);
+                                       handleShowLeads(agent, item);
                                     }}
                                   >
                                     {item?.totalLeads}
                                   </button>
+                                </div>
+                                <div className="w-1/12">
+                                  <div className="truncate" style={styles.text2}>
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
                                 </div>
                                 <div className="w-1/12">
                                   {item?.createdAt ? (
@@ -872,8 +924,8 @@ function AdminDashboardActiveCall({ }) {
                                     "-"
                                   )}
                                 </div>
-                                <div className="w-2/12">{item.status}</div>
-                                <div className="w-1/12">
+                                <div className="w-2/12">{getCallStatusWithSchedule(item)}</div>
+                                <div className="w-1/12 sticky right-0 z-10">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"
@@ -906,7 +958,7 @@ function AdminDashboardActiveCall({ }) {
                     marginTop: 20,
                   }}
                 >
-                  No Call Activity Found
+                  No Activity Found
                 </div>
               )}
             </InfiniteScroll>
@@ -914,10 +966,240 @@ function AdminDashboardActiveCall({ }) {
         )}
       </div>
 
+      {/* Calls List modal goes here */}
+      <Modal
+        open={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100svh",
+          },
+        }}
+      >
+        <Box
+          className="flex flex-col justify-center items-center w-full h-[100svh] "
+          sx={{ scrollbarWidth: "none" }}
+        >
+          <div className="flex flex-row justify-center w-full h-[90svh] ">
+            <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
+              <div className="flex flex-row justify-end">
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    setSheduledCalllogs([]);
+                    setFilteredSheduledCalllogs([]);
+                    setHasMoreCalls(true);
+                  }}
+                >
+                  <Image
+                    src="/assets/crossIcon.png"
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
+                </button>
+              </div>
+              <div className="overflow-hidden">
+                {AgentCallLogLoader ? (
+                  <div className="flex flex-row items-center justify-center h-full">
+                    <CircularProgress size={35} />
+                  </div>
+                ) : (
+                  <div className="flex flex-col h-full overflow-hidden">
+                    <div className="flex flex-col h-[20%] flex-shrink-0">
+                      <div>
+                        {SelectedAgent?.name
+                          ? SelectedAgent.name.charAt(0).toUpperCase() +
+                          SelectedAgent.name.slice(1)
+                          : ""}{" "}
+                        call activity
+                      </div>
+                      <div className="flex w-full items-center border border-gray-300 rounded-full px-4 max-w-md shadow-sm mt-6">
+                        <input
+                          type="text"
+                          placeholder="Search by name or phone"
+                          className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
+                          value={detailsFilterSearchValue}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            handleDetailsSearchChange(value);
+                            setDetailsFilterSearchValue(value);
+                          }}
+                        />
+                        <img
+                          src="/otherAssets/searchIcon.png"
+                          alt="Search"
+                          width={20}
+                          height={20}
+                        />
+                      </div>
+                    </div>
+                    <div>Text Case</div>
+                    <div
+                      className="overflow-auto pb-4 flex-grow max-h-[74vh]"
+                      id="scrollableDiv1"
+                      style={{ scrollbarWidth: "none" }}
+                    >
+                      <InfiniteScroll
+                        className="flex flex-col "
+                        endMessage={
+                          <p
+                            style={{
+                              textAlign: "center",
+                              paddingTop: "10px",
+                              fontWeight: "400",
+                              fontFamily: "inter",
+                              fontSize: 16,
+                              color: "#00000060",
+                            }}
+                          >
+                            {`You're all caught up`}
+                          </p>
+                        }
+                        scrollableTarget="scrollableDiv1"
+                        dataLength={filteredSheduledCalllogs.length}
+                        next={() => {
+                          //console.log;
+                          fetchCallsInBatch(SelectedItem);
+                        }}
+                        hasMore={hasMoreCalls}
+                        loader={
+                          <div className="w-full flex flex-row justify-center mt-8">
+                            {callsLoading && (
+                              <CircularProgress
+                                size={35}
+                                sx={{ color: "#7902DF" }}
+                              />
+                            )}
+                          </div>
+                        }
+                        style={{ overflow: "unset" }}
+                      >
+                        <div
+                          className="flex flex-row items-center mt-6"
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            color: "#00000070",
+                          }}
+                        >
+                          <div className="w-2/12">Name</div>
+                          <div className="w-2/12">Phone Number</div>
+                          <div className="w-2/12">Address</div>
+                          <div className="w-2/12">List Name</div>
+                          <div className="w-2/12">Tag</div>
+                          <div className="w-2/12">Stage</div>
+                        </div>
+                        {filteredSheduledCalllogs.length > 0 ? (
+                          <div
+                            className="w-full "
+                            style={{ scrollbarWidth: "none" }}
+                          >
+                            {filteredSheduledCalllogs.map((item, index) => (
+                              <div
+                                key={index}
+                                className="w-full mt-4"
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                  scrollbarWidth: "none",
+                                }}
+                              >
+                                <div
+                                  className="flex flex-row items-center mt-4"
+                                  style={{ fontSize: 15, fontWeight: "500" }}
+                                >
+                                  <div className="w-2/12 flex flex-row items-center gap-2 truncate">
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                      {item?.LeadModel?.firstName
+                                        ?.charAt(0)
+                                        .toUpperCase()}
+                                    </div>
+                                    <div
+                                      className="truncate"
+                                      style={{
+                                        width: "100px",
+                                        textOverflow: "ellipsis",
+                                      }}
+                                    >
+                                      {item?.LeadModel.firstName}{" "}
+                                      {item?.LeadModel.lastName}
+                                    </div>
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.LeadModel.phone || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.LeadModel.address || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.Sheet?.sheetName || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate flex flex-row items-center gap-2">
+                                    {item?.tags?.length > 0 ? (
+                                      <div className="flex flex-row gap-2">
+                                        {item?.tags
+                                          .slice(0, 2)
+                                          .map((tag, idx) => (
+                                            <div
+                                              key={idx}
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                            >
+                                              {tag}
+                                            </div>
+                                          ))}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                    {item?.tags?.length > 2 && (
+                                      <div
+                                        className="text-purple underline cursor-pointer"
+                                        style={{
+                                          fontWeight: "500",
+                                          fontSize: 13,
+                                        }}
+                                        onClick={() => {
+                                          setExtraTagsModal(true);
+                                          setOtherTags(item?.tags);
+                                        }}
+                                      >
+                                        +{item.tags.length - 2}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.PipelineStages?.stageTitle || "-"}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          GetLoadingOrNoCallsView()
+                        )}
+                      </InfiniteScroll>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
       {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
-        onClose={() => setShowLeadDetailsModal(false)}
+        onClose={() => {
+          setShowLeadDetailsModal(false)
+          setFilteredSelectedLeadsList([])
+        }}
         closeAfterTransition
         BackdropProps={{
           timeout: 100,
@@ -954,6 +1236,8 @@ function AdminDashboardActiveCall({ }) {
                 <button
                   onClick={() => {
                     setShowLeadDetailsModal(false);
+                    setFilteredSelectedLeadsList([])
+
                   }}
                 >
                   <Image
@@ -976,7 +1260,7 @@ function AdminDashboardActiveCall({ }) {
                   </div>
                 ) : (
                   <div>
-                    <div className="flex w-full items-center border border-gray-300 rounded-full px-4 max-w-md shadow-sm mt-6">
+                    <div className="flex w-full items-center border border-gray-300  rounded-full px-4 max-w-md shadow-sm mt-6">
                       <input
                         type="text"
                         placeholder="Search by name or phone"
@@ -1121,7 +1405,7 @@ function AdminDashboardActiveCall({ }) {
                         </div>
                       ) : !leadsLoading ? (
                         <div className="text-center mt-6 text-3xl">
-                          No Call Found
+                          No Activities Found
                         </div>
                       ) : (
                         <div className="text-center mt-6 text-3xl">
@@ -1170,18 +1454,9 @@ function AdminDashboardActiveCall({ }) {
                   Other Tags
                 </div>
                 <div>
-                  <button
-                    onClick={() => {
-                      setExtraTagsModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/blackBgCross.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => {
+                    setExtraTagsModal(false);
+                  }} />
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
@@ -1232,7 +1507,7 @@ export default AdminDashboardActiveCall;
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
+    color: "#000000",
     fontWeight: "500",
   },
   text2: {

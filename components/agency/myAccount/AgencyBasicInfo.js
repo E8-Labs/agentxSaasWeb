@@ -10,7 +10,9 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
 
-function AgencyBasicInfo() {
+function AgencyBasicInfo({
+  selectedAgency
+}) {
   const router = useRouter();
 
   const [serviceLoader, setServiceLoader] = useState(false);
@@ -55,31 +57,38 @@ function AgencyBasicInfo() {
   //fetching the data
   useEffect(() => {
     const LocalData = localStorage.getItem("User");
-    if (LocalData) {
-      const userData = JSON.parse(LocalData);
-      console.log("user data is:", userData)
-
-      // setUserRole(userData?.user?.userRole);
-      // setUserType(UserTypes.SolarRep)
-      // setUserDetails(userData.user);
-      setName(userData?.user?.name);
-      setSelectedImage(userData?.user?.thumb_profile_image);
-      setEmail(userData?.user?.email);
-
-      setPhone(userData?.user?.phone);
-
-      setCompany(userData?.user?.company);
-      // setProjectSize(userData?.user?.projectSizeKw);
-      setWebsiteUrl(userData?.user?.website);
-      setMinSize(userData?.user?.companySizeMin);
-      setMaxSize(userData?.user?.companySizeMax);
-
-
-
+    if (selectedAgency) {
+      const agencyData = localStorage.getItem("AdminProfileData");
+      if (agencyData) {
+        const data = JSON.parse(agencyData)
+        setValues(data)
+      }
+    } else {
+      if (LocalData) {
+        const userData = JSON.parse(LocalData);
+        console.log("user data is:", userData)
+        const data = userData?.user
+        setValues(data);
+      }
     }
 
     getProfile();
   }, []);
+
+  const setValues = (data) => {
+    console.log("Data passed for values are", data);
+    setName(data.name);
+    setSelectedImage(data.thumb_profile_image);
+    setEmail(data.email);
+
+    setPhone(data.phone);
+
+    setCompany(data.company);
+    // setProjectSize(data.projectSizeKw);
+    setWebsiteUrl(data.website);
+    setMinSize(data.companySizeMin);
+    setMaxSize(data.companySizeMax);
+  }
 
   const uploadeImage = async (imageUrl) => {
     try {
@@ -89,6 +98,9 @@ function AgencyBasicInfo() {
         const apidata = new FormData();
 
         apidata.append("media", imageUrl);
+        if (selectedAgency) {
+          apidata.append("userId", selectedAgency.id);
+        }
 
         // //console.log;
         for (let pair of apidata.entries()) {
@@ -128,7 +140,7 @@ function AgencyBasicInfo() {
   //function to fetch the profile data
   const getProfile = async () => {
     try {
-      await getProfileDetails();
+      await getProfileDetails(selectedAgency);
     } catch (error) {
       // console.error("Error occured in api is error", error);
     }
@@ -227,8 +239,11 @@ function AgencyBasicInfo() {
         let AgentTypeTitle = d.user.userType;
         // //console.log;
 
-        const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-        // //console.log;
+        let ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
+        if (selectedAgency) {
+          ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+        }
+        console.log("Get agency default api", ApiPath);
         const response = await axios.get(ApiPath, {
           headers: {
             "Content-Type": "application/json",
@@ -296,7 +311,8 @@ function AgencyBasicInfo() {
                 document.cookie =
                   "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
               }
-              router.push("/");
+              // router.push("/");
+              window.location.href = "/";
             }}
           >
             Log Out
@@ -547,7 +563,7 @@ function AgencyBasicInfo() {
             setWebsiteUrl(event.target.value)
           }}
           type="text"
-          placeholder="Email"
+          placeholder="Website"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>

@@ -37,6 +37,9 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import EditAgencyName from "@/components/agency/agencyExtras.js/EditAgencyName";
 import CheckList from "./CheckList";
 import AgencyChecklist from "./AgencyChecklist";
+import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
+import { checkCurrentUserRole } from "@/components/constants/constants";
+
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -81,8 +84,20 @@ const AgencyNavBar = () => {
   const [canAcceptPaymentsAgencyccount, setCanAcceptPaymentsAgencyccount] = useState(false);
   const [navigatingTo, setNavigatingTo] = useState(null);
 
+  //check the stripe
+  const [checkStripeStatus, setCheckStripeStatus] = useState(false);
+  const [checkStripeStatusLoader, setCheckStripeStatusLoader] = useState(false);
+
+  //check stripe
+  useEffect(() => {
+    // 
+    // setCheckStripeStatus(stripeStatus);
+    checkStripe();
+  }, [])
+
   //reset navigation loader
   useEffect(() => {
+    // checkCurrentUserRole();
     // Fallback reset after 2 seconds
     if (navigatingTo) {
       const timeout = setTimeout(() => {
@@ -105,10 +120,6 @@ const AgencyNavBar = () => {
     getUserProfile(); // sets `userDetails`
   }, []);
 
-
-
-
-
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     getAgencyPlans();
@@ -130,6 +141,20 @@ const AgencyNavBar = () => {
   //     router.prefetch(link.href);
   //   });
   // }, []);
+
+  //check stripe
+  const checkStripe = async () => {
+    try {
+      setCheckStripeStatusLoader(true);
+      const agencyProfile = await getProfileDetails();
+      const stripeStatus = agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount;
+      setCheckStripeStatus(!stripeStatus);
+      setCheckStripeStatusLoader(false);
+    } catch (error) {
+      setCheckStripeStatusLoader(false);
+      console.log("Eror in gettin stripe status", error)
+    }
+  }
 
 
   //get agency plans list
@@ -246,32 +271,40 @@ const AgencyNavBar = () => {
       id: 1,
       name: "Dashboard",
       href: "/agency/dashboard",
-      selected: "/svgIcons/selectdDashboardIcon.svg",
-      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      selected: "/agencyNavbarIcons/selectdDashboardIcon.png",//agencyNavbarIcons
+      uneselected: "/agencyNavbarIcons/unSelectedDashboardIcon.png",
     }, {
       id: 2,
-      name: "Sub Account",
-      href: "/agency/dashboard/subAccounts",
-      selected: "/svgIcons/selectedSubAccountIcon.svg",
-      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
+      name: "Integrations",
+      href: "/agency/dashboard/integration",
+      selected: "/agencyNavbarIcons/integrationFocus.png",
+      uneselected: "/agencyNavbarIcons/integrationsUnFocus.png",
     }, {
       id: 3,
       name: "Plans",
       href: "/agency/dashboard/plans",
-      selected: "/svgIcons/selectedPlansIcon.svg",
-      uneselected: "/svgIcons/unSelectedPlansIcon.svg",
+      selected: "/agencyNavbarIcons/selectedPlansIcon.png",
+      uneselected: "/agencyNavbarIcons/unSelectedPlansIcon.png",
     }, {
       id: 4,
-      name: "Integrations",
-      href: "/agency/dashboard/integration",
-      selected: "/agencyIcons/integrationFocus.jpg",
-      uneselected: "/agencyIcons/integrationsUnFocus.jpg",
+      name: "Sub Account",
+      href: "/agency/dashboard/subAccounts",
+      selected: "/agencyNavbarIcons/selectedSubAccountIcon.png",
+      uneselected: "/agencyNavbarIcons/unSelectedSubAccountIcon.png",
     }, {
       id: 5,
-      name: "Call Logs",
+      name: "Activity",
       href: "/agency/dashboard/callLogs",
-      selected: "/agencyIcons/callLogSel.jpg",
-      uneselected: "/agencyIcons/callLogUnSel.jpg",
+      selected: "/agencyNavbarIcons/callLogSel.png",
+      uneselected: "/agencyNavbarIcons/callLogUnSel.png",
+    },
+    {
+      id: 6,
+      name: "Teams",
+      href: "/agency/dashboard/teams",
+      selected: "/agencyNavbarIcons/selectedTeam.png",
+      uneselected: "/agencyNavbarIcons/unSelectedTeamIcon.png",
+
     },
   ];
 
@@ -355,37 +388,45 @@ const AgencyNavBar = () => {
       />
 
       {/* Sticky Modal */}
-      <Modal
-        open={canAcceptPaymentsAgencyccount} //canAcceptPaymentsAgencyccount
-        className="border-none outline-none"
-        BackdropProps={{
-          style: { backgroundColor: 'transparent' }
-        }}
-      >
-        <Box className="w-full flex flex-row items-center justify-end border-none outline-none" sx={{ backgroundColor: "transparent" }}>
-          <div className="flex flex-row items-center gap-4 bg-white mt-4 mr-4 rounded-md shadow-lg p-2">
-            <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
-            <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
-              {`You're Stripe account has not been connected.`}
-            </div>
-            {
-              loader ? (
-                <CircularProgress size={20} />
-              ) : (
 
-                <button style={{ fontSize: 12, fontWeight: 500 }}
-                  className="bg-purple text-white rounded-md p-2 outline-none border-none"
-                  onClick={() => {
-                    handleVerifyClick()
-                  }}
-                >
-                  Connect Now
-                </button>
-              )
-            }
+      {
+        checkStripeStatusLoader ? (
+          <div style={{ position: "absolute", bottom: 10, right: 10, zIndex: 9999 }}>
+            <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
+              <CircularProgress size={20} />
+              <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
+                {`Checking Stripe status...`}
+              </div>
+            </div>
           </div>
-        </Box>
-      </Modal>
+        ) : (
+          checkStripeStatus && (
+            <div style={{ position: "absolute", bottom: 10, right: 10, zIndex: 9999 }}>
+              <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
+                <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
+                <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
+                  {`You're Stripe account has not been connected.`}
+                </div>
+                {
+                  loader ? (
+                    <CircularProgress size={20} />
+                  ) : (
+
+                    <button style={{ fontSize: 12, fontWeight: 500 }}
+                      className="bg-purple text-white rounded-md p-2 outline-none border-none"
+                      onClick={() => {
+                        handleVerifyClick()
+                      }}
+                    >
+                      Connect Now
+                    </button>
+                  )
+                }
+              </div>
+            </div>
+          )
+        )
+      }
 
       <div className="h-screen w-full flex flex-col items-center justify-between">
         <div
@@ -398,14 +439,14 @@ const AgencyNavBar = () => {
           }}
         >
           <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-9/12 flex flex-col items-end">
+            <div className="w-10/12 flex flex-col items-end">
               <div className="w-full">
                 {/*userDetails?.user?.name || "Agency Name"*/}
                 <EditAgencyName />
               </div>
               <Image
                 src={"/agencyIcons/poweredByIcon.png"}
-                alt="*"
+                alt="powered by logo"
                 height={33}
                 width={140}
                 objectFit="contain"
@@ -421,20 +462,20 @@ const AgencyNavBar = () => {
             }}
           >
             {agencyLinks.map((item) => (
-              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-                <button
+              <div key={item.id} className="w-full flex flex-col pl-3">
+                <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
-                  // href={item.href}
-                  onClick={() => {
-                     router.prefetch(item.href);
-                    if (pathname !== item.href) {
-                      setNavigatingTo(item.href);
-                      router.push(item.href);
-                    }
-                  }}
+                  href={item.href}
+                // onClick={() => {
+                //   router.prefetch(item.href);
+                //   if (pathname !== item.href) {
+                //     setNavigatingTo(item.href);
+                //     router.push(item.href);
+                //   }
+                // }}
                 >
                   <div
-                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    className="w-full flex flex-row gap-2 items-center py-1 rounded-full"
                     style={{}}
                   >
                     <Image
@@ -457,11 +498,11 @@ const AgencyNavBar = () => {
                       {item.name}
                     </div>
 
-                    {navigatingTo === item.href && (
+                    {/*navigatingTo === item.href && (
                       <CircularProgress size={14} />
-                    )}
+                    )*/}
                   </div>
-                </button>
+                </Link>
               </div>
             ))}
           </div>

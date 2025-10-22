@@ -24,6 +24,9 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { RemoveSmartRefillApi, SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
+import TransactionDetailsModal from "@/components/modals/TransactionDetailsModal";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -76,6 +79,12 @@ function SubAccountBilling({
 
   const [plans, setPlans] = useState([])
   const [initialLoader, setInitialLoader] = useState(false)
+
+  //transaction details modal variables
+  const [transactionDetailsModal, setTransactionDetailsModal] = useState(false)
+  const [transactionDetails, setTransactionDetails] = useState(null)
+  const [transactionDetailsLoader, setTransactionDetailsLoader] = useState(false)
+  const [clickedTransactionId, setClickedTransactionId] = useState(null)
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -396,6 +405,7 @@ function SubAccountBilling({
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
+      console.log("Payment history trigered for subaccount")
       setHistoryLoader(true);
 
       let AuthToken = null;
@@ -407,7 +417,8 @@ function SubAccountBilling({
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.getPaymentHistory;
+      const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`;
+      console.log("Api path for payment history of subaccount is", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -442,7 +453,7 @@ function SubAccountBilling({
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.cancelPlan;
+      const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`;
 
       // //console.log;
 
@@ -588,6 +599,50 @@ function SubAccountBilling({
     }
   };
 
+  //function to get transaction details
+  const getTransactionDetails = async (transactionId) => {
+    try {
+      setTransactionDetailsLoader(true);
+      const Token = AuthToken();
+      
+      const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`;
+      console.log("Api path for transaction details is", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + Token,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        console.log("Transaction details response:", response.data);
+        if (response.data.status === true) {
+          setTransactionDetails(response.data.data);
+          setTransactionDetailsModal(true);
+        } else {
+          setErrorSnack(response.data.message || "Failed to fetch transaction details");
+        }
+      }
+    } catch (error) {
+      console.error("Error occurred in get transaction details api:", error);
+      setErrorSnack("Failed to fetch transaction details");
+    } finally {
+      setTransactionDetailsLoader(false);
+      setClickedTransactionId(null);
+    }
+  };
+
+  //function to handle transaction click
+  const handleTransactionClick = (item) => {
+    if (item.transactionId) {
+      setClickedTransactionId(item.transactionId);
+      getTransactionDetails(item.transactionId);
+    } else {
+      setErrorSnack("Transaction ID not available");
+    }
+  };
+
   //del reason api
   const handleDelReason = async () => {
     if (!otherReasonInput || selectReason)
@@ -676,346 +731,8 @@ function SubAccountBilling({
             {"Account > Billing"}
           </div>
         </div>
-
-        {/*hideBtns &&
-          (
-          )*/}
-        <button
-          className=""
-          onClick={() => {
-            setAddPaymentPopup(true);
-          }}
-        >
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: "500",
-              color: "#7902DF",
-              textDecorationLine: "underline",
-            }}
-          >
-            Add New Card
-          </div>
-        </button>
       </div>
 
-      <div className="w-full">
-        {getCardLoader ? (
-          <div
-            className="h-full w-full flex flex-row items-center justify-center"
-            style={{
-              marginTop: 20,
-            }}
-          >
-            <CircularProgress size={35} />
-          </div>
-        ) : (
-          <div className="w-full">
-            {cards.length > 0 ? (
-              <div
-                className="w-full flex flex-row gap-4"
-                style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  display: "flex",
-                  scrollbarWidth: "none",
-                  WebkitOverflowScrolling: "touch",
-                  height: "",
-                  marginTop: 20,
-                  // border:'2px solid red'
-                  scrollbarWidth: "none",
-                  overflowY: "hidden",
-                  height: "", // Ensures the height is always fixed
-                  flexShrink: 0,
-                }}
-              >
-                {cards.map((item) => (
-                  <div className="flex-shrink-0 w-5/12" key={item.id}>
-                    <button
-                      className="w-full outline-none"
-                      onClick={() => makeDefaultCard(item)}
-                    >
-                      <div
-                        className={`flex items-start justify-between w-full p-4 border rounded-lg `}
-                        style={{
-                          backgroundColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#4011FA05"
-                              : "transparent",
-                          borderColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#7902DF"
-                              : "#15151510",
-                        }}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
-                            style={{
-                              borderWidth:
-                                item.isDefault || selectedCard?.id === item.id
-                                  ? 3
-                                  : 1,
-                            }}
-                          ></div>
-                          {/* Card Details */}
-                          <div className="flex flex-col items-start">
-                            <div className="flex flex-row items-center gap-3">
-                              <div
-                                style={{
-                                  fontSize: "16px",
-                                  fontWeight: "700",
-                                  color: "#000",
-                                }}
-                              >
-                                ****{item.last4}
-                              </div>
-                              {
-                                // makeDefaultCardLoader ? (
-                                //   <CircularProgress size={20} />
-                                // ) :
-
-                                item.isDefault && (
-                                  <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                    style={{ fontSize: 11, fontWeight: "500" }}
-                                  >
-                                    Default
-                                  </div>
-                                )
-                              }
-                            </div>
-                            <div
-                              style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "#909090",
-                              }}
-                            >
-                              {item.brand} Card
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card Logo */}
-                        <div>
-                          <Image
-                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                            alt="Card Logo"
-                            width={50}
-                            height={50}
-                          />
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div
-                className="text-start mt-12"
-                style={{ fontSize: 18, fontWeight: "600" }}
-              >
-                No payment method added
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Code for Smart Refill */}
-
-      <SmartRefillCard />
-
-      {/* code for current plans available */}
-
-      {plans.map((item, index) => (
-        <button
-          key={item.id}
-          className="w-9/12 mt-4 outline-none"
-          onClick={(e) => handleTogglePlanClick(item)}
-        >
-          <div
-            className="px-4 py-1 pb-4"
-            style={{
-              ...styles.pricingBox,
-              border:
-                item.id === togglePlan
-                  ? "2px solid #7902DF"
-                  : "1px solid #15151520",
-              backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-            }}
-          >
-            <div
-              style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-            ></div>
-            <span style={styles.labelText}>{item.percentageDiscount}</span>
-            <div
-              className="flex flex-row items-start gap-3"
-              style={styles.content}
-            >
-              <div className="mt-1">
-                <div>
-                  {item.id === togglePlan ? (
-                    <Image
-                      src={"/svgIcons/checkMark.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  ) : (
-                    <Image
-                      src={"/svgIcons/unCheck.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="w-full">
-                {item.id === currentPlan && (
-                  <div
-                    className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                    style={{
-                      fontSize: 11.6,
-                      fontWeight: "500",
-                      width: "fit-content",
-                    }}
-                  >
-                    Current Plan
-                  </div>
-                )}
-
-                <div className="flex flex-row items-center gap-3">
-                  <div
-                    style={{
-                      color: "#151515",
-                      fontSize: 20,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.title}
-                  </div>
-                  {item.status && (
-                    <div
-                      className="flex px-2 py-1 bg-purple rounded-full text-white"
-                      style={{ fontSize: 11.6, fontWeight: "500" }}
-                    >
-                      {item.status}
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-row items-center justify-between">
-                  <div
-                    className="mt-2"
-                    style={{
-                      color: "#15151590",
-                      fontSize: 12,
-                      width: "60%",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.planDescription}
-                  </div>
-                  <div className="flex flex-row items-center">
-
-                    <div className="flex flex-row justify-start items-start ">
-                      <div style={styles.discountedPrice}>
-                        ${item.discountedPrice}
-                      </div>
-                      <p style={{ color: "#15151580" }}>/mo*</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </button>
-      ))}
-
-      {userLocalData?.plan && (
-        <div className="w-full">
-          <div className="w-full">
-            {subscribePlanLoader ? (
-              <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
-                <CircularProgress size={25} />
-              </div>
-            ) : (
-              <button
-                className="rounded-xl w-9/12 mt-8"
-                disabled={togglePlan === currentPlan}
-                style={{
-                  height: "50px",
-                  fontSize: 16,
-                  fontWeight: "700",
-                  flexShrink: 0,
-                  backgroundColor:
-                    togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                  color: togglePlan === currentPlan ? "#000000" : "#ffffff",
-                }}
-                onClick={handleSubscribePlan}
-              >
-                Continue
-              </button>
-            )}
-          </div>
-
-          {/* {togglePlan === currentPlan && (
-            <button
-              className="text-black  outline-none rounded-xl w-9/12 mt-3"
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                height: "50px",
-                textDecorationLine: "underline",
-                flexShrink: 0,
-              }}
-              onClick={() => {
-                if (userLocalData?.cancelPlanRedemptions === 0) {
-                  setGiftPopup(true);
-                } else {
-                  setShowConfirmCancelPlanPopup(true);
-                }
-              }}
-            >
-              Cancel AgentX
-            </button>
-          )} */}
-
-          <div className="w-9/12 flex flex-row items-center justify-center">
-            {userLocalData.plan?.status != "cancelled" && (
-              <button
-                className="text-black  outline-none rounded-xl w-fit-content mt-3"
-                style={{
-                  fontSize: 16,
-                  fontWeight: "700",
-                  height: "50px",
-                  textDecorationLine: "underline",
-                  flexShrink: 0,
-                }}
-                onClick={() => {
-                  if (
-                    userLocalData?.isTrial === false &&
-                    userLocalData?.cancelPlanRedemptions === 0
-                  ) {
-                    // //console.log;
-                    setGiftPopup(true);
-                  } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
-                  else {
-                    // //console.log;
-                    setShowConfirmCancelPlanPopup(true);
-                  }
-                  //// //console.log
-                  //// //console.log
-                }}
-              >
-                Cancel AgentX
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History
@@ -1046,7 +763,10 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${
+                  transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                }`}
+                onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -1054,35 +774,41 @@ function SubAccountBilling({
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
-                  <div
-                    className="p-2 flex flex-row gap-2 items-center"
-                    style={{
-                      backgroundColor: "#01CB7610",
-                      borderRadius: 20,
-                      width: "5vw",
-                    }}
-                  >
+                  {clickedTransactionId === item.transactionId && transactionDetailsLoader ? (
+                    <div className="flex items-center justify-center">
+                      <CircularProgress size={20} thickness={2} />
+                    </div>
+                  ) : (
                     <div
+                      className="p-2 flex flex-row gap-2 items-center"
                       style={{
-                        height: 8,
-                        width: 8,
-                        borderRadius: 5,
-                        background: "#01CB76",
-                      }}
-                    ></div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        color: "#01CB76",
-                        fontWeight: 500,
+                        backgroundColor: "#01CB7610",
+                        borderRadius: 20,
+                        width: "5vw",
                       }}
                     >
-                      Paid
+                      <div
+                        style={{
+                          height: 8,
+                          width: 8,
+                          borderRadius: 5,
+                          background: "#01CB76",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          color: "#01CB76",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Paid
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <div className="w-3/12">
                   <div style={styles.text2}>
@@ -1589,6 +1315,14 @@ function SubAccountBilling({
           </div>
         </Box>
       </Modal>
+
+      {/* Transaction Details Modal */}
+      <TransactionDetailsModal
+        open={transactionDetailsModal}
+        onClose={() => setTransactionDetailsModal(false)}
+        transactionDetails={transactionDetails}
+        isLoading={transactionDetailsLoader}
+      />
     </div>
   );
 }
@@ -1637,7 +1371,7 @@ const styles = {
   pricingBox: {
     position: "relative",
     // padding: '10px',
-    borderRadius: "10px",
+    // borderRadius: "10px",
     // backgroundColor: '#f9f9ff',
     display: "inline-block",
     width: "100%",

@@ -15,6 +15,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getSupportUrlFor } from "@/utilities/UserUtility";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 function NotficationsDrawer({ close }) {
   const router = useRouter();
@@ -136,13 +137,9 @@ function NotficationsDrawer({ close }) {
 
   //function to get support
   const getSupport = () => {
-    let userData = localStorage.getItem("User");
-    if (userData) {
-      const D = JSON.parse(userData);
-      let url = getSupportUrlFor(D.user);
-      if (typeof window !== "undefined") {
-        window.open(url, "_blank");
-      }
+    let url = getSupportUrlFor();
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank");
     }
   };
 
@@ -428,6 +425,7 @@ function NotficationsDrawer({ close }) {
         <button
           onClick={() => {
             handleShowDetails(item);
+            // getSupport()
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -663,7 +661,7 @@ function NotficationsDrawer({ close }) {
           />
           {unread > 0 && (
             <div
-              className="flex bg-red rounded-full w-6 h-6 flex-row items-center justify-center text-red font-md text-white flex-shrink-0"
+              className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-red font-md text-white flex-shrink-0"
               style={{
                 fontSize: 13,
                 marginTop: -13,
@@ -708,7 +706,7 @@ function NotficationsDrawer({ close }) {
                 />
                 {unread > 0 && (
                   <div
-                    className="flex bg-red-500 rounded-full w-6 h-6 items-center justify-center text-white font-medium"
+                    className="flex bg-red-500 rounded-full min-w-[24px] px-[2px] h-8 items-center justify-center text-white font-medium"
                     style={{
                       fontSize: "12px", // Ensure font-size is smaller to fit within the circle
                       marginTop: "-13px", // Adjust position as needed
@@ -725,17 +723,11 @@ function NotficationsDrawer({ close }) {
                 Notifications
               </div>
             </div>
-            <button
+            <CloseBtn
               onClick={() => {
                 setShowNotificationDrawer(false);
               }}
-            >
-              <img
-                src="/svgIcons/cross.svg"
-                style={{ height: 24, width: 24 }}
-                alt="Close"
-              />
-            </button>
+            />
           </div>
 
           <div

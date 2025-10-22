@@ -531,7 +531,7 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
                 setShowErrorSnack(data.message);
               }
             }}
-            kycsData={kycsData}
+            kycsData={kycsData||""}
             uniqueColumns={uniqueColumns}
           />
         )
@@ -619,7 +619,7 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
             <div className="mt-4 w-full">
               <PromptTagInput
                 promptTag={addObjDescription}
-                kycsList={kycsData}
+                kycsList={kycsData||""}
                 uniqueColumns={uniqueColumns}
                 tagValue={setAddObjDescription}
                 // scrollOffset={scrollOffset}

@@ -1,3 +1,4 @@
+import { BatchStatus } from "@/components/constants/constants";
 import { PersistanceKeys } from "@/constants/Constants";
 
 export function GetCampaigneeNameIfAvailable(window) {
@@ -9,20 +10,14 @@ export function GetCampaigneeNameIfAvailable(window) {
 }
 
 export const getSupportUrlFor = (user) => {
-  if (user?.campaignee && user?.campaignee?.officeHoursUrl) {
-    // //console.log;
-    let campaigneeLink = user.campaignee.officeHoursUrl;
-    return campaigneeLink;
-  } else {
-    return PersistanceKeys.GlobalSupportUrl;
-    window.open(
-      "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
-      "_blank"
-    );
-  }
+  return PersistanceKeys.SupportWebinarUrl;
 };
 
-export function logout() {
+export function logout(reason = "Unknown reason") {
+  // Log the logout event with timestamp and reason
+  const timestamp = new Date().toISOString();
+  console.log(`🚪 USER LOGOUT TRIGGERED - Time: ${timestamp}, Reason: ${reason}`);
+
   // localStorage.removeItem("User");
   // localStorage.removeItem("localAgentDetails");
   if (typeof document !== "undefined") {
@@ -38,5 +33,26 @@ export function logout() {
       userLocation
     );
     document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    window.location.href = "/";
+  }
+}
+
+// Convert batch status to readable format
+export function getReadableStatus(status) {
+  switch (status) {
+    case BatchStatus.Active:
+      return "Active";
+    case BatchStatus.Paused:
+      return "Paused";
+    case BatchStatus.PausedForNonPayment:
+      return "Paused (Non Payment)";
+    case BatchStatus.PausedForUpdateCadence:
+      return "Paused (Cadence Updated)";
+    case BatchStatus.PausedForNoPhoneNumber:
+      return "Paused (No Phone)";
+    case BatchStatus.Completed:
+      return "Completed";
+    default:
+      return status || "Unknown";
   }
 }

@@ -8,6 +8,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnac
 import axios from "axios";
 import { Scopes } from "./Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 function CalendarModal(props) {
   const {
@@ -38,14 +39,13 @@ function CalendarModal(props) {
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
   const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
-  const [gHLConnectLoader, setGHLConnectLoader] = useState(false);
 
   //stores google auth details //token, id, etc;
 
   const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
-  const [googleConnectLoader, setGoogleConnectLoader] = useState(false);
+  const [googleConnectCalendarLoader, setGoogleConnectCalendarLoader] = useState(false);
 
-  console.log("Status of ghl loader ", gHLCalenderLoader);
+  // console.log("Status of ghl loader is", gHLCalenderLoader);
 
   //code for adding ghl calendar
   const [status, setStatus] = useState(null);
@@ -59,13 +59,17 @@ function CalendarModal(props) {
     isVisible: false
   });
 
-  console.log("Props passed in calendar modal are", props);
+  // console.log("Props passed in calendar modal are", props);
 
   // If we are the popup landing back at "/" with ?code=..., send it to the opener, then close.
   useEffect(() => {
     const qs = new URLSearchParams(window.location.search);
     const code = qs.get("code");
     const error = qs.get("error");
+
+    console.log("Code sent by authorization popup", code)
+    console.log("Error sent by authorization popup", error)
+    console.log("QS sent by authorization popup", qs)
 
     // If this window was opened by another window (popup case)
     if (window.opener && (code || error)) {
@@ -183,8 +187,8 @@ function CalendarModal(props) {
         // localStorage.setItem(PersistanceKeys.localGHLs, JSON.stringify(calendars.calendars));
         let ghlCalendars = calendars?.calendars;
         // setGHLCalendars(ghlCalendars.filter((ghlCal) => { ghlCal.isActive === true }));
-        setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
-        // setGHLCalendars(ghlCalendars);
+        // setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
+        setGHLCalendars(ghlCalendars);
 
 
       })();
@@ -209,13 +213,15 @@ function CalendarModal(props) {
       // GHL_CLIENT_SECRET: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
       // GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
     }
-    // console.log("GHL ENV variables are", ghlVariables)
+    console.log("GHL ENV variables are", ghlVariables)
   }
 
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(() => {
-    const currentPath = window.location.origin + window.location.pathname;
+    const currentPath = window.location.origin + window.location.pathname; //process.env.NEXT_PUBLIC_GHL_REDIRECT_URI;
+    let p = currentPath + "Hamza";
     console.log("Path to redirect is", currentPath)
+    console.log("Testing the P", p);
     // Build scopes as a space-separated string
     const scope =
       (process.env.NEXT_PUBLIC_GHL_SCOPE || "").trim() ||
@@ -228,35 +234,37 @@ function CalendarModal(props) {
         "locations.readonly",
         "locations/customFields.readonly",
       ].join(" ");
-
+    console.log("GHL Check 1 scopes are", scope);
     const params = new URLSearchParams({
       response_type: "code",
-      client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID ?? "",
-      redirect_uri: currentPath ?? "",//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
+      client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
+      redirect_uri: currentPath,//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
       scope,
       // keep auth in the same popup window
       loginWindowOpenMode: "self",
     });
-
+    console.log("GHL Check 2 param are", params);
     const authUrl =
       "https://marketplace.gohighlevel.com/oauth/chooselocation?" + params.toString();
-
+    console.log("GHL Check 3", authUrl);
     // Open a centered popup
     const w = 520;
     const h = 650;
     const y = window.top.outerHeight / 2 + window.top.screenY - h / 2;
     const x = window.top.outerWidth / 2 + window.top.screenX - w / 2;
-
+    console.log("GHL Check 4");
     popupRef.current = window.open(
       authUrl,
       "ghl_oauth",
       `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`
     );
-
+    console.log("GHL Check 5");
     if (!popupRef.current) {
       // Popup blocked → fallback to full redirect
+      console.log("GHL Check 6");
       window.location.href = authUrl;
     } else {
+      console.log("Waiting for GHL authorization")
       setStatus("Waiting for authorization...");
       // setShowSnack({
       //   message: "Waiting for authorization...",
@@ -306,12 +314,7 @@ function CalendarModal(props) {
         window.removeEventListener("message", listener);
 
         try {
-          // setShowSnack({
-          //   message: `Loading ...`,
-          //   type: SnackbarTypes.Loading,
-          //   isVisible: true
-          // })
-          setGoogleConnectLoader(true);
+          setGoogleConnectCalendarLoader(true);
           const res = await fetch(
             `/api/google/exchange-token?code=${event.data.code}`
           );
@@ -334,7 +337,7 @@ function CalendarModal(props) {
               ...userInfo,
             };
             setGoogleAuthDetails(googleLoginData);
-            setGoogleConnectLoader(false);
+            setGoogleConnectCalendarLoader(false);
             // console.log("Google login details are", googleLoginData);
 
             // handleGoogleCalLogin({
@@ -343,6 +346,7 @@ function CalendarModal(props) {
             // });
           }
         } catch (err) {
+          setGoogleConnectCalendarLoader(false);
           console.error("Google OAuth error:", err);
           setGoogleConnectLoader(false);
         }
@@ -417,13 +421,9 @@ function CalendarModal(props) {
             });
           }}
         />
-        <button className="flex self-end"
-          onClick={onClose}
-        >
-          <Image src={'/otherAssets/crossIcon.png'}
-            height={30} width={30} alt="*"
-          />
-        </button>
+        <div className="flex self-end">
+          <CloseBtn onClick={onClose} />
+        </div>
         <h2 className="text-lg font-semibold mb-4">
           Select a Calendar
         </h2>
@@ -435,13 +435,12 @@ function CalendarModal(props) {
               fontWeight: '600'
             }}>
               Google Calendar
+              {/* <span className="text-gray-500 text-sm">(coming soon)</span> */}
             </p>
-            {(googleCalenderLoader || googleConnectLoader) ? (
-              <div
-                className="
+            {(googleCalenderLoader || googleConnectCalendarLoader) ? (
+              <div className="
               text-purple border w-11/12 rounded border rounded-lg
-              flex items-center justify-center h-[31vh]"
-              >
+              flex items-center justify-center h-[31vh]">
                 <CircularProgress size={45} />
               </div>
             ) : (
@@ -502,7 +501,6 @@ function CalendarModal(props) {
               <CircularProgress size={45} />
             ) : (
               <button
-                // disabled={true}
                 onClick={() => {
                   // setShowAddNewGHLCalender(true);
                   startGHLAuthPopup();
@@ -1015,22 +1013,14 @@ function CalendarModal(props) {
               }}>
                 Add Google Calendar
               </div>
-              <button
-                className="outline-none"
+              <CloseBtn
                 onClick={() => {
                   setShowAddNewGoogleCalender(false);
                   setCalenderTitle("");
                   setSelectTimeZone("");
                   setSelectedTimeDurationLocal("");
                 }}
-              >
-                <Image
-                  src={"/assets/blackBgCross.png"}
-                  height={20}
-                  width={20}
-                  alt="*"
-                />
-              </button>
+              />
             </div>
 
             <div
@@ -1133,7 +1123,7 @@ function CalendarModal(props) {
                 textAlign: "start",
               }}
             >
-              Time Duration
+              Time duration
             </div>
 
             <div className="w-full mt-2">

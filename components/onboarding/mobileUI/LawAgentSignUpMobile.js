@@ -24,6 +24,7 @@ import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const LawAgentSignUpMobile = ({
@@ -345,6 +346,12 @@ const LawAgentSignUpMobile = ({
       if (campainee) {
         formData.append("campaignee", campainee);
       }
+
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
       // const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
@@ -377,10 +384,25 @@ const LawAgentSignUpMobile = ({
         setIsVisible(true);
         // //console.log;
         if (response.data.status === true) {
+          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
           if (typeof document !== "undefined") {
             setCookie(response.data.data.user, document);
+          }
+
+          // Track signup for affiliate marketing
+          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
+          if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
+            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          } else {
+            console.log("[DEBUG] agentxTrackSignup not available");
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
           }
 
           let screenWidth = 1000;
@@ -388,6 +410,13 @@ const LawAgentSignUpMobile = ({
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
@@ -708,7 +737,7 @@ const LawAgentSignUpMobile = ({
                   onlyCountries={["us"]}
                   disableDropdown={true}
                   countryCodeEditable={false}
-                  disableCountryCode={false} 
+                  disableCountryCode={false}
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={

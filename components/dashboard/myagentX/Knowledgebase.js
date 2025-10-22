@@ -6,12 +6,26 @@ import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 import Apis from "@/components/apis/Apis";
 import { Plus } from "lucide-react";
 import axios from "axios";
+import UpgradeModal from "@/constants/UpgradeModal";
+import UpgardView from "@/constants/UpgardView";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 
-function Knowledgebase({ user, agent }) {
+function Knowledgebase({ user, agent
+}) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
   const [kbDelLoader, setKbDelLoader] = useState(null);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  })
+
+
+  // console.log('user in kb file', user)
 
   useEffect(() => {
     GetKnowledgebase();
@@ -21,7 +35,7 @@ function Knowledgebase({ user, agent }) {
 
   async function GetKnowledgebase() {
     try {
-      const token = user.token; // Extract JWT token
+      const token = AuthToken; // Extract JWT token
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
       let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`;
@@ -54,45 +68,69 @@ function Knowledgebase({ user, agent }) {
   }
 
   function GetNoKbView() {
-    return (
-      <div className="flex flex-col items-center justify-center mt-5   p-8 ">
-        <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
-          <img
-            src={"/assets/nokb.png"}
-            className=" object-fill "
-            style={{ height: 97, width: 130 }}
-            alt="No Knowledgebase"
-          />
+    if (user?.agencyCapabilities?.allowKnowledgeBases === false) {
+      return (
+        <UpgardView
+          setShowSnackMsg={setShowSnackMsg}
+          title={"Add Knowledge Base"}
+          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+        />
+      )
+    } else if (user?.planCapabilities?.allowKnowledgeBases === false) {
+      return (
+        <UpgardView
+          setShowSnackMsg={setShowSnackMsg}
+          title={"Add Knowledge Base"}
+          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+        />
+      )
+    } else
+      return (
+        <div className="flex flex-col items-center justify-center mt-5   p-8 ">
+          <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
+            <img
+              src={"/assets/nokb.png"}
+              className=" object-fill "
+              style={{ height: 97, width: 130 }}
+              alt="No Knowledgebase"
+            />
 
-          <div
-            className="text-lg font-semibold text-gray-900 italic"
-            style={{}}
-          >
-            No knowledge base added
-          </div>
-
-          <button
-            className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
-            onClick={() => addKnowledgebase()}
-          >
-            <Plus color="white"></Plus>
             <div
-              className="flex items-center justify-center  text-black text-white font-medium"
-              // Fixed typo
+              className="text-lg font-semibold text-gray-900 italic"
+              style={{}}
             >
-              Add New
+              No knowledge base added
             </div>
-          </button>
+
+            <button
+              className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
+              onClick={() => {
+                if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
+                  addKnowledgebase()
+                } else {
+                  setShowUpgradeModal(true)
+                }
+
+              }}
+            >
+              <Plus color="white"></Plus>
+              <div
+                className="flex items-center justify-center  text-black text-white font-medium"
+              // Fixed typo
+              >
+                Add New
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   async function handleDeleteKb(item) {
     //console.log
     try {
       setKbDelLoader(item.id);
-      const token = user.token; // Extract JWT token
+      const token = AuthToken; // Extract JWT token
       setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
 
       let link = `${Apis.deleteKnowledgebase}`;
@@ -128,9 +166,16 @@ function Knowledgebase({ user, agent }) {
         // agent={agent}
         kbList={kb}
         onDelete={(item) => {
-          handleDeleteKb(item);
-        }}
+
+          if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
+            handleDeleteKb(item);
+          } else {
+            setShowUpgradeModal(true)
+          }
+        }
+        }
         onAddKnowledge={() => {
+
           setShowKbPopup(true);
         }}
         isLoading={kbDelLoader}
@@ -148,6 +193,12 @@ function Knowledgebase({ user, agent }) {
 
   return (
     <div>
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+      />
       <AddKnowledgeBaseModal
         user={user}
         agent={agent}
@@ -155,6 +206,17 @@ function Knowledgebase({ user, agent }) {
         onClose={() => setShowKbPopup(false)}
       />
       {GetViewToRender()}
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+
+        title={"You've Hit Your knowledgebase Limit"}
+        subTitle={"Upgrade to add more knowledgebase"}
+        buttonTitle={"No Thanks"}
+      />
     </div>
   );
 }

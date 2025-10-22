@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force MM/DD/YYYY format for date inputs */
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:after {
+  content: "/";
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field:after {
+  content: "/";
+  color: #000;
+}
+
+/* Firefox date input formatting */
+input[type="date"]::-moz-datetime-edit-text {
+  color: transparent;
+}
+
+input[type="date"]::-moz-datetime-edit-month-field {
+  color: #000;
+}
+
+input[type="date"]::-moz-datetime-edit-day-field {
+  color: #000;
+}
+
+input[type="date"]::-moz-datetime-edit-year-field {
+  color: #000;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -142,3 +190,103 @@
 .MuiTimeClock-root::-webkit-scrollbar-thumb {
   background-color: #7902DF !important;
 }
+
+/* Chrome, Safari, Edge, Opera */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.no-spinner[type='number'] {
+  -moz-appearance: textfield;
+}
+
+input,
+textarea {
+  -webkit-user-modify: read-write-plaintext-only;
+  -webkit-appearance: none;
+  autocorrect: off;
+  autocomplete: off;
+  spellcheck: false;
+}
+
+/* Custom scrollbar styles for feature lists */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Link color fixes */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Ensure text color classes work on links */
+a.text-purple {
+  color: #7902DF !important;
+}
+
+a.text-blue {
+  color: #1E40AF !important;
+}
+
+a.text-green {
+  color: #01CB76 !important;
+}
+
+a.text-red {
+  color: #FF4E4E !important;
+}
+
+a.text-gray {
+  color: #6B7280 !important;
+}
+
+a.text-black {
+  color: #000000 !important;
+}
+
+/* Hover states for colored links */
+a.text-purple:hover {
+  color: #6B21A8 !important;
+}
+
+a.text-blue:hover {
+  color: #1D4ED8 !important;
+}
+
+a.text-green:hover {
+  color: #16A34A !important;
+}
+
+a.text-red:hover {
+  color: #DC2626 !important;
+}
+
+

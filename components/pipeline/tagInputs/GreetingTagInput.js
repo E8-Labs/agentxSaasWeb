@@ -1,6 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 
-export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, uniqueColumns }) => {
+export const GreetingTagInput = ({
+    scrollOffset, greetTag,
+    kycsList, tagValue,
+    uniqueColumns,
+    placeholder,
+    limit
+}) => {
     ////console.log
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -15,6 +21,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         setOptions((prev) => {
             return [...prev, ...uniqueColumns]
         })
+
     }, [uniqueColumns])
 
     useEffect(() => {
@@ -39,7 +46,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             document.body.appendChild(mirrorDiv);
         }
         mirrorDivRef.current = mirrorDiv;
-       // //console.log);
+        // //console.log);
 
         return () => {
             if (
@@ -62,7 +69,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         if (textFieldRef.current) {
             const scrollTop = textFieldRef.current.scrollTop;
             const scrollLeft = textFieldRef.current.scrollLeft;
-           // //console.log;
+            // //console.log;
             return { scrollTop, scrollLeft };
         }
         return { scrollTop: 0, scrollLeft: 0 };
@@ -122,11 +129,11 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             popupTop = viewportHeight - popupHeight;
         }
 
-       // //console.log;
-       // //console.log;
-       // //console.log;
-       // //console.log;
-       // //console.log;
+        // //console.log;
+        // //console.log;
+        // //console.log;
+        // //console.log;
+        // //console.log;
 
         setPopupPosition({ top: popupTop, left: popupLeft });
     };
@@ -134,16 +141,16 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
     let mergedArray = [];
 
     useEffect(() => {
-       // //console.log;
-       // //console.log;
+        // //console.log;
+        // //console.log;
 
         let questions = [];
         if (kycsList) {
             questions = kycsList?.map((item) => item.question);
         }
         mergedArray = [...uniqueColumns, ...questions];
-
-       // //console.log;
+        console.log("merged array is:", mergedArray);
+        console.log("Kycs list recieved is:", kycsList);
     }, [])
 
     const handleKeyUp = (e) => {
@@ -279,7 +286,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
                 onChange={handleChange}
                 onKeyUp={handleKeyUp}
                 onKeyDown={handleKeyDown}
-                placeholder="Type here..."
+                placeholder={placeholder || "Type here..."}
                 style={{
                     fontSize: "16px", padding: "15px",
                     width: "100%", resize: "none",

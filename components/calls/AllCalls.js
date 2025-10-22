@@ -29,6 +29,8 @@ import {
 } from "@/utilities/utility";
 import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
+import { getStatus } from "@/services/leadScoringSerevices/callLogServices/CallLogServices";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 function AllCalls({ user }) {
   const LimitPerPage = 20;
@@ -506,10 +508,10 @@ function AllCalls({ user }) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// //console.log;
+    // console.log('phoneNumber is', phoneNumber)
     return phoneNumber
       ? phoneNumber.formatInternational()
-      : "Invalid phone number";
+      : "Web Call";
   };
 
   const [filterData, setFilterData] = useState({
@@ -529,13 +531,14 @@ function AllCalls({ user }) {
         <LeadLoading />
       ) : (
         <>
-          <div className="flex w-full pl-10 flex-row items-center gap-3">
-            <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
+
+          <div className="flex w-full flex-row items-center gap-3">
+            <div className="flex ml-10 flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
               <input
                 style={{ fontSize: 15 }}
                 type="text"
                 placeholder="Search by name, email or phone"
-                className="flex-grow outline-none font-[500] rounded-full border-none focus:outline-none focus:ring-0 flex-shrink-0"
+                className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
                 value={searchValue}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -634,18 +637,27 @@ function AllCalls({ user }) {
             </div>
           </div>
 
-          <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
+          <div className="w-full flex flex-row gap-2 mt-2 px-10 mt-12">
+
             <div className="w-2/12">
               <div style={styles.text}>Name</div>
+            </div>
+
+            <div className="w-1/12">
+              <div style={styles.text}>Agent</div>
+            </div>
+
+            <div className="w-2/12">
+              <div style={styles.text}>Contact</div>
             </div>
             <div className="w-2/12 ">
               <div style={styles.text}>Pipeline</div>
             </div>
-            <div className="w-2/12">
-              <div style={styles.text}>Contact Number</div>
-            </div>
             <div className="w-1/12">
               <div style={styles.text}>Stage</div>
+            </div>
+            <div className="w-1/12">
+              <div style={styles.text}>Type</div>
             </div>
             <div className="w-1/12">
               <div style={styles.text}>Status</div>
@@ -653,7 +665,6 @@ function AllCalls({ user }) {
             <div className="w-2/12">
               <div style={styles.text}>Date</div>
             </div>
-           
             <div className="w-1/12">
               <div style={styles.text}>More</div>
             </div>
@@ -702,10 +713,10 @@ function AllCalls({ user }) {
                     <div
                       key={item.id}
                       style={{ cursor: "pointer" }}
-                      className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                      className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                     >
                       <div
-                        className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                        className="w-2/12 truncate flex flex-row gap-3 items-center cursor-pointer"
                         onClick={() => {
                           // //console.log;
                           setselectedLeadsDetails(item);
@@ -715,11 +726,32 @@ function AllCalls({ user }) {
                         <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
-                        <div style={{ ...styles.text2, ...{ width: "80%" } }}>
+                        <div className="truncate" style={{ ...styles.text2, ...{ width: "65%" } }}>
+
                           {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                         </div>
                       </div>
-                      <div className="w-2/12 ">
+                      <div style={{ ...styles.text2, }}
+                        className="w-1/12 truncate flex flex-row items-center flex-shrink-0 "
+                      >
+                        {item.agent?.name}
+
+                      </div>
+
+                      <div className="w-2/12 truncate">
+                        {/* (item.LeadModel?.phone) */}
+                        <div style={styles.text2}>
+                          {item.LeadModel?.phone ? (
+                            <div className="truncate">
+                              {formatPhoneNumber(item?.LeadModel?.phone)}
+                            </div>
+                          ) : (
+                            "-"
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="w-2/12 truncate">
                         <div style={styles.text2}>
                           {item.pipeline ? (
                             <div>{item.pipeline?.title}</div>
@@ -728,37 +760,31 @@ function AllCalls({ user }) {
                           )}
                         </div>
                       </div>
-                      <div className="w-2/12">
-                        {/* (item.LeadModel?.phone) */}
-                        <div style={styles.text2}>
-                          {item.LeadModel?.phone ? (
-                            <div>
-                              {formatPhoneNumber(item?.LeadModel?.phone)}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-1/12">
+
+                      <div className="w-1/12 truncate">
                         <div style={styles.text2}>
                           {item?.PipelineStages?.stageTitle
                             ? item.PipelineStages?.stageTitle
                             : "-"}
                         </div>
+
                       </div>
-                      <div className="w-1/12">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
-                          {item?.callOutcome ? item?.callOutcome : "Ongoing"}
+                          {item.communicationType ? (item.communicationType) : "-"}
                         </div>
                       </div>
-                      <div className="w-2/12">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
-                          {GetFormattedDateString(item?.createdAt)}  {GetFormattedTimeString(item?.createdAt)}
+                          {getStatus(item) || "-"}
                         </div>
                       </div>
-                     
-                      <div className="w-1/12">
+                      <div className="w-2/12 truncate">
+                        <div style={styles.text2}>
+                          {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
+                        </div>
+                      </div>
+                      <div className="w-1/12 truncate">
                         <button
                           onClick={() => {
                             // //console.log;
@@ -785,7 +811,7 @@ function AllCalls({ user }) {
                   className="text-center mt-4"
                   style={{ fontWeight: "bold", fontSize: 20 }}
                 >
-                  No call log found
+                  No activities found
                 </div>
               )}
             </InfiniteScroll>
@@ -816,18 +842,11 @@ function AllCalls({ user }) {
                   <div className="mt-2 w-full">
                     <div className="flex flex-row items-center justify-between w-full">
                       <div>Filter</div>
-                      <button
+                      <CloseBtn
                         onClick={() => {
                           setShowFilterModal(false);
                         }}
-                      >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={17}
-                          width={17}
-                          alt="*"
-                        />
-                      </button>
+                      />
                     </div>
 
                     <div className="flex flex-row items-start gap-4">
@@ -1035,8 +1054,8 @@ function AllCalls({ user }) {
                                 handleSelectStage(item);
                               }}
                               className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
-                                  ? `bg-purple`
-                                  : "bg-transparent"
+                                ? `bg-purple`
+                                : "bg-transparent"
                                 } px-6
                                                                 ${selectedStageIds.includes(
                                   item.id

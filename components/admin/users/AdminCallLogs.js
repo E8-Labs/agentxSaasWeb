@@ -13,7 +13,7 @@ import DashboardSlider from '@/components/animations/DashboardSlider';
 
 function AdminCallLogs({ selectedUser }) {
 
-  const [activeTab, setActiveTab] = useState("All Calls");
+  const [activeTab, setActiveTab] = useState("All Activities");
 
 
   return (
@@ -32,13 +32,13 @@ function AdminCallLogs({ selectedUser }) {
             needHelp={false} />
         </div>
         <div style={{ fontSize: 24, fontWeight: '600' }}>
-          Call Log
+        Activity
         </div>
 
       </div>
 
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
+        {["All Activities", "Campaign Activity"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -55,15 +55,11 @@ function AdminCallLogs({ selectedUser }) {
 
       <div className='w-full'>
         {
-          activeTab === "All Calls" ? (
+          activeTab === "All Activities" ? (
             <AdminAllCalls selectedUser={selectedUser} />
           ) : (
-            activeTab === "Scheduled" ? (
-              <AdminScheduledCalls selectedUser={selectedUser} />
-            ) : (
               <AdminActiveCalls selectedUser={selectedUser} />
             )
-          )
         }
       </div>
 

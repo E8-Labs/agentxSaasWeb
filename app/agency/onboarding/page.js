@@ -10,6 +10,31 @@ function Page() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    const D = localStorage.getItem("User");
+    const subPlanData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
+    
+    if (D) {
+      const Data = JSON.parse(D);
+      
+      // Check if user is here intentionally for onboarding (no plan)
+      const needsOnboarding = subPlanData && JSON.parse(subPlanData)?.subPlan === false;
+      
+      if (Data.user.userType == "admin") {
+        // router.push("/admin");
+        window.location.href = "/admin";
+      } else if (Data.user.userRole == "Agency" && !needsOnboarding) {
+        // Only redirect if user doesn't need onboarding
+        // router.push("/agency/dashboard");
+        // window.location.href = "/agency/dashboard";
+      } else if (Data.user.userRole !== "Agency") {
+        // router.push("/dashboard");
+        window.location.href = "/dashboard";
+      }
+      // If userRole == "Agency" AND needsOnboarding is true, stay on onboarding page
+    }
+  }, []);
+
+  useEffect(() => {
     const userData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
     if (userData) {
       const D = JSON.parse(userData);
@@ -23,11 +48,13 @@ function Page() {
     setCurrentIndex((prev) => prev + 1);
   };
   return (
-    <div className="flex flex-col w-full items-center justify-center p-5 overflow-hidden">
-      <div className="flex w-full flex-row items-center justify-center gap-2 mt-4">
-        <Image src={"/assets/agentX.png"} height={30} width={130} alt="*" />
+    <div className="flex flex-col w-full items-center justify-center py-5 overflow-y-auto">
+      <div className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
+      style={{backgroundColor: ''}}>
+        <Image src={"/assets/assignX.png"} height={30} width={130} alt="*"  style={{backgroundColor: ''}}/>
+        {/* /assets/agentX.png */}
 
-        <div className="w-[80%]">
+        <div className="w-[100%]">
           <ProgressBar value={currentIndex > 0 ? 100 : 50} />
         </div>
       </div>

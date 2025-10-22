@@ -1,10 +1,14 @@
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails';
 import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
 import { CircularProgress, Switch } from '@mui/material';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
-const SmartRefillCard = ({
-    selectedUser = null
+const SmartRefillCard = ({ 
+    selectedUser = null, 
+    isDisabled = false, 
+    onDisabledClick = null,
+    isFreePlan = false
 }) => {
 
     console.log("Selected user passed to smart refill is", selectedUser)
@@ -31,9 +35,6 @@ const SmartRefillCard = ({
         if (selectedUser) {
             let data = await AdminGetProfileDetails(selectedUser.id)
             console.log("smart refill ", selectedUser)
-            window.dispatchEvent(
-                new CustomEvent("hidePlanBar", { detail: { update: true } })
-              )
             setAllowSmartRefill(data?.smartRefill);
         } else {
 
@@ -57,6 +58,9 @@ const SmartRefillCard = ({
                 if (response.data.status === true) {
                     setSuccessSnack(response.data.message);
                     setAllowSmartRefill(true);
+                    window.dispatchEvent(
+                        new CustomEvent("hidePlanBar", { detail: { update: true } })
+                    )
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message)
                 }
@@ -89,7 +93,17 @@ const SmartRefillCard = ({
     }
 
     return (
-        <div className="w-9/12 flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
+        <div className="w-full flex flex-row items-center mt-4 bg-purple p-2 rounded-3xl text-white"
+        style={{
+            backgroundImage: "url(/svgIcons/cardBg.svg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            color: "#fff",
+            alignSelf: "center",
+            marginTop: "2vh",
+        }}
+        >
             {/*
                 userDataLoader ? (
                     <CircularProgress size={20} />
@@ -99,8 +113,18 @@ const SmartRefillCard = ({
             */}
             <div>
                 <Switch
-                    checked={allowSmartRefill}
+                    checked={isFreePlan ? false : allowSmartRefill}
                     onChange={() => {
+                        // If user is on free plan and trying to enable Smart Refill (always show as off for free plans)
+                        if (isFreePlan && onDisabledClick) {
+                            onDisabledClick();
+                            return;
+                        }
+                        
+                        if (isDisabled && onDisabledClick) {
+                            onDisabledClick();
+                            return;
+                        }
                         setAllowSmartRefill(!allowSmartRefill);
                         if (allowSmartRefill === true) {
                             handleRemoveSmartRefill();
@@ -139,19 +163,18 @@ const SmartRefillCard = ({
                 />
 
             </div>
+            <Image src={"/otherAssets/smartRefillIcon.png"} 
+                height={32} width={32} alt='*'
+            />
             <div
-                className="ms-4 w-2/12"
-                style={{
-                    fontWeight: "700",
-                    fontSize: "15px"
-                }}>
+                className="ms-4 text-base font-bold w-2/12"
+               >
                 Smart Refill
             </div>
-            <div className="w-8/12 ms-2" style={{
-                fontWeight: "500",
-                fontSize: "15px"
+            <div className="ms-2 w-8/12 text-[13px] font-normal text-white" style={{
+                
             }}>
-                Refill your AI mins when they run low. Keeps your calls going without interruption.
+            Refill your AI credits when they run low. Keeps your calls going without interruption.
             </div>
         </div>
     )

@@ -24,6 +24,8 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
+import PlansService from "@/utilities/PlansService";
+import { formatFractional2 } from "../agency/plan/AgencyUtilities";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -75,6 +77,8 @@ function Billing() {
   //confirmation popup for update plan
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
+  //array of plans - now loaded dynamically
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -83,51 +87,33 @@ function Billing() {
     }
     // //console.log;
     setScreenWidth(screenWidth);
+    
+    // Load plans for billing
+    loadPlansForBilling();
   }, []);
 
-  //array of plans
-  const plans = [
-    {
-      id: 1,
-      mints: 30,
-      calls: 125,
-      details: "Great for trying out AI sales agents.",
-      // originalPrice: "45",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals. ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
+  // Function to load plans for billing context
+  const loadPlansForBilling = async () => {
+    try {
+      // Load plans with features using getUserPlans instead of PlansService
+      const { getUserPlans } = await import('../userPlans/UserPlanServices');
+      const plansData = await getUserPlans();
+      
+      if (plansData) {
+        // Filter features to only show those with thumb = true
+        const filteredPlans = plansData.map(plan => ({
+          ...plan,
+          features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+        }));
+        setPlans(filteredPlans);
+      } else {
+        setPlans(PlansService.getFallbackPlans('billing', false));
+      }
+    } catch (error) {
+      console.error('Error loading billing plans:', error);
+      setPlans(PlansService.getFallbackPlans('billing', false));
+    }
+  };
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -202,6 +188,9 @@ function Billing() {
       setAddPaymentPopup(false);
       window.dispatchEvent(
         new CustomEvent("hidePlanBar", { detail: { update: true } })
+      )
+      window.dispatchEvent(
+        new CustomEvent("UpdateProfile", { detail: { update: true } })
       )
       getCardsList();
     }
@@ -304,14 +293,6 @@ function Billing() {
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    // if (togglePlan) {
-    //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    // } else {
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    //     setAddPaymentPopUp(true);
-    // }
-    // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     setTogglePlan(item.id);
     setSelectedPlan((prevId) => (prevId === item ? null : item));
     // setTogglePlan(prevId => (prevId === id ? null : id));
@@ -378,6 +359,13 @@ function Billing() {
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
           console.log("User plan sibscibe res[ponse is",response.data.data)
+
+          window.dispatchEvent(
+            new CustomEvent("hidePlanBar", { detail: { update: true } })
+          )
+          window.dispatchEvent(
+            new CustomEvent("UpdateProfile", { detail: { update: true } })
+          )
           let user = userLocalData
           user.plan = response.data.data
           window.dispatchEvent(
@@ -990,6 +978,28 @@ function Billing() {
                     </div>
                   </div>
                 </div>
+                
+                {/* Features section - only show features with thumb = true */}
+                {item.features && item.features.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex flex-col gap-2">
+                      {item.features.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex flex-row items-start gap-2">
+                          <Image 
+                            src="/svgIcons/selectedTickBtn.svg" 
+                            height={14} 
+                            width={14} 
+                            alt="✓" 
+                            className="mt-1 flex-shrink-0" 
+                          />
+                          <div className="text-sm font-normal text-gray-700">
+                            {feature.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1177,7 +1187,7 @@ function Billing() {
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-10 px-10"
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -1185,7 +1195,7 @@ function Billing() {
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
                   <div

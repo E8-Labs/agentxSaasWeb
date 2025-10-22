@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SelectedUserDetails from "./SelectedUserDetails";
 import { UserFilterModal } from "./UserFilterModal";
+import UserActivityLogs from "./UserActivityLogs";
 import { Box, CircularProgress, Modal } from '@mui/material'
 
 import moment from "moment";
@@ -24,6 +25,7 @@ function AdminUsers() {
   const [search, setSearch] = useState("");
   const filterRef = useRef(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showActivityLogs, setShowActivityLogs] = useState(false);
 
   const [leadsSort, setLeadsSort] = useState(false);
   const [minsSort, setMinsSort] = useState(false);
@@ -178,10 +180,10 @@ function AdminUsers() {
       />
 
       <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
-        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
+        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
           <input
             // style={styles.paragraph}
-            className="outline-none border-none rounded-full w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
+            className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
             placeholder="Search by name, email or phone"
             readOnly={loading}
             value={search}
@@ -460,9 +462,9 @@ function AdminUsers() {
                       className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
                         }`}
                       onClick={() => {
-                        console.log("Selectec user on  users screen", item);
+                        console.log("Selected user on users screen", item);
                         setSelectedUser(item);
-                        // setShowUserDetails(true)
+                        setShowUserDetails(true);
                       }}
                     >
                       <td className="px-4 py-2">
@@ -582,6 +584,9 @@ function AdminUsers() {
               // ✅ Re-send updated user to child
               setSelectedUser(updatedUser);
             }}
+            handleClose={() => {
+              setSelectedUser(null);
+            }}
 
           // handlePauseUser={(d) => {
           //   console.log("User paused");
@@ -607,6 +612,15 @@ function AdminUsers() {
           />
         </Box>
       </Modal>
+
+
+      {/* User Activity Logs Modal */}
+      <UserActivityLogs
+        open={showActivityLogs}
+        onClose={() => setShowActivityLogs(false)}
+        userId={selectedUser?.id}
+        userName={selectedUser?.name}
+      />
     </div>
   );
 }

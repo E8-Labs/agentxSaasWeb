@@ -32,6 +32,9 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { GetTimezone } from "@/utilities/utility";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -103,6 +106,10 @@ const AssignLead = ({
   }, [SelectedAgents]);
 
 
+  const [creditCost, setCreditCost] = useState(null) //for credit cost
+
+
+
   useEffect(() => {
     // //console.log;
 
@@ -143,7 +150,7 @@ const AssignLead = ({
     // } else {
     //   console.log("Get agents api trigered");
     // }
-    
+
     getAgents();
 
     console.log("Selected agents paased are", selectedAgents);
@@ -181,7 +188,7 @@ const AssignLead = ({
 
       // const ApiPath = Apis.getAgents;
       const offset = agentsList.length;
-      const ApiPath = `${Apis.getAgents}?offset=${offset}&agentType=outbound` +  "&agentType=outbound&pipeline=true"
+      const ApiPath = `${Apis.getAgents}?offset=${offset}&agentType=outbound&pipeline=true`
       console.log("Api path is", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
@@ -262,7 +269,7 @@ const AssignLead = ({
         if (a.agentType == "inbound") {
           inbound = true;
           // console.log("returned the agent", a);
-        }else if (a.agentType == "outbound"){
+        } else if (a.agentType == "outbound") {
           inbound = false;
         }
       }
@@ -369,7 +376,7 @@ const AssignLead = ({
   };
 
   const handleAssignLead = async () => {
-    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+    let userTimeZone = GetTimezone() //userProfile.timeZone || "America/Los_Angeles";
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -380,21 +387,21 @@ const AssignLead = ({
 
     const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
     const isBeforeEndTime =
-      currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
+      currentHour < 21 || (currentHour === 21 && currentMinute <= 0); // Before 9:00 PM
     if (
       isAfterStartTime && // After 7:00 AM
-      isBeforeEndTime // Before 8:30 PM
+      isBeforeEndTime // Before 9:00 PM
     ) {
       console.log(
-        "✅ Selected time is between 7 AM and 8:30 PM.",
+        "✅ Selected time is between 7 AM and 9 PM.",
         selectedDate.format()
       );
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
       // setInvalidTimeMessage(
-      //   "Calls only between 7am-8:30pm"
-      //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+      //   "Calls only between 7am-9pm"
+      //   // "Calling is only available between 7AM and 9PM in " + userTimeZone
       // );
       // return;
     }
@@ -617,7 +624,7 @@ const AssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("Numbers will be checked on the DNC list");
+            setShowSuccessSnack("DNC Enabled");
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -631,16 +638,9 @@ const AssignLead = ({
           <div className="text-purple" style={styles.paragraph}>
             {getLeadSelectedCount()} Contacts Selected
           </div>
-          <button
-            className="outline-none border-none"
-            onClick={handleCloseAssignLeadModal}>
-            <Image
-              src={"/assets/cross.png"}
-              alt="*"
-              height={15}
-              width={15}
-            />
-          </button>
+          <CloseBtn
+            onClick={handleCloseAssignLeadModal}
+          />
         </div>
       </div>
       <div
@@ -650,7 +650,7 @@ const AssignLead = ({
           // setLastStepModal(true);
         }}
       >
-        Only outbound agents assigned to a stage can make calls.
+        Only outbound agents assigned to a stage can be selected.
       </div>
 
       {initialLoader ? (
@@ -930,18 +930,11 @@ const AssignLead = ({
                     Back
                   </span>
                 </button>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setLastStepModal(false);
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div className="flex flex-row items-center justify-between mt-6">

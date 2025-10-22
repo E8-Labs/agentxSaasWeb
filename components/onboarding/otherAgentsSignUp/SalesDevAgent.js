@@ -22,6 +22,7 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
@@ -33,6 +34,7 @@ const SalesDevAgent = ({
   onComplete,
   handleWaitList,
   setCongratsPopup,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -277,6 +279,16 @@ const SalesDevAgent = ({
       if (campainee) {
         formData.append("campaignee", campainee);
       }
+
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      console.log('[DEBUG] Agency UUID from storage:', agencyUuid);
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+        console.log('[DEBUG] Added agencyUuid to formData:', agencyUuid);
+      } else {
+        console.log('[DEBUG] No agency UUID found, proceeding without it');
+      }
       // const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
@@ -320,12 +332,25 @@ const SalesDevAgent = ({
           } catch (error) {
             //console.log;
           }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
+          }
+
           //console.log;
           let screenWidth = 1000;
           if (typeof window !== "undefined") {
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
           //console.log;
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
@@ -333,6 +358,7 @@ const SalesDevAgent = ({
           } else {
             //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
 
             // setCongratsPopup(true);
@@ -644,11 +670,11 @@ const SalesDevAgent = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-country={"us"} // restrict to US only
-                    onlyCountries={["us"]}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}                  value={userPhoneNumber}
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false} value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
                     locationLoader

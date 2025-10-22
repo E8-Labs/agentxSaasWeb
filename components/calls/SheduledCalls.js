@@ -563,14 +563,14 @@ function SheduledCalls({ user }) {
   }
 
   function getAgentNameForActiviti(agent) {
-    const agents = agent?.agents || [];
-    if (agents?.length > 0) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
       let name = agents[0]?.name || "-";
 
       if (agents[0].agentType === "outbound") {
         return formatName(name);
       } else {
-        if (agents?.length > 1) {
+        if (agents.length > 1) {
           return formatName(name);
         }
       }
@@ -579,8 +579,8 @@ function SheduledCalls({ user }) {
   }
 
   function getAgentImageForActiviti(agent) {
-      const agents = agent?.agents || [];
-    if (agents?.length > 0) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
       let img
       if (agents[0].agentType === "outbound") {
         img = agents[0]?.thumb_profile_image;
@@ -609,7 +609,7 @@ function SheduledCalls({ user }) {
           )
         }
       } else {
-        if (agents?.length > 1) {
+        if (agents.length > 1) {
           img = agents[1]?.thumb_profile_image;
           if (img) {
             return (
@@ -701,9 +701,8 @@ function SheduledCalls({ user }) {
                                   key={index}
                                 >
                                   <div className="w-3/12 flex flex-row gap-4 items-center">
-                                    <div style={{ width: "fit-content" }}>
-                                      {getAgentsListImage(agent?.agents[0])}
-                                    </div>
+                                    {getAgentImageWithMemoji(agent)}
+
                                     <div style={styles.text2}>
                                       {getAgentNameForActiviti(agent)}
                                     </div>
@@ -939,7 +938,7 @@ function SheduledCalls({ user }) {
                             <input
                               type="text"
                               placeholder="Search by name or phone"
-                              className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                              className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                               value={leadsSearchValue}
                               onChange={(e) => {
                                 const value = e.target.value;

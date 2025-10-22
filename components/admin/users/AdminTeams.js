@@ -122,7 +122,7 @@ function AdminTeam({ selectedUser }) {
 
         let path = Apis.getTeam;
         path = path + "?userId=" + selectedUser.id;
-        // //console.log
+        console.log("Api path for get admin team members is", path);
 
         const response = await axios.get(path, {
           headers: {
@@ -132,7 +132,7 @@ function AdminTeam({ selectedUser }) {
 
         if (response) {
           setGetTeamLoader(false);
-
+          console.log("Response os get admin team members is", response?.data)
           if (response.data.status === true) {
             console.log("Response is of get team", response.data.data);
             let admin = response.data.admin;
@@ -186,10 +186,10 @@ function AdminTeam({ selectedUser }) {
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId: selectedUser.id
+          userId:selectedUser.id
         };
 
-        console.log("apidata of invite team member", apidata)
+        console.log("api data is", apidata);
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -198,9 +198,11 @@ function AdminTeam({ selectedUser }) {
         });
 
         if (response) {
+          console.log("response of invite team api is", response);
           setInviteTeamLoader(false);
+          // return
           if (response.data.status === true) {
-            console.log("Response is of invite team member", response.data.data);
+            // //console.log;
             let newMember = response.data.data[0];
             // //console.log;
             // //console.log;
@@ -365,14 +367,27 @@ function AdminTeam({ selectedUser }) {
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            // //console.log;
-            // let tea
-            let teams = myTeam.filter((item) => item.id != team.id);
+            // Defensive: filter out team member by id, but handle possible null/undefined
+            let teams = myTeam.filter((item) => {
+              // If either item or team is null/undefined, skip comparison
+              if (!item || !team) return true;
+              // If either id is null/undefined, skip comparison
+              if (item.id == null || team.id == null) return true;
+              return item.id !== team.id;
+            });
             setMyTeam(teams);
-            // getMyteam()
             setSnackTitle("Team member removed");
             setShowSnak(true);
-            if (u.user.id == team.invitedUser.id) {
+            // Defensive: check nested properties before accessing
+            if (
+              u &&
+              u.user &&
+              team &&
+              team.invitedUser &&
+              typeof u.user.id !== "undefined" &&
+              typeof team.invitedUser.id !== "undefined" &&
+              u.user.id === team.invitedUser.id
+            ) {
               //if current user deleted himself from the team then logout
               logout();
               router.push("/");
@@ -412,8 +427,6 @@ function AdminTeam({ selectedUser }) {
     // //console.log;
     // //console.log;
     if (user?.userRole == "Invitee") {
-      console.log("Check simple user Id", user?.id);
-      console.log("Check team userId data", team?.invitedUser?.id);
       if (team?.invitedUser?.id == user?.id) {
         return true; // show menu at own profile
       } else {
@@ -440,13 +453,13 @@ function AdminTeam({ selectedUser }) {
       user = user.user;
     }
     if (user.userRole == "Invitee") {
-      if (team.invitedUser?.id == user.id) {
+      if (team?.invitedUser?.id == user?.id) {
         return false; // show menu at own profile
       }
       return true;
     }
     if (user.userRole == "AgentX") {
-      if (team.invitedUser?.id == user.id) {
+      if (team?.invitedUser?.id == user?.id) {
         return false; // show menu at own profile
       }
       return true;
@@ -580,7 +593,8 @@ function AdminTeam({ selectedUser }) {
                               textTransform: "capitalize",
                             }}
                           >
-                            {item.name[0]}
+                            {/*item.name[0]*/}
+                            {item?.name?.[0] || "-"}
                           </div>
                         )}
 

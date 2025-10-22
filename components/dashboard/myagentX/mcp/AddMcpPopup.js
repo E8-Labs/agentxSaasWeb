@@ -5,6 +5,8 @@ import Modal from '@mui/material/Modal';
 import Image from 'next/image';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
+import { useEffect } from 'react';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 export default function AddMcpPopup({
     open,
@@ -17,6 +19,15 @@ export default function AddMcpPopup({
     mcpName, mcpUrl, mcpDescription }) {
 
     const [mcpUrlError, setMcpUrlError] = useState("");
+    const [descriptionChars, setDescriptionChars] = useState("");
+
+    const isAddDisabled = addMcpLoader || mcpUrlError || mcpName === "" || mcpDescription === "" || mcpUrl === "";
+
+
+    //check the limit of description chars
+    useEffect(() => {
+        setDescriptionChars(mcpDescription?.length)
+    }, [mcpDescription]);
 
     const handleMcpUrlChange = (e) => {
         const value = e.target.value;
@@ -64,20 +75,27 @@ export default function AddMcpPopup({
                             <div className='text-[17px] font-[600] text-black'>
                                 Add Tool
                             </div>
-                            <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
-                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />
-                            </button>
+                            <CloseBtn
+                                onClick={handleClose}
+                            />
                         </div>
 
                         <div className='w-full flex flex-col gap-2 mt-4'>
 
-                            <div className='text-[15px] font-[500] text-black mt-2'>
-                                Name
-                            </div>
 
+                            <div className='flex flex-row items-center justify-between w-full'>
+                                <div className='text-[15px] font-[500] text-black mt-2'>
+                                    Name
+                                </div>
+                                <div className='text-[14px] font-[400] text-black'>
+                                    {mcpName?.length}/60
+                                </div>
+                            </div>
+                            {/* max 60 characters */}
                             <input type="text" placeholder='Type here...'
                                 value={mcpName}
                                 onChange={(e) => setMcpName(e.target.value)}
+                                maxLength={60}
                                 className='w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2' />
 
                             <div className='text-[15px] font-[500] text-black mt-3'>
@@ -118,7 +136,7 @@ export default function AddMcpPopup({
                                 className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2" />
 
                             <div className='w-full flex flex-row items-center justify-between gap-8 mt-3'>
-                                <button className='w-1/2 border text-black rounded-md p-2 h-[55px] text-[15px] font-[500]'
+                                <button className='w-1/2 text-[#6b7280] p-2 h-[55px] text-[15px] font-[500]'
                                     onClick={handleClose}
                                 >
                                     Cancel
@@ -127,8 +145,11 @@ export default function AddMcpPopup({
                                     addMcpLoader ? (
                                         <CircularProgress size={20} />
                                     ) : (
-                                        <button className='w-1/2 bg-purple text-white rounded-md p-2 h-[55px] text-[15px] font-[500]'
+
+                                        <button
+                                            className={`w-1/2 rounded-md p-2 h-[55px] text-[15px] font-[500] ${isAddDisabled ? 'bg-[#00000020] text-black cursor-not-allowed' : 'bg-purple text-white'}`}
                                             onClick={handleAddMcp}
+                                            disabled={isAddDisabled}
                                         >
                                             Add
                                         </button>

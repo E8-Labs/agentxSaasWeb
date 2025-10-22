@@ -31,7 +31,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
-      // //console.log;
+      console.log('mainAgent', mainAgent)
       handleGetCadence();
     }
   }, []);
@@ -107,6 +107,17 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
     }
   };
 
+
+  const decideTextToShowForCadenceType = (cadence) => {
+    if (cadence.communicationType === "call") {
+      return "then Make Call"
+    } else if (cadence.communicationType === "email") {
+      return "then Send Email"
+    } else if (cadence.communicationType === "sms") {
+      return "then Send SMS"
+    }
+  }
+
   const styles = {
     paragraph: {
       fontWeight: "500",
@@ -158,6 +169,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
               fontSize: 15,
             }}
             onClick={() => {
+              console.log("mainAgent details passed are", mainAgent);
+              // return;
               localStorage.setItem(
                 PersistanceKeys.LocalSavedAgentDetails,
                 JSON.stringify(mainAgent)
@@ -166,17 +179,9 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                 PersistanceKeys.selectedUser,
                 JSON.stringify(selectedUser)
               );
-              if (agentCadence?.length === 0) {
-
-
-                let u = {
-                  user: selectedUser,
-                }
-
-                localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(u));
-
-
-                router.push("/pipeline/update");
+              if (agentCadence.length === 0) {
+                // router.push("/pipeline/update");
+                window.location.href = "/pipeline/update";
                 return;
               }
               setShowConfirmationPopup(true);
@@ -201,14 +206,25 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
           showConfirmationPopuup={showConfirmationPopup}
           setShowConfirmationPopup={setShowConfirmationPopup}
           onContinue={() => {
+            localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
             setShowConfirmationPopup(false);
             console.log("selectedAgent.id", selectedAgent.id);
             console.log(
               "selectedAgent.mainAgentId",
               selectedAgent.mainAgentId
             );
-            router.push("/pipeline/update");
-          }}
+            if (selectedUser) {
+              let u = {
+                subAccountData: selectedUser,
+                isFrom: from,
+              }
+
+              localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(u));
+            }
+            // router.push("/pipeline/update");
+            window.location.href = "/pipeline/update";
+          }
+          }
         />
         {initialLoader ? (
           <div className="w-full flex flex-row items-center justify-center">
@@ -309,7 +325,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                                   {item.waitTimeMinutes}
                                 </div>
                               </div>
-                              <div>, then Make Call</div>
+                              <div>, {decideTextToShowForCadenceType(item)}</div>
                             </div>
                           </div>
                         );

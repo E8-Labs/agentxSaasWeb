@@ -17,6 +17,7 @@ import {
   InputLabel,
   Menu,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Apis from "@/components/apis/Apis";
@@ -35,12 +36,15 @@ import GuarduanSetting from "@/components/pipeline/advancedsettings/GuardianSett
 import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage";
 import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
+// import LeadScoringTab from "@/components/dashboard/myagentX/LeadScoringTab";
+import AddScoringModal from "@/components/modals/add-scoring-modal";
 import CircularLoader from "@/utilities/CircularLoader";
 import imageCompression from "browser-image-compression";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import MoreAgentsPopup from "@/components/dashboard/MoreAgentsPopup";
 import { GetFormattedDateString } from "@/utilities/utility";
 import {
   findLLMModel,
@@ -83,8 +87,26 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import dynamic from "next/dynamic";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
 import TestEmbed from "@/app/test-embed/page";
+import UpgradeModal from "@/constants/UpgradeModal";
+import UpgardView from "@/constants/UpgardView";
+import { getUserLocalData, UpgradeTagWithModal } from "@/components/constants/constants";
+import AskToUpgrade from "@/constants/AskToUpgrade";
+import getProfileDetails from "@/components/apis/GetProfile";
+import { useUser } from "@/hooks/redux-hooks";
+import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
+import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
+import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
+import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
+import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
+import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
+import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
+import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
+
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -93,6 +115,28 @@ const DuplicateButton = dynamic(
   }
 );
 function Page() {
+  // Redux hooks for plan management
+  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
+
+  // Add flags to prevent infinite loops
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // useEffect(() => {
+  //   console.log("reduxUser on myAgentX page", reduxUser)
+  // }, [reduxUser])
+  const {
+    canCreateAgent,
+    allowVoicemail,
+    allowToolsAndActions,
+    allowKnowledgeBases,
+    isFeatureAllowed,
+    getUpgradeMessage,
+    isFreePlan,
+    currentAgents,
+    maxAgents
+  } = usePlanCapabilities();
+
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://app.assignx.ai/"
@@ -100,14 +144,15 @@ function Page() {
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://apimyagentx.com/agentx/"
+      ? "https://app.assignx.ai/agentx/"
       : "https://apimyagentx.com/agentxtest/";
-
 
 
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
+  let attempts = 0;
+  const maxAttempts = 10;
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
@@ -127,6 +172,7 @@ function Page() {
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
+  const [showAddScoringModal, setShowAddScoringModal] = useState(false);
   const [mainAgentsList, setMainAgentsList] = useState([]);
   const [canGetMore, setCanGetMore] = useState(false);
   const [paginationLoader, setPaginationLoader] = useState(false);
@@ -213,6 +259,8 @@ function Page() {
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
   const [showSaveChangesBtn, setShowSaveChangesBtn] = useState(false);
   const [UpdateAgentLoader, setUpdateAgentLoader] = useState(false);
+  const [fetureType, setFetureType] = useState("");
+  const [moreAgentsPopupType, setMoreAgentsPopupType] = useState("");
 
   //agent KYC's
   const [kYCList, setKYCList] = useState([]);
@@ -255,6 +303,8 @@ function Page() {
 
   const [user, setUser] = useState(null);
 
+  // console.log('user', user)
+
   const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false);
   const [renameAgent, setRenameAgent] = useState("");
   const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
@@ -296,10 +346,135 @@ function Page() {
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
 
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =
-    useState(false);
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false);
 
   const [showEmbed, setShowEmbed] = useState(false);
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showMoreAgentsPopup, setShowMoreAgentsPopup] = useState(false)
+  const [title, setTitle] = useState(null)
+  const [subTitle, setSubTitle] = useState(null)
+
+  const [showAskToUpgradeModal, setShowAskToUPgradeModal] = useState(false)
+
+  // Web Agent Modal states
+  const [showWebAgentModal, setShowWebAgentModal] = useState(false)
+  const [showNewSmartListModal, setShowNewSmartListModal] = useState(false)
+  const [showAllSetModal, setShowAllSetModal] = useState(false)
+  const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null)
+
+  // Embed Modal states
+  const [showEmbedModal, setShowEmbedModal] = useState(false)
+  const [showEmbedSmartListModal, setShowEmbedSmartListModal] = useState(false)
+  const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false)
+  const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
+  const [embedCode, setEmbedCode] = useState('')
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  })
+
+
+
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    try {
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+
+  // Web Agent Modal handlers
+  const handleWebAgentClick = (agent) => {
+    setSelectedAgentForWebAgent(agent);
+    setShowWebAgentModal(true);
+    setFetureType("webagent")
+  };
+
+  const handleOpenAgentInNewTab = () => {
+    if (selectedAgentForWebAgent) {
+      const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || "");
+      // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
+      console.log('selectedAgentForWebAgent?.modelIdVapi', selectedAgentForWebAgent?.modelIdVapi)
+      console.log('selectedAgentForWebAgent?.agentUuid', selectedAgentForWebAgent?.agentUuid)
+      console.log('modelId', modelId)
+      const name = encodeURIComponent(selectedAgentForWebAgent?.name || "");
+      // return;
+      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+    }
+    setShowWebAgentModal(false);
+    setShowAllSetModal(true);
+  };
+
+  const handleShowNewSmartList = () => {
+    setShowWebAgentModal(false);
+    setShowNewSmartListModal(true);
+  };
+
+  const handleSmartListCreated = (smartListData) => {
+    setShowNewSmartListModal(false);
+    setShowAllSetModal(true);
+  };
+
+  const handleCloseAllSetModal = () => {
+    setShowAllSetModal(false);
+    setSelectedAgentForWebAgent(null);
+  };
+
+
+
+  // Embed Modal handlers
+  const handleEmbedClick = (agent) => {
+    setSelectedAgentForEmbed(agent);
+    setShowEmbedModal(true);
+  };
+
+  const handleShowEmbedSmartList = () => {
+    setShowEmbedModal(false);
+    setShowEmbedSmartListModal(true);
+  };
+
+  const handleEmbedSmartListCreated = (smartListData) => {
+    setShowEmbedSmartListModal(false);
+    setShowEmbedAllSetModal(true);
+    // Generate embed code here
+    const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+    setEmbedCode(code);
+  };
+
+  const handleCloseEmbedAllSetModal = () => {
+    setShowEmbedAllSetModal(false);
+    setSelectedAgentForEmbed(null);
+    setEmbedCode('');
+  };
 
   const playVoice = (url) => {
     if (audio) {
@@ -308,6 +483,12 @@ function Page() {
     const ad = new Audio(url); // Create a new Audio object with the preview URL
     ad.play();
     setAudio(ad); // Play the audio
+    setPreview(url);
+
+    // Handle when the audio ends
+    ad.addEventListener("ended", () => {
+      setPreview(null);
+    });
   };
 
   // const Languages  = AgentLanguagesList
@@ -354,7 +535,168 @@ function Page() {
     },
   ];
 
+
   // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
+    if (d) {
+      let calendarAddedByGoogle = JSON.parse(d)
+      if (calendarAddedByGoogle) {
+        let ag = localStorage.getItem(PersistanceKeys.SelectedAgent)
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          // console.log('selected agent from local is', agent)
+          setShowDrawerSelectedAgent(agent)
+        }
+      }
+    }
+
+    // Prefetch the createagent route for faster navigation
+    router.prefetch('/createagent');
+
+    // Cleanup function for component unmount
+  }, [])
+
+
+  // Function to sync fresh profile data to Redux
+  const syncProfileToRedux = async (skipLocalStorage = false) => {
+    try {
+      // console.log('🔄 [DASHBOARD] Fetching fresh profile data...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = getUserLocalData();
+
+        // console.log('🔄 [DASHBOARD] Syncing profile to Redux - userId:', freshUserData?.id);
+
+        // Update Redux with fresh data
+        setReduxUser({
+          token: localData.token,
+          user: freshUserData
+        });
+
+        // Only update localStorage if not skipped (to prevent loops during initialization)
+        if (!skipLocalStorage) {
+          const updatedUserData = {
+            token: localData.token,
+            user: freshUserData
+          };
+          localStorage.setItem("User", JSON.stringify(updatedUserData));
+          setUser(updatedUserData);
+        }
+      }
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error syncing profile to Redux:', error);
+    }
+  };
+
+  // Handle successful plan upgrade - refresh user data
+  const handleUpgradeSuccess = async () => {
+    // console.log('🎉 [DASHBOARD] Plan upgrade successful! Fetching fresh profile data...');
+
+    try {
+      // Always fetch fresh profile data after upgrade
+      // console.log('🔄 [DASHBOARD] Calling getProfileDetails API for latest plan info...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = getUserLocalData();
+
+        // console.log('✅ [DASHBOARD] Fresh profile data received - maxAgents:', freshUserData?.planCapabilities?.maxAgents);
+
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        // Update both Redux and localStorage
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        setUser(updatedUserData);
+
+        // console.log('🎊 [DASHBOARD] User data successfully refreshed after upgrade!');
+      } else {
+        console.error('🔴 [DASHBOARD] Failed to get fresh profile data after upgrade');
+      }
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error refreshing user data after upgrade:', error);
+    }
+  };
+
+  // Combined initialization function (merges Redux + test branch logic)
+  const initializeUserData = async () => {
+    // Prevent infinite loops
+    if (isInitializing || hasInitialized) {
+      // console.log('🛑 [DASHBOARD] Initialization already in progress or completed');
+      return;
+    }
+
+    setIsInitializing(true);
+    attempts++;
+    // console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
+
+    try {
+      const data = localStorage.getItem("User");
+      if (data) {
+        const userData = JSON.parse(data);
+        // console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
+
+        // Set local state (from test branch)
+        setUser(userData);
+
+        // Load into Redux if not already there (from our branch)
+        if (userData && !reduxUser) {
+          // console.log('🔄 [DASHBOARD] Loading localStorage to Redux');
+          setReduxUser({
+            token: userData.token,
+            user: userData.user
+          });
+        }
+
+        // Only sync profile if we haven't already initialized
+        // Skip localStorage update during initialization to prevent loops
+        if (!hasInitialized) {
+          await syncProfileToRedux(true);
+        }
+
+        setHasInitialized(true);
+
+      } else if (attempts < maxAttempts) {
+        // console.log(`⚠️ [DASHBOARD] User not found on attempt ${attempts}, retrying in 500ms...`);
+        setIsInitializing(false); // Allow retry
+        setTimeout(initializeUserData, 500); // retry after 500ms
+        return; // Don't set isInitializing to false at the end
+      } else {
+        // console.warn(`❌ [DASHBOARD] User not found in localStorage after ${attempts} attempts.`);
+        setHasInitialized(true); // Prevent further retries
+      }
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error in initializeUserData:', error);
+      setHasInitialized(true); // Prevent infinite retries on error
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  useEffect(() => {
+    // Combined initialization: Redux + localStorage with retry logic
+    // Only run once on component mount
+    if (!hasInitialized && !isInitializing) {
+      initializeUserData();
+    }
+  }, [hasInitialized, isInitializing]); // Add dependencies to prevent infinite loops
+  // get selected agent from local if calendar added by google
+
+  //printing the user object data after setting the data inside it
+  // useEffect(() => {
+  //   if (user) {
+  //     console.log("Data stored in user variable is", user)
+  //   }
+  // }, [user])
 
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle);
@@ -365,7 +707,7 @@ function Page() {
         if (ag) {
           let agent = JSON.parse(ag);
 
-          console.log("selected agent from local is", agent);
+          // console.log("selected agent from local is", agent);
           setShowDrawerSelectedAgent(agent);
         }
       }
@@ -401,7 +743,7 @@ function Page() {
     if (!d) return;
 
     const cr = JSON.parse(d);
-    console.log("credentials from local", cr);
+    // console.log("credentials from local", cr);
 
     setName(cr?.name || "");
     setPhone(cr?.phone || "");
@@ -416,17 +758,17 @@ function Page() {
       });
     }
 
-    console.log('flatExtracolumns', flatExtraColumns)
+    // console.log('flatExtracolumns', flatExtraColumns)
 
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
-      if (flatExtraColumns.hasOwnProperty(key)) {
+      if (flatExtraColumns?.hasOwnProperty(key)) {
         updatedInputValues[key] = flatExtraColumns[key];
       }
     });
 
-    console.log('updatedInputValues', updatedInputValues)
+    // console.log('updatedInputValues', updatedInputValues)
 
     setInputValues(updatedInputValues);
   }, [openTestAiModal]);
@@ -493,8 +835,27 @@ function Page() {
     }
   }, [objective]);
 
-  //function for numbers width
+  //fetch local data after 500ms
+  const checkUser = async () => {
+    // await getProfileDetails();
+    attempts++;
+    // console.log(`Trying to get user - try no ${attempts}`);
 
+    const data = localStorage.getItem("User");
+    let userData = null;
+    if (data) {
+      // console.log(`User found on try ${attempts}`);
+      // console.log("user data for showing max agents is", JSON.parse(data))
+      setUser(JSON.parse(data));
+    } else if (attempts < maxAttempts) {
+      // console.log(`User not found on try ${attempts}, retrying in 500ms...`);
+      setTimeout(checkUser, 500); // retry after 500ms
+    } else {
+      console.warn(`User not found in localStorage after ${attempts} attempts.`);
+    }
+  };
+
+  //function for numbers width
   const numberDropDownWidth = (agName) => {
     if (
       showDrawerSelectedAgent?.agentType === "outbound" ||
@@ -504,6 +865,8 @@ function Page() {
       return "100%";
     }
   };
+
+  // console.log('user?.plan?.price', user)
 
   // function findLLMModel(value) {
   //   let model = null;
@@ -606,7 +969,7 @@ function Page() {
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
-      //console.log;
+      // console.log("Trigered update api");
       setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
@@ -624,10 +987,12 @@ function Page() {
       const formData = new FormData();
 
       formData.append("media", image);
-      formData.append("agentId", showDrawerSelectedAgent.id);
+      formData.append("agentId", showDrawerSelectedAgent?.id);
+
+      // console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
 
       for (let [key, value] of formData.entries()) {
-        //// //console.log;
+        // console.log(key, value)
       }
 
       //// //console.log;
@@ -640,7 +1005,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log;
+        // console.log("response of update image is", response.data)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -696,7 +1061,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+      // console.log("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
@@ -707,12 +1072,12 @@ function Page() {
   const handleShowDrawer = (item) => {
     //console.log;
     // return
-    console.log("Agent  item", item);
+    // console.log("Agent  item", item);
 
     if (item.Calendar) {
-      console.log("Agent has calendaer in item");
+      // console.log("Agent has calendaer in item");
     } else {
-      console.log("Agent donot have calendar in the item");
+      // console.log("Agent donot have calendar in the item");
     }
 
     setAssignNumber(item?.phoneNumber);
@@ -728,12 +1093,12 @@ function Page() {
       item.agentLanguage === "English" || item.agentLanguage === "Multilingual"
         ? "en"
         : "es";
-    console.log("v", v);
+    // console.log("v", v);
     let voices = [];
 
     voices = voicesList.filter((voice) => voice.langualge === v);
 
-    console.log("filtered voices are", voices);
+    // console.log("filtered voices are", voices);
     setFilteredVoices(voices);
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
@@ -746,14 +1111,27 @@ function Page() {
     if (modelValue) {
       let model = findLLMModel(modelValue);
 
-      console.log("Selected model 2:", model);
+      // console.log("Selected model 2:", model);
       setSelectedGptManu(model);
     }
 
-    const comparedAgent = mainAgentsList.find((mainAgent) =>
-      mainAgent.agents.some((subAgent) => subAgent.id === item.id)
-    );
-    ////console.log;
+    let comparedAgent = []
+
+    // console.log('search before', search)
+    if (!search) {
+      comparedAgent = mainAgentsList.find((mainAgent) => {
+        // console.log("Main agent list is", mainAgent);
+        return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
+      });
+    } else {
+      // console.log('agentsListSeparated', agentsListSeparated)
+      comparedAgent = agentsListSeparated.find((mainAgent) => {
+        // console.log("seperated agent list is", mainAgent);
+        return mainAgent.id === item.id;
+      });
+    }
+
+    // console.log("comparedAgent is", comparedAgent);
 
     setCalendarDetails(comparedAgent);
 
@@ -1167,9 +1545,9 @@ function Page() {
 
               if (matchedAgent) {
                 setShowDrawerSelectedAgent(matchedAgent);
-                console.log("Matched Agent Stored:"); //, matchedAgent
+                // console.log("Matched Agent Stored:"); //, matchedAgent
               } else {
-                console.log("No matching agent found.");
+                // console.log("No matching agent found.");
               }
             }
 
@@ -1263,7 +1641,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`agnet key ${key} and value ${value}`);
+        // console.log(`agnet key ${key} and value ${value}`);
       }
 
       // return
@@ -1283,7 +1661,7 @@ function Page() {
         );
         if (response.data.status === true) {
           setIsVisibleSnack(true);
-          console.log("Here status true");
+          // console.log("Here status true");
           const localAgentsList = localStorage.getItem(
             PersistanceKeys.LocalStoredAgentsListMain
           );
@@ -1291,16 +1669,16 @@ function Page() {
           let agentsListDetails = [];
 
           if (localAgentsList) {
-            console.log("local agents List");
+            // console.log("local agents List");
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
             const updateAgentData = response.data.data;
-            console.log(
-              `Agent updated data ${updateAgentData.agents.length
-              } ${!showScriptModal}`,
-              updateAgentData
-            );
+            // console.log(
+            //   `Agent updated data ${updateAgentData.agents.length
+            //   } ${!showScriptModal}`,
+            //   updateAgentData
+            // );
 
             const updatedArray = agentsList.map((localItem) => {
               const apiItem =
@@ -1311,30 +1689,30 @@ function Page() {
             // let updatedSubAgent = null
             if (showDrawerSelectedAgent) {
               if (updateAgentData.agents.length > 0) {
-                console.log("Updated showDrawerAgent");
+                // console.log("Updated showDrawerAgent");
                 if (
                   updateAgentData.agents[0].id == showDrawerSelectedAgent.id
                 ) {
-                  console.log("Updated showDrawerAgent first subagent");
+                  // console.log("Updated showDrawerAgent first subagent");
                   setShowDrawerSelectedAgent(updateAgentData.agents[0]);
                 } else if (updateAgentData.agents.length > 1) {
                   if (
                     updateAgentData.agents[1].id == showDrawerSelectedAgent.id
                   ) {
-                    console.log("Updated showDrawerAgent second subagent");
+                    // console.log("Updated showDrawerAgent second subagent");
                     setShowDrawerSelectedAgent(updateAgentData.agents[1]);
                   }
                 }
               }
             } else if (showScriptModal) {
               if (updateAgentData.agents.length > 0) {
-                console.log("Updated showScriptModal");
+                // console.log("Updated showScriptModal");
                 if (updateAgentData.agents[0].id == showScriptModal.id) {
-                  console.log("Updated showScriptModal first subagent");
+                  // console.log("Updated showScriptModal first subagent");
                   setShowScriptModal(updateAgentData.agents[0]);
                 } else if (updateAgentData.agents.length > 1) {
                   if (updateAgentData.agents[1].id == showScriptModal.id) {
-                    console.log("Updated showScriptModal second subagent");
+                    // console.log("Updated showScriptModal second subagent");
                     setShowScriptModal(updateAgentData.agents[1]);
                   }
                 }
@@ -1349,7 +1727,7 @@ function Page() {
             setMainAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           } else {
-            console.log("No local agents list");
+            // console.log("No local agents list");
           }
 
           // setShowDrawer(null);
@@ -1366,12 +1744,12 @@ function Page() {
   };
 
   const updateSubAgent = async (voiceData = null, model = null) => {
-    console.log(
-      "Updating sub agent with voiceData:",
-      voiceData,
-      "and model:",
-      model
-    );
+    // console.log(
+    //   "Updating sub agent with voiceData:",
+    //   voiceData,
+    //   "and model:",
+    //   model
+    // );
 
     // return
     try {
@@ -1428,9 +1806,9 @@ function Page() {
           formData.append("agentLLmModel", model);
         }
 
-        console.log("Data to update");
+        // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
+          // console.log(`${key}: ${value}`);
         }
 
         // return
@@ -1442,10 +1820,10 @@ function Page() {
 
         if (response) {
           // setShowRenameAgentPopup(false);
-          console.log(
-            "Response of update sub agent api is :--",
-            response.data.data
-          );
+          // console.log(
+          //   "Response of update sub agent api is :--",
+          //   response.data.data
+          // );
           // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(
@@ -1681,7 +2059,7 @@ function Page() {
     ) {
       return;
     }
-    console.log("Matching agent data:", agentData);
+    // console.log("Matching agent data:", agentData);
     setKYCList(agentData[0].kyc);
 
     ////console.log;
@@ -1723,7 +2101,7 @@ function Page() {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        setUser(UserDetails);
+        // setUser(UserDetails);
         AuthToken = UserDetails.token;
       }
 
@@ -1882,7 +2260,7 @@ function Page() {
         extraColumns: newArray,
       };
 
-      console.log('ApiData', ApiData)
+      // console.log('ApiData', ApiData)
 
       localStorage.setItem(
         PersistanceKeys.TestAiCredentials,
@@ -1983,6 +2361,13 @@ function Page() {
     }
 
     getCalenders();
+
+    // Cleanup function to clear timeouts
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   const handleSelectProfileImg = (index) => {
@@ -2011,6 +2396,12 @@ function Page() {
   ) => {
     setPaginationLoader(true);
 
+    // Clear previous data if it's a new search to prevent memory buildup
+    if (search && searchLoader) {
+      setMainAgentsList([]);
+      setAgentsListSeparated([]);
+    }
+
     //test code failed for saving search value
 
     // if (searchLoader && !search) {
@@ -2019,7 +2410,7 @@ function Page() {
     //   return
     // }
 
-    console.log("Pagination status passed is", paginationStatus);
+    // console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
     try {
       const agentLocalDetails = localStorage.getItem(
@@ -2035,7 +2426,7 @@ function Page() {
         offset = 0;
         ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`;
       }
-      console.log("Api path is", ApiPath);
+      // console.log("Api path is", ApiPath);
 
       const Auth = AuthToken();
       ////console.log;
@@ -2089,7 +2480,7 @@ function Page() {
         //console.log;
         setPaginationLoader(false);
         let agents = response.data.data || [];
-        console.log("Agents from api", agents);
+        // console.log("Agents from api", agents);
         setOldAgentsList(agents);
         if (agents.length >= 6) {
           setCanGetMore(true);
@@ -2112,6 +2503,8 @@ function Page() {
           });
 
           setAgentsListSeparated(subAgents);
+
+
           return;
         }
 
@@ -2121,12 +2514,13 @@ function Page() {
           newList.push(...agents); // append all agents at once
         }
 
-        console.log("Agents after pushing", newList);
-
-        localStorage.setItem(
-          PersistanceKeys.LocalStoredAgentsListMain,
-          JSON.stringify(newList)
-        );
+        // console.log("Agents after pushing", newList);
+        if (!search) {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(newList)
+          );
+        }
         setMainAgentsList(newList);
       }
     } catch (error) {
@@ -2137,14 +2531,98 @@ function Page() {
     }
   };
 
-  //function to add new agent
+
+  //function to add new agent by more agents popup
+  const handleAddAgentByMoreAgentsPopup = () => {
+    try {
+      setShowMoreAgentsPopup(false)
+      console.log("handleAddAgentByMoreAgentsPopup is called")
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
+
+      localStorage.setItem("AddAgentByPayingPerMonth", JSON.stringify({
+        status: true,
+      }));
+      //remove data from local storage after 2 minutes
+      setTimeout(() => {
+        localStorage.removeItem("AddAgentByPayingPerMonth");
+        console.log("AddAgentByPayingPerMonth removed from local storage")
+      }, 2 * 60 * 1000);
+
+      console.log("routing to createagent from add new agent function")
+
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => {
+        router.push('/createagent');
+      }, 0);
+    } catch (error) {
+      console.error("Error in handleAddAgentByMoreAgentsPopup:", error);
+    }
+  }
+
+  //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
-    event.preventDefault();
+
+    try {
+    // event.preventDefault();
+    // setShowMoreAgentsPopup(true)
+    // return
+
+    // Combined plan checking - use Redux as primary, localStorage as fallback
+    // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
+
+    // Use Redux plan capabilities as primary source
+    if (reduxUser?.planCapabilities) {
+      // console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
+      if (!canCreateAgent) {
+        if (isFreePlan && currentAgents >= 1) {
+          // console.log('🚫 [DASHBOARD] Free plan user has reached limit');
+          setShowUpgradeModal(true)
+          return
+        } else if (currentAgents >= maxAgents) {
+          // console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities');
+          setShowMoreAgentsPopup(true)
+          setMoreAgentsPopupType("newagent")
+          return
+        }
+      }
+    } else {
+      // Fallback to localStorage logic (from test branch)
+      // console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
+
+      // Check if user is on free plan and has reached their limit
+      if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+          // console.log('Free plan user has reached limit');
+          setShowUpgradeModal(true)
+          return
+        }
+      }
+
+      // Check if paid plan user has reached their agent limit
+      if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+        // console.log('Paid plan user is over the allowed capabilities');
+        setShowMoreAgentsPopup(true)
+        setMoreAgentsPopupType("newagent")
+        return
+      }
+    }
+
+    // User can create agent - proceed to creation
+    // console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
     const data = {
       status: true,
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
-    router.push("/createagent");
+    console.log("routing to createagent from add new agent function")
+    setTimeout(() => {
+      router.push('/createagent');
+    }, 0);
+    } catch (error) {
+      console.error("Error in handleAddNewAgent:", error);
+    }
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2205,7 +2683,7 @@ function Page() {
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
-    const selectedVoice = filteredVoices.find(
+    const selectedVoice = voicesList.find(
       (voice) => voice.name === event.target.value
     );
 
@@ -2276,16 +2754,64 @@ function Page() {
     }
   };
 
+  const shouldDuplicateAgent = async () => {
+    console.log("shouldDuplicateAgent is called", reduxUser?.planCapabilities)
+    console.log("canCreateAgent", canCreateAgent)
+    console.log("isFreePlan", isFreePlan)
+    console.log("currentAgents", currentAgents)
+    console.log("maxAgents", maxAgents)
+    if (reduxUser?.planCapabilities) {
+      if (!canCreateAgent) {
+        if (isFreePlan && currentAgents >= 1) {
+          setShowUpgradeModal(true)
+          setTitle("Unlock your Web Agent")
+          setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+          setShowDuplicateConfirmationPopup(false)
+          return
+        } else if (currentAgents >= maxAgents) {
+          setShowMoreAgentsPopup(true)
+          setMoreAgentsPopupType("duplicate")
+          // setShowDuplicateConfirmationPopup(false)
+          return
+        }
+      }
+      handleDuplicate()
+    } else {
+      // Fallback to localStorage logic
+      const user = getUserLocalData();
+      if (user?.user?.planCapabilities) {
+        // Check if user is on free plan and has reached their limit
+        if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+          if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+            setShowUpgradePlanModal(true)
+            setMoreAgentsPopupType("duplicate")
+            // setShowDuplicateConfirmationPopup(false)
+            return
+          }
+        }
+
+        // Check if paid plan user has reached their agent limit
+        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+          setShowUpgradePlanModal(true)
+          setMoreAgentsPopupType("duplicate")
+          // setShowDuplicateConfirmationPopup(false)
+          return
+        }
+
+        handleDuplicate()
+      }
+    }
+  }
+
   const handleDuplicate = async () => {
-    console.log("Duplicate agent clicked");
+    // duplicate agent
     setDuplicateLoader(true);
-    setShowDuplicateConfirmationPopup(false);
     try {
       const data = localStorage.getItem("User");
 
       if (data) {
         const userData = JSON.parse(data);
-        const AuthToken = userData.token;
+        const token = AuthToken();
         const ApiPath = Apis.duplicateAgent;
 
         let apidata = {
@@ -2294,15 +2820,18 @@ function Page() {
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
+            Authorization: "Bearer " + token,
           },
         });
 
         if (response) {
           setDuplicateLoader(false);
-          if (response.data.status === true) {
-            console.log("duplicate agent data ", response);
+          setShowDuplicateConfirmationPopup(false);
 
+          // console.log("duplicate agent data ", response);
+          if (response.data.status === true) {
+            await refreshUserData();
+            setMoreAgentsPopupType("")
             setShowSuccessSnack("Agent duplicated successfully");
             setIsVisibleSnack(true);
             const localAgentsList = localStorage.getItem(
@@ -2320,12 +2849,16 @@ function Page() {
               );
               setMainAgentsList(updatedArray);
             }
+          } else {
+            // setmoreAgentsPopupType("")
+            setShowErrorSnack(response.data.message);
+            setIsVisibleSnack2(true);
           }
         }
       }
     } catch (error) {
       setDuplicateLoader(false);
-      // console.error("Error occured in duplicate agent api is", error);
+      console.error("Error occured in duplicate agent api is", error);
       // setShowErrorSnack("Error occured while duplicating agent");
       const errorMessage =
         error?.response?.data?.message || error?.message || error.toString();
@@ -2337,17 +2870,38 @@ function Page() {
   };
 
   const handleLanguageChange = async (event) => {
-    setShowLanguageLoader(true);
     let value = event.target.value;
-    console.log("selected language is", value);
+    // console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
+
+    // Combined language selection checking - Redux first, localStorage fallback
+    if (value === "Multilingual") {
+      // Use Redux plan capabilities as primary source
+      if (reduxUser?.planCapabilities) {
+        if (!isFeatureAllowed('allowLanguageSelection')) {
+          // Trigger the upgrade modal from UpgradeTagWithModal
+          setShowUpgradePlanModal(true);
+          return
+        }
+      } else {
+        // Fallback to localStorage logic
+        if (user?.user?.planCapabilities?.allowLanguageSelection === false) {
+          // Trigger the upgrade modal from UpgradeTagWithModal
+          setShowUpgradePlanModal(true);
+          return
+        }
+      }
+    }
+
+    setShowLanguageLoader(true);
+
 
     let voice = voicesList.find((voice) => voice.name === SelectedVoice);
 
     let selectedLanguage =
       value === "English" || value === "Multilingual" ? "en" : "es";
 
-    console.log("selected langualge", selectedLanguage);
+    // console.log("selected langualge", selectedLanguage);
     let voiceData = {};
 
     voiceData = {
@@ -2360,7 +2914,8 @@ function Page() {
     if (selectedLanguage != voice.langualge) {
       // update voice list as well
       setFilteredVoices(
-        voicesList.filter((voice) => voice.langualge === selectedLanguage)
+        // voicesList.filter((voice) => voice.langualge === selectedLanguage)
+        voicesList
       );
 
       const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
@@ -2439,23 +2994,64 @@ function Page() {
       });
   };
 
+  const handleWebhookClick = () => {
+    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+    } else {
+
+      let modelId = showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""
+
+      let url = demoBaseUrl + "api/agent/demoAi/" + modelId
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          // alert("Embed code copied to clipboard!");
+          setShowSuccessSnack("Webhook URL Copied");
+          setIsVisibleSnack(true);
+          setShowWebAgentModal(false);
+          setShowAllSetModal(false);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
+  };
+
   const handleCopy = (assistantId, baseUrl) => {
-    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+    } else {
+
+      const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`;
 
-    navigator.clipboard
-      .writeText(iframeCode)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Embed widget copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+      navigator.clipboard
+        .writeText(iframeCode)
+        .then(() => {
+          // alert("Embed code copied to clipboard!");
+          setShowSuccessSnack("Embed widget copied");
+          setIsVisibleSnack(true);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
   };
+
+
+  const handleDrawerClose = async () => {
+    setShowDrawerSelectedAgent(null);
+    await getProfileDetails()
+    // Sync fresh profile data to Redux after profile update
+    await syncProfileToRedux();
+    setActiveTab("Agent Info");
+  }
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -2477,38 +3073,82 @@ function Page() {
           message={showErrorSnack}
           type={SnackbarTypes.Error}
         />
+
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
+          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        />
       </div>
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
+        <div className="flex flex-row items-center gap-3">
 
+          <div style={{ fontSize: 24, fontWeight: "600" }}
+            onClick={() => {
+              console.log("routing to createagent from agents title")
+             router.push('/createagent')
+            }}
+          >
+            Agents
+          </div>
+          {reduxUser?.plan?.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000 && (
+            <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+              {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
+            </div>
+          )}
+
+          {
+            (reduxUser?.plan?.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000) && (
+              <Tooltip
+                title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#ffffff", // Ensure white background
+                      color: "#333", // Dark text color
+                      fontSize: "14px",
+                      padding: "10px 15px",
+                      borderRadius: "8px",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: "#ffffff", // Match tooltip background
+                    },
+                  },
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: "#000000",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                  // onClick={() => setIntroVideoModal2(true)}
+                  />
+                </div>
+              </Tooltip>
+            )
+          }
+        </div>
         <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded-full pe-2">
+          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded-full px-4">
             <input
               // style={styles.paragraph}
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
               placeholder="Search an agent"
               value={search}
               onChange={(e) => {
-                //test code failed
-                // let a = e.target.value;
-                // if (a) {
-                //   console.log("There was some value");
-                //   setAgentsBeforeSearch(agentsListSeparated);
-                //   clearTimeout(searchTimeoutRef.current);
-                //   searchTimeoutRef.current = setTimeout(() => {
-                //     // handleSearch(e);
-                //     let searchLoader = true;
-                //     getAgents(false, e.target.value, searchLoader)
-                //   }, 500);
-                // } else if (!a) {
-                //   console.log("There was no value");
-                //   setAgentsListSeparated(agentsBeforeSearch);
-
-                // }
 
                 setSearch(e.target.value);
                 if (canGetMore === true) {
@@ -2517,7 +3157,10 @@ function Page() {
                   setCanKeepLoading(false);
                 }
 
-                clearTimeout(searchTimeoutRef.current);
+                // Clear existing timeout to prevent memory leaks
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current);
+                }
                 searchTimeoutRef.current = setTimeout(() => {
                   // handleSearch(e);
                   let searchLoader = true;
@@ -2570,7 +3213,9 @@ function Page() {
               bottom: 0,
             }}
           >
-            <DashboardSlider needHelp={false} />
+            {/*
+              <DashboardSlider needHelp={false} />
+            */}
           </div>
         </div>
       </div>
@@ -2590,7 +3235,7 @@ function Page() {
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
-              console.log("p", s);
+              // console.log("p", s);
               getAgents(p, s); //user
             }}
             search={search}
@@ -2626,7 +3271,8 @@ function Page() {
         {agentsListSeparated.length > 0 && (
           <Link
             className="w-full py-6 flex justify-center items-center"
-            href="/createagent"
+            href=""
+            prefetch={true}
             style={{
               // marginTop: 40,
               border: "1px dashed #7902DF",
@@ -2694,19 +3340,11 @@ function Page() {
                     justifyContent: "end",
                   }}
                 >
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowRenameAgentPopup(null);
                     }}
-                    className="outline-none absolute right-4"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -2826,7 +3464,17 @@ function Page() {
                       </div>
                     )}
                   </div>
-                  <button
+
+                  <CloseBtn
+                    onClick={() => {
+                      // setShowRenameAgentPopup(null);
+                      setOpenTestAiModal(false);
+                      setName("");
+                      setPhone("");
+                      setErrorMessage("");
+                    }}
+                  />
+                  {/* <button
                     onClick={() => {
                       setOpenTestAiModal(false);
                       setName("");
@@ -2840,7 +3488,7 @@ function Page() {
                       width={24}
                       alt="*"
                     />
-                  </button>
+                  </button> */}
                 </div>
 
                 <div
@@ -2989,6 +3637,70 @@ function Page() {
         </Box>
       </Modal>
 
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+        onUpgradeSuccess={handleUpgradeSuccess}
+        title={title || "Unlock More Agents"}
+        subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
+        buttonTitle={"No Thanks"} f
+        functionality="webAgent"
+
+
+      />
+
+      <UpgradePlan
+        selectedPlan={null}
+        setSelectedPlan={() => { }}
+        open={showUpgradePlanModal}
+        handleClose={async (upgradeResult) => {
+          setShowUpgradePlanModal(false);
+          if (upgradeResult) {
+            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
+            setShowDuplicateConfirmationPopup(false);
+            await refreshUserData();
+          }
+        }}
+        plan={null}
+        currentFullPlan={reduxUser?.user?.plan}
+      />
+
+      <MoreAgentsPopup
+        open={showMoreAgentsPopup}
+        onClose={() => setShowMoreAgentsPopup(false)}
+        onUpgrade={() => {
+          setShowMoreAgentsPopup(false);
+          setShowUpgradePlanModal(true);
+        }}
+        onAddAgent={() => {
+          console.log("moreAgentsPopupType", moreAgentsPopupType)
+          if (moreAgentsPopupType === "duplicate") {
+            setShowMoreAgentsPopup(false);
+            handleDuplicate()
+          } else if(moreAgentsPopupType === "newagent"){
+            handleAddAgentByMoreAgentsPopup()
+
+            // router.push('/createagent')
+            // setShowMoreAgentsPopup(false);
+          } else {
+          //  router.push('/createagent')
+          //  setShowMoreAgentsPopup(false);
+            handleAddAgentByMoreAgentsPopup()
+          }
+        }}
+        costPerAdditionalAgent={reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}
+        from={"myAgentX"}
+      />
+
+      <AskToUpgrade
+        open={showAskToUpgradeModal}
+        handleClose={() => {
+          setShowAskToUPgradeModal(false)
+        }}
+      />
+
       {/* Error snack bar message */}
 
       {/* drawer */}
@@ -2997,8 +3709,7 @@ function Page() {
         anchor="right"
         open={showDrawerSelectedAgent != null}
         onClose={() => {
-          setShowDrawerSelectedAgent(null);
-          setActiveTab("Agent Info");
+          handleDrawerClose()
         }}
         PaperProps={{
           sx: {
@@ -3193,7 +3904,8 @@ function Page() {
                   <DuplicateConfirmationPopup
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                    handleDuplicate={handleDuplicate}
+                    handleDuplicate={shouldDuplicateAgent}
+                    duplicateLoader={duplicateLoader}
                   />
                   <div className="flex flex-col gap-2  ">
                     {/* GPT Button */}
@@ -3244,55 +3956,55 @@ function Page() {
                             "& .MuiPaper-root": {
                               borderRadius: "12px",
                               padding: "8px",
-                              minWidth: "180px",
+                              minWidth: "220px",
                             },
                           }}
                         >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                              <Avatar
-                                src={model.icon}
-                                sx={{ width: 24, height: 24 }}
-                              />
-                              <span style={{ fontSize: "14px", fontWeight: "500" }}>
-                                {model.name}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                backgroundColor: "#7902DF05",
-                                color: "#7902DF",
-                                padding: "4px 8px",
-                                borderRadius: "12px",
-                                fontSize: "12px",
-                                fontWeight: "600",
-                                minWidth: "fit-content",
+                          {models.map((model, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "10px",
+                                padding: "8px 12px",
+                                borderRadius: "8px",
+                                transition: "background 0.2s",
+                                "&:hover": {
+                                  backgroundColor: model.disabled
+                                    ? "inherit"
+                                    : "#F5F5F5",
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
                               }}
                             >
-                              {model.responseTime}
-                            </div>
-                          </MenuItem>
-                        ))}
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Avatar
+                                  src={model.icon}
+                                  sx={{ width: 24, height: 24 }}
+                                />
+                                <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                                  {model.name}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  backgroundColor: "#7902DF05",
+                                  color: "#7902DF",
+                                  padding: "4px 8px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  minWidth: "fit-content",
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
+                            </MenuItem>
+                          ))}
                         </Menu>
                       </div>
                     )}
@@ -3306,16 +4018,13 @@ function Page() {
                     loading={duplicateLoader}
                   />
                   <button onClick={() => {
-                    console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
-                    // return;
-                    // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
-                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                    const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
-                    const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
-
-                    window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
-
+                    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                      setShowUpgradeModal(true)
+                      setTitle("Unlock your Web Agent")
+                      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                    } else {
+                      handleWebAgentClick(showDrawerSelectedAgent);
+                    }
                   }}
                   >
                     <Image
@@ -3326,16 +4035,40 @@ function Page() {
                     />
                   </button>
                   <button
-                    style={{ paddingStart: "3px" }}
+                    style={{ paddingLeft: "3px" }}
                     onClick={() => {
-                      handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl);
+                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        setShowUpgradeModal(true)
+                        setTitle("Unlock your Web Agent")
+                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                      } else {
+                        handleEmbedClick(showDrawerSelectedAgent);
+                      }
                     }}
                   >
-                    <Image
-                      src={"/svgIcons/embedIcon.svg"}
-                      height={22}
-                      width={22}
-                      alt="*"
+                    <Image src={'/svgIcons/embedIcon.svg'}
+                      height={22} width={22} alt="*"
+                    />
+                  </button>
+
+                  <button
+                    style={{ paddingLeft: "3px" }}
+                    onClick={() => {
+                      // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        setShowUpgradeModal(true)
+                        setTitle("Unlock your Web Agent")
+                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                      } else {
+                      
+                      setFetureType("webhook")
+                      setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                      setShowWebAgentModal(true)
+                      }
+                    }}
+                  >
+                    <Image src={'/svgIcons/webhook.svg'}
+                      height={22} width={22} alt="*"
                     />
                   </button>
 
@@ -3511,9 +4244,9 @@ function Page() {
                               const selectedVoice = AgentLanguagesList.find(
                                 (lang) => lang?.title === selected
                               );
-                              console.log(
-                                `Selected Language for ${selected} is ${selectedVoice?.title}`
-                              );
+                              // console.log(
+                              //   `Selected Language for ${selected} is ${selectedVoice?.title}`
+                              // );
                               //  return selectedVoice ? selectedVoice.title : null;
 
                               return (
@@ -3567,7 +4300,12 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                // disabled={index !== 0}//languageValue === item?.title ||
+                                  // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
+                                  style={
+                                    item.value === "multi" && reduxUser?.planCapabilities?.allowLanguageSelection === false
+                                      ? { pointerEvents: "auto" }
+                                      : {}
+                                  }
                                 >
                                   <Image
                                     src={item?.flag}
@@ -3581,6 +4319,23 @@ function Page() {
                                   >
                                     {item.subLang}
                                   </div>
+
+                                  {
+                                    item.value === "multi" && (
+                                      // Combined check - Redux first, localStorage fallback
+                                      (reduxUser?.planCapabilities ?
+                                        !isFeatureAllowed('allowLanguageSelection') :
+                                        user?.user?.planCapabilities?.allowLanguageSelection === false
+                                      )
+                                    ) && (
+                                      <UpgradeTagWithModal
+                                        externalTrigger={showUpgradePlanModal}
+                                        onModalClose={() => setShowUpgradePlanModal(false)}
+                                        reduxUser={reduxUser}
+                                        setReduxUser={setReduxUser}
+                                      />
+                                    )
+                                  }
                                 </MenuItem>
                               );
                             })}
@@ -3624,13 +4379,13 @@ function Page() {
                             onChange={handleChangeVoice}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
-                              console.log("selected", selected);
+                              // console.log("selected", selected);
                               if (!selected)
                                 return (
                                   <div style={{ color: "#aaa" }}>Select</div>
                                 );
 
-                              const selectedVoice = filteredVoices.find(
+                              const selectedVoice = voicesList.find(
                                 (voice) => voice.name === selected
                               );
 
@@ -3673,9 +4428,9 @@ function Page() {
                               },
                             }}
                           >
-                            {filteredVoices.map((item, index) => {
+                            {voicesList.map((item, index) => {
                               const selectedVoiceName = (id) => {
-                                const voiceName = filteredVoices.find(
+                                const voiceName = voicesList.find(
                                   (voice) => voice.voice_id === id
                                 );
                                 return voiceName?.name || "Unknown";
@@ -3705,20 +4460,21 @@ function Page() {
                                   {item.preview ? (
                                     <div //style={{marginLeft:15}}
                                       onClick={(e) => {
-                                        console.log(
-                                          "audio preview ",
-                                          item.preview
-                                        );
+                                        // console.log(
+                                        //   "audio preview ",
+                                        //   item.preview
+                                        // );
                                         e.stopPropagation(); // Prevent dropdown from closing
                                         e.preventDefault(); // Prevent selection event
 
                                         if (preview === item.preview) {
                                           if (audio) {
                                             audio.pause();
+                                            audio.removeEventListener("ended", () => { });
                                           }
                                           setPreview(null);
                                         } else {
-                                          setPreview(item.preview);
+
                                           playVoice(item.preview);
                                         }
                                       }}
@@ -4168,10 +4924,10 @@ function Page() {
                                       if (showReassignBtn && item?.claimedBy) {
                                         e.stopPropagation();
                                         setShowConfirmationModal(item);
-                                        console.log(
-                                          "Hit release number api",
-                                          item
-                                        );
+                                        // console.log(
+                                        //   "Hit release number api",
+                                        //   item
+                                        // );
                                         // AssignNumber
                                       } else {
                                         //console.log;
@@ -4253,10 +5009,10 @@ function Page() {
                                     "inbound")
                                 }
                                 onClick={() => {
-                                  console.log(
-                                    "This triggers when user clicks on assigning global number",
-                                    assignNumber
-                                  );
+                                  // console.log(
+                                  //   "This triggers when user clicks on assigning global number",
+                                  //   assignNumber
+                                  // );
                                   // return;
                                   AssignNumber(Constants.GlobalPhoneNumber);
                                   // handleReassignNumber(showConfirmationModal);
@@ -4355,33 +5111,41 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-
-                    <div className="flex flex-row items-center justify-between gap-2">
-                      <div>
-                        {showDrawerSelectedAgent?.liveTransferNumber ? (
+                    {
+                      reduxUser?.planCapabilities?.allowLiveCallTransfer ? (
+                        <div className="flex flex-row items-center justify-between gap-2">
                           <div>
-                            {showDrawerSelectedAgent?.liveTransferNumber}
+                            {showDrawerSelectedAgent?.liveTransferNumber ? (
+                              <div>
+                                {showDrawerSelectedAgent?.liveTransferNumber}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
                           </div>
-                        ) : (
-                          "-"
-                        )}
-                      </div>
-                      <button
-                        onClick={() => {
-                          setShowEditNumberPopup(
-                            showDrawerSelectedAgent?.liveTransferNumber
-                          );
-                          setSelectedNumber("Calltransfer");
-                        }}
-                      >
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
+                          <button
+                            onClick={() => {
+                              setShowEditNumberPopup(
+                                showDrawerSelectedAgent?.liveTransferNumber
+                              );
+                              setSelectedNumber("Calltransfer");
+                            }}
+                          >
+                            <Image
+                              src={"/svgIcons/editIcon2.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          </button>
+                        </div>
+                      ) : (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
                         />
-                      </button>
-                    </div>
+                      )
+                    }
                   </div>
                 </div>
 
@@ -4417,26 +5181,49 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              <div>
-                <div
-                  className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                  style={
-                    {
-                      // backgroundColor: "red"
-                    }
-                  }
-                ></div>
-
-                <UserCalender
-                  calendarDetails={calendarDetails}
-                  setUserDetails={setMainAgentsList}
-                  selectedAgent={showDrawerSelectedAgent}
-                  mainAgentId={MainAgentId}
-                  previousCalenders={previousCalenders}
-                  updateVariableData={updateAfterAddCalendar}
-                  setSelectedAgent={setShowDrawerSelectedAgent}
+              user?.agencyCapabilities?.allowToolsAndActions === false ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Actions"}
+                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
                 />
-              </div>
+              ) : !allowToolsAndActions ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Actions"}
+                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                />
+              ) :
+                <div className="w-full">
+                  <div
+                    className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                    style={
+                      {
+                        // backgroundColor: "red"
+                      }
+                    }
+                  ></div>
+
+                  {/* Calendar Section */}
+                  <UserCalender
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    setSelectedAgent={setShowDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                    setShowUpgradeModal={setShowUpgradeModal}
+                  />
+
+                  {/* Lead Scoring Section */}
+                  <LeadScoring
+                    activeTab={activeTab}
+                    showDrawerSelectedAgent={showDrawerSelectedAgent}
+                    setShowAddScoringModal={setShowAddScoringModal}
+
+                  />
+                </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
                 <PiepelineAdnStage
@@ -4446,19 +5233,49 @@ function Page() {
                 />
               </div>
             ) : activeTab === "Knowledge" ? (
-              <div className="flex flex-col gap-4">
-                <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
-              </div>
-            ) : activeTab === "Voicemail" ? (
-              <div className="flex flex-col gap-4 w-full">
-                <VoiceMailTab
-                  setMainAgentsList={setMainAgentsList}
-                  agent={showDrawerSelectedAgent}
-                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                  kycsData={kycsData}
-                  uniqueColumns={uniqueColumns}
+              user?.agencyCapabilities?.allowKnowledgeBases === false ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Knowledge Base"}
+                  subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
                 />
-              </div>
+              ) : !allowKnowledgeBases ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Knowledge Base"}
+                  subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
+                />
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <Knowledgebase user={reduxUser} agent={showDrawerSelectedAgent}
+                    setShowUpgradeModal={setShowUpgradeModal}
+                  />
+                </div>
+              )
+            ) : activeTab === "Voicemail" ? (
+              user?.agencyCapabilities?.allowVoicemail === false ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Voicemail"}
+                  subTitle={"Upgrade to enable voicemail features for your outbound agents."}
+                />
+              ) : !allowVoicemail ? (
+                <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
+                  title={"Unlock Voicemail"}
+                  subTitle={"Upgrade to enable voicemail features for your outbound agents."}
+                />
+              ) : (
+                <div className="flex flex-col gap-4 w-full">
+                  <VoiceMailTab
+                    setMainAgentsList={setMainAgentsList}
+                    agent={showDrawerSelectedAgent}
+                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    kycsData={kycsData}
+                    uniqueColumns={uniqueColumns}
+                  />
+                </div>
+              )
             ) : (
               ""
             )}
@@ -4507,15 +5324,16 @@ function Page() {
               </div>
             </button>
           </div>
-        </div>
-      </Drawer>
+        </div >
+      </Drawer >
 
       {/* Code to del agent */}
-      <Modal
+      < Modal
         open={delAgentModal}
         onClose={() => {
           setDelAgentModal(false);
-        }}
+        }
+        }
         BackdropProps={{
           timeout: 200,
           sx: {
@@ -4575,7 +5393,7 @@ function Page() {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">
+              <button className="w-1/2 text-[#6b7280] outline-none  h-[50px] outline-none">
                 Cancel
               </button>
               <div className="w-1/2">
@@ -4603,7 +5421,7 @@ function Page() {
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal >
 
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
@@ -4648,18 +5466,11 @@ function Page() {
                 >
                   Reassign Number
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowConfirmationModal(null);
                   }}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div
@@ -4983,7 +5794,7 @@ function Page() {
                           from={"Prompt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={(text) => {
-                            console.log("Text updated ", text);
+                            // console.log("Text updated ", text);
                             setScriptTagInput(text);
                             // let agent = showScriptModal;
                             // agent.prompt.callScript = text;
@@ -5207,18 +6018,90 @@ function Page() {
         videoUrl={HowtoVideos.Calendar}
       />
 
-      {showClaimPopup && (
-        <ClaimNumber
-          showClaimPopup={showClaimPopup}
-          handleCloseClaimPopup={handleCloseClaimPopup}
-          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-          setSelectNumber={setAssignNumber}
-          setPreviousNumber={setPreviousNumber}
-          previousNumber={previousNumber}
-          AssignNumber={AssignNumber}
-        />
-      )}
-    </div>
+      {
+        showClaimPopup && (
+          <ClaimNumber
+            showClaimPopup={showClaimPopup}
+            handleCloseClaimPopup={handleCloseClaimPopup}
+            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+            setSelectNumber={setAssignNumber}
+            setPreviousNumber={setPreviousNumber}
+            previousNumber={previousNumber}
+            AssignNumber={AssignNumber}
+          />
+        )
+      }
+
+      {/* Web Agent Modals */}
+      <WebAgentModal
+        open={showWebAgentModal}
+        onClose={() => setShowWebAgentModal(false)}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        modelId={selectedAgentForWebAgent?.modelIdVapi ||selectedAgentForWebAgent?.agentUuid || ""}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onOpenAgent={handleOpenAgentInNewTab}
+        onShowNewSmartList={handleShowNewSmartList}
+        agentSmartRefill={selectedAgentForWebAgent?.smartListId}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
+
+      />
+
+      <NewSmartListModal
+        open={showNewSmartListModal}
+        onClose={() => setShowNewSmartListModal(false)}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onSuccess={handleSmartListCreated}
+      />
+
+      <AllSetModal
+        open={showAllSetModal}
+        onClose={handleCloseAllSetModal}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        onOpenAgent={handleOpenAgentInNewTab}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
+      />
+
+      {/* Embed Modals */}
+      <EmbedModal
+        open={showEmbedModal}
+        onClose={() => setShowEmbedModal(false)}
+        agentName={selectedAgentForEmbed?.name || ""}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        onShowSmartList={handleShowEmbedSmartList}
+        onShowAllSet={() => {
+          setShowEmbedModal(false);
+          setShowEmbedAllSetModal(true);
+          const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+          setEmbedCode(code);
+        }}
+      />
+
+      <EmbedSmartListModal
+        open={showEmbedSmartListModal}
+        onClose={() => setShowEmbedSmartListModal(false)}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        onSuccess={handleEmbedSmartListCreated}
+        fetureType={fetureType}
+      />
+
+      <AllSetModal
+        open={showEmbedAllSetModal}
+        onClose={handleCloseEmbedAllSetModal}
+        agentName={selectedAgentForEmbed?.name || ""}
+        isEmbedFlow={true}
+        embedCode={embedCode}
+        // fetureType={fetureType}
+        // onCopyUrl={handleWebhookClick}
+      />
+
+
+    </div >
   );
 }
 

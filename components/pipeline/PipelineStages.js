@@ -8,11 +8,13 @@ import {
   CircularProgress,
   Fade,
   FormControl,
+  Menu,
   MenuItem,
   Modal,
   Popover,
   Select,
   Snackbar,
+  Tooltip,
 } from "@mui/material";
 import Apis from "../apis/Apis";
 import axios from "axios";
@@ -23,6 +25,16 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getA2PNumbers, getGmailAccounts, getTempletes } from "./TempleteServices";
+import EmailTempletePopup from "./EmailTempletePopup";
+import SMSTempletePopup from "./SMSTempletePopup";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
+import AuthSelectionPopup from "./AuthSelectionPopup";
+import { PersistanceKeys } from "@/constants/Constants";
+import { getUserLocalData, UpgradeTagWithModal } from "../constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
+
 
 const PipelineStages = ({
   stages,
@@ -34,6 +46,7 @@ const PipelineStages = ({
   rowsByIndex,
   removeRow,
   addRow,
+  updateRow,
   nextStage,
   handleSelectNextChange,
   selectedPipelineStages,
@@ -81,6 +94,10 @@ const PipelineStages = ({
   const [addStageLoader, setAddStageLoader] = useState(false);
   //code for advance setting modal inside new stages
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+
+
   //code for input arrays
   const [inputs, setInputs] = useState([
     {
@@ -102,9 +119,210 @@ const PipelineStages = ({
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
+
+  //templetes variables
+  const [templates, setTempletes] = useState([])
+  const [tempLoader, setTempLoader] = useState(null)
+
+  const [showEmailTemPopup, setShowEmailTempPopup] = useState(false)
+  const [showSmsTemPopup, setShowSmsTempPopup] = useState(false)
+
+  const [phoneNumbers, setPhoneNumbers] = useState([])
+  const [phoneLoading, setPhoneLoading] = useState(false)
+  const [selectedType, setSelectedType] = useState(null)
+
+  const [selectedIndex, setSelectedIndex] = useState(null)
+
+  // Edit functionality variables
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingRow, setEditingRow] = useState(null)
+  const [editingStageIndex, setEditingStageIndex] = useState(null)
+
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+
+  // Use Redux for user data instead of local state
+  const { user: userData, setUser: setUserData, token } = useUser();
+  const [user, setUser] = useState(userData); // Keep local state for compatibility
+  const [gmailAccounts, setGmailAccounts] = useState([])
+  const [accountLoader, setAccountLoader] = useState(false)
+
+  const ACTIONS = [
+    { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
+    { value: "call", label: "Call", icon: '/otherAssets/callIcon.png', focusedIcon: '/otherAssets/blueCallIcon.png' },
+    { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
+  ];
+
+  const actionLabel = (v) => ACTIONS.find(a => a.value === v)?.label || "Make Call";
+
+  console.log('rowsByIndex', rowsByIndex)
+
+  // one menu anchor per stage row-set
+  const [addMenuAnchor, setAddMenuAnchor] = useState({}); // { [stageIndex]: HTMLElement|null }
+
+  const openAddMenu = (stageIndex, e) => {
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }));
+  };
+
+  const closeAddMenu = (stageIndex) => {
+    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+    console.log('is default cadence removed from local')
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
+    setIsEditing(false);
+    setEditingRow(null);
+    setEditingStageIndex(null);
+    setSelectedType(null);
+    setSelectedIndex(null);
+
+  };
+
+  const handleSelectAdd = async (stageIndex, value) => {
+    if ((user?.planCapabilities.allowTextMessages === false || phoneNumbers.length === 0) && value == "sms") {
+      // Upgrade modal is now handled by UpgradeTagWithModal component
+      return
+    }
+    if (value != "call") {
+      setSelectedIndex(stageIndex)
+      setSelectedType(value)
+      // if (temp && temp.length > 0) {
+      if (value === "email") {
+        if (gmailAccounts.length > 0) {
+          setShowEmailTempPopup(true)
+        } else {
+          setShowAuthSelectionPopup(true)
+        }
+        // setShowAuthSelectionPopup(true)
+      } else {
+        setShowSmsTempPopup(true)
+
+      }
+      // }
+    } else {
+      if (isEditing) {
+        closeAddMenu(stageIndex);
+      } else {
+        addRow(stageIndex, value);
+        closeAddMenu(stageIndex);
+
+      }
+    }
+    // closeAddMenu(stageIndex);
+  };
+
+  const handleEditRow = async (stageIndex, row, e) => {
+    if (!row.communicationType) {
+      console.log('default cadence editing')
+      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing, JSON.stringify({ isdefault: true }))
+      openAddMenu(stageIndex, e)
+    }
+    console.log('row for edit', row)
+    setIsEditing(true);
+    setEditingRow(row);
+    setEditingStageIndex(stageIndex);
+    setSelectedType(row.action ? row.action : 'call');
+    setSelectedIndex(stageIndex);
+
+    if (row.communicationType === "email") {
+      setShowEmailTempPopup(true);
+    } else if (row.communicationType === "sms") {
+      setShowSmsTempPopup(true);
+    }
+  };
+
+  const handleUpdateRow = (rowId, updatedData) => {
+    console.log('rowId', rowId)
+    console.log('updateData', updatedData)
+
+    // Update the specific row in the pipeline using the updateRow prop
+
+    if (editingStageIndex !== null && updateRow) {
+      console.log('update row', editingStageIndex)
+      updateRow(editingStageIndex, rowId, updatedData);
+    }
+
+    // Reset editing state
+    setIsEditing(false);
+    setEditingRow(null);
+    setEditingStageIndex(null);
+  };
+
+
+
+
+
+
+
   useEffect(() => {
+    console.log("🔥 PIPELINESTAGES - useEffect triggered with userData:", {
+      userId: userData?.id,
+      planType: userData?.plan?.type,
+      planName: userData?.plan?.name,
+      allowTextMessages: userData?.planCapabilities?.allowTextMessages
+    });
+
+    // Use Redux userData instead of localStorage
+    if (userData) {
+      setUser(userData);
+    } else {
+      // Fallback to localStorage only if Redux has no data
+      let data = getUserLocalData();
+      console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data);
+      setUser(data.user);
+    }
+
     getMyTeam();
-  }, []);
+    getNumbers();
+  }, [stages, userData]);
+
+
+  useEffect(() => {
+    if (showEmailTemPopup) {
+      getTemp()
+    }
+  }, [showEmailTemPopup])
+
+  useEffect(() => {
+    getAccounts()
+  }, [])
+
+  const getAccounts = async () => {
+    setAccountLoader(true)
+    let response = await getGmailAccounts()
+    if (response) {
+      console.log("Gmail acounts list is", response);
+      setGmailAccounts(response)
+    }
+    setAccountLoader(false)
+  }
+
+  const getTemp = async () => {
+    // setTempLoader(selectedType)
+    let temp = await getTempletes(selectedType)
+    setTempletes(temp)
+    // setTempLoader(null)
+    setShowEmailTempPopup(true)
+  }
+
+  const getNumbers = async () => {
+
+    let data = localStorage.getItem("selectedUser")
+    if (!data) {
+      data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    }
+    let selectedUser = null
+    // console.log('data', data)
+    if (data != "undefined") {
+      selectedUser = JSON.parse(data)
+      console.log("selected user data from local", selectedUser)
+    }
+    console.log('trying to get a2p numbers')
+    setPhoneLoading(true)
+    let id = selectedUser?.id
+    let num = await getA2PNumbers(id)
+    if (num) {
+      setPhoneNumbers(num)
+    }
+    setPhoneLoading(false)
+  }
 
   //ading stages data
   useEffect(() => {
@@ -113,30 +331,7 @@ const PipelineStages = ({
     }
   }, [selectedPipelineStages]);
 
-  //code for showing the add stage button according to dirredent conditions
-  // useEffect(() => {
 
-  //     if (action) {
-  //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //            // //console.log
-  //             setShowAddStageBtn(false);
-  //         }
-  //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //            // //console.log
-  //             setShowAddStageBtn(true);
-  //         }
-  //     }
-  //     else if (!action) {
-  //         // if (newStageTitle) {
-  //         if (newStageTitle) {
-  //             setShowAddStageBtn(true);
-  //         } else if (!newStageTitle) {
-  //             setShowAddStageBtn(false);
-  //         }
-  //         // }
-  //     }
-
-  // }, [showAdvanceSettings, newStageTitle, inputs, action])
 
   function canProceed() {
     if (newStageTitle.length > 0 && action.length == 0) {
@@ -218,7 +413,7 @@ const PipelineStages = ({
   //gets recent agent details
   useEffect(() => {
     const agentDetails = localStorage.getItem("agentDetails");
-    if (agentDetails && agentDetails!= "undefined") {
+    if (agentDetails && agentDetails != "undefined") {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
       if (agentData.agents?.length > 1) {
@@ -239,10 +434,7 @@ const PipelineStages = ({
     setPipelineStages(stages);
   }, [stages]);
 
-  //function for rename modal
-  // const handleCloseStagePopover = () => {
-  //     setStageAnchorel(null);
-  // };
+
 
   //code to rename the stage
   const handleRenameStage = async () => {
@@ -255,30 +447,28 @@ const PipelineStages = ({
         AuthToken = UserDetails.token;
       }
 
-      // //console.log;
+     // console.log("auth token", AuthToken)
 
-      // const ApiData = {
-      //     stageTitle: renameStage,
-      //     stageId: selectedStage.id,
-      //     color: updateStageColor
-      // }
-
-      const formData = new FormData();
-      formData.append("stageTitle", renameStage);
-      formData.append("stageId", selectedStage.id);
-      formData.append("color", updateStageColor);
-
-      //// //console.log;
-
-      for (let [key, value] of formData.entries()) {
-        // //console.log;
+      let ApiData = {
+          stageTitle: renameStage,
+          stageId: selectedStage.id,
+          color: updateStageColor||""
       }
+
+      const selectedUser = localStorage.getItem(PersistanceKeys.selectedUser);
+      if(selectedUser){
+        const selectedUserData = JSON.parse(selectedUser);
+        // ApiData.userId = selectedUserData.id;
+      }
+      
+
+      console.log("api data", ApiData)
 
       const ApiPath = Apis.UpdateStage;
 
       // //console.log;
       // return
-      const response = await axios.post(ApiPath, formData, {
+      const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
           "Content-Type": "application/json",
@@ -286,13 +476,17 @@ const PipelineStages = ({
       });
 
       if (response) {
-        // //console.log;
+        console.log('response.data', response.data)
         setPipelineStages(response.data.data.stages);
         setShowRenamePopup(false);
-        // setSuccessSnack(response.data.message);
+        setSuccessSnack(response.data.message);
         // handleCloseStagePopover();
       }
     } catch (error) {
+      console.log('Rename stage error:', error);
+      console.log('Error response:', error.response?.data);
+      console.log('Error status:', error.response?.status);
+      setRenameStageLoader(false);
       // //console.log;
     } finally {
       setRenameStageLoader(false);
@@ -517,6 +711,15 @@ const PipelineStages = ({
       setAddStageLoader(false);
     }
   };
+
+
+  const shouldDisable = (item) => {
+    if (item.value == "sms" && ((phoneNumbers.length === 0) || user?.planCapabilities.allowTextMessages === false)) {// 
+      return true
+    } else {
+      return false
+    }
+  }
 
   const styles = {
     headingStyle: {
@@ -746,166 +949,272 @@ const PipelineStages = ({
                                   (row, rowIndex) => (
                                     <div
                                       key={row.id}
-                                      className="flex flex-row items-center mb-2"
+                                      className="flex flex-row items-center justify-center mb-2"
                                     >
-                                      <div style={styles.headingStyle}>
+                                      <div className="mt-2" style={styles.headingStyle}>
                                         Wait
                                       </div>
-                                      <div className="ms-6 flex flex-row items-center">
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Days
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderTopLeftRadius: "10px",
-                                              borderBottomLeftRadius: "10px",
-                                            }}
-                                            placeholder="Days"
-                                            value={row.waitTimeDays}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeDays",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
+                                      <div className="ms-6 flex flex-row items-center w-full justify-between">
+                                        <div className="flex flex-row items-center">
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Days
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderTopLeftRadius: "10px",
+                                                borderBottomLeftRadius: "10px",
+                                              }}
+                                              placeholder="Days"
+                                              value={row.waitTimeDays}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeDays",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
                                                 )
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Hours
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderRight: "none",
-                                              borderLeft: "none",
-                                            }}
-                                            placeholder="Hours"
-                                            value={row.waitTimeHours}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeHours",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
-                                                )
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Mins
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderTopRightRadius: "10px",
-                                              borderBottomRightRadius: "10px",
-                                            }}
-                                            placeholder="Minutes"
-                                            value={row.waitTimeMinutes}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeMinutes",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
-                                                )
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        <div
-                                          className="ms-4 mt-2"
-                                          style={styles.inputStyle}
-                                        >
-                                          {item.stageTitle === "Booked" &&
-                                            "before the meeting"}
-                                          , then{" "}
-                                          <span style={{ fontWeight: "600" }}>
-                                            Make Call
-                                          </span>
-                                        </div>
-
-                                        {rowIndex > 0 && (
-                                          <button
-                                            className="ms-2 mt-2"
-                                            onClick={() =>
-                                              removeRow(index, row.id)
-                                            }
-                                          >
-                                            <Image
-                                              src="/assets/blackBgCross.png"
-                                              height={20}
-                                              width={20}
-                                              alt="*"
+                                              }
                                             />
-                                          </button>
+                                          </div>
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Hours
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderRight: "none",
+                                                borderLeft: "none",
+                                              }}
+                                              placeholder="Hours"
+                                              value={row.waitTimeHours}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeHours",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Mins
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderTopRightRadius: "10px",
+                                                borderBottomRightRadius: "10px",
+                                              }}
+                                              placeholder="Minutes"
+                                              value={row.waitTimeMinutes}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeMinutes",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                          <div
+                                            className="ms-4 mt-2 flex flex-row items-center"
+                                            style={styles.inputStyle}
+                                          ><div>
+                                              {item.stageTitle === "Booked" &&
+                                                "before the meeting"}
+                                              , then{" "}
+                                            </div>
+                                            <div className="ml-2" style={{ fontWeight: "600" }}>
+                                              <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
+                                                <div className="text-purple text-[12px]">
+                                                  {
+                                                    (row.communicationType && row.communicationType != "call" || (row.action && row.action != "call")) ? (
+                                                      `Send ${actionLabel(row.communicationType)}`
+                                                    ) : (
+                                                      `Make Call`
+                                                    )
+                                                  }
+
+                                                </div>
+
+
+                                                <button onClick={(e) => handleEditRow(index, row, e)}>
+                                                  <Image src={'/svgIcons/editIconPurple.svg'}
+                                                    height={16} width={16} alt="*"
+                                                  />
+                                                </button>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        {rowIndex > 0 && (
+                                          <CloseBtn onClick={() => removeRow(index, row.id)} />
                                         )}
                                       </div>
                                     </div>
                                   )
                                 )}
                                 <button
-                                  onClick={() => addRow(index)}
+                                  onClick={(e) => openAddMenu(index, e)}
                                   style={styles.inputStyle}
                                   className="text-purple mt-4"
                                 >
-                                  + Add Call (If no answer)
+                                  + Add (If no answer)
                                 </button>
+                                <Menu
+                                  anchorEl={addMenuAnchor[index] || null}
+                                  open={Boolean(addMenuAnchor[index])}
+                                  onClose={() => {
+                                    closeAddMenu(index)
+                                    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+                                  }}
+                                  PaperProps={{
+                                    style: {
+                                      boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
+                                      borderRadius: "12px",
+                                    },
+                                  }}
+                                >
+                                  {ACTIONS.map((a) => (
+                                    <Tooltip key={a.id}
+                                      title={shouldDisable(a) && user?.planCapabilities.allowTextMessages === true ? "You need to complete A2P to text" : ""}
+                                      arrow
+                                      disableHoverListener={!shouldDisable(a)}
+                                      disableFocusListener={!shouldDisable(a)}
+                                      disableTouchListener={!shouldDisable(a)}
+                                      componentsProps={{
+                                        tooltip: {
+                                          sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "16px",
+                                            fontWeight: "500",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                          },
+                                        },
+                                        arrow: {
+                                          sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                          },
+                                        },
+                                      }}
+                                    >
+                                      <div>
+                                        <MenuItem
+                                          // disabled={shouldDisable(a)}
+                                          key={a.value}
+                                          sx={{
+                                            width: 180,
+                                            '&:hover .action-icon': {
+                                              display: 'none',
+                                            },
+                                            '&:hover .action-icon-hover': {
+                                              display: 'block',
+                                            },
+                                          }}
+                                          onClick={() => handleSelectAdd(index, a.value)}
+                                        >
+                                          {
+                                            tempLoader === a.value ? (
+                                              <CircularProgress size={20} />
+                                            ) : (
+                                              <div className="flex flex-row items-center justify-between w-full">
+                                                <div className="flex flex-row items-center gap-3">
+                                                  {/* default icon */}
+                                                  <Image
+                                                    src={a.icon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon"
+                                                    style={{ display: 'block' }}
+                                                  />
+                                                  {/* blue (hover) icon */}
+                                                  <Image
+                                                    src={a.focusedIcon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none' }}
+                                                  />
+
+                                                  <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
+                                                  {
+                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
+
+
+                                                    <UpgradeTagWithModal
+                                                      reduxUser={userData}
+                                                      setReduxUser={setUserData}
+                                                    />
+
+                                                  }
+
+                                                </div>
+                                                {
+                                                  shouldDisable(a) && user?.planCapabilities.allowTextMessages != false && a.label == "Text" && (
+                                                    <Image
+                                                      src={"/otherAssets/redInfoIcon.png"}
+                                                      height={16}
+                                                      width={16}
+                                                      alt="*"
+                                                    />
+                                                  )
+                                                }
+                                              </div>
+                                            )}
+                                        </MenuItem>
+                                      </div>
+                                    </Tooltip>
+                                  ))}
+                                </Menu>
+
+
                               </div>
                               <div className="flex flex-row items-center gap-2 mt-4">
                                 <div style={styles.inputStyle}>
                                   Then move to
                                 </div>
-                                {/* <div>
-                                                                    {selectedPipelineStages.map(
-                                                                        (dropDownStateItem) => (
-                                                                            <option
-                                                                                disabled={
-                                                                                    dropDownStateItem.id <= item.id
-                                                                                }
-                                                                                key={dropDownStateItem.id}
-                                                                                value={dropDownStateItem.stageTitle}
-                                                                            >
-                                                                                {dropDownStateItem.stageTitle}
-                                                                            </option>
-                                                                        )
-                                                                    )}
-                                                                </div> */}
+
                                 <Box
                                   className="flex flex-row item-center justify-center"
                                   sx={{ width: "141px", py: 0, m: 0 }}
@@ -1066,20 +1375,7 @@ const PipelineStages = ({
                                     justifyContent: "end",
                                   }}
                                 >
-                                  <button
-                                    onClick={() => {
-                                      setShowRenamePopup(false);
-                                      // handleCloseStagePopover();
-                                    }}
-                                    className="outline-none"
-                                  >
-                                    <Image
-                                      src={"/assets/crossIcon.png"}
-                                      height={40}
-                                      width={40}
-                                      alt="*"
-                                    />
-                                  </button>
+                                  <CloseBtn onClick={() => setShowRenamePopup(false)} />
                                 </div>
                               </div>
 
@@ -1179,82 +1475,8 @@ const PipelineStages = ({
                                   Delete stage
                                 </div>
 
-                                <button
-                                  onClick={() => {
-                                    setShowDelStagePopup(null);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/assets/crossIcon.png"}
-                                    height={40}
-                                    width={40}
-                                    alt="*"
-                                  />
-                                </button>
+                                <CloseBtn onClick={() => setShowDelStagePopup(null)} />
                               </div>
-
-                              {/* <div className='text-start mt-4 font-15' style={{ fontWeight: "500" }}>
-                                                                Confirm you want to delete this stage. This action is irreversible
-                                                            </div>
-
-                                                            <div className='mt-6' style={{
-                                                                fontWeight: "700", fontSize: 15
-                                                            }}>
-                                                                Move to
-                                                            </div>
-
-                                                            <FormControl fullWidth>
-                                                                <Select
-                                                                    id="demo-simple-select"
-                                                                    value={assignNextStage || ""} // Default to empty string when no value is selected
-                                                                    onChange={handleChangeNextStage}
-                                                                    displayEmpty // Enables placeholder
-                                                                    renderValue={(selected) => {
-                                                                        if (!selected) {
-                                                                            return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
-                                                                        }
-                                                                        return selected;
-                                                                    }}
-                                                                    sx={{
-                                                                        border: "1px solid #00000020", // Default border
-                                                                        "&:hover": {
-                                                                            border: "1px solid #00000020", // Same border on hover
-                                                                        },
-                                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                                            border: "none", // Remove the default outline
-                                                                        },
-                                                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                                            border: "none", // Remove outline on focus
-                                                                        },
-                                                                        "&.MuiSelect-select": {
-                                                                            py: 0, // Optional padding adjustments
-                                                                        },
-                                                                    }}
-                                                                    MenuProps={{
-                                                                        PaperProps: {
-                                                                            style: {
-                                                                                maxHeight: "30vh", // Limit dropdown height
-                                                                                overflow: "auto", // Enable scrolling in dropdown
-                                                                                scrollbarWidth: "none"
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        pipelineStages.map((stage, index) => {
-                                                                            return (
-                                                                                <MenuItem
-                                                                                    key={index}
-                                                                                    value={stage.stageTitle}
-                                                                                    disabled={stage.id <= selectedStage?.id}
-                                                                                >
-                                                                                    {stage.stageTitle}
-                                                                                </MenuItem>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </Select>
-                                                            </FormControl> */}
 
                               {selectedStage?.hasLeads ? (
                                 <div>
@@ -1437,8 +1659,26 @@ const PipelineStages = ({
                         </Box>
                       </Modal>
                     </div>
+
+                    <SMSTempletePopup
+
+                      open={showSmsTemPopup}
+                      onClose={() => {
+                        setShowSmsTempPopup(false)
+                        closeAddMenu(selectedIndex)
+                      }}
+                      phoneNumbers={phoneNumbers}
+                      phoneLoading={phoneLoading}
+                      addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+                      communicationType={selectedType}
+                      onUpdateRow={handleUpdateRow}
+                      isEditing={isEditing}
+                      editingRow={editingRow}
+                    />
                   </div>
                 )}
+
+
               </Draggable>
             ))}
             {provided.placeholder}
@@ -1472,6 +1712,54 @@ const PipelineStages = ({
                 </p>
               </div>
             </button>
+
+            <AuthSelectionPopup open={showAuthSelectionPopup}
+              onClose={() => setShowAuthSelectionPopup(false)}
+              onSuccess={getAccounts}
+              showEmailTemPopup={showEmailTemPopup}
+              setShowEmailTempPopup={setShowEmailTempPopup}
+              setSelectedGoogleAccount={(account) => {
+                console.log('PipelineStages: setSelectedGoogleAccount called with:', account)
+                setSelectedGoogleAccount(account)
+              }}
+
+            />
+
+            <EmailTempletePopup open={showEmailTemPopup} onClose={() => {
+              setShowEmailTempPopup(false)
+              setIsEditing(false);
+              setEditingRow(null);
+              setEditingStageIndex(null);
+              closeAddMenu(selectedIndex)
+            }}
+              setSelectedGoogleAccount={(account) => {
+                console.log(`PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
+              selectedGoogleAccount={selectedGoogleAccount}
+              onGoogleAccountChange={(account) => {
+                console.log(`PipelineStages: onGoogleAccountChange called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
+              templetes={templates}
+              setTempletes={setTempletes}
+              communicationType={selectedType} // in this varable i have stored selected option value like email or sms
+              addRow={(templateData) => {
+                console.log('PipelineStages: addRow called with:', {
+                  selectedIndex,
+                  selectedType,
+                  templateData
+                });
+                addRow(selectedIndex, selectedType, templateData)
+              }}
+              isEditing={isEditing}
+              editingRow={editingRow}
+              onUpdateRow={handleUpdateRow}
+            />
+
+
+
+
 
             {/* Code for add stage modal */}
             <Modal
@@ -1508,19 +1796,7 @@ const PipelineStages = ({
                           justifyContent: "end",
                         }}
                       >
-                        <button
-                          onClick={() => {
-                            handleCloseAddStage();
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
+                        <CloseBtn onClick={() => handleCloseAddStage()} />
                       </div>
                     </div>
 
@@ -1638,7 +1914,7 @@ const PipelineStages = ({
                         </div>
                         <textarea
                           className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
-                          placeholder="Ex: Does the human express interest getting a CMA "
+                          placeholder="Ex: Does the human express interestting a CMA "
                           style={{
                             border: "1px solid #00000020",
                             fontWeight: "500",
@@ -1929,6 +2205,7 @@ const PipelineStages = ({
                 </div>
               </Box>
             </Modal>
+
           </div>
         )}
       </Droppable>

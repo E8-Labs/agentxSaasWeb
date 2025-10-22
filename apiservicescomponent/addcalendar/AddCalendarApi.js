@@ -1,5 +1,6 @@
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
+import { Scopes } from "@/components/dashboard/myagentX/Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
 import axios from "axios";
 
@@ -24,11 +25,21 @@ export const AddCalendarApi = async (calendarValues
             // formData.append("mainAgentId", "");
             formData.append("accessToken", calendarValues?.accessToken);
             formData.append("refreshToken", calendarValues?.refreshToken);
-            formData.append("scope", PersistanceKeys.addCalendarScope);
+            formData.append("scope", Scopes.join(" "));
             formData.append("expiryDate", calendarValues?.expiryDate);
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
             formData.append("eventId", calendarValues?.eventId);
+        } else if (calendarValues?.isFromAddGHLCal) {
+            console.log("GHL calendar passed is", calendarValues);
+            const getCookiesReponse = await axios.get("/api/getCookies");
+            formData.append("calendarType", "ghl");
+            // console.log("Cokies recieved are", getCookiesReponse);
+            formData.append("ghlAuthToken", getCookiesReponse?.data?.accessToken);
+            formData.append("refreshToken", getCookiesReponse?.data?.refreshToken);
+            formData.append("locationId", calendarValues?.ghlCalendar?.locationId);
+            formData.append("title", calendarValues?.title);
+            formData.append("timeZone", calendarValues?.timeZone);
         } else {
             formData.append("title", calendarValues?.calenderTitle);
             formData.append("timeZone", calendarValues?.selectTimeZone);
@@ -62,7 +73,7 @@ export const AddCalendarApi = async (calendarValues
                 window.dispatchEvent(
                     new CustomEvent("UpdateCheckList", { detail: { update: true } })
                 );
-            } 
+            }
             return response.data;
         }
     } catch (error) {
