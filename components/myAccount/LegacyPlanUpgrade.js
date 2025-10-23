@@ -61,7 +61,7 @@ function LeggacyPlanUpgrade({
 
 
                             <div
-                                className="w-full h-[200px] flex flex-col items-center justify-end -mt-10"
+                                className="w-full h-[200px] flex flex-col items-center justify-end -mt-10 border"
                                 style={{
                                     backgroundImage: "url('/otherAssets/gradientBg.png')",
                                     backgroundSize: "cover",
