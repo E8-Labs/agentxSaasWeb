@@ -674,7 +674,7 @@ function AdminBasicInfo({ selectedUser }) {
               </div>
             </>
           ) : (
-           (userType && userType === UserTypes.General) ||
+            (userType && userType === UserTypes.General) ||
               (userType && userType === UserTypes.Reception) ?
               (
                 <>
@@ -935,7 +935,7 @@ function AdminBasicInfo({ selectedUser }) {
                     setTransaction(onlyNums);
                     setIsTransactionChange(true);
                   }}
-                  placeholder="Value" 
+                  placeholder="Value"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
               </div>
@@ -1275,7 +1275,7 @@ function AdminBasicInfo({ selectedUser }) {
                 marginBottom: "2vh",
               }}
             >
-              What would you like Agentx to help you with
+              What would you like to assign to your AI
             </div>
           </div>
 

@@ -279,7 +279,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
               className="mt-4 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
             >
-              Which AgentX will you build?
+              Which AI Agent will you build?
             </div>
 
             <div
@@ -288,7 +288,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                 textAlign: "center", //fontSize: 15
               }}
             >
-              Scale your salesforce. Handle any business use case. With AgentX, you can quickly build an AI agent in minutes.
+              Scale your sales and support team. Assign an AI to do it.
             </div>
 
             <div
