@@ -128,6 +128,9 @@ function TwillioUpgradeView({ title }) {
                     handleClose={() => setShowUpgradeModal(false)}
                     plan={null}
                     currentFullPlan={null}
+                    setSelectedPlan={()=>{
+              console.log("setSelectedPlan is called")
+             }}
                 // setShowSnackMsg={setShowSnackMsg}
                 />
             </Elements>

@@ -761,6 +761,9 @@ function UserPlans({
                             }
                         }
                     }}
+                        setSelectedPlan={()=>{
+              console.log("setSelectedPlan is called")
+             }}
 
                 />
             </Elements>

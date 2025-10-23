@@ -1805,7 +1805,7 @@ function SubAccountBasicInfo() {
                 marginBottom: "2vh",
               }}
             >
-              What would you like Agentx to help you with
+              What would you like to assign to your AI
             </div>
             {serviceId.length > 0 &&
               hasServiceChanged() &&

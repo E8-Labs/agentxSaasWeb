@@ -120,6 +120,9 @@ function UnlockAgentModal({
                                 handleClose(true)
                             }
                         }}
+                        setSelectedPlan={()=>{
+                            console.log("setSelectedPlan is called")
+                           }}
                     />
                 </Elements>
             )}

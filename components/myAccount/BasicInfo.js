@@ -230,7 +230,7 @@ function BasicInfo() {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const userData = JSON.parse(LocalData);
-      console.log("user data is",userData)
+      console.log("user data is", userData)
 
       setUserRole(userData?.user?.userRole);
       setUserType(userData?.user?.userType);
@@ -2069,7 +2069,7 @@ function BasicInfo() {
                 marginBottom: "2vh",
               }}
             >
-              What would you like Agentx to help you with
+              What would you like to assign to your AI
             </div>
             {serviceId.length > 0 &&
               hasServiceChanged() &&

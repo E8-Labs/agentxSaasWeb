@@ -159,7 +159,7 @@ const UserService = ({ handleContinue, handleBack }) => {
               className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: "center" }}
             >
-              What would you like AgentX to help you with?
+              What would you like to assign to your AI?
             </div>
 
             {loader ? (

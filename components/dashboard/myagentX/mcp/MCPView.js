@@ -17,6 +17,7 @@ import UpgradeModal from '@/constants/UpgradeModal';
 import UpgradePlanView from '@/components/callPausedPoupup/UpgradePlanView';
 import UpgardView from '@/constants/UpgardView';
 import getProfileDetails from '@/components/apis/GetProfile';
+import VideoCard from '@/components/createagent/VideoCard';
 
 
 
@@ -415,23 +416,27 @@ function MCPView({
                         });
                     }}
                 />
-                <div className="flex mt-6 flex-row items-center justify-between w-[97%]">
+                <div className="flex flex-row items-center justify-between w-[97%]">
                     <div className="flex flex-row items-center gap-2">
-                        <div className="text-[15px] font-[600] ">
-                            Tools
-                        </div>
+                        {/*
+                            <div className="text-[15px] font-[600] ">
+                                Tools
+                            </div>
+                        */}
 
 
-                        <div className="flex flex-row items-center gap-2">
-                            <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
-                                onClick={() => setIntroVideoModal2(true)}
-                            >
-                                Learn how to add Tools
-                                <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                                // onClick={() => setIntroVideoModal2(true)}
-                                />
-                            </button>
-                        </div>
+                        {/*
+                            <div className="flex flex-row items-center gap-2">
+                                <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                    onClick={() => setIntroVideoModal2(true)}
+                                >
+                                    Learn how to add Tools
+                                    <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    />
+                                </button>
+                            </div>
+                        */}
 
                     </div>
                     {
@@ -656,9 +661,9 @@ function MCPView({
     const noMcpView = ({
         setShowAddMcpPopup
     }) => {
-            return (
-
-                <div className="flex flex-col items-center justify-center h-[20] ">
+        return (
+            <div>
+                <div className="flex flex-col items-center justify-center h-[20] mb-4">
                     {/* Icon Section */}
                     <div className="flex items-center justify-center w-24 h-24   rounded-lg">
                         <img
@@ -707,7 +712,6 @@ function MCPView({
                         Add Tools
                     </button>
 
-
                     <UpgradeModal
                         open={showUpgradeModal}
                         handleClose={() => {
@@ -719,7 +723,18 @@ function MCPView({
                         buttonTitle={"No Thanks"}
                     />
                 </div>
-            )
+                <div className="w-6/12">
+                    <VideoCard
+                        duration="1 min 47 sec"
+                        horizontal={false}
+                        playVideo={() => {
+                            setIntroVideoModal2(true);
+                        }}
+                        title="Learn how to add Tools"
+                    />
+                </div>
+            </div>
+        )
     }
 
 

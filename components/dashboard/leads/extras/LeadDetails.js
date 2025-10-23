@@ -3318,6 +3318,9 @@ const LeadDetails = ({
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
+          setSelectedPlan={()=>{
+              console.log("setSelectedPlan is called")
+             }}
           open={showUpgradeModal}
           // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {

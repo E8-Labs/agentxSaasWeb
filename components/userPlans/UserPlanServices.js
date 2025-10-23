@@ -25,6 +25,24 @@ export const downgradeToGrowthFeatures = [
     "Unlimited Team Seats",
 ]
 
+
+
+export const isLagecyPlan = (plan) => {
+
+    if(
+        plan?.features == null //||
+        // plan?.planId == null ||
+        // plan?.type == "Plan30" ||
+        // plan?.type == "Plan120" ||
+        // plan?.type == "Plan360" ||
+        // plan?.type == "Plan720"
+    ){
+        return true;
+    }
+
+    return false;
+}
+
 const PLANS_CACHE_KEY = 'userPlans_cache';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 

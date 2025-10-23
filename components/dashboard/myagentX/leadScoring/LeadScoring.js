@@ -155,7 +155,7 @@ function LeadScoring({
             <div className="space-y-4">
                 {/* Lead Scoring Header */}
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900">Lead Scoring</h2>
+                    <h2 className="text-xl font-semibold text-gray-900"></h2>
                     <button
                         onClick={() => setShowAddScoringModal(true)}
                         className="text-purple-600 hover:text-purple-700 text-sm font-medium underline"
