@@ -30,11 +30,12 @@ export const downgradeToGrowthFeatures = [
 export const isLagecyPlan = (plan) => {
 
     if(
-        plan?.planId == null ||
-        plan?.type == "Plan30" ||
-        plan?.type == "Plan120" ||
-        plan?.type == "Plan360" ||
-        plan?.type == "Plan720"
+        plan?.features == null //||
+        // plan?.planId == null ||
+        // plan?.type == "Plan30" ||
+        // plan?.type == "Plan120" ||
+        // plan?.type == "Plan360" ||
+        // plan?.type == "Plan720"
     ){
         return true;
     }

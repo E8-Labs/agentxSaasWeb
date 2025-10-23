@@ -509,6 +509,7 @@ function NewBilling() {
             const matchedPlan = findMatchingPlanFromAllArrays(profilePlan);
 
             if (matchedPlan) {
+                matchedPlan.planId = profilePlan.planId;
                 console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan);
                 setCurrentFullPlan(matchedPlan);
             } else {
@@ -1228,6 +1229,7 @@ function NewBilling() {
     const handleUpgradeClick = () => {
         console.log("reduxUser?.user?.currentUsage?.maxAgents", reduxUser)
         console.log("selectedPlan.capabilities.maxAgents", selectedPlan.capabilities.maxAgents)
+        console.log("isLagecyPlan(currentFullPlan) in handleUpgradeClick", isLagecyPlan(currentFullPlan))
         if (
             isLagecyPlan(currentFullPlan) && (
                 reduxUser?.currentUsage?.maxAgents > selectedPlan.capabilities.maxAgents ||
