@@ -565,13 +565,15 @@ const UserCalender = ({
                     </div>
                   */}
 
-                  <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
-                    onClick={() => setIntroVideoModal2(true)}>
-                    Learn how to add calendar
-                    <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                      onClick={() => setIntroVideoModal2(true)}
-                    />
-                  </div>
+                  {/*
+                    <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                      onClick={() => setIntroVideoModal2(true)}>
+                      Learn how to add calendar
+                      <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                        onClick={() => setIntroVideoModal2(true)}
+                      />
+                    </div>
+                  */}
 
 
                 </div>
