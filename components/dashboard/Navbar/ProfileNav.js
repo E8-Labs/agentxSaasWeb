@@ -1721,6 +1721,9 @@ const ProfileNav = () => {
         {/* UpgradePlan Modal */}
         <Elements stripe={stripePromise}>
           <UpgradePlan
+          setSelectedPlan={()=>{
+              console.log("setSelectedPlan is called")
+             }}
             open={showUpgradePlanModal}
             handleClose={() => setShowUpgradePlanModal(false)}
             setShowSnackMsg={() => {

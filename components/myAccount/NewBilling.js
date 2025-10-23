@@ -26,7 +26,7 @@ import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/Smart
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 import PlansService, { duration } from "@/utilities/PlansService";
-import { downgradeToGrowthFeatures, downgradeToStarterFeatures, getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
+import { downgradeToGrowthFeatures, downgradeToStarterFeatures, getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation, isLagecyPlan } from "../userPlans/UserPlanServices";
 import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
 import CancelPlanAnimation from "./cancelationFlow/CancelPlanAdnimation";
@@ -44,6 +44,7 @@ import UserPlans from "../userPlans/UserPlans";
 import ProgressBar from "../onboarding/ProgressBar";
 import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
+import LeggacyPlanUpgrade from "./LegacyPlanUpgrade";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -129,15 +130,12 @@ function NewBilling() {
 
     // State for UserPlans modal
     const [showUserPlansModal, setShowUserPlansModal] = useState(false)
+    const [showLegacyPlanUpgrade, setShowLegacyPlanUpgrade] = useState(false)
 
     // Debug modal state
     useEffect(() => {
         console.log('showUserPlansModal state changed:', showUserPlansModal);
     }, [showUserPlansModal]);
-
-
-
-
 
     useEffect(() => {
         const d = localStorage.getItem("User");
@@ -153,7 +151,7 @@ function NewBilling() {
 
     useEffect(() => {
         console.log('selectedPlan changed:', selectedPlan);
-
+        // getButtonConfig()
     }, [selectedPlan]);
 
 
@@ -504,11 +502,14 @@ function NewBilling() {
 
     // Effect to match profile plan with plans list and set currentFullPlan
     useEffect(() => {
-        if (profilePlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+        if (isLagecyPlan(profilePlan)) {
+            setCurrentFullPlan(profilePlan)
+        } else if (profilePlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
             console.log('🔄 [PLAN-SYNC] Attempting to match profile plan with plans list');
             const matchedPlan = findMatchingPlanFromAllArrays(profilePlan);
 
             if (matchedPlan) {
+                matchedPlan.planId = profilePlan.planId;
                 console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan);
                 setCurrentFullPlan(matchedPlan);
             } else {
@@ -1226,6 +1227,17 @@ function NewBilling() {
     // };
 
     const handleUpgradeClick = () => {
+        console.log("reduxUser?.user?.currentUsage?.maxAgents", reduxUser)
+        console.log("selectedPlan.capabilities.maxAgents", selectedPlan.capabilities.maxAgents)
+        console.log("isLagecyPlan(currentFullPlan) in handleUpgradeClick", isLagecyPlan(currentFullPlan))
+        if (
+            isLagecyPlan(currentFullPlan) && (
+                reduxUser?.currentUsage?.maxAgents > selectedPlan.capabilities.maxAgents ||
+                reduxUser?.currentUsage?.maxTeamMembers > selectedPlan.capabilities.maxTeamMembers)
+        ) {
+            setShowLegacyPlanUpgrade(true)
+            return
+        }
         if (currentPlan && selectedPlan.name === 'Free') { // if user try to downgrade on free plan
             setShowCancelPoup(true)
         } else {
@@ -1343,16 +1355,20 @@ function NewBilling() {
     const getButtonConfig = () => {
         console.log("currentPlan", currentFullPlan)
         console.log("selectedPlan", selectedPlan)
+        console.log("isLagecyPlan(currentFullPlan)", isLagecyPlan(currentFullPlan))
+        console.log("isLagecyPlan(selectedPlan)", isLagecyPlan(selectedPlan))
+       
 
         // If no plan is selected, show loading or disabled state
         if (!selectedPlan) {
-            return {
+             return {
                 text: "Cancel Subscription",
                 action: () => handleCancelClick(),
                 isLoading: cancelInitiateLoader,
                 className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
                 style: {}
             };
+
         }
 
         // Compare plans based on price
@@ -1879,13 +1895,7 @@ function NewBilling() {
 
                     // If buttonConfig is null (still loading), show loading spinner
                     if (buttonConfig === null) {
-                        return (
-                            <div className="w-1/2">
-                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
-                                    <CircularProgress size={25} />
-                                </div>
-                            </div>
-                        );
+                        return null
                     }
 
                     // Only show button if user has a paid plan or if they have selected a different plan
@@ -1913,6 +1923,20 @@ function NewBilling() {
                     );
                 })()}
             </div>
+
+
+            <LeggacyPlanUpgrade
+                open={showLegacyPlanUpgrade}
+                handleClose={() => setShowLegacyPlanUpgrade(false)}
+                plan={selectedPlan}
+                handleContinue={() => {
+                    setShowLegacyPlanUpgrade(false)
+                    handleSubscribePlan()
+                    refreshProfileAndState()
+                }}
+                reduxUser={reduxUser}
+
+            />
 
             <DowngradePlanPopup
                 open={showDowngradeModal}

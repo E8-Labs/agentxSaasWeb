@@ -246,6 +246,9 @@ export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, ext
         handleClose={handleModalClose}
         plan={null}
         currentFullPlan={reduxUser?.user?.plan}
+        setSelectedPlan={()=>{
+          console.log("setSelectedPlan is called")
+         }}
       />
     </>
   );

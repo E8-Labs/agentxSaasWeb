@@ -10,6 +10,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import getProfileDetails from '@/components/apis/GetProfile';
 import { webAgentFeatures, pipelineFeatures, defaultFeatures } from './UpgradeModalFeatures';
+import { useUser } from '@/hooks/redux-hooks';
 
 const UpgradeModal = ({
     title,
@@ -53,6 +54,8 @@ const UpgradeModal = ({
     const benifits2 = allFeatures.slice(8);
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+
 
 
     return (
@@ -193,6 +196,9 @@ const UpgradeModal = ({
                             await onUpgradeSuccess()
                         }
                     }}
+                    plan={selectedPlan}
+                    currentFullPlan={reduxUser?.user?.plan}
+                    setSelectedPlan={()=>{}}
                 />
             </Elements>
         </div>
