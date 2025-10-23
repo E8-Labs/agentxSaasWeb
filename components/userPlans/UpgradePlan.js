@@ -870,12 +870,13 @@ function UpgradePlanContent({
             }
 
             const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-            let selectedUser = null;
-            console.log("Selected user local data is", selectedUserLocalData);
-            if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
-                selectedUser = JSON.parse(selectedUserLocalData);
-                console.log("Selected user details are", selectedUser);
-            }
+            // let selectedUser = null;
+            console.log("Selected user local data passed is", selectedUser);
+            // return
+            // if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
+            //     selectedUser = JSON.parse(selectedUserLocalData);
+            //     console.log("Selected user details are", selectedUser);
+            // }
 
             // Handle payment method logic
             let paymentMethodId = null;
@@ -896,35 +897,39 @@ function UpgradePlanContent({
             }
 
             const UserLocalData = getUserLocalData();
+            console.log("User local data", UserLocalData)
             let DataToSendInApi = null;
-            if (UserLocalData?.userRole === "AgencySubAccount") {
-                let formData = new FormData();
-                formData.append("planId", currentSelectedPlan?.id);
-                DataToSendInApi = formData;
-            } else {
-                let ApiData = {
-                    plan: planType,
-                };
-                if (from === "SubAccount") {
-                    ApiData = {
-                        planId: currentSelectedPlan?.id
-                    }
-                } else if (from === "agency") {
-                    ApiData = {
-                        planId: currentSelectedPlan?.id
-                    }
+            // if (UserLocalData?.userRole === "AgencySubAccount") {
+            //     console.log("Check 111");
+            //     let formData = new FormData();
+            //     formData.append("planId", currentSelectedPlan?.id);
+            //     DataToSendInApi = formData;
+            // } else {
+            console.log("Check 222");
+            let ApiData = {
+                plan: planType,
+            };
+            if (from === "SubAccount") {
+                ApiData = {
+                    planId: currentSelectedPlan?.id
                 }
-
-                // Add payment method ID if we have one
-                if (paymentMethodId) {
-                    ApiData.paymentMethodId = paymentMethodId;
+            } else if (from === "agency") {
+                ApiData = {
+                    planId: currentSelectedPlan?.id
                 }
-
-                if (selectedUser) {
-                    ApiData.userId = selectedUser?.subAccountData?.id;
-                }
-                DataToSendInApi = ApiData;
             }
+
+            // Add payment method ID if we have one
+            if (paymentMethodId) {
+                ApiData.paymentMethodId = paymentMethodId;
+            }
+
+            if (selectedUser) {
+                ApiData.userId = selectedUser?.id;
+            }
+            console.log("Check 333");
+            DataToSendInApi = ApiData;
+
 
             let ApiPath = Apis.subscribePlan;
             if (UserLocalData?.userRole === "AgencySubAccount") {
@@ -961,7 +966,7 @@ function UpgradePlanContent({
                 // Call getProfileDetails to refresh the profile
                 let user
                 if (selectedUser) {
-                    user = await AdminGetProfileDetails(selectedUser?.subAccountData.id) // refresh admin profile
+                    user = await AdminGetProfileDetails(selectedUser?.id) // refresh admin profile
                 } else {
                     user = getProfileDetails()
                 }
