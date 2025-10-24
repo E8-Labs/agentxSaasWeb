@@ -54,6 +54,7 @@ import UpgradeModal from "@/constants/UpgradeModal";
 import { getUserLocalData } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -1866,7 +1867,7 @@ const Userleads = ({
               <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
               {reduxUser?.planCapabilities?.maxLeads < 10000000 && reduxUser?.plan?.planId != null && (
                 <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                  {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${ formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
                 </div>
               )}
             </div>

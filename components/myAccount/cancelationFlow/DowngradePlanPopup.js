@@ -28,8 +28,15 @@ function DowngradePlanPopup({
 
 
     const getUserData = () => {
-        let date = new Date()
-        setNxtChage(moment(date).format("MM/DD/YYYY"))
+        let data = localStorage.getItem("User")
+
+        if (data) {
+            let u = JSON.parse(data)
+            let date = u.user.nextChargeDate
+
+            date = moment(date).format("MM/DD/YYYY")
+            setNxtChage(date)
+        }
     }
 
 
