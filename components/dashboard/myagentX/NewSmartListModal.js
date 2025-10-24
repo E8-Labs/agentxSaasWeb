@@ -11,6 +11,7 @@ import axios from 'axios';
 import TagsInput from '../leads/TagsInput';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import Apis from '@/components/apis/Apis';
 
 const NewSmartListModal = ({ 
   open, 
