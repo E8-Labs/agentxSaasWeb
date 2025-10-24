@@ -145,7 +145,7 @@ function Page() {
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://app.assignx.ai/agentx/"
+      ? "https://apimyagentx.com/agentx/"
       : "https://apimyagentx.com/agentxtest/";
 
 
@@ -2119,7 +2119,7 @@ function Page() {
       });
 
       if (response) {
-        ////console.log;
+        console.log("response of get unique columns", response)
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }

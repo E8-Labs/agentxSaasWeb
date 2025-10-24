@@ -19,12 +19,12 @@ function PirvacyPolicyComponent() {
                 </div>
 
                 <div className='text-[19px] text-black font-[400] mt-6' >
-                    Welcome to AgentX.ai, a pioneering AI-powered real estate agent platform. We are headquartered in San Francisco, CA, and provide our services across the United States and Canada. This Privacy Policy explains how we collect, use, protect, and share your information.
+                    Welcome to AssignX.ai, a pioneering AI-powered real estate agent platform. We are headquartered in San Francisco, CA, and provide our services across the United States and Canada. This Privacy Policy explains how we collect, use, protect, and share your information.
 
 
                     <div className='mt-6' >
                         1. Introduction<br />
-                        At AgentX.ai, we respect your privacy and are committed to protecting your personal data. This policy applies to all information collected through our website, mobile application, and AI-powered communication tools.
+                        At AssignX.ai, we respect your privacy and are committed to protecting your personal data. This policy applies to all information collected through our website, mobile application, and AI-powered communication tools.
                     </div>
 
                     <div className='mt-6' >

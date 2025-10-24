@@ -45,6 +45,7 @@ import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
 import { useUser } from "@/hooks/redux-hooks";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -1023,7 +1024,7 @@ const Leads1 = () => {
 
               {reduxUser?.planCapabilities?.maxLeads < 10000000 && reduxUser?.plan?.planId != null && (
                 <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080', padding: 20 }}>
-                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                  {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads || 0)} used`}
                 </div>
               )}
 

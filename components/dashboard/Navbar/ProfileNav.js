@@ -1185,7 +1185,7 @@ const ProfileNav = () => {
       <IntroVideoModal
         open={walkthroughWatched}
         onClose={() => setWalkthroughWatched(false)}
-        videoTitle="Welcome to AgentX"
+        videoTitle="Welcome to AssignX"
         videoDescription="This short video will show you where everything is. Enjoy!"
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
         showLoader={updateProfileLoader}
