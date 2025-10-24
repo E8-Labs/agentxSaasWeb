@@ -1,15 +1,37 @@
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation';
 import BrandConfig from './BrandConfig';
 import DomainConfig from './DomainConfig';
 import EmailConfig from './EmailConfig';
-import NotificationConfig from './NotificationConfig';
+import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationConfig';
 import TutorialConfig from './TutorialConfig';
 import SupportWidgetConfig from './SupportWidgetConfig';
 
 const WhiteLabel = () => {
-
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [selectedWhiteLabelTabs, setSelectedWhiteLabelTabs] = useState(1);
+
+    // Initialize tab from URL parameter
+    useEffect(() => {
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+            const tabNumber = parseInt(tabParam, 10);
+            if (tabNumber >= 1 && tabNumber <= 6) {
+                setSelectedWhiteLabelTabs(tabNumber);
+            }
+        }
+    }, [searchParams]);
+
+    // Handle tab change and update URL
+    const handleTabChange = (tabId) => {
+        setSelectedWhiteLabelTabs(tabId);
+        // Update URL without page reload
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('tab', tabId.toString());
+        router.push(`/agency/dashboard/whitelabel?${newSearchParams.toString()}`, { scroll: false });
+    };
 
     const WhiteLabelTabs = [
         { id: 1, title: "Brand Config" },
@@ -38,7 +60,7 @@ const WhiteLabel = () => {
                                 <button
                                     key={item.id}
                                     className={`${selectedWhiteLabelTabs === item.id ? "text-purple border-purple bg-purple-100 rounded-lg" : "text-black"} outline-none text-start h-[48px] px-2`}
-                                    onClick={() => { setSelectedWhiteLabelTabs(item.id) }}
+                                    onClick={() => { handleTabChange(item.id) }}
                                     style={styles.regular}
                                 >
                                     {item.title}
