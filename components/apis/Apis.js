@@ -308,6 +308,8 @@ const Apis = {
   
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
+  addSmartList: `${BasePath}api/leads/addSmartList`,
+  
 };
 
 export default Apis;

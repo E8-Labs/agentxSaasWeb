@@ -96,9 +96,8 @@ const NewSmartListModal = ({
       };
 
       console.log("payload", payload);
-
-      const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
+let path = Apis.addSmartList;
+      const response = await axios.post(path,
         payload,
         {
           headers: {
