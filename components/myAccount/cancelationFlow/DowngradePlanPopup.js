@@ -33,6 +33,7 @@ function DowngradePlanPopup({
         if (data) {
             let u = JSON.parse(data)
             let date = u.user.nextChargeDate
+            console.log("next charge date is", date)
 
             date = moment(date).format("MM/DD/YYYY")
             setNxtChage(date)
