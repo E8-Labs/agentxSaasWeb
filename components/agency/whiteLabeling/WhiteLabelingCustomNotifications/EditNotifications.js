@@ -233,7 +233,7 @@ const EditNotifications = ({
                                             + Add variable
                                         </button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-48 p-2">
+                                    <PopoverContent className="w-48 p-2" style={{ zIndex: 9999 }}>
                                         <div className="space-y-1">
                                             <button
                                                 onClick={() => insertVariable('First Name')}
@@ -286,17 +286,21 @@ const EditNotifications = ({
                     </div>
 
                     {/* CTA Field */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                            CTA
-                        </label>
-                        <input
-                            placeholder="Notification title"
-                            value={formData.cta}
-                            onChange={(e) => handleInputChange('cta', e.target.value)}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
-                        />
-                    </div>
+                    {
+                        formData?.cta && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">
+                                    CTA
+                                </label>
+                                <input
+                                    placeholder="Notification title"
+                                    value={formData.cta}
+                                    onChange={(e) => handleInputChange('cta', e.target.value)}
+                                    className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                                />
+                            </div>
+                        )
+                    }
                 </div>
 
                 {/* Action Buttons */}

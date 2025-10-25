@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import LabelingHeader from '../LabelingHeader'
 import StandardNot from './StandardNot'
+import TrialPeriodNot from './TrialPeriodNot'
 
 const NotificationConfig = () => {
 
@@ -46,6 +47,21 @@ const NotificationConfig = () => {
             {
               selectedNotificationTab === 1 && (
                 <StandardNot />
+              )
+            }
+            {
+              selectedNotificationTab === 2 && (
+                <TrialPeriodNot notificationsListArray={"TrialPeriod"} />
+              )
+            }
+            {
+              selectedNotificationTab === 3 && (
+                <TrialPeriodNot notificationsListArray={"PostTrialPeriod"} />
+              )
+            }
+            {
+              selectedNotificationTab === 4 && (
+                <TrialPeriodNot notificationsListArray={"Gamification"} />
               )
             }
           </div>
