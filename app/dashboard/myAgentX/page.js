@@ -2119,7 +2119,7 @@ function Page() {
       });
 
       if (response) {
-        ////console.log;
+        console.log("response of get unique columns", response)
         if (response.data.status === true) {
           setUniqueColumns(response.data.data);
         }
