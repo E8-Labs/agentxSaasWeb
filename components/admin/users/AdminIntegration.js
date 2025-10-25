@@ -331,7 +331,7 @@ function AdminIntegration({ selectedUser }) {
                           textDecorationLine: "underline",
                         }}
                       >
-                        {myKeys.length > 0 ? "Refresh" : "Generate"}
+                        {myKeys.length > 0 ? "Refresh" : "Genrate"}
                       </div>
                     </button>
                   )}

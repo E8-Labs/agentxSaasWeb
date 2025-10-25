@@ -1750,7 +1750,7 @@ function NewBilling() {
                                                                 fontWeight: "500",
                                                                 width: "fit-content",
                                                             }}>
-                                                                Renews on: {reduxUser?.nextChargeDate && moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
+                                                                Renews at: {moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
                                                             </div>
                                                         )
                                                     }

@@ -1335,7 +1335,7 @@ function SubAccountPlansAndPayments({
                                                         fontWeight: "500",
                                                         width: "fit-content",
                                                     }}>
-                                                        Renews on: {reduxUser?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                        Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
                                                     </div>
                                                 )
                                             }

@@ -239,15 +239,12 @@ function EmailTempletePopup({
     };
 
     const handleSelect = (t) => {
-        console.log("t", t)
         setSelectedTemp(t)
         setTempName(t.templateName || "");
         setSubject(t.subject || "");
         setBody(t.content || "");
         setccEmails(t.ccEmails || []);
         setAttachments(t.attachments || []);
-
-        
 
 
         // if (!isEditing && addRow) {
@@ -409,11 +406,6 @@ function EmailTempletePopup({
             return; // Don't close modal yet, let the send function handle it
         }
 
-        console.log("selectedTemp", selectedTemp)
-        console.log("hasTemplateChanges", hasTemplateChanges)
-        console.log("isEditing", isEditing)
-        console.log("IsdefaultCadence", IsdefaultCadence)
-
         if (selectedTemp && !hasTemplateChanges && !isEditing) {
             // Use existing template without modification - no API call needed
             console.log('Using existing template without changes:', selectedTemp);
@@ -423,8 +415,7 @@ function EmailTempletePopup({
                     data: selectedTemp // Use the existing template
                 }
             };
-           
-        } else if (selectedTemp && isEditing) {
+        } else if (selectedTemp && hasTemplateChanges && !isEditing) {
             // Selected existing template but made changes - UPDATE the existing template
             console.log('Updating selected template with changes. Template ID:', selectedTemp.id);
             response = await updateTemplete(data, selectedTemp.id)
@@ -445,7 +436,7 @@ function EmailTempletePopup({
             response = await createTemplete(data)
         }
 
-        if (response?.data?.status === true) {
+        if (response.data.status === true) {
 
             const createdTemplate = response?.data?.data
 
@@ -536,7 +527,7 @@ function EmailTempletePopup({
 
         } else {
             setShowSnackBar({
-                message: response?.data?.message,
+                message: response.data.message,
                 type: SnackbarTypes.Error,
             })
         }

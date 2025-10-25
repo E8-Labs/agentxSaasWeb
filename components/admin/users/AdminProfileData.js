@@ -86,7 +86,8 @@ function AdminProfileData({ selectedUser, from }) {
                                     agencyView={true}
                                 />
                             ) : (
-                                <AdminBilling selectedUser={selectedUser} from={from} />
+                                // <AdminBilling selectedUser={selectedUser} from={from} />
+                                "Show the Simple User Payments here"
                             )
                         }
                     </div>
@@ -99,7 +100,7 @@ function AdminProfileData({ selectedUser, from }) {
                             from === "subaccount" ? (
                                 <BillingHistory hideBtns={true} selectedUser={selectedUser} />
                             ) : (
-                                <BillingHistory selectedUser={selectedUser} from={from} />
+                                <AdminBilling selectedUser={selectedUser} from={from} />
                             )
                         }
                     </div>

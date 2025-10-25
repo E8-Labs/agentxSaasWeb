@@ -718,7 +718,7 @@ const AddScoringModal = ({
               <span className="text-base font-normal text-gray-900">Question</span>
               <div className="px-2 py-1 rounded-full bg-[#7902DF20]">
                 <span className="text-sm font-medium text-purple">
-                  {totalScore}/10 Points
+                  {totalScore?.toFixed(0)}/10 Points
                 </span>
               </div>
             </div>

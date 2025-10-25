@@ -29,7 +29,7 @@ const ActionsTab = ({
         },
         {
             id: 3,
-            title: "Lead Scoring"
+            title: "Leads Scoring"
         },
     ]
 

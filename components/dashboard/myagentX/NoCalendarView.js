@@ -12,16 +12,16 @@ export default function NoCalendarView({
     <div>
       <div className="flex flex-col items-center justify-center h-[20] mb-4">
         {/* Icon Section */}
-        <div className="flex items-center justify-center w-24 h-24 mt-7 rounded-lg">
+        <div className="flex items-center justify-center w-24 h-24   rounded-lg">
           <img
-            src="/otherAssets/no_calendar_icon2.png"
+            src="/assets/salmanassets/no_calendar_icon2.svg"
             alt="No Calendar Icon"
-            className="w-30 h-30"
+            className="w-12 h-12"
           />
         </div>
 
         {/* Text Section */}
-        <div className="-mt-2 text-center mt-3">
+        <div className="-mt-2 text-center">
           <h3 className="text-[15] font-[400] text-gray-900 italic">
             No Calendar added
           </h3>

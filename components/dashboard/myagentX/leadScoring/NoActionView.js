@@ -9,13 +9,9 @@ function NoActionView({
     return (
         <div className='flex flex-col items-center justify-center mt-6 w-full'>
 
-            <div className="flex items-center justify-center w-24 h-24 mt-7 rounded-lg">
-                <img
-                    src="/otherAssets/starImage.png"
-                    alt="No Calendar Icon"
-                    className="w-30 h-30"
-                />
-            </div>
+            <Image src={"/otherAssets/starImage.png"}   
+                height={100} width={100} alt='*'
+            />
 
             <h3 className="text-[15] font-[400] text-gray-900 italic">
                 {title}

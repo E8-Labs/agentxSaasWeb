@@ -387,9 +387,6 @@ function UpgradePlanContent({
                             setSelectedPlanIndex(planIndex);
                             setTogglePlan(matchingPlan.id);
                         } else {
-                            setCurrentSelectedPlan(currentPlans[0]);
-                            setSelectedPlanIndex(0);
-                            setTogglePlan(currentPlans[0].id);
                             console.log("no matching plan found");
                         }
                     }, 100);
@@ -681,10 +678,6 @@ function UpgradePlanContent({
 
             const ApiPath = Apis.getCardsList;
 
-            if(selectedUser) {
-                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
-            }
-
             // //console.log;
 
             const response = await axios.get(ApiPath, {
@@ -781,15 +774,15 @@ function UpgradePlanContent({
 
             const result2 = await addCardRes.json();
             if (result2.status) {
-                // Only show card success message if we're not in subscription flow
+                setAddCardSuccess(true);
+                setIsPreSelectedPlanTriggered(false);
                 if (!togglePlan) {
-                    setAddCardSuccess(true);
                     setIsPreSelectedPlanTriggered(false);
                     handleClose(result);
-                } else {
-                    // In subscription flow, just update UI without showing success message
+                }
+                if (togglePlan) {
                     setShowAddCard(false);
-                    getCardsList();
+                    getCardsList()
                 }
                 setAddCardLoader(false);
                 return paymentMethodId; // Return the payment method ID
@@ -975,16 +968,9 @@ function UpgradePlanContent({
 
                 // Pass true to indicate successful upgrade
                 // handleClose(true)
-                
-                // Create a combined message if a new payment method was added
-                let successMessage = response.data.message;
-                if (isAddingNewPaymentMethod) {
-                    successMessage = `Payment method added and ${response.data.message.toLowerCase()}`;
-                }
-                
                 setShowSnackMsg({
                     type: SnackbarTypes.Success,
-                    message: successMessage,
+                    message: response.data.message,
                     isVisible: true
                 })
                 setTimeout(() => {

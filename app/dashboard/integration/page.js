@@ -425,7 +425,7 @@ function Page() {
                           textDecorationLine: "underline",
                         }}
                       >
-                        {myKeys.length > 0 ? "Refresh" : "Generate"}
+                        {myKeys.length > 0 ? "Refresh" : "Genrate"}
                       </div>
                     </button>
                   )}

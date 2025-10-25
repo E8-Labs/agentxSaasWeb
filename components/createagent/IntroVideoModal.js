@@ -18,7 +18,7 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, videoDescription
     <Modal
       open={open}
       onClose={() => {
-        if (videoTitle === "Welcome to AssignX") {
+        if (videoTitle === "Welcome to AgentX") {
           console.log("Donot close")
         } else {
           onClose()
