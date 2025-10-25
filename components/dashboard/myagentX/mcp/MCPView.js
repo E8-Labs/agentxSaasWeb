@@ -665,16 +665,17 @@ function MCPView({
             <div>
                 <div className="flex flex-col items-center justify-center h-[20] mb-4">
                     {/* Icon Section */}
-                    <div className="flex items-center justify-center w-24 h-24   rounded-lg">
+                    <div className="flex items-center justify-center w-24 h-24 mt-7 rounded-lg">
                         <img
-                            src="/otherAssets/noMCPIcon.jpg"
-                            alt="No Calendar Icon"
-                            className="w-12 h-12"
+                            src="/otherAssets/noMCPIcon.png"
+                            alt="No MCP Icon"
+                            className="w-30 h-30"
+
                         />
                     </div>
 
                     {/* Text Section */}
-                    <div className="-mt-2 text-center">
+                    <div className="mt-1 text-center">
                         <h3 className="text-[15] font-[400] text-gray-900 italic">
                             No Tools added
                         </h3>
