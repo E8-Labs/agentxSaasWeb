@@ -662,7 +662,7 @@ function SheduledCalls({ user }) {
     if (item.startTime && startTime.isAfter(currentTime)) {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
-      return `Scheduled - ${formattedDate}`;
+      return `Scheduled`;
     }
 
     // Return the regular readable status for past or current calls

@@ -170,7 +170,7 @@ function LeadScoring({
                         <CircularProgress size={20} />
                     </div>
                 ) : (
-                    templates.length > 0 ? (
+                    !templates.length > 0 ? (
                         <div className="space-y-3">
                             <Box className="w-full">
                                 <FormControl className="w-full">

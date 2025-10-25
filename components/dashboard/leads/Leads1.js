@@ -695,6 +695,39 @@ const Leads1 = () => {
     }
   }
 
+
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    try {
+      console.log('🔄 [LEADS] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        console.log('🔄 [LEADS] Fresh user data received after upgrade');
+
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+        setUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [LEADS] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+
   const handleAddLead = async (enrich = false, startIndex = 0, resumeData = null) => {
     let pd = processedData;
     let data = [];
@@ -790,6 +823,7 @@ const Leads1 = () => {
         setSuccessSnack("Leads uploaded successfully");
         setShowSuccessSnack(true);
         setLoader(false);
+        refreshUserData();
 
         // Send custom event to show dashboard slider
         window.dispatchEvent(new CustomEvent("leadUploadComplete", { detail: { update: true } }));
@@ -960,7 +994,7 @@ const Leads1 = () => {
   //   setIsEnrich(checked);
   // };
 
-  const { user: reduxUser } = useUser();
+  const { user: reduxUser ,setUser:setReduxUser} = useUser();
 
   return (
     <div className="w-full">
@@ -1015,6 +1049,7 @@ const Leads1 = () => {
                 newListAdded={userLeads}
                 shouldSet={setData}
                 setSetData={setSetData}
+                reduxUser={reduxUser}
                 uploading={uploading}
               />
             </div>

@@ -1075,7 +1075,36 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
                           console.log('Retrying pending selection with new plan limits...');
-                          // Clear the pending selection and recheck limits
+                          
+                          // Check if user is still on free plan after upgrade
+                          const updatedUserData = reduxUser || user;
+                          const isStillFreePlan = (() => {
+                            if(updatedUserData?.user?.plan?.price === 0) return true;
+                            return false;
+                          })
+
+                          console.log('🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:', {
+                            isStillFreePlan,
+                            planType: updatedUserData?.user?.plan?.type,
+                            maxAgents: updatedUserData?.user?.planCapabilities?.maxAgents,
+                            planPrice: updatedUserData?.user?.plan?.price
+                          });
+
+                          // If still on free plan and trying to select both agents, deselect one
+                          if (isStillFreePlan && pendingAgentSelection.inbound && pendingAgentSelection.outbound) {
+                            console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound');
+                            // Keep only inbound, deselect outbound for free plan users
+                            const modifiedSelection = {
+                              ...pendingAgentSelection,
+                              inbound: false
+                            };
+                            setInBoundCalls(modifiedSelection.inbound);
+                            setOutBoundCalls(modifiedSelection.outbound);
+                            setPendingAgentSelection(null);
+                            return;
+                          }
+
+                          // Clear the pending selection and apply it
                           const pendingSelection = pendingAgentSelection;
                           setPendingAgentSelection(null);
 
@@ -1141,7 +1170,38 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
                             console.log('Retrying pending selection with new plan limits...');
-                            // Clear the pending selection and recheck limits
+                            
+                            // Check if user is still on free plan after upgrade
+                            const updatedUserData = reduxUser || user;
+                            const isStillFreePlan = (() => {
+                              const planType = updatedUserData?.user?.plan?.type?.toLowerCase();
+                              if (planType?.includes('free')) return true;
+                              if (updatedUserData?.user?.planCapabilities?.maxAgents > 1) return false;
+                              return updatedUserData?.user?.plan === null || updatedUserData?.user?.plan?.price === 0;
+                            })();
+
+                            console.log('🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:', {
+                              isStillFreePlan,
+                              planType: updatedUserData?.user?.plan?.type,
+                              maxAgents: updatedUserData?.user?.planCapabilities?.maxAgents,
+                              planPrice: updatedUserData?.user?.plan?.price
+                            });
+
+                            // If still on free plan and trying to select both agents, deselect one
+                            if (isStillFreePlan && pendingAgentSelection.inbound && pendingAgentSelection.outbound) {
+                              console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound');
+                              // Keep only inbound, deselect outbound for free plan users
+                              const modifiedSelection = {
+                                ...pendingAgentSelection,
+                                inbound: false
+                              };
+                              setInBoundCalls(modifiedSelection.inbound);
+                              setOutBoundCalls(modifiedSelection.outbound);
+                              setPendingAgentSelection(null);
+                              return;
+                            }
+
+                            // Clear the pending selection and apply it
                             const pendingSelection = pendingAgentSelection;
                             setPendingAgentSelection(null);
 

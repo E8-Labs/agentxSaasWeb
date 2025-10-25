@@ -63,6 +63,7 @@ const Userleads = ({
   shouldSet,
   uploading,
   setSetData,
+  reduxUser,
 }) => {
   const LimitPerPage = 30;
   const bottomRef = useRef(null);
@@ -212,8 +213,6 @@ const Userleads = ({
 
   //render status
   const isFirstRender = useRef(true);
-
-  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
 
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null);

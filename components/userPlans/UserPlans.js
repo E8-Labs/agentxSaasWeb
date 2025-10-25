@@ -527,6 +527,9 @@ function UserPlans({
                             <button
                                 key={index}
                                 onClick={(e) => {
+                                    if (disAblePlans) {
+                                        return;
+                                    }
                                     e.preventDefault();
                                     e.stopPropagation();
                                     handleTogglePlanClick(item, index);
@@ -559,7 +562,7 @@ function UserPlans({
                                 }}
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
-                                disabled={disAblePlans}
+                                // disabled={disAblePlans}
 
                                 className={`flex flex-col items-center rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}

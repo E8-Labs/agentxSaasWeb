@@ -1,15 +1,19 @@
+import IntroVideoModal from '@/components/createagent/IntroVideoModal';
+import VideoCard from '@/components/createagent/VideoCard';
+import { HowtoVideos } from '@/constants/Constants';
 import Image from 'next/image';
-import React from 'react'
+import React, { useState } from 'react'
 
 function NoActionView({
     title = "No scoring data available",
     featureName = "Scoring",
     setShowAddScoringModal
 }) {
+    const [introVideoModal, setIntroVideoModal] = useState(false);
     return (
         <div className='flex flex-col items-center justify-center mt-6 w-full'>
 
-            <div className="flex items-center justify-center w-24 h-24 mt-7 rounded-lg">
+            <div className="flex items-center justify-center w-24 h-24 mt-3 rounded-lg">
                 <img
                     src="/otherAssets/starImage.png"
                     alt="No Calendar Icon"
@@ -17,7 +21,7 @@ function NoActionView({
                 />
             </div>
 
-            <h3 className="text-[15] font-[400] text-gray-900 italic">
+            <h3 className="text-[15] font-[400] text-gray-900 italic -mt-4">
                 {title}
             </h3>
 
@@ -44,6 +48,28 @@ function NoActionView({
                 </svg>
                 Add Scores
             </button>
+
+
+            <div className="flex flex-col w-full flex-col items-center justify-center mt-3">
+
+                <div className="w-6/12">
+                    <VideoCard
+                        duration="1 min 47 sec"
+                        horizontal={false}
+                        playVideo={() => {
+                            setIntroVideoModal(true);
+                        }}
+                        title="Learn how to add Scoring"
+                    />
+                    {/* Intro modal */}
+                    <IntroVideoModal
+                        open={introVideoModal}
+                        onClose={() => setIntroVideoModal(false)}
+                        videoTitle="Learn how to add a scoring"
+                        videoUrl={HowtoVideos.Calendar}
+                    />
+                </div>
+            </div>
 
         </div>
     )

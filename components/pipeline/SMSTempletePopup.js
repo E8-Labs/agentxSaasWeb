@@ -43,11 +43,14 @@ function SMSTempletePopup({
 
     const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
     const [user, setUser] = useState(null)
-
+    const [IsDefaultCadence, setIsDefaultCadence] = useState(null)
     useEffect(() => {
         let data = getUserLocalData()
         setUser(data.user)
         getColumns()
+        let isDefault = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+        console.log('isDefault', isDefault)
+        setIsDefaultCadence(isDefault)
     }, [open])
 
     // Check if save button should be disabled
@@ -81,7 +84,7 @@ function SMSTempletePopup({
             console.log('details', details)
             if (details) {
                 setBody(details.content || "");
-
+                setSelectedPhone(details.phone);
 
             }
         } catch (error) {
@@ -102,8 +105,8 @@ function SMSTempletePopup({
                 const smsData = {
                     content: body,
                     phone: leadPhone,
-                    smsPhoneNumberId:selectedPhone.id,
-                    leadId:leadId
+                    smsPhoneNumberId: selectedPhone.id,
+                    leadId: leadId
 
                 };
                 onSendSMS(smsData);
@@ -118,8 +121,7 @@ function SMSTempletePopup({
                 phone: selectedPhone.phone
             }
             let response = null
-            let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
-            if (isEditing && !IsdefaultCadence) {
+            if (isEditing && !IsDefaultCadence) {
                 response = await updateTemplete(data, editingRow.templateId)
             } else {
                 response = await createTemplete(data)
@@ -227,7 +229,7 @@ function SMSTempletePopup({
 
                         <div className='w-full flex flex-row items-center justify-between mb-8'>
                             <div className='text-[15px] font-[700]'>
-                                {isLeadSMS ? 'Send SMS to Lead' : (isEditing ? "Update" : "New")} Text
+                                {isLeadSMS ? 'Send SMS to Lead' : (isEditing && !IsDefaultCadence ? "Update" : "New")} Text
                             </div>
 
                             <CloseBtn onClick={onClose} />
@@ -239,6 +241,57 @@ function SMSTempletePopup({
                                 </span>
                             </div>
                         )}
+                        <div className='w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mb-2'>
+
+                            <div className='flex flex-row items-center justify-between w-full'>
+                                <div className='text-purple text-[14] font-[700]'>
+                                    Note
+                                </div>
+                            </div>
+
+                            <div className='text-[13px] font-[400] text-black flex flex-row flex-wrap'>
+                                You can add variables like <span className='text-purple'>{`{First Name}, {Address}.`}</span>
+
+                                {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
+                                    <div className="flex flex-row flex-wrap gap-2">
+                                        {uniqueColumns.map((item, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex flex-row items-center gap-2 text-purple"
+                                            >
+                                                {`{${item}}`},
+                                            </div>
+                                        ))}
+                                        <button
+                                            className="text-purple outline-none"
+                                            onClick={handleShowUniqueCols}
+                                        >
+                                            show less
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        {uniqueColumns.length > 0 && (
+                                            <button
+                                                className="text-purple flex flex-row items-center font-bold outline-none"
+                                                onClick={() => {
+                                                    handleShowUniqueCols();
+                                                }}
+                                            >
+                                                <Plus
+                                                    weight="bold"
+                                                    size={15}
+                                                    style={{
+                                                        strokeWidth: 40, // Adjust as needed
+                                                    }}
+                                                />
+                                                {uniqueColumns.length}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         {
                             phoneLoading ? (
                                 <CircularProgress size={30} />
@@ -250,7 +303,7 @@ function SMSTempletePopup({
                                         </div>
 
                                     )}
-                                    <FormControl sx={{width:isLeadSMS?'80%':'100%'}}>
+                                    <FormControl sx={{ width: isLeadSMS ? '80%' : '100%' }}>
                                         <Select
                                             value={selectedPhone || ""}
                                             onChange={(event) => handleSelect(event.target.value)}
@@ -261,7 +314,7 @@ function SMSTempletePopup({
                                                 backgroundColor: "#FFFFFF",
                                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                                                     borderColor: "transparent", // Hide focused border color
-                                                   
+
                                                 },
 
                                             }}
@@ -305,114 +358,7 @@ function SMSTempletePopup({
                             )
                         }
 
-                        <div className='w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mt-4'>
 
-                            <div className='flex flex-row items-center justify-between w-full'>
-                                <div className='text-purple text-[14] font-[700]'>
-                                    Note
-                                </div>
-
-                                {/*
-                                <div className="relative">
-                                    <button
-                                        className='text-[14px] font-[700] text-purple underline flex flex-row items-center gap-1'
-                                        onClick={(event) => setShowMenu(event.currentTarget)}
-                                        type="button"
-                                    >
-                                        <div>
-                                            see all.
-                                        </div>
-                                        <Image src={'/otherAssets/blueDownArrow.png'}
-                                            height={24} width={24} alt='*'
-                                        />
-                                    </button>
-                                    <Menu
-                                        anchorEl={showManu}
-                                        open={Boolean(showManu)}
-                                        onClose={() => setShowMenu(null)}
-                                        sx={{
-                                            maxHeight: '30vh'
-                                        }}
-                                    >
-                                        {uniqueColumns.map((a) => (
-                                            <MenuItem
-                                                key={a}
-                                                sx={{
-                                                    '&:hover .action-icon': {
-                                                        display: 'none',
-                                                    },
-                                                    '&:hover .action-icon-hover': {
-                                                        display: 'block',
-                                                    },
-                                                }}
-                                                onClick={() => {
-                                                    // Copy the column name to clipboard in curly braces
-                                                    if (navigator && navigator.clipboard) {
-                                                        navigator.clipboard.writeText(`{${a}}`);
-                                                    }
-                                                    setShowMenu(null);
-                                                }}
-                                            >
-                                                <div className='flex flex-row items-cetner w-full justify-between'>
-                                                    <div className='text-[15] font-[500]'>
-                                                        {a}
-                                                    </div>
-    
-                                                    <Image src={"/otherAssets/copyIcon.png"}
-                                                        height={16} width={20} alt='*'
-                                                    />
-    
-                                                </div>
-                                            </MenuItem>
-    
-                                        ))}
-                                    </Menu>
-                                </div>
-                            */}
-                            </div>
-
-                            <div className='text-[13px] font-[400] text-black'>
-                                You can add variables like <span className='text-purple'>{`{First Name}, {Address}.`}</span>
-                            </div>
-                            {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
-                                <div className="flex flex-row flex-wrap gap-2">
-                                    {uniqueColumns.map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2 text-purple"
-                                        >
-                                            {`{${item}}`},
-                                        </div>
-                                    ))}
-                                    <button
-                                        className="text-purple outline-none"
-                                        onClick={handleShowUniqueCols}
-                                    >
-                                        show less
-                                    </button>
-                                </div>
-                            ) : (
-                                <div>
-                                    {uniqueColumns.length > 0 && (
-                                        <button
-                                            className="text-purple flex flex-row items-center font-bold outline-none"
-                                            onClick={() => {
-                                                handleShowUniqueCols();
-                                            }}
-                                        >
-                                            <Plus
-                                                weight="bold"
-                                                size={15}
-                                                style={{
-                                                    strokeWidth: 40, // Adjust as needed
-                                                }}
-                                            />
-                                            {uniqueColumns.length}
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
                         <div className=' mt-4'>
                             <PromptTagInput
                                 promptTag={body}
@@ -453,7 +399,7 @@ function SMSTempletePopup({
                                 disabled={isSaveDisabled}
                                 onClick={handleSave}
                             >
-                                {isLeadSMS ? 'Send SMS' : (isEditing ? "Update" : "Save")} Message
+                                {isLeadSMS ? 'Send SMS' : (isEditing && !IsDefaultCadence ? "Update" : "Save")} Message
                             </button>
                         )}
                     </div>
