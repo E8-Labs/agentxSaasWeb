@@ -19,7 +19,7 @@ export const PromptTagInput = ({
   placeholder = "Type here...",
   editTitle
 }) => {
-  //// //console.log
+  console.log("kycs list in prompt tag input", kycsList)
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const [options, setOptions] = useState([
@@ -569,12 +569,12 @@ export const PromptTagInput = ({
                   }
 
                   {
-                    from === "Voicemail" && (
+                    limit && (
                       <div>
                         <div style={{
                           fontSize: 14, fontWeight: '500', color: '#00000060'
                         }}>
-                          {text?.length}/200
+                          {text?.length}/{limit}
                         </div>
                       </div>
                     )

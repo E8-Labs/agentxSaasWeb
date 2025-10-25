@@ -1254,6 +1254,7 @@ function Teams({
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
                       country="us" // Default country
+                      onlyCountries={["us", "ca"]} // Allow US and Canada only
                       value={phone}
                       onChange={handlePhoneNumberChange}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}

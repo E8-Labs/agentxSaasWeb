@@ -10,6 +10,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
 import { useRef } from 'react';
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 
 function BasicInfo() {
@@ -111,6 +112,10 @@ function BasicInfo() {
 
   const [srviceLoader, setServiceLoader] = useState(false);
   const [areaLoading, setAreaLoading] = useState(false);
+
+  // Success message states
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [selected, setSelected] = useState([]);
   const [selectedArea, setSelectedArea] = useState([]);
@@ -307,6 +312,12 @@ function BasicInfo() {
     // return serviceId.includes((id) => !originalSelectedService.includes(id));
   };
 
+  // Helper function to show success message
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessMessage(true);
+  };
+
   const uploadeImage = async (imageUrl) => {
     try {
       const data = localStorage.getItem("User");
@@ -485,7 +496,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading(false);
       setIsNameChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading(false);
       // //console.log;
     }
   };
@@ -497,7 +510,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setLoading13(false);
       setIsEmailChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading13(false);
       // //console.log;
     }
   };
@@ -512,7 +527,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading2(false);
       setIsFarmChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading2(false);
       // //console.log;
     }
   };
@@ -527,7 +544,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading8(false);
       setIsCompanyChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading8(false);
       // //console.log;
     }
   };
@@ -542,7 +561,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setLoading14(false);
       setIsTeritorryChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading14(false);
       // //console.log;
     }
   };
@@ -559,7 +580,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setLoading11(false);
       setIsCompanyAffiliationChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading11(false);
       // //console.log;
     }
   };
@@ -574,7 +597,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading3(false);
       setIsBrokerageChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading3(false);
       // //console.log;
     }
   };
@@ -589,7 +614,9 @@ function BasicInfo() {
       setloading4(false);
 
       setIsTransactionChange(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading4(false);
       // //console.log;
     }
   };
@@ -603,7 +630,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading7(false);
       setIsInstallationVolumeChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading7(false);
       // //console.log;
     }
   };
@@ -618,7 +647,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading6(false);
       setIsServiceAreaChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading6(false);
       // //console.log;
     }
   };
@@ -631,7 +662,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setloading9(false);
       setIsprojectSizeChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setloading9(false);
       // //console.log;
     }
   };
@@ -645,7 +678,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setLoading12(false);
       setIsprojectSizeChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading12(false);
       // //console.log;
     }
   };
@@ -758,7 +793,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setOriginalSelectedArea([...selectedArea]);
       setAreaLoading(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setAreaLoading(false);
       // //console.log;
     }
   };
@@ -774,7 +811,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setOriginalSelectedIndustries([...selectedIndustries]);
       setAreaLoading(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setAreaLoading(false);
       // //console.log;
     }
   };
@@ -791,7 +830,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setOriginalSelectedService([...serviceId]);
       setServiceLoader(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setServiceLoader(false);
       // //console.log;
     }
   };
@@ -808,7 +849,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setIsWebsiteUrlChanged(false);
       setLoading10(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading10(false);
       // //console.log;
     }
   };
@@ -2264,6 +2307,14 @@ function BasicInfo() {
           )}
         </>
       )}
+
+      {/* Success Message */}
+      <AgentSelectSnackMessage
+        isVisible={showSuccessMessage}
+        hide={() => setShowSuccessMessage(false)}
+        message={successMessage}
+        type={SnackbarTypes.Success}
+      />
     </div>
   );
 }

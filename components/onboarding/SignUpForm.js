@@ -707,9 +707,9 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete, handle
                 <PhoneInput
                   ref={(el) => (inputsFields.current[2] = el)}
                   className="border outline-none bg-white"
-                  country={"us"} // restrict to US only
-                  onlyCountries={["us"]}
-                  disableDropdown={true}
+                  country={"us"} // Default country
+                  onlyCountries={["us", "ca"]} // Allow US and Canada only
+                  disableDropdown={false} // Enable dropdown to switch between US/CA
                   countryCodeEditable={false}
                   disableCountryCode={false}
                   value={userPhoneNumber}

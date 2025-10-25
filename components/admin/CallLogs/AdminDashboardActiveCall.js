@@ -131,7 +131,7 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
     if (item.startTime && startTime.isAfter(currentTime)) {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
-      return `Scheduled - ${formattedDate}`;
+      return `Scheduled `;
     } else {
       return getReadableStatus(item.status);
     }
@@ -674,10 +674,14 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
             </div>
           )
         }
+
+        <div className="w-2/12">
+          <div style={styles.text}>Sub Account Name</div>
+        </div>
         <div className="w-2/12">
           <div style={styles.text}>Account Name</div>
         </div>
-        <div className="w-2/12">
+        <div className="w-1/12">
           <div style={styles.text}>Agent</div>
         </div>
         <div className="w-1/12">
@@ -845,6 +849,11 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                     </div>
                                   )
                                 }
+                                <div className="w-2/12">
+                                  <div style={styles.text2}>
+                                    {item.user?.name || "-"}
+                                  </div>
+                                </div>
 
                                 <button className="w-2/12 flex flex-row gap-3 items-center"
                                   onClick={() => {
@@ -856,29 +865,11 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                     }
                                   }}
                                 >
-                                  {item?.user?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={item?.user?.thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {item?.user?.name.slice(0, 1).toUpperCase()}
-                                    </div>
-                                  )}
                                   <div style={styles.text2}>{item?.user?.name}</div>
 
                                 </button>
 
-                                <div className="w-2/12 flex flex-row gap-4 items-center">
+                                <div className="w-1/12 flex flex-row gap-4 items-center">
 
                                   <div style={styles.text2}>{
                                     agent?.agents[0].agentType === "outbound" ? (

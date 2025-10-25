@@ -665,7 +665,7 @@ function MCPView({
             <div>
                 <div className="flex flex-col items-center justify-center h-[20] mb-4">
                     {/* Icon Section */}
-                    <div className="flex items-center justify-center w-24 h-24 mt-7 rounded-lg">
+                    <div className="flex items-center justify-center w-24 h-24 mt-3 rounded-lg">
                         <img
                             src="/otherAssets/noMCPIcon.png"
                             alt="No MCP Icon"
@@ -675,7 +675,7 @@ function MCPView({
                     </div>
 
                     {/* Text Section */}
-                    <div className="mt-1 text-center">
+                    <div className="-mt-6 text-center">
                         <h3 className="text-[15] font-[400] text-gray-900 italic">
                             No Tools added
                         </h3>
@@ -724,15 +724,17 @@ function MCPView({
                         buttonTitle={"No Thanks"}
                     />
                 </div>
-                <div className="w-6/12">
-                    <VideoCard
-                        duration="1 min 47 sec"
-                        horizontal={false}
-                        playVideo={() => {
-                            setIntroVideoModal2(true);
-                        }}
-                        title="Learn how to add Tools"
-                    />
+                <div className="flex flex-col w-full flex-col items-center justify-center">
+                    <div className="w-6/12">
+                        <VideoCard
+                            duration="1 min 47 sec"
+                            horizontal={false}
+                            playVideo={() => {
+                                setIntroVideoModal2(true);
+                            }}
+                            title="Learn how to add Tools"
+                        />
+                    </div>
                 </div>
             </div>
         )
