@@ -11,6 +11,7 @@ import axios from 'axios';
 import TagsInput from '../leads/TagsInput';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import Apis from '@/components/apis/Apis';
 
 const NewSmartListModal = ({ 
   open, 
@@ -96,9 +97,8 @@ const NewSmartListModal = ({
       };
 
       console.log("payload", payload);
-
-      const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
+let path = Apis.addSmartList;
+      const response = await axios.post(path,
         payload,
         {
           headers: {
