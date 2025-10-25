@@ -21,7 +21,7 @@ export default function NoCalendarView({
         </div>
 
         {/* Text Section */}
-        <div className="-mt-2 text-center mt-3">
+        <div className="-mt-5 text-center">
           <h3 className="text-[15] font-[400] text-gray-900 italic">
             No Calendar added
           </h3>
@@ -54,22 +54,25 @@ export default function NoCalendarView({
           Add Calendar
         </button>
       </div>
-      <div className="w-6/12">
-        <VideoCard
-          duration="1 min 47 sec"
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal(true);
-          }}
-          title="Learn how to add Calendar"
-        />
-        {/* Intro modal */}
-        <IntroVideoModal
-          open={introVideoModal}
-          onClose={() => setIntroVideoModal(false)}
-          videoTitle="Learn how to add a calendar"
-          videoUrl={HowtoVideos.Calendar}
-        />
+      <div className="flex flex-col w-full flex-col items-center justify-center">
+
+        <div className="w-6/12">
+          <VideoCard
+            duration="1 min 47 sec"
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true);
+            }}
+            title="Learn how to add Calendar"
+          />
+          {/* Intro modal */}
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle="Learn how to add a calendar"
+            videoUrl={HowtoVideos.Calendar}
+          />
+        </div>
       </div>
     </div>
   );

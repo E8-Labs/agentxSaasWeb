@@ -114,9 +114,9 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           "Content-Type": "application/json",
         },
       });
-
+      
+      console.log("response of get kycs", response)
       if (response) {
-        //console.log;
         kycsDetails(response.data.data);
         setKycsData(response.data.data);
         const filteredSellerQuestions = response.data.data.filter(

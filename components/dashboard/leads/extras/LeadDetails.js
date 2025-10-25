@@ -1590,7 +1590,7 @@ const LeadDetails = ({
                                               >
                                                 {`Upgrade `}
                                               </button>
-                                              {' Account to send SMS - '}
+                                              {' account to send text'}
 
                                             </span>
                                           </div>
@@ -1636,7 +1636,7 @@ const LeadDetails = ({
                                         alt="Send SMS"
                                       />
                                       <span className="text-[12px] font-[400]">
-                                        Send SMS
+                                        Send Text
                                       </span>
                                     </button>
                                   </Tooltip>

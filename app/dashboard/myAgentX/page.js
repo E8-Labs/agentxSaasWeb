@@ -3999,66 +3999,152 @@ function Page() {
                   </div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                  <DuplicateButton
-                    handleDuplicate={() => {
-                      setShowDuplicateConfirmationPopup(true);
+                  <Tooltip title="Duplicate Agent" arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
                     }}
-                    loading={duplicateLoader}
-                  />
-                  <button onClick={() => {
-                    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
-                      setShowUpgradeModal(true)
-                      setTitle("Unlock your Web Agent")
-                      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
-                    } else {
-                      handleWebAgentClick(showDrawerSelectedAgent);
-                    }
-                  }}
                   >
-                    <Image
-                      src={"/assets/openVoice.png"}
-                      alt="*"
-                      height={18}
-                      width={18}
-                    />
-                  </button>
-                  <button
-                    style={{ paddingLeft: "3px" }}
-                    onClick={() => {
+                    <div>
+                      <DuplicateButton
+                        handleDuplicate={() => {
+                          setShowDuplicateConfirmationPopup(true);
+                        }}
+                        loading={duplicateLoader}
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Open Tab"
+
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                  >
+                    <button onClick={() => {
                       if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
                         setShowUpgradeModal(true)
                         setTitle("Unlock your Web Agent")
                         setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
                       } else {
-                        handleEmbedClick(showDrawerSelectedAgent);
+                        handleWebAgentClick(showDrawerSelectedAgent);
                       }
                     }}
-                  >
-                    <Image src={'/svgIcons/embedIcon.svg'}
-                      height={22} width={22} alt="*"
-                    />
-                  </button>
-
-                  <button
-                    style={{ paddingLeft: "3px" }}
-                    onClick={() => {
-                      // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
-                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
-                        setShowUpgradeModal(true)
-                        setTitle("Unlock your Web Agent")
-                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
-                      } else {
-
-                        setFetureType("webhook")
-                        setSelectedAgentForWebAgent(showDrawerSelectedAgent)
-                        setShowWebAgentModal(true)
-                      }
+                    >
+                      <Image
+                        src={"/assets/openVoice.png"}
+                        alt="*"
+                        height={18}
+                        width={18}
+                      />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Embed"
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
                     }}
                   >
-                    <Image src={'/svgIcons/webhook.svg'}
-                      height={22} width={22} alt="*"
-                    />
-                  </button>
+                    <button
+                      style={{ paddingLeft: "3px" }}
+                      onClick={() => {
+                        if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                          setShowUpgradeModal(true)
+                          setTitle("Unlock your Web Agent")
+                          setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                        } else {
+                          handleEmbedClick(showDrawerSelectedAgent);
+                        }
+                      }}
+                    >
+                      <Image src={'/svgIcons/embedIcon.svg'}
+                        height={22} width={22} alt="*"
+                      />
+                    </button>
+                  </Tooltip>
+
+                  <Tooltip title="Webhook"
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                  >
+                    <button
+                      style={{ paddingLeft: "3px" }}
+                      onClick={() => {
+                        // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                        if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                          setShowUpgradeModal(true)
+                          setTitle("Unlock your Web Agent")
+                          setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                        } else {
+
+                          setFetureType("webhook")
+                          setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                          setShowWebAgentModal(true)
+                        }
+                      }}
+                    >
+                      <Image src={'/svgIcons/webhook.svg'}
+                        height={22} width={22} alt="*"
+                      />
+                    </button>
+                  </Tooltip>
                 </div>
               </div>
             </div>
