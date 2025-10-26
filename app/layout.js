@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { ReduxProvider } from "../components/providers/redux-provider";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -127,6 +128,27 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           {children}
         </ReduxProvider>
+        <Toaster 
+          position="top-center"
+          expand={false}
+          closeButton={false}
+          toastOptions={{
+            classNames: {
+              toast: "flex items-center space-x-2 p-0 bg-white rounded-lg shadow-md border-0 w-fit mx-auto",
+              title: "text-[16px] font-[500] text-black",
+              description: "text-sm text-black font-[500]",
+              success: "bg-white border-0", 
+              error: "bg-white border-0", 
+              warning: "bg-white border-0",
+              info: "bg-white border-0",
+            },
+            style: {
+              width: "fit-content",
+              margin: "0 auto",
+              backgroundColor: "white",
+            }
+          }}
+        />
 
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">

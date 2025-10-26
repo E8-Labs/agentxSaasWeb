@@ -8,22 +8,15 @@ import { AuthToken } from "../plan/AuthDetails";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import SelectedUserDetails from "@/components/admin/users/SelectedUserDetails";
-import InviteTeamModal from "./InviteTeamModal";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { convertSecondsToMinDuration } from "@/utilities/utility";
+// import { toast } from "sonner";
+import { customToast as toast } from "@/lib/custom-toast";
 import { getMonthlyPlan, getXBarOptions } from "./GetPlansList";
 import SlideModal from "./SlideModal";
-import CreateSubAccountModal from "./CreateSubAccountModal";
-import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
 import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
 import ViewSubAccountXBar from "./ViewSubAccountXBar";
-import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
-import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import SubAccountFilters from "./SubAccountFilters";
 import { useUser } from "@/hooks/redux-hooks";
 import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
@@ -42,7 +35,6 @@ function AgencySubacount({
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(false);
   const [agencyData, setAgencyData] = useState(null);
-  const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false);
 
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false);
@@ -52,9 +44,6 @@ function AgencySubacount({
   const [showXBarPlans, setShowXBarPlans] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  //snack msages
-  const [showSnackMessage, setShowSnackMessage] = useState(null);
-  const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Success);
   //pause subAcc
   const [pauseLoader, setpauseLoader] = useState(false);
   const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
@@ -92,10 +81,9 @@ function AgencySubacount({
   const [plansList, setPlansList] = useState([]);
 
   //stores redux data
-  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  const { setUser: setReduxUser } = useUser();
   //twilio warning modal
-  const [noTwillio, setNoTwillio] = useState(false);
-  const [showXBarPopup, setShowXBarPopup] = useState(false);  
+  const [noTwillio, setNoTwillio] = useState(false);  
 
   //redux data
   useEffect(() => {
@@ -177,15 +165,14 @@ function AgencySubacount({
         if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
           setShowModal(true);
         } else {
-          setShowSnackType(SnackbarTypes.Error);
           if (monthlyPlans.length === 0) {
-            setShowSnackMessage("You'll need to add plans to create subaccounts ");
+            toast.error("You'll need to add plans to create subaccounts");
           } else if (xBarOptions.length === 0) {
-            setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+            toast.error("You'll need to add an XBar plan to create subaccounts");
           } else if (!stripeStatus) {
-            setShowSnackMessage("You're Stripe account has not been connected.");
+            toast.error("You're Stripe account has not been connected.");
           } else if (agencyData?.isTwilioConnected === false) {
-            setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+            toast.error("Add your Twilio API Keys to create subaccounts.");
           }
         }
       }, 100);
@@ -195,11 +182,6 @@ function AgencySubacount({
     }
   }
 
-  //code to close subaccount details modal
-  const handleCloseModal = () => {
-    getSubAccounts();
-    setShowModal(false);
-  };
 
   // /code for getting the subaccouts list
   const getSubAccounts = async (filterData = null) => {
@@ -256,8 +238,7 @@ function AgencySubacount({
         setInitialLoader(false);
         if (filterData) {
           setShowFilterModal(false)
-          setShowSnackMessage("Filter Applied");
-          setShowSnackType(SnackbarTypes.Success);
+          toast.success("Filter Applied");
         }
       }
     } catch (error) {
@@ -288,7 +269,7 @@ function AgencySubacount({
         setpauseLoader(false);
         if (response.data) {
           if (response.data.status === true) {
-            setShowSnackMessage(response.data.message);
+            toast.success(response.data.message);
             setShowPauseConfirmationPopup(false);
             setmoreDropdown(null);
             setSelectedItem(null);
@@ -328,7 +309,7 @@ function AgencySubacount({
         console.log("Response of del account apis is", response);
         if (response.data) {
           console.log("Response of del account apis is", response.data);
-          setShowSnackMessage(response.data.message);
+          toast.success(response.data.message);
           setDelLoader(false);
           setShowDelConfirmationPopup(false);
           setmoreDropdown(null);
@@ -473,14 +454,6 @@ function AgencySubacount({
 
   return (
     <div className="w-full flex flex-col items-center ">
-      <AgentSelectSnackMessage
-        isVisible={showSnackMessage}
-        hide={() => {
-          setShowSnackMessage(null);
-        }}
-        type={showSnackType}
-        message={showSnackMessage}
-      />
 
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
@@ -519,8 +492,7 @@ function AgencySubacount({
           setNoTwillio(false);
           if (d) {
             // refreshUserData();
-            setShowSnackMessage("Twilio Connected");
-            setShowSnackType(SnackbarTypes.Success);
+            toast.success("Twilio Connected");
           }
         }}
       // showSuccess={(d) => {
@@ -550,7 +522,6 @@ function AgencySubacount({
           </div>
 
           <button
-            disabled={twililoConectedStatus}
             className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium border-none outline-none"
             onClick={() => {
               handleCheckPlans();
@@ -789,16 +760,8 @@ function AgencySubacount({
 
                     <div className="w-1/12 relative">
                       <button
-                        disabled={twililoConectedStatus}
                         id={`account-popover-toggle-${item.id}`}
                         onClick={(e) => handleTogglePopover(e, item)}
-                      // onClick={() => {
-                      //   setUserData(item);
-                      //   setmoreDropdown(
-                      //     moreDropdown === item.id ? null : item.id
-                      //   );
-                      //   setSelectedItem(item);
-                      // }}
                       >
                         <Image
                           src={"/svgIcons/threeDotsIcon.svg"}
@@ -938,7 +901,7 @@ function AgencySubacount({
                 handleCloseInviteTeam={(data) => {
                   setOpenInvitePopup(false);
                   if (data === "showSnack") {
-                    setShowSnackMessage("Invite Sent");
+                    toast.success("Invite Sent");
                     setmoreDropdown(null);
                     setSelectedItem(null);
                   }
@@ -953,8 +916,7 @@ function AgencySubacount({
                   showPlans={setShowPlans}
                   hidePlans={(d) => {
                     if (d) {
-                      setShowSnackMessage("Plans Updated");
-                      setShowSnackType(SnackbarTypes.Success);
+                      toast.success("Plans Updated");
                     }
                     setShowPlans(false)
                   }}
@@ -969,8 +931,7 @@ function AgencySubacount({
                   showXBar={showXBarPlans}
                   hideXBar={(d) => {
                     if (d) {
-                      setShowSnackMessage("XBar Plans Updated");
-                      setShowSnackType(SnackbarTypes.Success);
+                      toast.success("XBar Plans Updated");
                     }
                     setShowXBarPlans(false)
                   }}
