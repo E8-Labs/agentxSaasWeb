@@ -551,7 +551,7 @@ export const PromptTagInput = ({
 
                 <div className="flex flex-row items-center justify-between">
                   {
-                    from === "CreateEmail" ? (
+                    from === "CreateEmail"  || from === "sms" ? (
                       < div
                         className="text-start sm:font-24 font-16"
                         style={{ fontWeight: "700" }}
@@ -559,12 +559,13 @@ export const PromptTagInput = ({
                         {editTitle}
                       </div>
                     ) : (
-                      <div
-                        className="text-start sm:font-24 font-16"
-                        style={{ fontWeight: "700" }}
-                      >
-                        {isEdit ? "Edit" : "Add"} {from}
-                      </div>
+                      
+                        <div
+                          className="text-start sm:font-24 font-16"
+                          style={{ fontWeight: "700" }}
+                        >
+                          {isEdit ? "Edit" : "Add"} {from}
+                        </div>
                     )
                   }
 

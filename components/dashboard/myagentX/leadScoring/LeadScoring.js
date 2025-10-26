@@ -156,12 +156,17 @@ function LeadScoring({
                 {/* Lead Scoring Header */}
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-900"></h2>
-                    <button
-                        onClick={() => setShowAddScoringModal(true)}
-                        className="text-purple-600 hover:text-purple-700 text-sm font-medium underline"
-                    >
-                        + Add Score
-                    </button>
+                    {
+
+                        templates.length > 0 && (
+                            <button
+                                onClick={() => setShowAddScoringModal(true)}
+                                className="text-purple-600 hover:text-purple-700 text-sm font-medium underline"
+                            >
+                                + Add Score
+                            </button>
+                        )
+                    }
                 </div>
 
                 {/* Templates Dropdown - Simple Version */}
@@ -170,7 +175,7 @@ function LeadScoring({
                         <CircularProgress size={20} />
                     </div>
                 ) : (
-                    !templates.length > 0 ? (
+                    templates.length > 0 ? (
                         <div className="space-y-3">
                             <Box className="w-full">
                                 <FormControl className="w-full">
@@ -280,7 +285,7 @@ function LeadScoring({
                 onSubmit={(templateData) => {
                     console.log('Template created/updated:', templateData);
                     // Refresh templates after creation/update
-                    showSnackbar("", "Lead Score Added",SnackbarTypes.Success);
+                    showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,

@@ -366,7 +366,9 @@ function SMSTempletePopup({
                                 uniqueColumns={uniqueColumns}
                                 tagValue={setBody}
                                 showSaveChangesBtn={body}
-                                from={"Template"}
+                                from={"sms"}
+                                isEdit={isEditing}
+                                editTitle={isEditing && !IsDefaultCadence ? "Edit SMS Template" : "Create SMS Template"}
                                 saveUpdates={async () => {
                                 }}
                                 limit={160}
@@ -399,7 +401,7 @@ function SMSTempletePopup({
                                 disabled={isSaveDisabled}
                                 onClick={handleSave}
                             >
-                                {isLeadSMS ? 'Send SMS' : (isEditing && !IsDefaultCadence ? "Update" : "Save")} Message
+                                {isLeadSMS ? 'Send SMS' : (isEditing && !IsDefaultCadence ? "Update" : "Create")} Message
                             </button>
                         )}
                     </div>
