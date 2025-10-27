@@ -7,14 +7,10 @@ import { EditIcon, Router } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
 import { color } from "framer-motion";
 import { UpdateCadenceConfirmationPopup } from "./UpdateCadenceConfirmationPopup";
 
 const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser }) => {
-  const [message, setMessage] = useState(null);
   const router = useRouter();
   const [expandedStages, setExpandedStages] = useState([]);
   const [StagesList, setStagesList] = useState([
@@ -132,12 +128,6 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
 
   return (
     <div>
-      <AgentSelectSnackMessage
-        type={message?.type}
-        isVisible={message != null}
-        message={message?.message}
-        hide={() => setMessage(null)}
-      />
       <div className="w-full flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-2">
           <p

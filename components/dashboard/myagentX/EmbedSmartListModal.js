@@ -15,7 +15,7 @@ import { X, Plus, Upload } from '@phosphor-icons/react';
 import axios from 'axios';
 import TagsInput from '../leads/TagsInput';
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const EmbedSmartListModal = ({
@@ -37,25 +37,6 @@ const EmbedSmartListModal = ({
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
   const fileInputRef = useRef(null);
-  const [snackbar, setSnackbar] = useState({
-    isVisible: false,
-    title: '',
-    message: '',
-    type: SnackbarTypes.Error
-  });
-
-  const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
-    setSnackbar({
-      isVisible: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
 
   const predefinedFields = ['First Name', 'Last Name', 'Phone'];
 
@@ -202,7 +183,7 @@ const EmbedSmartListModal = ({
 
   const handleSave = async () => {
     if (!sheetName.trim()) {
-      showSnackbar('Error', 'Please enter a smart list name', SnackbarTypes.Error);
+      toast.error('Please enter a smart list name');
       return;
     }
 
@@ -224,7 +205,7 @@ const EmbedSmartListModal = ({
 
     } catch (error) {
       console.error('🔧 EMBED-SMARTLIST - Error in save process:', error);
-      showSnackbar('Error', error.message || 'Error saving settings. Please try again.', SnackbarTypes.Error);
+      toast.error(error.message || 'Error saving settings. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -561,15 +542,6 @@ const EmbedSmartListModal = ({
                   </button>
                 </div>
               </div>
-
-              {/* Snackbar */}
-              <AgentSelectSnackMessage
-                isVisible={snackbar.isVisible}
-                title={snackbar.title}
-                message={snackbar.message}
-                type={snackbar.type}
-                hide={hideSnackbar}
-              />
             </div>
           </div>
         </Box>

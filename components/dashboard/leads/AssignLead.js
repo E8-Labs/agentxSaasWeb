@@ -17,9 +17,7 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "./AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -52,7 +50,6 @@ const AssignLead = ({
   // console.log('selectedAll', selectedAll)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false);
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   //pagination
@@ -77,24 +74,9 @@ const AssignLead = ({
   const [smartRefillLoader, setSmartRefillLoader] = useState(false);
   const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
 
-  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
-
   //new code by salman
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [errTitle, setErrTitle] = useState(null);
-  const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
-
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
   const [isDncChecked, setIsDncChecked] = useState(false);
-
-  useEffect(() => {
-    if (errorMessage) {
-      setTimeout(() => {
-        setErrorMessage(null);
-        setErrTitle(null);
-      }, SelectAgentErrorTimeout);
-    }
-  }, [errorMessage]);
 
   useEffect(() => {
     if (SelectedAgents.length === 0) {
@@ -578,18 +560,6 @@ const AssignLead = ({
 
   return (
     <div className="w-full">
-      <AgentSelectSnackMessage
-        message={errorMessage}
-        title={errTitle}
-        isVisible={errorMessage}
-        hide={() => {
-          //   setIsSnackVisible(false);
-          setErrorMessage(null);
-          setErrTitle(null);
-        }}
-        type=""
-      />
-
       {showDncConfirmationPopup && (
         <DncConfirmationPopup
           open={showDncConfirmationPopup}
@@ -604,7 +574,7 @@ const AssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("DNC Enabled");
+            toast.success("DNC Enabled");
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -860,25 +830,6 @@ const AssignLead = ({
       >
         <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
-            <AgentSelectSnackMessage
-              className=""
-              message={invalidTimeMessage}
-              isVisible={invalidTimeMessage}
-              hide={() => {
-                setInvalidTimeMessage(null);
-              }}
-            />
-
-            <AgentSelectSnackMessage
-              className=""
-              message={showSuccessSnack}
-              isVisible={showSuccessSnack === null ? false : true}
-              hide={() => {
-                setShowSuccessSnack(null);
-              }}
-              type={SnackbarTypes.Success}
-            />
-
             <div
               className="w-full"
               style={{

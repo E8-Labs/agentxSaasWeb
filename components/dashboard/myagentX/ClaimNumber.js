@@ -4,9 +4,7 @@ import { Box, CircularProgress, Modal } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import { getUserLocalData } from "@/components/constants/constants";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -39,9 +37,6 @@ const ClaimNumber = ({
   const [purchaseLoader, setPurchaseLoader] = useState(false);
   const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] =
     useState(false);
-  const [openPurchaseErrSnack, setOpenPurchaseErrSnack] = useState("");
-  const [isSnackVisible, setIsSnackVisible] = useState(false);
-  const [errorType, setErrorType] = useState(null);
   const [showAddCard, setShowAddCard] = useState(false)
   const [cardData, getcardData] = useState("");
 
@@ -148,9 +143,7 @@ const ClaimNumber = ({
             JSON.stringify(response.data.data)
           );
         } else if (response.data.status === false) {
-          setOpenPurchaseErrSnack(response.data.message);
-          setIsSnackVisible(true);
-          setErrorType(SnackbarTypes.Error);
+          toast.error(response.data.message);
         }
       }
     } catch (error) {
@@ -269,18 +262,6 @@ const ClaimNumber = ({
               }}
             >
               <div className=" h-[88%] overflow-hidden">
-                {isSnackVisible && (
-                  <AgentSelectSnackMessage
-                    message={openPurchaseErrSnack}
-                    type={errorType}
-                    isVisible={isSnackVisible}
-                    hide={() => {
-                      setIsSnackVisible(false);
-                      setOpenPurchaseErrSnack("");
-                      setErrorType(null);
-                    }}
-                  />
-                )}
                 <div className="flex flex-row justify-end">
                   <button onClick={handleCloseClaimPopup}>
                     <Image

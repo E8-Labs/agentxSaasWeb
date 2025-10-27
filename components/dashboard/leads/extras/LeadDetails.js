@@ -28,9 +28,7 @@ import moment from "moment";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "../AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import { GetFormattedDateString } from "@/utilities/utility";
 import LeadTeamsAssignedList from "../LeadTeamsAssignedList";
 import SelectStageDropdown from "../StageSelectDropdown";
@@ -126,10 +124,6 @@ const LeadDetails = ({
   const [stagesListLoader, setStagesListLoader] = useState(false);
 
   //code for snakbars
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
-  const [showSuccessSnack2, setShowSuccessSnack2] = useState(false);
-  const [showErrorSnack, setShowErrorSnack] = useState(null);
-  const [showErrorSnack2, setShowErrorSnack2] = useState(false);
 
   //update lead loader
   const [updateLeadLoader, setUpdateLeadLoader] = useState(false);
@@ -173,11 +167,6 @@ const LeadDetails = ({
   const [sendSMSLoader, setSendSMSLoader] = useState(false);
 
   const [googleAccounts, setGoogleAccounts] = useState([])
-  const [showSnackMsg, setShowSnackMsg] = useState({
-    type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
-  });
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false);
 
@@ -372,12 +361,10 @@ const LeadDetails = ({
         // //console.log;
         setUpdateLeadLoader(false);
         if (response.data.status === true) {
-          setShowSuccessSnack(response.data.message);
-          setShowSuccessSnack2(true);
+          toast.success(response.data.message);
           leadStageUpdated(stage);
         } else if (response.data.status === false) {
-          setShowErrorSnack(response.data.message);
-          setShowErrorSnack2(true);
+          toast.error(response.data.message);
         }
       }
     } catch (error) {
@@ -1334,26 +1321,8 @@ const LeadDetails = ({
           },
         }}
       >
-        <AgentSelectSnackMessage
-          message={showSnackMsg.message}
-          type={showSnackMsg.type}
-          isVisible={showSnackMsg.isVisible}
-          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
-        />
         <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
           <div className="w-full flex flex-col items-center h-full">
-            <AgentSelectSnackMessage
-              isVisible={showSuccessSnack2}
-              hide={() => setShowSuccessSnack2(false)}
-              message={showSuccessSnack}
-              type={SnackbarTypes.Success}
-            />
-            <AgentSelectSnackMessage
-              isVisible={showErrorSnack2}
-              hide={() => setShowErrorSnack2(false)}
-              message={showErrorSnack2}
-              type={SnackbarTypes.Error}
-            />
 
             <div className="w-full">
               {initialLoader ? (

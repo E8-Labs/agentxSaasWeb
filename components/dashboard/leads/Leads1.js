@@ -24,9 +24,7 @@ import { useDropzone } from "react-dropzone";
 import * as XLSX from "xlsx";
 import Userleads from "./Userleads";
 import TagsInput from "./TagsInput";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "./AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import { getUserLocalData, SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
@@ -68,8 +66,6 @@ const Leads1 = () => {
   const [userLeads, setUserLeads] = useState("loading");
   //state to setdata when it is true;
   const [setData, setSetData] = useState(false);
-  const [SuccessSnack, setSuccessSnack] = useState(null);
-  const [showSuccessSnack, setShowSuccessSnack] = useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
   //File handling
   const [processedData, setProcessedData] = useState([]);
@@ -100,10 +96,6 @@ const Leads1 = () => {
   //code for warning modal
   const [warningModal, setWarningModal] = useState(false);
 
-  //warning snack
-  const [errSnack, setErrSnack] = useState(null);
-  const [errSnackTitle, setErrSnackTitle] = useState(null);
-  const [showerrSnack, setShowErrSnack] = useState(null);
 
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
@@ -390,8 +382,7 @@ const Leads1 = () => {
               );
 
               if (customNameExists) {
-                setErrSnack("Column name already exists.");
-                setShowErrSnack(true);
+                toast.error("Column name already exists.");
                 return item; // Don't update if already exists
               } else {
                 // Create as custom column
@@ -415,8 +406,7 @@ const Leads1 = () => {
             );
 
             if (customNameExists) {
-              setErrSnack("Custom column name already exists.");
-              setShowErrSnack(true);
+              toast.error("Custom column name already exists.");
               return item; // Don't update if already exists
             } else {
               console.log("Creating custom column:", UpdatedColumnName);
@@ -531,16 +521,10 @@ const Leads1 = () => {
     } else {
       // //console.log;
       if (!hasPhone) {
-        setErrSnack(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport);
-        setErrSnackTitle(SnackMessageTitles.ErrorTitlePhoneRequiredLeadImport);
-        setShowErrSnack(true);
+        toast.error(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport);
       }
       if (!hasFullName) {
-        setErrSnack(SnackMessageTitles.ErrorMessageFirstNameRequiredLeadImport);
-        setErrSnackTitle(
-          SnackMessageTitles.ErrorTitleFirstNameRequiredLeadImport
-        );
-        setShowErrSnack(true);
+        toast.error(SnackMessageTitles.ErrorMessageFirstNameRequiredLeadImport);
       }
     }
     return false;
@@ -719,7 +703,7 @@ const Leads1 = () => {
       console.log("enrichmentPayment", enrichmentPayment);
 
       if (enrichmentPayment.status === false) {
-        setShowErrSnack(enrichmentPayment.message);
+        toast.error(enrichmentPayment.message);
         setLoader(false);
         return;
       }
@@ -787,8 +771,7 @@ const Leads1 = () => {
         setShowenrichConfirmModal(false);
         setAddNewLeadModal(false);
         setSetData(true);
-        setSuccessSnack("Leads uploaded successfully");
-        setShowSuccessSnack(true);
+        toast.success("Leads uploaded successfully");
         setLoader(false);
 
         // Send custom event to show dashboard slider
@@ -969,20 +952,6 @@ const Leads1 = () => {
           // <LeadLoading />
         ) : ( */}
       <>
-        <AgentSelectSnackMessage
-          isVisible={showSuccessSnack}
-          message={SuccessSnack}
-          hide={() => setShowSuccessSnack(false)}
-          type={SnackbarTypes.Success}
-        />
-        <AgentSelectSnackMessage
-          isVisible={showerrSnack}
-          message={errSnack}
-          hide={() => setShowErrSnack(false)}
-          type={SnackbarTypes.Error}
-          title={errSnackTitle}
-        />
-
         <LeadProgressBanner
           uploading={uploading}
           currentBatch={currentBatch}
@@ -1810,12 +1779,9 @@ const Leads1 = () => {
                     );
 
                     if (customNameExists) {
-                      setErrSnack("Custom column name already exists.");
-                      setShowErrSnack(true);
+                      toast.error("Custom column name already exists.");
                     } else if (defaultAlreadyMapped) {
-                      setErrSnackTitle("Column already mapped")
-                      setErrSnack("This default column is already mapped to another column.");
-                      setShowErrSnack(true);
+                      toast.error("This default column is already mapped to another column.");
                     } else {
                       console.log("Column name is valid, proceeding...");
                       ChangeColumnName(updateColumnValue);

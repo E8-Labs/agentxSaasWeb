@@ -5,7 +5,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { PauseCircle, PlayCircle } from "@phosphor-icons/react";
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import { PersistanceKeys } from '@/constants/Constants';
 import { UserTypes } from '@/constants/UserTypes';
 import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
@@ -16,9 +15,6 @@ function AddVoiceMail({
     setShowAddNewPopup,
     addVoiceMail,
     loading,
-    showMessage,
-    setShowMessage,
-    messageType,
     kycsData,
     uniqueColumns
 }) {
@@ -143,11 +139,6 @@ function AddVoiceMail({
                     sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
                 >
 
-                    <AgentSelectSnackMessage isVisible={showMessage != null ? true : false}
-                        message={showMessage} type={messageType} hide={() => {
-                            setShowMessage(null);
-                        }}
-                    />
                     <div
                         className="h-[60vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}

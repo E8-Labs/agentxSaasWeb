@@ -5,7 +5,7 @@ import AddVoiceMail from './AddVoiceMail'
 import { PauseCircle, PlayCircle } from "@phosphor-icons/react";
 import voicesList from '@/components/createagent/Voices';
 import { Box, Modal } from '@mui/material';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
@@ -34,17 +34,10 @@ function VoiceMailTab({
   const [isPlaying, setIsPlaying] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loading2, setLoading2] = useState(false)
-  const [showMessage, setShowMessage] = useState(null)
-  const [messageType, setMessageType] = useState(null)
   const [showEditPopup, setShowEditPopup] = useState(false)
 
   const [user, setUser] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [showSnackMsg, setShowSnackMsg] = useState({
-    type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
-  })
 
 
   useEffect(() => {
@@ -99,8 +92,7 @@ function VoiceMailTab({
     //   return
     // }
     if (!data.message) {
-      setShowMessage("Enter voicemail")
-      setMessageType(SnackbarTypes.Error)
+      toast.error("Enter voicemail")
       return
     }
     setLoading(true)
@@ -126,8 +118,7 @@ function VoiceMailTab({
         if (response.data) {
           // console.log('response of set voicemail api is', response.data)
           if (response.data.status === true) {
-            setShowMessage(response.data.message)
-            setMessageType(SnackbarTypes.Success)
+            toast.success(response.data.message)
 
 
 
@@ -175,8 +166,7 @@ function VoiceMailTab({
 
 
           } else {
-            setShowMessage(response.data.message)
-            setMessageType(SnackbarTypes.Error)
+            toast.error(response.data.message)
           }
         }
       }
@@ -197,8 +187,7 @@ function VoiceMailTab({
     //   return
     // }
     if (!data.message) {
-      setShowMessage("Enter voicemail")
-      setMessageType(SnackbarTypes.Error)
+      toast.error("Enter voicemail")
       return
     }
     setLoading2(true)
@@ -223,8 +212,7 @@ function VoiceMailTab({
         if (response.data) {
           // console.log('response of set voicemail api is', response.data)
           if (response.data.status === true) {
-            setShowMessage(response.data.message)
-            setMessageType(SnackbarTypes.Success)
+            toast.success(response.data.message)
 
 
 
@@ -272,8 +260,7 @@ function VoiceMailTab({
 
 
           } else {
-            setShowMessage(response.data.message)
-            setMessageType(SnackbarTypes.Error)
+            toast.error(response.data.message)
           }
         }
       }
@@ -298,17 +285,6 @@ function VoiceMailTab({
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showMessage != null && !showAddNewPopup && !showEditPopup ? true : false}
-        message={showMessage} type={messageType} hide={() => {
-          setShowMessage(null);
-        }}
-      />
-      <AgentSelectSnackMessage
-        message={showSnackMsg.message}
-        type={showSnackMsg.type}
-        isVisible={showSnackMsg.isVisible}
-        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
-      />
       {
         agent?.voicemail == null ? (
           user?.agencyCapabilities?.allowVoicemail === false ? (
@@ -316,13 +292,11 @@ function VoiceMailTab({
             <UpgardView
               title={"Enable Voicemail"}
               subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
-              setShowSnackMsg={setShowSnackMsg}
             />
           ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
             <UpgardView
               title={"Enable Voicemail"}
               subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
-              setShowSnackMsg={setShowSnackMsg}
             />
           ) : (
             <NoVoicemailView
@@ -418,9 +392,6 @@ function VoiceMailTab({
             agent={agent}
             addVoiceMail={(data) => saveVoiceMail(data)}
             loading={loading}
-            showMessage={showMessage}
-            setShowMessage={setShowMessage}
-            messageType={messageType}
             kycsData={kycsData}
             uniqueColumns={uniqueColumns}
           />
@@ -434,9 +405,6 @@ function VoiceMailTab({
         agent={agent}
         loading={loading2}
         defaultData={agent?.voicemail}
-        showMessage={showMessage}
-        setShowMessage={setShowMessage}
-        messageType={messageType}
         kycsData={kycsData}
         uniqueColumns={uniqueColumns}
       />

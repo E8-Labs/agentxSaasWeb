@@ -8,7 +8,7 @@ import {
 import { ArrowUpRight, X } from '@phosphor-icons/react';
 import axios from 'axios';
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import Apis from '../../apis/Apis';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
@@ -30,25 +30,6 @@ const WebAgentModal = ({
   const [smartLists, setSmartLists] = useState([]);
   const [selectedSmartList, setSelectedSmartList] = useState('');
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    isVisible: false,
-    title: '',
-    message: '',
-    type: SnackbarTypes.Error
-  });
-
-  const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
-    setSnackbar({
-      isVisible: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
 
   useEffect(() => {
     console.log("agent name is", agentName)
@@ -101,7 +82,7 @@ const WebAgentModal = ({
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
-      showSnackbar('', error.response?.data?.message || 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
+      toast.error(error.response?.data?.message || 'Failed to fetch smart lists. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,11 +118,11 @@ const WebAgentModal = ({
         if (response.data) {
           setRequireForm(!event.target.checked);
           setSelectedSmartList('');
-          showSnackbar('', 'Smart list detached successfully!', SnackbarTypes.Success);
+          toast.success('Smart list detached successfully!');
         }
       } catch (error) {
         console.error('Error detaching smart list:', error);
-        showSnackbar('', 'Error detaching smart list. Please try again.', SnackbarTypes.Error);
+        toast.error('Error detaching smart list. Please try again.');
       }
     } else {
       setRequireForm(event.target.checked);
@@ -190,13 +171,13 @@ const WebAgentModal = ({
             onCopyUrl();
           } else {
             onOpenAgent();
-            showSnackbar('', 'Smart list attached successfully!', SnackbarTypes.Success);
+            toast.success('Smart list attached successfully!');
 
           }
         }
       } catch (error) {
         console.error('Error attaching smart list:', error);
-        showSnackbar('', 'Error attaching smart list. Please try again.', SnackbarTypes.Error);
+        toast.error('Error attaching smart list. Please try again.');
         return;
       }
     } else {
@@ -440,15 +421,6 @@ const WebAgentModal = ({
             <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
           </button>
         </div>
-
-        {/* Snackbar */}
-        <AgentSelectSnackMessage
-          isVisible={snackbar.isVisible}
-          title={snackbar.title}
-          message={snackbar.message}
-          type={snackbar.type}
-          hide={hideSnackbar}
-        />
       </div>
     </div>
   );

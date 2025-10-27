@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { ArrowUpRight, X, Copy } from '@phosphor-icons/react';
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const AllSetModal = ({
@@ -21,35 +21,16 @@ const AllSetModal = ({
   onCopyUrl = () => { }
 }) => {
   const [codeCopied, setCodeCopied] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    isVisible: false,
-    title: '',
-    message: '',
-    type: SnackbarTypes.Error
-  });
-
-  const showSnackbar = (title, message, type = SnackbarTypes.Success) => {
-    setSnackbar({
-      isVisible: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
 
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(embedCode);
       setCodeCopied(true);
-      showSnackbar('Success', 'Code Copied!', SnackbarTypes.Success);
+      toast.success('Code Copied!');
       setTimeout(() => setCodeCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy code:', error);
-      showSnackbar('Error', 'Failed to copy code', SnackbarTypes.Error);
+      toast.error('Failed to copy code');
     }
   };
   if (!open) return null;
@@ -148,15 +129,6 @@ const AllSetModal = ({
             <ArrowUpRight size={16} className="ml-2 inline" />
           </button>
         )}
-
-        {/* Snackbar */}
-        <AgentSelectSnackMessage
-          isVisible={snackbar.isVisible}
-          title={snackbar.title}
-          message={snackbar.message}
-          type={snackbar.type}
-          hide={hideSnackbar}
-        />
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import { X, Plus } from '@phosphor-icons/react';
 import axios from 'axios';
 import TagsInput from '../leads/TagsInput';
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import Apis from '@/components/apis/Apis';
 
 const NewSmartListModal = ({ 
@@ -23,27 +23,8 @@ const NewSmartListModal = ({
   const [customFields, setCustomFields] = useState(['', '']);
   const [tagsValue, setTagsValue] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    isVisible: false,
-    title: '',
-    message: '',
-    type: SnackbarTypes.Error
-  });
 
   const predefinedFields = ['First Name', 'Last Name', 'Phone'];
-
-  const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
-    setSnackbar({
-      isVisible: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
 
   const handleAddCustomField = () => {
     setCustomFields([...customFields, '']);
@@ -65,7 +46,7 @@ const NewSmartListModal = ({
 
   const handleSave = async () => {
     if (!sheetName.trim()) {
-      showSnackbar('Error', 'Please enter a smart list name', SnackbarTypes.Error);
+      toast.error('Please enter a smart list name');
       return;
     }
 
@@ -114,7 +95,7 @@ let path = Apis.addSmartList;
       }
     } catch (error) {
       console.error('Error creating smart list:', error);
-      showSnackbar('Error', 'Error creating smart list. Please try again.', SnackbarTypes.Error);
+      toast.error('Error creating smart list. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -285,15 +266,6 @@ let path = Apis.addSmartList;
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
               </button>
             </div>
-
-            {/* Snackbar */}
-            <AgentSelectSnackMessage
-              isVisible={snackbar.isVisible}
-              title={snackbar.title}
-              message={snackbar.message}
-              type={snackbar.type}
-              hide={hideSnackbar}
-            />
           </div>
         </div>
       </Box>

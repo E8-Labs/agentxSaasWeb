@@ -4,7 +4,7 @@ import timeZones, { timeDuration } from "@/utilities/Timezones";
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import axios from "axios";
 import { Scopes } from "./Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
@@ -53,12 +53,6 @@ function CalendarModal(props) {
   const [ghlCalendars, setGHLCalendars] = useState([]);
   const popupRef = useRef(null);
 
-  const [showSnack, setShowSnack] = useState({
-    type: "",
-    message: "",
-    isVisible: false
-  });
-
   // console.log("Props passed in calendar modal are", props);
 
   // If we are the popup landing back at "/" with ?code=..., send it to the opener, then close.
@@ -95,11 +89,7 @@ function CalendarModal(props) {
 
       if (error) {
         setStatus(`OAuth error: ${error}`);
-        setShowSnack({
-          message: `OAuth error: ${error}`,
-          type: SnackbarTypes.Error,
-          isVisible: true
-        })
+        toast.error(`OAuth error: ${error}`);
         return;
       }
       if (!code) return;
@@ -119,11 +109,7 @@ function CalendarModal(props) {
         const json = await res.json();
         if (!res.ok) {
           setStatus("Exchange failed");
-          setShowSnack({
-            message: "Exchange failed",
-            type: SnackbarTypes.Error,
-            isVisible: true
-          })
+          toast.error("Exchange failed");
           console.error(json);
           return;
         }
@@ -408,18 +394,6 @@ function CalendarModal(props) {
   const selectCalendarView = () => {
     return (
       <div className="flex flex-col w-full items-center bg-white rounded-lg">
-        <AgentSelectSnackMessage
-          type={showSnack.type}
-          message={showSnack.message}
-          isVisible={showSnack.isVisible}
-          hide={() => {
-            setShowSnack({
-              message: "",
-              isVisible: false,
-              type: SnackbarTypes.Success,
-            });
-          }}
-        />
         <div className="flex self-end">
           <CloseBtn onClick={onClose} />
         </div>
@@ -1291,18 +1265,6 @@ function CalendarModal(props) {
           p: 4,
         }}
       >
-        <AgentSelectSnackMessage
-          type={showSnack.type}
-          message={showSnack.message}
-          isVisible={showSnack.isVisible}
-          hide={() => {
-            setShowSnack({
-              message: "",
-              isVisible: false,
-              type: SnackbarTypes.Success,
-            });
-          }}
-        />
         {
           renderView()
         }

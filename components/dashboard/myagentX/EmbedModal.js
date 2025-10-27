@@ -18,7 +18,7 @@ import {
 import { ArrowUpRight, X } from '@phosphor-icons/react';
 
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 import axios from 'axios';
 
@@ -40,25 +40,6 @@ const EmbedModal = ({
   const [logoPreview, setLogoPreview] = useState(null);
   const fileInputRef = useRef(null);
   const textInputRef = useRef(null);
-  const [snackbar, setSnackbar] = useState({
-    isVisible: false,
-    title: '',
-    message: '',
-    type: SnackbarTypes.Error
-  });
-
-  const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
-    setSnackbar({
-      isVisible: true,
-      title,
-      message,
-      type
-    });
-  };
-
-  const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
 
   const fetchSmartLists = async () => {
     try {
@@ -229,7 +210,7 @@ const EmbedModal = ({
 
     } catch (error) {
       console.error('🔧 EMBED-MODAL - Error in embed process:', error);
-      showSnackbar('Error', error.message || 'Error processing embed settings. Please try again.', SnackbarTypes.Error);
+      toast.error(error.message || 'Error processing embed settings. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -573,15 +554,6 @@ const EmbedModal = ({
                 </button>
               </div>
             </div>
-
-            {/* Snackbar */}
-            <AgentSelectSnackMessage
-              isVisible={snackbar.isVisible}
-              title={snackbar.title}
-              message={snackbar.message}
-              type={snackbar.type}
-              hide={hideSnackbar}
-            />
           </div>
         </div>
       </Box>

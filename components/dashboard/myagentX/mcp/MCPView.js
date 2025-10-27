@@ -4,7 +4,7 @@ import EditMcpPopup from './EditMcpPopup';
 import { addMcpTool, attachMcpTool, deleteMcpTool, editMcpTool, getMcpTools, removeMcpTool, selectMcpTool } from '../services/McpServices';
 import { FormControl, Select, MenuItem, InputBase, CircularProgress } from '@mui/material';
 import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 import { Plus } from 'lucide-react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -54,13 +54,6 @@ function MCPView({
 
     //how to video
     const [introVideoModal2, setIntroVideoModal2] = useState(false);
-
-    //snackbar
-    const [showSnack, setShowSnack] = useState({
-        type: SnackbarTypes.Success,
-        message: "",
-        isVisible: false
-    });
 
 
     const [user, setUser] = useState(null)
@@ -335,21 +328,13 @@ function MCPView({
         const mcpTool = await attachMcpTool(data);
         if (mcpTool) {
             if (mcpTool.status === true) {
-                setShowSnack({
-                    type: SnackbarTypes.Success,
-                    message: "Tool Added",
-                    isVisible: true,
-                });
+                toast.success("Tool Added");
                 getMcps(false);
                 setAttachMcpLoader("");
                 setOpen(false);
             } else {
                 setOpen(false);
-                setShowSnack({
-                    type: SnackbarTypes.Error,
-                    message: mcpTool.message,
-                    isVisible: true,
-                });
+                toast.error(mcpTool.message);
                 setAttachMcpLoader("");
             }
         }
@@ -378,20 +363,12 @@ function MCPView({
             console.log("Detach Response is", detachResponse);
             if (detachResponse) {
                 if (detachResponse.status === true) {
-                    setShowSnack({
-                        type: SnackbarTypes.Success,
-                        message: detachResponse.message,
-                        isVisible: true,
-                    });
+                    toast.success(detachResponse.message);
                     getMcps(false);
                     setOpen(false);
                     setAttachMcpLoader("");
                 } else {
-                    setShowSnack({
-                        type: SnackbarTypes.Error,
-                        message: detachResponse.message,
-                        isVisible: true,
-                    });
+                    toast.error(detachResponse.message);
                     setAttachMcpLoader("");
                 }
             }
@@ -404,18 +381,6 @@ function MCPView({
     const mcpView = () => {
         return (
             <div className="flex flex-col w-full gap-3">
-                <AgentSelectSnackMessage
-                    type={showSnack.type}
-                    message={showSnack.message}
-                    isVisible={showSnack.isVisible}
-                    hide={() => {
-                        setShowSnack({
-                            message: "",
-                            isVisible: false,
-                            type: SnackbarTypes.Success,
-                        });
-                    }}
-                />
                 <div className="flex flex-row items-center justify-between w-[97%]">
                     <div className="flex flex-row items-center gap-2">
                         {/*

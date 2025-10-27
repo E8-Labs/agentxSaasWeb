@@ -15,9 +15,7 @@ import {
 import Image from "next/image";
 import NoCalendarView from "./NoCalendarView";
 import timeZones from "@/utilities/Timezones";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
@@ -73,12 +71,6 @@ const UserCalender = ({
 
   //all calenders
   const [allCalendars, setAllCalendars] = useState([]);
-
-  //variables for snack bar
-  const [message, setMessage] = useState(null);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isVisible2, setIsVisible2] = useState(false);
-  const [type, setType] = useState(null);
 
   const [calendarSelected, setCalendarSelected] = useState(null);
   const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
@@ -522,28 +514,6 @@ const UserCalender = ({
       style={{ width: "100%" }}
       className="overflow-y-none flex flex-col justify-start items-center h-[60vh]  "
     >
-      {isVisible && (
-        <AgentSelectSnackMessage
-          type={type}
-          message={message}
-          isVisible={isVisible}
-          hide={() => {
-            setIsVisible(false);
-          }}
-        />
-      )}
-
-      {isVisible2 && (
-        <AgentSelectSnackMessage
-          type={type}
-          message={message}
-          isVisible={true}
-          hide={() => {
-            setIsVisible2(false);
-          }}
-        />
-      )}
-
       <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
 
         {

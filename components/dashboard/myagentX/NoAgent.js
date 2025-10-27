@@ -1,9 +1,9 @@
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React from 'react'
 import { Plus } from 'lucide-react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import { customToast as toast } from "@/lib/custom-toast";
 
 function NoAgent({
   showBtn = true,
@@ -11,13 +11,6 @@ function NoAgent({
   selectedUser,
   from,
 }) {
-
-  //show snack
-  const [showSnack, setShowSnack] = useState({
-    type: SnackbarTypes.Error,
-    message: "",
-    isVisible: false
-  });
 
   const router = useRouter();
 
@@ -33,11 +26,7 @@ function NoAgent({
         window.location.href = "/createagent";
       } else {
         console.log("Donot route");
-        setShowSnack({
-          type: SnackbarTypes.Error,
-          message: "User has no plan subscribed",
-          isVisible: true
-        })
+        toast.error("User has no plan subscribed");
       }
     } else {
       const data = {
@@ -54,18 +43,6 @@ function NoAgent({
       className='flex flex-col items-center w-full h-full overflow-x-hidden overflow-y-hidden'
       style={{ scrollbarWidth: 'none' }}
     >
-      <AgentSelectSnackMessage
-        type={showSnack.type}
-        message={showSnack.message}
-        isVisible={showSnack.isVisible}
-        hide={() => {
-          setShowSnack({
-            message: "",
-            isVisible: false,
-            type: SnackbarTypes.Error,
-          });
-        }}
-      />
       <Image className=''
         alt="No img"
         src={"/agencyIcons/noAgents.jpg"}

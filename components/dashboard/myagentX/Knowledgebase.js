@@ -9,7 +9,6 @@ import axios from "axios";
 import UpgradeModal from "@/constants/UpgradeModal";
 import UpgardView from "@/constants/UpgardView";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 
 function Knowledgebase({ user, agent
 }) {
@@ -18,11 +17,6 @@ function Knowledgebase({ user, agent
   const [kbDelLoader, setKbDelLoader] = useState(null);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [showSnackMsg, setShowSnackMsg] = useState({
-    type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
-  })
 
 
   // console.log('user in kb file', user)
@@ -71,7 +65,6 @@ function Knowledgebase({ user, agent
     if (user?.agencyCapabilities?.allowKnowledgeBases === false) {
       return (
         <UpgardView
-          setShowSnackMsg={setShowSnackMsg}
           title={"Add Knowledge Base"}
           subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
         />
@@ -79,7 +72,6 @@ function Knowledgebase({ user, agent
     } else if (user?.planCapabilities?.allowKnowledgeBases === false) {
       return (
         <UpgardView
-          setShowSnackMsg={setShowSnackMsg}
           title={"Add Knowledge Base"}
           subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
         />
@@ -193,12 +185,6 @@ function Knowledgebase({ user, agent
 
   return (
     <div>
-      <AgentSelectSnackMessage
-        message={showSnackMsg.message}
-        type={showSnackMsg.type}
-        isVisible={showSnackMsg.isVisible}
-        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
-      />
       <AddKnowledgeBaseModal
         user={user}
         agent={agent}

@@ -39,9 +39,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import LeadDetails from "./extras/LeadDetails";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import AgentSelectSnackMessage, {
-  SnackbarTypes,
-} from "./AgentSelectSnackMessage";
+import { customToast as toast } from "@/lib/custom-toast";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
@@ -74,9 +72,6 @@ const Userleads = ({
 
   //user local data
   const [userLocalDetails, setUserLocalDetails] = useState(null);
-  const [snackMessage, setSnackMessage] = useState(null);
-  const [messageType, setMessageType] = useState(null);
-  const [showsnackMessage, setShowSnackMessage] = useState(false);
 
   const [initialLoader, setInitialLoader] = useState(false);
   const [SheetsList, setSheetsList] = useState([]);
@@ -1560,17 +1555,14 @@ const Userleads = ({
     setAssignLeadModal(status);
     // //console.log;
     // //console.log;
-    setSnackMessage(showSnack);
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
       if (showSnack) {
-        setShowSnackMessage(true);
+        toast.success(showSnack);
       }
       setSelectedAll(false);
-      setMessageType(SnackbarTypes.Success);
     } else if (disSelectLeads === false) {
-      setShowSnackMessage(true);
-      setMessageType(SnackbarTypes.Error);
+      toast.error(showSnack);
       // setToggleClick([])
     }
   };
@@ -1812,9 +1804,7 @@ const Userleads = ({
 
   async function handleExportLeads() {
     if (!SelectedSheetId) {
-      setSnackMessage("Select a sheet to export");
-      setShowSnackMessage(true);
-      setMessageType(SnackbarTypes.Error);
+      toast.error("Select a sheet to export");
       return;
     }
     try {
@@ -1832,9 +1822,7 @@ const Userleads = ({
         if (response.data.status === true) {
           window.open(response.data.downloadUrl, "_blank");
         } else {
-          setSnackMessage(response.data.message);
-          setShowSnackMessage(true);
-          setMessageType(SnackbarTypes.Error);
+          toast.error(response.data.message);
         }
       }
 
@@ -1853,12 +1841,6 @@ const Userleads = ({
         </div>
       ) : (
         <>
-          <AgentSelectSnackMessage
-            isVisible={showsnackMessage}
-            hide={() => setShowSnackMessage(false)}
-            message={snackMessage}
-            type={messageType}
-          />
           <div
             className="flex flex-row items-center justify-between w-full px-10 py-4 "
             style={{ borderBottom: "1px solid #15151510" }}
