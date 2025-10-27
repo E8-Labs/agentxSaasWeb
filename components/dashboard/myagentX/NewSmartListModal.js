@@ -13,11 +13,11 @@ import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import Apis from '@/components/apis/Apis';
 
-const NewSmartListModal = ({ 
-  open, 
-  onClose, 
+const NewSmartListModal = ({
+  open,
+  onClose,
   agentId,
-  onSuccess 
+  onSuccess
 }) => {
   const [sheetName, setSheetName] = useState('');
   const [customFields, setCustomFields] = useState(['', '']);
@@ -77,7 +77,7 @@ const NewSmartListModal = ({
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
       }
-      
+
       // Only include custom fields, excluding default columns
       const allFields = [];
       customFields.forEach(field => {
@@ -97,7 +97,7 @@ const NewSmartListModal = ({
       };
 
       console.log("payload", payload);
-let path = Apis.addSmartList;
+      let path = Apis.addSmartList;
       const response = await axios.post(path,
         payload,
         {
@@ -192,7 +192,7 @@ let path = Apis.addSmartList;
               {/* Smart List Name */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  New Smart List
+                  Smart List Name
                 </Typography>
                 <input
                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"

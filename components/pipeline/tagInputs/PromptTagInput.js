@@ -549,7 +549,7 @@ export const PromptTagInput = ({
                   </button>
                 </div>
 
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-row items-center justify-between mt-3">
                   {
                     from === "CreateEmail"  || from === "sms" ? (
                       < div
@@ -573,7 +573,7 @@ export const PromptTagInput = ({
                     limit && (
                       <div>
                         <div style={{
-                          fontSize: 14, fontWeight: '500', color: '#00000060'
+                          fontSize: 14, fontWeight: '500', color: '#00000060',
                         }}>
                           {text?.length}/{limit}
                         </div>

@@ -1659,22 +1659,6 @@ const PipelineStages = ({
                         </Box>
                       </Modal>
                     </div>
-
-                    <SMSTempletePopup
-
-                      open={showSmsTemPopup}
-                      onClose={() => {
-                        setShowSmsTempPopup(false)
-                        closeAddMenu(selectedIndex)
-                      }}
-                      phoneNumbers={phoneNumbers}
-                      phoneLoading={phoneLoading}
-                      addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
-                      communicationType={selectedType}
-                      onUpdateRow={handleUpdateRow}
-                      isEditing={isEditing}
-                      editingRow={editingRow}
-                    />
                   </div>
                 )}
 
@@ -1755,6 +1739,21 @@ const PipelineStages = ({
               isEditing={isEditing}
               editingRow={editingRow}
               onUpdateRow={handleUpdateRow}
+            />
+
+            <SMSTempletePopup
+              open={showSmsTemPopup}
+              onClose={() => {
+                setShowSmsTempPopup(false)
+                closeAddMenu(selectedIndex)
+              }}
+              phoneNumbers={phoneNumbers}
+              phoneLoading={phoneLoading}
+              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              communicationType={selectedType}
+              onUpdateRow={handleUpdateRow}
+              isEditing={isEditing}
+              editingRow={editingRow}
             />
 
 
