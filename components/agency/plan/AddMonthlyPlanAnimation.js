@@ -35,10 +35,19 @@ export default function AddMonthlyPlanAnimation({
     const [basicsData, setBasicsData] = useState({});
     const [configurationData, setConfigurationData] = useState({});
 
+    //clear data when opening for new plan (not edit)
+    useEffect(() => {
+        if (open && !isEditPlan && !selectedPlan) {
+            setBasicsData({});
+            setConfigurationData({});
+            setCurrentIndex(0);
+        }
+    }, [open, isEditPlan, selectedPlan]);
+
     //set the configuration data when editing plan
     useEffect(() => {
         console.log("Status of edit plans is", isEditPlan)
-        if (isEditPlan) {
+        if (isEditPlan && selectedPlan) {
             console.log("Plan to edit is", selectedPlan);
             const featuresList = selectedPlan?.features;
             const filterCustomFeatures = featuresList?.filter(feature => feature?.isCustom === true);

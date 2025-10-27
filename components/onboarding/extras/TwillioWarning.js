@@ -18,7 +18,7 @@ const TwillioWarning = ({
             {/* Code to del user */}
             <Modal
                 open={open}
-                onClose={() => { handleClose() }}
+                // onClose={() => { handleClose() }}
                 BackdropProps={{
                     timeout: 200,
                     sx: {
