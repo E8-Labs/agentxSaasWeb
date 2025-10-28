@@ -34,7 +34,7 @@ import AgencyPlans from "@/components/plan/AgencyPlans";
 import UserPlans from "@/components/userPlans/UserPlans";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/hooks/redux-hooks";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -49,8 +49,7 @@ function SubAccountPlansAndPayments({
     console.log("Selected user passed is", selectedUser);
     //stroes user cards list
     const [cards, setCards] = useState([]);
-
-    const {reduxUser} = useUser();
+    const { user: reduxUser} = useUser();
 
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
