@@ -59,6 +59,7 @@ const AdminLeads = ({
   shouldSet,
   setSetData,
   selectedUser,
+  agencyUser = false,
 }) => {
   const bottomRef = useRef(null);
 
@@ -1603,7 +1604,8 @@ const AdminLeads = ({
         type={messageType}
       />
       <div
-        className="flex flex-row items-center justify-between w-full px-4 pt-36"
+        className="flex flex-row items-center justify-between w-full px-4"
+        style={{ paddingTop: agencyUser ? "36px" : "0px" }}
       // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
@@ -1813,7 +1815,7 @@ const AdminLeads = ({
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2 w-[10%]">
+              <div className="flex flex-row items-center gap-2 w-[30%]">
                 {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
@@ -1834,7 +1836,7 @@ const AdminLeads = ({
                                 alt="*"
                               />
                             </button>
-                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                            <div style={{ fontSize: "15", fontWeight: "600",whiteSpace: "nowrap" }}>
                               Select All
                             </div>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
