@@ -276,7 +276,8 @@ const CampaignDetails = ({
         <button
           onClick={handleContinue}
           className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} h-[50px] rounded-lg`}
-          disabled={isDisabled}>
+        // disabled={isDisabled}
+        >
           Continue
         </button>
       </div>

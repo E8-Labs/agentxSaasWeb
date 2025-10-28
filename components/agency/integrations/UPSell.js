@@ -236,7 +236,7 @@ const UPSell = () => {
                                     <div className='flex flex-row items-center justify-between w-full'>
                                         <div>
                                             <div style={styles.heading}>
-                                                Phone Numbers.
+                                                Phone Numbers
                                             </div>
                                             <div style={styles.subHeading}>
                                                 Easily upsell phone numbers
@@ -279,7 +279,7 @@ const UPSell = () => {
                                         settingsData?.phonePrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${(settingsData?.phonePrice || 0).toFixed(2)}/mo for each number
+                                                    Your upsell price is ${(settingsData?.phonePrice || 0).toFixed(2)}/mo for each number
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddUpSellPhone(true);
@@ -306,7 +306,7 @@ const UPSell = () => {
                                                         style={styles.inputs}
                                                         type="text"
                                                         className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your Cost"
+                                                        placeholder="Your upsell price"
                                                         value={phonePrice}
                                                         onChange={(e) => {
                                                             const value = e.target.value;
@@ -380,7 +380,7 @@ const UPSell = () => {
                                         settingsData?.dncPrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.dncPrice.toFixed(2)}
+                                                    Your upsell price is ${settingsData?.dncPrice.toFixed(2)}
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddDNC(true);
@@ -407,7 +407,7 @@ const UPSell = () => {
                                                         style={styles.inputs}
                                                         type="text"
                                                         className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your Cost"
+                                                        placeholder="Your upsell price"
                                                         value={dncPrice}
                                                         onChange={(e) => {
                                                             const value = e.target.value;
@@ -481,7 +481,7 @@ const UPSell = () => {
                                         settingsData?.enrichmentPrice && (
                                             <div className='flex flex-row items-center justify-between w-full mt-2'>
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.enrichmentPrice.toFixed(2)}/mo for each enrichmen
+                                                    Your upsell price is ${settingsData?.enrichmentPrice.toFixed(2)}/mo for each enrichmen
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddPerplexityEnrichment(true);
@@ -508,7 +508,7 @@ const UPSell = () => {
                                                         style={styles.inputs}
                                                         type="text"
                                                         className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your Cost"
+                                                        placeholder="Your upsell price"
                                                         value={perplexityEnrichmentPrice}
                                                         onChange={(e) => {
                                                             const value = e.target.value;
