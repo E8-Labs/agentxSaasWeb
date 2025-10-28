@@ -111,6 +111,11 @@ export default function PlanFeatures({
                                     },
                                     "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
                                         backgroundColor: "#7902DF",
+                                        opacity: 1,
+                                    },
+                                    "& .MuiSwitch-track": {
+                                        backgroundColor: "#ccc",
+                                        opacity: 1,
                                     },
                                 }}
                             />

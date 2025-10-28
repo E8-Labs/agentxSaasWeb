@@ -30,6 +30,7 @@ import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { ScrollBarCss } from "@/constants/Constants";
 import UnlockPremiunFeatures from "@/components/globalExtras/UnlockPremiunFeatures";
 import ProgressBar from "@/components/onboarding/ProgressBar";
+import { useUser } from "@/hooks/redux-hooks";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -40,6 +41,9 @@ const stripePromise = loadStripe(stripePublickKey);
 function AgencyPlansPayments({
     selectedAgency
 }) {
+
+    //stores redux user data
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
 
     //stroes user cards list
     const [cards, setCards] = useState([]);

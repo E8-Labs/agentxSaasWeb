@@ -163,6 +163,26 @@ export default function AddMonthlyPlan({
     },
   ];
 
+  //reset form when opening for new plan (not edit)
+  useEffect(() => {
+    if (open && !isEditPlan && !selectedPlan) {
+      setTitle("")
+      setTag("")
+      setPlanDescription("")
+      setOriginalPrice("")
+      setDiscountedPrice("")
+      setMinutes("")
+      setMinCostErr(false)
+      setSnackMsg(null)
+      setSnackMsgType(null)
+      setAllowTrial(false)
+      setIsDefault(false)
+      setTrialValidForDays("")
+      setCreatePlanLoader(false);
+      setPlanDuration("");
+    }
+  }, [open, isEditPlan, selectedPlan])
+
   //set features data
   useEffect(() => {
     setFeaturesData();
@@ -234,8 +254,8 @@ export default function AddMonthlyPlan({
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
-    console.log("Test log monthlyplan ")
-    if (selectedPlan) {
+    console.log("Test log monthlyplan ", isEditPlan)
+    if (selectedPlan && isEditPlan) {
       setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);
       setTitle(selectedPlan?.title);
@@ -253,7 +273,7 @@ export default function AddMonthlyPlan({
       setMinutes(selectedPlan?.minutes);
       setPlanDuration(selectedPlan?.duration);
     }
-  }, [selectedPlan])
+  }, [selectedPlan, isEditPlan])
 
   //data restoring
   useEffect(() => {

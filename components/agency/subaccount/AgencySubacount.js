@@ -95,7 +95,7 @@ function AgencySubacount({
   const { user: reduxUser, setUser: setReduxUser } = useUser();
   //twilio warning modal
   const [noTwillio, setNoTwillio] = useState(false);
-  const [showXBarPopup, setShowXBarPopup] = useState(false);  
+  const [showXBarPopup, setShowXBarPopup] = useState(false);
 
   //redux data
   useEffect(() => {
@@ -148,26 +148,28 @@ function AgencySubacount({
   // get agency data from local
 
   const getLocalData = () => {
-    let data = localStorage.getItem("User");
-    if (data) {
-      let u = JSON.parse(data);
-      if (selectedAgency) {
-        setAgencyData(selectedAgency);
-      } else {
-        setAgencyData(u.user);
-      }
+    if (selectedAgency) {
+      setAgencyData(selectedAgency);
     }
+    // let data = localStorage.getItem("User");
+    // if (data) {
+    //   let u = JSON.parse(data);
+    //    else {
+    //     setAgencyData(u.user);
+    //   }
+    // }
   };
 
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
-      getLocalData();
+      // getLocalData();
       //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan(selectedAgency);
       const xBarOptions = await getXBarOptions(selectedAgency);
       let stripeStatus = null;
       setTimeout(() => {
+        // console.log("Curent checking data is", agencyData);
         if (selectedAgency) {
           stripeStatus = selectedAgency.stripeConnected
         } else {
@@ -186,6 +188,7 @@ function AgencySubacount({
             setShowSnackMessage("You're Stripe account has not been connected.");
           } else if (agencyData?.isTwilioConnected === false) {
             setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+            setNoTwillio(true);
           }
         }
       }, 100);
@@ -451,12 +454,17 @@ function AgencySubacount({
     }
   };
 
-  const fetchProfileData = async () => {
+  const fetchProfileData = async (loading = true) => {
     try {
-      setInitialLoader(true);
+      if (loading === true) {
+        setInitialLoader(true);
+      } else {
+        setInitialLoader(false);
+      }
       const profileResponse = await getProfileDetails();
       if (profileResponse) {
         console.log("habibi twilio status is", profileResponse?.data?.data?.isTwilioConnected);
+        setAgencyData(profileResponse?.data?.data);
         if (profileResponse?.data?.data?.isTwilioConnected) {
           setNoTwillio(false);
         } else {
@@ -518,7 +526,7 @@ function AgencySubacount({
         handleClose={(d) => {
           setNoTwillio(false);
           if (d) {
-            // refreshUserData();
+            fetchProfileData(false);
             setShowSnackMessage("Twilio Connected");
             setShowSnackType(SnackbarTypes.Success);
           }

@@ -72,11 +72,13 @@ const Ap2MessagingDetails = ({
                         <div style={styles.fontSemiBold}>
                             A2P SMS Messaging
                         </div>
-                        <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                            Coming Soon
-                        </div>
+                        {/*
+                            <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                Coming Soon
+                            </div>
+                        */}
                         <div>
-                            <TwilioProfileToolTip toolTip={"Send text messages to your customers"} />
+                            <TwilioProfileToolTip toolTip={"Send texts to you leads"} />
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
@@ -104,9 +106,10 @@ const Ap2MessagingDetails = ({
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowAddMessage(true) }}
                     btnTitle='Get Approved'
-                    description="Send text messages to your customers."
-                    showBtn={true}
-                    unLockDescription="Add A2P SMS Messaging."
+                    twilioData={twilioHubData}
+                    description="Get a2p verified by Twilio to start sending text messages to your leads."
+                    // showBtn={true}
+                    unLockDescription="Get a2p verified by Twilio to start sending text messages to your leads."
                 />
             )
             }

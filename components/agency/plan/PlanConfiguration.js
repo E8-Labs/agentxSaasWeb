@@ -153,6 +153,36 @@ export default function PlanConfiguration({
         },
     ];
 
+    //reset form when opening for new plan (not edit)
+    useEffect(() => {
+        if (open && !isEditPlan && !configurationData) {
+            setNoOfAgents("");
+            setNoOfContacts("");
+            setCostPerAdditionalAgent("");
+            setCostPerAdditionalSeat("");
+            setLanguage("english");
+            setLanguageTitle("English and Spanish Compatible");
+            setTrialValidForDays("");
+            setFeatures({
+                allowLanguageSelection: false,
+                toolsActions: false,
+                calendars: false,
+                liveTransfer: false,
+                ragKnowledgeBase: false,
+                embedBrowserWebhookAgent: false,
+                apiKey: false,
+                voicemail: false,
+                twilio: false,
+                allowTrial: false,
+                allowTeamSeats: false,
+            });
+            setCustomFeatures([]);
+            setAllowedFeatures([]);
+            setNoOfSeats("");
+            setCostPerAdditionalSeat("");
+        }
+    }, [open, isEditPlan, configurationData]);
+
     //check for seats features
     useEffect(() => {
         if (costPerAdditionalSeat?.length > 0 && costPerAdditionalSeat > 0) {
