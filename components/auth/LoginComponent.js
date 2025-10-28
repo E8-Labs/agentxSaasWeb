@@ -809,8 +809,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={false}
-                    disableDropdown={true}
                     preferredCountries={["us", "ca"]}
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
