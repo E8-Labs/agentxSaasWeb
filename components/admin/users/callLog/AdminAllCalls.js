@@ -29,6 +29,7 @@ import {
 } from "@/utilities/utility";
 import AdminLeadDetails from "../AdminLeadDetails";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { getStatus } from "@/services/leadScoringSerevices/callLogServices/CallLogServices";
 
 function AdminAllCalls({ selectedUser }) {
   const LimitPerPage = 20;

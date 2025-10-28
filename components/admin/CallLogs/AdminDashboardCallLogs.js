@@ -557,11 +557,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       </div>
 
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Sub Account Name</div>
-                      </div>
-
-                      <div className="w-[250px] flex-shrink-0">
-                        <div style={styles.text}>Name</div>
+                        <div style={styles.text}>Sub Account</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agent</div>
@@ -606,26 +602,20 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item.agency?.name || "AgentX Main Admin"}
+                                {item.agency?.name || "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
-                              <div style={styles.text2}>
-                                {item.user?.name || "-"}
-                              </div>
-                            </div>
-
-                            <div className="w-[250px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
+                            <div className="w-[200px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
                                 {
-                                  item.LeadModel?.firstName + " " + item.LeadModel?.lastName
+                                  item.user?.name
                                   || "-"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item.agent?.name ? (
                                   <div>{item.agent.name}</div>
@@ -634,7 +624,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 )}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 ">
+                            <div className="min-w-[200px] flex-shrink-0 truncate">
                               <div style={styles.text2}>
                                 {item.LeadModel?.phone ? (
                                   <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
@@ -644,32 +634,32 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipeline ? item?.pipeline?.title : "-"}
                               </div>
                             </div>
 
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize ">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item?.status ? item?.status : "-"}
+                                {item?.callOutcome ? item?.callOutcome : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[400px] flex-shrink-0">
+                            <div className="min-w-[400px] flex-shrink-0 truncate ">
                               <div style={styles.text2}>
                                 {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                               </div>

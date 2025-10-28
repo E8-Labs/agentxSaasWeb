@@ -2573,7 +2573,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
       setIsVisibleSnack2(true)
       return
     }
-    return
+    // return
 
     try {
       // event.preventDefault();
