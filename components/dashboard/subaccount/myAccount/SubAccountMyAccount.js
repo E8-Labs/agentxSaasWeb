@@ -27,7 +27,7 @@ function SubAccountMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(5);
+  const [tabSelected, setTabSelected] = useState(2);
   const [initialLoader, setInitialLoader] = useState(true);
   const [navBar, setNavBar] = useState([]);
 
@@ -189,7 +189,7 @@ function SubAccountMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
+    let number = Number(tab) || 2;
     // //console.log;
     const userData = localStorage.getItem("User");
     if (userData) {
@@ -198,7 +198,7 @@ function SubAccountMyAccount() {
     }
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(5);
+      setParamsInSearchBar(2);
     }
   }, []);
 

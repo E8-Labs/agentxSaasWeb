@@ -331,7 +331,7 @@ function AgencySubacount({
         console.log("Response of del account apis is", response);
         if (response.data) {
           console.log("Response of del account apis is", response.data);
-          setShowSnackMessage(response.data.message);
+          setShowSnackMessage("Sub account deleted");
           setDelLoader(false);
           setShowDelConfirmationPopup(false);
           setmoreDropdown(null);
