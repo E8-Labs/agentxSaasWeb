@@ -455,7 +455,12 @@ function DashboardPlans({
                         className='flex px-5 py-3 bg-white rounded-lg text-purple font-medium'
                         onClick={() => {
                             setIsEditPlan(false);
-                            handleAddPlan()
+                            setSelectedPlan(null);
+                            setSelectedPlanDetails(null);
+                            setmoreDropdown(null);
+                            setTimeout(() => {
+                                handleAddPlan();
+                            }, 300);
                         }}
                     >
                         New Plan
@@ -714,6 +719,9 @@ function DashboardPlans({
                                             Create New Plan
                                             onClick={() => {
                                                 setIsEditPlan(false);
+                                                setSelectedPlan(null);
+                                                setmoreDropdown(null);
+                                                setSelectedPlanDetails(null);
                                                 handleAddPlan();
                                             }}
                                         >
@@ -779,7 +787,7 @@ function DashboardPlans({
                             open={selectedPlanDetails !== null}
                             onClose={() => { setSelectedPlanDetails(null) }}
                         >
-                            <Box className={`bg-transparent rounded-xl max-w-[80%] w-[34%] ${ planType === "monthly" ? "h-[90vh]" : "h-[35vh]"} border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}>
+                            <Box className={`bg-transparent rounded-xl max-w-[80%] w-[34%] ${planType === "monthly" ? "h-[90vh]" : "h-[35vh]"} border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}>
                                 {
                                     planType === "monthly" ? (
                                         <ConfigureSideUI

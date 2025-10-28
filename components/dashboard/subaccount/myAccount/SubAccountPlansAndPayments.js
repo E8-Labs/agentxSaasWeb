@@ -51,6 +51,9 @@ function SubAccountPlansAndPayments({
     const [cards, setCards] = useState([]);
     const { user: reduxUser} = useUser();
 
+    //stores redux user data
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
+
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);

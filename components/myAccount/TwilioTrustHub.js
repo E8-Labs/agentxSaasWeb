@@ -291,7 +291,7 @@ const TwilioTrustHub = ({
             </div>*/}
                             <div className='w-full mt-4'>
                                 <Ap2MessagingDetails
-                                    // twilioHubData={twilioHubData?.voiceIntegrity}
+                                    twilioHubData={twilioHubData?.a2pMessaging}
                                     businessProfileData={twilioHubData?.profile}
                                     profileStatus={profileStatus}
                                     selectedUser={selectedUser}

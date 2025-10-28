@@ -47,7 +47,7 @@ const AddAp2MessageAnimation = ({
 
     const handleContinue = (formData) => {
         if (formData) {
-            console.log(formData);
+            console.log("trying to log form data in userfconset",formData);
         }
         setDirection(1);
         setCurrentIndex((prevIndex) => prevIndex + 1);
