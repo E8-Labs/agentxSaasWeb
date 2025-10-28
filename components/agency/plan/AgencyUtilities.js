@@ -76,8 +76,20 @@ export function formatFractional2(price) {
         return "0";
     }
 
-    return new Intl.NumberFormat("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    }).format(num);
+    // Check if the number is a whole number
+    const isWholeNumber = Number.isInteger(num) || (num % 1 === 0);
+    
+    if (isWholeNumber) {
+        // Whole numbers: no decimal places
+        return new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(num);
+    } else {
+        // Decimal numbers: always show 2 decimal places
+        return new Intl.NumberFormat("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(num);
+    }
 }

@@ -531,7 +531,7 @@ function SubAccountBarServices({
                               fontWeight: "600",
                             }}
                           >
-                            {item?.title} | {item.minutes} Mins <span className="px-4 py-2 text-white bg-purple rounded-full" style={{ fontWeight: "500", fontSize: 14 }}>{item.tag}</span>
+                            {item?.title} | {item.minutes} Credits {item.tag && (<span className="px-4 py-2 text-white bg-purple rounded-full" style={{ fontWeight: "500", fontSize: 14 }}>{item.tag}</span>)}
                           </div>
                           {item.status && (
                             <div
