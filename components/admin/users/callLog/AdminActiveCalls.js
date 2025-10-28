@@ -628,30 +628,176 @@ function AdminActiveCalls({ selectedUser }) {
         />
       )}
 
-      <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
+      <div>
+      {initialLoader ? (
+        <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
+          <CircularProgress size={35} />
+        </div>
+      ) : (
+        <div
+          className={`h-[65vh] overflow-auto`}
+          style={{ scrollbarWidth: "none" }}
+          id="scrollableDiv1"
+        >
+          <InfiniteScroll
+            className="lg:flex hidden flex-col w-full"
+            endMessage={
+              <p
+                style={{
+                  textAlign: "center",
+                  paddingTop: "10px",
+                  fontWeight: "400",
+                  fontFamily: "inter",
+                  fontSize: 16,
+                  color: "#00000060",
+                }}
+              >
+                {`You're all caught up`}
+              </p>
+            }
+            scrollableTarget="scrollableDiv1"
+            dataLength={filteredAgentsList.length}
+            next={() => {
+              // console.log("Trying to triger pagination");
+              if (!loading && hasMore) {
+                getAgents({
+                  length: filteredAgentsList.length,
+                  isPagination: true,
+                  sortData: null
+                });
+              }
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
-          <div style={styles.text}>Agent</div>
+            }} // Fetch more when scrolled
+            hasMore={hasMore} // Check if there's more data
+            loader={
+
+              <div className="w-full flex flex-row justify-center mt-8">
+                <CircularProgress size={35} />
+              </div>
+            }
+            style={{ overflow: "unset" }}
+          >
+            {filteredAgentsList?.length > 0 ? (
+              <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
+                {/* Table Header */}
+                <div className="w-full flex flex-row mt-2 px-10">
+                  <div className="min-w-[150px] flex-shrink-0">
+                    <div style={styles.text}>Agent</div>
+                  </div>
+
+                  <div className="min-w-[200px] flex-shrink-0">
+                    <div style={styles.text}>List Name</div>
+                  </div>
+
+                  
+                  <div className="min-w-[150px] flex-shrink-0">
+                      Leads    
+                  </div>
+                  
+                  <div className="min-w-[200px] flex-shrink-0 whitespace-nowrap">
+                      Date created
+                  </div>
+                  <div className="min-w-[200px] flex-shrink-0">
+                    <div style={styles.text}>Call Status</div>
+                  </div>
+                  <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                    <div style={styles.text}>Action</div>
+                  </div>
+                </div>
+
+                {/* Table Data */}
+                {filteredAgentsList?.map((item, index) => {
+                  return (
+                    <div key={index}>
+                      {item.agents?.map((agent, index) => {
+                        return (
+                          <div key={index}>
+                            <div
+                              className="w-full flex flex-row items-center justify-between mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                              key={index}
+                            >
+                            
+
+                              <div className="min-w-[150px] flex-shrink-0">
+                                <div style={styles.text2}>{
+                                  agent?.agents[0].agentType === "outbound" ? (
+                                    agent?.agents[0]?.name
+                                  ) : (
+                                    agent?.agents[1]?.name
+                                  )
+                                }</div>
+                              </div>
+
+                              
+                              <div className="min-w-[200px] flex-shrink-0">
+                                <div style={styles.text2} className="truncate">
+                                  {item.Sheet?.sheetName || "-"}
+                                </div>
+                              </div>
+
+                              <div className="min-w-[150px] flex-shrink-0">
+                                <button
+                                  style={styles.text2}
+                                  className="text-purple underline outline-none"
+                                  onClick={() => {
+                                     handleShowLeads(agent, item);
+                                  }}
+                                >
+                                  {item?.totalLeads}
+                                </button>
+                              </div>
+
+
+                              <div className="min-w-[200px] flex-shrink-0">
+                                {item?.createdAt ? (
+                                  <div style={styles.text2}>
+                                    {GetFormattedDateString(item?.createdAt)}
+                                  </div>
+                                ) : (
+                                  <div style={styles.text2}>-</div>
+                                )}
+                              </div>
+                              <div className="min-w-[200px] flex-shrink-0" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                              <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                                <button
+                                  aria-describedby={id}
+                                  variant="contained"
+                                  onClick={(event) => {
+                                    handleShowPopup(event, item, agent);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/otherAssets/threeDotsIcon.png"}
+                                    height={24}
+                                    width={24}
+                                    alt="icon"
+                                  />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontWeight: "600",
+                  fontSize: 24,
+                  textAlign: "center",
+                  marginTop: 20,
+                }}
+              >
+                No Activity Found
+              </div>
+            )}
+          </InfiniteScroll>
         </div>
-        {/*
-          <div className="w-2/12 ">
-            <div style={styles.text}>Objective</div>
-          </div>
-        */}
-        <div className="w-1/12">
-          <div style={styles.text}>Leads</div>
-        </div>
-        <div className="w-1/12">
-          <div style={styles.text}>Date created</div>
-        </div>
-        <div className="w-2/12">
-          <div style={styles.text}>Call Status</div>
-        </div>
-        <div className="w-1/12">
-          <div style={styles.text}>Action</div>
-        </div>
-      </div>
+      )}
+    </div>
 
       <div>
         {initialLoader ? (
