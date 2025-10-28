@@ -49,7 +49,6 @@ function SubAccountPlansAndPayments({
     console.log("Selected user passed is", selectedUser);
     //stroes user cards list
     const [cards, setCards] = useState([]);
-    const { user: reduxUser} = useUser();
 
     //stores redux user data
     const { user: reduxUser, setUser: setReduxUser } = useUser();
@@ -1334,13 +1333,13 @@ function SubAccountPlansAndPayments({
                                         */}
                                         <div>
                                             {
-                                                item.id === currentPlan && (
+                                                item.id === currentPlan && userLocalData?.nextChargeDate && (
                                                     <div style={{
                                                         fontSize: 11.6,
                                                         fontWeight: "500",
                                                         width: "fit-content",
                                                     }}>
-                                                        Renews on: {reduxUser?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                        Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
                                                     </div>
                                                 )
                                             }
