@@ -674,10 +674,6 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
             </div>
           )
         }
-
-        <div className="w-2/12">
-          <div style={styles.text}>Sub Account Name</div>
-        </div>
         <div className="w-2/12">
           <div style={styles.text}>Account Name</div>
         </div>
@@ -849,11 +845,6 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                     </div>
                                   )
                                 }
-                                <div className="w-2/12">
-                                  <div style={styles.text2}>
-                                    {item.user?.name || "-"}
-                                  </div>
-                                </div>
 
                                 <button className="w-2/12 flex flex-row gap-3 items-center"
                                   onClick={() => {

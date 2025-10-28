@@ -29,12 +29,12 @@ import {
 import AdminCallDetails from "./AdminCallDetails";
 import { time } from "framer-motion";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
-import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import AdminActiveCalls from "../activeCalls/AdminActiveCalls";
+import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 
 function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const LimitPerPage = 30;
@@ -551,17 +551,15 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 ) : (
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
-                      {
-                        !isFromAgency ? (
-                          <div className="min-w-[200px] flex-shrink-0">
-                            <div style={styles.text}>Agency Name</div>
-                          </div>
-                        ) : (
-                          <div className="min-w-[200px] flex-shrink-0">
-                            <div style={styles.text}>Sub Account</div>
-                          </div>
-                        )
-                      }
+
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Agency Name</div>
+                      </div>
+
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Sub Account Name</div>
+                      </div>
+
                       <div className="w-[250px] flex-shrink-0">
                         <div style={styles.text}>Name</div>
                       </div>
@@ -607,21 +605,19 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             style={{ cursor: "pointer" }}
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
-                            {
-                              !isFromAgency ? (
-                                <div className="min-w-[200px] flex-shrink-0 capitalize">
-                                  <div style={styles.text2}>
-                                    {item.agency?.name || "AgentX Main Admin"}
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="min-w-[200px] flex-shrink-0 capitalize">
-                                  <div style={styles.text2}>
-                                    {item.user?.name || "-"}
-                                  </div>
-                                </div>
-                              )
-                            }
+
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                              <div style={styles.text2}>
+                                {item.agency?.name || "AgentX Main Admin"}
+                              </div>
+                            </div>
+
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                              <div style={styles.text2}>
+                                {item.user?.name || "-"}
+                              </div>
+                            </div>
+
                             <div className="w-[250px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
                                 {
@@ -653,7 +649,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 {item?.pipeline ? item?.pipeline?.title : "-"}
                               </div>
                             </div>
-                           
+
 
                             <div className="min-w-[200px] flex-shrink-0 capitalize">
                               <div style={styles.text2}>
@@ -661,7 +657,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                             <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>

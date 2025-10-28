@@ -105,6 +105,7 @@ import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
 import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import ActionsTab from "@/components/dashboard/myagentX/ActionsTab";
+import { isPlanActive } from "@/components/userPlans/UserPlanServices";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -2565,6 +2566,14 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
+console.log("handleAddNewAgent is called", reduxUser?.plan)
+console.log("isPlanActive", isPlanActive(reduxUser?.plan))
+    if (!isPlanActive(reduxUser?.plan)) {
+      setShowErrorSnack("Your plan is paused. Activate to create agents")
+      setIsVisibleSnack2(true)
+      return
+    }
+    return
 
     try {
       // event.preventDefault();
@@ -2805,6 +2814,12 @@ function Page() {
   }
 
   const handleDuplicate = async () => {
+
+    if (!isPlanActive(reduxUser?.plan)) {
+      setShowErrorSnack("Your plan is paused. Activate to duplicate agents")
+      setIsVisibleSnack2(true)
+      return
+    }
     // duplicate agent
     setDuplicateLoader(true);
     try {
@@ -3999,7 +4014,7 @@ function Page() {
                   </div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                  <Tooltip title="Duplicate Agent" arrow
+                  <Tooltip title="Duplicate" arrow
                     componentsProps={{
                       tooltip: {
                         sx: {
@@ -4018,7 +4033,7 @@ function Page() {
                       },
                     }}
                   >
-                    <div>
+                    <div className="cursor-pointer pt-1">
                       <DuplicateButton
                         handleDuplicate={() => {
                           setShowDuplicateConfirmationPopup(true);

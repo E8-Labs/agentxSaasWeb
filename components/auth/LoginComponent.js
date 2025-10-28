@@ -248,14 +248,33 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   //number validation
   const validatePhoneNumber = (phoneNumber) => {
-    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(
+    if (!phoneNumber) {
+      setErrorMessage("");
+      return;
+    }
+
+    // Try to parse as US first
+    const parsedUs = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
+      "US"
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
-    if (!parsedNumber || !parsedNumber.isValid()) {
+    
+    // Try to parse as CA
+    const parsedCa = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      "CA"
+    );
+    
+    // Try to parse without country code (auto-detect)
+    const parsedAuto = parsePhoneNumberFromString(
+      `+${phoneNumber}`
+    );
+
+    const isValid = (parsedUs && parsedUs.isValid() && (parsedUs.country === 'US' || parsedUs.country === 'CA')) ||
+                    (parsedCa && parsedCa.isValid() && (parsedCa.country === 'US' || parsedCa.country === 'CA')) ||
+                    (parsedAuto && parsedAuto.isValid() && (parsedAuto.country === 'US' || parsedAuto.country === 'CA'));
+
+    if (!isValid) {
       setErrorMessage("Invalid");
     } else {
       setErrorMessage("");
@@ -263,9 +282,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-
-      // setCheckPhoneResponse(null);
-      // //console.log;
 
       timerRef.current = setTimeout(() => {
         checkPhoneNumber(phoneNumber);
@@ -750,6 +766,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={"us"} // Default country
+                    onlyCountries={["us", "ca"]} // Allow US and Canada only
+                    disableDropdown={false} // Enable dropdown to switch between US/CA
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -791,6 +811,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     }}
                     countryCodeEditable={false}
                     disableDropdown={true}
+                    preferredCountries={["us", "ca"]}
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                 </div>
@@ -798,7 +819,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <div className="flex flex-row justify-center">
                     <CircularProgress size={15} />
                   </div>
+                ) : ( errorMessage ? (
+                  <div className="text-center" style={styles.errmsg}>
+                    {errorMessage}
+                  </div>
                 ) : (
+                  
                   <button
                     className="text-black bg-transparent border border-[#000000] rounded-full"
                     style={{ fontSize: 16, fontWeight: "600" }}
@@ -812,7 +838,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   >
                     <ArrowRight size={20} weight="bold" />
                   </button>
-                )}
+                ))}  
               </div>
             </div>
 
