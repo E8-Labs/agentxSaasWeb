@@ -25,6 +25,7 @@ import MoreAgentsPopup from "../dashboard/MoreAgentsPopup";
 import { useUser } from "../../hooks/redux-hooks";
 import { usePlanCapabilities } from "../../hooks/use-plan-capabilities";
 import getProfileDetails from "../apis/GetProfile";
+import { isPlanActive } from "../userPlans/UserPlanServices";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
@@ -538,6 +539,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   //code for creating agent api
   const handleBuildAgent = async () => {
+
+    if (!isPlanActive(reduxUser?.plan)) {
+      setSnackTitle("Your plan is paused. Activate to create agents")
+      setShowSnak(true)
+      return
+    } 
     // return
     try {
       setBuildAgentLoader(true);

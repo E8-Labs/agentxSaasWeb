@@ -103,6 +103,7 @@ const ProfileNav = () => {
 
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
+  const [showUpgradePlanModal2, setShowUpgradePlanModal2] = useState(false);
   const [showLowMinsModal, setShowLowMinsModal] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
 
@@ -624,8 +625,8 @@ const ProfileNav = () => {
       id: 5,
       name: "Activity",//"Call Log",
       href: "/dashboard/callLog",
-      selected: "/svgIcons/selectedCallIcon.svg",
-      uneselected: "/svgIcons/unSelectedCallIcon.svg",
+      selected: "/otherAssets/selectedActivityLog.png",
+      uneselected: "/otherAssets/activityLog.png",
     },
     {
       id: 6,
@@ -796,7 +797,7 @@ const ProfileNav = () => {
 
               // if user comes first time then show plans popup
               // setShowPlansPopup(true);
-              setShowUpgradePlanModal(true)
+              // setShowUpgradePlanModal(true)
 
             } else if (
 
@@ -1115,14 +1116,14 @@ const ProfileNav = () => {
               {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
-                  window.open('/dashboard/myAccount?tab=2')
+                  router.push('/dashboard/myAccount?tab=2')
                 }}
               >
                 Turn on Smart Refill
               </span>  or  <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
-                  window.open('/dashboard/myAccount?tab=2')
+                  setShowUpgradePlanModal2(true)
                 }}
               > Upgrade
               </span>.
@@ -1132,17 +1133,17 @@ const ProfileNav = () => {
             <div>
 
               <div style={{ fontSize: 15, fontWeight: '700', }}>
-                {userDetails?.user?.plan?.price === 0 ? "Your free AI Credits have expired" : `Your subscription payment could not be processed.`}
-              </div>
-              <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                {userDetails?.user?.plan?.price === 0 ? "Please Upgrade or wait for next renewal date" : "Please update your payment method to continue making calls"}
+                {userDetails?.user?.plan?.price === 0 ? "You're out of Free AI Credits." : `Your subscription payment could not be processed.`}
                 <span
                   className="text-purple underline cursor-pointer"
                   onClick={() => {
-                    window.open('/dashboard/myAccount?tab=2')
+                    setShowUpgradePlanModal2(true)
                   }}
                 > Upgrade
-                </span>.
+                </span>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
+                {userDetails?.user?.plan?.price === 0 ? "Please upgrade or wait until your renewal date." : "Please update your payment method to continue making calls."}
               </div>
 
               {/*
@@ -1238,8 +1239,8 @@ const ProfileNav = () => {
                           ? item.selected
                           : item.uneselected
                       }
-                      height={24}
-                      width={24}
+                      height={item.name === "Activity" ? 16 : 24}
+                      width={item.name === "Activity" ? 16 : 24}
                       alt="icon"
                     />
                     <div
@@ -1344,7 +1345,7 @@ const ProfileNav = () => {
               </div>
 
               {/* Socket Connection Status Indicator */}
-             
+
             </Link>
 
 
@@ -1721,11 +1722,17 @@ const ProfileNav = () => {
         {/* UpgradePlan Modal */}
         <Elements stripe={stripePromise}>
           <UpgradePlan
-          setSelectedPlan={()=>{
+            setSelectedPlan={() => {
               console.log("setSelectedPlan is called")
-             }}
-            open={showUpgradePlanModal}
-            handleClose={() => setShowUpgradePlanModal(false)}
+            }}
+            currentFullPlan={userDetails?.user?.plan}
+            open={showUpgradePlanModal2}
+            handleClose={(upgradeResult) => {
+              setShowUpgradePlanModal2(false)
+              if(upgradeResult) {
+                getProfile()
+              }
+              }}
             setShowSnackMsg={() => {
               console.log("setShowSnackMsg is called")
             }}

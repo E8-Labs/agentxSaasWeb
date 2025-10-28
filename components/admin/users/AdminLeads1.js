@@ -41,7 +41,7 @@ import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPe
 import AdminLeads from "./AdminLeads";
 import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
-const AdminLeads1 = ({ selectedUser }) => {
+const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const addColRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -932,7 +932,7 @@ const AdminLeads1 = ({ selectedUser }) => {
 
         <div className="w-full">
           {userLeads ? (
-            <div className="h-screen w-full">
+            <div className="h-[95vh] w-full">
               <AdminLeads
                 handleShowAddLeadModal={handleShowAddLeadModal}
                 handleShowUserLeads={handleShowUserLeads}
@@ -940,10 +940,11 @@ const AdminLeads1 = ({ selectedUser }) => {
                 shouldSet={setData}
                 setSetData={setSetData}
                 selectedUser={selectedUser}
+                agencyUser={agencyUser}
               />
             </div>
           ) : (
-            <div className="h-screen">
+            <div className="h-[95vh]">
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}

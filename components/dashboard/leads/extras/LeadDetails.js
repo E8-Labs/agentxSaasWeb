@@ -315,13 +315,23 @@ const LeadDetails = ({
   };
 
   const getNumbers = async () => {
-
+    console.log("getNumbers is called")
     let data = localStorage.getItem("selectedUser")
     let selectedUser = null
-    if (data !== null || data !== "undefined") {
-      selectedUser = JSON.parse(data)
-      console.log("selected user data from local", selectedUser)
+    console.log("data", data)
+    console.log("typeof data", typeof data)
+    
+    // Fix: Check if data exists and is not "undefined" string, then safely parse
+    if (data && data !== "undefined" && data !== "null") {
+      try {
+        selectedUser = JSON.parse(data)
+        console.log("selected user data from local", selectedUser)
+      } catch (error) {
+        console.error("Error parsing selectedUser from localStorage:", error)
+        selectedUser = null
+      }
     }
+    
     setPhoneLoading(true)
     let id = selectedUser?.id
     let num = await getA2PNumbers(id)
@@ -330,7 +340,6 @@ const LeadDetails = ({
     }
     setPhoneLoading(false)
   }
-
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
     //// //console.log
@@ -3319,9 +3328,9 @@ const LeadDetails = ({
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
-          setSelectedPlan={()=>{
-              console.log("setSelectedPlan is called")
-             }}
+          setSelectedPlan={() => {
+            console.log("setSelectedPlan is called")
+          }}
           open={showUpgradeModal}
           // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {

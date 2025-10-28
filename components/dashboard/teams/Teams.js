@@ -32,6 +32,7 @@ import AgencyPlans from "@/components/plan/AgencyPlans";
 import UserPlans from "@/components/userPlans/UserPlans";
 import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import { isPlanActive } from "@/components/userPlans/UserPlanServices";
 
 
 function Teams({
@@ -271,6 +272,11 @@ function Teams({
   const inviteTeamMember = async (item) => {
     // //console.log;
     // return
+    if (!isPlanActive(reduxUser?.plan)) {
+      setSnackTitle("Your plan is paused. Activate to invite team members")
+      setShowSnak(true);
+      return
+    } 
     if (!item.name || !item.email || !item.phone) {
       setShowError(true);
       return;

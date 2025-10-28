@@ -229,18 +229,12 @@ function SMSTempletePopup({
 
                         <div className='w-full flex flex-row items-center justify-between mb-8'>
                             <div className='text-[15px] font-[700]'>
-                                {isLeadSMS ? 'Send SMS to Lead' : (isEditing && !IsDefaultCadence ? "Update" : "New")} Text
+                                {isLeadSMS ? 'Send Text Message' : (isEditing && !IsDefaultCadence ? "Update Text" : "New Text Message")}
                             </div>
 
                             <CloseBtn onClick={onClose} />
                         </div>
-                        {isLeadSMS && (
-                            <div className="text-[15px] font-[400] text-[#00000080]">
-                                To: <span className="text-[#00000050] ml-2">
-                                    {leadPhone}
-                                </span>
-                            </div>
-                        )}
+
                         <div className='w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mb-2'>
 
                             <div className='flex flex-row items-center justify-between w-full'>
@@ -296,65 +290,62 @@ function SMSTempletePopup({
                             phoneLoading ? (
                                 <CircularProgress size={30} />
                             ) : (
-                                <div className='flex flex-row gap-3 w-full mt-3 items-center'>
-                                    {isLeadSMS && (
-                                        <div className="text-[15px] font-[400] text-[#00000080]">
-                                            From:
-                                        </div>
+                                !isLeadSMS && (
+                                    <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
-                                    )}
-                                    <FormControl sx={{ width: isLeadSMS ? '80%' : '100%' }}>
-                                        <Select
-                                            value={selectedPhone || ""}
-                                            onChange={(event) => handleSelect(event.target.value)}
-                                            displayEmpty // Enables placeholder
-                                            renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
-                                            sx={{
-                                                ...styles.dropdownMenu,
-                                                backgroundColor: "#FFFFFF",
-                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                    borderColor: "transparent", // Hide focused border color
+                                        <FormControl sx={{ width: isLeadSMS ? '80%' : '100%',height: '54px' }}>
+                                            <Select
+                                                value={selectedPhone || ""}
+                                                onChange={(event) => handleSelect(event.target.value)}
+                                                displayEmpty // Enables placeholder
+                                                renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                                sx={{
+                                                    ...styles.dropdownMenu,
+                                                    backgroundColor: "#FFFFFF",
+                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                        borderColor: "transparent", // Hide focused border color
 
-                                                },
-
-                                            }}
-                                            MenuProps={{
-                                                PaperProps: {
-                                                    style: {
-                                                        maxHeight: "30vh", // Limit dropdown height
-                                                        overflow: "auto", // Enable scrolling in dropdown
-                                                        scrollbarWidth: "none",
-                                                        // borderRadius: "10px"
                                                     },
-                                                },
-                                            }}
-                                        >
-                                            {
-                                                phoneNumbers?.length > 0 ? (
 
-                                                    phoneNumbers?.map((item, index) => (
-                                                        <MenuItem key={index}
-                                                            // className="hover:bg-[#402FFF10]"
-                                                            value={item}
-                                                        >
-                                                            <div className='flex flex-row items-center gap-2'>
+                                                }}
+                                                MenuProps={{
+                                                    PaperProps: {
+                                                        style: {
+                                                            maxHeight: "30vh", // Limit dropdown height
+                                                            overflow: "auto", // Enable scrolling in dropdown
+                                                            scrollbarWidth: "none",
+                                                            // borderRadius: "10px"
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                {
+                                                    phoneNumbers?.length > 0 ? (
 
-                                                                <div className='text-[15] font-[500] w-48'>
-                                                                    {item.phone}
+                                                        phoneNumbers?.map((item, index) => (
+                                                            <MenuItem key={index}
+                                                                // className="hover:bg-[#402FFF10]"
+                                                                value={item}
+                                                            >
+                                                                <div className='flex flex-row items-center gap-2'>
+
+                                                                    <div className='text-[15] font-[500] w-48'>
+                                                                        {item.phone}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                        </MenuItem>
-                                                    ))
-                                                ) : (
-                                                    <div className='p-2'>
-                                                        No number found
-                                                    </div>
-                                                )
-                                            }
-                                        </Select>
-                                    </FormControl>
-                                </div>
+                                                            </MenuItem>
+                                                        ))
+                                                    ) : (
+                                                        <div className='p-2'>
+                                                            No number found
+                                                        </div>
+                                                    )
+                                                }
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                )
                             )
                         }
 
@@ -368,7 +359,7 @@ function SMSTempletePopup({
                                 showSaveChangesBtn={body}
                                 from={"sms"}
                                 isEdit={isEditing}
-                                editTitle={isEditing && !IsDefaultCadence ? "Edit SMS Template" : "Create SMS Template"}
+                                editTitle={isEditing && !IsDefaultCadence ? "Edit Text" : "Create Text"}
                                 saveUpdates={async () => {
                                 }}
                                 limit={160}
@@ -401,7 +392,7 @@ function SMSTempletePopup({
                                 disabled={isSaveDisabled}
                                 onClick={handleSave}
                             >
-                                {isLeadSMS ? 'Send SMS' : (isEditing && !IsDefaultCadence ? "Update" : "Create")} Message
+                                {isLeadSMS ? 'Send' : (isEditing && !IsDefaultCadence ? "Update" : "Create")} Text
                             </button>
                         )}
                     </div>

@@ -29,14 +29,14 @@ export const downgradeToGrowthFeatures = [
 
 export const isLagecyPlan = (plan) => {
 
-    if(
+    if (
         plan?.features == null //||
         // plan?.planId == null ||
         // plan?.type == "Plan30" ||
         // plan?.type == "Plan120" ||
         // plan?.type == "Plan360" ||
         // plan?.type == "Plan720"
-    ){
+    ) {
         return true;
     }
 
@@ -45,6 +45,14 @@ export const isLagecyPlan = (plan) => {
 
 const PLANS_CACHE_KEY = 'userPlans_cache';
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+export const isPlanActive = (plan) => {
+
+    if (plan?.status === "active") {
+        return true;
+    }
+    return false;
+};
 
 const getCachedPlans = (from) => {
     try {

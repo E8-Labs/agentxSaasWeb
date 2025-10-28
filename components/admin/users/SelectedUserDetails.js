@@ -307,10 +307,16 @@ function SelectedUserDetails({
                         </div>
                     */}
 
-                    <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
-                    <div className='w-1/2'></div>
-                        <CloseBtn onClick={handleClose} />
-                    </div>
+                    {
+                        !agencyUser && (
+
+                            <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
+                                <div className='w-1/2'></div>
+                                <CloseBtn onClick={handleClose} />
+                            </div>
+                        )
+                    }
+
 
                     <div className='flex flex-row items-start w-full'>
                         <div className='flex flex-col items-start justify-center w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
@@ -483,10 +489,10 @@ function SelectedUserDetails({
                     </div>*/}
                                 </div>
                             </div>
-                            <div className={`flex flex-col items-center justify-center pt-2 ${agencyUser ? "h-[90vh]" : "h-[68vh]"} overflow-auto w-full`}>
+                            <div className={`flex flex-col items-center justify-center pt-2 ${agencyUser ? "h-[95vh]" : "h-[68vh]"} overflow-auto w-full`}>
                                 {
                                     selectedManu.name == "Leads" ? (
-                                        <AdminLeads1 selectedUser={selectedUser} />
+                                        <AdminLeads1 selectedUser={selectedUser} agencyUser={agencyUser}/>
                                     ) : (
                                         selectedManu.name == "Pipeline" ? (
                                             <AdminPipeline1 selectedUser={selectedUser} />
