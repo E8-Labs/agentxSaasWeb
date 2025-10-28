@@ -541,8 +541,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const handleBuildAgent = async () => {
 
     if (!isPlanActive(reduxUser?.plan)) {
-      setSnackTitle("Your plan is paused. Activate to create agents")
-      setShowSnak(true)
+      setSnackMessage("Your plan is paused. Activate to create agents")
+      setIsVisible(true)
+      setMsgType(SnackbarTypes.Error)
       return
     } 
     // return
