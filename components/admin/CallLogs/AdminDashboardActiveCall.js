@@ -666,113 +666,6 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
 
       <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
-      <div className="w-full flex flex-row justify-between mt-2 px-10">
-        {
-          !isFromAgency && (
-            <div className="w-2/12">
-              <div style={styles.text}>Agency Name</div>
-            </div>
-          )
-        }
-        <div className="w-2/12">
-          <div style={styles.text}>Account Name</div>
-        </div>
-        <div className="w-1/12">
-          <div style={styles.text}>Agent</div>
-        </div>
-        <div className="w-1/12">
-
-          <button className=""
-            onClick={() => {
-
-              let sortOrder = selectedSortOrder;
-              if (selectedSort == "Leads") {
-                sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-              }
-
-              setSelectedSortOrder(sortOrder);
-
-              sortData = {
-                sort: "totalLeads",
-                sortOrder: sortOrder,
-              };
-              setSelectedSort("Leads");
-              getAgents({
-                length: 0,
-                isPagination: false,
-                sortData: sortData
-              });
-            }}
-          >
-            Leads
-            {selectedSort === "Leads" ? (
-              <Image
-                src={
-                  selectedSortOrder == "DESC"
-                    ? "/downArrow.png"
-                    : "/upArrow.png"
-                }
-                height={3}
-                width={10}
-                className="inline-block align-middle"
-                alt="*"
-              />
-            ) : null}
-          </button>
-
-        </div>
-        <div className="w-1/12">
-          <div style={styles.text}>List Name</div>
-        </div>
-
-        <div className="w-1/12 whitespace-nowrap">
-          <button className=""
-            onClick={() => {
-
-              let sortOrder = selectedSortOrder;
-              if (selectedSort == "CreatedAt") {
-                sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-              }
-
-              setSelectedSortOrder(sortOrder);
-
-              sortData = {
-                sort: "CreatedAt",
-                sortOrder: sortOrder,
-              };
-
-              setSelectedSort("CreatedAt");
-              getAgents({
-                length: 0,
-                isPagination: false,
-                sortData: sortData
-              });
-            }}
-          >
-            Date created
-            {selectedSort === "CreatedAt" ? (
-              <Image
-                src={
-                  selectedSortOrder == "DESC"
-                    ? "/downArrow.png"
-                    : "/upArrow.png"
-                }
-                height={3}
-                width={10}
-                className="inline-block align-middle"
-                alt="*"
-              />
-            ) : null}
-          </button>
-        </div>
-        <div className="w-2/12">
-          <div style={styles.text}>Call Status</div>
-        </div>
-        <div className="w-1/12 sticky right-0 z-10">
-          <div style={styles.text}>Action</div>
-        </div>
-      </div>
-
       <div>
         {initialLoader ? (
           <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
@@ -823,9 +716,118 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
               style={{ overflow: "unset" }}
             >
               {filteredAgentsList?.length > 0 ? (
-                <div
-                // className={`h-[65vh] overflow-auto`}
-                >
+                <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
+                  {/* Table Header */}
+                  <div className="w-full flex flex-row mt-2 px-10">
+                    {
+                      !isFromAgency && (
+                        <div className="min-w-[200px] flex-shrink-0">
+                          <div style={styles.text}>Agency Name</div>
+                        </div>
+                      )
+                    }
+                    <div className="min-w-[200px] flex-shrink-0">
+                      <div style={styles.text}>Sub Account</div>
+                    </div>
+                    <div className="min-w-[150px] flex-shrink-0">
+                      <div style={styles.text}>Agent</div>
+                    </div>
+
+                    <div className="min-w-[200px] flex-shrink-0">
+                      <div style={styles.text}>List Name</div>
+                    </div>
+
+                    
+                    <div className="min-w-[150px] flex-shrink-0">
+                      <button className=""
+                        onClick={() => {
+
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "Leads") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+
+                          setSelectedSortOrder(sortOrder);
+
+                          sortData = {
+                            sort: "totalLeads",
+                            sortOrder: sortOrder,
+                          };
+                          setSelectedSort("Leads");
+                          getAgents({
+                            length: 0,
+                            isPagination: false,
+                            sortData: sortData
+                          });
+                        }}
+                      >
+                        Leads
+                        {selectedSort === "Leads" ? (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={10}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        ) : null}
+                      </button>
+
+                    </div>
+                    
+                    <div className="min-w-[200px] flex-shrink-0 whitespace-nowrap">
+                      <button className=""
+                        onClick={() => {
+
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "CreatedAt") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+
+                          setSelectedSortOrder(sortOrder);
+
+                          sortData = {
+                            sort: "CreatedAt",
+                            sortOrder: sortOrder,
+                          };
+
+                          setSelectedSort("CreatedAt");
+                          getAgents({
+                            length: 0,
+                            isPagination: false,
+                            sortData: sortData
+                          });
+                        }}
+                      >
+                        Date created
+                        {selectedSort === "CreatedAt" ? (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={10}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        ) : null}
+                      </button>
+                    </div>
+                    <div className="min-w-[200px] flex-shrink-0">
+                      <div style={styles.text}>Call Status</div>
+                    </div>
+                    <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                      <div style={styles.text}>Action</div>
+                    </div>
+                  </div>
+
+                  {/* Table Data */}
                   {filteredAgentsList?.map((item, index) => {
                     return (
                       <div key={index}>
@@ -833,12 +835,12 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                           return (
                             <div key={index}>
                               <div
-                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                className="w-full flex flex-row items-center justify-between mt-5 px-10 hover:bg-[#402FFF05] py-2"
                                 key={index}
                               >
                                 {
                                   !isFromAgency && (
-                                    <div className="w-2/12">
+                                    <div className="min-w-[200px] flex-shrink-0">
                                       <div style={styles.text2}>
                                         {item.agency?.name || "AgentX Main Admin"}
                                       </div>
@@ -846,22 +848,23 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                   )
                                 }
 
-                                <button className="w-2/12 flex flex-row gap-3 items-center"
-                                  onClick={() => {
-                                    if (item?.user?.id) {
-                                      // Open a new tab with user ID as query param
-                                      let url = ` admin/users?userId=${item?.user?.id}`
-                                      //console.log
-                                      window.open(url, "_blank");
-                                    }
-                                  }}
-                                >
-                                  <div style={styles.text2}>{item?.user?.name}</div>
+                                <div className="min-w-[200px] flex-shrink-0">
+                                  <button 
+                                    className="w-full text-start outline-none"
+                                    onClick={() => {
+                                      if (item?.user?.id) {
+                                        // Open a new tab with user ID as query param
+                                        let url = ` admin/users?userId=${item?.user?.id}`
+                                        //console.log
+                                        window.open(url, "_blank");
+                                      }
+                                    }}
+                                  >
+                                    <div style={styles.text2} className="truncate">{item?.user?.name}</div>
+                                  </button>
+                                </div>
 
-                                </button>
-
-                                <div className="w-1/12 flex flex-row gap-4 items-center">
-
+                                <div className="min-w-[150px] flex-shrink-0">
                                   <div style={styles.text2}>{
                                     agent?.agents[0].agentType === "outbound" ? (
                                       agent?.agents[0]?.name
@@ -871,7 +874,14 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                   }</div>
                                 </div>
 
-                                <div className="w-1/12">
+                                
+                                <div className="min-w-[200px] flex-shrink-0">
+                                  <div style={styles.text2} className="truncate">
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
+                                </div>
+
+                                <div className="min-w-[150px] flex-shrink-0">
                                   <button
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
@@ -882,22 +892,19 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                                     {item?.totalLeads}
                                   </button>
                                 </div>
-                                <div className="w-1/12">
-                                  <div className="truncate" style={styles.text2}>
-                                    {item.Sheet?.sheetName || "-"}
-                                  </div>
-                                </div>
-                                <div className="w-1/12">
+
+
+                                <div className="min-w-[200px] flex-shrink-0">
                                   {item?.createdAt ? (
                                     <div style={styles.text2}>
                                       {GetFormattedDateString(item?.createdAt)}
                                     </div>
                                   ) : (
-                                    "-"
+                                    <div style={styles.text2}>-</div>
                                   )}
                                 </div>
-                                <div className="w-2/12">{getCallStatusWithSchedule(item)}</div>
-                                <div className="w-1/12 sticky right-0 z-10">
+                                <div className="min-w-[200px] flex-shrink-0" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                                <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"
@@ -1479,13 +1486,13 @@ export default AdminDashboardActiveCall;
 const styles = {
   text: {
     fontSize: 15,
-    color: "#000000",
-    fontWeight: "500",
+    color: "#00000090",
+    fontWeight: "600",
   },
   text2: {
     textAlignLast: "left",
     fontSize: 15,
-    // color: '#000000',
+    color: "#000000",
     fontWeight: "500",
     whiteSpace: "nowrap", // Prevent text from wrapping
     overflow: "hidden", // Hide overflow text
