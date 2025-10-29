@@ -234,22 +234,22 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
     // First, try to load from cache if this is the initial load and no filters are applied
     const hasFilters = selectedFromDate || selectedToDate || selectedAgency || searchValue || selectedStatus.length > 0;
 
-    if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
-      const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
-      if (cachedData) {
-        try {
-          const parsedCachedData = JSON.parse(cachedData);
-          console.log("Loading call logs from cache:", parsedCachedData);
-          setCallDetails(parsedCachedData);
-          setFilteredCallDetails(parsedCachedData);
-          setIsLocalCallsAvailable(true);
-          setHasFetchedFromAPIOnce(true);
-        } catch (err) {
-          console.warn("Error parsing cached call logs data", err);
-          localStorage.removeItem(PersistanceKeys.LocalAllCalls);
-        }
-      }
-    }
+    // if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
+    //   const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
+    //   if (cachedData) {
+    //     try {
+    //       const parsedCachedData = JSON.parse(cachedData);
+    //       console.log("Loading call logs from cache:", parsedCachedData);
+    //       setCallDetails(parsedCachedData);
+    //       setFilteredCallDetails(parsedCachedData);
+    //       setIsLocalCallsAvailable(true);
+    //       setHasFetchedFromAPIOnce(true);
+    //     } catch (err) {
+    //       console.warn("Error parsing cached call logs data", err);
+    //       localStorage.removeItem(PersistanceKeys.LocalAllCalls);
+    //     }
+    //   }
+    // }
 
     try {
       setLoading(true);
@@ -698,275 +698,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 )}
               </InfiniteScroll>
             </div>
-
-            {/* Code for filter modal */}
-            <div>
-              <Modal
-                open={showFilterModal}
-                closeAfterTransition
-                BackdropProps={{
-                  sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(5px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
-                  sx={{
-                    ...styles.modalsStyle,
-                    scrollbarWidth: "none",
-                    backgroundColor: "transparent",
-                    height: "100svh",
-                  }}
-                >
-                  <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
-                    <div className="mt-2 w-full">
-                      <div className="flex flex-row items-center justify-between w-full">
-                        <div>Filter</div>
-                        <CloseBtn
-                          onClick={() => {
-                            setShowFilterModal(false);
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex flex-row items-start gap-4">
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="h-full"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            From
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-
-                            <div>
-                              {showFromDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowFromDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() === today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-1/2 h-full">
-                          <div
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            To
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                  {/* <Calendar
-                              onChange={handleToDateChange}
-                              value={selectedToDate}
-                              locale="en-US"
-                              onClose={() => {
-                                setShowToDatePicker(false);
-                              }}
-                            /> */}
-                                  <Calendar
-                                    className="react-calendar"
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowToDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() === today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 12,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Status
-                      </div>
-
-                      <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
-                        {statusList.map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => {
-                              setSelectedStatus((prev) => {
-                                if (prev.includes(item.status)) {
-                                  return prev.filter((s) => s !== item.status);
-                                } else {
-                                  return [...prev, item.status];
-                                }
-                              });
-                            }}
-                          >
-                            <div
-                              className="py-2 px-3 border rounded-full"
-                              style={{
-                                color: selectedStatus.includes(item.status)
-                                  ? "#fff"
-                                  : "",
-                                backgroundColor: selectedStatus.includes(item.status)
-                                  ? "#7902df"
-                                  : "",
-                              }}
-                            >
-                              {item.status}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
-                      <button
-                        className="outline-none w-full"
-                        style={{ fontSize: 16.8, fontWeight: "600" }}
-                        onClick={() => {
-                          setSelectedFromDate(null);
-                          setSelectedToDate(null);
-                          getLeads();
-                          // if (typeof window !== "undefined") {
-                          //   window.location.reload();
-                          // }
-                        }}
-                      >
-                        Reset
-                      </button>
-                      {sheetsLoader ? (
-                        <CircularProgress size={25} />
-                      ) : (
-                        <button
-                          className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: "600",
-                            backgroundColor:
-                              (selectedFromDate && selectedToDate) ||
-                                selectedStatus.length > 0
-                                ? ""
-                                : "#00000050",
-                          }}
-                          onClick={() => {
-                            // //console.log;
-                            if (
-                              (selectedFromDate && selectedToDate) ||
-                              selectedStatus.length > 0
-                            ) {
-                              localStorage.removeItem("callDetails");
-                              setInitialLoader(true);
-                              setCallDetails([]);
-                              setFilteredCallDetails([]);
-                              setHasMore(true);
-                              setShowFilterModal(false);
-                              getCallLogs(0);
-                            } else {
-                              // //console.log;
-                            }
-                          }}
-                        >
-                          Apply Filter
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
-            </div>
-
             {/* Code for details view */}
             {showDetailsModal && (
               <AdminCallDetails
@@ -980,6 +711,275 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
         ) : "No Activities found"}
       </div>
+
+      {/* Code for filter modal */}
+      <div>
+        <Modal
+          open={showFilterModal}
+          closeAfterTransition
+          BackdropProps={{
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box
+            className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
+            sx={{
+              ...styles.modalsStyle,
+              scrollbarWidth: "none",
+              backgroundColor: "transparent",
+              height: "100svh",
+            }}
+          >
+            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
+              <div className="mt-2 w-full">
+                <div className="flex flex-row items-center justify-between w-full">
+                  <div>Filter</div>
+                  <CloseBtn
+                    onClick={() => {
+                      setShowFilterModal(false);
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-row items-start gap-4">
+                  <div className="w-1/2 h-full">
+                    <div
+                      className="h-full"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      From
+                    </div>
+                    <div>
+                      <button
+                        style={{ border: "1px solid #00000020" }}
+                        className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                        onClick={() => {
+                          setShowFromDatePicker(true);
+                        }}
+                      >
+                        <p>
+                          {selectedFromDate
+                            ? selectedFromDate.toDateString()
+                            : "Select Date"}
+                        </p>
+                        <CalendarDots weight="regular" size={25} />
+                      </button>
+
+                      <div>
+                        {showFromDatePicker && (
+                          <div>
+                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                            <Calendar
+                              onChange={handleFromDateChange}
+                              value={selectedFromDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowFromDatePicker(false);
+                              }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-1/2 h-full">
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      To
+                    </div>
+                    <div>
+                      <button
+                        style={{ border: "1px solid #00000020" }}
+                        className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                        onClick={() => {
+                          setShowToDatePicker(true);
+                        }}
+                      >
+                        <p>
+                          {selectedToDate
+                            ? selectedToDate.toDateString()
+                            : "Select Date"}
+                        </p>
+                        <CalendarDots weight="regular" size={25} />
+                      </button>
+                      <div>
+                        {showToDatePicker && (
+                          <div>
+                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                            {/* <Calendar
+                              onChange={handleToDateChange}
+                              value={selectedToDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowToDatePicker(false);
+                              }}
+                            /> */}
+                            <Calendar
+                              className="react-calendar"
+                              onChange={handleToDateChange}
+                              value={selectedToDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowToDatePicker(false);
+                              }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    fontWeight: "500",
+                    fontSize: 12,
+                    color: "#00000060",
+                    marginTop: 10,
+                  }}
+                >
+                  Status
+                </div>
+
+                <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
+                  {statusList.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedStatus((prev) => {
+                          if (prev.includes(item.status)) {
+                            return prev.filter((s) => s !== item.status);
+                          } else {
+                            return [...prev, item.status];
+                          }
+                        });
+                      }}
+                    >
+                      <div
+                        className="py-2 px-3 border rounded-full"
+                        style={{
+                          color: selectedStatus.includes(item.status)
+                            ? "#fff"
+                            : "",
+                          backgroundColor: selectedStatus.includes(item.status)
+                            ? "#7902df"
+                            : "",
+                        }}
+                      >
+                        {item.status}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                <button
+                  className="outline-none w-full"
+                  style={{ fontSize: 16.8, fontWeight: "600" }}
+                  onClick={() => {
+                    setSelectedFromDate(null);
+                    setSelectedToDate(null);
+                    getLeads();
+                    // if (typeof window !== "undefined") {
+                    //   window.location.reload();
+                    // }
+                  }}
+                >
+                  Reset
+                </button>
+                {sheetsLoader ? (
+                  <CircularProgress size={25} />
+                ) : (
+                  <button
+                    className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
+                    style={{
+                      fontSize: 16.8,
+                      fontWeight: "600",
+                      backgroundColor:
+                        (selectedFromDate && selectedToDate) ||
+                          selectedStatus.length > 0
+                          ? ""
+                          : "#00000050",
+                    }}
+                    onClick={() => {
+                      // //console.log;
+                      if (
+                        (selectedFromDate && selectedToDate) ||
+                        selectedStatus.length > 0
+                      ) {
+                        localStorage.removeItem("callDetails");
+                        setInitialLoader(true);
+                        setCallDetails([]);
+                        setFilteredCallDetails([]);
+                        setHasMore(true);
+                        setShowFilterModal(false);
+                        getCallLogs(0);
+                      } else {
+                        // //console.log;
+                      }
+                    }}
+                  >
+                    Apply Filter
+                  </button>
+                )}
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+
     </div>
 
 
