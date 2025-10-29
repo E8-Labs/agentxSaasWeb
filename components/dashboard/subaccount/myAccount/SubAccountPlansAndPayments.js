@@ -1405,7 +1405,7 @@ function SubAccountPlansAndPayments({
                                                                                 sx: {
                                                                                     backgroundColor: "#ffffff", // Ensure white background
                                                                                     color: "#333", // Dark text color
-                                                                                    fontSize: "14px",
+                                                                                    fontSize: "10px",
                                                                                     padding: "10px 15px",
                                                                                     borderRadius: "8px",
                                                                                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
@@ -1420,7 +1420,7 @@ function SubAccountPlansAndPayments({
                                                                     >
                                                                         <div
                                                                             style={{
-                                                                                fontSize: 12,
+                                                                                fontSize: 10,
                                                                                 fontWeight: "600",
                                                                                 color: "#000000",
                                                                                 cursor: "pointer",
