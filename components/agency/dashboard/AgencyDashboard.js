@@ -65,10 +65,10 @@ export default function AgencyDashboard({
         </div>
         {/* Tabs for navigation */}
         <Tabs defaultValue="user-activity" className="mb-6 w-full">
-          <TabsList className="flex flex-row items-center justify-start gap-4 border-b pb-2 w-full pl-10 bg-transparent">
-            <TabsTrigger value="user-activity">User Activity</TabsTrigger>
+          <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
+            <TabsTrigger value="user-activity" className="outline-none">User Activity</TabsTrigger>
             {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
+            <TabsTrigger value="subscription" className="outline-none">Subscription</TabsTrigger>
           </TabsList>
 
           <TabsContent value="user-activity">
