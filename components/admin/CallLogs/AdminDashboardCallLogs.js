@@ -76,7 +76,12 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  // Store active tab when filter modal opens
+  const [activeTabWhenModalOpened, setActiveTabWhenModalOpened] = useState(null);
 
+  // Subaccount filter state
+  const [selectedSubaccount, setSelectedSubaccount] = useState(null);
+  const [subaccountList, setSubaccountList] = useState([]);
 
   const filterRef = useRef(null);
 
@@ -139,6 +144,37 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   // }, [selectedToDate, selectedFromDate]);
 
 
+  // Function to fetch subaccounts list
+  const getSubaccounts = async () => {
+    try {
+      setInitialLoader(true);
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        AuthToken = Data.token;
+      }
+
+      let ApiPath = Apis.getAgencySubAccount;
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response && response.data && response.data.data) {
+        setSubaccountList(response.data.data);
+        setInitialLoader(false);
+      }
+    } catch (error) {
+      console.error("Error fetching subaccounts:", error);
+    } finally {
+      setInitialLoader(false);
+    }
+  };
+
   useEffect(() => {
     const getLocalCalls = () => {
       const call = localStorage.getItem(PersistanceKeys.LocalAllCalls)
@@ -162,6 +198,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       }
     }
     getLocalCalls()
+    // Fetch subaccounts on component mount
+    getSubaccounts();
   }, [])
 
   useEffect(() => {
@@ -202,6 +240,12 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       return filter.values[0]; // Return status string directly
     }
 
+    if (filter.key === "filterUserId") {
+      // Find subaccount name from the list
+      const subaccount = subaccountList.find(sub => sub.id === filter.values[0]);
+      return subaccount ? (subaccount.name || subaccount.email || "Subaccount") : "Subaccount";
+    }
+
     return "";
   }
 
@@ -224,15 +268,29 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       });
     });
 
+    // Subaccount filter
+    if (selectedSubaccount) {
+      filters.push({
+        key: "filterUserId",
+        values: [selectedSubaccount.id],
+      });
+    }
+
     return filters;
   }
 
   //code for getting call log details
-  const getCallLogs = async (offset = null) => {
-    console.log("Getting call logs with offset:", offset);
+  const getCallLogs = async (offset = null, filterOverrides = {}) => {
+    console.log("Getting call logs with offset:", offset, "filterOverrides:", filterOverrides);
+
+    // Use override values if provided, otherwise use state values
+    const fromDate = filterOverrides.selectedFromDate !== undefined ? filterOverrides.selectedFromDate : selectedFromDate;
+    const toDate = filterOverrides.selectedToDate !== undefined ? filterOverrides.selectedToDate : selectedToDate;
+    const status = filterOverrides.selectedStatus !== undefined ? filterOverrides.selectedStatus : selectedStatus;
+    const subaccount = filterOverrides.selectedSubaccount !== undefined ? filterOverrides.selectedSubaccount : selectedSubaccount;
 
     // First, try to load from cache if this is the initial load and no filters are applied
-    const hasFilters = selectedFromDate || selectedToDate || selectedAgency || searchValue || selectedStatus.length > 0;
+    const hasFilters = fromDate || toDate || selectedAgency || subaccount || searchValue || status.length > 0;
 
     // if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
     //   const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
@@ -265,9 +323,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       let startDate = "";
       let endDate = "";
 
-      if (selectedFromDate && selectedToDate) {
-        startDate = moment(selectedFromDate).format("MM-DD-YYYY");
-        endDate = moment(selectedToDate).format("MM-DD-YYYY");
+      if (fromDate && toDate) {
+        startDate = moment(fromDate).format("MM-DD-YYYY");
+        endDate = moment(toDate).format("MM-DD-YYYY");
       }
 
       let ApiPath = null;
@@ -275,7 +333,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         offset = filteredCallDetails.length;
       }
 
-      if (selectedFromDate && selectedToDate) {
+      if (fromDate && toDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`;
@@ -284,16 +342,15 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       if (selectedAgency) {
         ApiPath = ApiPath + "&userId=" + selectedAgency.id
       }
+      if (subaccount) {
+        ApiPath = ApiPath + "&filterUserId=" + subaccount.id
+      }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
       }
 
-      if (selectedFromDate && selectedToDate) {
-        ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
-      }
-
-      if (selectedStatus.length > 0) {
-        ApiPath += `&status=${selectedStatus.join(",")}`;
+      if (status.length > 0) {
+        ApiPath += `&status=${status.join(",")}`;
       }
 
       console.log("API Path:", ApiPath);
@@ -422,6 +479,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         <button
           className="flex-shrink-0"
           onClick={() => {
+            setActiveTabWhenModalOpened(activeTab);
             setShowFilterModal(true);
           }}
         >
@@ -450,22 +508,40 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 <button
                   className="outline-none"
                   onClick={() => {
+                    console.log("filter.key", filter.key);
+
+                    // Calculate the updated filter values before updating state
+                    let updatedFromDate = selectedFromDate;
+                    let updatedToDate = selectedToDate;
+                    let updatedStatus = [...selectedStatus];
+                    let updatedSubaccount = selectedSubaccount;
+
                     if (filter.key === "date") {
+                      updatedFromDate = null;
+                      updatedToDate = null;
                       setSelectedFromDate(null);
                       setSelectedToDate(null);
                     } else if (filter.key === "status") {
-                      setSelectedStatus((prev) =>
-                        prev.filter((s) => s !== filter.values[0])
-                      );
+                      updatedStatus = selectedStatus.filter((s) => s !== filter.values[0]);
+                      setSelectedStatus(updatedStatus);
+                    } else if (filter.key === "filterUserId") {
+                      updatedSubaccount = null;
+                      setSelectedSubaccount(null);
                     }
 
-                    // Refresh Call Logs after filter removal
-                    setCallDetails([]);
-                    setFilteredCallDetails([]);
-                    setHasMore(true);
+                    // Refresh Call Logs after filter removal with updated filter values
                     setTimeout(() => {
-                      getCallLogs(0);
-                    }, 500);
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                      setHasMore(true);
+                      // Pass updated filter values explicitly to ensure API path is reset correctly
+                      getCallLogs(0, {
+                        selectedFromDate: updatedFromDate,
+                        selectedToDate: updatedToDate,
+                        selectedStatus: updatedStatus,
+                        selectedSubaccount: updatedSubaccount
+                      });
+                    }, 100);
                   }}
                 >
                   <Image
@@ -501,7 +577,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
       <div className="w-full">
         {activeTab === "Campaign Activities" ? (
-          <AdminDashboardActiveCall isFromAgency={isFromAgency} />
+          <AdminDashboardActiveCall
+            isFromAgency={isFromAgency}
+            selectedFromDate={selectedFromDate}
+            selectedToDate={selectedToDate}
+            selectedStatus={selectedStatus}
+            selectedAgency={selectedAgency}
+            onFiltersApplied={() => {
+              // This callback can be used to refresh if needed
+            }}
+          />
         ) : activeTab === "All Activities" ? (
           <div className="w-full">
             <div
@@ -881,47 +966,97 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    fontWeight: "500",
-                    fontSize: 12,
-                    color: "#00000060",
-                    marginTop: 10,
-                  }}
-                >
-                  Status
-                </div>
+                {/* Subaccount Filter - Only show for All Activities tab */}
+                {activeTabWhenModalOpened === "All Activities" && (
+                  <>
 
-                <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
-                  {statusList.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedStatus((prev) => {
-                          if (prev.includes(item.status)) {
-                            return prev.filter((s) => s !== item.status);
-                          } else {
-                            return [...prev, item.status];
-                          }
-                        });
-                      }}
-                    >
+                    isFromAgency && (
+                    <div className="w-full">
                       <div
-                        className="py-2 px-3 border rounded-full"
                         style={{
-                          color: selectedStatus.includes(item.status)
-                            ? "#fff"
-                            : "",
-                          backgroundColor: selectedStatus.includes(item.status)
-                            ? "#7902df"
-                            : "",
+                          fontWeight: "500",
+                          fontSize: 12,
+                          color: "#00000060",
+                          marginTop: 10,
                         }}
                       >
-                        {item.status}
+                        Sub Account
                       </div>
-                    </button>
-                  ))}
-                </div>
+                      <FormControl fullWidth className="mt-2">
+                        <Select
+                          value={selectedSubaccount?.id || ""}
+                          onChange={(e) => {
+                            const subaccountId = e.target.value;
+                            const subaccount = subaccountList.find(sub => sub.id === subaccountId);
+                            setSelectedSubaccount(subaccount || null);
+                          }}
+                          displayEmpty
+                          sx={{
+                            borderRadius: "8px",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              borderColor: "#00000020",
+                            },
+                          }}
+                        >
+                          <MenuItem value="">
+                            Select Sub Account
+                          </MenuItem>
+                          {subaccountList.map((subaccount) => (
+                            <MenuItem key={subaccount.id} value={subaccount.id}>
+                              {subaccount.name || subaccount.email || `Sub Account ${subaccount.id}`}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
+
+                    )
+
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      Status
+                    </div>
+
+                    <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
+                      {statusList.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setSelectedStatus((prev) => {
+                              if (prev.includes(item.status)) {
+                                return prev.filter((s) => s !== item.status);
+                              } else {
+                                return [...prev, item.status];
+                              }
+                            });
+                          }}
+                        >
+                          <div
+                            className="py-2 px-3 border rounded-full"
+                            style={{
+                              color: selectedStatus.includes(item.status)
+                                ? "#fff"
+                                : "",
+                              backgroundColor: selectedStatus.includes(item.status)
+                                ? "#7902df"
+                                : "",
+                            }}
+                          >
+                            {item.status}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+
               </div>
 
               <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
@@ -931,10 +1066,29 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   onClick={() => {
                     setSelectedFromDate(null);
                     setSelectedToDate(null);
-                    getLeads();
-                    // if (typeof window !== "undefined") {
-                    //   window.location.reload();
-                    // }
+                    setSelectedStatus([]);
+                    setSelectedSubaccount(null);
+                    setShowFilterModal(false);
+
+                    // Reset filters for the active tab when modal was opened
+                    if (activeTabWhenModalOpened === "Campaign Activities") {
+                      // For Campaign Activities, filters are passed as props, so resetting them will trigger refresh
+                      // Reset state
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                    } else {
+                      // For All Activities - pass empty filter values explicitly
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                      setHasMore(true);
+                      // Pass empty filter values to ensure API path is reset correctly
+                      getCallLogs(0, {
+                        selectedFromDate: null,
+                        selectedToDate: null,
+                        selectedStatus: [],
+                        selectedSubaccount: null
+                      });
+                    }
                   }}
                 >
                   Reset
@@ -949,7 +1103,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                          selectedStatus.length > 0
+                          selectedStatus.length > 0 ||
+                          selectedSubaccount
                           ? ""
                           : "#00000050",
                     }}
@@ -957,15 +1112,32 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       // //console.log;
                       if (
                         (selectedFromDate && selectedToDate) ||
-                        selectedStatus.length > 0
+                        selectedStatus.length > 0 ||
+                        selectedSubaccount
                       ) {
                         localStorage.removeItem("callDetails");
                         setInitialLoader(true);
-                        setCallDetails([]);
-                        setFilteredCallDetails([]);
-                        setHasMore(true);
                         setShowFilterModal(false);
-                        getCallLogs(0);
+
+                        // Apply filter based on which tab was active when modal opened
+                        if (activeTabWhenModalOpened === "Campaign Activities") {
+                          // For Campaign Activities, the filter will be applied via props passed to AdminDashboardActiveCall
+                          // Trigger a refresh by resetting the component state
+                          setCallDetails([]);
+                          setFilteredCallDetails([]);
+                        } else {
+                          // For All Activities, call getCallLogs with current filter values
+                          setCallDetails([]);
+                          setFilteredCallDetails([]);
+                          setHasMore(true);
+                          // Pass current filter values explicitly to ensure API uses correct filters
+                          getCallLogs(0, {
+                            selectedFromDate,
+                            selectedToDate,
+                            selectedStatus,
+                            selectedSubaccount
+                          });
+                        }
                       } else {
                         // //console.log;
                       }

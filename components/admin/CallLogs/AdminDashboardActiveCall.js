@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
@@ -12,7 +12,15 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { getReadableStatus } from "@/utilities/UserUtility";
 
-function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
+function AdminDashboardActiveCall({ 
+  isFromAgency, 
+  selectedUser,
+  selectedFromDate,
+  selectedToDate,
+  selectedStatus = [],
+  selectedAgency,
+  onFiltersApplied
+}) {
   const Limit = 30;
   const LimitPerPage = 20;
   const [user, setUser] = useState(null);
@@ -58,12 +66,20 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
   const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
 
   let sortData = { sort: "", sortOrder: "" };
+  
+  // Use ref to track initial mount and previous filter values
+  const isInitialMount = useRef(true);
+  const prevFilters = useRef({ selectedFromDate, selectedToDate, selectedStatus, selectedAgency });
 
   useEffect(() => {
     getAgents({
       length: "",
       isPagination: false,
-      sortData: null
+      sortData: null,
+      selectedFromDate,
+      selectedToDate,
+      selectedStatus,
+      selectedAgency
     });
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (localD) {
@@ -71,7 +87,43 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
       setUser(d);
     }
     // getSheduledCallLogs();
+    isInitialMount.current = false;
   }, []);
+
+  // Refetch when filters change (skip initial mount)
+  useEffect(() => {
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      prevFilters.current = { selectedFromDate, selectedToDate, selectedStatus, selectedAgency };
+      return;
+    }
+
+    // Check if filters actually changed
+    const filtersChanged = 
+      prevFilters.current.selectedFromDate !== selectedFromDate ||
+      prevFilters.current.selectedToDate !== selectedToDate ||
+      JSON.stringify(prevFilters.current.selectedStatus || []) !== JSON.stringify(selectedStatus || []) ||
+      prevFilters.current.selectedAgency?.id !== selectedAgency?.id;
+
+    // Refetch if filters changed (either added or cleared)
+    if (filtersChanged) {
+      setInitialLoader(true);
+      setFilteredAgentsList([]);
+      setCallDetails([]);
+      setAgentsList([]);
+      setHasMore(true);
+      getAgents({
+        length: 0,
+        isPagination: false,
+        sortData: null,
+        selectedFromDate,
+        selectedToDate,
+        selectedStatus,
+        selectedAgency
+      });
+      prevFilters.current = { selectedFromDate, selectedToDate, selectedStatus, selectedAgency };
+    }
+  }, [selectedFromDate, selectedToDate, selectedStatus, selectedAgency]);
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
@@ -143,8 +195,12 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
   const getAgents = async (passedData) => {
     console.log("Data passed is", passedData);
 
-    // Check if we should load from cache (initial load with no pagination or sorting)
-    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && !passedData?.isPagination;
+    // Check if we should load from cache (initial load with no pagination, sorting, or filters)
+    const hasFilters = passedData?.selectedFromDate || passedData?.selectedToDate || 
+                      (passedData?.selectedStatus && passedData.selectedStatus.length > 0) || 
+                      passedData?.selectedAgency;
+    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && 
+                                !passedData?.isPagination && !hasFilters;
 
     if (shouldLoadFromCache) {
       const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
@@ -174,9 +230,28 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
       const token = AuthToken();
       if (!token) return;
       let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}&scheduled=false`
+      
       if (passedData?.sortData) {
         ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
       }
+      
+      // Add date filters
+      if (passedData?.selectedFromDate && passedData?.selectedToDate) {
+        const startDate = moment(passedData.selectedFromDate).format("MM-DD-YYYY");
+        const endDate = moment(passedData.selectedToDate).format("MM-DD-YYYY");
+        ApiPath += `&startDate=${startDate}&endDate=${endDate}`;
+      }
+      
+      // Add status filters
+      if (passedData?.selectedStatus && passedData.selectedStatus.length > 0) {
+        ApiPath += `&status=${passedData.selectedStatus.join(",")}`;
+      }
+      
+      // Add agency filter (userId)
+      if (passedData?.selectedAgency) {
+        ApiPath += `&userId=${passedData.selectedAgency.id}`;
+      }
+      
       console.log("Api path is", ApiPath);
 
       const response = await axios.get(ApiPath, {
@@ -212,9 +287,14 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
         setLoading(false);
 
         // Save to cache only for initial load (no pagination, sorting, or filters)
-        if (shouldLoadFromCache) {
+        if (shouldLoadFromCache && !hasFilters) {
           localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
           console.log("Saved call activities to cache:", agents.length, "items");
+        }
+        
+        // Notify parent if callback is provided
+        if (onFiltersApplied && hasFilters) {
+          onFiltersApplied();
         }
 
         if (agents.length < LimitPerPage) {
@@ -701,7 +781,11 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                   getAgents({
                     length: filteredAgentsList.length,
                     isPagination: true,
-                    sortData: null
+                    sortData: null,
+                    selectedFromDate,
+                    selectedToDate,
+                    selectedStatus,
+                    selectedAgency
                   });
                 }
 
@@ -757,7 +841,11 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                           getAgents({
                             length: 0,
                             isPagination: false,
-                            sortData: sortData
+                            sortData: sortData,
+                            selectedFromDate,
+                            selectedToDate,
+                            selectedStatus,
+                            selectedAgency
                           });
                         }}
                       >
@@ -799,7 +887,11 @@ function AdminDashboardActiveCall({ isFromAgency,selectedUser }) {
                           getAgents({
                             length: 0,
                             isPagination: false,
-                            sortData: sortData
+                            sortData: sortData,
+                            selectedFromDate,
+                            selectedToDate,
+                            selectedStatus,
+                            selectedAgency
                           });
                         }}
                       >
