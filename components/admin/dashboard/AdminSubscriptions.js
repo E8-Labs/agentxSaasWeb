@@ -108,9 +108,10 @@ function AdminSubscriptions() {
       Plan720: analyticData?.planSubscriptionStats?.Plan720?.[dateKey] || 0,
     };
   });
-  const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
-    return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
-  }, 0);
+  const totalNewSubscriptions = subscriptionChartData.newSubscriptions || '-'
+  // .reduce((total, monthData) => {
+  //   return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
+  // }, 0);
 
   //console.log;
 
@@ -418,7 +419,7 @@ function AdminSubscriptions() {
                     <div
                       style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                     >
-                      {totalNewSubscriptions}
+                      {analyticData?.newSubscriptions || '='}
                     </div>
                   </div>
 
