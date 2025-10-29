@@ -77,7 +77,7 @@ const FeatureLine = ({
                             sx: {
                                 backgroundColor: "#ffffff",
                                 color: "#333",
-                                fontSize: "14px",
+                                fontSize: "10px",
                                 padding: "10px 15px",
                                 borderRadius: "8px",
                                 boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",

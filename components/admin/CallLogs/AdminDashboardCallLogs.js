@@ -969,48 +969,48 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 {/* Subaccount Filter - Only show for All Activities tab */}
                 {activeTabWhenModalOpened === "All Activities" && (
                   <>
+                    {
+                      isFromAgency && (
+                        <div className="w-full">
+                          <div
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 12,
+                              color: "#00000060",
+                              marginTop: 10,
+                            }}
+                          >
+                            Sub Account
+                          </div>
+                          <FormControl fullWidth className="mt-2">
+                            <Select
+                              value={selectedSubaccount?.id || ""}
+                              onChange={(e) => {
+                                const subaccountId = e.target.value;
+                                const subaccount = subaccountList.find(sub => sub.id === subaccountId);
+                                setSelectedSubaccount(subaccount || null);
+                              }}
+                              displayEmpty
+                              sx={{
+                                borderRadius: "8px",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  borderColor: "#00000020",
+                                },
+                              }}
+                            >
+                              <MenuItem value="">
+                                Select Sub Account
+                              </MenuItem>
+                              {subaccountList.map((subaccount) => (
+                                <MenuItem key={subaccount.id} value={subaccount.id}>
+                                  {subaccount.name || subaccount.email || `Sub Account ${subaccount.id}`}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </div>
 
-                    isFromAgency && (
-                    <div className="w-full">
-                      <div
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 12,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Sub Account
-                      </div>
-                      <FormControl fullWidth className="mt-2">
-                        <Select
-                          value={selectedSubaccount?.id || ""}
-                          onChange={(e) => {
-                            const subaccountId = e.target.value;
-                            const subaccount = subaccountList.find(sub => sub.id === subaccountId);
-                            setSelectedSubaccount(subaccount || null);
-                          }}
-                          displayEmpty
-                          sx={{
-                            borderRadius: "8px",
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              borderColor: "#00000020",
-                            },
-                          }}
-                        >
-                          <MenuItem value="">
-                            Select Sub Account
-                          </MenuItem>
-                          {subaccountList.map((subaccount) => (
-                            <MenuItem key={subaccount.id} value={subaccount.id}>
-                              {subaccount.name || subaccount.email || `Sub Account ${subaccount.id}`}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
-
-                    )
+                      )}
 
                     <div
                       style={{
