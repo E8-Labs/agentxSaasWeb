@@ -36,20 +36,22 @@ function LeadScoring({
                 agentId: showDrawerSelectedAgent?.id,
                 setTemplates: setTemplates,
                 setTemplatesLoading: setTemplatesLoading,
-                setSelectedTemplate: (templateId) => {
-                    console.log('Setting selected template in LeadScoring:', templateId);
-                    setSelectedTemplate(templateId);
-                }
             });
 
             // Also fetch agent's current scoring template
             fetchAgentScoring();
         }
-    }, [activeTab, showDrawerSelectedAgent?.id]);
+    }, [activeTab, showDrawerSelectedAgent?.id, showDrawerSelectedAgent?.template]);
 
     // Fetch agent's current scoring configuration
     const fetchAgentScoring = async () => {
         if (!showDrawerSelectedAgent?.id) return;
+
+        // Check if agent has a template object nested within it
+        if (showDrawerSelectedAgent?.template?.id) {
+            setSelectedTemplate(showDrawerSelectedAgent.template.id);
+            return;
+        }
 
         try {
             const token = AuthToken();
@@ -125,15 +127,11 @@ function LeadScoring({
                     showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
                     fetchAgentScoring(); // Refresh agent's current scoring
 
-                    // Refresh templates and agent scoring after applying
+                    // Refresh templates after applying
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
-                        setSelectedTemplate: (templateId) => {
-                            console.log('Setting selected template in LeadScoring:', templateId);
-                            setSelectedTemplate(templateId);
-                        }
                     });
                 } else {
                     showSnackbar('Error', response.data.message || 'Failed to apply template', SnackbarTypes.Error);
@@ -290,10 +288,6 @@ function LeadScoring({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
-                        setSelectedTemplate: (templateId) => {
-                            console.log('Setting selected template in LeadScoring:', templateId);
-                            setSelectedTemplate(templateId);
-                        }
                     });
                     fetchAgentScoring();
                     // Reset editing state

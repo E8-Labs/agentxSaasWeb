@@ -8,7 +8,6 @@ export const fetchTemplates = async ({
     agentId,
     setTemplates,
     setTemplatesLoading,
-    setSelectedTemplate = null, // Optional callback to set selected template
 }) => {
   if (!agentId) return;
 
@@ -49,19 +48,8 @@ export const fetchTemplates = async ({
 
     setTemplates(templates);
 
-    // Check if any template belongs to the current agent and set it as selected
-    if (setSelectedTemplate && templates.length > 0) {
-      const agentTemplate = templates.find(template =>
-        template.agentId === agentId || template.agentId === parseInt(agentId)
-      );
-
-      if (agentTemplate) {
-        console.log('Found agent template:', agentTemplate);
-        setSelectedTemplate(agentTemplate.id);
-      } else {
-        console.log('No template found for agent:', agentId);
-      }
-    }
+    // Note: Template selection is now determined by the agent's nested template object
+    // No need to find templates by agentId anymore
 
   } catch (error) {
     console.error("Error fetching templates:", error);
