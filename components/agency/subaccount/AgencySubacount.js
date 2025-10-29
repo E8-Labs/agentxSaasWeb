@@ -347,6 +347,7 @@ function AgencySubacount({
 
   //get clor of profile status
   const getProfileStatus = (status) => {
+
     if (status.profile_status === "paused") {
       return (
         <div style={{ color: "orange" }}>
@@ -359,7 +360,7 @@ function AgencySubacount({
           Deleted
         </div>
       )
-    } else if (status.profile_status === "active") {
+    } else if (status.profile_status === "active" && status.plan) {
       return (
         <div className="text-green">
           Active
