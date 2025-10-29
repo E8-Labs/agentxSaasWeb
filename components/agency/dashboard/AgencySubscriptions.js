@@ -290,7 +290,7 @@ function AgencySubscriptions({
   };
 
   return (
-    analyticData ? (
+    analyticData?.totalSubscriptions? (
       <div
         className="flex flex-col items-center justify-center w-full h-[88vh]"
         style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "40rem" }}
@@ -418,14 +418,11 @@ function AgencySubscriptions({
                       <div
                         style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                       >
-                        {totalNewSubscriptions}
+                        {analyticData?.newSubscriptions}
                       </div>
                     </div>
 
                     <div className="w-full flex flex-row items-center gap-4 justify-end">
-
-
-
                     </div>
                   </div>
                 </div>
@@ -879,7 +876,7 @@ function AgencySubscriptions({
             </div>
           </div>
 
-          <div className="w-full flex flex-row items-center gap-3">
+          <div className="w-full flex flex-row items-center gap-3 mb-6">
             <div
               style={{ border: "2px solid white" }}
               className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
@@ -1004,79 +1001,6 @@ function AgencySubscriptions({
             </div>
           </div>
 
-          <div style={{ fontSize: 48, fontWeight: "300", marginTop: 20 }}>
-            Customer Acquistion
-          </div>
-
-          <div className="w-full flex flex-row items-center gap-3 mb-10">
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">CAC</h3>
-
-              </div>
-
-              {/* Value */}
-              <div
-                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-              >
-                $802
-              </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                Customer Acquisition Cost
-              </div>
-            </div>
-
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <div className="h-[30px] w-[30px] rounded-full flex flex-col bg-white items-center justify-center">
-                  <Image
-                    src={"/svgIcons/purpleClockIcon.svg"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </div>
-
-
-              </div>
-
-              {/* Value */}
-              <div
-                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-              >
-                $802
-              </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                CAC Payback Period
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Custom range popup */}

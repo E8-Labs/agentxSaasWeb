@@ -545,7 +545,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       setIsVisible(true)
       setMsgType(SnackbarTypes.Error)
       return
-    } 
+    }
     // return
     try {
       setBuildAgentLoader(true);
@@ -867,6 +867,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
                   </div>
                 </Popover>
+                <div className="text-[12px] font-[400] w-full mt-1 pe-4" style={{
+                  textAlign: 'end',
+                  color: '#00000060'
+                }}>
+                  {agentName.length}/40
+                </div>
                 <input
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                   className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
@@ -874,6 +880,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   autoCorrect="off"
                   spellCheck="false"
                   enterKeyHint="done"
+                  maxLength={40}
                   style={{
                     ...styles.inputStyle,
                     border: "1px solid #00000020",
@@ -883,6 +890,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     setAgentName(e.target.value);
                   }}
                 />
+
 
                 <div className="mt-2" style={styles.headingStyle}>
                   {`What's this AI agent's task?`}
@@ -1083,11 +1091,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
                           console.log('Retrying pending selection with new plan limits...');
-                          
+
                           // Check if user is still on free plan after upgrade
                           const updatedUserData = reduxUser || user;
                           const isStillFreePlan = (() => {
-                            if(updatedUserData?.user?.plan?.price === 0) return true;
+                            if (updatedUserData?.user?.plan?.price === 0) return true;
                             return false;
                           })
 
@@ -1158,9 +1166,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 <UpgradePlan
                   open={showUpgradePlanModal}
-                  setSelectedPlan={()=>{
+                  setSelectedPlan={() => {
                     console.log("setSelectedPlan is called")
-                    }}
+                  }}
                   handleClose={async (result) => {
                     console.log("🔥 HANDLECLOSE CALLED WITH RESULT:", result);
                     console.log("🔥 HANDLECLOSE FUNCTION STARTED");
@@ -1178,7 +1186,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
                             console.log('Retrying pending selection with new plan limits...');
-                            
+
                             // Check if user is still on free plan after upgrade
                             const updatedUserData = reduxUser || user;
                             const isStillFreePlan = (() => {

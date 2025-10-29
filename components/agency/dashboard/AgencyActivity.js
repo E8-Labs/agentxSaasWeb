@@ -180,7 +180,7 @@ function AgencyActivity({
   }
 
   return (
-    stats ? (
+    stats?.totalUsers > 0 ? (
       <div
         className=" flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 "
         style={{ overflow: "auto", scrollbarWidth: "none" }}

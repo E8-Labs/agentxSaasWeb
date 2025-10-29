@@ -155,13 +155,10 @@ const ConfigureSideUI = ({
                                                                                 sx: {
                                                                                     backgroundColor: "#ffffff", // Ensure white background
                                                                                     color: "#333", // Dark text color
-                                                                                    fontSize: "12px",
+                                                                                    fontSize: "10px",
                                                                                     padding: "10px 15px",
                                                                                     borderRadius: "8px",
                                                                                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                                                                    width: "auto",
-                                                                                    whiteSpace: "nowrap",
-                                                                                    maxWidth: "none",
                                                                                 },
                                                                             },
                                                                             arrow: {

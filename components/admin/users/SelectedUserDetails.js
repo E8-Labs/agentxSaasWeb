@@ -318,7 +318,7 @@ function SelectedUserDetails({
                     }
 
 
-                    <div className='flex flex-row items-start w-full'>
+                    <div className='flex flex-row items-start w-full pt-4'>
                         <div className='flex flex-col items-start justify-center w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                             <div className='flex flex-row gap-2 items-center justify-start w-full'>
                                 <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
