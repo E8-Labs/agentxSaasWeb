@@ -19,6 +19,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import Image from "next/image";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 export default function DncConfirmationPopup({
   open,
@@ -123,7 +124,7 @@ export default function DncConfirmationPopup({
           >
             <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
             <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`DNC Checklist is $${creditCost?.pricePerLead||0}/number.`}
+              {`DNC Checklist is $${formatFractional2(creditCost?.pricePerLead||0)}/number.`}
             </Typography>
           </Box>
           <Box
@@ -173,7 +174,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${(creditCost?.pricePerLead||0).toFixed(2)}
+              ${formatFractional2(creditCost?.pricePerLead||0)}
             </Typography>
           </Box>
 
