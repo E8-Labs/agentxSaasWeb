@@ -232,6 +232,16 @@ const DashboardSlider = ({
             image2: "/otherAssets/billingIconBlue.png",
           });
         }
+        
+        if (Data.resourceHub) {
+          dynamicButtons.push({
+            id: crypto.randomUUID(),
+            label: Data.resourceHubTitle || "Resource Hub",
+            url: Data.resourceHubUrl,
+            image: "/otherAssets/resourceHubBlack.jpg",
+            image2: "/otherAssets/resourceHubBlue.jpg",
+          });
+        }
 
         // Replace static array with API-driven buttons
         setButtons(dynamicButtons);
