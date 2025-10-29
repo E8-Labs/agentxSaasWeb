@@ -4,6 +4,7 @@
 let BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
+    // : "http://localhost:8003/"
     : "https://apimyagentx.com/agentxtest/"//"https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
 
 // Plans API Base URL (temporary ngrok URL)

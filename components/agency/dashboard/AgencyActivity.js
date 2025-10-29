@@ -132,8 +132,9 @@ function AgencyActivity({
             alt="Icon"
             className="cursor-pointer h-20  -ml-2 -mt-3"
           />
-          {count != "" &&
-            percentage != "" && (
+          {/* Show both count and percentage when both are valid (including count=0) */}
+          {((typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
+            (percentage !== "" && percentage !== null && percentage !== undefined)) && (
               <div className="cursor-pointer flex flex-col mr-2 items-end">
                 <div
                   className="cursor-pointer font-light"
@@ -150,9 +151,9 @@ function AgencyActivity({
                 </p>
               </div>
             )}
-          {(
-            count == "" ||
-            percentage == "") && (
+          {/* Show single value (count or percentage) when only one exists */}
+          {(!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ||
+            !(percentage !== "" && percentage !== null && percentage !== undefined)) && (
               <div className="cursor-pointer flex flex-col mr-2 items-end">
                 <h2
                   className="cursor-pointer font-light"
@@ -162,12 +163,18 @@ function AgencyActivity({
                     fontWeight: "bold",
                   }}
                 >
-                  {count == "" ? percentage : count}
-                  {count == "" ? "%" : ""}
+                  {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) 
+                    ? count 
+                    : percentage}
+                  {!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ? "%" : ""}
                 </h2>
-                <p className="cursor-pointer text-gray-500 text-lg">
-                  {percentage}%
-                </p>
+                {/* Only show percentage below if we're showing count above */}
+                {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
+                 (percentage !== "" && percentage !== null && percentage !== undefined) && (
+                  <p className="cursor-pointer text-gray-500 text-lg">
+                    {percentage}%
+                  </p>
+                )}
               </div>
             )}
         </div>
@@ -352,8 +359,8 @@ function AgencyActivity({
           >
             {GetStatView(
               "> 2 agents",
-              stats?.pipelineUsers.percentage,
-              stats?.pipelineUsers.count,
+              stats?.agentUsers.percentage,
+              stats?.agentUsers.count,
               "/mt2agentsicon.png"
             )}
           </button>
@@ -365,8 +372,8 @@ function AgencyActivity({
           >
             {GetStatView(
               "> 1 pipeline",
-              stats?.agentUsers.percentage,
-              stats?.agentUsers.count,
+              stats?.pipelineUsers.percentage,
+              stats?.pipelineUsers.count,
               "/mt1pipelineicon.png"
             )}
           </button>

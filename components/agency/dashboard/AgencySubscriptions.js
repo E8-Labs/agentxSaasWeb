@@ -710,7 +710,7 @@ function AgencySubscriptions({
             </div>
 
             <div className="flex w-4/12 flex-col gap-3">
-              <div
+              {/* <div
                 style={{ border: "2px solid white" }}
                 className="
                             flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
@@ -852,7 +852,7 @@ function AgencySubscriptions({
 
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div
                 style={{ border: "2px solid white" }}
