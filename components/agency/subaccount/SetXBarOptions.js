@@ -155,7 +155,7 @@ export default function SetXBarOptions({
                             >
                                 <div className="w-[80%]">
                                     <h3 className="font-semibold text-gray-900">
-                                        {plan.title} | {plan.minutes || "X"}mins
+                                        {plan.title} | {plan.minutes || "X"} Credits
                                     </h3>
                                     <p className="text-sm text-gray-500">{plan.planDescription}</p>
                                     <p className="mt-1 font-medium text-lg text-gray-800">
