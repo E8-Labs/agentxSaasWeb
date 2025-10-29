@@ -123,7 +123,7 @@ export default function DncConfirmationPopup({
           >
             <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
             <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`DNC Checklist is $${creditCost?.pricePerLead||0}/number.`}
+              {`DNC Checklist is $${formatDecimalValue(creditCost?.pricePerLead||0)}/number.`}
             </Typography>
           </Box>
           <Box
@@ -173,7 +173,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${(creditCost?.pricePerLead||0).toFixed(2)}
+              ${formatFractional2(creditCost?.pricePerLead||0)}
             </Typography>
           </Box>
 

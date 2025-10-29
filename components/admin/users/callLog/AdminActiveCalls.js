@@ -668,7 +668,7 @@ function AdminActiveCalls({ selectedUser }) {
               }
 
             }} // Fetch more when scrolled
-            hasMore={hasMore} // Check if there's more data
+            hasMore={hasMoreCalls} // Check if there's more data
             loader={
 
               <div className="w-full flex flex-row justify-center mt-8">
