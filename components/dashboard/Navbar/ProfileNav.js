@@ -514,6 +514,35 @@ const ProfileNav = () => {
     };
   }, []);
 
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    try {
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
+      return false;
+    }
+  };
   // Event listener for lead upload status
   useEffect(() => {
     const handleLeadUploadStart = (event) => {
@@ -1087,31 +1116,8 @@ const ProfileNav = () => {
   };
 
   const resumeAccount = async () => {
-    setLoading(true);
-
-    try {
-      let AuthToken = AuthToken();
-      const response = await axios.post(Apis.resumeSubscription, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.data.status === true) {
-        setShowSuccessSnack(true);
-        setSuccessSnack(response.data.message);
-        await getProfile();
-        setShowPlanPausedBar(false);
-      } else {
-        setShowErrorSnack(true);
-        setErrorSnack(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error occured in api is:", error);
-    } finally {
-      setLoading(false);
-    }
-
+    console.log("resumeAccount")
+   
   }
 
   const SnackBarForUpgradePlan = (Data) => {
@@ -1146,10 +1152,18 @@ const ProfileNav = () => {
             <>
               {
 
-                showUpgradePlanBar ? (
-                  <div style={{ fontSize: 13, fontWeight: '700', }}>
-                    {userDetails?.user?.plan?.price === 0 ? "You're out of Free AI Credits." :
-                      `Action Needed! Your AI agents are paused. You don't have enough credits.`}
+                showUpgradePlanBar && userDetails?.user?.plan?.price === 0 ? (
+                  <div className="flex flex-col">
+                    <div style={{ fontSize: 13, fontWeight: '700', }}>
+                      You're out of Free AI Credits.<span className="text-purple underline cursor-pointer" onClick={() => {
+                        setShowUpgradePlanModal2(true)
+                      }}>
+                        Upgrade
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
+                      Please upgrade or wait until your renewal date.
+                    </div>
                   </div>
                 ) : (
                   showUpgradePlanBar ? (
@@ -1757,28 +1771,28 @@ const ProfileNav = () => {
           </Box>
         </Modal>
 
-        {/* UpgradePlan Modal */}
-        <Elements stripe={stripePromise}>
-          <UpgradePlan
-            setSelectedPlan={() => {
-              console.log("setSelectedPlan is called")
-            }}
-            currentFullPlan={userDetails?.user?.plan}
-            open={showUpgradePlanModal2}
-            handleClose={(upgradeResult) => {
-              setShowUpgradePlanModal2(false)
-              if (upgradeResult) {
-                getProfile()
-              }
-            }}
-            setShowSnackMsg={() => {
-              console.log("setShowSnackMsg is called")
-            }}
-          />
-        </Elements>
-      </div>
+      {/* UpgradePlan Modal */}
+      <Elements stripe={stripePromise}>
+        <UpgradePlan
+          setSelectedPlan={() => {
+            console.log("setSelectedPlan is called")
+          }}
+          currentFullPlan={userDetails?.user?.plan}
+          open={showUpgradePlanModal2}
+          handleClose={(upgradeResult) => {
+            setShowUpgradePlanModal2(false)
+            if (upgradeResult) {
+              getProfile()
+            }
+          }}
+          setShowSnackMsg={() => {
+            console.log("setShowSnackMsg is called")
+          }}
+        />
+      </Elements>
     </div>
-  );
+  </div>
+);
 };
 
 export default ProfileNav;

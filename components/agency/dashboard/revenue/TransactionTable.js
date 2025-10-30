@@ -170,7 +170,7 @@ function TransactionTable({ data = [], onSearch }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[1600px] overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow className="border-b border-gray-200">

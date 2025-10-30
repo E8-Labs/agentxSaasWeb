@@ -5294,6 +5294,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                     activeTab={activeTab}
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
+                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                   />
 
                   {/* Calendar Section 

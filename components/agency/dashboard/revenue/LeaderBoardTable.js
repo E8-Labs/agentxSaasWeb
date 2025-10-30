@@ -4,6 +4,13 @@ import React from "react";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -20,6 +27,7 @@ import { cn } from "@/lib/utils";
  * @param {Function} props.onSeeAll - Callback when "See All" is clicked
  */
 function LeaderBoardTable({ data = [], onSeeAll }) {
+  const [open, setOpen] = React.useState(false);
   // Default sample data
   const defaultData = [
     {
@@ -100,15 +108,60 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
             </CardTitle>
             <p className="text-sm text-gray-500 mt-1">Top 5 Account</p>
           </div>
-          {onSeeAll && (
-            <button
-              onClick={onSeeAll}
-              className="text-sm font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1"
-            >
-              See All
-              <span>→</span>
-            </button>
-          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button
+                onClick={() => { setOpen(true); if (onSeeAll) onSeeAll(); }}
+                className="text-sm font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1"
+              >
+                See All
+                <span>→</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl w-[90vw]">
+              <DialogHeader>
+                <DialogTitle>All accounts</DialogTitle>
+              </DialogHeader>
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-gray-200">
+                      <TableHead className="text-gray-600 font-medium">Rank</TableHead>
+                      <TableHead className="text-gray-600 font-medium">Account</TableHead>
+                      <TableHead className="text-gray-600 font-medium">Revenue</TableHead>
+                      <TableHead className="text-gray-600 font-medium">MRR</TableHead>
+                      <TableHead className="text-gray-600 font-medium">Net Revenue</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {leaderboardData.map((item) => (
+                      <TableRow key={`all-${item.rank}`} className="border-b border-gray-100">
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{getMedalIcon(item.rank)}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                              style={{ backgroundColor: getAccountIconColor(item.rank) }}
+                            >
+                              {item.accountIcon || item.rank}
+                            </div>
+                            <span className="text-sm font-medium text-gray-900">{item.accountName}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.revenue}</TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.mrr}</TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.netRevenue}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardHeader>
       <CardContent>
