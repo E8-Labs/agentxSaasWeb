@@ -11,6 +11,8 @@ import NoActionView from './NoActionView';
 function LeadScoring({
     showDrawerSelectedAgent,
     activeTab,
+    setUserDetails,
+    setShowDrawerSelectedAgent,
 }) {
 
 
@@ -298,6 +300,25 @@ function LeadScoring({
                     console.log('Template created/updated:', templateData);
                     // Refresh templates after creation/update
                     showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
+                    const newId = templateData?.data?.scoringConfiguration?.id ?? templateData?.data?.scoringConfiguration?.templateId;
+                    console.log("newId", newId)
+                    if (newId) {
+                        setSelectedTemplate(String(newId));
+                    }
+                    if(!editingTemplate){
+                        setShowDrawerSelectedAgent(prev => ({ ...prev, template: templateData.data.scoringConfig }));
+                        if (typeof setUserDetails === 'function') {
+                            setUserDetails(prev => {
+                                if (!Array.isArray(prev)) return prev;
+                                return prev.map(agent => {
+                                    if (agent?.id === showDrawerSelectedAgent?.id) {
+                                        return { ...agent, template: templateData.data.scoringConfig };
+                                    }
+                                    return agent;
+                                });
+                            });
+                        }
+                    }
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,

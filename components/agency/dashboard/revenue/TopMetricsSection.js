@@ -44,9 +44,11 @@ function TopMetricsSection({ metrics = {} }) {
   return (
     <div
       className="w-full flex flex-row gap-4 p-6 rounded-lg"
+      // add background image
       style={{
-        background:
-          "linear-gradient(135deg, #8E24AA 0%, #BA68C8 50%, #CE93D8 100%)",
+        backgroundImage: "url('/otherAssets/revenueBg.svg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <MetricCard label="Total Revenue" value={totalRevenue} />
