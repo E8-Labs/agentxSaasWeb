@@ -38,7 +38,7 @@ import socketService from "@/utilities/SocketService";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { AuthToken, AuthToken, AuthToken, AuthToken } from "@/components/agency/plan/AuthDetails";
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
@@ -49,6 +49,7 @@ import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -107,7 +108,7 @@ const ProfileNav = () => {
   const [showUpgradePlanModal2, setShowUpgradePlanModal2] = useState(false);
   const [showLowMinsModal, setShowLowMinsModal] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     console.log("Search url is", pathname);
     if (pathname === '/dashboard') {
@@ -1087,8 +1088,31 @@ const ProfileNav = () => {
   };
 
   const resumeAccount = async () => {
-    console.log("resumeAccount")
-   
+    setLoading(true);
+
+    try {
+      let AuthToken = AuthToken();
+      const response = await axios.post(Apis.resumeSubscription, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.data.status === true) {
+        setShowSuccessSnack(true);
+        setSuccessSnack(response.data.message);
+        await getProfile();
+        setShowPlanPausedBar(false);
+      } else {
+        setShowErrorSnack(true);
+        setErrorSnack(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error occured in api is:", error);
+    } finally {
+      setLoading(false);
+    }
+
   }
 
   const SnackBarForUpgradePlan = (Data) => {
@@ -1115,7 +1139,7 @@ const ProfileNav = () => {
                 onClick={() => {
                   resumeAccount()
                 }}
-              > Resume
+              > {loading ? <CircularProgress size={20} /> : "Resume"}
               </span>
             </div>
 
@@ -1181,262 +1205,262 @@ const ProfileNav = () => {
     )
   }
 
-return (
-  <div>
-    <AgentSelectSnackMessage
-      isVisible={showsuccessSnack}
-      hide={() => setShowSuccessSnack(false)}
-      message={successSnack}
-      type={SnackbarTypes.Success}
-    />
-    <AgentSelectSnackMessage
-      isVisible={showerrorSnack}
-      hide={() => setShowErrorSnack(false)}
-      message={errorSnack}
-      type={SnackbarTypes.Error}
-    />
+  return (
+    <div>
+      <AgentSelectSnackMessage
+        isVisible={showsuccessSnack}
+        hide={() => setShowSuccessSnack(false)}
+        message={successSnack}
+        type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={showerrorSnack}
+        hide={() => setShowErrorSnack(false)}
+        message={errorSnack}
+        type={SnackbarTypes.Error}
+      />
 
-    {/* For Walkthrough Watched Popup */}
-    {/* Intro modal */}
-    <IntroVideoModal
-      open={walkthroughWatched}
-      onClose={() => setWalkthroughWatched(false)}
-      videoTitle="Welcome to AssignX"
-      videoDescription="This short video will show you where everything is. Enjoy!"
-      videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
-      showLoader={updateProfileLoader}
-    />
+      {/* For Walkthrough Watched Popup */}
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={walkthroughWatched}
+        onClose={() => setWalkthroughWatched(false)}
+        videoTitle="Welcome to AssignX"
+        videoDescription="This short video will show you where everything is. Enjoy!"
+        videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
+        showLoader={updateProfileLoader}
+      />
 
-    <div className="w-full flex flex-col items-center justify-between h-screen">
-      <div
-        className="w-full pt-5 flex flex-col items-center"
-        style={{
-          // height: "90vh",
-          overflow: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <div className="w-full flex flex-row gap-3 items-center justify-center">
-          <div className="w-11/12">
-            <Image
-              src={"/assets/assignX.png"}
-              alt="profile"
-              height={33}
-              width={140}
-              objectFit="contain"
-            />
-          </div>
-        </div>
-
-        <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {showLinks().map((item) => (
-            <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-              <Link
-                sx={{
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  "&:hover": {
-                    textDecoration: "none"
-                  }
-                }}
-                href={item.href}
-                underline="none"
-              // onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
-                >
-                  <Image
-                    src={
-                      pathname === item.href
-                        ? item.selected
-                        : item.uneselected
-                    }
-                    height={item.name === "Activity" ? 16 : 24}
-                    width={item.name === "Activity" ? 16 : 24}
-                    alt="icon"
-                  />
-                  <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
-                  >
-                    {item.name}
-                  </div>
-                </div>
-              </Link>
+      <div className="w-full flex flex-col items-center justify-between h-screen">
+        <div
+          className="w-full pt-5 flex flex-col items-center"
+          style={{
+            // height: "90vh",
+            overflow: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          <div className="w-full flex flex-row gap-3 items-center justify-center">
+            <div className="w-11/12">
+              <Image
+                src={"/assets/assignX.png"}
+                alt="profile"
+                height={33}
+                width={140}
+                objectFit="contain"
+              />
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* <div>
+          <div className="w-full mt-8 flex flex-col items-center gap-3">
+            {showLinks().map((item) => (
+              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
+                <Link
+                  sx={{
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "none"
+                    }
+                  }}
+                  href={item.href}
+                  underline="none"
+                // onClick={(e) => handleOnClick(e, item.href)}
+                >
+                  <div
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
+                  >
+                    <Image
+                      src={
+                        pathname === item.href
+                          ? item.selected
+                          : item.uneselected
+                      }
+                      height={item.name === "Activity" ? 16 : 24}
+                      width={item.name === "Activity" ? 16 : 24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {/* <div>
           <button onClick={requestNotificationPermission}>
             Req Not
           </button>
         </div> */}
-      </div>
-      {/* Lower body */}
-      <div className="w-full">
-        {/* Code for Check list menu bar */}
-        <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
+        </div>
+        {/* Lower body */}
+        <div className="w-full">
+          {/* Code for Check list menu bar */}
+          <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
 
-        <div
-          className="w-full flex flex-row items-start justify-start pt-2"
-          style={{
-            borderTop: "1px solid #00000010",
-          }}
-        >
-          <Link
-            href={"/dashboard/myAccount"}
-            className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
+          <div
+            className="w-full flex flex-row items-start justify-start pt-2"
             style={{
-              textOverflow: "ellipsis",
-              textDecoration: "none",
+              borderTop: "1px solid #00000010",
             }}
-            sx={{
-              textDecoration: "none",
-              "&:hover": {
-                textDecoration: "none"
-              }
-            }}
-            underline="none"
           >
-            {userDetails?.user?.thumb_profile_image ? (
-              <img
-                src={userDetails?.user?.thumb_profile_image}
-                alt="*"
-                style={{
-                  objectFit: "fill",
-                  height: "34px",
-                  width: "34px",
-                  borderRadius: "50%",
-                }}
-              />
-            ) : (
-              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.user?.name.slice(0, 1).toUpperCase()}
-              </div>
-            )}
+            <Link
+              href={"/dashboard/myAccount"}
+              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
+              style={{
+                textOverflow: "ellipsis",
+                textDecoration: "none",
+              }}
+              sx={{
+                textDecoration: "none",
+                "&:hover": {
+                  textDecoration: "none"
+                }
+              }}
+              underline="none"
+            >
+              {userDetails?.user?.thumb_profile_image ? (
+                <img
+                  src={userDetails?.user?.thumb_profile_image}
+                  alt="*"
+                  style={{
+                    objectFit: "fill",
+                    height: "34px",
+                    width: "34px",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                  {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
 
-            <div>
-              <div className="flex flex-row items-center gap-2">
+              <div>
+                <div className="flex flex-row items-center gap-2">
+                  <div
+                    className="truncate"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "",
+                      // width: "100px",
+                      color: "black",
+                    }}
+                  >
+                    {/*userDetails?.user?.name?.split(" ")[0]*/}
+                    {(() => {
+                      const name = userDetails?.user?.name?.split(" ")[0] || "";
+                      return name.length > 10 ? `${name.slice(0, 7)}...` : name;
+                    })()}
+                  </div>
+                  <div className="text-xs font-medium text-purple">
+                    {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : ""}
+                  </div>
+                </div>
                 <div
-                  className="truncate"
+                  className="truncate w-[120px]"
                   style={{
                     fontSize: 15,
                     fontWeight: "500",
-                    color: "",
-                    // width: "100px",
-                    color: "black",
+                    color: "#15151560",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  {/*userDetails?.user?.name?.split(" ")[0]*/}
-                  {(() => {
-                    const name = userDetails?.user?.name?.split(" ")[0] || "";
-                    return name.length > 10 ? `${name.slice(0, 7)}...` : name;
-                  })()}
-                </div>
-                <div className="text-xs font-medium text-purple">
-                  {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : ""}
+                  {userDetails?.user?.email}
                 </div>
               </div>
-              <div
-                className="truncate w-[120px]"
-                style={{
-                  fontSize: 15,
-                  fontWeight: "500",
-                  color: "#15151560",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {userDetails?.user?.email}
-              </div>
-            </div>
 
-            {/* Socket Connection Status Indicator */}
+              {/* Socket Connection Status Indicator */}
 
-          </Link>
+            </Link>
 
 
-          {
-            !showAssignBanner && !isLeadUploading && (
-              <div
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  bottom: 0
-                }}>
-                <DashboardSlider
-                  needHelp={showHelpModal} />
-              </div>
-            )
-          }
+            {
+              !showAssignBanner && !isLeadUploading && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    bottom: 0
+                  }}>
+                  <DashboardSlider
+                    needHelp={showHelpModal} />
+                </div>
+              )
+            }
 
 
-          <LeadProgressBanner
-            title="Assigning Leads"
-            uploading={showAssignBanner}
-            uploadProgress={bannerProgress}
-          />
+            <LeadProgressBanner
+              title="Assigning Leads"
+              uploading={showAssignBanner}
+              uploadProgress={bannerProgress}
+            />
+          </div>
         </div>
+
+        {
+          (showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
+            <SnackBarForUpgradePlan Data={userDetails?.user}
+            />
+          )
+        }
+
+
       </div>
 
-      {
-        (showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
-          <SnackBarForUpgradePlan Data={userDetails?.user}
-          />
-        )
-      }
+      <CallPausedPopup
+        open={showCallPausedPopup}
+        onClose={() => setShowCallPausedPopup(false)}
+      />
 
-
-    </div>
-
-    <CallPausedPopup
-      open={showCallPausedPopup}
-      onClose={() => setShowCallPausedPopup(false)}
-    />
-
-    {/* Subscribe Plan modal */}
-    <div>
       {/* Subscribe Plan modal */}
+      <div>
+        {/* Subscribe Plan modal */}
 
-      <Modal
-        open={false}  //showPlansPopup
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-          },
-        }}
-      >
-        <Box
-          className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
-          sx={{
-            ...styles.paymentModal,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh", // Full viewport height
+        <Modal
+          open={false}  //showPlansPopup
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+            },
           }}
         >
-          <SupportFile upgardeAction={() => {
-            setShowPlansPopup(false);
-            setShowUpgradePlanModal(true);
-          }} cancelAction={() => {
-            setShowPlansPopup(false)
-          }}
-            metadata={{
-              renewal: userDetails?.user?.nextChargeDate || ''
-            }} />
-          {/* <div
+          <Box
+            className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
+            sx={{
+              ...styles.paymentModal,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh", // Full viewport height
+            }}
+          >
+            <SupportFile upgardeAction={() => {
+              setShowPlansPopup(false);
+              setShowUpgradePlanModal(true);
+            }} cancelAction={() => {
+              setShowPlansPopup(false)
+            }}
+              metadata={{
+                renewal: userDetails?.user?.nextChargeDate || ''
+              }} />
+            {/* <div
               className="flex flex-row justify-center w-full"
               style={{
                 maxHeight: "90vh", // Restrict modal height to 90% of the viewport
@@ -1662,100 +1686,100 @@ return (
                 </div>
               </div>
             </div> */}
-        </Box>
-      </Modal>
+          </Box>
+        </Modal>
 
-      <UpgradeModal
-        open={showUpgradePlanModal}
-        handleClose={() => setShowUpgradePlanModal(false)}
-        title={"You've Hit Your 20 Minute Limit"}
-        subTitle={"Upgrade to get more call time and keep your converstaions going"}
-        buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
-      />
-
-
-
-      {/* Add Payment Modal */}
-      <Modal
-        open={addPaymentPopUp} //addPaymentPopUp
-        // open={true}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
-          sx={styles.paymentModal}
-        >
-          <div className="flex flex-row justify-center w-full ">
-            <div
-              className="sm:w-7/12 w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: "600",
-                  }}
-                >
-                  Payment Details
-                </div>
-                <button onClick={() => setAddPaymentPopup(false)}>
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <Elements stripe={stripePromise}>
-                <AddCardDetails
-                  //selectedPlan={selectedPlan}
-                  // stop={stop}
-                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
-                  handleClose={handleClose}
-                  togglePlan={togglePlan}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
-                />
-              </Elements>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* UpgradePlan Modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
-          setSelectedPlan={() => {
-            console.log("setSelectedPlan is called")
-          }}
-          currentFullPlan={userDetails?.user?.plan}
-          open={showUpgradePlanModal2}
-          handleClose={(upgradeResult) => {
-            setShowUpgradePlanModal2(false)
-            if (upgradeResult) {
-              getProfile()
-            }
-          }}
-          setShowSnackMsg={() => {
-            console.log("setShowSnackMsg is called")
-          }}
+        <UpgradeModal
+          open={showUpgradePlanModal}
+          handleClose={() => setShowUpgradePlanModal(false)}
+          title={"You've Hit Your 20 Minute Limit"}
+          subTitle={"Upgrade to get more call time and keep your converstaions going"}
+          buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
         />
-      </Elements>
+
+
+
+        {/* Add Payment Modal */}
+        <Modal
+          open={addPaymentPopUp} //addPaymentPopUp
+          // open={true}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box
+            className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+            sx={styles.paymentModal}
+          >
+            <div className="flex flex-row justify-center w-full ">
+              <div
+                className="sm:w-7/12 w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="flex flex-row justify-between items-center">
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: "600",
+                    }}
+                  >
+                    Payment Details
+                  </div>
+                  <button onClick={() => setAddPaymentPopup(false)}>
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <Elements stripe={stripePromise}>
+                  <AddCardDetails
+                    //selectedPlan={selectedPlan}
+                    // stop={stop}
+                    // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                    handleClose={handleClose}
+                    togglePlan={togglePlan}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  />
+                </Elements>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+
+        {/* UpgradePlan Modal */}
+        <Elements stripe={stripePromise}>
+          <UpgradePlan
+            setSelectedPlan={() => {
+              console.log("setSelectedPlan is called")
+            }}
+            currentFullPlan={userDetails?.user?.plan}
+            open={showUpgradePlanModal2}
+            handleClose={(upgradeResult) => {
+              setShowUpgradePlanModal2(false)
+              if (upgradeResult) {
+                getProfile()
+              }
+            }}
+            setShowSnackMsg={() => {
+              console.log("setShowSnackMsg is called")
+            }}
+          />
+        </Elements>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default ProfileNav;

@@ -47,9 +47,17 @@ function LeadScoring({
     const fetchAgentScoring = async () => {
         if (!showDrawerSelectedAgent?.id) return;
 
-        // Check if agent has a template object nested within it
+        // Prefer fields on the selected agent first for instant preselection
         if (showDrawerSelectedAgent?.template?.id) {
-            setSelectedTemplate(showDrawerSelectedAgent.template.id);
+            setSelectedTemplate(String(showDrawerSelectedAgent.template.id));
+            return;
+        }
+        if (showDrawerSelectedAgent?.templateId) {
+            setSelectedTemplate(String(showDrawerSelectedAgent.templateId));
+            return;
+        }
+        if (showDrawerSelectedAgent?.scoringTemplateId) {
+            setSelectedTemplate(String(showDrawerSelectedAgent.scoringTemplateId));
             return;
         }
 
@@ -66,8 +74,12 @@ function LeadScoring({
 
             if (response.data && response.data.status === true) {
                 const agentScoring = response.data.data;
-                if (agentScoring && agentScoring.id) {
-                    setSelectedTemplate(agentScoring.id);
+                // Prefer templateId or nested template.id; fallback to id
+                const selectedId = agentScoring?.templateId
+                    ?? agentScoring?.template?.id
+                    ?? agentScoring?.id;
+                if (selectedId) {
+                    setSelectedTemplate(String(selectedId));
                 }
             }
         } catch (error) {
@@ -102,7 +114,7 @@ function LeadScoring({
             return;
         }
 
-        const template = templates.find(t => t.id === templateId);
+        const template = templates.find(t => String(t.id) === String(templateId));
         if (!template) return;
 
         // Set loading state to prevent dropdown from closing
@@ -125,6 +137,8 @@ function LeadScoring({
             if (response) {
                 if (response.data.status === true) {
                     showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
+                    // Optimistically set selected to the applied template id
+                    setSelectedTemplate(String(template.id));
                     fetchAgentScoring(); // Refresh agent's current scoring
 
                     // Refresh templates after applying
@@ -187,7 +201,7 @@ function LeadScoring({
                                             if (selected === '' || !templates.length) {
                                                 return <div className="text-gray-500">Choose a template</div>;
                                             }
-                                            const selectedTemplateObj = templates.find(t => t.id === selected);
+                                            const selectedTemplateObj = templates.find(t => String(t.id) === String(selected));
                                             return (
                                                 <div className="flex items-center">
                                                     <span className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</span>
@@ -227,7 +241,7 @@ function LeadScoring({
                                         {templates.map((template) => (
                                             <MenuItem
                                                 key={template.id}
-                                                value={template.id}
+                                                value={String(template.id)}
                                                 disabled={isApplyingTemplate}
                                                 sx={{
                                                     '&:hover': {
