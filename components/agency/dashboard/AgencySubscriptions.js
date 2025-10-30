@@ -303,9 +303,9 @@ function AgencySubscriptions({
     analyticData?.totalSubscriptions? (
       <div
         className="flex flex-col items-center justify-center w-full h-[88vh]"
-        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "40rem" }}
+        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "4rem" }}
       >
-        <div className="flex flex-col items-start w-11/12 mt-10 gap-3">
+        <div className="flex flex-col items-start w-11/12 mt-2 gap-3">
 
           {/* Show filters here in a row*/}
           {
