@@ -766,7 +766,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={"us"} // Default country
-                    onlyCountries={["us", "ca"]} // Allow US and Canada only
+                    onlyCountries={["us", "ca", "mx", "mx"]} // Allow US, Canada, and Mexico
                     disableDropdown={false} // Enable dropdown to switch between US/CA
                     countryCodeEditable={false}
                     disableCountryCode={false}
