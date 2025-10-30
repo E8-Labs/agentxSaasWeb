@@ -8,6 +8,7 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 import TestTwilioBtn from '../twilioExtras/TestTwilioBtn';
+import { PersistanceKeys } from '@/constants/Constants';
 
 const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
 
@@ -15,6 +16,8 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
 
     const [showDetails, setShowDetails] = useState(false);
     const [showAddCNAM, setShowAddCNAM] = useState(false);
+    //temporary CNAM Status
+    const [cnamStatus, setCnamStatus] = useState("");
     //show success snack
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
@@ -24,13 +27,30 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
     //allow add details btn
     const [allowAddDetails, setAllowAddDetails] = useState(true);
 
+
     useEffect(() => {
+        checkCnamStatus();
         if (twilioHubData) {
             setAllowAddDetails(false);
         } else {
             setAllowAddDetails(true);
         }
     }, [twilioHubData]);
+
+    const checkCnamStatus = () => {
+        const Data = localStorage.getItem("CNAMStatusReview");
+        if (twilioHubData?.status) {
+            setCnamStatus(twilioHubData?.status);
+            localStorage.removeItem("CNAMStatusReview");
+        } else {
+            if (Data) {
+                const data = JSON.parse(Data);
+                setCnamStatus(data.status);
+            } else {
+                setCnamStatus("");
+            }
+        }
+    }
 
     //styles
     const styles = {
@@ -116,9 +136,9 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                     </div>
                 </div>
             </div>
-            {twilioHubData?.status ? (
+            {cnamStatus ? (
                 <ShowRequestStatus
-                    status={twilioHubData?.status}
+                    status={cnamStatus}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -157,6 +177,12 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                         handleClose={(d) => {
                             setShowAddCNAM(false);
                             if (d) {
+                                const data = {
+                                    message: "CNAM is being reviewed",
+                                    status: "in-review"
+                                }
+                                localStorage.setItem("CNAMStatusReview", JSON.stringify(data));
+                                checkCnamStatus();
                                 getProfileData(d);
                                 setShowSnack({
                                     type: SnackbarTypes.Success,
