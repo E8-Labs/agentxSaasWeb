@@ -1184,7 +1184,7 @@ const ProfileNav = () => {
                 showUpgradePlanBar && userDetails?.user?.plan?.price === 0 ? (
                   <div className="flex flex-col">
                     <div style={{ fontSize: 13, fontWeight: '700', }}>
-                      You're out of Free AI Credits.<span className="text-purple underline cursor-pointer" onClick={() => {
+                      {`You're out of Free AI Credits.`}<span className="text-purple underline cursor-pointer" onClick={() => {
                         setShowUpgradePlanModal2(true)
                       }}>
                         Upgrade
