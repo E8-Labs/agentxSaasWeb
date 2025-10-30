@@ -698,7 +698,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                   ref={(el) => (inputsFields.current[2] = el)}
                   className="border outline-none bg-white"
                   country={"us"} // restrict to US only
-                  onlyCountries={["us"]}
+                  onlyCountries={["us", "mx"]}
                   disableDropdown={true}
                   countryCodeEditable={false}
                   disableCountryCode={false}

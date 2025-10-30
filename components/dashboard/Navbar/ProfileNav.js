@@ -38,7 +38,6 @@ import socketService from "@/utilities/SocketService";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
@@ -49,6 +48,7 @@ import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -96,6 +96,7 @@ const ProfileNav = () => {
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   const [showUpgradePlanBar, setShowUpgradePlanBar] = useState(false)
+  const [showPlanPausedBar, setShowPlanPausedBar] = useState(false)
   const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
   const [showAssignBanner, setShowAssignBanner] = useState(false)
   const [bannerProgress, setBannerProgress] = useState(0);
@@ -106,7 +107,7 @@ const ProfileNav = () => {
   const [showUpgradePlanModal2, setShowUpgradePlanModal2] = useState(false);
   const [showLowMinsModal, setShowLowMinsModal] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     console.log("Search url is", pathname);
     if (pathname === '/dashboard') {
@@ -513,6 +514,35 @@ const ProfileNav = () => {
     };
   }, []);
 
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    try {
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
+      return false;
+    }
+  };
   // Event listener for lead upload status
   useEffect(() => {
     const handleLeadUploadStart = (event) => {
@@ -799,6 +829,9 @@ const ProfileNav = () => {
               // setShowPlansPopup(true);
               // setShowUpgradePlanModal(true)
 
+            } else if (Data?.plan?.status === "paused") {
+              console.log("🔍 [getProfile] Plan paused condition - showing plan paused bar");
+              setShowPlanPausedBar(true)
             } else if (
 
               (Data?.paymentFailed === true)
@@ -807,19 +840,7 @@ const ProfileNav = () => {
             ) {
               console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-            } else if (
-
-              // Data?.plan == null ||
-              // (Data?.plan &&
-              //   Data?.plan?.status !== "active" &&
-              isBalanceLow //||
-              //   (Data?.plan &&
-              //     Data?.plan?.status === "active" &&
-              //     Data?.totalSecondsAvailable <= 120)
-              // )
-              // && (Data.needsChargeConfirmation === false) &&
-              // (!Data.callsPausedUntilSubscription)
-            ) {
+            } else if (isBalanceLow) {
               console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
@@ -1094,7 +1115,41 @@ const ProfileNav = () => {
     }
   };
 
-  const SnackBarForUpgradePlan = () => {
+  const resumeAccount = async () => {
+    setLoading(true);
+
+    try {
+      const user = localStorage.getItem("User");
+      if (user) {
+        const userData = JSON.parse(user);
+        let token = userData.token;
+        console.log("token is", token);
+
+        const response = await axios.post(Apis.resumeSubscription,{}, {
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.data.status === true) {
+          setShowSuccessSnack(true);
+          setSuccessSnack(response.data.message);
+          await getProfile();
+          setShowPlanPausedBar(false);
+        } else {
+          setShowErrorSnack(true);
+          setErrorSnack(response.data.message);
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is:", error);
+    } finally {
+      setLoading(false);
+    }
+
+  }
+
+  const SnackBarForUpgradePlan = (Data) => {
     return (
 
       <div
@@ -1111,53 +1166,79 @@ const ProfileNav = () => {
           height={24} width={24} alt="*"
         />
         {
-          !showUpgradePlanBar ? (
+          showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
-              {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
+              {`Your account is paused. Click here to resume`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
-                  router.push('/dashboard/myAccount?tab=2')
+                  resumeAccount()
                 }}
-              >
-                Turn on Smart Refill
-              </span>  or  <span
-                className="text-purple underline cursor-pointer"
-                onClick={() => {
-                  setShowUpgradePlanModal2(true)
-                }}
-              > Upgrade
-              </span>.
+              > {loading ? <CircularProgress size={20} /> : "Resume"}
+              </span>
             </div>
 
           ) : (
-            <div>
+            <>
+              {
 
-              <div style={{ fontSize: 15, fontWeight: '700', }}>
-                {userDetails?.user?.plan?.price === 0 ? "You're out of Free AI Credits." : `Your subscription payment could not be processed.`}
-                <span
-                  className="text-purple underline cursor-pointer"
-                  onClick={() => {
-                    setShowUpgradePlanModal2(true)
-                  }}
-                > Upgrade
-                </span>
-              </div>
-              <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                {userDetails?.user?.plan?.price === 0 ? "Please upgrade or wait until your renewal date." : "Please update your payment method to continue making calls."}
-              </div>
+                showUpgradePlanBar && userDetails?.user?.plan?.price === 0 ? (
+                  <div className="flex flex-col">
+                    <div style={{ fontSize: 13, fontWeight: '700', }}>
+                      You're out of Free AI Credits.<span className="text-purple underline cursor-pointer" onClick={() => {
+                        setShowUpgradePlanModal2(true)
+                      }}>
+                        Upgrade
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
+                      Please upgrade or wait until your renewal date.
+                    </div>
+                  </div>
+                ) : (
+                  showUpgradePlanBar ? (
+                    <div style={{ fontSize: 13, fontWeight: '700', }}>
+                      {userDetails?.user?.plan?.price === 0 ? "You're out of Free AI Credits." :
+                        `Action Needed! Your AI agents are paused. You don't have enough credits.`}
+                      {Data?.smartRefill === false && (<span
+                        className="text-purple underline cursor-pointer"
+                        onClick={() => {
+                          router.push('/dashboard/myAccount?tab=2')
+                        }}
+                      >
+                        Turn on Smart Refill <span> or </span>
+                      </span>)}  <span
+                        className="text-purple underline cursor-pointer"
+                        onClick={() => {
+                          setShowUpgradePlanModal2(true)
+                        }}
+                      > Upgrade
+                      </span>
+                    </div>
 
-              {/*
-                {`Action needed!  Your payment method failed, please add a new`} <span
-                  className="text-purple underline cursor-pointer"
-                  onClick={() => {
-                    window.open('/dashboard/myAccount?tab=2')
-                  }}
-                >
-                  Payment Method
-                </span>.
-              */}
+                  ) : (
+                    <div>
 
-            </div>
+                      <div style={{ fontSize: 15, fontWeight: '700', }}>
+                        {`Your subscription payment could not be processed.`}
+                        <span
+                          className="text-purple underline cursor-pointer"
+                          onClick={() => {
+                            setShowUpgradePlanModal2(true)
+                          }}
+                        > Upgrade
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
+                        {"Please update your payment method to continue"}
+                      </div>
+
+
+                    </div>
+                  )
+                )
+              }
+
+            </>
           )
         }
 
@@ -1373,8 +1454,8 @@ const ProfileNav = () => {
         </div>
 
         {
-          (showUpgradePlanBar || showFailedPaymentBar) && (
-            <SnackBarForUpgradePlan
+          (showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
+            <SnackBarForUpgradePlan Data={userDetails?.user}
             />
           )
         }
@@ -1729,10 +1810,13 @@ const ProfileNav = () => {
             open={showUpgradePlanModal2}
             handleClose={(upgradeResult) => {
               setShowUpgradePlanModal2(false)
-              if(upgradeResult) {
-                getProfile()
+              if (upgradeResult) {
+                refreshUserData()
+                setShowUpgradePlanBar(false)
+                setShowFailedPaymentBar(false)
+                setShowPlanPausedBar(false)
               }
-              }}
+            }}
             setShowSnackMsg={() => {
               console.log("setShowSnackMsg is called")
             }}

@@ -362,7 +362,7 @@ function AdminUsers() {
                           setSelectedSort("MinutesUsed");
                         }}
                       >
-                        Mins Used
+                      Credits Used
                         {selectedSort === "MinutesUsed" && (
                           <Image
                             src={
@@ -496,10 +496,10 @@ function AdminUsers() {
                       <td className="px-4 py-2">{item.team || "-"}</td>
                       <td className="px-4 py-2  ">${item.totalSpent || "0"}</td>
                       <td className="px-4 py-2 w-[100px] whitespace-nowrap">
-                        {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
+                        {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} credits
                       </td>
                       <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
-                        {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}mins
+                        {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}credits
                       </td>
                       <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
                         {GetFormattedDateString(item.nextChargeDate)}

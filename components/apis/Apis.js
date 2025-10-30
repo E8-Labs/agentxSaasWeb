@@ -4,7 +4,8 @@
 let BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
-    : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
+    // : "http://localhost:8003/"
+    : "https://apimyagentx.com/agentxtest/"//"https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -271,6 +272,13 @@ const Apis = {
   // Call Analytics API
   getCallAnalytics: `${BasePath}api/admin/call-analytics`,
   
+  // Revenue APIs
+  revenueSummary: `${BasePath}api/admin/revenue/summary`,
+  revenueGrowth: `${BasePath}api/admin/revenue/revenue-growth`,
+  revenueLeaderboard: `${BasePath}api/admin/revenue/leaderboard`,
+  revenuePayoutsSummary: `${BasePath}api/admin/revenue/payouts/summary`,
+  revenueTransactions: `${BasePath}api/admin/revenue/transactions`,
+  
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
@@ -309,6 +317,10 @@ const Apis = {
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+
+  resumeSubscription: `${BasePath}api/user/cancellation/resume`,
+  editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
+
   
 };
 

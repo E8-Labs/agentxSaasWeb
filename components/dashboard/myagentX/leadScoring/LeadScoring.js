@@ -11,6 +11,8 @@ import NoActionView from './NoActionView';
 function LeadScoring({
     showDrawerSelectedAgent,
     activeTab,
+    setUserDetails,
+    setShowDrawerSelectedAgent,
 }) {
 
 
@@ -36,20 +38,30 @@ function LeadScoring({
                 agentId: showDrawerSelectedAgent?.id,
                 setTemplates: setTemplates,
                 setTemplatesLoading: setTemplatesLoading,
-                setSelectedTemplate: (templateId) => {
-                    console.log('Setting selected template in LeadScoring:', templateId);
-                    setSelectedTemplate(templateId);
-                }
             });
 
             // Also fetch agent's current scoring template
             fetchAgentScoring();
         }
-    }, [activeTab, showDrawerSelectedAgent?.id]);
+    }, [activeTab, showDrawerSelectedAgent?.id, showDrawerSelectedAgent?.template]);
 
     // Fetch agent's current scoring configuration
     const fetchAgentScoring = async () => {
         if (!showDrawerSelectedAgent?.id) return;
+
+        // Prefer fields on the selected agent first for instant preselection
+        if (showDrawerSelectedAgent?.template?.id) {
+            setSelectedTemplate(String(showDrawerSelectedAgent.template.id));
+            return;
+        }
+        if (showDrawerSelectedAgent?.templateId) {
+            setSelectedTemplate(String(showDrawerSelectedAgent.templateId));
+            return;
+        }
+        if (showDrawerSelectedAgent?.scoringTemplateId) {
+            setSelectedTemplate(String(showDrawerSelectedAgent.scoringTemplateId));
+            return;
+        }
 
         try {
             const token = AuthToken();
@@ -64,8 +76,12 @@ function LeadScoring({
 
             if (response.data && response.data.status === true) {
                 const agentScoring = response.data.data;
-                if (agentScoring && agentScoring.id) {
-                    setSelectedTemplate(agentScoring.id);
+                // Prefer templateId or nested template.id; fallback to id
+                const selectedId = agentScoring?.templateId
+                    ?? agentScoring?.template?.id
+                    ?? agentScoring?.id;
+                if (selectedId) {
+                    setSelectedTemplate(String(selectedId));
                 }
             }
         } catch (error) {
@@ -100,7 +116,7 @@ function LeadScoring({
             return;
         }
 
-        const template = templates.find(t => t.id === templateId);
+        const template = templates.find(t => String(t.id) === String(templateId));
         if (!template) return;
 
         // Set loading state to prevent dropdown from closing
@@ -123,17 +139,15 @@ function LeadScoring({
             if (response) {
                 if (response.data.status === true) {
                     showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
+                    // Optimistically set selected to the applied template id
+                    setSelectedTemplate(String(template.id));
                     fetchAgentScoring(); // Refresh agent's current scoring
 
-                    // Refresh templates and agent scoring after applying
+                    // Refresh templates after applying
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
-                        setSelectedTemplate: (templateId) => {
-                            console.log('Setting selected template in LeadScoring:', templateId);
-                            setSelectedTemplate(templateId);
-                        }
                     });
                 } else {
                     showSnackbar('Error', response.data.message || 'Failed to apply template', SnackbarTypes.Error);
@@ -189,7 +203,7 @@ function LeadScoring({
                                             if (selected === '' || !templates.length) {
                                                 return <div className="text-gray-500">Choose a template</div>;
                                             }
-                                            const selectedTemplateObj = templates.find(t => t.id === selected);
+                                            const selectedTemplateObj = templates.find(t => String(t.id) === String(selected));
                                             return (
                                                 <div className="flex items-center">
                                                     <span className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</span>
@@ -229,7 +243,7 @@ function LeadScoring({
                                         {templates.map((template) => (
                                             <MenuItem
                                                 key={template.id}
-                                                value={template.id}
+                                                value={String(template.id)}
                                                 disabled={isApplyingTemplate}
                                                 sx={{
                                                     '&:hover': {
@@ -286,14 +300,29 @@ function LeadScoring({
                     console.log('Template created/updated:', templateData);
                     // Refresh templates after creation/update
                     showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
+                    const newId = templateData?.data?.scoringConfiguration?.id ?? templateData?.data?.scoringConfiguration?.templateId;
+                    console.log("newId", newId)
+                    if (newId) {
+                        setSelectedTemplate(String(newId));
+                    }
+                    if(!editingTemplate){
+                        setShowDrawerSelectedAgent(prev => ({ ...prev, template: templateData.data.scoringConfig }));
+                        if (typeof setUserDetails === 'function') {
+                            setUserDetails(prev => {
+                                if (!Array.isArray(prev)) return prev;
+                                return prev.map(agent => {
+                                    if (agent?.id === showDrawerSelectedAgent?.id) {
+                                        return { ...agent, template: templateData.data.scoringConfig };
+                                    }
+                                    return agent;
+                                });
+                            });
+                        }
+                    }
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
-                        setSelectedTemplate: (templateId) => {
-                            console.log('Setting selected template in LeadScoring:', templateId);
-                            setSelectedTemplate(templateId);
-                        }
                     });
                     fetchAgentScoring();
                     // Reset editing state

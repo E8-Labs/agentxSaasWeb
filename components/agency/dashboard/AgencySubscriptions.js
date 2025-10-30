@@ -143,23 +143,33 @@ function AgencySubscriptions({
   // const [planMapping, setPlanMapping] = useState(null);
 
   // Transform data into required format
-  const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map(
+  const planChartData = Object.keys(analyticData?.activePlansUsers || {}).map(
     (planName, index) => ({
       name: planName || "",
-      value: analyticData.subscription.activePlans[planName] || 0,
+      value: analyticData.activePlansUsers[planName] || 0,
       color: colors[index % colors.length],
     })
   );
 
+  // Calculate max value for plans chart to set Y-axis domain with increments of 1
+  const maxPlanValue = planChartData.length > 0 
+    ? Math.max(...planChartData.map(d => d.value)) 
+    : 0;
 
 
-  const reActivationChartData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
+
+  const reActivationChartData = Object.keys(analyticData?.reactivationsByPlan || {}).map(
     (planName, index) => ({
       name: planName || "",
-      value: analyticData.subscription.cancellations[planName] || 0,
+      value: analyticData.reactivationsByPlan[planName] || 0,
       color: colors[index % colors.length],
     })
   );
+
+  // Calculate max value for reactivation chart to set Y-axis domain with increments of 1
+  const maxReactivationValue = reActivationChartData.length > 0 
+    ? Math.max(...reActivationChartData.map(d => d.value)) 
+    : 0;
 
   const cancellationsRateData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
     (planName, index) => ({
@@ -290,12 +300,12 @@ function AgencySubscriptions({
   };
 
   return (
-    analyticData ? (
+    analyticData?.totalSubscriptions? (
       <div
         className="flex flex-col items-center justify-center w-full h-[88vh]"
-        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "40rem" }}
+        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "4rem" }}
       >
-        <div className="flex flex-col items-start w-11/12 mt-10 gap-3">
+        <div className="flex flex-col items-start w-11/12 mt-2 gap-3">
 
           {/* Show filters here in a row*/}
           {
@@ -418,14 +428,11 @@ function AgencySubscriptions({
                       <div
                         style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                       >
-                        {totalNewSubscriptions}
+                        {analyticData?.newSubscriptions}
                       </div>
                     </div>
 
                     <div className="w-full flex flex-row items-center gap-4 justify-end">
-
-
-
                     </div>
                   </div>
                 </div>
@@ -558,6 +565,9 @@ function AgencySubscriptions({
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 12, fill: "#6b7280" }}
+                        domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
+                        allowDecimals={false}
+                        ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
                       />
 
                       {/* Tooltip */}
@@ -579,7 +589,7 @@ function AgencySubscriptions({
                       />
 
                       {/* Bars */}
-                      {planChartData.length > 0 ? (
+                      {planChartData.length > 0 && (
                         <Bar
                           zIndex={1}
                           dataKey="value"
@@ -587,18 +597,6 @@ function AgencySubscriptions({
                           isAnimationActive={true}
                           radius={[4, 4, 0, 0]}
                           barSize={20}
-                        />
-                      ) : (
-                        <Bar
-                          dataKey="fallback"
-                          fill="#ccc"
-                          radius={[4, 4, 0, 0]}
-                          barSize={20}
-                          isAnimationActive={false}
-                          data={[
-                            { name: "No Plan", fallback: 2 },
-                            { name: "No Plan", fallback: 3 }
-                          ]}
                         />
                       )}
 
@@ -661,6 +659,9 @@ function AgencySubscriptions({
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 12, fill: "#6b7280" }}
+                        domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
+                        allowDecimals={false}
+                        ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
                       />
 
                       {/* Tooltip */}
@@ -713,7 +714,7 @@ function AgencySubscriptions({
             </div>
 
             <div className="flex w-4/12 flex-col gap-3">
-              <div
+              {/* <div
                 style={{ border: "2px solid white" }}
                 className="
                             flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
@@ -855,7 +856,7 @@ function AgencySubscriptions({
 
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div
                 style={{ border: "2px solid white" }}
@@ -879,7 +880,7 @@ function AgencySubscriptions({
             </div>
           </div>
 
-          <div className="w-full flex flex-row items-center gap-3">
+          <div className="w-full flex flex-row items-center gap-3 mb-6">
             <div
               style={{ border: "2px solid white" }}
               className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
@@ -1004,79 +1005,6 @@ function AgencySubscriptions({
             </div>
           </div>
 
-          <div style={{ fontSize: 48, fontWeight: "300", marginTop: 20 }}>
-            Customer Acquistion
-          </div>
-
-          <div className="w-full flex flex-row items-center gap-3 mb-10">
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">CAC</h3>
-
-              </div>
-
-              {/* Value */}
-              <div
-                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-              >
-                $802
-              </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                Customer Acquisition Cost
-              </div>
-            </div>
-
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <div className="h-[30px] w-[30px] rounded-full flex flex-col bg-white items-center justify-center">
-                  <Image
-                    src={"/svgIcons/purpleClockIcon.svg"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </div>
-
-
-              </div>
-
-              {/* Value */}
-              <div
-                style={{ whiteSpace: "nowrap", fontSize: 30, fontWeight: "300" }}
-              >
-                $802
-              </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                CAC Payback Period
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Custom range popup */}

@@ -49,7 +49,6 @@ function SubAccountPlansAndPayments({
     console.log("Selected user passed is", selectedUser);
     //stroes user cards list
     const [cards, setCards] = useState([]);
-    const { user: reduxUser} = useUser();
 
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
@@ -1279,7 +1278,7 @@ function SubAccountPlansAndPayments({
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"
-                        style={{ width: "250px" }} // Fixed width for consistent card sizes
+                        style={{ width: "300px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
@@ -1331,13 +1330,13 @@ function SubAccountPlansAndPayments({
                                         */}
                                         <div>
                                             {
-                                                item.id === currentPlan && (
+                                                item.id === currentPlan && userLocalData?.nextChargeDate && (
                                                     <div style={{
                                                         fontSize: 11.6,
                                                         fontWeight: "500",
                                                         width: "fit-content",
                                                     }}>
-                                                        Renews on: {reduxUser?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                        Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
                                                     </div>
                                                 )
                                             }
@@ -1403,7 +1402,7 @@ function SubAccountPlansAndPayments({
                                                                                 sx: {
                                                                                     backgroundColor: "#ffffff", // Ensure white background
                                                                                     color: "#333", // Dark text color
-                                                                                    fontSize: "14px",
+                                                                                    fontSize: "10px",
                                                                                     padding: "10px 15px",
                                                                                     borderRadius: "8px",
                                                                                     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
@@ -1418,7 +1417,7 @@ function SubAccountPlansAndPayments({
                                                                     >
                                                                         <div
                                                                             style={{
-                                                                                fontSize: 12,
+                                                                                fontSize: 10,
                                                                                 fontWeight: "600",
                                                                                 color: "#000000",
                                                                                 cursor: "pointer",

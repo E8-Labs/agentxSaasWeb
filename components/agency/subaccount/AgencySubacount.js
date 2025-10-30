@@ -331,7 +331,7 @@ function AgencySubacount({
         console.log("Response of del account apis is", response);
         if (response.data) {
           console.log("Response of del account apis is", response.data);
-          setShowSnackMessage(response.data.message);
+          setShowSnackMessage("Sub account deleted");
           setDelLoader(false);
           setShowDelConfirmationPopup(false);
           setmoreDropdown(null);
@@ -347,6 +347,9 @@ function AgencySubacount({
 
   //get clor of profile status
   const getProfileStatus = (status) => {
+
+    // console.log("status.profile_status", status.profile_status)
+
     if (status.profile_status === "paused") {
       return (
         <div style={{ color: "orange" }}>
@@ -357,12 +360,6 @@ function AgencySubacount({
       return (
         <div className="text-red">
           Deleted
-        </div>
-      )
-    } else if (status.profile_status === "active") {
-      return (
-        <div className="text-green">
-          Active
         </div>
       )
     } else if (status.profile_status === "cancelled") {
@@ -381,6 +378,12 @@ function AgencySubacount({
       return (
         <div className="text-red-800">
           Cancelled
+        </div>
+      )
+    } else if (status.profile_status === "active") {
+      return (
+        <div className="text-green">
+          Active
         </div>
       )
     }
@@ -762,7 +765,7 @@ function AgencySubacount({
                       </div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
-                      <div style={styles.text2}>{item?.profile_status ? <div>{getProfileStatus(item)}</div> : "-"}</div>
+                      <div style={styles.text2}>{!item.plan ? "Pending" : item?.profile_status ? <div>{getProfileStatus(item)}</div> : "-"}</div>
                     </div>
                     <div className=" w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>

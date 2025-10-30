@@ -108,9 +108,10 @@ function AdminSubscriptions() {
       Plan720: analyticData?.planSubscriptionStats?.Plan720?.[dateKey] || 0,
     };
   });
-  const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
-    return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
-  }, 0);
+  const totalNewSubscriptions = subscriptionChartData.newSubscriptions || '-'
+  // .reduce((total, monthData) => {
+  //   return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
+  // }, 0);
 
   //console.log;
 
@@ -122,20 +123,31 @@ function AdminSubscriptions() {
     Plan720: "Plan720",
   };
 
-  // Transform data into required format
-  const planChartData = Object.keys(planMapping).map((planKey) => ({
-    name: planMapping[planKey],
-    value: analyticData?.subscription?.activePlans[planKey] || 0, // Assign value from API data, default to 0 if missing
-  }));
-
-
-  const reActivationChartData = Object.keys(planMapping).map((planKey) => ({
-    name: planMapping[planKey],
-    value: analyticData?.subscription?.cancellations[planKey] || 0, // Assign value from API data, default to 0 if missing
-  }));
-
   // Define colors for each plan
   const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
+
+  // Transform data into required format
+  const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map((planKey, index) => ({
+    name: planKey || "",
+    value: analyticData?.subscription?.activePlans[planKey] || 0,
+    color: colors[index % colors.length],
+  }));
+
+  // Calculate max value for plans chart to set Y-axis domain with increments of 1
+  const maxPlanValue = planChartData.length > 0 
+    ? Math.max(...planChartData.map(d => d.value)) 
+    : 0;
+
+  const reActivationChartData = Object.keys(analyticData?.reactivationsByPlan || {}).map((planName, index) => ({
+    name: planName || "",
+    value: analyticData.reactivationsByPlan[planName] || 0,
+    color: colors[index % colors.length],
+  }));
+
+  // Calculate max value for reactivation chart to set Y-axis domain with increments of 1
+  const maxReactivationValue = reActivationChartData.length > 0 
+    ? Math.max(...reActivationChartData.map(d => d.value)) 
+    : 0;
 
   // Transform data into required format
 
@@ -418,7 +430,7 @@ function AdminSubscriptions() {
                     <div
                       style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
                     >
-                      {totalNewSubscriptions}
+                      {analyticData?.newSubscriptions || '='}
                     </div>
                   </div>
 
@@ -597,6 +609,9 @@ function AdminSubscriptions() {
                       tickLine={false}
                       axisLine={false}
                       tick={{ fontSize: 12, fill: "#6b7280" }}
+                      domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
+                      allowDecimals={false}
+                      ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
                     />
 
                     {/* Tooltip */}
@@ -618,13 +633,15 @@ function AdminSubscriptions() {
                     />
 
                     {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
-                    />
+                    {planChartData.length > 0 && (
+                      <Bar
+                        zIndex={1}
+                        dataKey="value"
+                        fill="#7902DF"
+                        radius={[4, 4, 0, 0]}
+                        barSize={20}
+                      />
+                    )}
                   </BarChart>
                 </div>
               </div>
@@ -684,6 +701,9 @@ function AdminSubscriptions() {
                       tickLine={false}
                       axisLine={false}
                       tick={{ fontSize: 12, fill: "#6b7280" }}
+                      domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
+                      allowDecimals={false}
+                      ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
                     />
 
                     {/* Tooltip */}
@@ -705,13 +725,15 @@ function AdminSubscriptions() {
                     />
 
                     {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
+                    {reActivationChartData.length > 0 && (
+                      <Bar
+                        zIndex={1}
+                        dataKey="value"
+                        fill="#7902DF"
+                        radius={[4, 4, 0, 0]}
+                        barSize={20}
                     />
+                    )}
                   </BarChart>
                 </div>
               </div>

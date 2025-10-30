@@ -39,6 +39,13 @@ const UPSell = () => {
     const [agencyData, setAgencyData] = useState("");
     //initial loader
     const [initialLoader, setInitialLoader] = useState(false);
+    //warning message
+    const [snackBannerMsg, setSnackBannerMsg] = useState(null);
+    const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Warning);
+
+    //warning messages for less price
+    // setSnackBannerMsg(`Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
+    // setSnackBannerMsgType(SnackbarTypes.Warning);
 
     const handleTogglePhoneNumbers = (phoneNumbers) => {
         setPhoneNumbers(!phoneNumbers);
@@ -48,6 +55,35 @@ const UPSell = () => {
         getUserSettings();
         getLocalData();
     }, []);
+
+    //low price detector
+    const checkPrice = (price, from) => {
+        // enrichment : 0.05
+        // dnc : 0.03
+        // phone price: 1.15
+        if (from === "phonePrice") {
+            if (price < 1.15) {
+                setSnackBannerMsg(`Upsell Price cannot be less than $ ${1.15.toFixed(2)}`);
+                setSnackBannerMsgType(SnackbarTypes.Warning);
+            } else {
+                setSnackBannerMsg(null);
+            }
+        } else if (from === "dncPrice") {
+            if (price < 0.03) {
+                setSnackBannerMsg(`Upsell Price cannot be less than $ ${0.03.toFixed(2)}`);
+                setSnackBannerMsgType(SnackbarTypes.Warning);
+            } else {
+                setSnackBannerMsg(null);
+            }
+        } else if (from === "enrichmentPrice") {
+            if (price < 0.05) {
+                setSnackBannerMsg(`Upsell Price cannot be less than $ ${0.05.toFixed(2)}`);
+                setSnackBannerMsgType(SnackbarTypes.Warning);
+            } else {
+                setSnackBannerMsg(null);
+            }
+        }
+    }
 
 
     //get user settings
@@ -216,6 +252,14 @@ const UPSell = () => {
         <div className="flex flex-row justify-center h-[73vh] w-full overflow-y-auto">
             <div className='w-11/12 pt-4'>
                 <AgentSelectSnackMessage
+                    isVisible={snackBannerMsg !== null}
+                    message={snackBannerMsg}
+                    hide={() => {
+                        // setSnackMsg(null);
+                    }}
+                    type={snackBannerMsgType}
+                />
+                <AgentSelectSnackMessage
                     isVisible={showSnackMessage}
                     hide={() => {
                         setShowSnackMessage(null);
@@ -313,6 +357,9 @@ const UPSell = () => {
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
                                                             setPhonePrice(sanitized);
+                                                            if (sanitized > 0) {
+                                                                checkPrice(sanitized, "phonePrice");
+                                                            }
                                                         }}
                                                     />
                                                 </div>
@@ -414,6 +461,9 @@ const UPSell = () => {
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
                                                             setDncPrice(sanitized);
+                                                            if (sanitized > 0) {
+                                                                checkPrice(sanitized, "dncPrice");
+                                                            }
                                                         }}
                                                     />
                                                 </div>
@@ -515,6 +565,9 @@ const UPSell = () => {
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
                                                             setPerplexityEnrichmentPrice(sanitized);
+                                                            if (sanitized > 0) {
+                                                                checkPrice(sanitized, "enrichmentPrice");
+                                                            }
                                                         }}
                                                     />
                                                 </div>

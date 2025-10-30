@@ -512,14 +512,21 @@ const AddScoringModal = ({
           isRequired: true
         }));
 
-      const submissionData = {
-        agentId: agentId,
+      let submissionData = {
+       
         templateName: formData.templateName.trim(),
         description: formData.description.trim(),
         maxPoints: formData.maxPoints,
         questions: validQuestions,
         isTemplate: true,
       };
+      // send agent id only if creating new template
+      if(!editingTemplate){
+        submissionData.agentId = agentId
+      }
+      if(editingTemplate){
+        submissionData.templateId = editingTemplate.id
+      }
 
       console.log('Submission data:', submissionData);
 
@@ -535,8 +542,14 @@ const AddScoringModal = ({
       }
       console.log('Submission token:', AuthToken);
 
+      let path = Apis.createAgentScoring + "/" + agentId;
+      if(editingTemplate){
+        path = Apis.editScoringTemplate;
+      }
+      console.log('Path:', path);
+
       const response = await axios.post(
-        `${Apis.createAgentScoring}/${agentId}`,
+        path,
         submissionData,
         {
           headers: {

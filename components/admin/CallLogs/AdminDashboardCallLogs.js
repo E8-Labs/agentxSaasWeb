@@ -76,7 +76,12 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  // Store active tab when filter modal opens
+  const [activeTabWhenModalOpened, setActiveTabWhenModalOpened] = useState(null);
 
+  // Subaccount filter state
+  const [selectedSubaccount, setSelectedSubaccount] = useState(null);
+  const [subaccountList, setSubaccountList] = useState([]);
 
   const filterRef = useRef(null);
 
@@ -139,6 +144,37 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   // }, [selectedToDate, selectedFromDate]);
 
 
+  // Function to fetch subaccounts list
+  const getSubaccounts = async () => {
+    try {
+      setInitialLoader(true);
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        AuthToken = Data.token;
+      }
+
+      let ApiPath = Apis.getAgencySubAccount;
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response && response.data && response.data.data) {
+        setSubaccountList(response.data.data);
+        setInitialLoader(false);
+      }
+    } catch (error) {
+      console.error("Error fetching subaccounts:", error);
+    } finally {
+      setInitialLoader(false);
+    }
+  };
+
   useEffect(() => {
     const getLocalCalls = () => {
       const call = localStorage.getItem(PersistanceKeys.LocalAllCalls)
@@ -162,6 +198,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       }
     }
     getLocalCalls()
+    // Fetch subaccounts on component mount
+    getSubaccounts();
   }, [])
 
   useEffect(() => {
@@ -202,6 +240,12 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       return filter.values[0]; // Return status string directly
     }
 
+    if (filter.key === "filterUserId") {
+      // Find subaccount name from the list
+      const subaccount = subaccountList.find(sub => sub.id === filter.values[0]);
+      return subaccount ? (subaccount.name || subaccount.email || "Subaccount") : "Subaccount";
+    }
+
     return "";
   }
 
@@ -224,32 +268,46 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       });
     });
 
+    // Subaccount filter
+    if (selectedSubaccount) {
+      filters.push({
+        key: "filterUserId",
+        values: [selectedSubaccount.id],
+      });
+    }
+
     return filters;
   }
 
   //code for getting call log details
-  const getCallLogs = async (offset = null) => {
-    console.log("Getting call logs with offset:", offset);
+  const getCallLogs = async (offset = null, filterOverrides = {}) => {
+    console.log("Getting call logs with offset:", offset, "filterOverrides:", filterOverrides);
+
+    // Use override values if provided, otherwise use state values
+    const fromDate = filterOverrides.selectedFromDate !== undefined ? filterOverrides.selectedFromDate : selectedFromDate;
+    const toDate = filterOverrides.selectedToDate !== undefined ? filterOverrides.selectedToDate : selectedToDate;
+    const status = filterOverrides.selectedStatus !== undefined ? filterOverrides.selectedStatus : selectedStatus;
+    const subaccount = filterOverrides.selectedSubaccount !== undefined ? filterOverrides.selectedSubaccount : selectedSubaccount;
 
     // First, try to load from cache if this is the initial load and no filters are applied
-    const hasFilters = selectedFromDate || selectedToDate || selectedAgency || searchValue || selectedStatus.length > 0;
+    const hasFilters = fromDate || toDate || selectedAgency || subaccount || searchValue || status.length > 0;
 
-    if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
-      const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
-      if (cachedData) {
-        try {
-          const parsedCachedData = JSON.parse(cachedData);
-          console.log("Loading call logs from cache:", parsedCachedData);
-          setCallDetails(parsedCachedData);
-          setFilteredCallDetails(parsedCachedData);
-          setIsLocalCallsAvailable(true);
-          setHasFetchedFromAPIOnce(true);
-        } catch (err) {
-          console.warn("Error parsing cached call logs data", err);
-          localStorage.removeItem(PersistanceKeys.LocalAllCalls);
-        }
-      }
-    }
+    // if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
+    //   const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
+    //   if (cachedData) {
+    //     try {
+    //       const parsedCachedData = JSON.parse(cachedData);
+    //       console.log("Loading call logs from cache:", parsedCachedData);
+    //       setCallDetails(parsedCachedData);
+    //       setFilteredCallDetails(parsedCachedData);
+    //       setIsLocalCallsAvailable(true);
+    //       setHasFetchedFromAPIOnce(true);
+    //     } catch (err) {
+    //       console.warn("Error parsing cached call logs data", err);
+    //       localStorage.removeItem(PersistanceKeys.LocalAllCalls);
+    //     }
+    //   }
+    // }
 
     try {
       setLoading(true);
@@ -265,9 +323,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       let startDate = "";
       let endDate = "";
 
-      if (selectedFromDate && selectedToDate) {
-        startDate = moment(selectedFromDate).format("MM-DD-YYYY");
-        endDate = moment(selectedToDate).format("MM-DD-YYYY");
+      if (fromDate && toDate) {
+        startDate = moment(fromDate).format("MM-DD-YYYY");
+        endDate = moment(toDate).format("MM-DD-YYYY");
       }
 
       let ApiPath = null;
@@ -275,7 +333,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         offset = filteredCallDetails.length;
       }
 
-      if (selectedFromDate && selectedToDate) {
+      if (fromDate && toDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`;
@@ -284,16 +342,15 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       if (selectedAgency) {
         ApiPath = ApiPath + "&userId=" + selectedAgency.id
       }
+      if (subaccount) {
+        ApiPath = ApiPath + "&filterUserId=" + subaccount.id
+      }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
       }
 
-      if (selectedFromDate && selectedToDate) {
-        ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
-      }
-
-      if (selectedStatus.length > 0) {
-        ApiPath += `&status=${selectedStatus.join(",")}`;
+      if (status.length > 0) {
+        ApiPath += `&status=${status.join(",")}`;
       }
 
       console.log("API Path:", ApiPath);
@@ -422,6 +479,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         <button
           className="flex-shrink-0"
           onClick={() => {
+            setActiveTabWhenModalOpened(activeTab);
             setShowFilterModal(true);
           }}
         >
@@ -450,22 +508,40 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 <button
                   className="outline-none"
                   onClick={() => {
+                    console.log("filter.key", filter.key);
+
+                    // Calculate the updated filter values before updating state
+                    let updatedFromDate = selectedFromDate;
+                    let updatedToDate = selectedToDate;
+                    let updatedStatus = [...selectedStatus];
+                    let updatedSubaccount = selectedSubaccount;
+
                     if (filter.key === "date") {
+                      updatedFromDate = null;
+                      updatedToDate = null;
                       setSelectedFromDate(null);
                       setSelectedToDate(null);
                     } else if (filter.key === "status") {
-                      setSelectedStatus((prev) =>
-                        prev.filter((s) => s !== filter.values[0])
-                      );
+                      updatedStatus = selectedStatus.filter((s) => s !== filter.values[0]);
+                      setSelectedStatus(updatedStatus);
+                    } else if (filter.key === "filterUserId") {
+                      updatedSubaccount = null;
+                      setSelectedSubaccount(null);
                     }
 
-                    // Refresh Call Logs after filter removal
-                    setCallDetails([]);
-                    setFilteredCallDetails([]);
-                    setHasMore(true);
+                    // Refresh Call Logs after filter removal with updated filter values
                     setTimeout(() => {
-                      getCallLogs(0);
-                    }, 500);
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                      setHasMore(true);
+                      // Pass updated filter values explicitly to ensure API path is reset correctly
+                      getCallLogs(0, {
+                        selectedFromDate: updatedFromDate,
+                        selectedToDate: updatedToDate,
+                        selectedStatus: updatedStatus,
+                        selectedSubaccount: updatedSubaccount
+                      });
+                    }, 100);
                   }}
                 >
                   <Image
@@ -501,7 +577,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
       <div className="w-full">
         {activeTab === "Campaign Activities" ? (
-          <AdminDashboardActiveCall isFromAgency={isFromAgency} />
+          <AdminDashboardActiveCall
+            isFromAgency={isFromAgency}
+            selectedFromDate={selectedFromDate}
+            selectedToDate={selectedToDate}
+            selectedStatus={selectedStatus}
+            selectedAgency={selectedAgency}
+            onFiltersApplied={() => {
+              // This callback can be used to refresh if needed
+            }}
+          />
         ) : activeTab === "All Activities" ? (
           <div className="w-full">
             <div
@@ -557,11 +642,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       </div>
 
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Sub Account Name</div>
-                      </div>
-
-                      <div className="w-[250px] flex-shrink-0">
-                        <div style={styles.text}>Name</div>
+                        <div style={styles.text}>Sub Account</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agent</div>
@@ -606,26 +687,20 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item.agency?.name || "AgentX Main Admin"}
+                                {item.agency?.name || "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
-                              <div style={styles.text2}>
-                                {item.user?.name || "-"}
-                              </div>
-                            </div>
-
-                            <div className="w-[250px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
+                            <div className="w-[200px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
                                 {
-                                  item.LeadModel?.firstName + " " + item.LeadModel?.lastName
+                                  item.user?.name
                                   || "-"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item.agent?.name ? (
                                   <div>{item.agent.name}</div>
@@ -634,7 +709,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 )}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 ">
+                            <div className="min-w-[200px] flex-shrink-0 truncate">
                               <div style={styles.text2}>
                                 {item.LeadModel?.phone ? (
                                   <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
@@ -644,32 +719,32 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipeline ? item?.pipeline?.title : "-"}
                               </div>
                             </div>
 
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize ">
+                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item?.status ? item?.status : "-"}
+                                {item?.callOutcome ? item?.callOutcome : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[400px] flex-shrink-0">
+                            <div className="min-w-[400px] flex-shrink-0 truncate ">
                               <div style={styles.text2}>
                                 {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                               </div>
@@ -708,275 +783,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 )}
               </InfiniteScroll>
             </div>
-
-            {/* Code for filter modal */}
-            <div>
-              <Modal
-                open={showFilterModal}
-                closeAfterTransition
-                BackdropProps={{
-                  sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(5px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
-                  sx={{
-                    ...styles.modalsStyle,
-                    scrollbarWidth: "none",
-                    backgroundColor: "transparent",
-                    height: "100svh",
-                  }}
-                >
-                  <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
-                    <div className="mt-2 w-full">
-                      <div className="flex flex-row items-center justify-between w-full">
-                        <div>Filter</div>
-                        <CloseBtn
-                          onClick={() => {
-                            setShowFilterModal(false);
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex flex-row items-start gap-4">
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="h-full"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            From
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-
-                            <div>
-                              {showFromDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowFromDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() === today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-1/2 h-full">
-                          <div
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            To
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div>
-                                  {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                  {/* <Calendar
-                              onChange={handleToDateChange}
-                              value={selectedToDate}
-                              locale="en-US"
-                              onClose={() => {
-                                setShowToDatePicker(false);
-                              }}
-                            /> */}
-                                  <Calendar
-                                    className="react-calendar"
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                    onClose={() => {
-                                      setShowToDatePicker(false);
-                                    }}
-                                    tileClassName={({ date, view }) => {
-                                      const today = new Date();
-
-                                      // Highlight the current date
-                                      if (
-                                        date.getDate() === today.getDate() &&
-                                        date.getMonth() === today.getMonth() &&
-                                        date.getFullYear() === today.getFullYear()
-                                      ) {
-                                        return "current-date"; // Add a custom class for current date
-                                      }
-
-                                      return null; // Default for other dates
-                                    }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 12,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Status
-                      </div>
-
-                      <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
-                        {statusList.map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => {
-                              setSelectedStatus((prev) => {
-                                if (prev.includes(item.status)) {
-                                  return prev.filter((s) => s !== item.status);
-                                } else {
-                                  return [...prev, item.status];
-                                }
-                              });
-                            }}
-                          >
-                            <div
-                              className="py-2 px-3 border rounded-full"
-                              style={{
-                                color: selectedStatus.includes(item.status)
-                                  ? "#fff"
-                                  : "",
-                                backgroundColor: selectedStatus.includes(item.status)
-                                  ? "#7902df"
-                                  : "",
-                              }}
-                            >
-                              {item.status}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
-                      <button
-                        className="outline-none w-full"
-                        style={{ fontSize: 16.8, fontWeight: "600" }}
-                        onClick={() => {
-                          setSelectedFromDate(null);
-                          setSelectedToDate(null);
-                          getLeads();
-                          // if (typeof window !== "undefined") {
-                          //   window.location.reload();
-                          // }
-                        }}
-                      >
-                        Reset
-                      </button>
-                      {sheetsLoader ? (
-                        <CircularProgress size={25} />
-                      ) : (
-                        <button
-                          className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: "600",
-                            backgroundColor:
-                              (selectedFromDate && selectedToDate) ||
-                                selectedStatus.length > 0
-                                ? ""
-                                : "#00000050",
-                          }}
-                          onClick={() => {
-                            // //console.log;
-                            if (
-                              (selectedFromDate && selectedToDate) ||
-                              selectedStatus.length > 0
-                            ) {
-                              localStorage.removeItem("callDetails");
-                              setInitialLoader(true);
-                              setCallDetails([]);
-                              setFilteredCallDetails([]);
-                              setHasMore(true);
-                              setShowFilterModal(false);
-                              getCallLogs(0);
-                            } else {
-                              // //console.log;
-                            }
-                          }}
-                        >
-                          Apply Filter
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
-            </div>
-
             {/* Code for details view */}
             {showDetailsModal && (
               <AdminCallDetails
@@ -990,6 +796,362 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
         ) : "No Activities found"}
       </div>
+
+      {/* Code for filter modal */}
+      <div>
+        <Modal
+          open={showFilterModal}
+          closeAfterTransition
+          BackdropProps={{
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box
+            className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
+            sx={{
+              ...styles.modalsStyle,
+              scrollbarWidth: "none",
+              backgroundColor: "transparent",
+              height: "100svh",
+            }}
+          >
+            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
+              <div className="mt-2 w-full">
+                <div className="flex flex-row items-center justify-between w-full">
+                  <div>Filter</div>
+                  <CloseBtn
+                    onClick={() => {
+                      setShowFilterModal(false);
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-row items-start gap-4">
+                  <div className="w-1/2 h-full">
+                    <div
+                      className="h-full"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      From
+                    </div>
+                    <div>
+                      <button
+                        style={{ border: "1px solid #00000020" }}
+                        className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                        onClick={() => {
+                          setShowFromDatePicker(true);
+                        }}
+                      >
+                        <p>
+                          {selectedFromDate
+                            ? selectedFromDate.toDateString()
+                            : "Select Date"}
+                        </p>
+                        <CalendarDots weight="regular" size={25} />
+                      </button>
+
+                      <div>
+                        {showFromDatePicker && (
+                          <div>
+                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                            <Calendar
+                              onChange={handleFromDateChange}
+                              value={selectedFromDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowFromDatePicker(false);
+                              }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-1/2 h-full">
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      To
+                    </div>
+                    <div>
+                      <button
+                        style={{ border: "1px solid #00000020" }}
+                        className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
+                        onClick={() => {
+                          setShowToDatePicker(true);
+                        }}
+                      >
+                        <p>
+                          {selectedToDate
+                            ? selectedToDate.toDateString()
+                            : "Select Date"}
+                        </p>
+                        <CalendarDots weight="regular" size={25} />
+                      </button>
+                      <div>
+                        {showToDatePicker && (
+                          <div>
+                            {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
+                                                                    <button>
+                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
+                                                                    </button>
+                                                                </div> */}
+                            {/* <Calendar
+                              onChange={handleToDateChange}
+                              value={selectedToDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowToDatePicker(false);
+                              }}
+                            /> */}
+                            <Calendar
+                              className="react-calendar"
+                              onChange={handleToDateChange}
+                              value={selectedToDate}
+                              locale="en-US"
+                              onClose={() => {
+                                setShowToDatePicker(false);
+                              }}
+                              tileClassName={({ date, view }) => {
+                                const today = new Date();
+
+                                // Highlight the current date
+                                if (
+                                  date.getDate() === today.getDate() &&
+                                  date.getMonth() === today.getMonth() &&
+                                  date.getFullYear() === today.getFullYear()
+                                ) {
+                                  return "current-date"; // Add a custom class for current date
+                                }
+
+                                return null; // Default for other dates
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subaccount Filter - Only show for All Activities tab */}
+                {activeTabWhenModalOpened === "All Activities" && (
+                  <>
+                    {
+                      isFromAgency && (
+                        <div className="w-full">
+                          <div
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 12,
+                              color: "#00000060",
+                              marginTop: 10,
+                            }}
+                          >
+                            Sub Account
+                          </div>
+                          <FormControl fullWidth className="mt-2">
+                            <Select
+                              value={selectedSubaccount?.id || ""}
+                              onChange={(e) => {
+                                const subaccountId = e.target.value;
+                                const subaccount = subaccountList.find(sub => sub.id === subaccountId);
+                                setSelectedSubaccount(subaccount || null);
+                              }}
+                              displayEmpty
+                              sx={{
+                                borderRadius: "8px",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  borderColor: "#00000020",
+                                },
+                              }}
+                            >
+                              <MenuItem value="">
+                                Select Sub Account
+                              </MenuItem>
+                              {subaccountList.map((subaccount) => (
+                                <MenuItem key={subaccount.id} value={subaccount.id}>
+                                  {subaccount.name || subaccount.email || `Sub Account ${subaccount.id}`}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </div>
+
+                      )}
+
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 12,
+                        color: "#00000060",
+                        marginTop: 10,
+                      }}
+                    >
+                      Status
+                    </div>
+
+                    <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
+                      {statusList.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setSelectedStatus((prev) => {
+                              if (prev.includes(item.status)) {
+                                return prev.filter((s) => s !== item.status);
+                              } else {
+                                return [...prev, item.status];
+                              }
+                            });
+                          }}
+                        >
+                          <div
+                            className="py-2 px-3 border rounded-full"
+                            style={{
+                              color: selectedStatus.includes(item.status)
+                                ? "#fff"
+                                : "",
+                              backgroundColor: selectedStatus.includes(item.status)
+                                ? "#7902df"
+                                : "",
+                            }}
+                          >
+                            {item.status}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+
+              </div>
+
+              <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                <button
+                  className="outline-none w-full"
+                  style={{ fontSize: 16.8, fontWeight: "600" }}
+                  onClick={() => {
+                    setSelectedFromDate(null);
+                    setSelectedToDate(null);
+                    setSelectedStatus([]);
+                    setSelectedSubaccount(null);
+                    setShowFilterModal(false);
+
+                    // Reset filters for the active tab when modal was opened
+                    if (activeTabWhenModalOpened === "Campaign Activities") {
+                      // For Campaign Activities, filters are passed as props, so resetting them will trigger refresh
+                      // Reset state
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                    } else {
+                      // For All Activities - pass empty filter values explicitly
+                      setCallDetails([]);
+                      setFilteredCallDetails([]);
+                      setHasMore(true);
+                      // Pass empty filter values to ensure API path is reset correctly
+                      getCallLogs(0, {
+                        selectedFromDate: null,
+                        selectedToDate: null,
+                        selectedStatus: [],
+                        selectedSubaccount: null
+                      });
+                    }
+                  }}
+                >
+                  Reset
+                </button>
+                {sheetsLoader ? (
+                  <CircularProgress size={25} />
+                ) : (
+                  <button
+                    className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
+                    style={{
+                      fontSize: 16.8,
+                      fontWeight: "600",
+                      backgroundColor:
+                        (selectedFromDate && selectedToDate) ||
+                          selectedStatus.length > 0 ||
+                          selectedSubaccount
+                          ? ""
+                          : "#00000050",
+                    }}
+                    onClick={() => {
+                      // //console.log;
+                      if (
+                        (selectedFromDate && selectedToDate) ||
+                        selectedStatus.length > 0 ||
+                        selectedSubaccount
+                      ) {
+                        localStorage.removeItem("callDetails");
+                        setInitialLoader(true);
+                        setShowFilterModal(false);
+
+                        // Apply filter based on which tab was active when modal opened
+                        if (activeTabWhenModalOpened === "Campaign Activities") {
+                          // For Campaign Activities, the filter will be applied via props passed to AdminDashboardActiveCall
+                          // Trigger a refresh by resetting the component state
+                          setCallDetails([]);
+                          setFilteredCallDetails([]);
+                        } else {
+                          // For All Activities, call getCallLogs with current filter values
+                          setCallDetails([]);
+                          setFilteredCallDetails([]);
+                          setHasMore(true);
+                          // Pass current filter values explicitly to ensure API uses correct filters
+                          getCallLogs(0, {
+                            selectedFromDate,
+                            selectedToDate,
+                            selectedStatus,
+                            selectedSubaccount
+                          });
+                        }
+                      } else {
+                        // //console.log;
+                      }
+                    }}
+                  >
+                    Apply Filter
+                  </button>
+                )}
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      </div>
+
     </div>
 
 

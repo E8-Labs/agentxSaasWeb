@@ -285,6 +285,7 @@ function AdminTransactions() {
         <div className="w-1/12"><div style={styles.header}>Type</div></div>
         <div className="w-1/12"><div style={styles.header}>Stripe Fee</div></div>
         <div className="w-1/12"><div style={styles.header}>Collected</div></div>
+        <div className="w-1/12"><div style={styles.header}>Payout</div></div>
         {/* <div className="w-1/12"><div style={styles.header}>Status</div></div> */}
         <div className="w-1/12"><div style={styles.header}>Date</div></div>
       </div>
@@ -344,6 +345,10 @@ function AdminTransactions() {
 
               <div className="w-1/12">
                 <div style={styles.cell}>{formatCurrency(transaction.collected)}</div>
+              </div>
+              
+              <div className="w-1/12">
+                <div style={styles.cell}>{formatCurrency(transaction.agencyNetAmount)}</div>
               </div>
 
               {/*<div className="w-1/12">

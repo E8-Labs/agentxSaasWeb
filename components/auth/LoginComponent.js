@@ -265,14 +265,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       "CA"
     );
     
+    // Try to parse as MX
+    const parsedMx = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      "MX"
+    );
+    
     // Try to parse without country code (auto-detect)
     const parsedAuto = parsePhoneNumberFromString(
       `+${phoneNumber}`
     );
 
-    const isValid = (parsedUs && parsedUs.isValid() && (parsedUs.country === 'US' || parsedUs.country === 'CA')) ||
-                    (parsedCa && parsedCa.isValid() && (parsedCa.country === 'US' || parsedCa.country === 'CA')) ||
-                    (parsedAuto && parsedAuto.isValid() && (parsedAuto.country === 'US' || parsedAuto.country === 'CA'));
+    const isValid = (parsedUs && parsedUs.isValid() && (parsedUs.country === 'US' || parsedUs.country === 'CA' || parsedUs.country === 'MX')) ||
+                    (parsedCa && parsedCa.isValid() && (parsedCa.country === 'US' || parsedCa.country === 'CA' || parsedCa.country === 'MX')) ||
+                    (parsedMx && parsedMx.isValid() && (parsedMx.country === 'US' || parsedMx.country === 'CA' || parsedMx.country === 'MX')) ||
+                    (parsedAuto && parsedAuto.isValid() && (parsedAuto.country === 'US' || parsedAuto.country === 'CA' || parsedAuto.country === 'MX'));
 
     if (!isValid) {
       setErrorMessage("Invalid");
@@ -766,10 +773,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={"us"} // Default country
-                    onlyCountries={["us", "ca", "mx", "mx"]} // Allow US, Canada, and Mexico
-                    disableDropdown={false} // Enable dropdown to switch between US/CA
+                    onlyCountries={["us", "ca", "mx"]} // Allow US, Canada, and Mexico
+                    disableDropdown={false} // Enable dropdown to switch between US/CA/MX
                     countryCodeEditable={false}
-                    disableCountryCode={false}
+                    disableCou ntryCode={false}
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -809,7 +816,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    preferredCountries={["us", "ca"]}
+                    preferredCountries={["us", "ca", "mx"]}
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                 </div>

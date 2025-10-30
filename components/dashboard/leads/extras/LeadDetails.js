@@ -320,7 +320,7 @@ const LeadDetails = ({
     let selectedUser = null
     console.log("data", data)
     console.log("typeof data", typeof data)
-    
+
     // Fix: Check if data exists and is not "undefined" string, then safely parse
     if (data && data !== "undefined" && data !== "null") {
       try {
@@ -331,7 +331,7 @@ const LeadDetails = ({
         selectedUser = null
       }
     }
-    
+
     setPhoneLoading(true)
     let id = selectedUser?.id
     let num = await getA2PNumbers(id)
@@ -1099,9 +1099,15 @@ const LeadDetails = ({
       formData.append('leadPhone', selectedLeadsDetails?.phone || '');
       formData.append('content', smsData.content || '');
       formData.append('phone', smsData.phone || '');
+      formData.append('leadId', smsData.leadId || '');
 
+
+      //print form data
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
       const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/templates/send-sms',
+        Apis.sendSMSToLead,
         formData,
         {
           headers: {
@@ -1633,21 +1639,27 @@ const LeadDetails = ({
                                       },
                                     }}
                                   >
-                                    <button
-                                      className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
-                                      onClick={() => setShowSMSModal(true)}
-                                      disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
-                                    >
-                                      <Image
-                                        src="/otherAssets/sendSmsIcon.png"
-                                        height={18}
-                                        width={18}
-                                        alt="Send SMS"
-                                      />
-                                      <span className="text-[12px] font-[400]">
-                                        Send Text
-                                      </span>
-                                    </button>
+                                  {
+                                    sendSMSLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
+                                      <button
+                                        className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
+                                        onClick={() => setShowSMSModal(true)}
+                                        disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
+                                      >
+                                        <Image
+                                          src="/otherAssets/sendSmsIcon.png"
+                                          height={18}
+                                          width={18}
+                                          alt="Send SMS"
+                                        />
+                                        <span className="text-[12px] font-[400]">
+                                          Send Text
+                                        </span>
+                                      </button>
+                                    )
+                                  }
                                   </Tooltip>
                                 </div>
 

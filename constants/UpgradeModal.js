@@ -48,13 +48,13 @@ const UpgradeModal = ({
 
     // Use provided features, or get features by functionality, or use default
     const allFeatures = features || getFeaturesByFunctionality(functionality);
-    
+
     // Split features into two columns (first 8 and remaining)
     const benifits1 = allFeatures.slice(0, 8);
     const benifits2 = allFeatures.slice(8);
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
-  const { user: reduxUser, setUser: setReduxUser } = useUser();
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
 
 
 
@@ -85,14 +85,15 @@ const UpgradeModal = ({
                                 // borderRadius:'20px'
                             }}
                         >
+                            <div className='w-full flex flex-row items-start justify-end p-5'>
+                                <CloseBtn
+                                    onClick={
+                                        handleClose
+                                    }
+                                />
+                            </div>
                             <div className='w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[80vh]'>
-                                <div className='w-full flex flex-row items-start justify-end'>
-                                    <CloseBtn
-                                        onClick={
-                                            handleClose
-                                        }
-                                    />
-                                </div>
+
                                 <div className="flex flex-row items-center justify-center gap-4">
                                     <div
                                         className="text-purple"
@@ -198,7 +199,7 @@ const UpgradeModal = ({
                     }}
                     plan={selectedPlan}
                     currentFullPlan={reduxUser?.user?.plan}
-                    setSelectedPlan={()=>{}}
+                    setSelectedPlan={() => { }}
                 />
             </Elements>
         </div>

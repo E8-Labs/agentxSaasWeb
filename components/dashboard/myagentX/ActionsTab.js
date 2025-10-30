@@ -14,6 +14,7 @@ const ActionsTab = ({
     activeTab,
     showDrawerSelectedAgent,
     setShowAddScoringModal,
+    setShowDrawerSelectedAgent,
 }) => {
 
     const [selectedActionTab, setSelectedActionTab] = useState(1);
@@ -85,6 +86,8 @@ const ActionsTab = ({
                         activeTab={activeTab}
                         showDrawerSelectedAgent={showDrawerSelectedAgent}
                         setShowAddScoringModal={setShowAddScoringModal}
+                        setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                        setUserDetails={setUserDetails}
                     />
             }
 

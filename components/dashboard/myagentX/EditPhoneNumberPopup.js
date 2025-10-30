@@ -102,7 +102,7 @@ export const EditPhoneNumberModal = ({
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
               country={"us"} // restrict to US only
-              onlyCountries={["us"]}
+              onlyCountries={["us", "mx"]}
               disableDropdown={true}
               countryCodeEditable={false}
               disableCountryCode={false}

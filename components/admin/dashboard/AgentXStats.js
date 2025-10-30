@@ -121,41 +121,51 @@ function AgentXStats({ user }) {
             alt="Icon"
             className="cursor-pointer h-20  -ml-2 -mt-3"
           />
-          {count != "" && percentage != "" && (
-            <div className="cursor-pointer flex flex-col mr-2 items-end">
-              <div
-                className="cursor-pointer font-light"
-                style={{
-                  fontFamily: "Inter",
-                  fontSize: 23,
-                  fontWeight: "bold",
-                }}
-              >
-                {count}
+          {/* Show both count and percentage when both are valid (including count=0) */}
+          {((typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
+            (percentage !== "" && percentage !== null && percentage !== undefined)) && (
+              <div className="cursor-pointer flex flex-col mr-2 items-end">
+                <div
+                  className="cursor-pointer font-light"
+                  style={{
+                    fontFamily: "Inter",
+                    fontSize: 23,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {count}
+                </div>
+                <p className="cursor-pointer text-gray-500 text-lg font-light">
+                  {percentage}%
+                </p>
               </div>
-              <p className="cursor-pointer text-gray-500 text-lg font-light">
-                {percentage}%
-              </p>
-            </div>
-          )}
-          {(count == "" || percentage == "") && (
-            <div className="cursor-pointer flex flex-col mr-2 items-end">
-              <h2
-                className="cursor-pointer font-light"
-                style={{
-                  fontFamily: "Inter",
-                  fontSize: 23,
-                  fontWeight: "bold",
-                }}
-              >
-                {count == "" ? percentage : count}
-                {count == "" ? "%" : ""}
-              </h2>
-              {/* <p className="cursor-pointer text-gray-500 text-lg">
-                {percentage}%
-              </p> */}
-            </div>
-          )}
+            )}
+          {/* Show single value (count or percentage) when only one exists */}
+          {(!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ||
+            !(percentage !== "" && percentage !== null && percentage !== undefined)) && (
+              <div className="cursor-pointer flex flex-col mr-2 items-end">
+                <h2
+                  className="cursor-pointer font-light"
+                  style={{
+                    fontFamily: "Inter",
+                    fontSize: 23,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) 
+                    ? count 
+                    : percentage}
+                  {!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ? "%" : ""}
+                </h2>
+                {/* Only show percentage below if we're showing count above */}
+                {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
+                 (percentage !== "" && percentage !== null && percentage !== undefined) && (
+                  <p className="cursor-pointer text-gray-500 text-lg">
+                    {percentage}%
+                  </p>
+                )}
+              </div>
+            )}
         </div>
 
         <div className="cursor-pointer flex flex-row items-start w-full pl-3">
@@ -318,8 +328,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "> 2 agents",
-            stats?.pipelineUsers?.percentage,
-            stats?.pipelineUsers?.count,
+            stats?.agentUsers?.percentage,
+            stats?.agentUsers?.count,
             "/mt2agentsicon.png"
           )}
         </button>
@@ -331,8 +341,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "> 1 pipeline",
-            stats?.agentUsers?.percentage,
-            stats?.agentUsers?.count,
+            stats?.pipelineUsers?.percentage,
+            stats?.pipelineUsers?.count,
             "/mt1pipelineicon.png"
           )}
         </button>
