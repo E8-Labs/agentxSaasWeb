@@ -415,12 +415,13 @@ const PipelineStages = ({
     const agentDetails = localStorage.getItem("agentDetails");
     if (agentDetails && agentDetails != "undefined") {
       const agentData = JSON.parse(agentDetails);
-      // //console.log;
+      console.log("agent data is", agentData);
       if (agentData.agents?.length > 1) {
         // //console.log;
         setIsInboundAgent(false);
       } else {
-        if (agentData.agents[0]?.agentType === "inbound") {
+       
+        if (agentData.agents && agentData.agents[0]?.agentType === "inbound") {
           setIsInboundAgent(true);
         } else {
           setIsInboundAgent(false);

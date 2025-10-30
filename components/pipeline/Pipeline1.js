@@ -68,7 +68,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const localAgentData = localStorage.getItem("agentDetails");
     if (localAgentData && localAgentData != "undefined") {
       const Data = JSON.parse(localAgentData);
-      if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
+      if (Data.agents && Data.agents?.length === 1 && Data.agents[0].agentType == "inbound") {
         return;
       } else {
         // //console.log;
@@ -184,7 +184,7 @@ const Pipeline1 = ({ handleContinue }) => {
       // I have consolidated the logic here  and on the @PipelineStages.js file. Let's discuss it and consolidate into one.
       console.log("Trigered getpipelines")
       let selectedUserLocalData = localStorage.getItem("selectedUser")
-      if(!selectedUserLocalData){
+      if (!selectedUserLocalData) {
         selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       }
       // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
@@ -200,12 +200,12 @@ const Pipeline1 = ({ handleContinue }) => {
         //TODO: @Arslan @Hamza tell me why are we using selectedUser?.subAccountData?.id instead of selectedUser?.id here
         // I am commenting it for now.
         // ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        if(selectedUser?.subAccountData?.id){
+        if (selectedUser?.subAccountData?.id) {
           ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        }else{
+        } else {
           ApiPath = ApiPath + "&userId=" + selectedUser?.id;
         }
-        
+
       }
 
       console.log("ApiPath is", ApiPath);
@@ -304,7 +304,7 @@ const Pipeline1 = ({ handleContinue }) => {
       action,
       templateData
     });
-    
+
     setRowsByIndex((prev) => {
       const list = prev[index] ?? [];
       const nextId = list.length ? list[list.length - 1].id + 1 : 1;
@@ -324,7 +324,7 @@ const Pipeline1 = ({ handleContinue }) => {
       if (templateData) {
         console.log('Adding template data for action:', action);
         console.log('templateData received:', templateData);
-        
+
         // Add all template data to the row
         Object.keys(templateData).forEach(key => {
           if (templateData[key] !== undefined) {
@@ -332,7 +332,7 @@ const Pipeline1 = ({ handleContinue }) => {
             console.log(`Setting newRow.${key} = ${templateData[key]}`);
           }
         });
-        
+
         console.log('newRow after adding template data:', newRow);
       } else {
         console.log('No template data provided');
@@ -359,7 +359,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
   const updateRow = (leadIndex, rowId, updatedData) => {
     console.log(`Updating row ${rowId} in stage ${leadIndex} with data:`, updatedData);
-    
+
     setRowsByIndex((prev) => {
       const updatedRows = {
         ...prev,
@@ -372,7 +372,7 @@ const Pipeline1 = ({ handleContinue }) => {
           return row;
         }),
       };
-      
+
       console.log('Updated rowsByIndex state:', updatedRows);
       return updatedRows;
     });
@@ -401,9 +401,9 @@ const Pipeline1 = ({ handleContinue }) => {
       .filter((item) => item !== null); // Filter out null values
 
     console.log("All Data ", allData);
-    
-  
-    
+
+
+
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
@@ -416,7 +416,7 @@ const Pipeline1 = ({ handleContinue }) => {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
       if (
-        agentData.agents.length === 1 &&
+        agentData.agents && agentData.agents?.length === 1 &&
         agentData.agents[0].agentType === "inbound"
       ) {
         cadenceData = {
@@ -430,7 +430,7 @@ const Pipeline1 = ({ handleContinue }) => {
                   waitTimeDays: 3650,
                   waitTimeHours: 0,
                   waitTimeMinutes: 0,
-                  communicationType : "call"
+                  communicationType: "call"
                 },
               ],
             },
