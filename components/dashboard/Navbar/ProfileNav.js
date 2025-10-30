@@ -38,7 +38,6 @@ import socketService from "@/utilities/SocketService";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { AuthToken, AuthToken, AuthToken, AuthToken } from "@/components/agency/plan/AuthDetails";
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
