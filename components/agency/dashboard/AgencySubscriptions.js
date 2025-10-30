@@ -143,23 +143,33 @@ function AgencySubscriptions({
   // const [planMapping, setPlanMapping] = useState(null);
 
   // Transform data into required format
-  const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map(
+  const planChartData = Object.keys(analyticData?.activePlansUsers || {}).map(
     (planName, index) => ({
       name: planName || "",
-      value: analyticData.subscription.activePlans[planName] || 0,
+      value: analyticData.activePlansUsers[planName] || 0,
       color: colors[index % colors.length],
     })
   );
 
+  // Calculate max value for plans chart to set Y-axis domain with increments of 1
+  const maxPlanValue = planChartData.length > 0 
+    ? Math.max(...planChartData.map(d => d.value)) 
+    : 0;
 
 
-  const reActivationChartData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
+
+  const reActivationChartData = Object.keys(analyticData?.reactivationsByPlan || {}).map(
     (planName, index) => ({
       name: planName || "",
-      value: analyticData.subscription.cancellations[planName] || 0,
+      value: analyticData.reactivationsByPlan[planName] || 0,
       color: colors[index % colors.length],
     })
   );
+
+  // Calculate max value for reactivation chart to set Y-axis domain with increments of 1
+  const maxReactivationValue = reActivationChartData.length > 0 
+    ? Math.max(...reActivationChartData.map(d => d.value)) 
+    : 0;
 
   const cancellationsRateData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
     (planName, index) => ({
@@ -555,6 +565,9 @@ function AgencySubscriptions({
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 12, fill: "#6b7280" }}
+                        domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
+                        allowDecimals={false}
+                        ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
                       />
 
                       {/* Tooltip */}
@@ -576,7 +589,7 @@ function AgencySubscriptions({
                       />
 
                       {/* Bars */}
-                      {planChartData.length > 0 ? (
+                      {planChartData.length > 0 && (
                         <Bar
                           zIndex={1}
                           dataKey="value"
@@ -584,18 +597,6 @@ function AgencySubscriptions({
                           isAnimationActive={true}
                           radius={[4, 4, 0, 0]}
                           barSize={20}
-                        />
-                      ) : (
-                        <Bar
-                          dataKey="fallback"
-                          fill="#ccc"
-                          radius={[4, 4, 0, 0]}
-                          barSize={20}
-                          isAnimationActive={false}
-                          data={[
-                            { name: "No Plan", fallback: 2 },
-                            { name: "No Plan", fallback: 3 }
-                          ]}
                         />
                       )}
 
@@ -658,6 +659,9 @@ function AgencySubscriptions({
                         tickLine={false}
                         axisLine={false}
                         tick={{ fontSize: 12, fill: "#6b7280" }}
+                        domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
+                        allowDecimals={false}
+                        ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
                       />
 
                       {/* Tooltip */}
