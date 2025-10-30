@@ -670,7 +670,7 @@ const MarketerAgentSignUp = ({
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={"us"} // Default country
-                  onlyCountries={["us", "ca", "mx"]} // Allow US, Canada, and Mexico
+                  onlyCountries={["us", "ca", "mx"]} // Allow US and Canada only
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={

@@ -62,6 +62,26 @@ const ShowRequestStatus = ({
                     </div>
                 </div>
             )
+        } else {
+            return (
+                <div className='w-full'>
+                    <div className='bg-btgray px-4 py-2 w-full flex flex-row items-center gap-2'>
+                        <Image
+                            alt='*'
+                            src={"/assets/rejected.jpg"}
+                            height={15}
+                            width={15}
+                            className='rounded-full'
+                        />
+                        <div style={styles.regularTxt}>
+                            Pending
+                        </div>
+                        {/*<div>
+                            Recjection reason
+            </div>*/}
+                    </div>
+                </div>
+            )
         }
     }
 
