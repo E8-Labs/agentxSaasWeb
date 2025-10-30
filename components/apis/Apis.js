@@ -317,6 +317,10 @@ const Apis = {
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+
+  resumeSubscription: `${BasePath}api/user/cancellation/resume`,
+  editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
+
   
 };
 

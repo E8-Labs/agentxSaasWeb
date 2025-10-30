@@ -102,13 +102,15 @@ function SMSTempletePopup({
             // Handle lead SMS sending
             if (isLeadSMS && onSendSMS) {
                 console.log('Sending SMS to lead:', leadPhone);
+
                 const smsData = {
                     content: body,
                     phone: leadPhone,
-                    smsPhoneNumberId: selectedPhone.id,
+                    smsPhoneNumberId: selectedPhone?.id,
                     leadId: leadId
 
                 };
+                console.log('smsData', smsData)
                 onSendSMS(smsData);
                 return; // Don't close modal yet, let the send function handle it
             }
