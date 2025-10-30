@@ -39,16 +39,16 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
 
     const checkCnamStatus = () => {
         const Data = localStorage.getItem("CNAMStatusReview");
+        if ((!twilioHubData || !twilioHubData?.status) && Data) {
+            const data = JSON.parse(Data);
+            setCnamStatus(data.status);
+            return;
+        }
         if (twilioHubData?.status) {
             setCnamStatus(twilioHubData?.status);
             localStorage.removeItem("CNAMStatusReview");
         } else {
-            if (Data) {
-                const data = JSON.parse(Data);
-                setCnamStatus(data.status);
-            } else {
-                setCnamStatus("");
-            }
+            setCnamStatus("");
         }
     }
 
