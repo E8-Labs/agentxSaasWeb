@@ -272,6 +272,13 @@ const Apis = {
   // Call Analytics API
   getCallAnalytics: `${BasePath}api/admin/call-analytics`,
   
+  // Revenue APIs
+  revenueSummary: `${BasePath}api/admin/revenue/summary`,
+  revenueGrowth: `${BasePath}api/admin/revenue/revenue-growth`,
+  revenueLeaderboard: `${BasePath}api/admin/revenue/leaderboard`,
+  revenuePayoutsSummary: `${BasePath}api/admin/revenue/payouts/summary`,
+  revenueTransactions: `${BasePath}api/admin/revenue/transactions`,
+  
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 

@@ -85,43 +85,7 @@ export default function AgencyDashboard({
           </TabsContent>
 
           <TabsContent value="revenue">
-            <AgencyRevenueDashboard
-              topMetrics={{
-                totalRevenue: "$121,000",
-                mrr: "$31,040",
-                netRevenue: "$93,164",
-                agencyNetEarnings: "$90,920",
-                stripeBalance: "$9,302.12",
-              }}
-              revenueChart={{
-                data: [
-                  { month: "Jan", value: 100 },
-                  { month: "Feb", value: 200 },
-                  { month: "Mar", value: 300 },
-                  { month: "Apr", value: 121200 },
-                  { month: "May", value: 500 },
-                  { month: "Jun", value: 600 },
-                  { month: "Jul", value: 700 },
-                  { month: "Aug", value: 800 },
-                  { month: "Sep", value: 900 },
-                  { month: "Oct", value: 1000 },
-                  { month: "Nov", value: 1100 },
-                  { month: "Dec", value: 1200 },
-                ],
-                currentValue: "11,728",
-                selectedPeriod: "This Year",
-              }}
-              leaderboardData={[]}
-              transactionData={[]}
-              payoutMetrics={{
-                nextPayoutDate: "March 12",
-                nextPayoutTime: "12:04PM",
-                lifetimePayouts: "$9,302.12",
-                avgTransactionValue: "$9,302.12",
-                refundsCount: "12",
-                refundsAmount: "$40,902",
-              }}
-            />
+            <AgencyRevenueDashboard selectedAgency={selectedAgency} />
           </TabsContent>
         </Tabs>
 
