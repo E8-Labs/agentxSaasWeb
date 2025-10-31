@@ -125,7 +125,7 @@ export default function PlanConfiguration({
         },
         {
             label: "API Key",
-            tooltip: "",//Enable API access for integrations.
+            tooltip: "Connect your AI agents to external tools like Zapier, Make, GHL and more.",
             stateKey: "apiKey",
         },
         {

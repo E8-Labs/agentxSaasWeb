@@ -1381,7 +1381,7 @@ function SubAccountPlansAndPayments({
                                             msOverflowStyle: "none", // IE/Edge
                                         }}
                                     >
-                                        {item.features && item.features.length > 0 && (
+                                        {Array.isArray(item.features) && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
                                                     {item.features.slice(0, 6).map((feature, featureIndex) => (
