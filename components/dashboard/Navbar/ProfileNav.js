@@ -1116,8 +1116,37 @@ const ProfileNav = () => {
   };
 
   const resumeAccount = async () => {
-    console.log("resumeAccount")
-   
+    setLoading(true);
+
+    try {
+      const user = localStorage.getItem("User");
+      if (user) {
+        const userData = JSON.parse(user);
+        let token = userData.token;
+        console.log("token is", token);
+
+        const response = await axios.post(Apis.resumeSubscription,{}, {
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.data.status === true) {
+          setShowSuccessSnack(true);
+          setSuccessSnack(response.data.message);
+          await getProfile();
+          setShowPlanPausedBar(false);
+        } else {
+          setShowErrorSnack(true);
+          setErrorSnack(response.data.message);
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is:", error);
+    } finally {
+      setLoading(false);
+    }
+
   }
 
   const SnackBarForUpgradePlan = (Data) => {
@@ -1771,28 +1800,31 @@ const ProfileNav = () => {
           </Box>
         </Modal>
 
-      {/* UpgradePlan Modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
-          setSelectedPlan={() => {
-            console.log("setSelectedPlan is called")
-          }}
-          currentFullPlan={userDetails?.user?.plan}
-          open={showUpgradePlanModal2}
-          handleClose={(upgradeResult) => {
-            setShowUpgradePlanModal2(false)
-            if (upgradeResult) {
-              getProfile()
-            }
-          }}
-          setShowSnackMsg={() => {
-            console.log("setShowSnackMsg is called")
-          }}
-        />
-      </Elements>
+        {/* UpgradePlan Modal */}
+        <Elements stripe={stripePromise}>
+          <UpgradePlan
+            setSelectedPlan={() => {
+              console.log("setSelectedPlan is called")
+            }}
+            currentFullPlan={userDetails?.user?.plan}
+            open={showUpgradePlanModal2}
+            handleClose={(upgradeResult) => {
+              setShowUpgradePlanModal2(false)
+              if (upgradeResult) {
+                refreshUserData()
+                setShowUpgradePlanBar(false)
+                setShowFailedPaymentBar(false)
+                setShowPlanPausedBar(false)
+              }
+            }}
+            setShowSnackMsg={() => {
+              console.log("setShowSnackMsg is called")
+            }}
+          />
+        </Elements>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default ProfileNav;
