@@ -840,7 +840,7 @@ const ProfileNav = () => {
             ) {
               console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-            } else if (isBalanceLow) {
+            } else if (isBalanceLow && (Data?.plan?.price !== 0 || Data?.smartRefill === false)) {
               console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
@@ -1181,7 +1181,7 @@ const ProfileNav = () => {
             <>
               {
 
-                showUpgradePlanBar && userDetails?.user?.plan?.price === 0 ? (
+                showUpgradePlanBar && reduxUser?.plan?.price === 0 ? (
                   <div className="flex flex-col">
                     <div style={{ fontSize: 13, fontWeight: '700', }}>
                       {`You're out of Free AI Credits.`}<span className="text-purple underline cursor-pointer" onClick={() => {
@@ -1197,9 +1197,9 @@ const ProfileNav = () => {
                 ) : (
                   showUpgradePlanBar ? (
                     <div style={{ fontSize: 13, fontWeight: '700', }}>
-                      {userDetails?.user?.plan?.price === 0 ? "You're out of Free AI Credits." :
+                      {reduxUser?.plan?.price === 0 ? "You're out of Free AI Credits." :
                         `Action Needed! Your AI agents are paused. You don't have enough credits.`}
-                      {Data?.smartRefill === false && (<span
+                      {reduxUser?.smartRefill === false && (<span
                         className="text-purple underline cursor-pointer"
                         onClick={() => {
                           router.push('/dashboard/myAccount?tab=2')
