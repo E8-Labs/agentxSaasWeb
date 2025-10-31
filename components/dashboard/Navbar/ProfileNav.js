@@ -840,7 +840,7 @@ const ProfileNav = () => {
             ) {
               console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-            } else if (isBalanceLow) {
+            } else if (isBalanceLow && (Data?.plan?.price !== 0 || Data?.smartRefill === false)) {
               console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
