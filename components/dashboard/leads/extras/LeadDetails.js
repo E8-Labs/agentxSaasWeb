@@ -1528,7 +1528,7 @@ const LeadDetails = ({
                                             alt="*"
                                           />
                                           <div className="text-[12px] font-[400]">
-                                            <span className="text-purple text-[15px] font-[400]">
+                                            <span className="text-purple">
                                               New
                                             </span>{" "}
                                             {email.email}
