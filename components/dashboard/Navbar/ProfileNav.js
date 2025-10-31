@@ -49,6 +49,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1115,6 +1116,24 @@ const ProfileNav = () => {
     }
   };
 
+  const handleSmartRefill = async () => {
+    setLoading(true);
+    let response = await SmartRefillApi();
+    if (response.data.status === true) {
+      setLoading(false);
+      setShowUpgradePlanBar(false);
+      setShowFailedPaymentBar(false);
+      setShowPlanPausedBar(false);
+      setShowSuccessSnack(true);
+      setSuccessSnack(response.data.message);
+      await refreshUserData();
+    } else {
+      setLoading(false);
+      setShowErrorSnack(true);
+      setErrorSnack(response.data.message);
+    }
+  }
+
   const resumeAccount = async () => {
     setLoading(true);
 
@@ -1168,7 +1187,7 @@ const ProfileNav = () => {
         {
           showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
-              {`Your account is paused. Click here to resume`} <span
+              {`Your account is paused. Click here to`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
                   resumeAccount()
@@ -1202,10 +1221,10 @@ const ProfileNav = () => {
                       {reduxUser?.smartRefill === false && (<span
                         className="text-purple underline cursor-pointer"
                         onClick={() => {
-                          router.push('/dashboard/myAccount?tab=2')
+                          handleSmartRefill();
                         }}
                       >
-                        Turn on Smart Refill <span> or </span>
+                      {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
                       </span>)}  <span
                         className="text-purple underline cursor-pointer"
                         onClick={() => {
@@ -1331,6 +1350,7 @@ const ProfileNav = () => {
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
                       }}
                     >
                       {item.name}

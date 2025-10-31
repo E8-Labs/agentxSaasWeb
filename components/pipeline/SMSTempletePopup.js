@@ -292,62 +292,62 @@ function SMSTempletePopup({
                             phoneLoading ? (
                                 <CircularProgress size={30} />
                             ) : (
-                                !isLeadSMS && (
-                                    <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
-                                        <FormControl sx={{ width: isLeadSMS ? '80%' : '100%',height: '54px' }}>
-                                            <Select
-                                                value={selectedPhone || ""}
-                                                onChange={(event) => handleSelect(event.target.value)}
-                                                displayEmpty // Enables placeholder
-                                                renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
-                                                sx={{
-                                                    ...styles.dropdownMenu,
-                                                    backgroundColor: "#FFFFFF",
-                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "transparent", // Hide focused border color
+                                <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
+                                    <FormControl sx={{ width: isLeadSMS ? '80%' : '100%', height: '54px' }}>
+                                        <Select
+                                            value={selectedPhone || ""}
+                                            onChange={(event) => handleSelect(event.target.value)}
+                                            displayEmpty // Enables placeholder
+                                            renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                            sx={{
+                                                ...styles.dropdownMenu,
+                                                backgroundColor: "#FFFFFF",
+                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "transparent", // Hide focused border color
+
+                                                },
+
+                                            }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    style: {
+                                                        maxHeight: "30vh", // Limit dropdown height
+                                                        overflow: "auto", // Enable scrolling in dropdown
+                                                        scrollbarWidth: "none",
+                                                        // borderRadius: "10px"
                                                     },
+                                                },
+                                            }}
+                                        >
+                                            {
+                                                phoneNumbers?.length > 0 ? (
 
-                                                }}
-                                                MenuProps={{
-                                                    PaperProps: {
-                                                        style: {
-                                                            maxHeight: "30vh", // Limit dropdown height
-                                                            overflow: "auto", // Enable scrolling in dropdown
-                                                            scrollbarWidth: "none",
-                                                            // borderRadius: "10px"
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                {
-                                                    phoneNumbers?.length > 0 ? (
+                                                    phoneNumbers?.map((item, index) => (
+                                                        <MenuItem key={index}
+                                                            // className="hover:bg-[#402FFF10]"
+                                                            value={item}
+                                                        >
+                                                            <div className='flex flex-row items-center gap-2'>
 
-                                                        phoneNumbers?.map((item, index) => (
-                                                            <MenuItem key={index}
-                                                                // className="hover:bg-[#402FFF10]"
-                                                                value={item}
-                                                            >
-                                                                <div className='flex flex-row items-center gap-2'>
-
-                                                                    <div className='text-[15] font-[500] w-48'>
-                                                                        {item.phone}
-                                                                    </div>
+                                                                <div className='text-[15] font-[500] w-48'>
+                                                                    {item.phone}
                                                                 </div>
+                                                            </div>
 
-                                                            </MenuItem>
-                                                        ))
-                                                    ) : (
-                                                        <div className='p-2'>
-                                                            No number found
-                                                        </div>
-                                                    )
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                )
+                                                        </MenuItem>
+                                                    ))
+                                                ) : (
+                                                    <div className='p-2'>
+                                                        No number found
+                                                    </div>
+                                                )
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
                             )
                         }
 
@@ -377,7 +377,7 @@ function SMSTempletePopup({
 
                     </div>
                     <div className='w-full flex  flex-row items-center w-full gap-6 mt-4'>
-                        <button className='w-1/2 h-[53px] text-[15px] font-[700]'
+                        <button className='w-1/2 text-gray-600 hover:text-gray-800'
                             onClick={onClose}
                         >
                             Cancel

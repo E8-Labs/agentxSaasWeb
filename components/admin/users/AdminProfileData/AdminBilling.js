@@ -202,6 +202,11 @@ function AdminBilling({ selectedUser, from }) {
     } else {
       loadPlansForBilling();
     }
+    if (selectedUser?.id) {
+      getCardsList();
+      getPaymentHistory();
+      getProfile();
+    }
   }, [selectedUser])
 
 
@@ -489,8 +494,12 @@ function AdminBilling({ selectedUser, from }) {
   };
 
   //functiion to get cards list
-  //this function is commented temporarily
   const getCardsList = async () => {
+    if (!selectedUser?.id) {
+      console.log("No selected user, skipping getCardsList");
+      return;
+    }
+
     console.log("Get cards api trigered");
     try {
       setGetCardLoader(true);
@@ -1372,6 +1381,126 @@ function AdminBilling({ selectedUser, from }) {
             </div>
           </button>
         */}
+      </div>
+
+      {/* Payment Cards Section */}
+      <div className="w-full mt-6">
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: "600",
+            color: "#000",
+            marginBottom: 16,
+          }}
+        >
+          Payment Methods
+        </div>
+        {getCardLoader ? (
+          <div
+            className="h-full w-full flex flex-row items-center justify-center"
+            style={{
+              marginTop: 20,
+            }}
+          >
+            <CircularProgress size={35} />
+          </div>
+        ) : (
+          <div className="w-full">
+            {cards.length > 0 ? (
+              <div
+                className="w-full flex flex-row gap-4"
+                style={{
+                  overflowX: "auto",
+                  overflowY: "hidden",
+                  display: "flex",
+                  scrollbarWidth: "none",
+                  WebkitOverflowScrolling: "touch",
+                  marginTop: 10,
+                  flexShrink: 0,
+                }}
+              >
+                {cards.map((item) => (
+                  <div className="flex-shrink-0 w-5/12" key={item.id}>
+                    <div
+                      className="flex items-start justify-between w-full p-4 border rounded-lg"
+                      style={{
+                        backgroundColor:
+                          item.isDefault || selectedCard?.id === item.id
+                            ? "#4011FA05"
+                            : "transparent",
+                        borderColor:
+                          item.isDefault || selectedCard?.id === item.id
+                            ? "#7902DF"
+                            : "#15151510",
+                        cursor: "default", // Read-only for admin
+                      }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
+                          style={{
+                            borderWidth:
+                              item.isDefault || selectedCard?.id === item.id
+                                ? 3
+                                : 1,
+                          }}
+                        ></div>
+                        {/* Card Details */}
+                        <div className="flex flex-col items-start">
+                          <div className="flex flex-row items-center gap-3">
+                            <div
+                              style={{
+                                fontSize: "16px",
+                                fontWeight: "700",
+                                color: "#000",
+                              }}
+                            >
+                              ****{item.last4}
+                            </div>
+                            {item.isDefault && (
+                              <div
+                                className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                style={{ fontSize: 11, fontWeight: "500" }}
+                              >
+                                Default
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "500",
+                              color: "#909090",
+                            }}
+                          >
+                            {item.brand} Card
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Logo */}
+                      <div>
+                        <Image
+                          src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                          alt="Card Logo"
+                          width={50}
+                          height={50}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="text-start mt-12"
+                style={{ fontSize: 18, fontWeight: "600" }}
+              >
+                No payment method added
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <SmartRefillCard
