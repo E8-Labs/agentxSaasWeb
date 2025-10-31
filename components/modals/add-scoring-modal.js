@@ -581,7 +581,7 @@ const AddScoringModal = ({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      // onClose={onClose}
       closeAfterTransition
       BackdropProps={{
         sx: {

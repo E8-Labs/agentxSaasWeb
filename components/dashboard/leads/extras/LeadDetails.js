@@ -1518,7 +1518,7 @@ const LeadDetails = ({
                                         className="flex flex-row items-center gap-2"
                                       >
                                         <div
-                                          className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                          className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
                                           style={styles.paragraph}
                                         >
                                           <Image
@@ -1527,8 +1527,8 @@ const LeadDetails = ({
                                             width={7}
                                             alt="*"
                                           />
-                                          <div>
-                                            <span className="text-purple">
+                                          <div className="text-[12px] font-[400]">
+                                            <span className="text-purple text-[15px] font-[400]">
                                               New
                                             </span>{" "}
                                             {email.email}

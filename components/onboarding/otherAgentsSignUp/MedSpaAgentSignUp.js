@@ -727,7 +727,7 @@ const MedSpaAgentSignUp = ({
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={"us"} // Default country
-                  onlyCountries={["us", "ca", "mx"]} // Allow US and Canada only
+                  onlyCountries={["us", "ca", "mx"]} // Allow US, Canada, and Mexico
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={

@@ -109,7 +109,7 @@ const NewSmartListModal = ({
       );
 
       if (response.data) {
-        onSuccess(response.data);
+        onSuccess(response.data.data);
         handleClose();
       }
     } catch (error) {

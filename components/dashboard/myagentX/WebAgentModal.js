@@ -23,12 +23,13 @@ const WebAgentModal = ({
   agentSmartRefill,
   fetureType,
   onCopyUrl,
+  selectedSmartList,
+  setSelectedSmartList,
 }) => {
 
   const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill);
   const [requireForm, setRequireForm] = useState(false);
   const [smartLists, setSmartLists] = useState([]);
-  const [selectedSmartList, setSelectedSmartList] = useState('');
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     isVisible: false,
@@ -267,7 +268,6 @@ const WebAgentModal = ({
               e.stopPropagation();
               onClose();
             }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
           />
         </div>
 

@@ -419,7 +419,7 @@ const EmbedSmartListModal = ({
                       padding: '12px',
                       backgroundColor: '#fff'
                     }}
-                    placeholder="My smartlist"
+                    placeholder="Type name here"
                     value={sheetName}
                     onChange={(e) => setSheetName(e.target.value)}
                   />
