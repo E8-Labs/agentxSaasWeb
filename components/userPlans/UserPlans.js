@@ -714,7 +714,7 @@ function UserPlans({
 
                                             <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
-                                                    item.features?.map((feature, featureIndex) => (
+                                                    Array.isArray(item.features) && item.features?.map((feature, featureIndex) => (
                                                         <div
                                                             key={feature.text}
                                                             className="flex flex-row items-start gap-3 mb-3 w-full"
