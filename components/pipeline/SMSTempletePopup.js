@@ -111,8 +111,31 @@ function SMSTempletePopup({
 
                 };
                 console.log('smsData', smsData)
-                onSendSMS(smsData);
-                return; // Don't close modal yet, let the send function handle it
+                
+                // Wait for onSendSMS to complete if it's async, otherwise call it
+                if (typeof onSendSMS === 'function') {
+                    const result = onSendSMS(smsData);
+                    if (result && typeof result.then === 'function') {
+                        // If it returns a promise, wait for it
+                        try {
+                            await result;
+                        } catch (error) {
+                            console.error('Error in onSendSMS:', error);
+                        } finally {
+                            // Reset loader after SMS is sent (with a small delay to ensure it shows)
+                            setTimeout(() => {
+                                setSaveSmsLoader(false);
+                            }, 300);
+                        }
+                    } else {
+                        // If not async, reset loader after a short delay to ensure it's visible
+                        setTimeout(() => {
+                            setSaveSmsLoader(false);
+                        }, 500);
+                    }
+                }
+                // Don't close modal - let the parent component handle it
+                return;
             }
 
             // Add your save logic here
@@ -160,7 +183,7 @@ function SMSTempletePopup({
             }
             setTimeout(() => {
                 onClose();
-            }, 500);
+            }, 100);
         } catch (error) {
             console.log('error', error)
             // setShowSnackBar({
@@ -168,7 +191,11 @@ function SMSTempletePopup({
             //     type: SnackbarTypes.Error,
             // })
         } finally {
-            setSaveSmsLoader(false)
+            // Reset loader for non-lead SMS flows
+            // For lead SMS, loader is reset in the try block after onSendSMS completes
+            if (!isLeadSMS) {
+                setSaveSmsLoader(false)
+            }
         }
     }
 
@@ -295,7 +322,7 @@ function SMSTempletePopup({
 
                                 <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
-                                    <FormControl sx={{ width: isLeadSMS ? '80%' : '100%', height: '54px' }}>
+                                    <FormControl sx={{ height: '54px', width: '100%' }}>
                                         <Select
                                             value={selectedPhone || ""}
                                             onChange={(event) => handleSelect(event.target.value)}
@@ -384,9 +411,7 @@ function SMSTempletePopup({
                         </button>
 
                         {saveSmsLoader ? (
-                            <div className='w-1/2 h-[53px] flex items-center justify-center'>
                                 <CircularProgress size={30} />
-                            </div>
                         ) : (
                             <button
                                 className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${isSaveDisabled ? 'bg-[#00000050]' : 'bg-purple hover:bg-purple/90'

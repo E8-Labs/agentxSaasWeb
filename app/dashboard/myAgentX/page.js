@@ -378,6 +378,9 @@ function Page() {
     isVisible: false
   })
 
+  const [selectedSmartList, setSelectedSmartList] = useState('');
+
+
 
 
   // Function to refresh user data after plan upgrade
@@ -419,6 +422,15 @@ function Page() {
   };
 
   const handleOpenAgentInNewTab = () => {
+    let agent = {
+      ...selectedAgentForWebAgent,
+      smartListId: selectedSmartList
+    }
+    setSelectedAgentForWebAgent(agent);
+    console.log('selectedAgentForWebAgent after updating', selectedAgentForWebAgent)
+    showDrawerSelectedAgent.smartListId = selectedSmartList;
+    console.log('showDrawerSelectedAgent after updating', showDrawerSelectedAgent)
+
     if (selectedAgentForWebAgent) {
       const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || "");
       // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
@@ -439,6 +451,17 @@ function Page() {
   };
 
   const handleSmartListCreated = (smartListData) => {
+    console.log('smartListData', smartListData)
+    let agent = {
+      ...selectedAgentForWebAgent,
+      smartListId: smartListData.id
+    }
+    console.log('agent', agent)
+    setSelectedAgentForWebAgent(agent);
+    console.log('selectedAgentForWebAgent after updating', selectedAgentForWebAgent)
+    showDrawerSelectedAgent.smartListId = smartListData.id;
+    console.log('showDrawerSelectedAgent after updating', showDrawerSelectedAgent)
+    setFetureType("webagent")
     setShowNewSmartListModal(false);
     setShowAllSetModal(true);
   };
@@ -3003,7 +3026,14 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
       setTitle("Unlock your Web Agent")
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
     } else {
-
+      let agent = {
+        ...selectedAgentForWebAgent,
+        smartListId: selectedSmartList
+      }
+      setSelectedAgentForWebAgent(agent);
+      console.log('selectedAgentForWebAgent after updating', selectedAgentForWebAgent)
+      showDrawerSelectedAgent.smartListId = selectedSmartList;
+      console.log('showDrawerSelectedAgent after updating', showDrawerSelectedAgent)
       let modelId = showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""
 
       let url = demoBaseUrl + "api/agent/demoAi/" + modelId
@@ -6137,6 +6167,8 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
         agentSmartRefill={selectedAgentForWebAgent?.smartListId}
         fetureType={fetureType}
         onCopyUrl={handleWebhookClick}
+        selectedSmartList={selectedSmartList}
+        setSelectedSmartList={setSelectedSmartList}
 
       />
 
