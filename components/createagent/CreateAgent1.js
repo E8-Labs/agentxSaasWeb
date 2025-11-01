@@ -540,7 +540,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //code for creating agent api
   const handleBuildAgent = async () => {
 
-    if (reduxUser?.plan &&  !isPlanActive(reduxUser?.plan)) {
+    if (reduxUser?.plan && !isPlanActive(reduxUser?.plan)) {
       setSnackMessage("Your plan is paused. Activate to create agents")
       setIsVisible(true)
       setMsgType(SnackbarTypes.Error)
@@ -817,25 +817,32 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
                 style={{ scrollbarWidth: "none" }}
               >
-                <div
-                  style={styles.headingStyle}
-                  className="flex flex-row items-center gap-2"
-                // onClick={handleContinue}
-                >
-                  {`What's this AI agent's name?`}
+                <div className="w-[95%] flex flex-row items-center justify-between">
                   <div
-                    aria-owns={open ? "mouse-over-popover" : undefined}
-                    aria-haspopup="true"
-                    onMouseEnter={handlePopoverOpen}
-                    onMouseLeave={handlePopoverClose}
-                    style={{ cursor: "pointer" }}
+                    style={styles.headingStyle}
+                    className="flex flex-row items-center gap-2"
+                  // onClick={handleContinue}
                   >
-                    <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
+                    {`What's this AI agent's name?`}
+                    <div
+                      aria-owns={open ? "mouse-over-popover" : undefined}
+                      aria-haspopup="true"
+                      onMouseEnter={handlePopoverOpen}
+                      onMouseLeave={handlePopoverClose}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <Image
+                        src={"/svgIcons/infoIcon.svg"}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[12px] font-[400]" style={{
+                    color: '#00000060'
+                  }}>
+                    {agentName.length}/40
                   </div>
                 </div>
                 {/* Info popover */}
@@ -867,12 +874,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
                   </div>
                 </Popover>
-                <div className="text-[12px] font-[400] w-full mt-1 pe-4" style={{
-                  textAlign: 'end',
-                  color: '#00000060'
-                }}>
-                  {agentName.length}/40
-                </div>
                 <input
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                   className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
