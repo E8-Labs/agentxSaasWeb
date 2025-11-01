@@ -2,17 +2,18 @@
 
 // //console.log;
 let BasePath =
+process.env.NEXT_PUBLIC_GHL_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
-    : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
-
+    : "https://apimyagentx.com/agentxtest/"
+)
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
 
 
 console.log(
-  "Current environment is",
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT
+  "Current base url is",
+  BasePath
 );
 
 const Apis = {
