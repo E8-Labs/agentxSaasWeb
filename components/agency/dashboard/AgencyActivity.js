@@ -35,6 +35,7 @@ import { AuthToken } from "../plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import Image from "next/image";
+import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
 // import { stat } from "fs";
 
 const data = [
@@ -436,12 +437,7 @@ function AgencyActivity({
         </div>
       </div>
     ) : (
-      <div className="w-[90%] h-[84svh] flex items-center justify-center ml-5">
-        <Image
-          alt="placeholder" src="/agencyIcons/activityPlaceholder.png" width={900} height={900}
-          style={{ width: "100%", height: "100%" }}
-        />
-      </div>
+    <AgencyDashboardDefaultUI />
     )
   );
 }

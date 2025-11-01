@@ -31,6 +31,8 @@ import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import moment from "moment";
 
+import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
+
 function AgencySubscriptions({
   selectedAgency
 }) {
@@ -300,7 +302,7 @@ function AgencySubscriptions({
   };
 
   return (
-    analyticData?.totalSubscriptions? (
+    analyticData?.totalSubscriptions ? (
       <div
         className="flex flex-col items-center justify-center w-full h-[88vh]"
         style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "4rem" }}
@@ -1094,12 +1096,7 @@ function AgencySubscriptions({
         </Modal>
       </div>
     ) : (
-      <div className="w-[90%] h-[84svh] flex items-center justify-center ml-5">
-        <Image
-          alt="placeholder" src="/agencyIcons/activityPlaceholder.png" width={900} height={900}
-          style={{ width: "100%", height: "100%" }}
-        />
-      </div>
+      <AgencyDashboardDefaultUI />
     )
   );
 }
