@@ -306,9 +306,17 @@ const Apis = {
 
   //stripe apis
   createStripeLoginLink: `${BasePath}/api/agency/createStripeLoginLink`,
-  
+
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
+
+  // Agency Notification Customization APIs
+  getAllNotificationCustomizations: `${BasePath}api/agency/notification-customizations`,
+  getNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  createNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  deleteNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  toggleNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  previewNotificationTemplate: `${BasePath}api/agency/notification-customizations`,
 };
 
 export default Apis;
