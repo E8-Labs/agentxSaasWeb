@@ -16,6 +16,7 @@ export const SnackMessageTitles = {
 
 export const BatchStatus = {
   // Pending: "Pending",
+  Scheduled: "Scheduled",
   Active: "Active",
   Paused: "Paused",
   PausedForNonPayment: "PausedForNonPayment",

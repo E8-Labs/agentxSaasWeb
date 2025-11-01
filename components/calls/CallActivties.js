@@ -655,15 +655,15 @@ function SheduledCalls({ user }) {
 
   // Function to get call status with scheduled date if applicable
   function getCallStatusWithSchedule(item) {
-    const currentTime = moment();
-    const startTime = moment(item.startTime);
+    // const currentTime = moment();
+    // const startTime = moment(item.startTime);
 
-    // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime)) {
-      // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
-      return `Scheduled`;
-    }
+    // // Check if the call is scheduled in the future
+    // if (item.startTime && startTime.isAfter(currentTime)) {
+    //   // Format the date as "Scheduled - Sep 05" or similar
+    //   const formattedDate = startTime.format('MMM DD');
+    //   return `Scheduled`;
+    // }
 
     // Return the regular readable status for past or current calls
     return getReadableStatus(item.status);

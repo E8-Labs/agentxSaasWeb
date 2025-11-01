@@ -52,6 +52,8 @@ export function getReadableStatus(status) {
       return "Paused (No Phone)";
     case BatchStatus.Completed:
       return "Completed";
+    case BatchStatus.Scheduled:
+      return "Scheduled";
     default:
       return status || "Unknown";
   }

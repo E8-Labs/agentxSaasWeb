@@ -322,7 +322,7 @@ function SMSTempletePopup({
 
                                 <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
-                                    <FormControl sx={{ height: '54px', width: '100%' }}>
+                                    <FormControl sx={{ height: '50px', width: '100%' }}>
                                         <Select
                                             value={selectedPhone || ""}
                                             onChange={(event) => handleSelect(event.target.value)}

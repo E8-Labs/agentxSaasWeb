@@ -841,7 +841,7 @@ const ProfileNav = () => {
             ) {
               console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-            } else if (isBalanceLow && (Data?.plan?.price !== 0 || Data?.smartRefill === false)) {
+            } else if (isBalanceLow && (Data?.plan?.price === 0 || Data?.smartRefill === false)) {
               console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
@@ -1754,7 +1754,7 @@ const ProfileNav = () => {
         <UpgradeModal
           open={showUpgradePlanModal}
           handleClose={() => setShowUpgradePlanModal(false)}
-          title={"You've Hit Your 20 Minute Limit"}
+          title={"You've Hit Your AI credits Limit"}
           subTitle={"Upgrade to get more call time and keep your converstaions going"}
           buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
         />

@@ -414,6 +414,59 @@ function Page() {
   };
 
 
+  const getKyc = async () => {
+    try {
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        // //console.log;
+        AuthToken = Data.token;
+      }
+
+      let MainAgentData = null;
+      const mainAgentData = localStorage.getItem("agentDetails");
+      if (mainAgentData) {
+        const Data = JSON.parse(mainAgentData);
+        //console.log;
+        MainAgentData = Data.id;
+      }
+
+      // //console.log;
+
+      let ApiPath = null;
+
+      if (MainAgentData) {
+        ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentId}`;
+
+      } else {
+        ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentId}`;
+      }
+
+      // //console.log;
+      // return
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+      
+      console.log("response of get kycs", response)
+      if (response) {
+        setKycsData(response.data.data);
+      } else {
+        // //console.log
+      }
+    } catch (error) {
+      // console.error("Error occured in gett kyc api is :--", error);
+    } finally {
+      // //console.log;
+    }
+  };
+
+
+
   // Web Agent Modal handlers
   const handleWebAgentClick = (agent) => {
     setSelectedAgentForWebAgent(agent);
@@ -562,6 +615,10 @@ function Page() {
 
 
   // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    getKyc();
+  }, [showScriptModal]);
 
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
