@@ -14,9 +14,10 @@ const EditNotifications = ({
     onSave
 }) => {
     const [formData, setFormData] = useState({
-        title: '',
-        subject: '',
-        description: '',
+        pushTitle: '',
+        pushBody: '',
+        emailSubject: '',
+        emailBody: '',
         cta: ''
     });
 
@@ -27,10 +28,11 @@ const EditNotifications = ({
     useEffect(() => {
         if (notificationData) {
             setFormData({
-                title: notificationData.title || '',
-                subject: notificationData.subject || '',
-                description: notificationData.subjectDescription || '',
-                cta: notificationData.CTA || ''
+                pushTitle: notificationData.appNotficationTitle || '',
+                pushBody: notificationData.appNotficationBody || '',
+                emailSubject: notificationData.emailNotficationTitle || notificationData.subject || '',
+                emailBody: notificationData.emailNotficationBody || notificationData.subjectDescription || '',
+                cta: notificationData.emailNotficationCTA || notificationData.CTA || ''
             });
         }
     }, [notificationData]);
@@ -66,9 +68,9 @@ const EditNotifications = ({
     };
 
     const insertVariable = (variable) => {
-        const currentDescription = formData.description;
-        const newDescription = currentDescription + `[${variable}]`;
-        handleInputChange('description', newDescription);
+        const currentDescription = formData.emailBody;
+        const newDescription = currentDescription + `${variable}`;
+        handleInputChange('emailBody', newDescription);
         setShowVariables(false);
     };
 
@@ -95,24 +97,26 @@ const EditNotifications = ({
             aria-describedby="edit-notification-description"
         >
             <Box
-                className="w-xl"
                 sx={{
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    // width: '90%',
-                    // maxWidth: '600px',
+                    width: {
+                        xs: '80%',
+                        sm: '70%',
+                        md: '600px',
+                        lg: '680px',
+                    },
                     bgcolor: 'background.paper',
                     borderRadius: 2,
                     boxShadow: 24,
                     p: 0,
                     height: '80vh',
-                    // overflow: 'hidden'
                 }}
             >
                 <div
-                    className=" scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple pb-12 px-4"
+                    className="scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple pb-12 px-4"
                     style={{ display: 'flex', flexDirection: 'column', gap: 4, height: "90%", overflow: "auto" }}
                 >
                     {/* Modal Header */}
@@ -126,46 +130,60 @@ const EditNotifications = ({
                     </div>
 
                     {/* Modal Body */}
-                    {/* Title Field */}
+                    {/* Push Title Field */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Title
+                            Push Title
                         </label>
                         <input
                             ref={titleInputRef}
-                            placeholder="Notification title"
-                            value={formData.title}
-                            onChange={(e) => handleInputChange('title', e.target.value)}
+                            placeholder="Push notification title"
+                            value={formData.pushTitle}
+                            onChange={(e) => handleInputChange('pushTitle', e.target.value)}
                             onFocus={handleTitleFocus}
                             className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
                             autoFocus={false}
                         />
                     </div>
 
-                    {/* Subject Field */}
+                    {/* Push Body Field */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Subject
+                            Push Body
                         </label>
                         <input
-                            placeholder="Subject line"
-                            value={formData.subject}
-                            onChange={(e) => handleInputChange('subject', e.target.value)}
+                            placeholder="Push notification body"
+                            value={formData.pushBody}
+                            onChange={(e) => handleInputChange('pushBody', e.target.value)}
                             className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
                             autoFocus={false}
                         />
                     </div>
 
-                    {/* Description Field */}
+                    {/* Email Subject Field */}
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Description
+                            Email Subject
+                        </label>
+                        <input
+                            placeholder="Email subject line"
+                            value={formData.emailSubject}
+                            onChange={(e) => handleInputChange('emailSubject', e.target.value)}
+                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            autoFocus={false}
+                        />
+                    </div>
+
+                    {/* Email Body / Description Field */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                            Email Body
                         </label>
                         <div className="relative border rounded-md p-2">
                             <textarea
-                                placeholder="Enter notification description..."
-                                value={formData.description}
-                                onChange={(e) => handleInputChange('description', e.target.value)}
+                                placeholder="Enter email body..."
+                                value={formData.emailBody}
+                                onChange={(e) => handleInputChange('emailBody', e.target.value)}
                                 className="w-full min-h-[120px] resize-none border-none outline-none focus:outline-none focus:ring-0 focus:border-none bg-transparent"
                             />
 
@@ -235,48 +253,15 @@ const EditNotifications = ({
                                     </PopoverTrigger>
                                     <PopoverContent className="w-48 p-2" style={{ zIndex: 9999 }}>
                                         <div className="space-y-1">
-                                            <button
-                                                onClick={() => insertVariable('First Name')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                First Name
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Address')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Address
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Admin First Name')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Admin First Name
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Name')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Name
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Teamname')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Teamname
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Leadname')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Leadname
-                                            </button>
-                                            <button
-                                                onClick={() => insertVariable('Agent Code')}
-                                                className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                            >
-                                                Agent Code
-                                            </button>
+                                            {notificationData?.availableVariables?.map((variable) => (
+                                                <button
+                                                    key={variable}
+                                                    onClick={() => insertVariable(variable)}
+                                                    className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
+                                                >
+                                                    {variable}
+                                                </button>
+                                            ))}
                                         </div>
                                     </PopoverContent>
                                 </Popover>
@@ -287,13 +272,13 @@ const EditNotifications = ({
 
                     {/* CTA Field */}
                     {
-                        formData?.cta && (
+                        formData?.cta !== undefined && (
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">
                                     CTA
                                 </label>
                                 <input
-                                    placeholder="Notification title"
+                                    placeholder="Call to action button"
                                     value={formData.cta}
                                     onChange={(e) => handleInputChange('cta', e.target.value)}
                                     className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
@@ -301,13 +286,15 @@ const EditNotifications = ({
                             </div>
                         )
                     }
+
                 </div>
 
                 {/* Action Buttons */}
                 <div className="w-full flex flex-row items-center justify-between h-[10%] px-4">
                     <button
                         onClick={handleCancel}
-                        className="px-6 border-none outline-none"
+                        className="px-6 border-none outline-none text-gray-500"
+                        style={styles.mediumRegular}
                     >
                         Cancel
                     </button>

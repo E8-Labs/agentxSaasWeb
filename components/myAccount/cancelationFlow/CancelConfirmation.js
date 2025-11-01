@@ -180,7 +180,7 @@ function CancelConfirmation({
                             </div>
                         ) : (
                             <div className="flex flex-wrap gap-y-2 lg:gap-y-3 w-full mt-3 lg:mt-4">
-                                {features.map((item, index) => (
+                                {Array.isArray(features) && features.map((item, index) => (
                                     <div key={index} className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0">
                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                             height={24} width={24} alt="cross"

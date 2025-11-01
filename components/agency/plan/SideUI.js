@@ -85,7 +85,7 @@ const SideUI = ({
                                 allowedFeatures?.length > 0 && (
                                     <div className='w-full'>
                                         {
-                                            allowedFeatures.map((item) => {
+                                            Array.isArray(allowedFeatures) && allowedFeatures.map((item) => {
                                                 return (
                                                     <div
                                                         key={item.id}

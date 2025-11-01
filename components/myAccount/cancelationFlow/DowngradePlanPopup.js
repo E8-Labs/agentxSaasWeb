@@ -99,7 +99,7 @@ function DowngradePlanPopup({
                                     <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-2 place-items-center">
                                         {
                                             isFrom ? (
-                                                features?.map((item, index) => (
+                                                Array.isArray(features) && features?.map((item, index) => (
                                                     <div key={index} className="flex flex-row items-center gap-2 w-full">
                                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                                             height={16} width={16} alt="cross"
@@ -146,7 +146,7 @@ function DowngradePlanPopup({
                                                     </div>
                                                 ))
                                             ) : (
-                                                features?.map((item, index) => (
+                                                Array.isArray(features) && features?.map((item, index) => (
                                                     <div key={index} className="flex flex-row items-center gap-2 w-full">
                                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                                             height={16} width={16} alt="cross"

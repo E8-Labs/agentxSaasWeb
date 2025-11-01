@@ -977,7 +977,7 @@ function Billing() {
                 </div>
                 
                 {/* Features section - only show features with thumb = true */}
-                {item.features && item.features.length > 0 && (
+                {Array.isArray(item.features) && item.features.length > 0 && (
                   <div className="mt-4">
                     <div className="flex flex-col gap-2">
                       {item.features.map((feature, featureIndex) => (
