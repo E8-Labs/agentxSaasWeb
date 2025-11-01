@@ -5,7 +5,7 @@ let BasePath =
 process.env.NEXT_PUBLIC_GHL_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
-    : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
+    : "https://apimyagentx.com/agentxtest/") //https://www.blindcircle.com
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
