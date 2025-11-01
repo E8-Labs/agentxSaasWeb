@@ -2,7 +2,7 @@
 
 // //console.log;
 let BasePath =
-process.env.NEXT_PUBLIC_GHL_API_URL || (
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
     : "https://apimyagentx.com/agentxtest/") //https://www.blindcircle.com

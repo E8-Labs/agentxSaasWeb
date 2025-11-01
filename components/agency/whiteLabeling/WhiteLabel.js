@@ -53,7 +53,7 @@ const WhiteLabel = () => {
                 </div>
             </div>
             <div className="flex flex-row items-start h-[90svh]">
-                <div className="w-3/12 px-4 pt-4 h-full border-r flex flex-col">
+                <div className="w-[20%] px-4 pt-4 h-full border-r flex flex-col">
                     {
                         WhiteLabelTabs.map((item) => {
                             return (
