@@ -306,6 +306,13 @@ const AgencyNavBar = () => {
       uneselected: "/agencyNavbarIcons/unSelectedTeamIcon.png",
 
     },
+    {
+      id: 7,
+      name: "White Label",
+      href: "/agency/dashboard/whitelabel",
+      selected: "/agencyNavbarIcons/selectedWhitelabelling.png",
+      uneselected: "/agencyNavbarIcons/unSelectedWhitelabelling.png",
+    },
   ];
 
 
