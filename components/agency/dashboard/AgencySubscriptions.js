@@ -914,36 +914,33 @@ function AgencySubscriptions({
               </div>
             </div>
 
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">MRR</h3>
-
-
-              </div>
-
-              {/* Value */}
+            {/*
               <div
-                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                style={{ border: "2px solid white" }}
+                className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
               >
-                ${analyticData?.mrr}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-purple">MRR</h3>
+                </div>
+  
+                <div
+                  style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                >
+                  ${analyticData?.mrr}
+                </div>
+  
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    fontSize: 15,
+                    fontWeight: "700",
+                    color: "#000",
+                  }}
+                >
+                Monthly Recurring Revenue
+                </div>
               </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-              Monthly Recurring Revenue
-              </div>
-            </div>
+            */}
 
             <div
               style={{ border: "2px solid white" }}
@@ -975,36 +972,34 @@ function AgencySubscriptions({
                 Annual Recurring Revenue (ARR)
               </div>
             </div>
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">NRR</h3>
 
-
-              </div>
-
-              {/* Value */}
+            {/*
               <div
-                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                style={{ border: "2px solid white" }}
+                className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
               >
-                ${analyticData?.nrr}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-purple">NRR</h3>
+                </div>
+  
+                <div
+                  style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                >
+                  ${analyticData?.nrr}
+                </div>
+  
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    fontSize: 15,
+                    fontWeight: "700",
+                    color: "#000",
+                  }}
+                >
+                  Net Revenue Retention (NRR)
+                </div>
               </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                Net Revenue Retention (NRR)
-              </div>
-            </div>
+            */}
           </div>
 
         </div>
