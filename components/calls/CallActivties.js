@@ -566,15 +566,15 @@ function SheduledCalls({ user }) {
     const agents = agent?.agents || [];
 
     if (agents?.length > 0) {
-      let name = agents[0]?.name || "-";
+        let name = agents[0]?.name || "-";
 
-      if (agents[0].agentType === "outbound") {
-        return formatName(name);
-      } else {
-        if (agents.length > 1) {
+        if (agents[0].agentType === "outbound") {
           return formatName(name);
-        }
-      }
+        } else 
+          if (agents[1].agentType == "outbound") {
+            return formatName(agents[1]?.name);
+          }
+          else return formatName(name);
     }
     return "-";
   }
