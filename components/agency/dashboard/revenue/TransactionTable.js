@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { CircularProgress } from "@mui/material";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -19,8 +21,11 @@ import { cn } from "@/lib/utils";
  * @param {Object} props
  * @param {Array} props.data - Array of transaction objects
  * @param {Function} props.onSearch - Callback for search input
+ * @param {boolean} props.hasMore - Whether there are more items to load
+ * @param {boolean} props.loadingMore - Whether more items are currently loading
+ * @param {Function} props.onLoadMore - Callback to load more items
  */
-function TransactionTable({ data = [], onSearch }) {
+function TransactionTable({ data = [], onSearch, hasMore = false, loadingMore = false, onLoadMore }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Default sample data
@@ -170,71 +175,107 @@ function TransactionTable({ data = [], onSearch }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto max-h-[1600px] overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-gray-200">
-                <TableHead className="text-gray-600 font-medium">Sub account</TableHead>
-                <TableHead className="text-gray-600 font-medium">Product...</TableHead>
-                <TableHead className="text-gray-600 font-medium">Type</TableHead>
-                <TableHead className="text-gray-600 font-medium">Total Paid</TableHead>
-                <TableHead className="text-gray-600 font-medium">Stripe Fee</TableHead>
-                <TableHead className="text-gray-600 font-medium">Platform Fee</TableHead>
-                <TableHead className="text-gray-600 font-medium">Payout</TableHead>
-                <TableHead className="text-gray-600 font-medium">Date</TableHead>
-                <TableHead className="text-gray-600 font-medium">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.map((item, index) => (
-                <TableRow
-                  key={item.id || index}
-                  className="border-b border-gray-100 hover:bg-gray-50"
+        <div 
+          id="transactionScrollableDiv"
+          className="overflow-x-auto max-h-[640px] overflow-y-auto"
+          style={{ scrollbarWidth: "none" }}
+        >
+          <InfiniteScroll
+            dataLength={filteredData.length}
+            next={() => {
+              if (onLoadMore && !loadingMore && hasMore) {
+                onLoadMore();
+              }
+            }}
+            hasMore={hasMore}
+            loader={
+              <div className="w-full flex flex-row justify-center mt-4 py-4">
+                <CircularProgress size={30} />
+              </div>
+            }
+            endMessage={
+              filteredData.length > 0 ? (
+                <p
+                  style={{
+                    textAlign: "center",
+                    paddingTop: "10px",
+                    fontWeight: "400",
+                    fontSize: 16,
+                    color: "#00000060",
+                  }}
                 >
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
-                        style={{
-                          backgroundColor: getAccountIconColor(index),
-                        }}
-                      >
-                        {item.accountIcon || String(index + 1)}
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {item.subAccount}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700">
-                    {item.product}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700">{item.type}</TableCell>
-                  <TableCell className="text-sm text-gray-700 font-medium">
-                    {item.totalPaid}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700">
-                    {item.stripeFee}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700">
-                    {item.platformFee}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700 font-medium">
-                    {item.payout}
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-700">{item.date}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getStatusDot(item.status)}
-                      <span className="text-sm text-gray-700 capitalize">
-                        {item.status}
-                      </span>
-                    </div>
-                  </TableCell>
+                  You're all caught up
+                </p>
+              ) : null
+            }
+            scrollableTarget="transactionScrollableDiv"
+            style={{ overflow: "unset" }}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-gray-200">
+                  <TableHead className="text-gray-600 font-medium">Sub account</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Product...</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Type</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Total Paid</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Stripe Fee</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Platform Fee</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Payout</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Date</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredData.map((item, index) => (
+                  <TableRow
+                    key={item.id || index}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                          style={{
+                            backgroundColor: getAccountIconColor(index),
+                          }}
+                        >
+                          {item.accountIcon || String(index + 1)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {item.subAccount}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700">
+                      {item.product}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700">{item.type}</TableCell>
+                    <TableCell className="text-sm text-gray-700 font-medium">
+                      {item.totalPaid}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700">
+                      {item.stripeFee}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700">
+                      {item.platformFee}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700 font-medium">
+                      {item.payout}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-700">{item.date}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getStatusDot(item.status)}
+                        <span className="text-sm text-gray-700 capitalize">
+                          {item.status}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </InfiniteScroll>
         </div>
       </CardContent>
     </Card>

@@ -28,6 +28,8 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   const [leaderboard, setLeaderboard] = useState([]);
   const [payouts, setPayouts] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [hasMoreTransactions, setHasMoreTransactions] = useState(true);
+  const [txLoadingMore, setTxLoadingMore] = useState(false);
 
   const [txPage, setTxPage] = useState(1);
   const [txLimit] = useState(50);
@@ -38,7 +40,11 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        setLoading(true);
+        if (txPage === 1) {
+          setLoading(true);
+        } else {
+          setTxLoadingMore(true);
+        }
         setError(null);
 
         const userStr = localStorage.getItem("User");
@@ -84,12 +90,27 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         setGrowth(growthRes?.data?.data || null);
         setLeaderboard(leaderboardRes?.data?.data?.accounts || []);
         setPayouts(payoutsRes?.data?.data || null);
-        setTransactions(txRes?.data?.data?.transactions || []);
+        
+        // Handle transactions with infinite scroll accumulation
+        const newTransactions = txRes?.data?.data?.transactions || [];
+        if (txPage === 1) {
+          setTransactions(newTransactions);
+        } else {
+          setTransactions((prev) => [...prev, ...newTransactions]);
+        }
+        
+        // Check if there are more transactions to load
+        const hasMore = newTransactions.length === txLimit;
+        setHasMoreTransactions(hasMore);
       } catch (e) {
         console.error("Failed to fetch revenue data", e);
         setError("Failed to load revenue data");
       } finally {
-        setLoading(false);
+        if (txPage === 1) {
+          setLoading(false);
+        } else {
+          setTxLoadingMore(false);
+        }
       }
     };
 
@@ -207,6 +228,13 @@ function AgencyRevenueDashboard({ selectedAgency }) {
             onSearch={(query) => {
               // Handle search
               console.log("Search query:", query);
+            }}
+            hasMore={hasMoreTransactions}
+            loadingMore={txLoadingMore}
+            onLoadMore={() => {
+              if (!txLoadingMore && hasMoreTransactions) {
+                setTxPage((prev) => prev + 1);
+              }
             }}
           />
         </div>

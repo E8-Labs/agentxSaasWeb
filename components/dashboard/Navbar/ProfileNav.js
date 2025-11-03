@@ -1155,6 +1155,11 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           await getProfile();
           setShowPlanPausedBar(false);
+          
+          // Dispatch event to notify other components that subscription has been resumed
+          window.dispatchEvent(
+            new CustomEvent("subscriptionResumed", { detail: { update: true } })
+          );
         } else {
           setShowErrorSnack(true);
           setErrorSnack(response.data.message);

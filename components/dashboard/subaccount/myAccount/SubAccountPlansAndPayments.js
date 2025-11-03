@@ -686,19 +686,13 @@ function SubAccountPlansAndPayments({
                 AuthToken = LocalDetails.token;
             }
 
-            const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`;
+            const ApiPath = Apis.cancelPlan
 
-            // //console.log;
-
-            //// //console.log;
-            // //console.log;
-
-            const ApiData = {
-                // patanai: "Sari dunya",
-            };
-
+            if(selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
             // return
-            const response = await axios.post(ApiPath, ApiData, {
+            const response = await axios.post(ApiPath, {}, {
                 headers: {
                     Authorization: "Bearer " + AuthToken,
                     "Content-Type": "application/json",
@@ -708,7 +702,7 @@ function SubAccountPlansAndPayments({
             if (response) {
                 //console.log;
                 if (response.data.status === true) {
-                    // //console.log;
+                    console.log("Plan cancellation ",response.data);
                     // window.location.reload();
                     await getProfileDetails();
                     setShowConfirmCancelPlanPopup(false);

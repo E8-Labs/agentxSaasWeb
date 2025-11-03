@@ -148,6 +148,21 @@ function NewBilling() {
         getCardsList();
     }, []);
 
+    // Listen for subscription resumed event from ProfileNav
+    useEffect(() => {
+        const handleSubscriptionResumed = async (event) => {
+            console.log("🔄 [NEW-BILLING] Subscription resumed event received, refreshing profile...");
+            // Refresh profile to update isPaused state
+            await getProfile();
+        };
+
+        window.addEventListener("subscriptionResumed", handleSubscriptionResumed);
+
+        return () => {
+            window.removeEventListener("subscriptionResumed", handleSubscriptionResumed);
+        };
+    }, []);
+
 
     useEffect(() => {
         console.log('selectedPlan changed:', selectedPlan);

@@ -154,8 +154,8 @@ function AgencySubscriptions({
   );
 
   // Calculate max value for plans chart to set Y-axis domain with increments of 1
-  const maxPlanValue = planChartData.length > 0 
-    ? Math.max(...planChartData.map(d => d.value)) 
+  const maxPlanValue = planChartData.length > 0
+    ? Math.max(...planChartData.map(d => d.value))
     : 0;
 
 
@@ -169,8 +169,8 @@ function AgencySubscriptions({
   );
 
   // Calculate max value for reactivation chart to set Y-axis domain with increments of 1
-  const maxReactivationValue = reActivationChartData.length > 0 
-    ? Math.max(...reActivationChartData.map(d => d.value)) 
+  const maxReactivationValue = reActivationChartData.length > 0
+    ? Math.max(...reActivationChartData.map(d => d.value))
     : 0;
 
   const cancellationsRateData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
@@ -541,68 +541,77 @@ function AgencySubscriptions({
 
 
                     </div>
+                    {
+                      planChartData.length > 0 ?
+                        (
 
-                    <BarChart
-                      zIndex={1}
-                      width={400}
-                      height={300}
-                      data={planChartData}
-                      margin={{
-                        top: 20,
-                        right: 20,
-                        left: 20,
-                        bottom: 20,
-                      }}
-                    >
-                      {/* X-Axis */}
-                      <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                      />
+                          <BarChart
+                            zIndex={1}
+                            width={400}
+                            height={300}
+                            data={planChartData}
+                            margin={{
+                              top: 20,
+                              right: 20,
+                              left: 20,
+                              bottom: 20,
+                            }}
+                          >
+                            {/* X-Axis */}
+                            <XAxis
+                              dataKey="name"
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                            />
 
-                      {/* Y-Axis */}
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                        domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
-                        allowDecimals={false}
-                        ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
-                      />
+                            {/* Y-Axis */}
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                              domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
+                              allowDecimals={false}
+                              ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
+                            />
 
-                      {/* Tooltip */}
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: "8px",
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          padding: "10px",
-                        }}
-                        formatter={(value, name, props) => {
-                          const { percentage, count } = props.payload;
-                          if (percentage && count) {
-                            return `${percentage} (${count})`;
-                          }
-                          return value;
-                        }}
-                        labelStyle={{ color: "#6b7280" }}
-                      />
+                            {/* Tooltip */}
+                            <Tooltip
+                              contentStyle={{
+                                borderRadius: "8px",
+                                backgroundColor: "white",
+                                border: "1px solid #e5e7eb",
+                                padding: "10px",
+                              }}
+                              formatter={(value, name, props) => {
+                                const { percentage, count } = props.payload;
+                                if (percentage && count) {
+                                  return `${percentage} (${count})`;
+                                }
+                                return value;
+                              }}
+                              labelStyle={{ color: "#6b7280" }}
+                            />
 
-                      {/* Bars */}
-                      {planChartData.length > 0 && (
-                        <Bar
-                          zIndex={1}
-                          dataKey="value"
-                          fill="#7902DF"
-                          isAnimationActive={true}
-                          radius={[4, 4, 0, 0]}
-                          barSize={20}
-                        />
-                      )}
+                            {/* Bars */}
+                            {planChartData.length > 0 && (
+                              <Bar
+                                zIndex={1}
+                                dataKey="value"
+                                fill="#7902DF"
+                                isAnimationActive={true}
+                                radius={[4, 4, 0, 0]}
+                                barSize={20}
+                              />
+                            )}
 
-                    </BarChart>
+                          </BarChart>
+                        ) : (
+                          <div className="mt-10">
+                            Not enough data available.
+                          </div>
+                        )
+                    }
                   </div>
                 </div>
 
@@ -635,81 +644,90 @@ function AgencySubscriptions({
                       </div>
 
                     </div>
-
-                    <BarChart
-                      zIndex={1}
-                      width={400}
-                      height={300}
-                      data={reActivationChartData}
-                      margin={{
-                        top: 20,
-                        right: 20,
-                        left: 20,
-                        bottom: 20,
-                      }}
-                    >
-                      {/* X-Axis */}
-                      <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                      />
-
-                      {/* Y-Axis */}
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                        domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
-                        allowDecimals={false}
-                        ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
-                      />
-
-                      {/* Tooltip */}
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: "8px",
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          padding: "10px",
-                        }}
-                        formatter={(value, name, props) => {
-                          const { percentage, count } = props.payload;
-                          if (percentage && count) {
-                            return `${percentage} (${count})`;
-                          }
-                          return value;
-                        }}
-                        labelStyle={{ color: "#6b7280" }}
-                      />
-
-                      {/* Bars */}
-                      {
-                        reActivationChartData.length > 0 ? (
-                          <Bar
+                    {
+                      reActivationChartData.length > 0 ?
+                        (
+                          <BarChart
                             zIndex={1}
-                            dataKey="value"
-                            fill="#7902DF"
-                            radius={[4, 4, 0, 0]}
-                            barSize={20}
-                          />
-                        ) : (
-                          <Bar
-                            dataKey="fallback"
-                            fill="#ccc"
-                            radius={[4, 4, 0, 0]}
-                            barSize={20}
-                            isAnimationActive={false}
-                            data={[
-                              { name: "No User", fallback: 2 },
-                              { name: "No User", fallback: 1 }
-                            ]}
-                          />
-                        )
-                      }
+                            width={400}
+                            height={300}
+                            data={reActivationChartData}
+                            margin={{
+                              top: 20,
+                              right: 20,
+                              left: 20,
+                              bottom: 20,
+                            }}
+                          >
+                            {/* X-Axis */}
+                            <XAxis
+                              dataKey="name"
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                            />
 
-                    </BarChart>
+                            {/* Y-Axis */}
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                              domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
+                              allowDecimals={false}
+                              ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
+                            />
+
+                            {/* Tooltip */}
+                            <Tooltip
+                              contentStyle={{
+                                borderRadius: "8px",
+                                backgroundColor: "white",
+                                border: "1px solid #e5e7eb",
+                                padding: "10px",
+                              }}
+                              formatter={(value, name, props) => {
+                                const { percentage, count } = props.payload;
+                                if (percentage && count) {
+                                  return `${percentage} (${count})`;
+                                }
+                                return value;
+                              }}
+                              labelStyle={{ color: "#6b7280" }}
+                            />
+
+                            {/* Bars */}
+                            {
+                              reActivationChartData.length > 0 ? (
+                                <Bar
+                                  zIndex={1}
+                                  dataKey="value"
+                                  fill="#7902DF"
+                                  radius={[4, 4, 0, 0]}
+                                  barSize={20}
+                                />
+                              ) : (
+                                <Bar
+                                  dataKey="fallback"
+                                  fill="#ccc"
+                                  radius={[4, 4, 0, 0]}
+                                  barSize={20}
+                                  isAnimationActive={false}
+                                  data={[
+                                    { name: "No User", fallback: 2 },
+                                    { name: "No User", fallback: 1 }
+                                  ]}
+                                />
+                              )
+                            }
+
+                          </BarChart>
+                        ) : (
+                          <div className="mt-10">
+                            Not enough data available.
+                          </div>
+                        )
+                    }
+
                   </div>
                 </div>
               </div>
