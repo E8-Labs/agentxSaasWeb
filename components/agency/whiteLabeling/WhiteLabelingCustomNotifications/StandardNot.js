@@ -9,7 +9,7 @@ import {
     toggleNotificationCustomization
 } from '@/services/notificationServices/NotificationCustomizationService';
 
-const StandardNot = ({ notificationsData = [], onRefresh }) => {
+const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [saving, setSaving] = useState(false);
@@ -22,9 +22,9 @@ const StandardNot = ({ notificationsData = [], onRefresh }) => {
             return StandardNotificationsList; // Fallback to hardcoded data
         }
 
-        // Filter only Standard category notifications
+        // Filter notifications by category
         return notificationsData
-            .filter(item => item.metadata?.category === 'Standard')
+            .filter(item => item.metadata?.category === category)
             .map((item, index) => ({
                 id: index + 1,
                 notificationType: item.notificationType,
@@ -47,7 +47,7 @@ const StandardNot = ({ notificationsData = [], onRefresh }) => {
                 isCustomized: item.isCustomized,
                 availableVariables: item.metadata?.availableVariables || [],
             }));
-    }, [notificationsData]);
+    }, [notificationsData, category]);
 
     const handleEditClick = (notification) => {
         setSelectedNotification(notification);
@@ -268,47 +268,49 @@ const StandardNot = ({ notificationsData = [], onRefresh }) => {
                         </div>
                     </div>
 
-                    {/* Email Template */}
-                    <div className="bg-[#F9F9F9] p-4 rounded-lg">
-                        <div className="flex flex-row items-center justify-between">
-                            <div>
-                                <span style={styles.semiBoldHeading}>Subject:</span>
-                                <span className="ms-2" style={styles.smallRegular}>{item.emailNotficationTitle}</span>
+                    {/* Email Template - Only show if notification has email template */}
+                    {(item.emailNotficationTitle || item.emailNotficationBody) && (
+                        <div className="bg-[#F9F9F9] p-4 rounded-lg">
+                            <div className="flex flex-row items-center justify-between">
+                                <div>
+                                    <span style={styles.semiBoldHeading}>Subject:</span>
+                                    <span className="ms-2" style={styles.smallRegular}>{item.emailNotficationTitle}</span>
+                                </div>
+                                <button
+                                    className="rounded-md bg-[#7804DF10] text-purple w-[105px] h-[25px] outline-none border-none"
+                                    style={styles.smallRegular}
+                                >
+                                    <i>Email Template</i>
+                                </button>
                             </div>
-                            <button
-                                className="rounded-md bg-[#7804DF10] text-purple w-[105px] h-[25px] outline-none border-none"
-                                style={styles.smallRegular}
-                            >
-                                <i>Email Template</i>
-                            </button>
-                        </div>
-                        <div style={styles.mediumRegular} className="mt-4 whitespace-pre-line">
-                            {item.emailNotficationBody}
-                        </div>
-                        <div className="flex flex-row items-center justify-between mt-4">
-                            <div>
-                                {item.emailNotficationCTA && (
-                                    <div>
-                                        <span style={styles.semiBoldHeading}>CTA:</span>
-                                        <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.emailNotficationCTA}</span>
-                                    </div>
-                                )}
+                            <div style={styles.mediumRegular} className="mt-4 whitespace-pre-line">
+                                {item.emailNotficationBody}
                             </div>
-                            <button
-                                className="outline-none border-none"
-                                style={styles.smallRegular}
-                                onClick={() => handleEditClick(item)}
-                                title="Edit this notification"
-                            >
-                                <Image
-                                    src={"/agencyIcons/purplePen.png"}
-                                    alt="edit"
-                                    width={16}
-                                    height={16}
-                                />
-                            </button>
+                            <div className="flex flex-row items-center justify-between mt-4">
+                                <div>
+                                    {item.emailNotficationCTA && (
+                                        <div>
+                                            <span style={styles.semiBoldHeading}>CTA:</span>
+                                            <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.emailNotficationCTA}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <button
+                                    className="outline-none border-none"
+                                    style={styles.smallRegular}
+                                    onClick={() => handleEditClick(item)}
+                                    title="Edit this notification"
+                                >
+                                    <Image
+                                        src={"/agencyIcons/purplePen.png"}
+                                        alt="edit"
+                                        width={16}
+                                        height={16}
+                                    />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             )
         })}

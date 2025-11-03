@@ -88,6 +88,7 @@ const NotificationConfig = () => {
                   <StandardNot
                     notificationsData={notificationsData}
                     onRefresh={fetchNotifications}
+                    category="Standard"
                   />
                 )
               }
@@ -103,7 +104,11 @@ const NotificationConfig = () => {
               }
               {
                 selectedNotificationTab === 4 && (
-                  <TrialPeriodNot notificationsListArray={"Gamification"} />
+                  <StandardNot
+                    notificationsData={notificationsData}
+                    onRefresh={fetchNotifications}
+                    category="Gamification"
+                  />
                 )
               }
             </div>
