@@ -1320,8 +1320,8 @@ const ProfileNav = () => {
                           ? item.selected
                           : item.uneselected
                       }
-                      height={item.name === "Activity" ? 16 : 24}
-                      width={item.name === "Activity" ? 16 : 24}
+                      height={item.name === "Activity" ? 18 : 24}
+                      width={item.name === "Activity" ? 18 : 24}
                       alt="icon"
                     />
                     <div
@@ -1331,6 +1331,7 @@ const ProfileNav = () => {
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
                       }}
                     >
                       {item.name}

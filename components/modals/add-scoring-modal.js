@@ -16,22 +16,22 @@ const AGENT_QUESTIONS = {
     "Are they looking for a new place to live?",
     "Have they tried selling this property before? (FSBO or expired listing)",
     "Are they interested in a CMA?",
-    
+
     "// 📊 Financial Alignment & Property Fit",
     "Do they have an existing mortgage on the home?",
     "Do they believe their home has appreciated in value?",
     "Are they open to pricing the home competitively?",
     "Is the property within your target price range or location?",
-    
+
     "// 🧾 Property & Ownership Details",
     "Is this the property owner?",
     "Is the property still available?",
-    
+
     "// 🤝 Agent Status & Engagement",
     "Are they currently not working with an agent?",
     "Are they open to hearing an offer or listing?",
     "Did they book an appointment?",
-    
+
     "// 🏠 Bonus Buyer-Style Add-ons (if applicable)",
     "Do they need to sell before they can buy a new home?",
     "Are they pre-approved or speaking with a lender already?"
@@ -43,21 +43,21 @@ const AGENT_QUESTIONS = {
     "Are they open to adjusting their policy if better value is available?",
     "Are they considering adding coverage within the next 30–90 days?",
     "Are they open to exploring options that provide more peace of mind?",
-    
+
     "// 📊 Financial Alignment & Policy Fit",
     "Would saving money on their current insurance be valuable to them?",
     "Are they interested in getting the most coverage for their budget?",
     "Do they believe their current policy could be improved with better benefits?",
     "Are they open to bundling coverage (auto, home, life) for greater savings?",
     "Would having fixed, predictable monthly premiums be helpful for them?",
-    
+
     "// 🧾 Coverage & Ownership Details",
     "Do they currently have active insurance coverage in place?",
     "Are they the primary decision-maker for their insurance policy?",
     "Are they open to reviewing whether their coverage matches their current needs?",
     "Do they feel confident their policy covers unexpected emergencies?",
     "Are they interested in seeing if they qualify for additional benefits?",
-    
+
     "// 🤝 Agent Status & Engagement",
     "Are they interested in working together, if we were a fit?",
     "Are they open to working together if the fit is right?",
@@ -72,21 +72,21 @@ const AGENT_QUESTIONS = {
     "Are they open to strategies that help them shorten their sales cycle?",
     "Are they currently focused on booking more meetings for their team?",
     "Do they believe more top-of-funnel activity would accelerate revenue?",
-    
+
     "// 📊 Budget & Fit",
     "Do they have a budget allocated for sales/lead generation tools?",
     "Are they open to investing if the ROI is clear and measurable?",
     "Do they believe increasing conversion rates is worth exploring?",
     "Are they targeting industries or markets where outbound can be effective?",
     "Would they benefit from a predictable flow of sales conversations?",
-    
+
     "// 🧾 Authority & Role Fit",
     "Are they the person responsible for prospecting or booking meetings?",
     "Are they directly involved in building the sales pipeline?",
     "Do they have decision-making power for tools or processes that impact outreach?",
     "Are they responsible for qualifying and passing leads to closers/AE's?",
     "Do they believe better outbound performance would make their role easier?",
-    
+
     "// 🤝 Engagement & Process",
     "Are they open to testing new tools or workflows that improve efficiency?",
     "Have they shown interest in booking a discovery/demo call?",
@@ -101,28 +101,28 @@ const AGENT_QUESTIONS = {
     "Do they believe stronger marketing would accelerate their sales pipeline?",
     "Are they open to testing new campaigns or strategies soon?",
     "Are they focused on scaling their marketing results this quarter?",
-    
+
     "// 📊 Budget & Fit",
     "Do they have a marketing budget allocated for growth initiatives?",
     "Are they open to investing in marketing if the ROI is clear?",
     "Do they believe digital campaigns could bring them measurable results?",
     "Are they currently spending money on ads, content, or other marketing channels?",
     "Would they benefit from lowering their cost-per-lead while increasing volume?",
-    
+
     "// 🧾 Strategy & Ownership",
     "Are they the person responsible for marketing strategy or execution?",
     "Do they currently manage or oversee digital campaigns?",
     "Are they involved in decisions on marketing tools, platforms, or agencies?",
     "Do they believe their current strategy could be improved?",
     "Are they actively tracking KPIs like lead volume, CPL, or conversion rate?",
-    
+
     "// 🤝 Engagement & Process",
     "Are they open to exploring new tools or platforms to improve marketing results?",
     "Have they shown interest in a demo or case study?",
     "Are they willing to test a campaign if it's low risk?",
     "Do they believe automation could improve their marketing efficiency?",
     "Are they interested in collaborating on strategies tailored to their goals?",
-    
+
     "// 📈 Bonus Add-Ons (if applicable)",
     "Are they looking to increase their social media reach?",
     "Would they benefit from content or SEO strategies that generate inbound traffic?",
@@ -137,28 +137,28 @@ const AGENT_QUESTIONS = {
     "Are they looking to get pre-approved for a mortgage soon?",
     "Do they believe now is a good time to explore financing options?",
     "Are they motivated to secure financing to move forward with their goals?",
-    
+
     "// 📊 Financial Alignment & Fit",
     "Do they have stable income that supports a loan?",
     "Are they open to reviewing different loan options to find the best fit?",
     "Do they believe lowering their monthly payment would help them financially?",
     "Are they interested in seeing if they qualify for a lower interest rate?",
     "Would they benefit from consolidating debt into one loan?",
-    
+
     "// 🧾 Ownership & Documentation",
     "Are they the primary decision-maker for the loan application?",
     "Do they already have some of the required documentation ready (income, credit, etc.)?",
     "Are they confident in their ability to qualify for financing?",
     "Are they open to providing information to speed up pre-approval?",
     "Do they believe working with a loan officer will make the process easier?",
-    
+
     "// 🤝 Engagement & Process",
     "Are they open to scheduling a call to review financing options?",
     "Did they request a personalized loan estimate?",
     "Are they interested in learning what programs they may qualify for?",
     "Would they benefit from guidance on first-time homebuyer or specialty programs?",
     "Are they open to comparing loan options side-by-side before deciding?",
-    
+
     "// 🏠 Bonus Add-Ons (if applicable)",
     "Are they interested in down payment assistance programs?",
     "Do they have interest in FHA, VA, or USDA loan options?",
@@ -252,7 +252,7 @@ const AddScoringModal = ({
   // Load template data when selectedTemplate or editingTemplate changes
   useEffect(() => {
     const templateToLoad = editingTemplate || selectedTemplate;
-    
+
     if (templateToLoad) {
       setFormData({
         templateName: templateToLoad.templateName || "",
@@ -268,7 +268,7 @@ const AddScoringModal = ({
           templateToLoad.questions.map(q => ({
             question: q.question || "",
             // fix points to zero decimal places
-            points: q.points ? parseFloat(q.points): "0",
+            points: q.points ? parseFloat(q.points) : "0",
             showSuggestions: false
           }))
         );
@@ -391,7 +391,7 @@ const AddScoringModal = ({
         description: template.description || "",
         maxPoints: template.maxPoints || 10,
         agentId: agentId || "",
-        });
+      });
 
       if (template.questions && Array.isArray(template.questions) && template.questions.length > 0) {
         console.log('Template questions found:', template.questions);
@@ -434,7 +434,7 @@ const AddScoringModal = ({
 
   const getFilteredSuggestions = (currentQuestion) => {
     // Get questions based on selected agent type
-    const agentQuestions = selectedAgentType 
+    const agentQuestions = selectedAgentType
       ? AGENT_QUESTIONS[selectedAgentType.name] || DEFAULT_QUESTIONS
       : DEFAULT_QUESTIONS;
 
@@ -450,7 +450,7 @@ const AddScoringModal = ({
 
   const getCategorizedSuggestions = (currentQuestion) => {
     // Get questions based on selected agent type
-    const agentQuestions = selectedAgentType 
+    const agentQuestions = selectedAgentType
       ? AGENT_QUESTIONS[selectedAgentType.name] || DEFAULT_QUESTIONS
       : DEFAULT_QUESTIONS;
 
@@ -513,7 +513,7 @@ const AddScoringModal = ({
         }));
 
       let submissionData = {
-       
+
         templateName: formData.templateName.trim(),
         description: formData.description.trim(),
         maxPoints: formData.maxPoints,
@@ -521,10 +521,10 @@ const AddScoringModal = ({
         isTemplate: true,
       };
       // send agent id only if creating new template
-      if(!editingTemplate){
+      if (!editingTemplate) {
         submissionData.agentId = agentId
       }
-      if(editingTemplate){
+      if (editingTemplate) {
         submissionData.templateId = editingTemplate.id
       }
 
@@ -532,7 +532,7 @@ const AddScoringModal = ({
 
       // If editing, we don't need to specify isTemplate since we're updating an existing template
       // If creating new, specify isTemplate: true
-   
+
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -543,7 +543,7 @@ const AddScoringModal = ({
       console.log('Submission token:', AuthToken);
 
       let path = Apis.createAgentScoring + "/" + agentId;
-      if(editingTemplate){
+      if (editingTemplate) {
         path = Apis.editScoringTemplate;
       }
       console.log('Path:', path);
@@ -581,7 +581,7 @@ const AddScoringModal = ({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      // onClose={onClose}
       closeAfterTransition
       BackdropProps={{
         sx: {
@@ -671,10 +671,10 @@ const AddScoringModal = ({
           </div>
 
           {/* Scrollable Content */}
-          <div 
-            className="overflow-y-auto px-6 h-[60vh]" 
-            style={{ 
-              scrollbarWidth: 'none', 
+          <div
+            className="overflow-y-auto px-6 h-[60vh]"
+            style={{
+              scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
             sx={{
@@ -683,181 +683,185 @@ const AddScoringModal = ({
               }
             }}
           >
-          {/* About Lead Scoring - smaller */}
-          <div className="space-y-1 bg-[#D9D9D92B] flex flex-col items-start justify-center gap-2 rounded-xl px-4 py-2">
-            <div className="flex flex-row items-center  gap-2">
-              <h3 className="text-base font-semibold text-gray-900">About Lead Scoring</h3>
-              <a href="#" className="text-purple-600 text-[12px]">
-                Learn about scoring leads
-              </a>
-            </div>
-            <p className="text-xs text-gray-600">
-              {`This help your agent quickly assess lead quality, next steps, and confidence level. Only ask "Yes" questions to score your lead. `}
-            </p>
-          </div>
-
-
-          
-
-              <div style={{ fontSize: 15, fontWeight: "600" , marginTop: "10px",color :"#8A8A8A",marginTop: "20px"}}>
-                Select Template
+            {/* About Lead Scoring - smaller */}
+            <div className="space-y-1 bg-[#D9D9D92B] flex flex-col items-start justify-center gap-2 rounded-xl px-4 py-2">
+              <div className="flex flex-row items-center  gap-2">
+                <h3 className="text-base font-semibold text-gray-900">About Lead Scoring</h3>
+                <a href="#" className="text-purple-600 text-[12px]">
+                  Learn about scoring leads
+                </a>
               </div>
-
-              <div className='w-full flex-row flex items-center gap-2 mt-3'
-                style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
-              >
-                {
-                  agents.map((item) => (
-                    <button key={item.id}
-                      onClick={() => handleAgentTypeSelect(item)}
-                    >
-                      <div className='px-4 py-2 rounded-lg'
-                        style={{
-                          fontSize: 14, fontWeight: '400', whiteSpace: 'nowrap',
-                          borderWidth: 1,
-                          borderColor: selectedAgentType?.id === item.id ? "#7902df" : "#15151510"
-                        }}
-                      >
-                        {item.name}
-                      </div>
-                    </button>
-                  ))
-                }
-              </div>
-
-          {/* Questions Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mt-5">
-              <span className="text-base font-normal text-gray-900">Question</span>
-              <div className="px-2 py-1 rounded-full bg-[#7902DF20]">
-                <span className="text-sm font-medium text-purple">
-                  {totalScore}/10 Points
-                </span>
-              </div>
+              <p className="text-xs text-gray-600">
+                {`This help your agent quickly assess lead quality, next steps, and confidence level. Only ask "Yes" questions to score your lead. `}
+              </p>
             </div>
 
-            {questions.map((question, index) => (
-              <div key={index} className="space-y-3">
-                <div className="flex items-center gap-4">
-                  {/* Question Input with Dropdown */}
-                  <div className="flex-1 relative question-input-container">
-                    <input
-                      value={question.question}
-                      onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
-                      onFocus={() => handleQuestionChange(index, 'showSuggestions', true)}
-                      placeholder="Select or Type"
-                      className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
+
+
+
+            <div style={{ fontSize: 15, fontWeight: "600", marginTop: "10px", color: "#8A8A8A", marginTop: "20px" }}>
+              Select Template
+            </div>
+
+            <div className='w-full flex-row flex items-center gap-2 mt-3'
+              style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
+            >
+              {
+                agents.map((item) => (
+                  <button key={item.id}
+                    onClick={() => handleAgentTypeSelect(item)}
+                  >
+                    <div className='px-4 py-2 rounded-lg'
                       style={{
-                        border: "1px solid #E5E7EB",
-                        fontSize: '14px',
-                        padding: '12px'
+                        fontSize: 14, fontWeight: '400', whiteSpace: 'nowrap',
+                        borderWidth: 1,
+                        borderColor: selectedAgentType?.id === item.id ? "#7902df" : "#15151510"
                       }}
-                    />
-
-                    {/* Suggestions Dropdown */}
-                    {question.showSuggestions && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-                        {(() => {
-                          const categorized = getCategorizedSuggestions(question.question);
-                          console.log('Rendering suggestions, categorized:', categorized);
-                          
-                          if (categorized.length > 0) {
-                            return categorized.map((category, categoryIndex) => {
-                              // Filter questions within this category based on current input
-                              const filteredQuestions = category.questions.filter(q => 
-                                question.question.trim() === '' || q.toLowerCase().includes(question.question.toLowerCase())
-                              );
-                              
-                              // Only show category if it has matching questions
-                              if (filteredQuestions.length === 0) return null;
-                              
-                              return (
-                                <div key={categoryIndex}>
-                                  {/* Category Heading */}
-                                  <div className="px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-600 border-b border-gray-200 sticky top-0">
-                                    {category.text}
-                                  </div>
-                                  {/* Category Questions */}
-                                  {filteredQuestions.map((suggestion, suggestionIndex) => (
-                                    <div
-                                      key={`${categoryIndex}-${suggestionIndex}`}
-                                      onClick={() => {
-                                        selectPredefinedQuestion(index, suggestion);
-                                      }}
-                                      className="suggestion-item w-full text-left px-3 py-2 hover:bg-gray-100 text-sm border-b border-gray-100 last:border-b-0 cursor-pointer"
-                                    >
-                                      {suggestion}
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            }).filter(Boolean); // Remove null entries
-                          } else {
-                            // Fallback to simple suggestions if no categories
-                            const simpleSuggestions = getFilteredSuggestions(question.question);
-                            console.log('Using fallback suggestions:', simpleSuggestions);
-                            return simpleSuggestions.map((suggestion, suggestionIndex) => (
-                          <div
-                            key={suggestionIndex}
-                            onClick={() => {
-                              selectPredefinedQuestion(index, suggestion);
-                            }}
-                            className="suggestion-item w-full text-left px-3 py-2 hover:bg-gray-100 text-sm border-b border-gray-100 last:border-b-0 cursor-pointer"
-                          >
-                            {suggestion}
-                          </div>
-                            ));
-                          }
-                        })()}
-                        {getCategorizedSuggestions(question.question).length === 0 && getFilteredSuggestions(question.question).length === 0 && question.question.trim() && (
-                          <div className="px-3 py-2 text-sm text-gray-500">
-                            No matching suggestions
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Points Input */}
-                  <div className="w-32">
-                    <input
-                      type="number"
-                      value={question.points}
-                      onChange={(e) => handleQuestionChange(index, 'points', e.target.value)}
-                      placeholder="Add points"
-                      className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
-                      style={{
-                        border: "1px solid #E5E7EB",
-                        fontSize: '14px',
-                        padding: '12px'
-                      }}
-                      min="0"
-                      max="10"
-                      step="0.5"
-                    />
-                  </div>
-
-                  {/* Remove Button */}
-                    <button
-                      onClick={() => removeQuestion(index)}
-                      className="w-5 p-2 text-gray-400 text-lg font-bold"
                     >
-                      ×
-                    </button>
-               
+                      {item.name}
+                    </div>
+                  </button>
+                ))
+              }
+            </div>
+
+            {/* Questions Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mt-5">
+                <span className="text-base font-normal text-gray-900">Question</span>
+                <div className="px-2 py-1 rounded-full bg-[#7902DF20]">
+                  <span className="text-sm font-medium text-purple">
+                    {totalScore}/10 Points
+                  </span>
                 </div>
               </div>
-            ))}
 
-            {/* Add New Question Link */}
-            <div>
-              <button
-                onClick={addQuestion}
-                className="text-purple-600 underline text-sm"
-              >
-                Add New Question
-              </button>
-            </div>
+              {questions.map((question, index) => (
+                <div key={index} className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    {/* Question Input with Dropdown */}
+                    <div className="flex-1 relative question-input-container">
+                      <input
+                        value={question.question}
+                        onChange={(e) => handleQuestionChange(index, 'question', e.target.value)}
+                        onFocus={() => handleQuestionChange(index, 'showSuggestions', true)}
+                        placeholder="Select or Type"
+                        className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
+                        style={{
+                          border: "1px solid #E5E7EB",
+                          fontSize: '14px',
+                          padding: '12px'
+                        }}
+                      />
+
+                      {/* Suggestions Dropdown */}
+                      {question.showSuggestions && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                          {(() => {
+                            const categorized = getCategorizedSuggestions(question.question);
+                            console.log('Rendering suggestions, categorized:', categorized);
+
+                            if (categorized.length > 0) {
+                              return categorized.map((category, categoryIndex) => {
+                                // Filter questions within this category based on current input
+                                const filteredQuestions = category.questions.filter(q =>
+                                  question.question.trim() === '' || q.toLowerCase().includes(question.question.toLowerCase())
+                                );
+
+                                // Only show category if it has matching questions
+                                if (filteredQuestions.length === 0) return null;
+
+                                return (
+                                  <div key={categoryIndex}>
+                                    {/* Category Heading */}
+                                    <div className="px-3 py-2 bg-gray-50 text-xs font-semibold text-gray-600 border-b border-gray-200 sticky top-0">
+                                      {category.text}
+                                    </div>
+                                    {/* Category Questions */}
+                                    {filteredQuestions.map((suggestion, suggestionIndex) => (
+                                      <div
+                                        key={`${categoryIndex}-${suggestionIndex}`}
+                                        onClick={() => {
+                                          selectPredefinedQuestion(index, suggestion);
+                                        }}
+                                        className="suggestion-item w-full text-left px-3 py-2 hover:bg-gray-100 text-sm border-b border-gray-100 last:border-b-0 cursor-pointer"
+                                      >
+                                        {suggestion}
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              }).filter(Boolean); // Remove null entries
+                            } else {
+                              // Fallback to simple suggestions if no categories
+                              const simpleSuggestions = getFilteredSuggestions(question.question);
+                              console.log('Using fallback suggestions:', simpleSuggestions);
+                              return simpleSuggestions.map((suggestion, suggestionIndex) => (
+                                <div
+                                  key={suggestionIndex}
+                                  onClick={() => {
+                                    selectPredefinedQuestion(index, suggestion);
+                                  }}
+                                  className="suggestion-item w-full text-left px-3 py-2 hover:bg-gray-100 text-sm border-b border-gray-100 last:border-b-0 cursor-pointer"
+                                >
+                                  {suggestion}
+                                </div>
+                              ));
+                            }
+                          })()}
+                          {getCategorizedSuggestions(question.question).length === 0 && getFilteredSuggestions(question.question).length === 0 && question.question.trim() && (
+                            <div className="px-3 py-2 text-sm text-gray-500">
+                              No matching suggestions
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Points Input */}
+                    <div className="w-32">
+                      <input
+                        type="number"
+                        value={question.points}
+                        onChange={(e) => handleQuestionChange(index, 'points', e.target.value)}
+                        placeholder="Add points"
+                        className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
+                        style={{
+                          border: "1px solid #E5E7EB",
+                          fontSize: '14px',
+                          padding: '12px'
+                        }}
+                        min="0"
+                        max="10"
+                        step="0.5"
+                      />
+                    </div>
+
+                    {/* Remove Button */}
+                    {questions.length > 1 && index !== 0 ? (
+                      <button
+                        onClick={() => removeQuestion(index)}
+                        className="w-5 p-2 text-gray-400 text-lg font-bold"
+                      >
+                        ×
+                      </button>
+                    ) : (
+                      <div className="w-5 p-2 text-gray-400 text-lg font-bold"></div>
+                    )}
+
+                  </div>
+                </div>
+              ))}
+
+              {/* Add New Question Link */}
+              <div>
+                <button
+                  onClick={addQuestion}
+                  className="text-purple-600 underline text-sm"
+                >
+                  Add New Question
+                </button>
+              </div>
             </div>
           </div>
 
