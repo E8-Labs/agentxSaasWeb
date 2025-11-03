@@ -204,7 +204,7 @@ function TransactionTable({ data = [], onSearch, hasMore = false, loadingMore = 
                     color: "#00000060",
                   }}
                 >
-                  You're all caught up
+                 {` You're all caught up`}
                 </p>
               ) : null
             }
