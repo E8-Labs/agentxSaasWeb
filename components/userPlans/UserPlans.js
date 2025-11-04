@@ -91,7 +91,7 @@ function UserPlans({
     useEffect(() => {
         console.log("reduxUser", reduxUser)
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
-        if (reduxUser?.plan && from !== "billing-modal") {
+        if (reduxUser?.plan &&reduxUser?.availableSeconds > 120 && from !== "billing-modal") {
             if (handleContinue) {
                 handleContinue()
             }
