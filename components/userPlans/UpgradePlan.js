@@ -612,7 +612,7 @@ function UpgradePlanContent({
             return;
         }
         console.log("Selected plan index is", index, item);
-        setSelectedPlan(item);
+        // setSelectedPlan(item);
         // setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setCurrentSelectedPlan(item);

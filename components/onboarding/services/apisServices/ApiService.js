@@ -258,6 +258,7 @@ export const handleDisconnectTwilio = async ({
       const ApiResponse = response.data
       if (ApiResponse.status === true) {
         localStorage.removeItem(PersistanceKeys.twilioHubData);
+        console.log("Twilio disconnected",response.data);
         // setShowSnack({
         //   message: "Twilio disconnected.",//ApiResponse.message
         //   isVisible: true,
@@ -289,5 +290,8 @@ export const handleDisconnectTwilio = async ({
   } catch (error) {
     setDisConnectLoader(false);
     console.log("Error occured in disconnet twilio api is", error);
+  }
+  finally {
+    setDisConnectLoader(false);
   }
 }

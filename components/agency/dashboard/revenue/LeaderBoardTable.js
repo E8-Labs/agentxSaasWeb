@@ -72,7 +72,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
     },
   ];
 
-  const leaderboardData = data.length > 0 ? data : defaultData;
+  const leaderboardData = data.length > 0 ? data : [];
 
   const getMedalIcon = (rank) => {
     switch (rank) {
@@ -138,7 +138,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                       <TableRow key={`all-${item.rank}`} className="border-b border-gray-100">
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{getMedalIcon(item.rank)}</span>
+                            <span className="text-lg">{getMedalIcon(item.rank)||"-"}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -147,14 +147,14 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
                               style={{ backgroundColor: getAccountIconColor(item.rank) }}
                             >
-                              {item.accountIcon || item.rank}
+                              {item.accountIcon || item.rank || "-"}
                             </div>
-                            <span className="text-sm font-medium text-gray-900">{item.accountName}</span>
+                            <span className="text-sm font-medium text-gray-900">{item.accountName|| "-"}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-700">{item.revenue}</TableCell>
-                        <TableCell className="text-sm text-gray-700">{item.mrr}</TableCell>
-                        <TableCell className="text-sm text-gray-700">{item.netRevenue}</TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.revenue || "-"}</TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.mrr  || "-"}</TableCell>
+                        <TableCell className="text-sm text-gray-700">{item.netRevenue  || "-"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -183,7 +183,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
               >
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">{getMedalIcon(item.rank)}</span>
+                    <span className="text-lg">{getMedalIcon(item.rank)|| "-"}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -194,19 +194,19 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                         backgroundColor: getAccountIconColor(item.rank),
                       }}
                     >
-                      {item.accountIcon || item.rank}
+                      {item.accountIcon || item.rank || "-"}
                     </div>
                     <span className="text-sm font-medium text-gray-900">
-                      {item.accountName}
+                      {item.accountName || "-"}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell className="text-sm text-gray-700">
-                  {item.revenue}
+                    {item.revenue || "-"}
                 </TableCell>
-                <TableCell className="text-sm text-gray-700">{item.mrr}</TableCell>
+                <TableCell className="text-sm text-gray-700">{item.mrr || "-"}</TableCell>
                 <TableCell className="text-sm text-gray-700">
-                  {item.netRevenue}
+                  {item.netRevenue || "-"}
                 </TableCell>
               </TableRow>
             ))}

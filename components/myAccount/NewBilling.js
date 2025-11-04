@@ -864,7 +864,7 @@ function NewBilling() {
                     setTogglePlan(planType);
                     setCurrentPlan(planType);
                     if (response2.data.status === true) {
-                        setSuccessSnack("You've claimed an extra 30 mins");
+                        setSuccessSnack("You've claimed 30 AI Credits");
                     } else if (response2.data.status === false) {
                         setErrorSnack(response2.data.message);
                     }

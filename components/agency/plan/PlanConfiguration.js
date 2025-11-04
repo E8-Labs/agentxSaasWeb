@@ -124,7 +124,7 @@ export default function PlanConfiguration({
             stateKey: "embedBrowserWebhookAgent",
         },
         {
-            label: "API Key",
+            label: "Enable API integrations",
             tooltip: "Connect your AI agents to external tools like Zapier, Make, GHL and more.",
             stateKey: "apiKey",
         },

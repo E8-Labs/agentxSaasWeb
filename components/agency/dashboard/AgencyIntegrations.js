@@ -13,6 +13,8 @@ import CustomNotifications from '../integrations/CustomNotifications';
 import Apis from '@/components/apis/Apis';
 import { UpdateProfile } from '@/components/apis/UpdateProfile';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import { useUser } from '@/hooks/redux-hooks';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 function AgencyIntegrations({ selectedAgency }) {
 
@@ -24,6 +26,10 @@ function AgencyIntegrations({ selectedAgency }) {
     const [agencyData, setAgencyData] = useState(null);
     //copy link loader
     const [copyLinkLoader, setCopyLinkLoader] = useState(false);
+
+    const {user:reduxUser, setUser:setReduxUser} = useUser();
+
+
     const [showSnackMessage, setShowSnackMessage] = useState({
         type: SnackbarTypes.Error,
         message: "",
@@ -34,6 +40,40 @@ function AgencyIntegrations({ selectedAgency }) {
     useEffect(() => {
         getLocalData();
     }, [])
+
+    const refreshUserData = async () => {
+        console.log('🔄 REFRESH USER DATA STARTED');
+        try {
+          console.log('🔄 Calling getProfileDetails...');
+          const profileResponse = await getProfileDetails();
+          console.log('🔄 getProfileDetails response:', profileResponse);
+    
+          if (profileResponse?.data?.status === true) {
+            const freshUserData = profileResponse.data.data;
+            const localData = JSON.parse(localStorage.getItem("User") || '{}');
+    
+            // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
+    
+            // Update Redux and localStorage with fresh data
+            console.log("updating redux user", freshUserData)
+            const updatedUserData = {
+              token: localData.token,
+              user: freshUserData
+            };
+    
+            setReduxUser(updatedUserData);
+    
+            // Update local state as well
+            // setUserLocalData(updatedUserData);
+    
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
+          return false;
+        }
+      };
 
     const getLocalData = (retries = 5, delay = 300) => {
         let attempt = 0;
@@ -231,12 +271,12 @@ function AgencyIntegrations({ selectedAgency }) {
                             <button
                                 className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
                                 onClick={() => {
-                                    if(!agencyData?.twilio?.twilAuthToken){
+                                    if(!reduxUser?.twilio?.twilAuthToken){
                                         setShowSnackMessage("Connect your Twilio first");
                                         setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
                                         return;
                                     }
-                                    if (agencyData?.plan?.title !== "Scale" && agencyData?.agencyOnboardingLink === null) {
+                                    if (reduxUser?.plan?.title !== "Scale" && agencyData?.agencyOnboardingLink === null) {
                                         setShowCopyLinkWarning(true);
                                         upgradeProfile();
                                     } else {
@@ -254,7 +294,11 @@ function AgencyIntegrations({ selectedAgency }) {
 
             {
                 currentTab === 1 ? (
-                    <Integrations selectedAgency={selectedAgency} />
+                    <Integrations
+                     selectedAgency={selectedAgency}
+                     reduxUser={reduxUser}
+                     refreshUserData={refreshUserData}
+                     />
                 ) : currentTab === 2 ? (
                     <div className='pt-6 w-full overflow-auto'
                         style={{

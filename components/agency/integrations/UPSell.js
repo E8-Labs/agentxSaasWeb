@@ -102,7 +102,7 @@ const UPSell = () => {
                 console.log("response of get user settings api is", response)
                 const Data = response?.data?.data;
                 setPhonePrice(Data?.phonePrice || "");
-                setDncPrice(Data?.dncPrice || "");
+                setDncPrice((Data?.dncPrice).toFixed(2) || "");
                 setPerplexityEnrichmentPrice(Data?.enrichmentPrice || "");
                 setSettingsData(Data);
                 setAllowUpSellPhone(Data?.upsellPhoneNumber);

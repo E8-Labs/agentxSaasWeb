@@ -780,7 +780,7 @@ function SubAccountPlansAndPayments({
                     setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
                     setSelectedPlan(response2?.data?.data?.plan);
                     if (response2.data.status === true) {
-                        setSuccessSnack("You've claimed an extra 30 mins");
+                        setSuccessSnack("You've claimed 30 AI Credits");
                     } else if (response2.data.status === false) {
                         setErrorSnack(response2.data.message);
                     }
@@ -876,7 +876,7 @@ function SubAccountPlansAndPayments({
     const planTitleTag = () => {
 
         console.log("Current plan id is", currentPlan);
-        console.log("Toggle plan id is", selectedPlan?.sequenceId);
+        console.log("Toggle plan id is", selectedPlan);
         console.log("Current plan sequence id is", currentPlanSequenceId);
 
         // if (!selectedPlan?.sequenceId) return "Select other Plan";
@@ -1184,7 +1184,7 @@ function SubAccountPlansAndPayments({
                                                 fontWeight: "600",
                                             }}
                                         >
-                                            {item.title} | {item.minutes} mins
+                                            {item.title} | {item.minutes} credits
                                         </div>
                                         {item.tag && (
                                             <div className="bg-purple text-white px-4 py-1 rounded-full">
@@ -1562,11 +1562,12 @@ function SubAccountPlansAndPayments({
                     selectedUser={selectedUser}
                     allPlans={plans}
                     handleClose={async (upgradeResult) => {
+                        console.log("selectedPlan in subaccount", selectedPlan);
                         setShowUpgradeModal(false);
 
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
+                            // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             getProfile();
                         }
@@ -1758,7 +1759,7 @@ function SubAccountPlansAndPayments({
                                         alignSelf: "center",
                                     }}
                                 >
-                                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                                    {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
                                 </div>
                             </div>
 
@@ -1812,7 +1813,7 @@ function SubAccountPlansAndPayments({
                                             fontWeight: "700",
                                         }}
                                     >
-                                        Mins
+                                        AI Credits
                                     </div>
                                 </div>
                                 {redeemLoader ? (
@@ -1830,7 +1831,7 @@ function SubAccountPlansAndPayments({
                                         }}
                                         onClick={handleRedeemPlan}
                                     >
-                                        Claim my 30 minutes
+                                        Claim my 30 AI Credits
                                     </button>
                                 )}
                                 <button

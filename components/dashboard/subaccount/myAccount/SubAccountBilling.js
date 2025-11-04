@@ -547,7 +547,7 @@ function SubAccountBilling({
           setTogglePlan(togglePlan);
           setCurrentPlan(togglePlan);
           if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 mins");
+            setSuccessSnack("You've claimed an extra 30 AI Credits");
           } else if (response2.data.status === false) {
             setErrorSnack(response2.data.message);
           }
@@ -936,7 +936,7 @@ function SubAccountBilling({
                     alignSelf: "center",
                   }}
                 >
-                  {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                  {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
                 </div>
               </div>
 
@@ -990,7 +990,7 @@ function SubAccountBilling({
                       fontWeight: "700",
                     }}
                   >
-                    Mins
+                    AI Credits
                   </div>
                 </div>
                 {redeemLoader ? (
@@ -1008,7 +1008,7 @@ function SubAccountBilling({
                     }}
                     onClick={handleRedeemPlan}
                   >
-                    Claim my 30 minutes
+                    Claim my 30 AI Credits
                   </button>
                 )}
                 <button
