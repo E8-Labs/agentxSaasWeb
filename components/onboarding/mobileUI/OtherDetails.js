@@ -49,6 +49,7 @@ const OtherDetails = ({
   onComplete,
   userDetails,
   handleShowRedirectPopup,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -635,7 +636,8 @@ const OtherDetails = ({
             // //console.log;
           } else {
             // //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
           }
         } else {
           setSnackMessage(response.data.message)
