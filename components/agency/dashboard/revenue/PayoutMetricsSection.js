@@ -21,6 +21,7 @@ function PayoutMetricsSection({ metrics = {} }) {
     nextPayoutTime = "12:04PM",
     lifetimePayouts = "$9,302.12",
     avgTransactionValue = "$9,302.12",
+    clv = "$0",
     refundsCount = "12",
     refundsAmount = "$40,902",
   } = metrics;
@@ -175,7 +176,7 @@ function PayoutMetricsSection({ metrics = {} }) {
   );
 
   return (
-    <div className="w-full grid grid-cols-4 gap-4">
+    <div className="w-full grid grid-cols-5 gap-4">
       <MetricCard
         icon="calendar"
         label="Next Payout Date & Time"
@@ -189,21 +190,28 @@ function PayoutMetricsSection({ metrics = {} }) {
         }
         iconComponent={<CalendarIcon />}
       />
-      
+
       <MetricCard
         icon="hourglass"
         label="Lifetime Payouts"
         value={lifetimePayouts}
         iconComponent={<HourglassIcon />}
       />
-      
+
       <MetricCard
         icon="chart"
         label="Avg. Transaction Value (ATV)"
         value={avgTransactionValue}
         iconComponent={<ChartIcon />}
       />
-      
+
+      <MetricCard
+        icon="chart"
+        label="Customer Lifetime Value (CLV)"
+        value={clv}
+        iconComponent={<ChartIcon />}
+      />
+
       <MetricCard
         icon="refresh"
         label="Refunds/Charge backs"

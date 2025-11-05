@@ -1,6 +1,7 @@
 import { Tooltip, Switch } from '@mui/material';
 import Image from 'next/image';
 import React, { useState, useEffect, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import EditNotifications from './EditNotifications';
 import { StandardNotificationsList } from './WhiteLabelNotificationExtras';
 import {
@@ -15,6 +16,15 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(null);
     const [toggling, setToggling] = useState(null);
+
+    // Sanitize HTML for safe rendering
+    const sanitizeHTML = (html) => {
+        if (typeof window === 'undefined') return html; // Skip sanitization on server
+        return DOMPurify.sanitize(html || '', {
+            ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            ALLOWED_ATTR: ['href', 'target', 'rel', 'style', 'class']
+        });
+    };
 
     // Transform API data to match the expected UI format
     const transformedNotifications = useMemo(() => {
@@ -46,6 +56,7 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                 isActive: item.isActive,
                 isCustomized: item.isCustomized,
                 availableVariables: item.metadata?.availableVariables || [],
+                supportsCTA: item.metadata?.supportsCTA || false,
             }));
     }, [notificationsData, category]);
 
@@ -245,7 +256,7 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                         </div>
                         <div className="flex flex-row items-center justify-between mt-4">
                             <div>
-                                {item.appNotficationCTA && (
+                                {item.supportsCTA && item.appNotficationCTA && (
                                     <div>
                                         <span style={styles.semiBoldHeading}>CTA:</span>
                                         <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.appNotficationCTA}</span>
@@ -283,12 +294,14 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                                     <i>Email Template</i>
                                 </button>
                             </div>
-                            <div style={styles.mediumRegular} className="mt-4 whitespace-pre-line">
-                                {item.emailNotficationBody}
-                            </div>
+                            <div
+                                style={styles.mediumRegular}
+                                className="mt-4"
+                                dangerouslySetInnerHTML={{ __html: sanitizeHTML(item.emailNotficationBody) }}
+                            />
                             <div className="flex flex-row items-center justify-between mt-4">
                                 <div>
-                                    {item.emailNotficationCTA && (
+                                    {item.supportsCTA && item.emailNotficationCTA && (
                                         <div>
                                             <span style={styles.semiBoldHeading}>CTA:</span>
                                             <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.emailNotficationCTA}</span>

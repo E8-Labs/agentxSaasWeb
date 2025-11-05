@@ -155,7 +155,7 @@ function RevenueGrowthChart({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="text-2xl font-light text-gray-900 mt-2">{currentValue}</div>
+        {/* <div className="text-2xl font-light text-gray-900 mt-2">{currentValue}</div> */}
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>

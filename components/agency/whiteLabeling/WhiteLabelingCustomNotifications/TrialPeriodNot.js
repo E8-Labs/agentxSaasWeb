@@ -1,6 +1,7 @@
 import { Tooltip } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react';
+import DOMPurify from 'dompurify';
 import EditNotifications from './EditNotifications';
 import { GamificationNotificationList, PostTrialPeriodNotificationsList, TrialPeriodNotificationsList } from './WhiteLabelNotificationExtras';
 
@@ -8,6 +9,15 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [notificationsList, setNotificationsList] = useState(notificationsListArray === "TrialPeriod" ? TrialPeriodNotificationsList : notificationsListArray === "PostTrialPeriod" ? PostTrialPeriodNotificationsList : GamificationNotificationList);
+
+    // Sanitize HTML for safe rendering
+    const sanitizeHTML = (html) => {
+        if (typeof window === 'undefined') return html; // Skip sanitization on server
+        return DOMPurify.sanitize(html || '', {
+            ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+            ALLOWED_ATTR: ['href', 'target', 'rel', 'style', 'class']
+        });
+    };
 
     const handleEditClick = (notification) => {
         // console.log("Selected notification is", notification)
@@ -157,9 +167,11 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                                             <i>Email Template</i>
                                         </button>
                                     </div>
-                                    <div style={styles.mediumRegular} className="mt-4 whitespace-pre-line">
-                                        {item.emailNotficationBody}
-                                    </div>
+                                    <div
+                                        style={styles.mediumRegular}
+                                        className="mt-4"
+                                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(item.emailNotficationBody) }}
+                                    />
                                     <div className="flex flex-row items-center justify-between mt-4">
                                         <div>
                                             <span style={styles.semiBoldHeading}>CTA:</span>

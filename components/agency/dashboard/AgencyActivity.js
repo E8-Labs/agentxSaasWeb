@@ -230,7 +230,7 @@ function AgencyActivity({
             </CardHeader>
             <CardContent>
               <h2 className="cursor-pointer text-2xl font-bold">
-                {/* {stats?.activeUsers.DAU.count} */}
+                {stats?.activeUsers?.DAU?.count || '-'}
               </h2>
             </CardContent>
             <CardContent>
@@ -263,7 +263,7 @@ function AgencyActivity({
             </CardHeader>
             <CardContent>
               <h2 className="cursor-pointer text-2xl font-bold">
-                {/* {stats?.activeUsers.MAU.count} */}
+                {stats?.activeUsers?.MAU?.count || '-'}
               </h2>
             </CardContent>
             <CardContent>

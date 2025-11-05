@@ -242,7 +242,7 @@ function AgencySubacount({
       }
 
 
-      console.log("Api path for dashboard monthly plans api is", ApiPAth)
+      console.log("Api path for get subaccounts api is", ApiPAth)
       const Token = AuthToken();
       // console.log(Token);
       const response = await axios.get(ApiPAth, {
@@ -251,7 +251,7 @@ function AgencySubacount({
           "Content-Type": "application/json",
         },
       });
-
+      console.log("Response of get subaccounts api 1 is", response);
       if (response) {
         console.log("Response of get subaccounts api is", response.data);
         setSubAccountsList(response.data.data);

@@ -6,6 +6,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Paperclip, Smile, Bold, Underline, List, ListOrdered, Quote } from 'lucide-react';
 import { Modal, Box, Typography } from '@mui/material';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
+import dynamic from 'next/dynamic';
+
+// Dynamically import RichTextEditor to avoid SSR issues
+const RichTextEditor = dynamic(
+    () => import('@/components/common/RichTextEditor'),
+    { ssr: false }
+);
 
 const EditNotifications = ({
     isOpen,
@@ -179,100 +186,17 @@ const EditNotifications = ({
                         <label className="text-sm font-medium text-gray-700">
                             Email Body
                         </label>
-                        <div className="relative border rounded-md p-2">
-                            <textarea
-                                placeholder="Enter email body..."
-                                value={formData.emailBody}
-                                onChange={(e) => handleInputChange('emailBody', e.target.value)}
-                                className="w-full min-h-[120px] resize-none border-none outline-none focus:outline-none focus:ring-0 focus:border-none bg-transparent"
-                            />
-
-                            <div className="flex flex-row items-center justify-between mt-2">
-                                {/* Formatting Toolbar */}
-                                <div className="flex items-center gap-2 p-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('attachment')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <Paperclip className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('emoji')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <Smile className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('bold')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <Bold className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('underline')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <Underline className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('bullet')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <List className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('numbered')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <ListOrdered className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => formatText('quote')}
-                                        className="p-1 hover:bg-gray-200 rounded"
-                                    >
-                                        <Quote className="w-4 h-4" />
-                                    </button>
-                                </div>
-
-                                {/* Variables Popover */}
-                                <Popover open={showVariables} onOpenChange={setShowVariables}>
-                                    <PopoverTrigger asChild>
-                                        <button
-                                            className="text-purple"
-                                            style={styles.mediumRegular}
-                                        >
-                                            + Add variable
-                                        </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-48 p-2" style={{ zIndex: 9999 }}>
-                                        <div className="space-y-1">
-                                            {notificationData?.availableVariables?.map((variable) => (
-                                                <button
-                                                    key={variable}
-                                                    onClick={() => insertVariable(variable)}
-                                                    className="w-full text-left px-2 py-1 hover:bg-gray-100 rounded text-sm"
-                                                >
-                                                    {variable}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                        </div>
+                        <RichTextEditor
+                            value={formData.emailBody}
+                            onChange={(html) => handleInputChange('emailBody', html)}
+                            placeholder="Enter email body with rich formatting..."
+                            availableVariables={notificationData?.availableVariables || []}
+                        />
                     </div>
 
-                    {/* CTA Field */}
+                    {/* CTA Field - Only show if notification supports CTA */}
                     {
-                        formData?.cta !== undefined && (
+                        notificationData?.supportsCTA && formData?.cta !== undefined && (
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">
                                     CTA

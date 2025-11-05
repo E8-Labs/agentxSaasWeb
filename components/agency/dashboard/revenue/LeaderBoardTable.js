@@ -109,7 +109,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
             <p className="text-sm text-gray-500 mt-1">Top 5 Account</p>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+            {/* <DialogTrigger asChild>
               <button
                 onClick={() => { setOpen(true); if (onSeeAll) onSeeAll(); }}
                 className="text-sm font-medium text-purple-600 hover:text-purple-700 flex items-center gap-1"
@@ -117,7 +117,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                 See All
                 <span>→</span>
               </button>
-            </DialogTrigger>
+            </DialogTrigger> */}
             <DialogContent className="max-w-3xl w-[90vw]">
               <DialogHeader>
                 <DialogTitle>All accounts</DialogTitle>
@@ -142,13 +142,13 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div
+                          <div className="flex items-center">
+                            {/* <div
                               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
                               style={{ backgroundColor: getAccountIconColor(item.rank) }}
                             >
                               {item.accountIcon || item.rank || "-"}
-                            </div>
+                            </div> */}
                             <span className="text-sm font-medium text-gray-900">{item.accountName|| "-"}</span>
                           </div>
                         </TableCell>
@@ -188,14 +188,14 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div
+                    {/* <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
                       style={{
                         backgroundColor: getAccountIconColor(item.rank),
                       }}
                     >
                       {item.accountIcon || item.rank || "-"}
-                    </div>
+                    </div> */}
                     <span className="text-sm font-medium text-gray-900">
                       {item.accountName || "-"}
                     </span>
