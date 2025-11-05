@@ -49,7 +49,6 @@ const OtherDetails = ({
   onComplete,
   userDetails,
   handleShowRedirectPopup,
-  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
