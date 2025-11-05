@@ -91,7 +91,7 @@ function UserPlans({
     useEffect(() => {
         console.log("reduxUser", reduxUser)
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
-        if (reduxUser?.plan &&reduxUser?.availableSeconds > 120 && from !== "billing-modal") {
+        if (reduxUser?.plan && reduxUser?.availableSeconds > 120 && from !== "billing-modal") {
             if (handleContinue) {
                 handleContinue()
             }
@@ -429,10 +429,10 @@ function UserPlans({
                     )
                 }
 
-                <div className={`flex flex-row items-end justify-between w-full ${hideProgressBar ? "mt-6" : "mt-10"}`}>
+                <div className={`flex flex-col md:flex-row items-start md:items-end justify-between w-full gap-4 md:gap-0 ${hideProgressBar ? "mt-6" : "mt-10"}`}>
 
 
-                    <div className='flex flex-col items-start'>
+                    <div className='flex flex-col items-start w-full'>
                         <div //className='text-4xl font-semibold'
                             // onClick={getPlans}
                             style={{
@@ -448,14 +448,14 @@ function UserPlans({
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
-                            <span>😉</span>
+                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}<span>😉</span></span>
+
                         </div>
                     </div>
-                    <div className='flex flex-col items-end'>
+                    <div className='flex flex-col items-end w-full'>
                         {
                             isFrom !== "SubAccount" && (
-                                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
+                                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto'>
                                     {
                                         duration?.map((item) => (
                                             item.save && (
@@ -472,38 +472,39 @@ function UserPlans({
                                 </div>
                             )
                         }
-
-                        {
-                            (
-                                // count how many have length > 0
-                                [
-                                    monthlyPlans?.length > 0,
-                                    quaterlyPlans?.length > 0,
-                                    yearlyPlans?.length > 0
-                                ].filter(Boolean).length >= 2
-                            ) && (
-                                <div
-                                    // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
-                                    className='border flex flex-row items-center bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
-                                >
-                                    {
-                                        duration?.map((item) => (
-                                            <button
-                                                key={item.id}
-                                                // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                onClick={() => {
-                                                    setSelectedDuration(item);
-                                                    // getCurrentPlans();
-                                                }}
-                                            >
-                                                {item.title}
-                                            </button>
-                                        ))
-                                    }
-                                </div>
-                            )
-                        }
+                        <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+                            {
+                                (
+                                    // count how many have length > 0
+                                    [
+                                        monthlyPlans?.length > 0,
+                                        quaterlyPlans?.length > 0,
+                                        yearlyPlans?.length > 0
+                                    ].filter(Boolean).length >= 2
+                                ) && (
+                                    <div
+                                        // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
+                                        className='border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start'
+                                    >
+                                        {
+                                            duration?.map((item) => (
+                                                <button
+                                                    key={item.id}
+                                                    // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                    onClick={() => {
+                                                        setSelectedDuration(item);
+                                                        // getCurrentPlans();
+                                                    }}
+                                                >
+                                                    {item.title}
+                                                </button>
+                                            ))
+                                        }
+                                    </div>
+                                )
+                            }
+                        </div>
 
                     </div>
                 </div>
@@ -764,9 +765,9 @@ function UserPlans({
                             }
                         }
                     }}
-                        setSelectedPlan={()=>{
-              console.log("setSelectedPlan is called")
-             }}
+                    setSelectedPlan={() => {
+                        console.log("setSelectedPlan is called")
+                    }}
 
                 />
             </Elements>

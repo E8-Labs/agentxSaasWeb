@@ -566,15 +566,15 @@ function SheduledCalls({ user }) {
     const agents = agent?.agents || [];
 
     if (agents?.length > 0) {
-        let name = agents[0]?.name || "-";
+      let name = agents[0]?.name || "-";
 
-        if (agents[0].agentType === "outbound") {
-          return formatName(name);
-        } else 
-          if (agents[1].agentType == "outbound") {
-            return formatName(agents[1]?.name);
-          }
-          else return formatName(name);
+      if (agents[0].agentType === "outbound") {
+        return formatName(name);
+      } else
+        if (agents[1].agentType == "outbound") {
+          return formatName(agents[1]?.name);
+        }
+        else return formatName(name);
     }
     return "-";
   }
@@ -703,34 +703,34 @@ function SheduledCalls({ user }) {
             >
               {
                 SelectedItem?.status !== "Completed" && (
-              <div>
-                {PauseLoader ? (
-                  <CircularProgress size={18} />
-                ) : (
-                  <button
-                    className="text-start outline-none"
-                    onClick={() => {
-                      if (SelectedItem?.status == "Paused") {
-                        //// //console.log
-                        setColor(true);
-                        setShowConfirmationPopup("resume Calls");
-                      } else {
-                        //// //console.log
-                        setShowConfirmationPopup("pause Calls");
-                        setColor(false);
-                      }
-                      // //console.log
-                    }}
-                  >
-                    {SelectedItem?.status == "Paused"
-                      ? "Run Calls" :
-                      SelectedItem?.status == "Completed" ? ""
-                        : "Pause Calls"}
-                  </button>
-                )}
-              </div>
-              )
-            }
+                  <div>
+                    {PauseLoader ? (
+                      <CircularProgress size={18} />
+                    ) : (
+                      <button
+                        className="text-start outline-none"
+                        onClick={() => {
+                          if (SelectedItem?.status == "Paused") {
+                            //// //console.log
+                            setColor(true);
+                            setShowConfirmationPopup("resume Calls");
+                          } else {
+                            //// //console.log
+                            setShowConfirmationPopup("pause Calls");
+                            setColor(false);
+                          }
+                          // //console.log
+                        }}
+                      >
+                        {SelectedItem?.status == "Paused"
+                          ? "Run Calls" :
+                          SelectedItem?.status == "Completed" ? ""
+                            : "Pause Calls"}
+                      </button>
+                    )}
+                  </div>
+                )
+              }
 
               <button
                 className="text-start outline-none"
@@ -821,9 +821,10 @@ function SheduledCalls({ user }) {
                                   key={index}
                                 >
                                   <div className="w-2/12 flex flex-row gap-4 items-center">
-                                    {getAgentImageWithMemoji(agent)}
-
-                                    <div style={styles.text2}>
+                                    <div className="w-[20%]">
+                                      {getAgentImageWithMemoji(agent)}
+                                    </div>
+                                    <div style={styles.text2} className="w-[80%]">
                                       {getAgentNameForActiviti(agent)}
                                     </div>
                                   </div>
@@ -905,7 +906,7 @@ function SheduledCalls({ user }) {
                     marginTop: 20,
                   }}
                 >
-                   No activities found
+                  No activities found
                 </div>
               )}
             </div>

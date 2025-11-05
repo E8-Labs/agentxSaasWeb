@@ -402,7 +402,7 @@ const AgencyNavBar = () => {
             <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
               <CircularProgress size={20} />
               <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
-                {`Checking Stripe status...`}
+                {`Connecting to Stripe...`}
               </div>
             </div>
           </div>
