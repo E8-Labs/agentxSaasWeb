@@ -786,14 +786,9 @@ const ProfileNav = () => {
           }
           if (
             Data?.userRole === "AgencySubAccount" &&
-            (Data?.plan == null ||
-              (Data?.plan //&&
-                // Data?.plan?.status !== "active" 
-              )
-              ||
-              (Data?.plan &&
-                // Data?.plan?.status === "active" &&
-                isBalanceLow))
+            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active" ))
+              // ||
+              // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
             console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
               userRole: Data?.userRole,
