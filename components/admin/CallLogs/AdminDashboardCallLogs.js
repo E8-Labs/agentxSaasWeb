@@ -35,6 +35,7 @@ import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import AdminActiveCalls from "../activeCalls/AdminActiveCalls";
 import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
+import AdminCallAnalytics from "./AdminCallAnalytics";
 
 function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const LimitPerPage = 30;
@@ -559,7 +560,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Activities", "Campaign Activities"].map((tab) => (//, "Scheduled"
+        {["All Activities", "Campaign Activities", "Call Analytics"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -586,6 +587,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             onFiltersApplied={() => {
               // This callback can be used to refresh if needed
             }}
+          />
+        ) : activeTab === "Call Analytics" ? (
+          <AdminCallAnalytics
+            selectedAgency={selectedAgency}
+            isFromAgency={isFromAgency}
           />
         ) : activeTab === "All Activities" ? (
           <div className="w-full">

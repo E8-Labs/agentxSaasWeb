@@ -229,7 +229,7 @@ function AdminDashboardActiveCall({
 
       const token = AuthToken();
       if (!token) return;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}&scheduled=false`
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
 
       if (passedData?.sortData) {
         ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;

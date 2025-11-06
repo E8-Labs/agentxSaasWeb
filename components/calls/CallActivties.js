@@ -148,7 +148,7 @@ function SheduledCalls({ user }) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      const ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
+      const ApiPath = `${Apis.getSheduledCallLogs}`;
 
       // //console.log; //scheduled
       // return
