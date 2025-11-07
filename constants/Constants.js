@@ -159,7 +159,7 @@ export const AgentLLmModels = {
 
 export const models = [
   {
-    name: "AgentX",
+    name: "AssignX",
     provider: "openai",
     value: "gpt-4.1-mini",
     icon: "/agentXOrb.gif",

@@ -984,7 +984,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             className="flex-shrink-0 text-center"
             style={{ fontWeight: "500", fontSize: 11.6 }}
           >
-            Copyrights @ 2025 MyAgentX. All Rights Reserved.
+            Copyrights @ 2025 AssignX. All Rights Reserved.
           </div>
         </div>
       </div>
