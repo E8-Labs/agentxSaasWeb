@@ -35,7 +35,7 @@ function Knowledgebase({ user, agent
 
   async function GetKnowledgebase() {
     try {
-      const token = AuthToken; // Extract JWT token
+      const token = AuthToken(); // Extract JWT token
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
       let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`;
@@ -130,7 +130,7 @@ function Knowledgebase({ user, agent
     //console.log
     try {
       setKbDelLoader(item.id);
-      const token = AuthToken; // Extract JWT token
+      const token = AuthToken(); // Extract JWT token
       setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
 
       let link = `${Apis.deleteKnowledgebase}`;

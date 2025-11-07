@@ -155,10 +155,12 @@ const Page = () => {
       // //console.log;
 
       const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
-      GetDashboardDataFromLocalStorage(ApiPath);
+      // GetDashboardDataFromLocalStorage(ApiPath);
       // if (isinItiallyLoaded === false) {
       // setInitialLoader(true);
       // }
+
+      console.log("ApiPath for dashboard data is", ApiPath);
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -183,7 +185,7 @@ const Page = () => {
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of dashboard data is", response.data);
         if (response.data.status === true) {
           console.log("dashboard data is", response.data.data);
           setStatsDetails(response.data.data.stats);
@@ -193,7 +195,7 @@ const Page = () => {
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is", error);
+      console.error("Error occured in api is", error);
     } finally {
       // //console.log;
       setInitialLoader(false);
