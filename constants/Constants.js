@@ -81,7 +81,7 @@ export const XBarPlans = [
   {
     id: 1,
     type: "Starter",
-    PlanTitle: "Starter | 250 mins",
+    PlanTitle: "Starter | 250 credits",
     details: [
       `1 AgentX AI | 1hrs of Support`,
       `1 External Integration | 1 Calendar Integration`,
@@ -94,7 +94,7 @@ export const XBarPlans = [
   {
     id: 2,
     type: "Professional",
-    PlanTitle: "Professional | 750 mins",
+    PlanTitle: "Professional | 750 credits",
     details: [
       `4 AgentX AI | 4hrs of Support`,
       `2 External Integration | 2 Calendar Integration`,
@@ -107,7 +107,7 @@ export const XBarPlans = [
   {
     id: 3,
     type: "Enterprise",
-    PlanTitle: "Scale | 1500 mins",
+    PlanTitle: "Scale | 1500 credits",
     details: [
       "Success Manager",
       `6 AgentX AI | 6hrs of Support`,
