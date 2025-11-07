@@ -31,6 +31,7 @@ import { ScrollBarCss } from "@/constants/Constants";
 import UnlockPremiunFeatures from "@/components/globalExtras/UnlockPremiunFeatures";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { useUser } from "@/hooks/redux-hooks";
+import AgencyCancelConfirmation from "./AgencyCancelConfirmation";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -82,6 +83,7 @@ function AgencyPlansPayments({
     //variables for cancel plan
     const [giftPopup, setGiftPopup] = useState(false);
     const [ScreenWidth, setScreenWidth] = useState(null);
+    const [showCancelFeaturesModal, setShowCancelFeaturesModal] = useState(false);
     const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
         useState(false);
     const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
@@ -98,6 +100,8 @@ function AgencyPlansPayments({
 
     //variables for update plan
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    const [confirmChecked, setConfirmChecked] = useState(false);
 
 
     let duration = [
@@ -445,17 +449,14 @@ function AgencyPlansPayments({
     };
 
     const handleCancelPlanClick = () => {
-        if (
-            userLocalData?.isTrial === false &&
-            userLocalData?.cancelPlanRedemptions === 0
-        ) {
-            // //console.log;
-            setGiftPopup(true);
-        } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
-        else {
-            // //console.log;
-            setShowConfirmCancelPlanPopup(true);
-        }
+        setShowCancelFeaturesModal(true);
+    }
+
+    const handleCancelFeaturesContinue = () => {
+
+        setShowCancelFeaturesModal(false);
+        setShowConfirmCancelPlanPopup(true);
+
     }
 
     //function to subscribe plan
@@ -611,21 +612,15 @@ function AgencyPlansPayments({
             });
 
             if (response) {
-                //console.log;
                 if (response.data.status === true) {
-                    // //console.log;
-                    // window.location.reload();
                     await getProfileDetails();
                     setShowConfirmCancelPlanPopup(false);
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
-                    // setCurrentPlanDetails(null);
-                    setShowConfirmCancelPlanPopup2(true);
                     let user = userLocalData
                     user.plan.status = "cancelled"
                     setUserLocalData(user)
-                    //console.log
                     setSuccessSnack("Your plan was successfully cancelled");
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -741,49 +736,46 @@ function AgencyPlansPayments({
 
     //del reason api
     const handleDelReason = async () => {
-        if (!otherReasonInput || selectReason)
-            try {
-                setCancelReasonLoader(true);
-                const localdata = localStorage.getItem("User");
-                let AuthToken = null;
-                if (localdata) {
-                    const D = JSON.parse(localdata);
-                    AuthToken = D.token;
-                }
+        if (!otherReasonInput && !selectReason) return;
 
-                const ApiData = {
-                    reason: otherReasonInput || selectReason,
-                };
-
-                // //console.log;
-
-                const ApiPath = Apis.calcelPlanReason;
-                // //console.log;
-
-                const response = await axios.post(ApiPath, ApiData, {
-                    headers: {
-                        Authorization: "Bearer " + AuthToken,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (response) {
-                    //console.log;
-                    if (response.data.status === true) {
-                        setShowConfirmCancelPlanPopup2(false);
-                        setSuccessSnack(response.data.message);
-                    } else if (response.data.status === true) {
-                        setErrorSnack(response.data.message);
-                    }
-                }
-            } catch (error) {
-                setErrorSnack(error);
-                setCancelReasonLoader(false);
-                console.error("Error occured in api is ", error);
-            } finally {
-                setCancelReasonLoader(false);
-                // //console.log;
+        try {
+            setCancelReasonLoader(true);
+            const localdata = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localdata) {
+                const D = JSON.parse(localdata);
+                AuthToken = D.token;
             }
+
+            const ApiData = {
+                reason: otherReasonInput || selectReason,
+            };
+
+            const ApiPath = Apis.calcelPlanReason;
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response) {
+                if (response.data.status === true) {
+                    // After reason is submitted, proceed to cancel the plan
+                    setShowConfirmCancelPlanPopup2(false);
+                    await handleCancelPlan();
+                } else if (response.data.status === false) {
+                    setErrorSnack(response.data.message);
+                }
+            }
+        } catch (error) {
+            setErrorSnack(error);
+            setCancelReasonLoader(false);
+            console.error("Error occured in api is ", error);
+        } finally {
+            setCancelReasonLoader(false);
+        }
     };
 
     const getCurrentPlans = () => {
@@ -1502,6 +1494,58 @@ function AgencyPlansPayments({
                 )
             }
 
+            {/* Cancel Plan Features Modal */}
+            <Modal
+                open={showCancelFeaturesModal}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000030",
+                    },
+                }}
+            >
+                <Box
+                    className="md:8/12 lg:w-6/12 sm:w-11/12 w-full"
+                    sx={styles.paymentModal}
+                >
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-7/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                                height: "90vh",
+                                maxHeight: "600px",
+                            }}
+                        >
+                            <div className="flex flex-row justify-end mb-2">
+                                <button onClick={() => setShowCancelFeaturesModal(false)}>
+                                    <Image
+                                        src={"/assets/crossIcon.png"}
+                                        height={40}
+                                        width={40}
+                                        alt="*"
+                                    />
+                                </button>
+                            </div>
+                            <div className="flex flex-col h-[calc(100%-60px)]">
+                                <AgencyCancelConfirmation
+                                    handleContinue={() => {
+                                        handleCancelFeaturesContinue()
+                                        setShowCancelFeaturesModal(false)
+                                    }}
+                                    currentPlanDetails={currentPlanDetails}
+                                    userLocalData={userLocalData}
+                                    selectedAgency={selectedAgency}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
             {/* Add Payment Modal */}
             <Modal
                 open={addPaymentPopUp} //addPaymentPopUp
@@ -1558,157 +1602,7 @@ function AgencyPlansPayments({
                 </Box>
             </Modal>
 
-            {/* Modal for Gift popup */}
-            <Modal
-                open={giftPopup}
-                // open={true}
-                closeAfterTransition
-                BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                        backgroundColor: "#00000020",
-                        // //backdropFilter: "blur(20px)",
-                    },
-                }}
-            >
-                <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-                    <div className="flex flex-row justify-center w-full h-[100%]">
-                        <div
-                            className="sm:w-7/12 w-full h-[70%]"
-                            style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                paddingBottom: "20px",
-                            }}
-                        >
-                            <div className="flex flex-row justify-end">
-                                <button
-                                    className="outline-none"
-                                    onClick={() => setGiftPopup(false)}
-                                >
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
-                                </button>
-                            </div>
 
-                            <div
-                                className="text-center text-purple"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 16.8,
-                                }}
-                            >
-                                {`Here’s a Gift`}
-                            </div>
-
-                            <div className="flex flex-row items-center justify-center w-full mt-6">
-                                <div
-                                    className="text-center  w-full"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize:
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
-                                        width: ScreenWidth > 1200 ? "70%" : "100%",
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-center px-4 w-full">
-                                <div
-                                    className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                                        }bg-[#402FFF10] py-2 px-4 rounded-full`}
-                                    style={styles.gitTextStyle}
-                                >
-                                    <Image
-                                        src={"/svgIcons/gift.svg"}
-                                        height={
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
-                                        }
-                                        width={
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
-                                        }
-                                        alt="*"
-                                    />
-                                    Enjoy your next calls on us
-                                </div>
-                                <div className="w-full flex flex-row justify-center items-center mt-8">
-                                    <div style={{ position: "relative" }}>
-                                        <Image
-                                            src={"/svgIcons/giftIcon.svg"}
-                                            height={81}
-                                            width={81}
-                                            alt="*"
-                                            className="-mb-28 ms-4"
-                                            style={{
-                                                zIndex: 9999,
-                                                position: "relative",
-                                            }}
-                                        />
-                                        <div
-                                            className="text-purple"
-                                            style={{
-                                                fontSize: 200,
-                                                fontWeight: "400",
-                                                zIndex: 0,
-                                                position: "relative",
-                                            }}
-                                        >
-                                            30
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            fontSize: 40,
-                                            fontWeight: "700",
-                                        }}
-                                    >
-                                        Mins
-                                    </div>
-                                </div>
-                                {redeemLoader ? (
-                                    <div className="h-[50px] w-full flex flex-row items-center justify-center">
-                                        <CircularProgress size={30} />
-                                    </div>
-                                ) : (
-                                    <button
-                                        className="rounded-lg text-white bg-purple outline-none"
-                                        style={{
-                                            fontWeight: "700",
-                                            fontSize: "16",
-                                            height: "50px",
-                                            width: "340px",
-                                        }}
-                                        onClick={handleRedeemPlan}
-                                    >
-                                        Claim my 30 minutes
-                                    </button>
-                                )}
-                                <button
-                                    className="outline-none mt-6"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 16.8,
-                                    }}
-                                    onClick={() => {
-                                        setShowConfirmCancelPlanPopup(true);
-                                    }}
-                                >
-                                    {`No thank you, I’d like to cancel my Agentx`}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </Box>
-            </Modal>
 
             {/* Modal for cancel plan confirmation */}
             <Modal
@@ -1723,88 +1617,77 @@ function AgencyPlansPayments({
                     },
                 }}
             >
-                <Box
-                    className="md:8/12 lg:w-6/12 sm:w-11/12 w-full"
-                    sx={styles.paymentModal}
-                >
-                    <div className="flex flex-row justify-center w-full">
+                <Box className="flex justify-center items-center w-full h-full">
+                    <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+                        <div className='flex flex-row justify-between items-center w-full'>
+                            <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                Are you sure?
+                            </div>
+                            <CloseBtn
+                                onClick={() => setShowConfirmCancelPlanPopup(false)}
+                            />
+                        </div>
                         <div
-                            className="sm:w-7/12 w-full"
+                            className="mt-4"
                             style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                height: "394px",
+                                fontSize: 16,
+                                fontWeight: 400,
+                                color: "#000000",
                             }}
                         >
-                            <div className="flex flex-row justify-end">
-                                <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
+                            {`You’ll lose access to sub accounts, future payouts, agents and all agency capabilities.
+`}
+                        </div>
+
+                        <div className="w-full">
+                            <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
+                                <button onClick={() => {
+                                    setConfirmChecked(!confirmChecked)
+                                }}>
+                                    {confirmChecked ? (
+                                        <div
+                                            className="bg-purple flex flex-row items-center justify-center rounded"
+                                            style={{ height: "17px", width: "17px" }}
+                                        >
+                                            <Image
+                                                src={"/assets/whiteTick.png"}
+                                                height={6}
+                                                width={8}
+                                                alt="*"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                            style={{ height: "17px", width: "17px" }}
+                                        ></div>
+                                    )}
                                 </button>
-                            </div>
-                            <div
-                                className="text-center mt-8"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 22,
-                                }}
-                            >
-                                Are you sure ?
-                            </div>
 
-                            <div className="flex flex-row items-center justify-center w-full mt-6">
-                                <div
-                                    className="text-center"
-                                    style={{
-                                        fontWeight: "500",
-                                        fontSize: 15,
-                                        width: "70%",
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    Canceling your AgentX means you lose access to your agents,
-                                    leads, pipeline, staff and more.
-                                </div>
-                            </div>
-
-                            <button
-                                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 16.8,
-                                    outline: "none",
-                                }}
-                            >
-                                Never mind, keep my AgentX
-                            </button>
-
-                            {cancelPlanLoader ? (
-                                <div className="w-full flex flex-row items-center justify-center mt-8">
-                                    <CircularProgress size={30} />
-                                </div>
-                            ) : (
                                 <button
-                                    className="w-full flex flex-row items-center rounded-lg justify-center mt-8"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 16.8,
-                                        outline: "none",
-                                    }}
-                                    onClick={handleCancelPlan}
-                                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                                    className='text-xs font-normal'
+                                // onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
                                 >
-                                    Yes. Cancel
+                                    I understand and agree
                                 </button>
-                            )}
+                            </div>
+                            <button
+                                className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                                onClick={() => {
+                                    if (confirmChecked) {
+                                        setShowConfirmCancelPlanPopup(false);
+                                        setShowConfirmCancelPlanPopup2(true);
+                                    }
+                                }}
+                                disabled={!confirmChecked}
+                            >
+                                Cancel Account
+                            </button>
                         </div>
                     </div>
                 </Box>
             </Modal>
+
 
             {/* del pln last step */}
             <Modal
@@ -1870,7 +1753,7 @@ function AgencyPlansPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                AgentX Successfully Canceled
+                                AssignX Successfully Canceled
                             </div>
 
                             <div

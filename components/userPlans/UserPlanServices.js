@@ -122,7 +122,7 @@ export const getUserPlans = async (from, selectedUser) => {
             }
             if (from === "SubAccount") {
                 path = Apis.getSubAccountPlans;
-            } else if (from === "agency") {
+            } else if (from === "agency" || from === "Agency") {
                 path = Apis.getPlansForAgency;
             }
         }

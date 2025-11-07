@@ -16,6 +16,7 @@ import { User } from "lucide-react";
 import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
 import Apis from "@/components/apis/Apis";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   const [selectedType, setSelectedType] = useState("Text"); // Url, Document
@@ -207,9 +208,10 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   
     setLoading(true);
     try {
+      let token = AuthToken();
       const response = await axios.post(Apis.AddKnowledgebase, formData, {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
   

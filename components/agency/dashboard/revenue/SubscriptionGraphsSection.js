@@ -6,12 +6,14 @@ import {
   Line,
   BarChart,
   Bar,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
 } from "recharts";
 import moment from "moment";
 import Image from "next/image";
+
+import CustomTooltip from "@/utilities/CustomTooltip";
 
 /**
  * SubscriptionGraphsSection - Displays subscription-related graphs
@@ -97,38 +99,23 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
           style={{ border: "2px solid white" }}
           className="flex w-[60%] flex-col items-center bg-[#ffffff68] rounded-lg p-6"
         >
-          <div className="flex flex-col w-full items-start">
-            <div className="flex flex-row items-center gap-4 justify-start">
-              <div>
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "700",
-                    color: "#0E0E0E",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  New Subscriptions
-                </div>
-                <div
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "500",
-                    color: "#00000060",
-                  }}
-                >
-                  Number of new paid users over a period of time
-                </div>
+          <div className="flex flex-row items-center gap-4 justify-between w-full">
+            <div className="flex flex-row items-center gap-2">
+              <div
+                style={{
+                  fontSize: 18,
+                  fontWeight: "700",
+                  color: "#0E0E0E",
+                }}
+              >
+                New Subscription
               </div>
-            </div>
-            <div className="w-full flex flex-row items-start justify-between mt-4">
-              <div className="flex flex-col items-center">
-                <div
-                  style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
-                >
-                  {newSubscriptions}
-                </div>
+                <CustomTooltip title="Number of new paid users over a period of time" />
               </div>
+            <div
+              style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
+            >
+              {newSubscriptions}
             </div>
           </div>
 
@@ -220,35 +207,7 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
                   >
                     Plans
                   </div>
-                  <div
-                    className="relative"
-                    onMouseEnter={() => setShowPlansTooltip(true)}
-                    onMouseLeave={() => setShowPlansTooltip(false)}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="cursor-pointer text-gray-500"
-                    >
-                      <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M8 7V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                      <circle cx="8" cy="5" r="0.5" fill="currentColor" />
-                    </svg>
-                    {showPlansTooltip && (
-                      <div
-                        className="absolute left-0 top-6 z-50 bg-gray-900 text-white text-xs rounded-md px-3 py-2 whitespace-nowrap shadow-lg"
-                        style={{ minWidth: "200px" }}
-                      >
-                        Number of users on active plans
-                        <div
-                          className="absolute -top-1 left-2 w-2 h-2 bg-gray-900 transform rotate-45"
-                        ></div>
-                      </div>
-                    )}
-                  </div>
+                  <CustomTooltip title="Number of users who have a plan" />
                 </div>
               </div>
               {planChartData.length > 0 ? (
@@ -309,7 +268,7 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
           >
             <div className="w-full flex flex-col items-center h-full">
               <div className="flex flex-row items-center justify-between w-full mb-2">
-                <div>
+                <div className="flex flex-row items-center gap-2">
                   <div
                     style={{
                       fontSize: 18,
@@ -319,15 +278,8 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
                   >
                     Reactivation Rate
                   </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: "500",
-                      color: "#00000060",
-                    }}
-                  >
-                    Churned users who return
-                  </div>
+
+                 <CustomTooltip title="Number of users who return to a plan after churning" />
                 </div>
               </div>
               {reActivationChartData.length > 0 ? (
@@ -381,7 +333,7 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

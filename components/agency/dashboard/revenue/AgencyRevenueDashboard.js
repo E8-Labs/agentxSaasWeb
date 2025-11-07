@@ -234,10 +234,10 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       status: (t.status || "completed").toLowerCase().includes("complete")
         ? "success"
         : (t.status || "").toLowerCase().includes("pending")
-        ? "pending"
-        : (t.status || "").toLowerCase().includes("fail")
-        ? "failed"
-        : "success",
+          ? "pending"
+          : (t.status || "").toLowerCase().includes("fail")
+            ? "failed"
+            : "success",
     }));
   }, [transactions]);
 
@@ -266,6 +266,11 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         {/* Top Metrics Section */}
         <div className="w-full">
           <TopMetricsSection metrics={topMetrics} />
+        </div>
+
+        {/* Payout Metrics Section - Full Width */}
+        <div className="w-full">
+          <PayoutMetricsSection metrics={payoutMetrics} />
         </div>
 
         {/* Revenue Growth Chart and LeaderBoard - Side by Side */}
@@ -319,10 +324,6 @@ function AgencyRevenueDashboard({ selectedAgency }) {
           />
         </div>
 
-        {/* Payout Metrics Section - Full Width */}
-        <div className="w-full">
-          <PayoutMetricsSection metrics={payoutMetrics} />
-        </div>
       </div>
     </div>
   );

@@ -588,7 +588,7 @@ function DashboardPlans({
                                                                 }}
                                                             >
                                                                 <div style={{ ...styles.text2, ...{ width: "80%", } }}>
-                                                                    {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
+                                                                    {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays || 0} Day Free Trial`)}
                                                                 </div>
                                                             </div>
                                                             <div className="w-3/12"

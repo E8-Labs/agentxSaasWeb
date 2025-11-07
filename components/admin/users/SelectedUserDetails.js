@@ -516,7 +516,7 @@ function SelectedUserDetails({
                                                     ) : (
                                                         selectedManu.name == "Account" ? (
                                                             <AdminProfileData selectedUser={selectedUser} from={from} />
-                                                        ) : "Comming soon..."
+                                                        ) : "Coming soon..."
                                                     )
                                                 )
                                             )

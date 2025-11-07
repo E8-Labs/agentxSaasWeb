@@ -18,10 +18,10 @@ function TopMetricsSection({ metrics = {} }) {
   const {
     totalRevenue = "$121,000",
     arr = "$0",
-    mrr = "$31,040",
-    netRevenue = "$93,164",
-    agencyNetEarnings = "$90,920",
-    stripeBalance = "$9,302.12",
+    mrr = "$0",
+    netRevenue = "$0",
+    agencyNetEarnings = "$0",
+    stripeBalance = "$0",
   } = metrics;
 
   const MetricCard = ({ label, value, isStripe = false }) => (
@@ -67,8 +67,7 @@ function TopMetricsSection({ metrics = {} }) {
         <MetricCard label="Total Revenue" value={totalRevenue} />
         <MetricCard label="ARR" value={arr} />
         <MetricCard label="MRR" value={mrr} />
-        <MetricCard label="Net Revenue" value={netRevenue} />
-        <MetricCard label="Agency Net Earnings" value={agencyNetEarnings} />
+        <MetricCard label="Net Earnings" value={agencyNetEarnings} />
         <MetricCard label="Balance" value={stripeBalance} isStripe={true} />
       </div>
       <style jsx>{`

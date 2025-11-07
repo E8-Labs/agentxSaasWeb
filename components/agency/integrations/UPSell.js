@@ -598,7 +598,7 @@ const UPSell = () => {
                                         </div>
                                     </div>
                                     <div className="bg-purple text-white rounded-full w-[100px] h-[25px] flex flex-row items-center justify-center cursor-pointer" style={{ fontSize: "12px", fontWeight: "400" }}>
-                                        Comming Soon
+                                        Coming Soon
                                     </div>
                                 </div>
                             </div>

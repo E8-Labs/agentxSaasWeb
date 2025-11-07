@@ -96,6 +96,7 @@ function AgencySubacount({
   //twilio warning modal
   const [noTwillio, setNoTwillio] = useState(false);
   const [showXBarPopup, setShowXBarPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   //redux data
   useEffect(() => {
@@ -163,13 +164,14 @@ function AgencySubacount({
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
+      setLoading(true);
       // getLocalData();
       //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan(selectedAgency);
       const xBarOptions = await getXBarOptions(selectedAgency);
       let stripeStatus = null;
       setTimeout(() => {
-        // console.log("Curent checking data is", agencyData);
+        console.log("Current checking data is", selectedAgency);
         if (selectedAgency) {
           stripeStatus = selectedAgency.stripeConnected
         } else {
@@ -191,6 +193,7 @@ function AgencySubacount({
             setNoTwillio(true);
           }
         }
+        setLoading(false);
       }, 100);
 
     } catch (error) {
@@ -567,7 +570,8 @@ function AgencySubacount({
               handleCheckPlans();
             }}
           >
-            Create Sub Account
+            
+            {loading ? <CircularProgress size={20} /> : "Create Sub Account"}
           </button>
         </div>
         <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
@@ -711,7 +715,7 @@ function AgencySubacount({
           </div>
         ) : (
           <div
-            className={`h-[71vh] overflow-auto w-full`}
+            className={`h-[68vh] overflow-auto w-full`}
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >

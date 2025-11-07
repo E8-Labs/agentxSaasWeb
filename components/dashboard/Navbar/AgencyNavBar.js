@@ -68,7 +68,7 @@ const AgencyNavBar = () => {
   const [localUser, setLocalUser] = useState(null);
   const [userDetails, setUserDetails] = useState(null); // This is the API version
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
-
+  const [showPaymentFailedPopup, setShowPaymentFailedPopup] = useState(false);
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
@@ -195,7 +195,13 @@ const AgencyNavBar = () => {
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
 
+        // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
+        if (agencyProfileData.consecutivePaymentFailures >= 3) {
+          // setShowPaymentFailedPopup(true);
+          router.push("/plan");
+          setShowPaymentFailedPopup(false)
+        }
         setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
           const d = {
@@ -317,6 +323,17 @@ const AgencyNavBar = () => {
 
 
   const styles = {
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
     paymentModal: {
       // height: "auto",
       bgcolor: "transparent",
@@ -590,6 +607,31 @@ const AgencyNavBar = () => {
         </div>
       </div>
 
+
+      <Modal open={showPaymentFailedPopup}
+        onClose={() => setShowPaymentFailedPopup(false)}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          }
+        }}
+      >
+        <Box
+          className="w-6/12"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div className="flex p-6 flex-col items-center justify-center text-normal font-base">
+            <div className="text-lg font-[600] text-start">
+              Payment Failed
+            </div>
+            <div className="text-normal font-base">
+              Your subscription payment has failed, please update your payment method to prevent service interruption. Your account is at risk of being canceled.
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

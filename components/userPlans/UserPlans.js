@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 import { isSubaccountTeamMember, isTeamMember } from '@/constants/teamTypes/TeamTypes';
 import FitText from './FitText';
 import FeatureLine from './FeatureLine';
+import LoaderAnimation from '../animations/LoaderAnimation';
 
 
 function UserPlans({
@@ -84,7 +85,9 @@ function UserPlans({
     const [addCardFailure, setAddCardFailure] = useState(false)
     const [addCardSuccess, setAddCardSuccess] = useState(false)
     const [addCardErrtxt, setAddCardErrtxt] = useState("")
+    const [routedFrom, setRoutedFrom] = useState(isFrom)
 
+    const [showRoutingLoader, setShowRoutingLoader] = useState(false);
 
 
 
@@ -109,12 +112,15 @@ function UserPlans({
                 }
                 else if (user.user.userRole === "AgencySubAccount") {
                     isFrom = "SubAccount"
+                } else if (user.user.userRole === "Agency") {
+                    isFrom = "Agency"
                 } else {
                     isFrom = "User"
                 }
             }
 
         }
+        setRoutedFrom(isFrom)
         getPlans()
     }, [])
 
@@ -122,12 +128,21 @@ function UserPlans({
         console.log("Card added details are here", data);
         if (data) {
             // const userProfile = await getProfileDetails();
-            if (handleContinue) {
-                handleContinue()
+            if (isFrom == "Agency" || routedFrom == "Agency") {
+                router.push("/agency/dashboard")
+                //show routing loader animation
+                setShowRoutingLoader(true);
+                setTimeout(() => {
+                    setShowRoutingLoader(false);
+                }, 3000);
+            } else {
+                if (handleContinue) {
+                    handleContinue()
+                }
             }
+            setAddPaymentPopUp(false);
+            // handleSubscribePlan()
         }
-        setAddPaymentPopUp(false);
-        // handleSubscribePlan()
     };
 
     // Function to refresh user data after plan upgrade
@@ -235,6 +250,12 @@ function UserPlans({
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
                     features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
+                }));
+            }
+            if (isFrom === "Agency") {
+                filteredPlans = plansList?.map(plan => ({
+                    ...plan,
+                    features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
                 }));
             }
             console.log("Filtered plans are", filteredPlans)
@@ -400,6 +421,7 @@ function UserPlans({
 
     return (
         <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
+            <LoaderAnimation isOpen={showRoutingLoader} title="Redirecting to dashboard..." />
             <AgentSelectSnackMessage
                 isVisible={addCardFailure}
                 hide={() => setAddCardFailure(false)}
@@ -535,7 +557,8 @@ function UserPlans({
                                     e.stopPropagation();
                                     handleTogglePlanClick(item, index);
                                     console.log("item.discountPrice", item.discountPrice)
-                                    if (isFrom == "SubAccount") {
+                                    console.log("isFrom in user plans", isFrom)
+                                    if (isFrom == "SubAccount" || isFrom == "Agency") {
                                         setTimeout(() => {
                                             setAddPaymentPopUp(true)
                                         }, 300)
@@ -644,7 +667,8 @@ function UserPlans({
                                                             e.stopPropagation();
                                                             handleTogglePlanClick(item, index);
                                                             console.log("item.discountPrice", item.discountPrice)
-                                                            if (isFrom == "SubAccount") {
+                                                            console.log("isFrom in user plans", isFrom)
+                                                            if (isFrom == "SubAccount" || (routedFrom == "Agency" && reduxUser?.consecutivePaymentFailures >= 3)) {
                                                                 setTimeout(() => {
                                                                     setAddPaymentPopUp(true)
                                                                 }, 300)
@@ -698,7 +722,7 @@ function UserPlans({
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
                                             {
-                                                isFrom === "SubAccount" ? (
+                                                isFrom === "SubAccount" || routedFrom === "Agency" ? (
                                                     ""
                                                 ) : (
                                                     <div>
@@ -825,7 +849,7 @@ function UserPlans({
                                 <UserAddCard
                                     handleClose={handleClose}
                                     selectedPlan={selectedPlan}
-                                    isFrom={isFrom}
+                                    isFrom={isFrom || routedFrom}
                                     setCredentialsErr={setCredentialsErr}
                                     setAddCardFailure={setAddCardFailure}
                                     setAddCardSuccess={setAddCardSuccess}

@@ -7,13 +7,14 @@
  * @returns {Array} Array of feature names that will be lost
  */
 export const getFeaturesToLose = (currentPlan, targetPlan) => {
+
+    console.log('🔍 [DOWNGRADE] Current plan:', currentPlan);
+    console.log('🔍 [DOWNGRADE] Target plan:', targetPlan);
     if (!currentPlan || !targetPlan) {
         console.log('❌ [DOWNGRADE] Missing current or target plan');
         return [];
     }
 
-    console.log('🔍 [DOWNGRADE] Current plan:', currentPlan);
-    console.log('🔍 [DOWNGRADE] Target plan:', targetPlan);
     console.log('🔍 [DOWNGRADE] Current plan capabilities type:', typeof currentPlan.capabilities);
     console.log('🔍 [DOWNGRADE] Target plan capabilities type:', typeof targetPlan.capabilities);
     console.log('🔍 [DOWNGRADE] Current plan capabilities:', currentPlan.capabilities);

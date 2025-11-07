@@ -400,7 +400,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
+                            }}>{`Gets more done than coffee. Cheaper too.`}</span>
                             <span>😉</span>
                         </div>
                     </div>

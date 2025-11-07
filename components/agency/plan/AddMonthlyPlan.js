@@ -131,8 +131,8 @@ export default function AddMonthlyPlan({
       stateKey: "ragKnowledgeBase",
     },
     {
-      label: "Embed / Browser / Webhook Agent",
-      tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
+      label: "Web Agents",
+      tooltip: "Bring AI Agents to browsers and websites using webhooks or embedding.", //"Embed the agent into sites, browsers, or trigger webhooks.",
       stateKey: "embedBrowserWebhookAgent",
     },
     {
@@ -530,7 +530,11 @@ export default function AddMonthlyPlan({
       discountedPrice && //no need to replace here
       minutes;
 
-    const trialValid = allowTrial ? trialValidForDays : true;
+    let trialValid = true
+
+    if(allowTrial){
+      trialValid = trialValidForDays > 0;
+    }
 
     return requiredFieldsFilled && trialValid && !minCostErr;
   };

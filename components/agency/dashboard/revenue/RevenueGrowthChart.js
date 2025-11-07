@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import CustomTooltip from "@/utilities/CustomTooltip";
 
 /**
  * RevenueGrowthChart - Bar chart showing monthly revenue growth
@@ -122,13 +123,7 @@ function RevenueGrowthChart({
             <CardTitle className="text-lg font-bold text-gray-900">
               Revenue Growth
             </CardTitle>
-            <Image
-              src="/svgIcons/infoIcon.svg"
-              alt="Info"
-              width={16}
-              height={16}
-              className="cursor-help"
-            />
+            <CustomTooltip title="Revenue growth over a period of time" />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

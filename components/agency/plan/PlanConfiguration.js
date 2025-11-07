@@ -119,10 +119,10 @@ export default function PlanConfiguration({
             stateKey: "ragKnowledgeBase",
         },
         {
-            label: "Embed / Browser / Webhook Agent",
-            tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
+            label: "Web Agents",
+            tooltip: "Bring AI Agents to browsers and websites using webhooks or embedding.", //"Embed the agent into sites, browsers, or trigger webhooks.",
             stateKey: "embedBrowserWebhookAgent",
-        },
+          },
         {
             label: "Enable API integrations",
             tooltip: "Connect your AI agents to external tools like Zapier, Make, GHL and more.",
@@ -250,6 +250,10 @@ export default function PlanConfiguration({
                 text: `${basicsData?.minutes} AI Credits`,
             });
         }
+            extraFeatures.push({
+            id:'english&spanish',
+            text:'English and Spanish Compatible'
+            })
 
         // Add custom features to the allowed features
         // const customFeaturesList = customFeatures?.filter(feature => feature.trim() !== "")?.map((feature, index) => ({
@@ -607,7 +611,10 @@ export default function PlanConfiguration({
         }
 
         const requiredFieldsFilled = requiredData;
-        const trialValid = features.allowTrial ? trialValidForDays : true;
+        let trialValid = true
+        if(features.allowTrial){
+            trialValid = trialValidForDays > 0;
+        }
 
         return requiredFieldsFilled && trialValid;
     };
