@@ -39,6 +39,7 @@ import CheckList from "./CheckList";
 import AgencyChecklist from "./AgencyChecklist";
 import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
 import { checkCurrentUserRole } from "@/components/constants/constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 
 let stripePublickKey =
@@ -56,7 +57,7 @@ const AgencyNavBar = () => {
   const [loader, setLoader] = useState(false);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
-
+  const [showAddPaymentPopup, setShowAddPaymentPopup] = useState(false);
 
   const initialUser =
     typeof window !== "undefined"
@@ -197,10 +198,11 @@ const AgencyNavBar = () => {
 
         // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
-        if (agencyProfileData.consecutivePaymentFailures >= 3) {
-          // setShowPaymentFailedPopup(true);
+        if (agencyProfileData.consecutivePaymentFailures == 1 || agencyProfileData.consecutivePaymentFailures == 2) {
+          setShowPaymentFailedPopup(true);
+        } else if (agencyProfileData.consecutivePaymentFailures >= 3) {
           router.push("/plan");
-          setShowPaymentFailedPopup(false)
+          // setShowPaymentFailedPopup(false)
         }
         setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
@@ -618,16 +620,87 @@ const AgencyNavBar = () => {
           }
         }}
       >
-        <Box
-          className="w-6/12"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div className="flex p-6 flex-col items-center justify-center text-normal font-base">
-            <div className="text-lg font-[600] text-start">
-              Payment Failed
+        <Box className="flex justify-center items-center w-full h-full">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+            <div className='flex flex-row justify-between items-center w-full'>
+              <div style={{ fontWeight: "600", fontSize: 22 }}>
+                Payment Failed
+              </div>
+              <CloseBtn
+                onClick={() => setShowPaymentFailedPopup(false)}
+              />
             </div>
-            <div className="text-normal font-base">
+            <div
+              className="mt-4"
+              style={{
+                fontSize: 16,
+                fontWeight: 400,
+                color: "#000000",
+              }}
+            >
               Your subscription payment has failed, please update your payment method to prevent service interruption. Your account is at risk of being canceled.
+            </div>
+
+            <div className="w-full">
+              <button
+                className={`bg-purple text-white px-4 h-[40px] rounded-lg mt-4 w-full`}
+                onClick={() => {
+                  setShowAddPaymentPopup(true);
+                  setShowPaymentFailedPopup(false);
+                }}
+              >
+                Update Payment Method
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={showAddPaymentPopup} //addPaymentPopUp
+        // open={true}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12  sm:w-full w-full" sx={styles.paymentModal}>
+          <div className="flex flex-row justify-center items-center w-full h-full">
+            <div
+              className="sm:w-7/12 w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-between items-center">
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                  }}
+                >
+                  Payment Details
+                </div>
+                <CloseBtn
+                  onClick={() => setShowAddPaymentPopup(false)}
+                />
+              </div>
+              <Elements stripe={stripePromise}>
+                <AddCardDetails
+                  //selectedPlan={selectedPlan}
+                  // stop={stop}
+                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                  handleClose={() => setShowAddPaymentPopup(false)}
+                // togglePlan={""}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                />
+              </Elements>
             </div>
           </div>
         </Box>

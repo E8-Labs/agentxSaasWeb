@@ -81,7 +81,7 @@ function DashboardPlans({
             const agencyPlansList = localStorage.getItem("agencyPlansList");
             if (selectedAgency) {
                 console.log("Selected agency is", selectedAgency)
-                setAgencyPlanCost(selectedAgency.plan.ratePerMin);
+                setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
             } else {
                 if (agencyPlansList) {
                     const u = JSON.parse(agencyPlansList);
