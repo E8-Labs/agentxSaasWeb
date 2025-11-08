@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   BarChart,
@@ -25,15 +25,20 @@ import CustomTooltip from "@/utilities/CustomTooltip";
  * @param {Object} props
  * @param {Array} props.data - Chart data array with month and value
  * @param {string} props.currentValue - Current revenue value to display
- * @param {string} props.selectedPeriod - Selected time period (default: "This Year")
+ * @param {string} props.selectedPeriod - Selected time period (default: "Last 30 Days")
  */
 function RevenueGrowthChart({
   data = [],
   currentValue = "11,728",
-  selectedPeriod = "This Year",
+  selectedPeriod = "Last 30 Days",
   onPeriodChange,
 }) {
   const [period, setPeriod] = useState(selectedPeriod);
+
+  // Sync period state with selectedPeriod prop
+  useEffect(() => {
+    setPeriod(selectedPeriod);
+  }, [selectedPeriod]);
 
   // Default sample data if none provided
   const chartData =
@@ -138,14 +143,17 @@ function RevenueGrowthChart({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 7 Days")}>
+                Last 7 Days
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 30 Days")}>
+                Last 30 Days
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handlePeriodSelect("This Year")}>
                 This Year
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeriodSelect("Last Year")}>
-                Last Year
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeriodSelect("All Time")}>
-                All Time
+              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 12 Months")}>
+                Last 12 Months
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
