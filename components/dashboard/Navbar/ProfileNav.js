@@ -366,21 +366,20 @@ const ProfileNav = () => {
 
   const checkTrialDays = (userData) => {
     if (userData?.isTrial) {
-      const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
-      const today = moment();
-      const totalTrialDays = userData?.plan?.trialValidForDays;
-      // const totalTrialDays = 10;
+      // nextChargeDate is the trial END date (when the trial expires)
+      const trialEnd = moment(userData?.nextChargeDate || new Date());
+      const today = moment().startOf('day'); // Start of day for accurate day counting
+      const trialEndStartOfDay = trialEnd.startOf('day');
+      
+      // Calculate days remaining: trialEnd - today
+      // This gives positive number when trial hasn't ended yet
+      let daysLeft = trialEndStartOfDay.diff(today, "days");
 
-      // Calculate how many full days have passed since start
-      const daysElapsed = today.diff(trialStart, "days");
+      // Ensure daysLeft is never negative (trial already ended)
+      daysLeft = Math.max(daysLeft, 0);
 
-      // Calculate how many trial days remain
-      const daysLeft = Math.max(totalTrialDays - daysElapsed, 0);
-
-      console.log(`Trial days total: ${totalTrialDays}`);
-      console.log(`Trial days started: ${trialStart.format("MMMM DD")}`);
+      console.log(`Trial ends at: ${trialEnd.format("MMMM DD")}`);
       console.log(`Trial days Today: ${today.format("MMMM DD")}`);
-      console.log(`Trial days Days elapsed: ${daysElapsed}`);
       console.log(`Trial days Days left: ${daysLeft}`);
 
       return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
