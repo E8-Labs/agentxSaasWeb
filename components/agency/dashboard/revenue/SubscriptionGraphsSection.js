@@ -66,7 +66,7 @@ function SubscriptionGraphsSection({
   const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
 
   const fetchSubscriptionData = useCallback(async () => {
-    return
+    // return
     try {
       setLoading(true);
       const userStr = localStorage.getItem("User");
