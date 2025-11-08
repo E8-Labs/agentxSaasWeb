@@ -378,7 +378,14 @@ function TransactionTable({
                       {item.agentXShare}
                     </TableCell>
                     <TableCell className="text-sm text-gray-700 font-medium">
-                      {item.payout}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {item.payout}
+                        {item.onHold && (
+                          <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap">
+                            On Hold
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm text-gray-700">{item.date}</TableCell>
                     <TableCell>

@@ -2,11 +2,11 @@
 
 // //console.log;
 let BasePath =
-// process.env.NEXT_PUBLIC_BASE_API_URL || (
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
     : "https://apimyagentx.com/agentxtest/"
-  // ) //https://www.blindcircle.com
+  ) //https://www.blindcircle.com
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -238,6 +238,7 @@ const Apis = {
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
   getAdminTransactions: `${BasePath}api/admin/transactions`,
+  releaseHeldFunds: `${BasePath}api/admin/transactions/release`,
 
 
   templets : `${BasePath}api/templates`,
@@ -279,6 +280,9 @@ const Apis = {
   revenueLeaderboard: `${BasePath}api/admin/revenue/leaderboard`,
   revenuePayoutsSummary: `${BasePath}api/admin/revenue/payouts/summary`,
   revenueTransactions: `${BasePath}api/admin/revenue/transactions`,
+  
+  // Plan Subscriptions API
+  getPlanSubscriptions: `${BasePath}api/admin/analytics/plan-subscriptions`,
   
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,

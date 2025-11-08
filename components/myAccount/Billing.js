@@ -103,7 +103,7 @@ function Billing() {
         // Filter features to only show those with thumb = true
         const filteredPlans = plansData.map(plan => ({
           ...plan,
-          features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+          features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
         }));
         setPlans(filteredPlans);
       } else {

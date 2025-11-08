@@ -56,6 +56,7 @@ function AdminSubscriptions() {
     moment(currantDate).format("YYYY-MM-DD")
   );
   const [selectedSubRange, setSelectedSubRange] = useState("All Time");
+  const [dateFilter, setDateFilter] = useState(null); // null, 'last7Days', 'last30Days', 'customRange'
 
   const [selectedPlanRange, setSelectedPlanRange] = useState("All Time");
   const [planStartDate, setPlanStartDate] = useState("2025-01-01");
@@ -210,60 +211,72 @@ function AdminSubscriptions() {
     getAdminAnalytics();
   }, []);
 
-  const getAdminAnalytics = async (customeRange = false) => {
-    //console.log;
+  const getAdminAnalytics = async (filterType = null) => {
     try {
       const data = localStorage.getItem("User");
-      //console.log;
 
       if (data) {
         let u = JSON.parse(data);
 
-        let path = Apis.AdminAnalytics;
-        if (customeRange) {
-          path =
-            path + "?startDate=" +
-            subscriptionStartDate +
-            "&endDate=" +
-            subscriptionEndDate
+        // Call both APIs: AdminAnalytics for all data, and new API for filtered subscription stats
+        const [analyticsRes, subscriptionsRes] = await Promise.all([
+          // Get all analytics data
+          axios.get(Apis.AdminAnalytics, {
+            headers: {
+              "Authorization": "Bearer " + u.token,
+              "Content-Type": "application/json",
+            },
+          }),
+          // Get filtered subscription stats
+          (async () => {
+            let path = Apis.getPlanSubscriptions;
+            const params = new URLSearchParams();
 
+            // Set dateFilter
+            if (filterType === 'last7Days') {
+              params.set('dateFilter', 'last7Days');
+              setDateFilter('last7Days');
+            } else if (filterType === 'last30Days') {
+              params.set('dateFilter', 'last30Days');
+              setDateFilter('last30Days');
+            } else if (filterType === 'customRange') {
+              params.set('dateFilter', 'customRange');
+              params.set('startDate', subscriptionStartDate);
+              params.set('endDate', subscriptionEndDate);
+              setDateFilter('customRange');
+            } else {
+              // All Time - use last30Days as default
+              params.set('dateFilter', 'last30Days');
+              setDateFilter(null);
+            }
 
-          // "?subscriptionStartDate=" +
-          // subscriptionStartDate +
-          // "&subscriptionEndDate=" +
-          // subscriptionEndDate +
-          // "&planStartDate=" +
-          // planStartDate +
-          // "&planEndDate=" +
-          // planEndDate +
-          // subscriptionEndDate +
-          // "&subscriptionUpgradeStartDate=" +
-          // upgradeStartDate +
-          // "&subscriptionUpgradeEndDate=" +
-          // upgradeEndDate;
+            const queryString = params.toString();
+            const fullPath = queryString ? `${path}?${queryString}` : path;
+
+            return axios.get(fullPath, {
+              headers: {
+                "Authorization": "Bearer " + u.token,
+                "Content-Type": "application/json",
+              },
+            });
+          })()
+        ]);
+
+        // Merge data from both APIs
+        if (analyticsRes.data?.status && subscriptionsRes.data?.status) {
+          const analyticsData = analyticsRes.data.data;
+          const subscriptionsData = subscriptionsRes.data.data;
+          
+          setAnalyticData({
+            ...analyticsData,
+            planSubscriptionStats: subscriptionsData.planSubscriptionStats || analyticsData.planSubscriptionStats || {},
+            newSubscriptions: subscriptionsData.newSubscriptions || analyticsData.newSubscriptions || 0,
+            totalSubscriptions: subscriptionsData.totalSubscriptions || analyticsData.totalSubscriptions || 0,
+          });
         }
-        //console.log;
-        const response = await axios.get(path, {
-          headers: {
-            "Authorization": "Bearer " + u.token,
-            "Content-Type": "application/json",
-          },
-        });
-        //console.log;
-
-        if (response.data) {
-          if (response.data.status == true) {
-            //console.log;
-            setAnalyticData(response.data.data);
-          } else {
-            //console.log;
-          }
-        }
-      } else {
-        //console.log;
       }
     } catch (e) {
-      //console.log;
+      console.error("Error fetching analytics:", e);
     }
   };
 
@@ -342,12 +355,31 @@ function AdminSubscriptions() {
                     );
                     setSubscriptionStartDate("2025-01-01");
                     setSelectedSubRange("All Time");
-                    getAdminAnalytics(false);
-                    setShowCustomRange(false)
-
+                    getAdminAnalytics(null);
+                    setShowCustomRange(false);
                   }}
                 >
                   All Time
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="hover:bg-gray-100 px-3"
+                  onClick={() => {
+                    setSelectedSubRange("Last 7 Days");
+                    getAdminAnalytics('last7Days');
+                    setShowCustomRange(false);
+                  }}
+                >
+                  Last 7 Days
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="hover:bg-gray-100 px-3"
+                  onClick={() => {
+                    setSelectedSubRange("Last 30 Days");
+                    getAdminAnalytics('last30Days');
+                    setShowCustomRange(false);
+                  }}
+                >
+                  Last 30 Days
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -381,7 +413,7 @@ function AdminSubscriptions() {
                     setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
                     setSubscriptionStartDate("2025-01-01")
                     setSelectedSubRange("All Time")
-                    getAdminAnalytics(false)
+                    getAdminAnalytics(null)
                     setShowCustomRange(false)
                   }}
                 >
@@ -422,7 +454,7 @@ function AdminSubscriptions() {
                       color: "#00000060",
                     }}
                   >
-                    Number of new paid users over a period of time
+                    Number of new paid users over a period of time 2
                   </span>
                 </div>
                 <div className="w-full flex flex-row items-start justify-between">
@@ -1381,17 +1413,17 @@ function AdminSubscriptions() {
                   </div>
                 </div>
               </div>
-              <button
-                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                style={{ height: "50px" }}
-                onClick={() => {
-                  getAdminAnalytics(true);
-                  setShowCustomRangePopup(null);
-                  setShowCustomRange(true)
-                }}
-              >
-                Continue
-              </button>
+                <button
+                  className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                  style={{ height: "50px" }}
+                  onClick={() => {
+                    getAdminAnalytics('customRange');
+                    setShowCustomRangePopup(null);
+                    setShowCustomRange(true);
+                  }}
+                >
+                  Continue
+                </button>
             </div>
           </div>
         </Box>

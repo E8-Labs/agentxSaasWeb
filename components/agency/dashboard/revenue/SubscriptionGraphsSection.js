@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -12,26 +12,176 @@ import {
 } from "recharts";
 import moment from "moment";
 import Image from "next/image";
+import axios from "axios";
+import Apis from "@/components/apis/Apis";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { Box, Modal } from "@mui/material";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
 
 import CustomTooltip from "@/utilities/CustomTooltip";
 
 /**
  * SubscriptionGraphsSection - Displays subscription-related graphs
  * @param {Object} props
- * @param {Object} props.subscriptionData - Data for subscription graphs
+ * @param {Object} props.subscriptionData - Data for subscription graphs (optional if fetching own data)
+ * @param {string} props.dateFilter - Date filter: 'last7Days', 'last30Days', 'customRange', or null
+ * @param {string} props.startDate - Start date for customRange (YYYY-MM-DD)
+ * @param {string} props.endDate - End date for customRange (YYYY-MM-DD)
+ * @param {number} props.userId - Optional agency ID for filtering
+ * @param {boolean} props.fetchOwnData - If true, component will fetch its own data using filters
  */
-function SubscriptionGraphsSection({ subscriptionData = {} }) {
+function SubscriptionGraphsSection({ 
+  subscriptionData = {},
+  dateFilter = null,
+  startDate = null,
+  endDate = null,
+  userId = null,
+  fetchOwnData = false
+}) {
+  const [showPlansTooltip, setShowPlansTooltip] = useState(false);
+  const [localSubscriptionData, setLocalSubscriptionData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [hasFetchedData, setHasFetchedData] = useState(false);
+  
+  // Filter states - initialize to trigger initial fetch
+  const [localDateFilter, setLocalDateFilter] = useState(dateFilter || 'last30Days');
+  const [localStartDate, setLocalStartDate] = useState(startDate || "2025-01-01");
+  const [localEndDate, setLocalEndDate] = useState(endDate || moment().format("YYYY-MM-DD"));
+  const [selectedRange, setSelectedRange] = useState("All Time");
+  const [showCustomRangePopup, setShowCustomRangePopup] = useState(false);
+  const [showCustomRange, setShowCustomRange] = useState(false);
+  const [startDatePopoverOpen, setStartDatePopoverOpen] = useState(false);
+  const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
+
+  // Define colors for each plan
+  const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
+
+  const fetchSubscriptionData = useCallback(async () => {
+    return
+    try {
+      setLoading(true);
+      const userStr = localStorage.getItem("User");
+      const token = userStr ? JSON.parse(userStr)?.token : null;
+      
+      if (!token) return;
+
+      const params = new URLSearchParams();
+      
+      // Use local filter state if component manages its own filters, otherwise use props
+      const activeFilter = localDateFilter !== null ? localDateFilter : dateFilter;
+      const activeStartDate = localStartDate || startDate;
+      const activeEndDate = localEndDate || endDate;
+      
+      if (activeFilter === 'last7Days') {
+        params.set('dateFilter', 'last7Days');
+      } else if (activeFilter === 'last30Days') {
+        params.set('dateFilter', 'last30Days');
+      } else if (activeFilter === 'customRange' && activeStartDate && activeEndDate) {
+        params.set('dateFilter', 'customRange');
+        params.set('startDate', activeStartDate);
+        params.set('endDate', activeEndDate);
+      } else {
+        // Default to last30Days
+        params.set('dateFilter', 'last30Days');
+      }
+
+      if (userId) {
+        params.set('userId', userId);
+      }
+
+      const response = await axios.get(
+        `${Apis.getPlanSubscriptions}?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data?.status && response.data?.data) {
+        console.log("Subscription data received:", response.data.data);
+        setLocalSubscriptionData(response.data.data);
+        setHasFetchedData(true); // Mark that we've fetched our own data
+      }
+    } catch (error) {
+      console.error("Error fetching subscription data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [localDateFilter, localStartDate, localEndDate, userId, dateFilter, startDate, endDate]);
+
+  // Fetch data when filters change or on initial load
+  useEffect(() => {
+    // Always fetch when component has its own filter UI (since we're showing filters, we should fetch)
+    // This ensures filters always trigger API calls
+    fetchSubscriptionData();
+  }, [fetchSubscriptionData]);
+// 
+  // Also update localSubscriptionData if subscriptionData prop changes and we haven't fetched yet
+  useEffect(() => {
+    if (!hasFetchedData && subscriptionData && Object.keys(subscriptionData).length > 0) {
+      console.log("Using prop subscriptionData:", subscriptionData);
+      setLocalSubscriptionData(subscriptionData);
+    }
+  }, [subscriptionData, hasFetchedData]);
+
+  const handleFilterChange = (filterType) => {
+    if (filterType === 'last7Days') {
+      setLocalDateFilter('last7Days');
+      setSelectedRange("Last 7 Days");
+      setShowCustomRange(false);
+      // Trigger API call - useEffect will handle it
+    } else if (filterType === 'last30Days') {
+      setLocalDateFilter('last30Days');
+      setSelectedRange("Last 30 Days");
+      setShowCustomRange(false);
+      // Trigger API call - useEffect will handle it
+    } else if (filterType === 'customRange') {
+      setShowCustomRangePopup(true);
+      setSelectedRange("Custom Range");
+    } else {
+      // All Time - use last30Days as default
+      setLocalDateFilter('last30Days');
+      setLocalStartDate("2025-01-01");
+      setLocalEndDate(moment().format("YYYY-MM-DD"));
+      setSelectedRange("All Time");
+      setShowCustomRange(false);
+      // Trigger API call - useEffect will handle it
+    }
+  };
+
+  const handleCustomRangeApply = () => {
+    setLocalDateFilter('customRange');
+    setShowCustomRangePopup(false);
+    setShowCustomRange(true);
+    // Trigger API call - useEffect will handle it when localDateFilter changes
+  };
+
   const {
     planSubscriptionStats = {},
     activePlansUsers = {},
     reactivationsByPlan = {},
     newSubscriptions = 0,
-  } = subscriptionData;
+  } = localSubscriptionData;
 
-  const [showPlansTooltip, setShowPlansTooltip] = useState(false);
-
-  // Define colors for each plan
-  const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
+  // Debug: Log the data to see what we're working with
+  useEffect(() => {
+    if (hasFetchedData || Object.keys(localSubscriptionData).length > 0) {
+      console.log("Local subscription data:", localSubscriptionData);
+      console.log("Active plans users:", activePlansUsers);
+      console.log("Reactivations by plan:", reactivationsByPlan);
+    }
+  }, [localSubscriptionData, activePlansUsers, reactivationsByPlan, hasFetchedData]);
 
   // Transform API data into chart format for New Subscriptions
   const subscriptionChartData = (() => {
@@ -65,30 +215,79 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
   })();
 
   // Transform data for Plans chart
-  const planChartData = Object.keys(activePlansUsers || {}).map(
-    (planName, index) => ({
-      name: planName || "",
-      value: activePlansUsers[planName] || 0,
-      color: colors[index % colors.length],
-    })
-  );
+  const planChartData = (() => {
+    if (!activePlansUsers || typeof activePlansUsers !== 'object') {
+      console.warn("activePlansUsers is not an object:", activePlansUsers);
+      return [];
+    }
+    
+    const keys = Object.keys(activePlansUsers);
+    console.log("ActivePlansUsers keys:", keys);
+    
+    return keys.map((planName, index) => {
+      // Convert string values to numbers (API returns revenue as strings)
+      const rawValue = activePlansUsers[planName];
+      const numericValue = typeof rawValue === 'string' ? parseFloat(rawValue) : Number(rawValue) || 0;
+      console.log(`Plan: ${planName}, Raw: ${rawValue}, Numeric: ${numericValue}`);
+      return {
+        name: planName || "",
+        value: numericValue,
+        color: colors[index % colors.length],
+      };
+    }).filter(item => {
+      const hasValue = item.value > 0;
+      if (!hasValue) {
+        console.log(`Filtering out plan ${item.name} with value ${item.value}`);
+      }
+      return hasValue;
+    }); // Only include plans with data
+  })();
 
   const maxPlanValue = planChartData.length > 0
     ? Math.max(...planChartData.map(d => d.value))
     : 0;
 
   // Transform data for Reactivation Rate chart
-  const reActivationChartData = Object.keys(reactivationsByPlan || {}).map(
-    (planName, index) => ({
-      name: planName || "",
-      value: reactivationsByPlan[planName] || 0,
-      color: colors[index % colors.length],
-    })
-  );
+  const reActivationChartData = (() => {
+    if (!reactivationsByPlan || typeof reactivationsByPlan !== 'object') {
+      console.warn("reactivationsByPlan is not an object:", reactivationsByPlan);
+      return [];
+    }
+    
+    const keys = Object.keys(reactivationsByPlan);
+    console.log("ReactivationsByPlan keys:", keys);
+    
+    return keys.map((planName, index) => {
+      const rawValue = reactivationsByPlan[planName] || 0;
+      const numericValue = typeof rawValue === 'string' ? parseInt(rawValue, 10) : Number(rawValue) || 0;
+      console.log(`Reactivation Plan: ${planName}, Raw: ${rawValue}, Numeric: ${numericValue}`);
+      return {
+        name: planName || "",
+        value: numericValue,
+        color: colors[index % colors.length],
+      };
+    }).filter(item => {
+      const hasValue = item.value > 0;
+      if (!hasValue) {
+        console.log(`Filtering out reactivation plan ${item.name} with value ${item.value}`);
+      }
+      return hasValue;
+    }); // Only include plans with data
+  })();
 
   const maxReactivationValue = reActivationChartData.length > 0
     ? Math.max(...reActivationChartData.map(d => d.value))
     : 0;
+
+  // Debug: Log transformed chart data
+  useEffect(() => {
+    if (planChartData.length > 0) {
+      console.log("Plan chart data:", planChartData);
+    }
+    if (reActivationChartData.length > 0) {
+      console.log("Reactivation chart data:", reActivationChartData);
+    }
+  }, [planChartData, reActivationChartData]);
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -110,12 +309,83 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
               >
                 New Subscription
               </div>
-                <CustomTooltip title="Number of new paid users over a period of time" />
+              <CustomTooltip title="Number of new paid users over a period of time" />
+            </div>
+            <div className="flex flex-row items-center gap-4">
+              {/* Filter Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100 flex flex-row items-center gap-1"
+                  >
+                    <p>{selectedRange || "Select Range"}</p>
+                    <Image
+                      src={"/svgIcons/downArrow.svg"}
+                      height={20}
+                      width={24}
+                      alt="*"
+                    />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="bg-white border rounded-lg shadow-md"
+                  style={{ minWidth: "8rem", width: "100%" }}
+                >
+                  <DropdownMenuGroup style={{ cursor: "pointer" }}>
+                    <DropdownMenuItem
+                      className="hover:bg-gray-100 px-3"
+                      onClick={() => handleFilterChange(null)}
+                    >
+                      All Time
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="hover:bg-gray-100 px-3"
+                      onClick={() => handleFilterChange('last7Days')}
+                    >
+                      Last 7 Days
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="hover:bg-gray-100 px-3"
+                      onClick={() => handleFilterChange('last30Days')}
+                    >
+                      Last 30 Days
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleFilterChange('customRange')}
+                      className="hover:bg-gray-100 px-3"
+                    >
+                      Custom Range
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Custom Range Filter Badge */}
+              {showCustomRange && (
+                <div
+                  className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                  style={{ fontWeight: "500", fontSize: 15 }}
+                >
+                  {`${moment(localStartDate).format("MM-DD-YYYY")} - ${moment(localEndDate).format("MM-DD-YYYY")}`}
+                  <button
+                    className="outline-none"
+                    onClick={() => handleFilterChange(null)}
+                  >
+                    <Image
+                      src={"/otherAssets/crossIcon.png"}
+                      height={20}
+                      width={20}
+                      alt="Remove Filter"
+                    />
+                  </button>
+                </div>
+              )}
+
+              <div
+                style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
+              >
+                {newSubscriptions}
               </div>
-            <div
-              style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
-            >
-              {newSubscriptions}
             </div>
           </div>
 
@@ -207,7 +477,7 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
                   >
                     Plans
                   </div>
-                  <CustomTooltip title="Number of users who have a plan" />
+                  <CustomTooltip title="Revenue generated from plans" />
                 </div>
               </div>
               {planChartData.length > 0 ? (
@@ -233,9 +503,8 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
                     tickLine={false}
                     axisLine={false}
                     tick={{ fontSize: 11, fill: "#6b7280" }}
-                    domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
-                    allowDecimals={false}
-                    ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
+                    domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
+                    allowDecimals={true}
                   />
                   <Tooltip
                     contentStyle={{
@@ -333,6 +602,161 @@ function SubscriptionGraphsSection({ subscriptionData = {} }) {
           </div>
         </div>
       </div>
+
+      {/* Custom Range Modal */}
+      <Modal
+        open={showCustomRangePopup}
+        onClose={() => setShowCustomRangePopup(false)}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+          },
+        }}
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{
+            height: "auto",
+            bgcolor: "transparent",
+            p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-50%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+            backgroundColor: "white",
+          }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                  Select Date
+                </div>
+                <button onClick={() => setShowCustomRangePopup(false)}>
+                  <Image
+                    src={"/assets/blackBgCross.png"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
+                </button>
+              </div>
+
+              <div className="w-full flex flex-row items-center justify-between">
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontWeight: "500", fontSize: 14 }}>
+                    Start Date
+                  </div>
+                  <div className="mt-5">
+                    <Popover 
+                      open={startDatePopoverOpen} 
+                      onOpenChange={setStartDatePopoverOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {localStartDate ? moment(localStartDate).format("MM/DD/YYYY") : "Start date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-auto p-0 z-[9999]" 
+                        align="start"
+                        onInteractOutside={(e) => {
+                          // Prevent closing when clicking inside the modal
+                          const modal = document.querySelector('[role="dialog"]');
+                          if (modal && modal.contains(e.target)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={localStartDate ? moment(localStartDate).toDate() : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setLocalStartDate(moment(date).format("YYYY-MM-DD"));
+                              // Keep popover open - don't close on date selection
+                            }
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontWeight: "500", fontSize: 14 }}>
+                    End Date
+                  </div>
+                  <div className="mt-5">
+                    <Popover 
+                      open={endDatePopoverOpen} 
+                      onOpenChange={setEndDatePopoverOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {localEndDate ? moment(localEndDate).format("MM/DD/YYYY") : "End date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-auto p-0 z-[9999]" 
+                        align="start"
+                        onInteractOutside={(e) => {
+                          // Prevent closing when clicking inside the modal
+                          const modal = document.querySelector('[role="dialog"]');
+                          if (modal && modal.contains(e.target)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={localEndDate ? moment(localEndDate).toDate() : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setLocalEndDate(moment(date).format("YYYY-MM-DD"));
+                              // Keep popover open - don't close on date selection
+                            }
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+              <button
+                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                style={{ height: "50px" }}
+                onClick={handleCustomRangeApply}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div >
   );
 }

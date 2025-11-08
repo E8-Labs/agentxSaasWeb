@@ -249,13 +249,13 @@ function UserPlans({
             if (isFrom !== "SubAccount") {
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
-                    features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
+                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => !feature.thumb) : []
                 }));
             }
             if (isFrom === "Agency") {
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
-                    features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
                 }));
             }
             console.log("Filtered plans are", filteredPlans)

@@ -231,6 +231,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       agentXShare: `$${Number(t.agentXShare || 0).toLocaleString()}`,
       payout: `$${Number(t.agencyNetAmount || 0).toLocaleString()}`,
       date: moment(t.date).format("MM/DD/YYYY"),
+      onHold: t.onHold || false,
       status: (t.status || "completed").toLowerCase().includes("complete")
         ? "success"
         : (t.status || "").toLowerCase().includes("pending")
@@ -298,11 +299,13 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         </div>
 
         {/* Subscription Graphs Section - Full Width */}
-        {subscriptionData && (
-          <div className="w-full">
-            <SubscriptionGraphsSection subscriptionData={subscriptionData} />
-          </div>
-        )}
+        <div className="w-full">
+          <SubscriptionGraphsSection 
+            subscriptionData={subscriptionData} 
+            fetchOwnData={true}
+            userId={selectedAgency?.id}
+          />
+        </div>
 
         {/* Transaction Table - Full Width */}
         <div className="w-full">

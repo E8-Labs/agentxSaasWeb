@@ -63,6 +63,7 @@ function AgencySubscriptions({
     moment(currantDate).format("YYYY-MM-DD")
   );
   const [selectedSubRange, setSelectedSubRange] = useState("All Time");
+  const [dateFilter, setDateFilter] = useState(null); // null, 'last7Days', 'last30Days', 'customRange'
 
   const [selectedPlanRange, setSelectedPlanRange] = useState("All Time");
   const [planStartDate, setPlanStartDate] = useState("2025-01-01");
@@ -215,61 +216,87 @@ function AgencySubscriptions({
     getAdminAnalytics();
   }, []);
 
-  const getAdminAnalytics = async (customeRange = false) => {
-    console.log("Check 1 clear");
+  const getAdminAnalytics = async (filterType = null) => {
     try {
       const data = localStorage.getItem("User");
-      console.log("Check 2 clear");
 
       if (data) {
         let u = JSON.parse(data);
 
-        // console.log(u.token);
-
-        let path = Apis.AdminAnalytics;
-        let seperator = "?"
-        if (customeRange) {
-          path =
-            path + seperator + "startDate=" +
-            subscriptionStartDate +
-            "&endDate=" +
-            subscriptionEndDate;
-
-          seperator = "&"
-
-        }
+        // Call both APIs: AdminAnalytics for all data, and new API for filtered subscription stats
+        let analyticsPath = Apis.AdminAnalytics;
         if (selectedAgency) {
-          path = path + seperator + `userId=${selectedAgency.id}`
+          analyticsPath = `${analyticsPath}?userId=${selectedAgency.id}`;
         }
 
-        console.log("Api path is ", path);
-        const response = await axios.get(path, {
-          headers: {
-            "Authorization": "Bearer " + u.token,
-            "Content-Type": "application/json",
-          },
-        });
+        const [analyticsRes, subscriptionsRes] = await Promise.all([
+          // Get all analytics data
+          axios.get(analyticsPath, {
+            headers: {
+              "Authorization": "Bearer " + u.token,
+              "Content-Type": "application/json",
+            },
+          }),
+          // Get filtered subscription stats
+          (async () => {
+            let path = Apis.getPlanSubscriptions;
+            const params = new URLSearchParams();
 
-        if (response) {
-          console.log("Api response", response);
-          if (response.data.status == true) {
-            console.log("Response of unknown api is", response.data.data);
-            setAnalyticData(response.data.data);
-            const planStats = response.data.data.planSubscriptionStats;
+            // Set dateFilter
+            if (filterType === 'last7Days') {
+              params.set('dateFilter', 'last7Days');
+              setDateFilter('last7Days');
+            } else if (filterType === 'last30Days') {
+              params.set('dateFilter', 'last30Days');
+              setDateFilter('last30Days');
+            } else if (filterType === 'customRange') {
+              params.set('dateFilter', 'customRange');
+              params.set('startDate', subscriptionStartDate);
+              params.set('endDate', subscriptionEndDate);
+              setDateFilter('customRange');
+            } else {
+              // All Time - use last30Days as default
+              params.set('dateFilter', 'last30Days');
+              setDateFilter(null);
+            }
 
-            const planTitles = Object.keys(planStats);
-            setTestPlans(planTitles);
-            console.log("Plan Titles:", planTitles);
+            // Add userId if selectedAgency is provided
+            if (selectedAgency) {
+              params.set('userId', selectedAgency.id);
+            }
 
-          } else {
-            //console.log;
-          }
+            const queryString = params.toString();
+            const fullPath = queryString ? `${path}?${queryString}` : path;
+
+            return axios.get(fullPath, {
+              headers: {
+                "Authorization": "Bearer " + u.token,
+                "Content-Type": "application/json",
+              },
+            });
+          })()
+        ]);
+
+        // Merge data from both APIs
+        if (analyticsRes.data?.status && subscriptionsRes.data?.status) {
+          const analyticsData = analyticsRes.data.data;
+          const subscriptionsData = subscriptionsRes.data.data;
+          
+          setAnalyticData({
+            ...analyticsData,
+            planSubscriptionStats: subscriptionsData.planSubscriptionStats || analyticsData.planSubscriptionStats || {},
+            newSubscriptions: subscriptionsData.newSubscriptions || analyticsData.newSubscriptions || 0,
+            totalSubscriptions: subscriptionsData.totalSubscriptions || analyticsData.totalSubscriptions || 0,
+          });
+          
+          const planStats = subscriptionsData.planSubscriptionStats || analyticsData.planSubscriptionStats || {};
+          const planTitles = Object.keys(planStats);
+          setTestPlans(planTitles);
+          console.log("Plan Titles:", planTitles);
         }
-      } else {
-        //console.log;
       }
     } catch (e) {
-      console.log("Error occured in unknow api is", e);
+      console.log("Error occurred in analytics api:", e);
     }
   };
 
@@ -328,7 +355,7 @@ function AgencySubscriptions({
                     setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
                     setSubscriptionStartDate("2025-01-01")
                     setSelectedSubRange("All Time")
-                    getAdminAnalytics(false)
+                    getAdminAnalytics(null)
                     setShowCustomRange(false)
                   }}
                 >
@@ -405,12 +432,31 @@ function AgencySubscriptions({
                               );
                               setSubscriptionStartDate("2025-01-01");
                               setSelectedSubRange("All Time");
-                              getAdminAnalytics(false);
-                              setShowCustomRange(false)
-
+                              getAdminAnalytics(null);
+                              setShowCustomRange(false);
                             }}
                           >
                             All Time
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-100 px-3"
+                            onClick={() => {
+                              setSelectedSubRange("Last 7 Days");
+                              getAdminAnalytics('last7Days');
+                              setShowCustomRange(false);
+                            }}
+                          >
+                            Last 7 Days
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-100 px-3"
+                            onClick={() => {
+                              setSelectedSubRange("Last 30 Days");
+                              getAdminAnalytics('last30Days');
+                              setShowCustomRange(false);
+                            }}
+                          >
+                            Last 30 Days
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
@@ -1096,9 +1142,9 @@ function AgencySubscriptions({
                   className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                   style={{ height: "50px" }}
                   onClick={() => {
-                    getAdminAnalytics(true);
+                    getAdminAnalytics('customRange');
                     setShowCustomRangePopup(null);
-                    setShowCustomRange(true)
+                    setShowCustomRange(true);
                   }}
                 >
                   Continue
