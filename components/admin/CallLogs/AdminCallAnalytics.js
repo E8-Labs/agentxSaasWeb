@@ -150,7 +150,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[67vh] overflow-y-auto" id="scrollableDiv1" style={{ scrollbarWidth: "none" }}>
       {/* Collapsible Header with Toggle */}
       <div className="flex flex-row items-center justify-between pl-10 pr-10 mb-4">
         <div className="flex flex-row items-center gap-4">
@@ -393,17 +393,17 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
               <table className="w-full" style={{ borderCollapse: "collapse" }}>
                 <thead className="bg-gray-50 sticky top-0">
                   <tr>
-                    <th style={styles.tableHeader}>User Name</th>
+                    <th style={styles.tableHeader}>Sub Account</th>
                     <th style={styles.tableHeader}>Email</th>
                     <th style={styles.tableHeader}>Total Calls</th>
-                    <th style={styles.tableHeader}>Total Minutes</th>
-                    <th style={styles.tableHeader}>Unique Leads</th>
+                    <th style={styles.tableHeader}>Total Credits</th>
+                    <th style={styles.tableHeader}>Nurtured Leads</th>
                     <th style={styles.tableHeader}>Hot Leads</th>
                     <th style={styles.tableHeader}>Booked Leads</th>
                     <th style={styles.tableHeader}>Success Rate</th>
                     <th style={styles.tableHeader}>Batches</th>
                     <th style={styles.tableHeader}>Avg Call Duration</th>
-                    <th style={styles.tableHeader}>Balance (Mins)</th>
+                    <th style={styles.tableHeader}>Balance (Credits)</th>
                   </tr>
                 </thead>
                 <tbody>

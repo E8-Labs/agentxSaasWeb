@@ -7,7 +7,8 @@ import { AuthToken } from "../plan/AuthDetails";
 import Image from "next/image";
 
 export default function StripeDetailsCard({
-    stripeData
+    stripeData,
+    fromDashboard = true
 }) {
 
     const [loader, setLoader] = useState(false);
@@ -103,10 +104,14 @@ export default function StripeDetailsCard({
                             ) : (
                                 <button className="bg-purple text-white rounded-lg h-[50px] w-full"
                                     onClick={() => {
-                                        handleViewStripeAccount();
+                                        if (fromDashboard) {
+                                            handleViewStripeAccount();
+                                        } else {
+                                            router.push("/agency/dashboard");
+                                        }
                                     }}
                                 >
-                                    View Stripe Account
+                                    {fromDashboard ? "View Stripe Account" : "View Dashboard"}
                                 </button>
                             )
                         }

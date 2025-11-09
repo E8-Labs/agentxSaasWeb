@@ -3,13 +3,17 @@ import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
 import { AddAgencyTwilioKeyModal } from './StickyModals';
+import LoaderAnimation from '@/components/animations/LoaderAnimation';
+import { useRouter } from 'next/navigation';
 
 const TwillioWarning = ({
     open,
     handleClose,
     // handleDeleteUser,
     delLoader,
+    setRortingLoader
 }) => {
+    let router = useRouter();
 
     const [showAddKeyModal, setShowAddKeyModal] = useState(false);
 
@@ -46,7 +50,11 @@ const TwillioWarning = ({
                                 }}
                             >
                                 {/* <div style={{ width: "20%" }} /> */}
-                                <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                <div style={{
+                                    fontSize: 20,
+                                    fontWeight: 600,
+                                    color: "#000000",
+                                }}>
                                     Heads Up!
                                 </div>
                                 <div
@@ -61,8 +69,12 @@ const TwillioWarning = ({
                             </div>
 
                             <div className="mt-6">
-                                <div style={{ fontWeight: "600", fontSize: 17 }}>
-                                    Add your Twilio API Keys to start calls.
+                                <div style={{
+                                    fontSize: 16,
+                                    fontWeight: 400,
+                                    color: "#000000",
+                                }}>
+                                    Add your Twilio API Keys to start selling and providing phone numbers to your users which enables them to make calls with their AI agents.
                                 </div>
                             </div>
                         </div>
@@ -79,7 +91,7 @@ const TwillioWarning = ({
                                         </div>
                                     ) : (
                                         <button
-                                            className="outline-none bg-red"
+                                            className="outline-none bg-purple text-white"
                                             style={{
                                                 color: "white",
                                                 height: "50px",
@@ -88,7 +100,11 @@ const TwillioWarning = ({
                                                 fontWeight: 600,
                                                 fontSize: "20",
                                             }}
-                                            onClick={() => { setShowAddKeyModal(true) }}
+                                            onClick={() => {
+                                                router.push('/agency/dashboard/integration');
+                                                handleClose();
+                                                setRortingLoader(true);
+                                            }}
                                         >
                                             Connect Twilio
                                         </button>)

@@ -1,4 +1,5 @@
 // import { duration } from "@/utilities/PlansService";
+import { useUser } from "@/hooks/redux-hooks";
 
 export const DurationView = ({
     selectedDuration,
@@ -6,12 +7,18 @@ export const DurationView = ({
     from,
     duration
 }) => {
+
+    const {user:reduxUser} = useUser();
+
+    console.log("reduxUser in duration view", reduxUser);
+    console.log("from in duration view", (from !== "SubAccount"));
+
     return (
 
         <div className='flex flex-col items-end plan-duration-container justify-end'>
             {/* Discount labels row */}
             {
-                from !== "SubAccount" && (
+                (reduxUser?.userRole !== "AgencySubAccount") && (
                     <div className='flex flex-row items-center justify-end gap-2 px-2 mt-2 me-[7px]'>
                         {
                             duration?.map((item) => (

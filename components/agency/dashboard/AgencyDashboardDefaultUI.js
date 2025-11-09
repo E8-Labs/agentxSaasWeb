@@ -1,6 +1,5 @@
 import React from 'react'
-import { Card } from '@/components/ui/card'
-import { PieChart, FileText, BarChart3, Search } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 
@@ -12,7 +11,7 @@ const AgencyDashboardDefaultUI = () => {
       {/* Row 1: Four placeholder cards */}
       <div className="grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 w-[96%] mt-4">
         {[1, 2, 3, 4].map((item) => (
-          <Card
+          <Skeleton
             key={item}
             className={cn(
               "h-20 rounded-lg",
@@ -25,7 +24,7 @@ const AgencyDashboardDefaultUI = () => {
 
       {/* Row 2: One wide placeholder card */}
       <div className="w-[96%]">
-        <Card
+        <Skeleton
           className={cn(
             "h-20 rounded-lg",
             "bg-gray-100 border-none",
@@ -41,7 +40,7 @@ const AgencyDashboardDefaultUI = () => {
           No data to show
         </h2>
         <p className="text-normal text-gray-600 font-normal text-center max-w-md">
-          Your agency metrics will appear once you have account activities
+          Your agency revenue metrics will appear once you have account activities
         </p>
       </div>
     </div>

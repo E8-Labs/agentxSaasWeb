@@ -1285,7 +1285,7 @@ function AgencyPlansPayments({
                                     </div>
 
                                     {/* Features section - only show features with thumb = true */}
-                                    <div className="w-full max-h-[40vh] overflow-auto"
+                                    <div className="w-full max-h-[40vh] overflow-hidden"
                                         style={{
                                             scrollbarWidth: "none", // Firefox
                                             msOverflowStyle: "none", // IE/Edge

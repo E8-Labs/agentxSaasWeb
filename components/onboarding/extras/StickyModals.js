@@ -4,6 +4,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { Box, CircularProgress, Modal } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
@@ -260,15 +261,12 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
             >
               Twilio API Key
             </div>
-            <button
-              className="outline-none border-none"
+            <CloseBtn
               onClick={() => {
                 handleResetValues()
                 closeModal();
               }}
-            >
-              <Image alt="*" src={"/assets/cross.png"} height={15} width={15} />
-            </button>
+            />
           </div>
           <div style={styles.mediumTxt}>SSID</div>
           <div>
@@ -296,7 +294,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
           </div>
           <div className="w-full flex flex-row items-center justify-between mt-4 gap-2">
             <button
-              className="text-purple w-1/2 p-2 border rounded-md"
+              className="text-[#6b7280] w-1/2 p-2"
               onClick={() => {
                 closeModal();
               }}

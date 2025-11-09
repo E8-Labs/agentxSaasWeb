@@ -1844,7 +1844,7 @@ function SubAccountPlansAndPayments({
                                         setShowConfirmCancelPlanPopup(true);
                                     }}
                                 >
-                                    {`No thank you, I’d like to cancel my Agentx`}
+                                    {`No thank you, I’d like to cancel my AssignX`}
                                 </button>
                             </div>
                         </div>
@@ -1909,7 +1909,7 @@ function SubAccountPlansAndPayments({
                                         alignSelf: "center",
                                     }}
                                 >
-                                    Canceling your AgentX means you lose access to your agents,
+                                    Canceling your AssignX means you lose access to your agents,
                                     leads, pipeline, staff and more.
                                 </div>
                             </div>
@@ -1921,8 +1921,11 @@ function SubAccountPlansAndPayments({
                                     fontSize: 16.8,
                                     outline: "none",
                                 }}
+                                onClick={() => {
+                                    setShowConfirmCancelPlanPopup(false);
+                                }}
                             >
-                                Never mind, keep my AgentX
+                                Never mind, keep my AssignX
                             </button>
 
                             {cancelPlanLoader ? (
@@ -2012,7 +2015,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                AgentX Successfully Canceled
+                                AssignX Successfully Canceled
                             </div>
 
                             <div

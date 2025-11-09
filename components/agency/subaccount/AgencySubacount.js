@@ -29,6 +29,7 @@ import { useUser } from "@/hooks/redux-hooks";
 import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { formatFractional2 } from "../plan/AgencyUtilities";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 
 function AgencySubacount({
@@ -61,7 +62,7 @@ function AgencySubacount({
   //del subAcc
   const [delLoader, setDelLoader] = useState(false);
   const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
-
+  const [rortingLoader, setRortingLoader] = useState(false);
   //variables for dropdown
   // const [accountAnchorel, setAccountAnchorel] = useState(null);
   // const openAccountDropDown = Boolean(accountAnchorel);
@@ -487,6 +488,13 @@ function AgencySubacount({
 
   return (
     <div className="w-full flex flex-col items-center ">
+      {rortingLoader && (
+        <LoaderAnimation
+          loaderModal={true}
+          isOpen={rortingLoader}
+          title="Redirecting to Twilio integration..."
+        />
+      )}
       <AgentSelectSnackMessage
         isVisible={showSnackMessage}
         hide={() => {
@@ -537,6 +545,9 @@ function AgencySubacount({
             setShowSnackType(SnackbarTypes.Success);
           }
         }}
+        setRortingLoader={(d) => {
+          setRortingLoader(d);
+        }}
       // showSuccess={(d) => {
       //   setShowSnackMessage(d);
       //   setShowSnackType(SnackbarTypes.Success);
@@ -570,7 +581,7 @@ function AgencySubacount({
               handleCheckPlans();
             }}
           >
-            
+
             {loading ? <CircularProgress size={20} /> : "Create Sub Account"}
           </button>
         </div>

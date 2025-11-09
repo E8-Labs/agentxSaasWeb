@@ -109,6 +109,10 @@ const ProfileNav = () => {
   const [showLowMinsModal, setShowLowMinsModal] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
   const [loading, setLoading] = useState(false);
+  const [localUser, setLocalUser] = useState(null);
+
+
+
   useEffect(() => {
     console.log("Search url is", pathname);
     if (pathname === '/dashboard') {
@@ -147,6 +151,11 @@ const ProfileNav = () => {
   // }, []);
 
   useEffect(() => {
+    const local = localStorage.getItem("User");
+    if (local) {
+      const parsed = JSON.parse(local);
+      setLocalUser(parsed.user);
+    }
     const testNot = async () => {
       try {
         const localData = localStorage.getItem("User");

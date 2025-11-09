@@ -136,6 +136,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
                                 checkStripeStatus ? (
                                     <StripeDetailsCard
                                         stripeData={agencydata?.stripeAccount}
+                                        fromDashboard={false}
                                     />
                                 ) : (
                                     <div className={`w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 ${fullScreen ? "" : "mt-6"}`}>

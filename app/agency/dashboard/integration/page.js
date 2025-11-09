@@ -5,19 +5,17 @@ import Integrations from '@/components/agency/integrations/Integrations';
 import ConnectStripe from '@/components/agency/stripe/ConnectStripe';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 function Page() {
 
-    const [currentTab, setCurrentTab] = useState(1);
-
-    //handle switch tab
-    const handleTabSelection = (tab) => {
-        setCurrentTab(tab);
-    }
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const initialTab = tabParam ? parseInt(tabParam, 10) : 1;
 
     return (
         <div>
-            <AgencyIntegrations />
+            <AgencyIntegrations initialTab={initialTab} />
         </div>
     )
 }

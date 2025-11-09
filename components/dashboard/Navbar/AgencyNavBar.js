@@ -303,8 +303,8 @@ const AgencyNavBar = () => {
       id: 5,
       name: "Activity",
       href: "/agency/dashboard/callLogs",
-      selected: "/agencyNavbarIcons/callLogSel.png",
-      uneselected: "/agencyNavbarIcons/callLogUnSel.png",
+      selected: "/otherAssets/selectedActivityLog.png",
+      uneselected: "/otherAssets/activityLog.png",
     },
     {
       id: 6,
@@ -508,8 +508,8 @@ const AgencyNavBar = () => {
                       src={
                         pathname === item.href ? item.selected : item.uneselected
                       }
-                      height={24}
-                      width={24}
+                      height={item.name === "Activity" ? 16 : 24}
+                      width={item.name === "Activity" ? 16 : 24}
                       alt="icon"
                     />
                     <div
@@ -519,6 +519,7 @@ const AgencyNavBar = () => {
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
                       }}
                     >
                       {item.name}
@@ -556,7 +557,7 @@ const AgencyNavBar = () => {
               textDecoration: "none",
             }}
           >
-            {userDetails?.user?.thumb_profile_image ? (
+            {localUser?.user?.thumb_profile_image ? (
               <div
                 style={{
                   width: "32px",
@@ -576,7 +577,7 @@ const AgencyNavBar = () => {
               </div>
             ) : (
               <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.name.slice(0, 1).toUpperCase()}
+                {localUser?.name.slice(0, 1).toUpperCase()}
               </div>
             )}
 
@@ -591,7 +592,7 @@ const AgencyNavBar = () => {
                   color: "black",
                 }}
               >
-                {userDetails?.name?.split(" ")[0]}
+                {localUser?.name?.split(" ")[0]}
               </div>
               <div
                 className="truncate w-[120px]"
@@ -602,7 +603,7 @@ const AgencyNavBar = () => {
                   textOverflow: "ellipsis",
                 }}
               >
-                {userDetails?.email}
+                {localUser?.email}
               </div>
             </div>
           </Link>
