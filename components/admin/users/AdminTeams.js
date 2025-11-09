@@ -879,7 +879,7 @@ function AdminTeam({ selectedUser }) {
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
                       country={"us"} // restrict to US only
-                      onlyCountries={["us", "mx"]}
+                      onlyCountries={["us", "mx","ca"]}
                       disableDropdown={true}
                       countryCodeEditable={false}
                       disableCountryCode={false} // Default country

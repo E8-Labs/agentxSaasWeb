@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Footer from "@/components/onboarding/Footer";
 import Apis from "../apis/Apis";
 import axios from "axios";
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
+import { Box, CircularProgress, Modal, Popover, Tooltip } from "@mui/material";
 import LoaderAnimation from "../animations/LoaderAnimation";
 // Removed Google Maps imports for simple string input
 import VideoCard from "./VideoCard";
@@ -540,7 +540,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //code for creating agent api
   const handleBuildAgent = async () => {
 
-    if (reduxUser?.plan &&  !isPlanActive(reduxUser?.plan)) {
+    if (reduxUser?.plan && !isPlanActive(reduxUser?.plan)) {
       setSnackMessage("Your plan is paused. Activate to create agents")
       setIsVisible(true)
       setMsgType(SnackbarTypes.Error)
@@ -817,61 +817,47 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
                 style={{ scrollbarWidth: "none" }}
               >
-                <div
-                  style={styles.headingStyle}
-                  className="flex flex-row items-center gap-2"
-                // onClick={handleContinue}
-                >
-                  {`What's this AI agent's name?`}
+                <div className="flex flex-row items-center justify-between w-full pe-3">
                   <div
-                    aria-owns={open ? "mouse-over-popover" : undefined}
-                    aria-haspopup="true"
-                    onMouseEnter={handlePopoverOpen}
-                    onMouseLeave={handlePopoverClose}
-                    style={{ cursor: "pointer" }}
+                    style={styles.headingStyle}
+                    className="flex flex-row items-center gap-2 whitespace-nowrap"
+                  // onClick={handleContinue}
                   >
-                    <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
+                    {`What's this AI agent's name?`}
+                    <Tooltip title="Your AI will identify itself by this name"  arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "14px",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
+                    }}>
+
+                      <Image
+                        src={"/svgIcons/infoIcon.svg"}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                    </Tooltip>
                   </div>
-                </div>
-                {/* Info popover */}
-                <Popover
-                  id="mouse-over-popover"
-                  sx={{ pointerEvents: "none" }}
-                  open={open}
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  transformOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
-                  }}
-                  onClose={handlePopoverClose}
-                  disableRestoreFocus
-                >
-                  <div className="flex flex-row items-center px-2 h-[40px] gap-2">
-                    <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                      Your AI will identify itself by this name
-                    </div>
+
+                  <div className="text-[12px] font-[400] w-full mt-1 pe-4" style={{
+                    textAlign: 'end',
+                    color: '#00000060'
+                  }}>
+                    {agentName.length}/40
                   </div>
-                </Popover>
-                <div className="text-[12px] font-[400] w-full mt-1 pe-4" style={{
-                  textAlign: 'end',
-                  color: '#00000060'
-                }}>
-                  {agentName.length}/40
                 </div>
                 <input
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"

@@ -3617,7 +3617,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                   <PhoneInput
                     className="border outline-none bg-white"
                     country={"us"}
-                    onlyCountries={["us", "sv", "pk", "mx"]}
+                    onlyCountries={["us", "mx","ca"]}
                     disableDropdown={false}
                     countryCodeEditable={false}
                     value={phone}

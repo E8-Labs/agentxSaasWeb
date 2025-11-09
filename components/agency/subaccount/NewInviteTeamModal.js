@@ -355,7 +355,7 @@ const NewInviteTeamModal = ({
                                                         <div className="w-full">
                                                             <PhoneInput
                                                                 country={"us"} // restrict to US only
-                                                                onlyCountries={["us", "mx"]}
+                                                                onlyCountries={["us", "mx","ca"]}
                                                                 disableDropdown={true}
                                                                 countryCodeEditable={false}
                                                                 disableCountryCode={false}

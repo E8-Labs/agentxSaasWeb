@@ -725,7 +725,7 @@ const DebtCollectorAgentSignUp = ({
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={"us"} // restrict to US only
-                  onlyCountries={["us", "mx"]}
+                  onlyCountries={["us", "mx", "ca"]}
                   disableDropdown={true}
                   countryCodeEditable={false}
                   disableCountryCode={false}
