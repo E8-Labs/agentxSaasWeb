@@ -246,10 +246,19 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   };
 
   const topMetrics = useMemo(() => {
-    if (!summary) return undefined;
+    if (!summary) {
+      return {
+        totalRevenue: "-",
+        arr: "-",
+        mrr: "-",
+        netRevenue: "-",
+        agencyNetEarnings: "-",
+        stripeBalance: "-",
+      };
+    }
     return {
       totalRevenue: `$${Number(summary.totalRevenue || 0).toLocaleString()}`,
-      arr: subscriptionData?.arr ? `$${Number(subscriptionData.arr || 0).toLocaleString()}` : `$${Number(0).toLocaleString()}`,
+      arr: subscriptionData?.arr ? `$${Number(subscriptionData.arr || 0).toLocaleString()}` : "-",
       mrr: `$${Number(summary.mrr || 0).toLocaleString()}`,
       netRevenue: `$${Number(summary.netRevenue || 0).toLocaleString()}`,
       agencyNetEarnings: `$${Number(summary.agencyNetEarnings || 0).toLocaleString()}`,
@@ -258,10 +267,17 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   }, [summary, subscriptionData]);
 
   const revenueChart = useMemo(() => {
+    if (!growth) {
+      return {
+        data: [],
+        currentValue: "-",
+        selectedPeriod: revenueGrowthFilter,
+      };
+    }
     const monthly = growth?.monthlyData || [];
     return {
       data: monthly.map((m) => ({ month: m.month, value: m.revenue || 0 })),
-      currentValue: growth?.currentRevenue ? `${growth.currentRevenue}` : "0",
+      currentValue: growth?.currentRevenue ? `${growth.currentRevenue}` : "-",
       selectedPeriod: revenueGrowthFilter,
     };
   }, [growth, revenueGrowthFilter]);
@@ -304,17 +320,27 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   }, [transactions]);
 
   const payoutMetrics = useMemo(() => {
-    if (!payouts) return undefined;
+    if (!payouts) {
+      return {
+        nextPayoutDate: "-",
+        nextPayoutTime: "-",
+        lifetimePayouts: "-",
+        avgTransactionValue: "-",
+        clv: "-",
+        refundsCount: "-",
+        refundsAmount: "-",
+      };
+    }
     const refundsCount = Number(payouts.refundsCount || 0) + Number(payouts.chargebacksCount || 0);
     const refundsAmount = (Number(payouts.refundsAmount || 0) + Number(payouts.chargebacksAmount || 0)).toFixed(2);
-    let nextPayoutDate = payouts.nextPayoutAt ? moment(payouts.nextPayoutAt).format("MMMM D") : "—";
-    let nextPayoutTime = payouts.nextPayoutAt ? moment(payouts.nextPayoutAt).format("h:mmA") : "—";
+    let nextPayoutDate = payouts.nextPayoutAt ? moment(payouts.nextPayoutAt).format("MMMM D") : "-";
+    let nextPayoutTime = payouts.nextPayoutAt ? moment(payouts.nextPayoutAt).format("h:mmA") : "-";
     return {
       nextPayoutDate,
       nextPayoutTime,
       lifetimePayouts: `$${Number(payouts.lifetimePayouts || 0).toLocaleString()}`,
       avgTransactionValue: `$${Number(payouts.avgTransactionValue || 0).toLocaleString()}`,
-      clv: subscriptionData?.clv ? `$${Number(subscriptionData.clv || 0).toLocaleString()}` : `$${Number(0).toLocaleString()}`,
+      clv: subscriptionData?.clv ? `$${Number(subscriptionData.clv || 0).toLocaleString()}` : "-",
       refundsCount: `${refundsCount}`,
       refundsAmount: `$${Number(refundsAmount).toLocaleString()}`,
     };
