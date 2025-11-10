@@ -2,16 +2,24 @@ import { Tooltip, Switch } from '@mui/material';
 import Image from 'next/image';
 import React, { useState, useEffect, useMemo } from 'react';
 import DOMPurify from 'dompurify';
-import EditNotifications from './EditNotifications';
+import EditPushNotification from './EditPushNotification';
+import EditEmailNotification from './EditEmailNotification';
 import { StandardNotificationsList } from './WhiteLabelNotificationExtras';
 import {
     createOrUpdateNotificationCustomization,
     deleteNotificationCustomization,
     toggleNotificationCustomization
 } from '@/services/notificationServices/NotificationCustomizationService';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' }) => {
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isEditPushModalOpen, setIsEditPushModalOpen] = useState(false);
+    const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(null);
@@ -60,19 +68,54 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
             }));
     }, [notificationsData, category]);
 
-    const handleEditClick = (notification) => {
+    const handleEditPushClick = (notification) => {
         setSelectedNotification(notification);
-        setIsEditModalOpen(true);
+        setIsEditPushModalOpen(true);
     };
 
-    const handleSaveNotification = async (updatedData) => {
+    const handleEditEmailClick = (notification) => {
+        setSelectedNotification(notification);
+        setIsEditEmailModalOpen(true);
+    };
+
+    const handleSavePushNotification = async (updatedData) => {
         try {
             setSaving(true);
 
-            // Prepare data for API with all fields
+            // Prepare data for API with push notification fields
             const apiData = {
                 customPushTitle: updatedData.pushTitle,
                 customPushBody: updatedData.pushBody,
+                customEmailCTA: updatedData.cta,
+                isActive: true,
+            };
+
+            // Call API to save customization
+            await createOrUpdateNotificationCustomization(
+                selectedNotification.actualNotificationType || selectedNotification.notificationType,
+                apiData
+            );
+
+            console.log('Push notification saved successfully');
+
+            // Refresh the data
+            if (onRefresh) {
+                await onRefresh();
+            }
+        } catch (error) {
+            console.error('Error saving push notification:', error);
+            alert('Failed to save push notification. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveEmailNotification = async (updatedData) => {
+        try {
+            setSaving(true);
+
+            // Prepare data for API with email fields
+            const apiData = {
                 customEmailSubject: updatedData.emailSubject,
                 customEmailBody: updatedData.emailBody,
                 customEmailCTA: updatedData.cta,
@@ -85,22 +128,27 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                 apiData
             );
 
-            console.log('Notification saved successfully');
+            console.log('Email notification saved successfully');
 
             // Refresh the data
             if (onRefresh) {
                 await onRefresh();
             }
         } catch (error) {
-            console.error('Error saving notification:', error);
-            alert('Failed to save notification. Please try again.');
+            console.error('Error saving email notification:', error);
+            alert('Failed to save email notification. Please try again.');
         } finally {
             setSaving(false);
         }
     };
 
-    const handleCloseModal = () => {
-        setIsEditModalOpen(false);
+    const handleClosePushModal = () => {
+        setIsEditPushModalOpen(false);
+        setSelectedNotification(null);
+    };
+
+    const handleCloseEmailModal = () => {
+        setIsEditEmailModalOpen(false);
         setSelectedNotification(null);
     };
 
@@ -237,103 +285,118 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                         </div>
                     </div>
 
-                    {/* App Notification */}
-                    <div className="bg-[#F9F9F9] p-4 rounded-lg mb-4">
-                        <div className="flex flex-row items-center justify-between">
-                            <div>
-                                <span style={styles.semiBoldHeading}>Title:</span>
-                                <span className="ms-2" style={styles.smallRegular}>{item.appNotficationTitle}</span>
-                            </div>
-                            <button
-                                className="rounded-md bg-[#7804DF10] text-purple w-[105px] h-[25px] outline-none border-none"
-                                style={styles.smallRegular}
-                            >
-                                <i>App Notification</i>
-                            </button>
-                        </div>
-                        <div style={styles.mediumRegular} className="mt-4">
-                            {item.appNotficationBody}
-                        </div>
-                        <div className="flex flex-row items-center justify-between mt-4">
-                            <div>
-                                {item.supportsCTA && item.appNotficationCTA && (
-                                    <div>
-                                        <span style={styles.semiBoldHeading}>CTA:</span>
-                                        <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.appNotficationCTA}</span>
+                    {/* Accordion for App Notification and Email */}
+                    <Accordion type="multiple" defaultValue={[`app-${item.id}`, `email-${item.id}`]} className="w-full">
+                        {/* App Notification Section */}
+                        <AccordionItem value={`app-${item.id}`}>
+                            <AccordionTrigger>
+                                <h3 style={{ fontSize: 18, fontWeight: 600, color: "#7902DF" }}>
+                                    App Notification
+                                </h3>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <div className="bg-[#F9F9F9] p-4 rounded-lg">
+                                    <div className="flex flex-row items-center justify-between mb-4">
+                                        <div>
+                                            <span style={styles.semiBoldHeading}>Push Notification Title:</span>
+                                            <span className="ms-2" style={styles.smallRegular}>{item.appNotficationTitle}</span>
+                                        </div>
+                                        <button
+                                            className="outline-none border-none"
+                                            style={styles.smallRegular}
+                                            onClick={() => handleEditPushClick(item)}
+                                            title="Edit push notification"
+                                        >
+                                            <Image
+                                                src={"/agencyIcons/purplePen.png"}
+                                                alt="edit"
+                                                width={16}
+                                                height={16}
+                                            />
+                                        </button>
                                     </div>
-                                )}
-                            </div>
-                            <button
-                                className="outline-none border-none"
-                                style={styles.smallRegular}
-                                onClick={() => handleEditClick(item)}
-                                title="Edit this notification"
-                            >
-                                <Image
-                                    src={"/agencyIcons/purplePen.png"}
-                                    alt="edit"
-                                    width={16}
-                                    height={16}
-                                />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Email Template - Only show if notification has email template */}
-                    {(item.emailNotficationTitle || item.emailNotficationBody) && (
-                        <div className="bg-[#F9F9F9] p-4 rounded-lg">
-                            <div className="flex flex-row items-center justify-between">
-                                <div>
-                                    <span style={styles.semiBoldHeading}>Subject:</span>
-                                    <span className="ms-2" style={styles.smallRegular}>{item.emailNotficationTitle}</span>
-                                </div>
-                                <button
-                                    className="rounded-md bg-[#7804DF10] text-purple w-[105px] h-[25px] outline-none border-none"
-                                    style={styles.smallRegular}
-                                >
-                                    <i>Email Template</i>
-                                </button>
-                            </div>
-                            <div
-                                style={styles.mediumRegular}
-                                className="mt-4"
-                                dangerouslySetInnerHTML={{ __html: sanitizeHTML(item.emailNotficationBody) }}
-                            />
-                            <div className="flex flex-row items-center justify-between mt-4">
-                                <div>
-                                    {item.supportsCTA && item.emailNotficationCTA && (
+                                    <div className="mb-4">
+                                        <span style={styles.semiBoldHeading}>Push Notification Body:</span>
+                                        <div style={styles.mediumRegular} className="mt-2">
+                                            {item.appNotficationBody}
+                                        </div>
+                                    </div>
+                                    {item.supportsCTA && item.appNotficationCTA && (
                                         <div>
                                             <span style={styles.semiBoldHeading}>CTA:</span>
-                                            <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.emailNotficationCTA}</span>
+                                            <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.appNotficationCTA}</span>
                                         </div>
                                     )}
                                 </div>
-                                <button
-                                    className="outline-none border-none"
-                                    style={styles.smallRegular}
-                                    onClick={() => handleEditClick(item)}
-                                    title="Edit this notification"
-                                >
-                                    <Image
-                                        src={"/agencyIcons/purplePen.png"}
-                                        alt="edit"
-                                        width={16}
-                                        height={16}
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Email Template Section - Only show if notification has email template */}
+                        {(item.emailNotficationTitle || item.emailNotficationBody) && (
+                            <AccordionItem value={`email-${item.id}`}>
+                                <AccordionTrigger>
+                                    <h3 style={{ fontSize: 18, fontWeight: 600, color: "#7902DF" }}>
+                                        Email Notification
+                                    </h3>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="bg-[#F9F9F9] p-4 rounded-lg">
+                                        <div className="flex flex-row items-center justify-between mb-4">
+                                            <div>
+                                                <span style={styles.semiBoldHeading}>Subject:</span>
+                                                <span className="ms-2" style={styles.smallRegular}>{item.emailNotficationTitle}</span>
+                                            </div>
+                                            <button
+                                                className="outline-none border-none"
+                                                style={styles.smallRegular}
+                                                onClick={() => handleEditEmailClick(item)}
+                                                title="Edit email notification"
+                                            >
+                                                <Image
+                                                    src={"/agencyIcons/purplePen.png"}
+                                                    alt="edit"
+                                                    width={16}
+                                                    height={16}
+                                                />
+                                            </button>
+                                        </div>
+                                        <div className="mb-4">
+                                            <span style={styles.semiBoldHeading}>Body:</span>
+                                            <div
+                                                style={styles.mediumRegular}
+                                                className="mt-2"
+                                                dangerouslySetInnerHTML={{ __html: sanitizeHTML(item.emailNotficationBody) }}
+                                            />
+                                        </div>
+                                        {item.supportsCTA && item.emailNotficationCTA && (
+                                            <div>
+                                                <span style={styles.semiBoldHeading}>CTA:</span>
+                                                <span className="ms-2 text-purple underline" style={styles.mediumRegular}>{item.emailNotficationCTA}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+                    </Accordion>
                 </div>
             )
         })}
             
-            {/* Edit Notifications Modal */}
-            <EditNotifications
-                isOpen={isEditModalOpen}
-                onClose={handleCloseModal}
+            {/* Edit Push Notification Modal */}
+            <EditPushNotification
+                isOpen={isEditPushModalOpen}
+                onClose={handleClosePushModal}
                 notificationData={selectedNotification}
-                onSave={handleSaveNotification}
+                onSave={handleSavePushNotification}
+            />
+
+            {/* Edit Email Notification Modal */}
+            <EditEmailNotification
+                isOpen={isEditEmailModalOpen}
+                onClose={handleCloseEmailModal}
+                notificationData={selectedNotification}
+                onSave={handleSaveEmailNotification}
             />
         </>
     )

@@ -29,6 +29,80 @@ import { CalendarIcon } from "lucide-react";
 
 import CustomTooltip from "@/utilities/CustomTooltip";
 
+// Helper function to format numbers with commas
+const formatNumberWithCommas = (num) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to format currency with commas
+const formatCurrency = (num) => {
+  return `$${formatNumberWithCommas(num.toFixed(2))}`;
+};
+
+// Custom Tooltip Component for Plans Chart
+const PlansChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const amount = data.value;
+    const userCount = data.userCount;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        {userCount !== null && userCount !== undefined && (
+          <div style={{ color: "#6b7280", fontSize: "13px", marginBottom: "4px" }}>
+            Count: {userCount}
+          </div>
+        )}
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Amount: {formatCurrency(amount)}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Custom Tooltip Component for Reactivation Rate Chart
+const ReactivationChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const count = data.value;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Count: {count}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 /**
  * SubscriptionGraphsSection - Displays subscription-related graphs
  * @param {Object} props
@@ -225,13 +299,27 @@ function SubscriptionGraphsSection({
     console.log("ActivePlansUsers keys:", keys);
     
     return keys.map((planName, index) => {
+      // Handle new structure: { revenue, userCount }
+      const planData = activePlansUsers[planName];
+      let revenue, userCount;
+      
+      if (typeof planData === 'object' && planData !== null) {
+        // New structure
+        revenue = planData.revenue || 0;
+        userCount = planData.userCount || 0;
+      } else {
+        // Fallback for old structure (backward compatibility)
+        revenue = planData || 0;
+        userCount = null;
+      }
+      
       // Convert string values to numbers (API returns revenue as strings)
-      const rawValue = activePlansUsers[planName];
-      const numericValue = typeof rawValue === 'string' ? parseFloat(rawValue) : Number(rawValue) || 0;
-      console.log(`Plan: ${planName}, Raw: ${rawValue}, Numeric: ${numericValue}`);
+      const numericValue = typeof revenue === 'string' ? parseFloat(revenue) : Number(revenue) || 0;
+      console.log(`Plan: ${planName}, Revenue: ${revenue}, UserCount: ${userCount}, Numeric: ${numericValue}`);
       return {
         name: planName || "",
         value: numericValue,
+        userCount: userCount,
         color: colors[index % colors.length],
       };
     }).filter(item => {
@@ -505,16 +593,10 @@ function SubscriptionGraphsSection({
                     tick={{ fontSize: 11, fill: "#6b7280" }}
                     domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
                     allowDecimals={true}
+                    label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280" } }}
+                    tickFormatter={(value) => formatNumberWithCommas(value)}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      padding: "10px",
-                    }}
-                    labelStyle={{ color: "#6b7280" }}
-                  />
+                  <Tooltip content={<PlansChartTooltip />} />
                   <Bar
                     zIndex={1}
                     dataKey="value"
@@ -578,15 +660,7 @@ function SubscriptionGraphsSection({
                     allowDecimals={false}
                     ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "8px",
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      padding: "10px",
-                    }}
-                    labelStyle={{ color: "#6b7280" }}
-                  />
+                  <Tooltip content={<ReactivationChartTooltip />} />
                   <Bar
                     zIndex={1}
                     dataKey="value"

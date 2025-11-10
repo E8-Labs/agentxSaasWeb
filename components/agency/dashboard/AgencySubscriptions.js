@@ -33,6 +33,80 @@ import moment from "moment";
 
 import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
 
+// Helper function to format numbers with commas
+const formatNumberWithCommas = (num) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to format currency with commas
+const formatCurrency = (num) => {
+  return `$${formatNumberWithCommas(num.toFixed(2))}`;
+};
+
+// Custom Tooltip Component for Plans Chart
+const PlansChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const amount = data.value;
+    const userCount = data.userCount;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        {userCount !== null && userCount !== undefined && (
+          <div style={{ color: "#6b7280", fontSize: "13px", marginBottom: "4px" }}>
+            Count: {userCount}
+          </div>
+        )}
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Amount: {formatCurrency(amount)}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Custom Tooltip Component for Reactivation Rate Chart
+const ReactivationChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const count = data.value;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Count: {count}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 function AgencySubscriptions({
   selectedAgency
 }) {
@@ -147,11 +221,18 @@ function AgencySubscriptions({
 
   // Transform data into required format
   const planChartData = Object.keys(analyticData?.activePlansUsers || {}).map(
-    (planName, index) => ({
-      name: planName || "",
-      value: analyticData.activePlansUsers[planName] || 0,
-      color: colors[index % colors.length],
-    })
+    (planName, index) => {
+      const planData = analyticData.activePlansUsers[planName];
+      const revenue = typeof planData === 'object' && planData !== null 
+        ? (planData.revenue || 0) 
+        : (planData || 0); // Fallback for old format
+      return {
+        name: planName || "",
+        value: typeof revenue === 'string' ? parseFloat(revenue) : Number(revenue) || 0,
+        userCount: typeof planData === 'object' && planData !== null ? (planData.userCount || 0) : null,
+        color: colors[index % colors.length],
+      };
+    }
   );
 
   // Calculate max value for plans chart to set Y-axis domain with increments of 1
@@ -616,28 +697,14 @@ function AgencySubscriptions({
                               tickLine={false}
                               axisLine={false}
                               tick={{ fontSize: 12, fill: "#6b7280" }}
-                              domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
-                              allowDecimals={false}
-                              ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
+                              domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
+                              allowDecimals={true}
+                              label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280" } }}
+                              tickFormatter={(value) => formatNumberWithCommas(value)}
                             />
 
                             {/* Tooltip */}
-                            <Tooltip
-                              contentStyle={{
-                                borderRadius: "8px",
-                                backgroundColor: "white",
-                                border: "1px solid #e5e7eb",
-                                padding: "10px",
-                              }}
-                              formatter={(value, name, props) => {
-                                const { percentage, count } = props.payload;
-                                if (percentage && count) {
-                                  return `${percentage} (${count})`;
-                                }
-                                return value;
-                              }}
-                              labelStyle={{ color: "#6b7280" }}
-                            />
+                            <Tooltip content={<PlansChartTooltip />} />
 
                             {/* Bars */}
                             {planChartData.length > 0 && (
@@ -724,22 +791,7 @@ function AgencySubscriptions({
                             />
 
                             {/* Tooltip */}
-                            <Tooltip
-                              contentStyle={{
-                                borderRadius: "8px",
-                                backgroundColor: "white",
-                                border: "1px solid #e5e7eb",
-                                padding: "10px",
-                              }}
-                              formatter={(value, name, props) => {
-                                const { percentage, count } = props.payload;
-                                if (percentage && count) {
-                                  return `${percentage} (${count})`;
-                                }
-                                return value;
-                              }}
-                              labelStyle={{ color: "#6b7280" }}
-                            />
+                            <Tooltip content={<ReactivationChartTooltip />} />
 
                             {/* Bars */}
                             {
