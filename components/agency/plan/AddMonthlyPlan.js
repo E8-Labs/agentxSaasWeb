@@ -165,6 +165,7 @@ export default function AddMonthlyPlan({
 
   //reset form when opening for new plan (not edit)
   useEffect(() => {
+    // Only reset if opening for a NEW plan (not editing)
     if (open && !isEditPlan && !selectedPlan) {
       setTitle("")
       setTag("")
@@ -181,6 +182,7 @@ export default function AddMonthlyPlan({
       setCreatePlanLoader(false);
       setPlanDuration("");
     }
+    // If editing, don't reset - let the edit useEffect populate the fields
   }, [open, isEditPlan, selectedPlan])
 
   //set features data
@@ -253,49 +255,69 @@ export default function AddMonthlyPlan({
   }, [minutes, selectedPlan, configurationData, open, features, customFeatures]);
 
   //check if is edit plan is true then store the predefault values
+  // Priority: basicsData > selectedPlan (basicsData is set from selectedPlan in parent)
   useEffect(() => {
-    console.log("Test log monthlyplan ", isEditPlan)
-    if (selectedPlan && isEditPlan) {
+    console.log("Edit plan useEffect - isEditPlan:", isEditPlan, "selectedPlan:", selectedPlan, "basicsData:", basicsData);
+    
+    // If we have basicsData, use it (it's already processed from selectedPlan)
+    if (basicsData && Object.keys(basicsData).length > 0) {
+      console.log("Populating from basicsData:", basicsData);
       setPlanPassed(selectedPlan);
-      console.log("Value of selected plan passed is", selectedPlan);
-      setTitle(selectedPlan?.title);
-      setIsDefault(selectedPlan?.isDefault);
-      setTag(selectedPlan?.tag ?? "");
-      setPlanDescription(selectedPlan?.planDescription);
+      setTitle(basicsData?.title || "");
+      setIsDefault(basicsData?.isDefault || false);
+      setTag(basicsData?.tag || "");
+      setPlanDescription(basicsData?.planDescription || "");
+      
+      const OriginalPrice = basicsData?.originalPrice;
+      if (OriginalPrice !== undefined && OriginalPrice !== null) {
+        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : "");
+      } else {
+        setOriginalPrice("");
+      }
+      
+      const DiscountedPrice = basicsData?.discountedPrice;
+      if (DiscountedPrice !== undefined && DiscountedPrice !== null && DiscountedPrice > 0) {
+        setDiscountedPrice(formatFractional2(DiscountedPrice));
+      }
+      
+      if (basicsData?.minutes !== undefined && basicsData?.minutes !== null) {
+        setMinutes(basicsData?.minutes);
+      }
+      
+      if (basicsData?.planDuration) {
+        setPlanDuration(basicsData?.planDuration);
+      }
+    } 
+    // Fallback: if no basicsData but we have selectedPlan and isEditPlan, populate directly
+    else if (selectedPlan && isEditPlan) {
+      console.log("Populating from selectedPlan (fallback):", selectedPlan);
+      setPlanPassed(selectedPlan);
+      setTitle(selectedPlan?.title || "");
+      setIsDefault(selectedPlan?.isDefault || false);
+      setTag(selectedPlan?.tag || "");
+      setPlanDescription(selectedPlan?.planDescription || "");
+      
       const OriginalPrice = selectedPlan?.originalPrice;
-      if (OriginalPrice > 0) {
-        setOriginalPrice(
-          selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : 0
-        );
+      if (OriginalPrice !== undefined && OriginalPrice !== null) {
+        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : "");
+      } else {
+        setOriginalPrice("");
       }
-      const DiscountedPrice = selectedPlan?.discountedPrice / selectedPlan?.minutes
-      setDiscountedPrice(formatFractional2(DiscountedPrice));
-      setMinutes(selectedPlan?.minutes);
-      setPlanDuration(selectedPlan?.duration);
-    }
-  }, [selectedPlan, isEditPlan])
-
-  //data restoring
-  useEffect(() => {
-    console.log("Test log monthlyplan ")
-    if (basicsData) {
-      console.log("Value passed is", basicsData);
-      setTitle(basicsData?.title);
-      setIsDefault(basicsData?.isDefault);
-      setTag(basicsData?.tag ?? "");
-      setPlanDescription(basicsData?.planDescription);
-      const OriginalPrice = basicsData?.originalPrice || (selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : "");
-      setOriginalPrice(OriginalPrice);
-      // if (OriginalPrice > 0) {
-      // }
-      const DiscountedPrice = basicsData?.discountedPrice
-      if (DiscountedPrice) {
-        setDiscountedPrice(formatFractional2(basicsData?.discountedPrice));
+      
+      if (selectedPlan?.discountedPrice && selectedPlan?.minutes) {
+        const DiscountedPrice = selectedPlan.discountedPrice / selectedPlan.minutes;
+        setDiscountedPrice(formatFractional2(DiscountedPrice));
       }
-      setMinutes(basicsData?.minutes);
-      setPlanDuration(basicsData?.planDuration);
+      
+      if (selectedPlan?.minutes !== undefined && selectedPlan?.minutes !== null) {
+        setMinutes(selectedPlan?.minutes);
+      }
+      
+      if (selectedPlan?.duration || selectedPlan?.billingCycle) {
+        setPlanDuration(selectedPlan?.duration || selectedPlan?.billingCycle || "monthly");
+      }
     }
-  }, [basicsData])
+  }, [selectedPlan, isEditPlan, basicsData])
 
   //auto remove show trial warning
   useEffect(() => {

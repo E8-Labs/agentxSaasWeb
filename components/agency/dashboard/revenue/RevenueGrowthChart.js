@@ -53,27 +53,11 @@ function RevenueGrowthChart({
     setPeriod(selectedPeriod);
   }, [selectedPeriod]);
 
-  // Default sample data if none provided
-  const chartData =
-    data.length > 0
-      ? data
-      : [
-          { month: "Jan", value: 100 },
-          { month: "Feb", value: 200 },
-          { month: "Mar", value: 300 },
-          { month: "Apr", value: 121200 },
-          { month: "May", value: 500 },
-          { month: "Jun", value: 600 },
-          { month: "Jul", value: 700 },
-          { month: "Aug", value: 800 },
-          { month: "Sep", value: 900 },
-          { month: "Oct", value: 1000 },
-          { month: "Nov", value: 1100 },
-          { month: "Dec", value: 1200 },
-        ];
+  // Use provided data, or empty array if no data
+  const chartData = data && data.length > 0 ? data : [];
 
   // Calculate Y-axis domain based on max value
-  const maxValue = Math.max(...chartData.map((d) => d.value), 0);
+  const maxValue = chartData.length > 0 ? Math.max(...chartData.map((d) => d.value), 0) : 0;
   
   // Generate Y-axis ticks in logarithmic-like scale for better visualization
   const generateYTicks = (max) => {
@@ -104,6 +88,14 @@ function RevenueGrowthChart({
     if (value === "Custom Range") {
       setShowCustomRangePopup(true);
       setPeriod("Custom Range");
+    } else if (value === "All Time") {
+      setPeriod("All Time");
+      setShowCustomRange(false);
+      const allTimeStartDate = "2025-01-01";
+      const allTimeEndDate = moment().format("YYYY-MM-DD");
+      if (onPeriodChange) {
+        onPeriodChange("All Time", allTimeStartDate, allTimeEndDate);
+      }
     } else {
       setPeriod(value);
       setShowCustomRange(false);
@@ -202,6 +194,9 @@ function RevenueGrowthChart({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem onClick={() => handlePeriodSelect("All Time")}>
+                  All Time
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handlePeriodSelect("Last 7 Days")}>
                   Last 7 Days
                 </DropdownMenuItem>
@@ -221,33 +216,42 @@ function RevenueGrowthChart({
         {/* <div className="text-2xl font-light text-gray-900 mt-2">{currentValue}</div> */}
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tick={{ fontSize: 12, fill: "#6b7280" }}
-              tickMargin={10}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tick={{ fontSize: 12, fill: "#6b7280" }}
-              tickMargin={10}
-              tickFormatter={formatYAxis}
-              domain={[0, maxValue > 0 ? maxValue * 1.2 : 100]}
-              ticks={yTicks}
-            />
-            <Tooltip content={customTooltip} />
-            <Bar
-              dataKey="value"
-              fill="#8E24AA"
-              radius={[4, 4, 0, 0]}
-              barSize={30}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={chartData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 12, fill: "#6b7280" }}
+                tickMargin={10}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fontSize: 12, fill: "#6b7280" }}
+                tickMargin={10}
+                tickFormatter={formatYAxis}
+                domain={[0, maxValue > 0 ? maxValue * 1.2 : 100]}
+                ticks={yTicks}
+              />
+              <Tooltip content={customTooltip} />
+              <Bar
+                dataKey="value"
+                fill="#8E24AA"
+                radius={[4, 4, 0, 0]}
+                barSize={30}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-[300px] text-gray-500">
+            <div className="text-center">
+              <p className="text-sm font-medium">No data available</p>
+              <p className="text-xs mt-1">No revenue data found for the selected period</p>
+            </div>
+          </div>
+        )}
       </CardContent>
 
       {/* Custom Range Modal */}

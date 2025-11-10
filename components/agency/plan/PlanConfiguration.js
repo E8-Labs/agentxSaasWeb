@@ -73,6 +73,7 @@ export default function PlanConfiguration({
         embedBrowserWebhookAgent: false,
         apiKey: false,
         voicemail: false,
+        allowTextMessages: false,
         twilio: false,
         allowTrial: false,
         allowTeamSeats: false,
@@ -86,6 +87,7 @@ export default function PlanConfiguration({
         embedBrowserWebhookAgent: false,
         apiKey: false,
         voicemail: false,
+        allowTextMessages: false,
         twilio: false,
         allowTrial: true,
         allowTeamSeats: false,
@@ -139,6 +141,11 @@ export default function PlanConfiguration({
             stateKey: "twilio",
         },
         {
+            label: "Text Messages",
+            tooltip: "Enable SMS/text messaging capabilities for agents.",
+            stateKey: "allowTextMessages",
+        },
+        {
             // label: "Allow Team Seats",
             label: noOfSeats
                 ? `${noOfSeats} Team Seat${noOfSeats > 1 ? "s" : ""}`
@@ -172,6 +179,7 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: false,
                 apiKey: false,
                 voicemail: false,
+                allowTextMessages: false,
                 twilio: false,
                 allowTrial: false,
                 allowTeamSeats: false,
@@ -351,6 +359,7 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
                 apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
+                allowTextMessages: dynamicFeatures?.allowTextMessages || dynamicFeatures?.allowTextMessages || false,
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
@@ -400,6 +409,7 @@ export default function PlanConfiguration({
             embedBrowserWebhookAgent: false,
             apiKey: false,
             voicemail: false,
+            allowTextMessages: false,
             twilio: false,
             allowTrial: false,
             allowTeamSeats: false,
@@ -455,6 +465,7 @@ export default function PlanConfiguration({
         formData.append("allowEmbedBrowserWebhookAgent", features.embedBrowserWebhookAgent);
         formData.append("allowAPIKey", features.apiKey);
         formData.append("allowVoicemail", features.voicemail);
+        formData.append("allowTextMessages", features.allowTextMessages);
         formData.append("allowTwilio", features.twilio);
         formData.append("allowTrial", features.allowTrial);
         if (customFeatures?.length > 0) {
@@ -682,6 +693,7 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedAndWebAgents,
                 apiKey: dynamicFeatures?.allowAPIAccess,
                 voicemail: dynamicFeatures?.allowVoicemail,
+                allowTextMessages: dynamicFeatures?.allowTextMessages,
                 twilio: dynamicFeatures?.allowTwilioIntegration,
                 allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
                 allowTrial: true,
@@ -724,6 +736,11 @@ export default function PlanConfiguration({
                     setLanguage("english");
                     setLanguageTitle("English and Spanish Compatible");
                 }
+            }
+
+            // Auto-enable Twilio when Text Messages is enabled
+            if (key === "allowTextMessages" && newState.allowTextMessages) {
+                newState.twilio = true;
             }
 
             // if allowTeamSeats just got enabled, scroll down

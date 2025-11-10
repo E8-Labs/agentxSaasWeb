@@ -59,6 +59,10 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       params.set("dateFilter", "customRange");
       params.set("startDate", startDateParam);
       params.set("endDate", endDateParam);
+    } else if (filterText === "All Time" && startDateParam && endDateParam) {
+      params.set("dateFilter", "customRange");
+      params.set("startDate", startDateParam);
+      params.set("endDate", endDateParam);
     } else {
       switch (filterText) {
         case "Last 7 Days":

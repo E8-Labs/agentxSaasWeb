@@ -49,7 +49,6 @@ const SubDuration = ({
                                 style={styles.regular}
                                 className={`outline-none ${planDuration === item.value ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[120px] rounded-lg text-center border`}
                                 onClick={() => { handleToggle(item) }}
-                                disabled={isEditPlan}
                             >
                                 {item.title}
                             </button>
