@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 
 import CustomTooltip from "@/utilities/CustomTooltip";
+import { Badge } from "@/components/ui/badge";
 
 // Helper function to format numbers with commas
 const formatNumberWithCommas = (num) => {
@@ -400,6 +401,14 @@ function SubscriptionGraphsSection({
               <CustomTooltip title="Number of new paid users over a period of time" />
             </div>
             <div className="flex flex-row items-center gap-4">
+              {/* Subscription Count Badge */}
+              <Badge 
+                variant="secondary" 
+                className="px-3 py-1.5 text-base font-semibold bg-purple/10 text-purple border-purple/20 rounded-full"
+              >
+                {newSubscriptions}
+              </Badge>
+              
               {/* Filter Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -468,12 +477,6 @@ function SubscriptionGraphsSection({
                   </button>
                 </div>
               )}
-
-              <div
-                style={{ fontSize: 48, fontWeight: "300", color: "#000" }}
-              >
-                {newSubscriptions}
-              </div>
             </div>
           </div>
 

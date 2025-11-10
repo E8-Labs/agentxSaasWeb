@@ -80,18 +80,31 @@ function DashboardPlans({
             const currentPlanId = u.user?.plan?.planId;
             const agencyPlansList = localStorage.getItem("agencyPlansList");
             if (selectedAgency) {
-                console.log("Selected agency is", selectedAgency)
-                setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
+                if(selectedAgency?.planCapabilities?.aiCreditRate){
+                    setAgencyPlanCost(selectedAgency?.planCapabilities?.aiCreditRate);
+                }else{
+                    setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
+                }
+                console.log("Selected agency is UseEffect 88", selectedAgency)
+                // setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
             } else {
-                if (agencyPlansList) {
-                    const u = JSON.parse(agencyPlansList);
-                    const matchedPlan = u.find(plan => plan.id === currentPlanId);
-                    console.log("Matched plan is", matchedPlan);
-                    if (matchedPlan?.capabilities?.aiCreditRate) {
-                        console.log("matchedPlan plan is", matchedPlan)
-                        // capabilities?.aiCreditRate
-                        setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
+                let agencyFromLocal = u.user;
+
+                if (agencyFromLocal) {
+                    // const u = JSON.parse(agencyFromLocal);
+                    if(agencyFromLocal?.planCapabilities?.aiCreditRate){
+                        setAgencyPlanCost(agencyFromLocal?.planCapabilities?.aiCreditRate);
+                    }else{
+                        setAgencyPlanCost(agencyFromLocal?.plan?.capabilities?.aiCreditRate);
                     }
+                    console.log("LocalStorage agency is", agencyFromLocal)
+                    // const matchedPlan = u.find(plan => plan.id === currentPlanId);
+                    // console.log("Matched plan is", matchedPlan);
+                    // if (matchedPlan?.capabilities?.aiCreditRate) {
+                    //     console.log("matchedPlan plan is", matchedPlan)
+                    //     // capabilities?.aiCreditRate
+                    //     setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
+                    // }
                 }
             }
         }

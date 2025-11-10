@@ -1291,7 +1291,7 @@ function AgencyPlansPayments({
                                             msOverflowStyle: "none", // IE/Edge
                                         }}
                                     >
-                                        {item.features && item.features.length > 0 && (
+                                        {item.features && Array.isArray(item.features) && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
                                                     {item?.features?.slice(0, 6).map((feature, featureIndex) => (
@@ -1506,7 +1506,7 @@ function AgencyPlansPayments({
                 }}
             >
                 <Box
-                    className="md:8/12 lg:w-6/12 sm:w-11/12 w-full"
+                    className="md:8/12 lg:w-[55%] sm:w-11/12 w-full"
                     sx={styles.paymentModal}
                 >
                     <div className="flex flex-row justify-center w-full">

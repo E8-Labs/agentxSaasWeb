@@ -162,7 +162,7 @@ function CancelConfirmation({
                         <div
                             className="text-center text-sm lg:text-base font-normal leading-tight lg:leading-normal"
                         >
-                            {`Canceling means you'll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
+                            {`Cancelling means you'll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
                         </div>
 
                         <div

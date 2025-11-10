@@ -174,8 +174,10 @@ function AgencySubacount({
       setTimeout(() => {
         console.log("Current checking data is", selectedAgency);
         if (selectedAgency) {
+          console.log("selected agency is", selectedAgency);
           stripeStatus = selectedAgency.stripeConnected
         } else {
+          console.log("no selected agency")
           stripeStatus = CheckStripe();
         }
 
@@ -188,7 +190,7 @@ function AgencySubacount({
           } else if (xBarOptions.length === 0) {
             setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
           } else if (!stripeStatus) {
-            setShowSnackMessage("You're Stripe account has not been connected.");
+            setShowSnackMessage("Your Stripe account has not been connected.");
           } else if (agencyData?.isTwilioConnected === false) {
             setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
             setNoTwillio(true);

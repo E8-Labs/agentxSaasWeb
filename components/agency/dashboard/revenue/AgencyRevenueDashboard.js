@@ -45,28 +45,41 @@ function AgencyRevenueDashboard({ selectedAgency }) {
 
   // Revenue growth filter state
   const [revenueGrowthFilter, setRevenueGrowthFilter] = useState("Last 30 Days");
+  const [revenueGrowthStartDate, setRevenueGrowthStartDate] = useState(null);
+  const [revenueGrowthEndDate, setRevenueGrowthEndDate] = useState(null);
 
   const endDate = useMemo(() => moment().toISOString(), []);
   const startDate = "2025-01-01";
 
   // Helper function to map filter text to API parameters
-  const getRevenueGrowthParams = (filterText) => {
-    switch (filterText) {
-      case "Last 7 Days":
-        return "dateFilter=last7Days";
-      case "Last 30 Days":
-        return "dateFilter=last30Days";
-      case "This Year":
-        return "range=thisYear";
-      case "Last 12 Months":
-        return "range=last12Months";
-      default:
-        return "dateFilter=last30Days";
+  const getRevenueGrowthParams = (filterText, startDateParam, endDateParam) => {
+    const params = new URLSearchParams();
+    
+    if (filterText === "Custom Range" && startDateParam && endDateParam) {
+      params.set("dateFilter", "customRange");
+      params.set("startDate", startDateParam);
+      params.set("endDate", endDateParam);
+    } else {
+      switch (filterText) {
+        case "Last 7 Days":
+          params.set("dateFilter", "last7Days");
+          break;
+        case "Last 30 Days":
+          params.set("dateFilter", "last30Days");
+          break;
+        case "This Year":
+          params.set("range", "thisYear");
+          break;
+        default:
+          params.set("dateFilter", "last30Days");
+      }
     }
+    
+    return params.toString();
   };
 
   // Fetch revenue growth data based on filter
-  const fetchRevenueGrowth = async (filter) => {
+  const fetchRevenueGrowth = async (filter, startDateParam, endDateParam) => {
     try {
       const userStr = localStorage.getItem("User");
       const token = userStr ? JSON.parse(userStr)?.token : null;
@@ -74,7 +87,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
         : {};
 
-      const params = getRevenueGrowthParams(filter);
+      const params = getRevenueGrowthParams(filter, startDateParam, endDateParam);
       const growthRes = await axios.get(
         `${Apis.revenueGrowth}?${params}`,
         { headers }
@@ -87,9 +100,11 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   };
 
   // Handle revenue growth filter change
-  const handleRevenueGrowthFilterChange = (newFilter) => {
+  const handleRevenueGrowthFilterChange = (newFilter, startDateParam, endDateParam) => {
     setRevenueGrowthFilter(newFilter);
-    fetchRevenueGrowth(newFilter);
+    setRevenueGrowthStartDate(startDateParam);
+    setRevenueGrowthEndDate(endDateParam);
+    fetchRevenueGrowth(newFilter, startDateParam, endDateParam);
   };
 
   // Fetch initial data (summary, growth, leaderboard, payouts, subscriptions)
@@ -138,7 +153,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         setSubscriptionData(subscriptionRes?.data?.data || null);
 
         // Fetch initial revenue growth with default filter
-        await fetchRevenueGrowth(revenueGrowthFilter);
+        await fetchRevenueGrowth(revenueGrowthFilter, null, null);
       } catch (e) {
         console.error("Failed to fetch revenue data", e);
         setError("Failed to load revenue data");

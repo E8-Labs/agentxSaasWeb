@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import moment from "moment";
 import {
   BarChart,
   Bar,
@@ -19,6 +20,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import CustomTooltip from "@/utilities/CustomTooltip";
+import { Box, Modal } from "@mui/material";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
 
 /**
  * RevenueGrowthChart - Bar chart showing monthly revenue growth
@@ -26,6 +32,7 @@ import CustomTooltip from "@/utilities/CustomTooltip";
  * @param {Array} props.data - Chart data array with month and value
  * @param {string} props.currentValue - Current revenue value to display
  * @param {string} props.selectedPeriod - Selected time period (default: "Last 30 Days")
+ * @param {Function} props.onPeriodChange - Callback when period changes, receives (period, startDate, endDate)
  */
 function RevenueGrowthChart({
   data = [],
@@ -34,6 +41,12 @@ function RevenueGrowthChart({
   onPeriodChange,
 }) {
   const [period, setPeriod] = useState(selectedPeriod);
+  const [showCustomRangePopup, setShowCustomRangePopup] = useState(false);
+  const [showCustomRange, setShowCustomRange] = useState(false);
+  const [startDatePopoverOpen, setStartDatePopoverOpen] = useState(false);
+  const [endDatePopoverOpen, setEndDatePopoverOpen] = useState(false);
+  const [localStartDate, setLocalStartDate] = useState("2025-01-01");
+  const [localEndDate, setLocalEndDate] = useState(moment().format("YYYY-MM-DD"));
 
   // Sync period state with selectedPeriod prop
   useEffect(() => {
@@ -88,9 +101,33 @@ function RevenueGrowthChart({
   };
 
   const handlePeriodSelect = (value) => {
-    setPeriod(value);
+    if (value === "Custom Range") {
+      setShowCustomRangePopup(true);
+      setPeriod("Custom Range");
+    } else {
+      setPeriod(value);
+      setShowCustomRange(false);
+      if (onPeriodChange) {
+        onPeriodChange(value, null, null);
+      }
+    }
+  };
+
+  const handleCustomRangeApply = () => {
+    setShowCustomRangePopup(false);
+    setShowCustomRange(true);
     if (onPeriodChange) {
-      onPeriodChange(value);
+      onPeriodChange("Custom Range", localStartDate, localEndDate);
+    }
+  };
+
+  const handleResetCustomRange = () => {
+    setLocalStartDate("2025-01-01");
+    setLocalEndDate(moment().format("YYYY-MM-DD"));
+    setShowCustomRange(false);
+    setPeriod("Last 30 Days");
+    if (onPeriodChange) {
+      onPeriodChange("Last 30 Days", null, null);
     }
   };
 
@@ -130,33 +167,56 @@ function RevenueGrowthChart({
             </CardTitle>
             <CustomTooltip title="Revenue growth over a period of time" />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50">
-                {period}
-                <Image
-                  src="/svgIcons/downArrow.svg"
-                  alt="Dropdown"
-                  width={16}
-                  height={16}
-                />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 7 Days")}>
-                Last 7 Days
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 30 Days")}>
-                Last 30 Days
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeriodSelect("This Year")}>
-                This Year
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePeriodSelect("Last 12 Months")}>
-                Last 12 Months
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            {/* Custom Range Badge */}
+            {showCustomRange && (
+              <div
+                className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                style={{ fontWeight: "500", fontSize: 15 }}
+              >
+                {`${moment(localStartDate).format("MM-DD-YYYY")} - ${moment(localEndDate).format("MM-DD-YYYY")}`}
+                <button
+                  className="outline-none"
+                  onClick={handleResetCustomRange}
+                >
+                  <Image
+                    src={"/otherAssets/crossIcon.png"}
+                    height={20}
+                    width={20}
+                    alt="Remove Filter"
+                  />
+                </button>
+              </div>
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-50">
+                  {period}
+                  <Image
+                    src="/svgIcons/downArrow.svg"
+                    alt="Dropdown"
+                    width={16}
+                    height={16}
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem onClick={() => handlePeriodSelect("Last 7 Days")}>
+                  Last 7 Days
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePeriodSelect("Last 30 Days")}>
+                  Last 30 Days
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePeriodSelect("This Year")}>
+                  This Year
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePeriodSelect("Custom Range")}>
+                  Custom Range
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         {/* <div className="text-2xl font-light text-gray-900 mt-2">{currentValue}</div> */}
       </CardHeader>
@@ -189,6 +249,157 @@ function RevenueGrowthChart({
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
+
+      {/* Custom Range Modal */}
+      <Modal
+        open={showCustomRangePopup}
+        onClose={() => setShowCustomRangePopup(false)}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+          },
+        }}
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{
+            height: "auto",
+            bgcolor: "transparent",
+            p: 2,
+            mx: "auto",
+            my: "50vh",
+            transform: "translateY(-50%)",
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+            backgroundColor: "white",
+          }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                  Select Date
+                </div>
+                <button onClick={() => setShowCustomRangePopup(false)}>
+                  <Image
+                    src={"/assets/blackBgCross.png"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
+                </button>
+              </div>
+
+              <div className="w-full flex flex-row items-center justify-between">
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontWeight: "500", fontSize: 14 }}>
+                    Start Date
+                  </div>
+                  <div className="mt-5">
+                    <Popover 
+                      open={startDatePopoverOpen} 
+                      onOpenChange={setStartDatePopoverOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {localStartDate ? moment(localStartDate).format("MM/DD/YYYY") : "Start date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-auto p-0 z-[9999]" 
+                        align="start"
+                        onInteractOutside={(e) => {
+                          const modal = document.querySelector('[role="dialog"]');
+                          if (modal && modal.contains(e.target)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={localStartDate ? moment(localStartDate).toDate() : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setLocalStartDate(moment(date).format("YYYY-MM-DD"));
+                            }
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontWeight: "500", fontSize: 14 }}>
+                    End Date
+                  </div>
+                  <div className="mt-5">
+                    <Popover 
+                      open={endDatePopoverOpen} 
+                      onOpenChange={setEndDatePopoverOpen}
+                    >
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {localEndDate ? moment(localEndDate).format("MM/DD/YYYY") : "End date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-auto p-0 z-[9999]" 
+                        align="start"
+                        onInteractOutside={(e) => {
+                          const modal = document.querySelector('[role="dialog"]');
+                          if (modal && modal.contains(e.target)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={localEndDate ? moment(localEndDate).toDate() : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              setLocalEndDate(moment(date).format("YYYY-MM-DD"));
+                            }
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+              <button
+                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                style={{ height: "50px" }}
+                onClick={handleCustomRangeApply}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </Card>
   );
 }

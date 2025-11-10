@@ -149,6 +149,7 @@ const AgencyNavBar = () => {
       setCheckStripeStatusLoader(true);
       const agencyProfile = await getProfileDetails();
       const stripeStatus = agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount;
+      console.log('Stripe status is', stripeStatus)
       setCheckStripeStatus(!stripeStatus);
       setCheckStripeStatusLoader(false);
     } catch (error) {
@@ -191,7 +192,11 @@ const AgencyNavBar = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+      let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false;
+      console.log('Stripe status is', stripeStatus)
+      setCheckStripeStatus(!stripeStatus);
       // setUserDetails(LocalData);
+      
       const agencyProfile = await getProfileDetails();
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
