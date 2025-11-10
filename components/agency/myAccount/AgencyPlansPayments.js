@@ -861,11 +861,10 @@ function AgencyPlansPayments({
 
     return (
         <div
-            className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
+            className="w-full flex flex-col items-start px-8 py-2 min-h-screen"
             style={{
                 paddingBottom: "50px",
                 scrollbarWidth: "none", // For Firefox
-                WebkitOverflowScrolling: "touch",
             }}
         >
             <AgentSelectSnackMessage
@@ -1718,13 +1717,9 @@ function AgencyPlansPayments({
                         >
                             <div className="flex flex-row justify-between items-center">
                                 <div
-                                    style={{
-                                        fontSize: 16.8,
-                                        fontWeight: "500",
-                                        paddingLeft: "12px",
-                                    }}
+                                   
                                 >
-                                    Cancel Plan
+                                   
                                 </div>
                                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                                     <Image
@@ -1753,7 +1748,7 @@ function AgencyPlansPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                AssignX Successfully Canceled
+                                Account Successfully Canceled
                             </div>
 
                             <div

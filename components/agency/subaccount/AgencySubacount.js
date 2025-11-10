@@ -179,6 +179,7 @@ function AgencySubacount({
         } else {
           console.log("no selected agency")
           stripeStatus = CheckStripe();
+          
         }
 
         if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {

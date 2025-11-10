@@ -10,6 +10,9 @@ import SubscriptionGraphsSection from "./SubscriptionGraphsSection";
 import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import moment from "moment";
+import AgencyDashboard from "../AgencyDashboard";
+import AgencyDashboardDefaultUI from "../AgencyDashboardDefaultUI";
+import { CircularProgress } from "@mui/material";
 
 /**
  * AgencyRevenueDashboard - Main dashboard component arranging all revenue-related components
@@ -346,77 +349,91 @@ function AgencyRevenueDashboard({ selectedAgency }) {
     };
   }, [payouts, subscriptionData]);
   return (
-    <div
-      className="flex flex-col items-center justify-start w-full h-[88vh] bg-gray-50"
-      style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "2rem" }}
-    >
-      <div className="flex flex-col items-start w-11/12 gap-6 pb-6">
-        {/* Top Metrics Section */}
-        <div className="w-full">
-          <TopMetricsSection metrics={topMetrics} />
-        </div>
-
-        {/* Payout Metrics Section - Full Width */}
-        <div className="w-full">
-          <PayoutMetricsSection metrics={payoutMetrics} />
-        </div>
-
-        {/* Revenue Growth Chart and LeaderBoard - Side by Side */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Revenue Growth Chart - Takes up 7 columns */}
-          <div className="lg:col-span-7">
-            <RevenueGrowthChart
-              data={revenueChart?.data}
-              currentValue={revenueChart?.currentValue}
-              selectedPeriod={revenueChart?.selectedPeriod}
-              onPeriodChange={handleRevenueGrowthFilterChange}
-            />
-          </div>
-
-          {/* LeaderBoard Table - Takes up 5 columns */}
-          <div className="lg:col-span-5">
-            <LeaderBoardTable
-              data={leaderboardData}
-              onSeeAll={() => {
-                // Handle see all action
-                console.log("See all leaderboard");
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Subscription Graphs Section - Full Width */}
-        <div className="w-full">
-          <SubscriptionGraphsSection 
-            subscriptionData={subscriptionData} 
-            fetchOwnData={true}
-            userId={selectedAgency?.id}
-          />
-        </div>
-
-        {/* Transaction Table - Full Width */}
-        <div className="w-full">
-          <TransactionTable
-            data={transactionData}
-            onSearch={(query) => {
-              // Handle search
-              console.log("Search query:", query);
-            }}
-            hasMore={hasMoreTransactions}
-            loadingMore={txLoadingMore}
-            onLoadMore={() => {
-              if (!txLoadingMore && hasMoreTransactions) {
-                setTxPage((prev) => prev + 1);
-              }
-            }}
-            filters={txFilters}
-            onFilterChange={handleTxFilterChange}
-          />
-        </div>
-
+    loading ? (
+      <div className="flex flex-col justify-center items-center h-[90svh]">
+        <CircularProgress size={45} />
       </div>
-    </div>
-  );
+    ) : (
+
+      <div
+        className="flex flex-col items-center justify-start w-full h-[88vh] bg-gray-50"
+        style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "2rem" }}
+      >
+        {
+          subscriptionData ? (
+
+            <div className="flex flex-col items-start w-11/12 gap-6 pb-6">
+              {/* Top Metrics Section */}
+              <div className="w-full">
+                <TopMetricsSection metrics={topMetrics} />
+              </div>
+
+              {/* Payout Metrics Section - Full Width */}
+              <div className="w-full">
+                <PayoutMetricsSection metrics={payoutMetrics} />
+              </div>
+
+              {/* Revenue Growth Chart and LeaderBoard - Side by Side */}
+              <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Revenue Growth Chart - Takes up 7 columns */}
+                <div className="lg:col-span-7">
+                  <RevenueGrowthChart
+                    data={revenueChart?.data}
+                    currentValue={revenueChart?.currentValue}
+                    selectedPeriod={revenueChart?.selectedPeriod}
+                    onPeriodChange={handleRevenueGrowthFilterChange}
+                  />
+                </div>
+
+                {/* LeaderBoard Table - Takes up 5 columns */}
+                <div className="lg:col-span-5">
+                  <LeaderBoardTable
+                    data={leaderboardData}
+                    onSeeAll={() => {
+                      // Handle see all action
+                      console.log("See all leaderboard");
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Subscription Graphs Section - Full Width */}
+              <div className="w-full">
+                <SubscriptionGraphsSection
+                  subscriptionData={subscriptionData}
+                  fetchOwnData={true}
+                  userId={selectedAgency?.id}
+                />
+              </div>
+
+              {/* Transaction Table - Full Width */}
+              <div className="w-full">
+                <TransactionTable
+                  data={transactionData}
+                  onSearch={(query) => {
+                    // Handle search
+                    console.log("Search query:", query);
+                  }}
+                  hasMore={hasMoreTransactions}
+                  loadingMore={txLoadingMore}
+                  onLoadMore={() => {
+                    if (!txLoadingMore && hasMoreTransactions) {
+                      setTxPage((prev) => prev + 1);
+                    }
+                  }}
+                  filters={txFilters}
+                  onFilterChange={handleTxFilterChange}
+                />
+              </div>
+
+            </div>
+
+          ) : (
+            <AgencyDashboardDefaultUI />
+          )
+        }
+      </div>
+    ));
 }
 
 export default AgencyRevenueDashboard;

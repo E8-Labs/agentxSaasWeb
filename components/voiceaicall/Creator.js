@@ -876,10 +876,10 @@ const Creator = ({ agentId, name }) => {
                 </div>
               )
             }
-            <div style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
+            <div className="truncate" style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
               {/*agentDetails?.data?.data?.agent?.name*/}
               {agentDetails?.data?.data?.agent?.name &&
-                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1).toLowerCase()}
+                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1)}
             </div>
           </div>
         </div>

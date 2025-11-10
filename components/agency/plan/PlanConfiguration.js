@@ -75,6 +75,7 @@ export default function PlanConfiguration({
         voicemail: false,
         allowTextMessages: false,
         twilio: false,
+        sendText: false,
         allowTrial: false,
         allowTeamSeats: false,
     });
@@ -181,6 +182,7 @@ export default function PlanConfiguration({
                 voicemail: false,
                 allowTextMessages: false,
                 twilio: false,
+                sendText: false,
                 allowTrial: false,
                 allowTeamSeats: false,
             });
@@ -361,6 +363,7 @@ export default function PlanConfiguration({
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
                 allowTextMessages: dynamicFeatures?.allowTextMessages || dynamicFeatures?.allowTextMessages || false,
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+                sendText: dynamicFeatures?.sendText || dynamicFeatures?.allowTextMessages || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
                 allowLanguageSelection: dynamicFeatures?.allowLanguageSelection,
@@ -411,6 +414,7 @@ export default function PlanConfiguration({
             voicemail: false,
             allowTextMessages: false,
             twilio: false,
+            sendText: false,
             allowTrial: false,
             allowTeamSeats: false,
         });
@@ -680,6 +684,7 @@ export default function PlanConfiguration({
         if (localData) {
             const LD = JSON.parse(localData);
             const dynamicFeatures = LD?.user?.planCapabilities || {};
+            console.log("dynamic features are", dynamicFeatures)
             const planType = LD?.user?.plan?.title?.toLowerCase?.() || "";
             const canUseMultilingual =
                 planType.includes("growth") || planType.includes("scale");
@@ -696,6 +701,7 @@ export default function PlanConfiguration({
                 allowTextMessages: dynamicFeatures?.allowTextMessages,
                 twilio: dynamicFeatures?.allowTwilioIntegration,
                 allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
+                sendText: dynamicFeatures?.allowTextMessages,
                 allowTrial: true,
             });
         }
@@ -724,6 +730,11 @@ export default function PlanConfiguration({
             return;
         }
 
+        // Prevent disabling Twilio when Send Text is enabled
+        if (key === "twilio" && features.sendText && features.twilio) {
+            return;
+        }
+
         setFeatures((prev) => {
             const newState = { ...prev, [key]: !prev[key] };
 
@@ -736,11 +747,6 @@ export default function PlanConfiguration({
                     setLanguage("english");
                     setLanguageTitle("English and Spanish Compatible");
                 }
-            }
-
-            // Auto-enable Twilio when Text Messages is enabled
-            if (key === "allowTextMessages" && newState.allowTextMessages) {
-                newState.twilio = true;
             }
 
             // if allowTeamSeats just got enabled, scroll down

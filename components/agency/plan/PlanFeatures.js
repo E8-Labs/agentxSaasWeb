@@ -39,6 +39,9 @@ export default function PlanFeatures({
             <div className="flex flex-col gap-1 w-full mt-6">
                 {featuresList.map((item) => {
                     const isLocked = !agencyAllowedFeatures[item.stateKey];
+                    // Disable Twilio switch when Send Text is enabled
+                    const isTwilioDisabled = item.stateKey === "twilio" && features.sendText;
+                    const isDisabled = isLocked || isTwilioDisabled;
                     return (
                     <div
                         key={item.stateKey}
@@ -104,7 +107,7 @@ export default function PlanFeatures({
                             <Switch
                                 checked={features[item.stateKey]}
                                 onChange={() => handleToggle(item.stateKey)}
-                                disabled={isLocked}
+                                disabled={isDisabled}
                                 sx={{
                                     "& .MuiSwitch-switchBase.Mui-checked": {
                                         color: "white",

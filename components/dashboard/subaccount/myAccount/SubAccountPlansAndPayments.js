@@ -127,6 +127,7 @@ function SubAccountPlansAndPayments({
     //plans details
     const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
 
+    const [confirmChecked, setConfirmChecked] = useState(false);   
 
     useEffect(() => {
         console.log('current full plan in subaccount plans and payments', currentPlanDetails)
@@ -688,7 +689,7 @@ function SubAccountPlansAndPayments({
 
             const ApiPath = Apis.cancelPlan
 
-            if(selectedUser) {
+            if (selectedUser) {
                 ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
             }
             // return
@@ -702,7 +703,7 @@ function SubAccountPlansAndPayments({
             if (response) {
                 //console.log;
                 if (response.data.status === true) {
-                    console.log("Plan cancellation ",response.data);
+                    console.log("Plan cancellation ", response.data);
                     // window.location.reload();
                     await getProfileDetails();
                     setShowConfirmCancelPlanPopup(false);
@@ -1869,83 +1870,71 @@ function SubAccountPlansAndPayments({
                     className="md:8/12 lg:w-6/12 sm:w-11/12 w-full"
                     sx={styles.paymentModal}
                 >
-                    <div className="flex flex-row justify-center w-full">
+                    <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+                        <div className='flex flex-row justify-between items-center w-full'>
+                            <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                Are you sure?
+                            </div>
+                            <CloseBtn
+                                onClick={() => setShowConfirmCancelPlanPopup(false)}
+                            />
+                        </div>
                         <div
-                            className="sm:w-7/12 w-full"
+                            className="mt-4"
                             style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                height: "394px",
+                                fontSize: 16,
+                                fontWeight: 400,
+                                color: "#000000",
                             }}
                         >
-                            <div className="flex flex-row justify-end">
-                                <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
+                            {`You’ll lose access to sub accounts, future payouts, agents and all agency capabilities.
+`}
+                        </div>
+
+                        <div className="w-full">
+                            <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
+                                <button onClick={() => {
+                                    setConfirmChecked(!confirmChecked)
+                                }}>
+                                    {confirmChecked ? (
+                                        <div
+                                            className="bg-purple flex flex-row items-center justify-center rounded"
+                                            style={{ height: "17px", width: "17px" }}
+                                        >
+                                            <Image
+                                                src={"/assets/whiteTick.png"}
+                                                height={6}
+                                                width={8}
+                                                alt="*"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                            style={{ height: "17px", width: "17px" }}
+                                        ></div>
+                                    )}
                                 </button>
-                            </div>
-                            <div
-                                className="text-center mt-8"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 22,
-                                }}
-                            >
-                                Are you sure ?
-                            </div>
 
-                            <div className="flex flex-row items-center justify-center w-full mt-6">
-                                <div
-                                    className="text-center"
-                                    style={{
-                                        fontWeight: "500",
-                                        fontSize: 15,
-                                        width: "70%",
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    Canceling your AssignX means you lose access to your agents,
-                                    leads, pipeline, staff and more.
-                                </div>
-                            </div>
-
-                            <button
-                                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 16.8,
-                                    outline: "none",
-                                }}
-                                onClick={() => {
-                                    setShowConfirmCancelPlanPopup(false);
-                                }}
-                            >
-                                Never mind, keep my AssignX
-                            </button>
-
-                            {cancelPlanLoader ? (
-                                <div className="w-full flex flex-row items-center justify-center mt-8">
-                                    <CircularProgress size={30} />
-                                </div>
-                            ) : (
                                 <button
-                                    className="w-full flex flex-row items-center rounded-lg justify-center mt-8"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 16.8,
-                                        outline: "none",
-                                    }}
-                                    onClick={handleCancelPlan}
-                                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                                    className='text-xs font-normal'
+                                // onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
                                 >
-                                    Yes. Cancel
+                                    I understand and agree
                                 </button>
-                            )}
+                            </div>
+                            <button
+                                className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                                onClick={() => {
+                                    if (confirmChecked) {
+                                        setShowConfirmCancelPlanPopup(false);
+                                        setShowConfirmCancelPlanPopup2(true);
+                                    }
+                                }}
+                                disabled={!confirmChecked}
+                            >
+                                Cancel Account
+                            </button>
                         </div>
                     </div>
                 </Box>
@@ -1986,7 +1975,7 @@ function SubAccountPlansAndPayments({
                                         paddingLeft: "12px",
                                     }}
                                 >
-                                    Cancel Plan
+                                    
                                 </div>
                                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                                     <Image
@@ -2015,7 +2004,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                AssignX Successfully Canceled
+                                Account Successfully Canceled
                             </div>
 
                             <div

@@ -36,7 +36,8 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import Image from "next/image";
 import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
-// import { stat } from "fs";
+import { CircularProgress } from "@mui/material";
+  // import { stat } from "fs";
 
 const data = [
   { name: "Jan", users: 4000 },
@@ -63,7 +64,7 @@ function AgencyActivity({
     useState(false);
 
   const [plans, setPlans] = useState([])
-
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Example usage:
@@ -76,6 +77,7 @@ function AgencyActivity({
   }, [user]);
 
   const fetchAdminStats = async () => {
+    setLoading(true);
     try {
       const token = user.token; // Extract JWT token
       console.log("Agency id passed is", selectedAgency);
@@ -105,6 +107,8 @@ function AgencyActivity({
       }
     } catch (error) {
       console.error("Error fetching admin stats:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -164,18 +168,18 @@ function AgencyActivity({
                     fontWeight: "bold",
                   }}
                 >
-                  {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) 
-                    ? count 
+                  {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined))
+                    ? count
                     : percentage}
                   {!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ? "%" : ""}
                 </h2>
                 {/* Only show percentage below if we're showing count above */}
                 {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
-                 (percentage !== "" && percentage !== null && percentage !== undefined) && (
-                  <p className="cursor-pointer text-gray-500 text-lg">
-                    {percentage}%
-                  </p>
-                )}
+                  (percentage !== "" && percentage !== null && percentage !== undefined) && (
+                    <p className="cursor-pointer text-gray-500 text-lg">
+                      {percentage}%
+                    </p>
+                  )}
               </div>
             )}
         </div>
@@ -188,258 +192,263 @@ function AgencyActivity({
   }
 
   return (
-    stats?.totalUsers > 0 ? (
-      <div
-        className=" flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 "
-        style={{ overflow: "auto", scrollbarWidth: "none" }}
-      >
-        {/*  Stats  */}
-        {/* <span className=" flex flex-row gap-2">
+    loading ? (
+      <div className="flex flex-col justify-center items-center h-[90svh]">
+        <CircularProgress size={45} />
+      </div>
+    ) : (
+      stats?.totalUsers > 0 ? (
+        <div
+          className=" flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 "
+          style={{ overflow: "auto", scrollbarWidth: "none" }}
+        >
+          {/*  Stats  */}
+          {/* <span className=" flex flex-row gap-2">
         <h1 className=" text-3xl font-regular mb-4">AgentX User</h1>
         <h1 className=" text-3xl font-regular mb-4 text-[#00000047]">Stat</h1>
       </span> */}
-        {/*  Subscriptions  */}
-        {
-          stats?.totalUsers && stats?.usersOnPlans ? (
-            <SubscriptionsStatsComponent stats={stats} />
-          ) : (
-            <div className="w-[96%] mt-4">
-              <Image
-                alt="placeholder"
-                src="/agencyIcons/placeholderBox2.png"
-                width={1200} height={120}
-                style={{ width: "100%", height: "auto" }}
-              />
-            </div>
-          )
-        }
+          {/*  Subscriptions  */}
+          {
+            stats?.totalUsers && stats?.usersOnPlans ? (
+              <SubscriptionsStatsComponent stats={stats} />
+            ) : (
+              <div className="w-[96%] mt-4">
+                <Image
+                  alt="placeholder"
+                  src="/agencyIcons/placeholderBox2.png"
+                  width={1200} height={120}
+                  style={{ width: "100%", height: "auto" }}
+                />
+              </div>
+            )
+          }
 
-        {/*  DAU MAU  */}
-        <div
-          className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 rounded-lg w-[96%]"
-          style={{
-            backgroundImage: "url('/daustatback.svg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          {/* Top Metrics */}
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Daily Active Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-2xl font-bold">
-                {stats?.activeUsers?.DAU?.count || '-'}
-              </h2>
-            </CardContent>
-            <CardContent>
-              <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-                {stats?.activeUsers?.DAU?.percentage || 0}%
-              </h2>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Avg Weekly Sign Ups</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-2xl font-bold">
-                {stats?.weeklySignups}
-              </h2>
-              {/* <Progress value={27} /> */}
-            </CardContent>
-            <CardContent>
-              <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-                {stats?.weeklySignupsPercentage || 0}%
-              </h2>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Monthly Active Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-2xl font-bold">
-                {stats?.activeUsers?.MAU?.count || '-'}
-              </h2>
-            </CardContent>
-            <CardContent>
-              <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-                {stats?.activeUsers.MAU.percentage || 0}%
-              </h2>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-            <CardHeader>
-              <CardTitle>Session Length</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-2xl font-bold">
-                {stats?.avgSessionDuration || "0 min"}
-              </h2>
-              {/* <Progress value={48} /> */}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* users lists components */}
-
-        <UsersWithAgnets
-          user={user}
-          open={showAllUsersWithAgents}
-          onClose={() => {
-            setShowAllUsersWithAgents(false);
-          }}
-          from="agency"
-        />
-
-        <UsersWithPipelines
-          user={user}
-          open={showAllUsersWithPipelines}
-          onClose={() => {
-            setShowAllUsersWithPipelines(false);
-          }}
-          from="agency"
-        />
-
-        <UsersWithTeam
-          user={user}
-          open={showAllUsersWithTeam}
-          onClose={() => {
-            setShowAllUsersWithTeam(false);
-          }}
-          from="agency"
-        />
-
-        <UsersWithLeads
-          user={user}
-          open={showAllUsersWithLeads}
-          onClose={() => {
-            setShowAllUsersWithLeads(false);
-          }}
-          from="agency"
-        />
-
-        <UsersWithCalender
-          user={user}
-          open={showAllUsersWithCalender}
-          onClose={() => {
-            setShowAllUsersWithCalender(false);
-          }}
-          from="agency"
-        />
-
-        {/*  Voices  */}
-
-        {/* <div className=" h-[15%] grid gap-6 grid-cols-3 md:grid-cols-3 lg:grid-cols-3 "> */}
-        <div className="w-[96%] rounded-lg">
-          <VoicesComponent
-            stats={stats}
-            voiceIds={stats?.topVoices}
-            onViewAll={() => {
-              setShowAllVoices(true);
+          {/*  DAU MAU  */}
+          <div
+            className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 rounded-lg w-[96%]"
+            style={{
+              backgroundImage: "url('/daustatback.svg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
-            onViewUniqueNumbers={() => {
-              setShowAllUsersWithUniqueNumbers(true);
+          >
+            {/* Top Metrics */}
+            <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white">
+              <CardHeader>
+                <CardTitle>Daily Active Users</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <h2 className="cursor-pointer text-2xl font-bold">
+                  {stats?.activeUsers?.DAU?.count || '-'}
+                </h2>
+              </CardContent>
+              <CardContent>
+                <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+                  {stats?.activeUsers?.DAU?.percentage || 0}%
+                </h2>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
+              <CardHeader>
+                <CardTitle>Avg Weekly Sign Ups</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <h2 className="cursor-pointer text-2xl font-bold">
+                  {stats?.weeklySignups}
+                </h2>
+                {/* <Progress value={27} /> */}
+              </CardContent>
+              <CardContent>
+                <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+                  {stats?.weeklySignupsPercentage || 0}%
+                </h2>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
+              <CardHeader>
+                <CardTitle>Monthly Active Users</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <h2 className="cursor-pointer text-2xl font-bold">
+                  {stats?.activeUsers?.MAU?.count || '-'}
+                </h2>
+              </CardContent>
+              <CardContent>
+                <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+                  {stats?.activeUsers.MAU.percentage || 0}%
+                </h2>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
+              <CardHeader>
+                <CardTitle>Session Length</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <h2 className="cursor-pointer text-2xl font-bold">
+                  {stats?.avgSessionDuration || "0 min"}
+                </h2>
+                {/* <Progress value={48} /> */}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* users lists components */}
+
+          <UsersWithAgnets
+            user={user}
+            open={showAllUsersWithAgents}
+            onClose={() => {
+              setShowAllUsersWithAgents(false);
             }}
             from="agency"
           />
+
+          <UsersWithPipelines
+            user={user}
+            open={showAllUsersWithPipelines}
+            onClose={() => {
+              setShowAllUsersWithPipelines(false);
+            }}
+            from="agency"
+          />
+
+          <UsersWithTeam
+            user={user}
+            open={showAllUsersWithTeam}
+            onClose={() => {
+              setShowAllUsersWithTeam(false);
+            }}
+            from="agency"
+          />
+
+          <UsersWithLeads
+            user={user}
+            open={showAllUsersWithLeads}
+            onClose={() => {
+              setShowAllUsersWithLeads(false);
+            }}
+            from="agency"
+          />
+
+          <UsersWithCalender
+            user={user}
+            open={showAllUsersWithCalender}
+            onClose={() => {
+              setShowAllUsersWithCalender(false);
+            }}
+            from="agency"
+          />
+
+          {/*  Voices  */}
+
+          {/* <div className=" h-[15%] grid gap-6 grid-cols-3 md:grid-cols-3 lg:grid-cols-3 "> */}
+          <div className="w-[96%] rounded-lg">
+            <VoicesComponent
+              stats={stats}
+              voiceIds={stats?.topVoices}
+              onViewAll={() => {
+                setShowAllVoices(true);
+              }}
+              onViewUniqueNumbers={() => {
+                setShowAllUsersWithUniqueNumbers(true);
+              }}
+              from="agency"
+            />
+          </div>
+          {/* </div> */}
+
+          <div className=" grid gap-3 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg w-[96%]">
+            {/* Top Metrics */}
+            <button
+              onClick={() => {
+                setShowAllUsersWithAgents(true);
+              }}
+            >
+              {GetStatView(
+                "> 2 agents",
+                stats?.agentUsers.percentage,
+                stats?.agentUsers.count,
+                "/mt2agentsicon.png"
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setShowAllUsersWithPipelines(true);
+              }}
+            >
+              {GetStatView(
+                "> 1 pipeline",
+                stats?.pipelineUsers.percentage,
+                stats?.pipelineUsers.count,
+                "/mt1pipelineicon.png"
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setShowAllUsersWithLeads(true);
+              }}
+            >
+              {GetStatView(
+                "Uploaded Leads",
+                stats?.leadsUsers.percentage,
+                stats?.leadsUsers.count,
+                "/uploadleadsicon.png"
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setShowAllUsersWithTeam(true);
+              }}
+            >
+              {GetStatView(
+                "Invited Teams",
+                stats?.teamsUsers.percentage,
+                stats?.teamsUsers.count,
+                "/invtedteamsiocn.png"
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setShowAllUsersWithCalender(true);
+              }}
+            >
+              {GetStatView(
+                "Added calendar",
+                stats?.calendarUsers.percentage,
+                stats?.calendarUsers.count,
+                "/addedtocalendaricon.png"
+              )}
+            </button>
+
+            {GetStatView(
+              "Call Success Rate",
+              stats?.callSuccessRate,
+              "",
+              "/callsuccessicon.png"
+            )}
+
+            {GetStatView(
+              "Average Call Per User",
+              "",
+              stats?.avgCallsPerUser,
+
+              "/avgcallicon.png"
+            )}
+
+
+          </div>
         </div>
-        {/* </div> */}
-
-        <div className=" grid gap-3 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg w-[96%]">
-          {/* Top Metrics */}
-          <button
-            onClick={() => {
-              setShowAllUsersWithAgents(true);
-            }}
-          >
-            {GetStatView(
-              "> 2 agents",
-              stats?.agentUsers.percentage,
-              stats?.agentUsers.count,
-              "/mt2agentsicon.png"
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowAllUsersWithPipelines(true);
-            }}
-          >
-            {GetStatView(
-              "> 1 pipeline",
-              stats?.pipelineUsers.percentage,
-              stats?.pipelineUsers.count,
-              "/mt1pipelineicon.png"
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowAllUsersWithLeads(true);
-            }}
-          >
-            {GetStatView(
-              "Uploaded Leads",
-              stats?.leadsUsers.percentage,
-              stats?.leadsUsers.count,
-              "/uploadleadsicon.png"
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowAllUsersWithTeam(true);
-            }}
-          >
-            {GetStatView(
-              "Invited Teams",
-              stats?.teamsUsers.percentage,
-              stats?.teamsUsers.count,
-              "/invtedteamsiocn.png"
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowAllUsersWithCalender(true);
-            }}
-          >
-            {GetStatView(
-              "Added calendar",
-              stats?.calendarUsers.percentage,
-              stats?.calendarUsers.count,
-              "/addedtocalendaricon.png"
-            )}
-          </button>
-
-          {GetStatView(
-            "Call Success Rate",
-            stats?.callSuccessRate,
-            "",
-            "/callsuccessicon.png"
-          )}
-
-          {GetStatView(
-            "Average Call Per User",
-            "",
-            stats?.avgCallsPerUser,
-
-            "/avgcallicon.png"
-          )}
-
-
-        </div>
-      </div>
-    ) : (
-    <AgencyDashboardDefaultUI />
-    )
-  );
+      ) : (
+        <AgencyDashboardDefaultUI />
+      )
+    ));
 }
 
 export default AgencyActivity;

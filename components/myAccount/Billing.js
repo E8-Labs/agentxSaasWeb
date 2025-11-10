@@ -1511,7 +1511,7 @@ function Billing() {
                   outline: "none",
                 }}
               >
-                Never mind, keep my AgentX
+              Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (

@@ -203,11 +203,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     } else if (item.name === "Kaia") {
       return 30;
     } else if (item.name === "Axel") {
-      return 30;
+      return 25;
     } else if (item.name === "Aria") {
       return 60;
     } else if (item.name === "Luna") {
       return 50;
+    }else if(item.name === "Max") {
+      return 25;
     }
 
     return 70;
@@ -226,11 +228,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     } else if (item.name === "Kaia") {
       return 50;
     } else if (item.name === "Axel") {
-      return 55;
+      return 25;
     } else if (item.name === "Aria") {
       return 58;
     } else if (item.name === "Luna") {
       return 50;
+    }else if(item.name === "Max") {
+      return 25;
     }
 
     return 60;

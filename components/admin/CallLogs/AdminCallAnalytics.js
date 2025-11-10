@@ -312,9 +312,25 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     {formatNumber(analyticsData.summary?.totalCalls)}
                   </div>
                 </div>
+                 <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
+                    Total Messages
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
+                    {formatNumber(analyticsData.summary?.totalTexts)}
+                  </div>
+                </div>
+                 <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
+                    Total Emails
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
+                    {formatNumber(analyticsData.summary?.totalEmails)}
+                  </div>
+                </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
-                    Total Minutes
+                    Total Credits
                   </div>
                   <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
                     {formatNumber(analyticsData.summary?.totalMinutesUsed?.toFixed(2))}
@@ -328,11 +344,8 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     {formatPercentage(analyticsData.summary?.overallSuccessRate)}
                   </div>
                 </div>
-              </div>
 
-              {/* Additional Summary Metrics */}
-              <div className="grid grid-cols-6 gap-4 mb-8 pl-10 pr-10">
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total Batches
                   </div>
@@ -342,12 +355,17 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
-                    Unique Leads Called
+                   Nurtured Leads
                   </div>
                   <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
                     {formatNumber(analyticsData.summary?.uniqueLeadsCalled)}
                   </div>
                 </div>
+              </div>
+
+              {/* Additional Summary Metrics */}
+              <div className="grid grid-cols-4 gap-4 mb-8 pl-10 pr-10">
+               
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Hot Leads
@@ -412,6 +430,8 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     <th style={styles.tableHeader}>Sub Account</th>
                     <th style={styles.tableHeader}>Email</th>
                     <th style={styles.tableHeader}>Total Calls</th>
+                    <th style={styles.tableHeader}>Total Emails</th>
+                    <th style={styles.tableHeader}>Total Texts</th>
                     <th style={styles.tableHeader}>Total Credits</th>
                     <th style={styles.tableHeader}>Nurtured Leads</th>
                     <th style={styles.tableHeader}>Hot Leads</th>
@@ -443,7 +463,9 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                           </div>
                         </td>
                         <td style={styles.tableCell}>{user.userEmail || "-"}</td>
-                        <td style={styles.tableCell}>{formatNumber(user.totalCalls)}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalCalls)||"-"}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalEmails)||"-"}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalTexts)||"-"}</td>
                         <td style={styles.tableCell}>
                           {formatNumber(user.totalMinutes?.toFixed(2))}
                         </td>

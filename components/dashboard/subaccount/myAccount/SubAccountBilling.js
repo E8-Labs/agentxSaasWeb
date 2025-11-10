@@ -604,7 +604,7 @@ function SubAccountBilling({
     try {
       setTransactionDetailsLoader(true);
       const Token = AuthToken();
-      
+
       const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`;
       console.log("Api path for transaction details is", ApiPath);
 
@@ -763,9 +763,8 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${
-                  transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
-                }`}
+                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                  }`}
                 onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
               >
                 <div className="w-5/12 flex flex-row gap-2">
@@ -1086,8 +1085,7 @@ function SubAccountBilling({
                     alignSelf: "center",
                   }}
                 >
-                  Canceling your AgentX means you lose access to your agents,
-                  leads, pipeline, staff and more.
+                  Canceling your account means you lose access to your agents, leads, pipeline, staff and more.
                 </div>
               </div>
 
@@ -1099,7 +1097,7 @@ function SubAccountBilling({
                   outline: "none",
                 }}
               >
-                Never mind, keep my AgentX
+                Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (

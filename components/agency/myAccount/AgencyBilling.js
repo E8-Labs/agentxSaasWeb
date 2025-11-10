@@ -1101,8 +1101,7 @@ function AgencyBilling({
                     alignSelf: "center",
                   }}
                 >
-                  Canceling your AgentX means you lose access to your agents,
-                  leads, pipeline, staff and more.
+                  Canceling your account means you lose access to your agents, leads, pipeline, staff and more.
                 </div>
               </div>
 
@@ -1114,7 +1113,7 @@ function AgencyBilling({
                   outline: "none",
                 }}
               >
-                Never mind, keep my AgentX
+                Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (
