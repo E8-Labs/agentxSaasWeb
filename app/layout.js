@@ -111,7 +111,7 @@ export default function RootLayout({ children }) {
                 t.type = "text/javascript", t.async = !0, t.src = 'https://set.myagentx.com/js/am.js', t.onload = t.onreadystatechange = function() {
                     var t = this.readyState;
                     if (!t || "complete" == t || "loaded" == t) try {
-                      affiliateManager.init('UoIYax6ZF0P9Ds6xa6mC', 'https://backend.leadconnectorhq.com', '.agentx-git-test-salman-majid-alis-projects.vercel.app')
+                      affiliateManager.init('UoIYax6ZF0P9Ds6xa6mC', 'https://backend.leadconnectorhq.com', '.dev.assignx.ai')
                     } catch (t) {}
                 };
                 var e = document.getElementsByTagName("script")[0];
