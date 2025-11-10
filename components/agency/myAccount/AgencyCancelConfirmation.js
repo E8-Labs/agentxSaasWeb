@@ -144,7 +144,7 @@ function AgencyCancelConfirmation({
                         <div
                             className="text-center text-sm lg:text-base font-normal leading-tight lg:leading-normal"
                         >
-                            Cancelling means you'll lose access to the features below starting{' '}
+                            ${`Cancelling means you'll lose access to the features below starting{' '}`}
                             {nxtCharge ? <span className="font-bold">{nxtCharge}</span> : ''}
                             . Still want to move forward?
                         </div>
