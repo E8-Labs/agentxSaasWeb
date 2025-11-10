@@ -331,7 +331,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
               </div>
 
               {/* Additional Summary Metrics */}
-              <div className="grid grid-cols-4 gap-4 mb-8 pl-10 pr-10">
+              <div className="grid grid-cols-6 gap-4 mb-8 pl-10 pr-10">
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total Batches
@@ -362,6 +362,22 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                   </div>
                   <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
                     {formatNumber(analyticsData.summary?.overallBookedLeads)}
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
+                    Total SMS
+                  </div>
+                  <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
+                    {formatNumber(analyticsData.summary?.totalSMS)}
+                  </div>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
+                    Total Emails
+                  </div>
+                  <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
+                    {formatNumber(analyticsData.summary?.totalEmails)}
                   </div>
                 </div>
               </div>
