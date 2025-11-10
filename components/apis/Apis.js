@@ -322,6 +322,9 @@ const Apis = {
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
 
+  //agency calculator
+  agencyCalculator: `${BasePath}api/agency/calculator`,
+
   // Agency Notification Customization APIs
   getAllNotificationCustomizations: `${BasePath}api/agency/notification-customizations`,
   getNotificationCustomization: `${BasePath}api/agency/notification-customizations`,

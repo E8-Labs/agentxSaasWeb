@@ -42,6 +42,23 @@ const UPSell = () => {
     //warning message
     const [snackBannerMsg, setSnackBannerMsg] = useState(null);
     const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Warning);
+    
+    // Calculator results for each product type
+    const [phoneCalculatorResult, setPhoneCalculatorResult] = useState(null);
+    const [dncCalculatorResult, setDncCalculatorResult] = useState(null);
+    const [enrichmentCalculatorResult, setEnrichmentCalculatorResult] = useState(null);
+    const [calculatorLoading, setCalculatorLoading] = useState({
+        phone: false,
+        dnc: false,
+        enrichment: false
+    });
+    
+    // Debounce timers for calculator
+    const calculatorTimers = React.useRef({
+        phone: null,
+        dnc: null,
+        enrichment: null
+    });
 
     //warning messages for less price
     // setSnackBannerMsg(`Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
@@ -54,7 +71,69 @@ const UPSell = () => {
     useEffect(() => {
         getUserSettings();
         getLocalData();
+        
+        // Cleanup timers on unmount
+        return () => {
+            Object.values(calculatorTimers.current).forEach(timer => {
+                if (timer) clearTimeout(timer);
+            });
+        };
     }, []);
+
+    // Calculate earnings using calculator API
+    const calculateEarnings = async (productType, price, from) => {
+        if (!price || price <= 0 || isNaN(parseFloat(price))) {
+            // Clear calculator result if price is invalid
+            if (from === "phonePrice") {
+                setPhoneCalculatorResult(null);
+            } else if (from === "dncPrice") {
+                setDncCalculatorResult(null);
+            } else if (from === "enrichmentPrice") {
+                setEnrichmentCalculatorResult(null);
+            }
+            return;
+        }
+
+        try {
+            // Set loading state
+            setCalculatorLoading(prev => ({ ...prev, [productType]: true }));
+
+            const token = AuthToken();
+            if (!token) return;
+
+            const response = await axios.post(
+                Apis.agencyCalculator,
+                {
+                    productType: productType,
+                    price: parseFloat(price),
+                    quantity: 1
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response?.data?.status && response?.data?.data) {
+                const calculatorData = response.data.data;
+                
+                // Update the appropriate calculator result
+                if (from === "phonePrice") {
+                    setPhoneCalculatorResult(calculatorData);
+                } else if (from === "dncPrice") {
+                    setDncCalculatorResult(calculatorData);
+                } else if (from === "enrichmentPrice") {
+                    setEnrichmentCalculatorResult(calculatorData);
+                }
+            }
+        } catch (error) {
+            console.error(`Error calculating earnings for ${productType}:`, error);
+        } finally {
+            setCalculatorLoading(prev => ({ ...prev, [productType]: false }));
+        }
+    };
 
     //low price detector
     const checkPrice = (price, from) => {
@@ -83,6 +162,21 @@ const UPSell = () => {
                 setSnackBannerMsg(null);
             }
         }
+        
+        // Calculate earnings when price changes (with debounce)
+        if (price > 0) {
+            const productType = from === "phonePrice" ? "phone" : from === "dncPrice" ? "dnc" : "enrichment";
+            
+            // Clear existing timer
+            if (calculatorTimers.current[productType]) {
+                clearTimeout(calculatorTimers.current[productType]);
+            }
+            
+            // Set new timer to debounce API call
+            calculatorTimers.current[productType] = setTimeout(() => {
+                calculateEarnings(productType, price, from);
+            }, 500); // 500ms debounce
+        }
     }
 
 
@@ -109,6 +203,17 @@ const UPSell = () => {
                 setAllowDNC(Data?.upsellDnc);
                 setAllowPerplexityEnrichment(Data?.upsellEnrichment);
                 setInitialLoader(false);
+                
+                // Calculate earnings for existing prices
+                if (Data?.phonePrice) {
+                    calculateEarnings("phone", Data.phonePrice, "phonePrice");
+                }
+                if (Data?.dncPrice) {
+                    calculateEarnings("dnc", Data.dncPrice, "dncPrice");
+                }
+                if (Data?.enrichmentPrice) {
+                    calculateEarnings("enrichment", Data.enrichmentPrice, "enrichmentPrice");
+                }
             }
         } catch (err) {
             console.log("Error occured in api is", err)
@@ -209,6 +314,15 @@ const UPSell = () => {
                     setAddUpSellPhone(false);
                     setAddPerplexityEnrichment(false);
                     setSettingsData(response.data.data);
+                    
+                    // Recalculate earnings after save
+                    if (from === "phonePrice" && response.data.data?.phonePrice) {
+                        calculateEarnings("phone", response.data.data.phonePrice, "phonePrice");
+                    } else if (from === "dncPrice" && response.data.data?.dncPrice) {
+                        calculateEarnings("dnc", response.data.data.dncPrice, "dncPrice");
+                    } else if (from === "enrichmentPrice" && response.data.data?.enrichmentPrice) {
+                        calculateEarnings("enrichment", response.data.data.enrichmentPrice, "enrichmentPrice");
+                    }
                 } else {
                     setShowSnackMessage(response.data.message);
                     setShowSnackType(SnackbarTypes.Error);
@@ -216,6 +330,14 @@ const UPSell = () => {
                 handleResetLoaders();
                 if (from?.endsWith("Del")) {
                     resetInputFields(from, response.data.data);
+                    // Clear calculator results when deleted
+                    if (from === "phonePriceDel") {
+                        setPhoneCalculatorResult(null);
+                    } else if (from === "dncPriceDel") {
+                        setDncCalculatorResult(null);
+                    } else if (from === "enrichmentPriceDel") {
+                        setEnrichmentCalculatorResult(null);
+                    }
                 }
             }
         }
@@ -321,59 +443,95 @@ const UPSell = () => {
                                     </div>
                                     {
                                         settingsData?.phonePrice && (
-                                            <div className="w-full flex flex-row items-center justify-between">
-                                                <div style={styles.subHeading}>
-                                                    Your upsell price is ${(settingsData?.phonePrice || 0).toFixed(2)}/mo for each number
+                                            <div className="w-full flex flex-col gap-2">
+                                                <div className="w-full flex flex-row items-center justify-between">
+                                                    <div style={styles.subHeading}>
+                                                        Your upsell price is ${(settingsData?.phonePrice || 0).toFixed(2)}/mo for each number
+                                                    </div>
+                                                    <button className="flex flex-row items-center gap-2" onClick={() => {
+                                                        setAddUpSellPhone(true);
+                                                    }}>
+                                                        <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                                                        <Image
+                                                            alt="*"
+                                                            src={"/assets/editPen.png"}
+                                                            height={16}
+                                                            width={16}
+                                                        />
+                                                    </button>
                                                 </div>
-                                                <button className="flex flex-row items-center gap-2" onClick={() => {
-                                                    setAddUpSellPhone(true);
-                                                }}>
-                                                    <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                                                    <Image
-                                                        alt="*"
-                                                        src={"/assets/editPen.png"}
-                                                        height={16}
-                                                        width={16}
-                                                    />
-                                                </button>
+                                                {phoneCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${phoneCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per number after fees
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
                                     {
                                         addUpSellPhone && (
-                                            <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                                                <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                                    <div className="" style={styles.inputs}>
-                                                        $
-                                                    </div>
-                                                    <input
-                                                        style={styles.inputs}
-                                                        type="text"
-                                                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your upsell price"
-                                                        value={phonePrice}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            // Allow only digits and one optional period
-                                                            const sanitized = value.replace(/[^0-9.]/g, '');
-                                                            setPhonePrice(sanitized);
-                                                            if (sanitized > 0) {
-                                                                checkPrice(sanitized, "phonePrice");
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                                {
-                                                    savePhoneLoader ? (
-                                                        <div className="flex flex-row items-center justify-center w-[10%]">
-                                                            <CircularProgress size={30} />
+                                            <div className="flex flex-col gap-2 mb-4 mt-2">
+                                                <div className="flex flex-row items-center justify-center gap-2">
+                                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                        <div className="" style={styles.inputs}>
+                                                            $
                                                         </div>
-                                                    ) : (
-                                                        <button onClick={() => { handleUserSettings("phonePrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                            Save
-                                                        </button>
-                                                    )
-                                                }
+                                                        <input
+                                                            style={styles.inputs}
+                                                            type="text"
+                                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                            placeholder="Your upsell price"
+                                                            value={phonePrice}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                // Allow only digits and one optional period
+                                                                const sanitized = value.replace(/[^0-9.]/g, '');
+                                                                setPhonePrice(sanitized);
+                                                                if (sanitized > 0) {
+                                                                    checkPrice(sanitized, "phonePrice");
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {
+                                                        savePhoneLoader ? (
+                                                            <div className="flex flex-row items-center justify-center w-[10%]">
+                                                                <CircularProgress size={30} />
+                                                            </div>
+                                                        ) : (
+                                                            <button onClick={() => { handleUserSettings("phonePrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                                Save
+                                                            </button>
+                                                        )
+                                                    }
+                                                </div>
+                                                {phoneCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${phoneCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per number after fees
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {calculatorLoading.phone && (
+                                                    <div className="flex flex-row items-center gap-2 text-gray-500" style={{ fontSize: 12 }}>
+                                                        <CircularProgress size={14} />
+                                                        <span>Calculating...</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
@@ -425,59 +583,95 @@ const UPSell = () => {
                                     </div>
                                     {
                                         settingsData?.dncPrice && (
-                                            <div className="w-full flex flex-row items-center justify-between">
-                                                <div style={styles.subHeading}>
-                                                    Your upsell price is ${settingsData?.dncPrice.toFixed(2)}
+                                            <div className="w-full flex flex-col gap-2">
+                                                <div className="w-full flex flex-row items-center justify-between">
+                                                    <div style={styles.subHeading}>
+                                                        Your upsell price is ${settingsData?.dncPrice.toFixed(2)}
+                                                    </div>
+                                                    <button className="flex flex-row items-center gap-2" onClick={() => {
+                                                        setAddDNC(true);
+                                                    }}>
+                                                        <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                                                        <Image
+                                                            alt="*"
+                                                            src={"/assets/editPen.png"}
+                                                            height={16}
+                                                            width={16}
+                                                        />
+                                                    </button>
                                                 </div>
-                                                <button className="flex flex-row items-center gap-2" onClick={() => {
-                                                    setAddDNC(true);
-                                                }}>
-                                                    <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                                                    <Image
-                                                        alt="*"
-                                                        src={"/assets/editPen.png"}
-                                                        height={16}
-                                                        width={16}
-                                                    />
-                                                </button>
+                                                {dncCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${dncCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per check after fees
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
                                     {
                                         addDNC && (
-                                            <div className="flex flex-row items-center justify-center gap-2">
-                                                <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                                    <div className="" style={styles.inputs}>
-                                                        $
-                                                    </div>
-                                                    <input
-                                                        style={styles.inputs}
-                                                        type="text"
-                                                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your upsell price"
-                                                        value={dncPrice}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            // Allow only digits and one optional period
-                                                            const sanitized = value.replace(/[^0-9.]/g, '');
-                                                            setDncPrice(sanitized);
-                                                            if (sanitized > 0) {
-                                                                checkPrice(sanitized, "dncPrice");
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                                {
-                                                    dNCLoader ? (
-                                                        <div className="flex flex-row items-center justify-center w-[10%]">
-                                                            <CircularProgress size={30} />
+                                            <div className="flex flex-col gap-2 mt-2">
+                                                <div className="flex flex-row items-center justify-center gap-2">
+                                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                        <div className="" style={styles.inputs}>
+                                                            $
                                                         </div>
-                                                    ) : (
-                                                        <button onClick={() => { handleUserSettings("dncPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                            Save
-                                                        </button>
-                                                    )
-                                                }
+                                                        <input
+                                                            style={styles.inputs}
+                                                            type="text"
+                                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                            placeholder="Your upsell price"
+                                                            value={dncPrice}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                // Allow only digits and one optional period
+                                                                const sanitized = value.replace(/[^0-9.]/g, '');
+                                                                setDncPrice(sanitized);
+                                                                if (sanitized > 0) {
+                                                                    checkPrice(sanitized, "dncPrice");
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {
+                                                        dNCLoader ? (
+                                                            <div className="flex flex-row items-center justify-center w-[10%]">
+                                                                <CircularProgress size={30} />
+                                                            </div>
+                                                        ) : (
+                                                            <button onClick={() => { handleUserSettings("dncPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                                Save
+                                                            </button>
+                                                        )
+                                                    }
+                                                </div>
+                                                {dncCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${dncCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per check after fees
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {calculatorLoading.dnc && (
+                                                    <div className="flex flex-row items-center gap-2 text-gray-500" style={{ fontSize: 12 }}>
+                                                        <CircularProgress size={14} />
+                                                        <span>Calculating...</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
@@ -529,59 +723,95 @@ const UPSell = () => {
                                     </div>
                                     {
                                         settingsData?.enrichmentPrice && (
-                                            <div className='flex flex-row items-center justify-between w-full mt-2'>
-                                                <div style={styles.subHeading}>
-                                                    Your upsell price is ${settingsData?.enrichmentPrice.toFixed(2)}/mo for each enrichmen
+                                            <div className='flex flex-col gap-2 w-full mt-2'>
+                                                <div className='flex flex-row items-center justify-between w-full'>
+                                                    <div style={styles.subHeading}>
+                                                        Your upsell price is ${settingsData?.enrichmentPrice.toFixed(2)}/mo for each enrichment
+                                                    </div>
+                                                    <button className="flex flex-row items-center gap-2" onClick={() => {
+                                                        setAddPerplexityEnrichment(true);
+                                                    }}>
+                                                        <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                                                        <Image
+                                                            alt="*"
+                                                            src={"/assets/editPen.png"}
+                                                            height={16}
+                                                            width={16}
+                                                        />
+                                                    </button>
                                                 </div>
-                                                <button className="flex flex-row items-center gap-2" onClick={() => {
-                                                    setAddPerplexityEnrichment(true);
-                                                }}>
-                                                    <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                                                    <Image
-                                                        alt="*"
-                                                        src={"/assets/editPen.png"}
-                                                        height={16}
-                                                        width={16}
-                                                    />
-                                                </button>
+                                                {enrichmentCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${enrichmentCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per enrichment after fees
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
                                     {
                                         addPerplexityEnrichment && (
-                                            <div className="flex flex-row items-center justify-center gap-2 mt-2">
-                                                <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                                    <div className="" style={styles.inputs}>
-                                                        $
-                                                    </div>
-                                                    <input
-                                                        style={styles.inputs}
-                                                        type="text"
-                                                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                                        placeholder="Your upsell price"
-                                                        value={perplexityEnrichmentPrice}
-                                                        onChange={(e) => {
-                                                            const value = e.target.value;
-                                                            // Allow only digits and one optional period
-                                                            const sanitized = value.replace(/[^0-9.]/g, '');
-                                                            setPerplexityEnrichmentPrice(sanitized);
-                                                            if (sanitized > 0) {
-                                                                checkPrice(sanitized, "enrichmentPrice");
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                                {
-                                                    perplexityEnrichmentLoader ? (
-                                                        <div className="flex flex-row items-center justify-center w-[10%]">
-                                                            <CircularProgress size={30} />
+                                            <div className="flex flex-col gap-2 mt-2">
+                                                <div className="flex flex-row items-center justify-center gap-2">
+                                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                        <div className="" style={styles.inputs}>
+                                                            $
                                                         </div>
-                                                    ) : (
-                                                        <button onClick={() => { handleUserSettings("enrichmentPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                            Save
-                                                        </button>
-                                                    )
-                                                }
+                                                        <input
+                                                            style={styles.inputs}
+                                                            type="text"
+                                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                            placeholder="Your upsell price"
+                                                            value={perplexityEnrichmentPrice}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                // Allow only digits and one optional period
+                                                                const sanitized = value.replace(/[^0-9.]/g, '');
+                                                                setPerplexityEnrichmentPrice(sanitized);
+                                                                if (sanitized > 0) {
+                                                                    checkPrice(sanitized, "enrichmentPrice");
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {
+                                                        perplexityEnrichmentLoader ? (
+                                                            <div className="flex flex-row items-center justify-center w-[10%]">
+                                                                <CircularProgress size={30} />
+                                                            </div>
+                                                        ) : (
+                                                            <button onClick={() => { handleUserSettings("enrichmentPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                                Save
+                                                            </button>
+                                                        )
+                                                    }
+                                                </div>
+                                                {enrichmentCalculatorResult && (
+                                                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                                        <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
+                                                            Your Net Revenue
+                                                        </div>
+                                                        <div style={{ fontSize: 18, fontWeight: "600", color: "#7902DF" }}>
+                                                            ${enrichmentCalculatorResult.agencyNetAmount}
+                                                        </div>
+                                                        <div style={{ fontSize: 11, color: "#00000060", marginTop: 4 }}>
+                                                            per enrichment after fees
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {calculatorLoading.enrichment && (
+                                                    <div className="flex flex-row items-center gap-2 text-gray-500" style={{ fontSize: 12 }}>
+                                                        <CircularProgress size={14} />
+                                                        <span>Calculating...</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )
                                     }
