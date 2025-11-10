@@ -138,7 +138,7 @@ const WebAgentModal = ({
         if (response.data) {
           setRequireForm(!event.target.checked);
           setSelectedSmartList('');
-          showSnackbar('', 'Smart list detached successfully!', SnackbarTypes.Success);
+          showSnackbar('', 'Smart list enabled', SnackbarTypes.Success);
         }
       } catch (error) {
         console.error('Error detaching smart list:', error);
