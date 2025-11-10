@@ -83,7 +83,7 @@ export const XBarPlans = [
     type: "Starter",
     PlanTitle: "Starter | 250 credits",
     details: [
-      `1 AgentX AI | 1hrs of Support`,
+      `1 AssignX AI | 1hrs of Support`,
       `1 External Integration | 1 Calendar Integration`,
     ],
     originalPrice: "2,450",
@@ -96,7 +96,7 @@ export const XBarPlans = [
     type: "Professional",
     PlanTitle: "Professional | 750 credits",
     details: [
-      `4 AgentX AI | 4hrs of Support`,
+      `4 AssignX AI | 4hrs of Support`,
       `2 External Integration | 2 Calendar Integration`,
     ],
     originalPrice: "5,900",
@@ -110,7 +110,7 @@ export const XBarPlans = [
     PlanTitle: "Scale | 1500 credits",
     details: [
       "Success Manager",
-      `6 AgentX AI | 6hrs of Support`,
+      `6 AssignX AI | 6hrs of Support`,
       `Unlimited External Integration | Calendar Integration`,
     ],
     originalPrice: "8,742",
