@@ -916,7 +916,7 @@ function UpgradePlanContent({
             let ApiData = {
                 plan: planType,
             };
-            if (from === "SubAccount") {
+            if (from === "SubAccount"||(UserLocalData?.userRole === "AgencySubAccount")) {
                 ApiData = {
                     planId: currentSelectedPlan?.id
                 }
@@ -952,6 +952,8 @@ function UpgradePlanContent({
             if (selectedUser) {
                 ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
             }
+
+            console.log("Api path is", ApiPath);
 
             //headers for api
             let headers = {

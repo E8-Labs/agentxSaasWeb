@@ -607,8 +607,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="border rounded-lg"
                 style={{
-                  height: "clamp(60px, 65px, 70px)",
-                  fontSize: "clamp(11px, 2vw, 13px)"
+                  height: "clamp(45px, 50px, 55px)",
+                  fontSize: "clamp(11px, 2vw, 13px)",
+                  overflow: "hidden",
+                  boxSizing: "border-box"
                 }}
               >
                 <Box className="w-full h-full">
@@ -640,8 +642,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       sx={{
                         ...styles.dropdownMenu,
                         backgroundColor: "#FFFFFF",
+                        height: "100%",
                         "& .MuiOutlinedInput-notchedOutline": {
                           border: "none",
+                        },
+                        "& .MuiSelect-select": {
+                          display: "flex",
+                          alignItems: "center",
+                          height: "100%",
                         },
                       }}
                     >
@@ -984,14 +992,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                   ) : (
                     userData?.planCapabilities?.allowLiveCallTransfer === true ? (
-                      <div>
+                      <div className="flex flex-col gap-2">
                         <div className="w-full">
                           <div style={styles.headingStyle}>
                             What number should we forward live transfers to when a lead
                             wants to talk to you?
                           </div>
                           <PhoneInput
-                            className="border outline-none bg-white"
+                            className="border outline-none bg-white mt-2"
                             country={"us"} // restrict to US only
                             onlyCountries={["us", "mx"]}
                             disableDropdown={true}
