@@ -26,6 +26,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { PersistanceKeys } from "@/constants/Constants";
 import AgencyActivity from "./AgencyActivity";
+import AgencyRevenueDashboard from "./revenue/AgencyRevenueDashboard";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
