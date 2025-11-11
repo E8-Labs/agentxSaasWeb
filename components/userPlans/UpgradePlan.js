@@ -533,7 +533,7 @@ function UpgradePlanContent({
                     switch (plan.billingCycle || plan.duration) {
                         case "monthly":
                             monthly.push(plan);
-                            if (!plan.discountPrice) {
+                            if (plan.discountedPrice === 0) {
                                 freePlan = plan;
                             }
                             break;
