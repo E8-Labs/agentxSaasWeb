@@ -274,6 +274,9 @@ function AdminAffiliates({ selectedUser }) {
 
       //console.log;
     }
+    finally {
+      setGetAffiliatesLoader(false);
+    }
   };
 
   //funcion to invitem tem member

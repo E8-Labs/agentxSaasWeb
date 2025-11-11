@@ -43,6 +43,8 @@ import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import { callStatusColors } from "@/constants/Constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { UpgradeTagWithModal } from "@/components/constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -124,6 +126,9 @@ const AdminLeadDetails = ({
 
     //variable for gtteam loader
     const [getTeamLoader, setGetTeamLoader] = useState(false);
+
+    // Redux user hook for upgrade tag
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
 
     useEffect(() => {
         //console.log;
@@ -790,11 +795,17 @@ const AdminLeadDetails = ({
                                                 <div style={{ fontSize: 18, fontWeight: "700" }}>
                                                     More Info
                                                 </div>
-                                                <CloseBtn
-                                                    onClick={() => {
-                                                        setShowDetailsModal(false);
-                                                    }}
-                                                />
+                                                <div className="flex flex-row items-center gap-2">
+                                                    <UpgradeTagWithModal
+                                                        reduxUser={reduxUser}
+                                                        setReduxUser={setReduxUser}
+                                                    />
+                                                    <CloseBtn
+                                                        onClick={() => {
+                                                            setShowDetailsModal(false);
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                             <div>
                                                 <div className="flex flex-row items-start justify-between mt-4  w-full">

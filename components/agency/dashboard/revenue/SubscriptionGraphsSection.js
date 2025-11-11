@@ -40,6 +40,16 @@ const formatCurrency = (num) => {
   return `$${formatNumberWithCommas(num.toFixed(2))}`;
 };
 
+// Helper function to format numbers with "k" notation if >= 1000
+const formatNumberWithK = (num) => {
+  if (num >= 1000) {
+    const kValue = num / 1000;
+    // Show one decimal place if needed, otherwise no decimal
+    return kValue % 1 === 0 ? `${kValue}k` : `${kValue.toFixed(1)}k`;
+  }
+  return num.toString();
+};
+
 // Custom Tooltip Component for Plans Chart
 const PlansChartTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -597,7 +607,7 @@ function SubscriptionGraphsSection({
                     domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
                     allowDecimals={true}
                     label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280" } }}
-                    tickFormatter={(value) => formatNumberWithCommas(value)}
+                    tickFormatter={(value) => formatNumberWithK(value)}
                   />
                   <Tooltip content={<PlansChartTooltip />} />
                   <Bar
