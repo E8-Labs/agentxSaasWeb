@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
@@ -11,6 +12,7 @@ export default function StripeDetailsCard({
     fromDashboard = true
 }) {
 
+    const router = useRouter();
     const [loader, setLoader] = useState(false);
     const handleViewStripeAccount = async () => {
 
