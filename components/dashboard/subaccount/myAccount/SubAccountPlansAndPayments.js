@@ -1683,7 +1683,7 @@ function SubAccountPlansAndPayments({
                     <div className="bg-white rounded-2xl p-6 max-w-4xl w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
                         <div className='flex flex-row justify-between items-center w-full mb-4'>
                             <div style={{ fontWeight: "600", fontSize: 22 }}>
-                                What You'll Lose
+                                {`What You'll Lose`}
                             </div>
                             <CloseBtn
                                 onClick={() => setShowCancelConfirmation(false)}
