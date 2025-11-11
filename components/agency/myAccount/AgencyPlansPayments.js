@@ -592,9 +592,9 @@ function AgencyPlansPayments({
                 AuthToken = LocalDetails.token;
             }
 
-            const ApiPath = Apis.cancelPlan;
+            const ApiPath = Apis.canellationComplete;
 
-            // //console.log;
+            console.log("ApiPath", ApiPath)
 
             //// //console.log;
             // //console.log;
@@ -613,6 +613,7 @@ function AgencyPlansPayments({
 
             if (response) {
                 if (response.data.status === true) {
+                    console.log("response.data.data", response.data)
                     await getProfileDetails();
                     setShowConfirmCancelPlanPopup(false);
                     setGiftPopup(false);
@@ -1772,7 +1773,7 @@ function AgencyPlansPayments({
                                     marginTop: 30,
                                 }}
                             >
-                                {`Tell us why you’re canceling to better improve our platform for you.`}
+                                {`Tell us why you're cancelling so we can improve.`}
                             </div>
 
                             <div className="w-full flex flex-row items-center justify-center">

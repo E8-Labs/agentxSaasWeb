@@ -102,6 +102,7 @@ const Apis = {
 
   //cancel plan
   cancelPlan: `${BasePath}api/user/cancelPlan`,
+  canellationComplete: `${BasePath}api/user/cancellation/complete`,
   //redeem plan
   redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
 

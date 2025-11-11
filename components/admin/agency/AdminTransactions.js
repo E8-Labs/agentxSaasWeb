@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
@@ -26,7 +26,7 @@ function AdminTransactions() {
     search: ''
   });
 
-  const typeOptions = ['all','Agent', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
+  const typeOptions = ['all', 'Agent', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
@@ -35,14 +35,14 @@ function AdminTransactions() {
     { value: 'customRange', label: 'Custom Range' }
   ];
 
-  const [selectedAgency,setSelectedAgency] = useState(null)
-  const [selectedSubAccount,setSelectedSubAccount] = useState(null)
+  const [selectedAgency, setSelectedAgency] = useState(null)
+  const [selectedSubAccount, setSelectedSubAccount] = useState(null)
   const [releasingTransactionId, setReleasingTransactionId] = useState(null)
 
   useEffect(() => {
     getTransactions();
   }, [filters, page]);
-  
+
 
   const getTransactions = async (resetData = false) => {
     try {
@@ -85,7 +85,7 @@ function AdminTransactions() {
       if (response.data?.status && response.data?.data) {
         const newData = response.data.data.transactions;
         const newSummary = response.data.data.summary;
-        
+
         console.log('Transactions response:', response.data);
 
         if (resetData) {
@@ -94,7 +94,7 @@ function AdminTransactions() {
         } else {
           setTransactions(prev => [...prev, ...newData]);
         }
-        
+
         setSummary(newSummary);
         setHasMore(newData.length === 50);
       }
@@ -210,7 +210,7 @@ function AdminTransactions() {
               <div className="text-sm text-gray-600">Total Amount</div>
               <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalAmount)}</div>
             </div>
-            
+
             <div className="bg-white rounded-lg p-4 shadow">
               <div className="text-sm text-gray-600">Collected Total </div>
               <div className="text-2xl font-bold text-purple-600">{formatCurrency(summary.totalPlatformFees)}</div>
@@ -287,7 +287,7 @@ function AdminTransactions() {
                     />
                   </PopoverContent>
                 </Popover>
-                
+
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -349,7 +349,7 @@ function AdminTransactions() {
               className="w-full flex flex-row items-center px-10 hover:bg-[#402FFF05] py-3 border-b"
             >
               <div className="w-[15%]">
-                <div 
+                <div
                   style={styles.cellLink}
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => {
@@ -362,7 +362,7 @@ function AdminTransactions() {
               </div>
 
               <div className="w-[15%]">
-                <div 
+                <div
                   style={styles.cellLink}
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => {
@@ -396,14 +396,35 @@ function AdminTransactions() {
               <div className="w-[7%]">
                 <div style={styles.cell}>{formatCurrency(transaction.collected)}</div>
               </div>
-              
+
               <div className="w-[8%]">
                 <div style={styles.cell} className="flex items-center gap-2 flex-wrap">
                   {formatCurrency(transaction.agencyNetAmount)}
                   {transaction.onHold && (
-                    <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap">
-                      On Hold
-                    </span>
+                    <Tooltip
+                     title="This payment is on hold for either failed payments or plan cancellation. Please check your billing details."
+                     componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                     >
+                      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap">
+                        On Hold
+                      </span>
+                    </Tooltip>
                   )}
                 </div>
               </div>

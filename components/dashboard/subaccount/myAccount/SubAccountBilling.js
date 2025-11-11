@@ -1198,7 +1198,7 @@ function SubAccountBilling({
                   marginTop: 30,
                 }}
               >
-                {`Tell us why you’re canceling to better improve our platform for you.`}
+                {`Tell us why you're cancelling so we can improve`}
               </div>
 
               <div className="w-full flex flex-row items-center justify-center">

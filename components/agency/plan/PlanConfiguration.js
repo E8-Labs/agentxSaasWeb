@@ -347,6 +347,11 @@ export default function PlanConfiguration({
             setNoOfContacts(configurationData?.maxLeads);
             setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent);
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
+            const allowTextMessagesValue = dynamicFeatures?.allowTextMessages || dynamicFeatures?.allowTextMessages || false;
+            const twilioValue = dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false;
+            // If Text Messages is enabled, ensure Twilio is also enabled
+            const finalTwilioValue = allowTextMessagesValue ? true : twilioValue;
+            
             setFeatures({
                 // allowLanguageSelection:
                 //     dynamicFeatures?.allowLanguageSelection ??
@@ -361,8 +366,8 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
                 apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
-                allowTextMessages: dynamicFeatures?.allowTextMessages || dynamicFeatures?.allowTextMessages || false,
-                twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+                allowTextMessages: allowTextMessagesValue,
+                twilio: finalTwilioValue,
                 sendText: dynamicFeatures?.sendText || dynamicFeatures?.allowTextMessages || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
@@ -730,11 +735,7 @@ export default function PlanConfiguration({
             return;
         }
 
-        // Prevent disabling Twilio when Send Text is enabled
-        if (key === "twilio" && features.sendText && features.twilio) {
-            return;
-        }
-
+      
         setFeatures((prev) => {
             const newState = { ...prev, [key]: !prev[key] };
 
@@ -747,6 +748,11 @@ export default function PlanConfiguration({
                     setLanguage("english");
                     setLanguageTitle("English and Spanish Compatible");
                 }
+            }
+
+            // If Text Messages is enabled, automatically enable Twilio
+            if (key === "allowTextMessages" && newState.allowTextMessages) {
+                newState.twilio = true;
             }
 
             // if allowTeamSeats just got enabled, scroll down

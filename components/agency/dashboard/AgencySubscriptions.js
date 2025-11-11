@@ -699,7 +699,7 @@ function AgencySubscriptions({
                               tick={{ fontSize: 12, fill: "#6b7280" }}
                               domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
                               allowDecimals={true}
-                              label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280" } }}
+                              label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280",marginLeft: "10px" } }}
                               tickFormatter={(value) => formatNumberWithCommas(value)}
                             />
 

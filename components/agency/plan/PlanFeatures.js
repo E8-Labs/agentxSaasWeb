@@ -39,9 +39,7 @@ export default function PlanFeatures({
             <div className="flex flex-col gap-1 w-full mt-6">
                 {featuresList.map((item) => {
                     const isLocked = !agencyAllowedFeatures[item.stateKey];
-                    // Disable Twilio switch when Send Text is enabled
-                    const isTwilioDisabled = item.stateKey === "twilio" && features.sendText;
-                    const isDisabled = isLocked || isTwilioDisabled;
+                    const isDisabled = isLocked;
                     return (
                     <div
                         key={item.stateKey}

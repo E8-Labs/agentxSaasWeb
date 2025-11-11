@@ -883,6 +883,7 @@ function SubAccountPlansAndPayments({
         console.log("Toggle plan id is", selectedPlan);
         console.log("Current plan sequence id is", currentPlanSequenceId);
 
+
         // if (!selectedPlan?.sequenceId) return "Select other Plan";
 
         // if (togglePlan === currentPlan) {
@@ -2084,7 +2085,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 30,
                                 }}
                             >
-                                {`Tell us why you’re canceling to better improve our platform for you.`}
+                                {`Tell us why you're cancelling so we can improve.`}
                             </div>
 
                             <div className="w-full flex flex-row items-center justify-center">
