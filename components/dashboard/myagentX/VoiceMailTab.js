@@ -21,10 +21,9 @@ function VoiceMailTab({
   agent,
   setShowDrawerSelectedAgent,
   setMainAgentsList,
-  selectedUser = null,
   kycsData,
   uniqueColumns,
-
+  selectedUser = null,
 }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
@@ -48,9 +47,13 @@ function VoiceMailTab({
 
 
   useEffect(() => {
-    let data = getUserLocalData()
-    setUser(data.user)
-  }, [])
+    if(selectedUser){
+      setUser(selectedUser)
+    }else{
+      let data = getUserLocalData()
+      setUser(data.user)
+    }
+  }, [selectedUser])
 
 
 
