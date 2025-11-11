@@ -837,21 +837,20 @@ const AddScoringModal = ({
                       />
                     </div>
 
-                    {/* Remove Button */}
-                    {questions.length > 1 && index !== 0 ? (
-                      <button
-                        onClick={() => removeQuestion(index)}
-                        className="w-5 p-2 text-gray-400 text-lg font-bold"
-                      >
-                        ×
-                      </button>
-                    ) : (
-                      <div className="w-5 p-2 text-gray-400 text-lg font-bold"></div>
-                    )}
-
-                  </div>
+                  {/* Remove Button */}
+                  {questions.length > 1 && index !== 0 ? (
+                    <button
+                      onClick={() => removeQuestion(index)}
+                      className="w-5 p-2 text-gray-400 text-lg font-bold"
+                    >
+                      ×
+                    </button>
+                  ) : (
+                    <div className="w-5 p-2 text-gray-400 text-lg font-bold"></div>
+                  )}
                 </div>
-              ))}
+              </div>
+            ))}
 
               {/* Add New Question Link */}
               <div>

@@ -708,7 +708,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete, handle
                   ref={(el) => (inputsFields.current[2] = el)}
                   className="border outline-none bg-white"
                   country={"us"} // Default country
-                  onlyCountries={["us", "ca", "mx"]} // Allow US, Canada, and Mexico
+                  onlyCountries={["us", "ca", "mx"]} // Allow US and Canada only
                   disableDropdown={false} // Enable dropdown to switch between US/CA
                   countryCodeEditable={false}
                   disableCountryCode={false}

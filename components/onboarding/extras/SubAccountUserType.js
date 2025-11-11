@@ -22,6 +22,16 @@ const SubAccountUserType = ({
 
     const userType = [
         {
+            id: 15,
+            title: "General Agent",
+            agentType: "General Agent",
+            // icon: "/usertype/avt2.png",
+            icon: "/agencyIcons/agentsView/generalAgent.jpg",
+            areaOfFocusTitle: "What area do you focus on?",
+            userType: "GeneralAgent",
+            roundedImage: false,
+        },
+        {
             id: 1,
             title: "Real Estate Agent",
             agentType: "Real Estate Agent",
@@ -141,7 +151,7 @@ const SubAccountUserType = ({
             areaOfFocusTitle: "What type of loans do you primarily work with?",
             userType: "LoanOfficerAgent",
             roundedImage: false,
-        },{
+        }, {
             id: 14,
             title: "Reception Agent",
             agentType: "Reception Agent",
@@ -150,17 +160,7 @@ const SubAccountUserType = ({
             areaOfFocusTitle: "What area do you focus on?",
             userType: "ReceptionAgent",
             roundedImage: false,
-          },
-          {
-            id: 15,
-            title: "General Agent",
-            agentType: "General Agent",
-            // icon: "/usertype/avt2.png",
-            icon: "/agencyIcons/agentsView/generalAgent.jpg",
-            areaOfFocusTitle: "What area do you focus on?",
-            userType: "GeneralAgent",
-            roundedImage: false,
-          },
+        },
 
     ];
 
@@ -170,7 +170,7 @@ const SubAccountUserType = ({
                 <div className='w-full' style={{ fontWeight: "600", fontSize: 18 }}>
                     Select an Agent
                 </div>
-               
+
             </div>
             <div className='flex-1 overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[80%] mt-2 px-6'>
                 <div

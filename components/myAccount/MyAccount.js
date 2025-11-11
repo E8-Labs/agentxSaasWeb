@@ -81,7 +81,7 @@ function MyAccount() {
     },
     {
       id: 8,
-      heading: "Terms & Condition",
+      heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },

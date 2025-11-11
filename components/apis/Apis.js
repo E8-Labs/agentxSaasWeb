@@ -2,18 +2,19 @@
 
 // //console.log;
 let BasePath =
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
-    // : "http://localhost:8003/"
-    : "https://apimyagentx.com/agentxtest/"//"https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
+    : "https://apimyagentx.com/agentxtest/"
+  ) //https://www.blindcircle.com
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
 
 
 console.log(
-  "Current environment is",
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT
+  "Current base url is",
+  BasePath
 );
 
 const Apis = {
@@ -101,6 +102,7 @@ const Apis = {
 
   //cancel plan
   cancelPlan: `${BasePath}api/user/cancelPlan`,
+  canellationComplete: `${BasePath}api/user/cancellation/complete`,
   //redeem plan
   redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
 
@@ -237,6 +239,7 @@ const Apis = {
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
   getAdminTransactions: `${BasePath}api/admin/transactions`,
+  releaseHeldFunds: `${BasePath}api/admin/transactions/release`,
 
 
   templets : `${BasePath}api/templates`,
@@ -279,6 +282,9 @@ const Apis = {
   revenuePayoutsSummary: `${BasePath}api/admin/revenue/payouts/summary`,
   revenueTransactions: `${BasePath}api/admin/revenue/transactions`,
   
+  // Plan Subscriptions API
+  getPlanSubscriptions: `${BasePath}api/admin/analytics/plan-subscriptions`,
+  
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
@@ -313,9 +319,20 @@ const Apis = {
 
   //stripe apis
   createStripeLoginLink: `${BasePath}/api/agency/createStripeLoginLink`,
-  
+
   //transaction details
   getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
+
+  //agency calculator
+  agencyCalculator: `${BasePath}api/agency/calculator`,
+
+  // Agency Notification Customization APIs
+  getAllNotificationCustomizations: `${BasePath}api/agency/notification-customizations`,
+  getNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  createNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  deleteNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  toggleNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
+  previewNotificationTemplate: `${BasePath}api/agency/notification-customizations`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
 
   resumeSubscription: `${BasePath}api/user/cancellation/resume`,

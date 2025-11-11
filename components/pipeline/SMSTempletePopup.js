@@ -111,8 +111,31 @@ function SMSTempletePopup({
 
                 };
                 console.log('smsData', smsData)
-                onSendSMS(smsData);
-                return; // Don't close modal yet, let the send function handle it
+                
+                // Wait for onSendSMS to complete if it's async, otherwise call it
+                if (typeof onSendSMS === 'function') {
+                    const result = onSendSMS(smsData);
+                    if (result && typeof result.then === 'function') {
+                        // If it returns a promise, wait for it
+                        try {
+                            await result;
+                        } catch (error) {
+                            console.error('Error in onSendSMS:', error);
+                        } finally {
+                            // Reset loader after SMS is sent (with a small delay to ensure it shows)
+                            setTimeout(() => {
+                                setSaveSmsLoader(false);
+                            }, 300);
+                        }
+                    } else {
+                        // If not async, reset loader after a short delay to ensure it's visible
+                        setTimeout(() => {
+                            setSaveSmsLoader(false);
+                        }, 500);
+                    }
+                }
+                // Don't close modal - let the parent component handle it
+                return;
             }
 
             // Add your save logic here
@@ -160,7 +183,7 @@ function SMSTempletePopup({
             }
             setTimeout(() => {
                 onClose();
-            }, 500);
+            }, 100);
         } catch (error) {
             console.log('error', error)
             // setShowSnackBar({
@@ -168,7 +191,11 @@ function SMSTempletePopup({
             //     type: SnackbarTypes.Error,
             // })
         } finally {
-            setSaveSmsLoader(false)
+            // Reset loader for non-lead SMS flows
+            // For lead SMS, loader is reset in the try block after onSendSMS completes
+            if (!isLeadSMS) {
+                setSaveSmsLoader(false)
+            }
         }
     }
 
@@ -292,62 +319,62 @@ function SMSTempletePopup({
                             phoneLoading ? (
                                 <CircularProgress size={30} />
                             ) : (
-                                !isLeadSMS && (
-                                    <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
-                                        <FormControl sx={{ width: isLeadSMS ? '80%' : '100%',height: '54px' }}>
-                                            <Select
-                                                value={selectedPhone || ""}
-                                                onChange={(event) => handleSelect(event.target.value)}
-                                                displayEmpty // Enables placeholder
-                                                renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
-                                                sx={{
-                                                    ...styles.dropdownMenu,
-                                                    backgroundColor: "#FFFFFF",
-                                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                        borderColor: "transparent", // Hide focused border color
+                                <div className='flex flex-row gap-3 w-full mt-3 items-center'>
 
+                                    <FormControl sx={{ height: '50px', width: '100%' }}>
+                                        <Select
+                                            value={selectedPhone || ""}
+                                            onChange={(event) => handleSelect(event.target.value)}
+                                            displayEmpty // Enables placeholder
+                                            renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                            sx={{
+                                                ...styles.dropdownMenu,
+                                                backgroundColor: "#FFFFFF",
+                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "transparent", // Hide focused border color
+
+                                                },
+
+                                            }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    style: {
+                                                        maxHeight: "30vh", // Limit dropdown height
+                                                        overflow: "auto", // Enable scrolling in dropdown
+                                                        scrollbarWidth: "none",
+                                                        // borderRadius: "10px"
                                                     },
+                                                },
+                                            }}
+                                        >
+                                            {
+                                                phoneNumbers?.length > 0 ? (
 
-                                                }}
-                                                MenuProps={{
-                                                    PaperProps: {
-                                                        style: {
-                                                            maxHeight: "30vh", // Limit dropdown height
-                                                            overflow: "auto", // Enable scrolling in dropdown
-                                                            scrollbarWidth: "none",
-                                                            // borderRadius: "10px"
-                                                        },
-                                                    },
-                                                }}
-                                            >
-                                                {
-                                                    phoneNumbers?.length > 0 ? (
+                                                    phoneNumbers?.map((item, index) => (
+                                                        <MenuItem key={index}
+                                                            // className="hover:bg-[#402FFF10]"
+                                                            value={item}
+                                                        >
+                                                            <div className='flex flex-row items-center gap-2'>
 
-                                                        phoneNumbers?.map((item, index) => (
-                                                            <MenuItem key={index}
-                                                                // className="hover:bg-[#402FFF10]"
-                                                                value={item}
-                                                            >
-                                                                <div className='flex flex-row items-center gap-2'>
-
-                                                                    <div className='text-[15] font-[500] w-48'>
-                                                                        {item.phone}
-                                                                    </div>
+                                                                <div className='text-[15] font-[500] w-48'>
+                                                                    {item.phone}
                                                                 </div>
+                                                            </div>
 
-                                                            </MenuItem>
-                                                        ))
-                                                    ) : (
-                                                        <div className='p-2'>
-                                                            No number found
-                                                        </div>
-                                                    )
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                )
+                                                        </MenuItem>
+                                                    ))
+                                                ) : (
+                                                    <div className='p-2'>
+                                                        No number found
+                                                    </div>
+                                                )
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
                             )
                         }
 
@@ -377,16 +404,14 @@ function SMSTempletePopup({
 
                     </div>
                     <div className='w-full flex  flex-row items-center w-full gap-6 mt-4'>
-                        <button className='w-1/2 h-[53px] text-[15px] font-[700]'
+                        <button className='w-1/2 text-gray-600 hover:text-gray-800'
                             onClick={onClose}
                         >
                             Cancel
                         </button>
 
                         {saveSmsLoader ? (
-                            <div className='w-1/2 h-[53px] flex items-center justify-center'>
                                 <CircularProgress size={30} />
-                            </div>
                         ) : (
                             <button
                                 className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${isSaveDisabled ? 'bg-[#00000050]' : 'bg-purple hover:bg-purple/90'

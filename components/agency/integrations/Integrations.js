@@ -4,11 +4,12 @@ import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { AddAgencyTwilioKeyModal, TwilioWarning, UpSellPhone } from '@/components/onboarding/extras/StickyModals'
 import { handleDisconnectTwilio } from '@/components/onboarding/services/apisServices/ApiService'
+import { useUser } from '@/hooks/redux-hooks'
 import { CircularProgress, Switch } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-const Integrations = ({ selectedAgency }) => {
+const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
 
     const [allowUpSellPhone, setAllowUpSellPhone] = useState(false);
     const [addUpSellPhone, setAddUpSellPhone] = useState(false);
@@ -26,15 +27,17 @@ const Integrations = ({ selectedAgency }) => {
     //remove trust hub data
     const [removeTrustHubData, setRemoveTrustHubData] = useState(false);
 
+    console.log("reduxUser", reduxUser);
     useEffect(() => {
         getLocalData();
     }, []);
 
     //get agency data
-    const getLocalData = () => {
+    const getLocalData = async () => {
         let data = localStorage.getItem("User");
         if (data) {
             let u = JSON.parse(data);
+            await getProfileDetails();
             setAgencyData(u.user);
             console.log("Agency data is", u.user.twilio);
             if (u.user.phonePrice) {
@@ -54,6 +57,7 @@ const Integrations = ({ selectedAgency }) => {
         }
     }
 
+
     return (
         <div className='w-full flex flex-col items-center'>
 
@@ -69,7 +73,7 @@ const Integrations = ({ selectedAgency }) => {
             {/* Code for Add Twilio  */}
             <AddAgencyTwilioKeyModal
                 showAddKeyModal={showAddKeyModal}
-                handleClose={(d) => {
+                handleClose={async(d) => {
                     setShowAddKeyModal(false);
                     getLocalData();
                     setDisConnectLoader(false);
@@ -77,7 +81,7 @@ const Integrations = ({ selectedAgency }) => {
                         setShowSnackMessage(d);
                         setShowSnackType(SnackbarTypes.Success);
                         setHotReloadTrustProducts(true);
-                    }
+                        refreshUserData();                    }
                 }}
                 selectedAgency={selectedAgency}
             />
@@ -85,7 +89,7 @@ const Integrations = ({ selectedAgency }) => {
             {/* Code for Upsell phones */}
             <UpSellPhone
                 allowUpSellPhone={addUpSellPhone}
-                handleClose={(d) => {
+                handleClose={async(d) => {
                     if (d) {
                         if (d.message === "notAdded") {
                             setAllowUpSellPhone(false);
@@ -94,7 +98,7 @@ const Integrations = ({ selectedAgency }) => {
                             setAddUpSellPhone(false);
                         }
                         if (d.status === true) {
-                            getLocalData();
+                            await getLocalData();
                             setShowSnackMessage(d.message);
                             setShowSnackType(SnackbarTypes.Success);
                         }
@@ -118,16 +122,16 @@ const Integrations = ({ selectedAgency }) => {
                             Connect your Twilio to enable customers to purchase phone numbers.
                         </div>
                         {
-                            agencyData?.twilio?.twilAuthToken && (
+                            reduxUser?.twilio?.twilAuthToken && (
                                 <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                    SID {agencyData?.twilio?.twilSid} Token {agencyData?.twilio?.twilAuthToken}
+                                    SID {reduxUser?.twilio?.twilSid} Token {reduxUser?.twilio?.twilAuthToken}
                                 </div>
                             )
                         }
                     </div>
                 </div>
                 {
-                    agencyData?.twilio?.twilAuthToken ? (
+                    reduxUser?.twilio?.twilAuthToken ? (
                         <div>
                             {
                                 disConnectLoader ? (
@@ -143,9 +147,10 @@ const Integrations = ({ selectedAgency }) => {
                                                 selectedAgency
                                             });
                                             if (response) {
-                                                getLocalData();
+                                                await refreshUserData();    
                                                 setHotReloadTrustProducts(true);
                                                 setRemoveTrustHubData(true);
+
                                             }
                                         }}>
                                         Disconnect

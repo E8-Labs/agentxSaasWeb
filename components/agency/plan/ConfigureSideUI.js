@@ -116,10 +116,10 @@ const ConfigureSideUI = ({
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
                             <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">{allowTrial && trialValidForDays ? <span>{trialValidForDays} Day Free Trial</span> : "Get Started"}</button>
                             {
-                                allowedFeatures?.length > 0 && (
+                                Array.isArray(allowedFeatures) && allowedFeatures?.length > 0 && (
                                     <div className='w-full'>
                                         {
-                                            allowedFeatures.map((item) => {
+                                            Array.isArray(allowedFeatures) && allowedFeatures.map((item) => {
                                                 return (
                                                     <div
                                                         key={item.id}

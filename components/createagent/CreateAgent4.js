@@ -27,6 +27,7 @@ import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import UpgardView from "@/constants/UpgardView";
 import { useUser } from "@/hooks/redux-hooks";
 import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import AdminGetProfileDetails from "../admin/AdminGetProfileDetails";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -35,6 +36,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser();
+  const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null);
 
   // Log current userData state
   console.log("🔥 CREATEAGENT4 - Current userData from Redux:", userData);
@@ -84,6 +86,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     message: "",
     isVisible: false
   });
+
+  useEffect(() => {
+    getSubUserProfile();
+  }, [userData]);
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -351,6 +357,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
 
+  const getSubUserProfile = async () => {
+    const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    if (localData) {
+      const data = JSON.parse(localData);
+      console.log("Data is from agency or a admin is", data);
+      // setIsFromAgencyOrAdmin(data);
+      const subUserProfile = await AdminGetProfileDetails(data.subAccountData.id);
+      setIsFromAgencyOrAdmin(subUserProfile);
+      console.log("Subuser profile is", subUserProfile);
+    }
+  }
+
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
     try {
@@ -607,8 +625,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="border rounded-lg"
                 style={{
-                  height: "clamp(60px, 65px, 70px)",
-                  fontSize: "clamp(11px, 2vw, 13px)"
+                  height: "clamp(45px, 50px, 55px)",
+                  fontSize: "clamp(11px, 2vw, 13px)",
+                  overflow: "hidden",
+                  boxSizing: "border-box"
                 }}
               >
                 <Box className="w-full h-full">
@@ -640,8 +660,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       sx={{
                         ...styles.dropdownMenu,
                         backgroundColor: "#FFFFFF",
+                        height: "100%",
                         "& .MuiOutlinedInput-notchedOutline": {
                           border: "none",
+                        },
+                        "& .MuiSelect-select": {
+                          display: "flex",
+                          alignItems: "center",
+                          height: "100%",
                         },
                       }}
                     >
@@ -675,7 +701,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 item
                               );
                               // AssignNumber
-                            }else{
+                            } else {
                               AssignNumber();
                             }
                           }}
@@ -761,7 +787,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   showClaimPopup={showClaimPopup}
                   handleCloseClaimPopup={handleCloseClaimPopup}
                   setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-                  setSelectNumber={(number)=>{
+                  setSelectNumber={(number) => {
                     console.log("Number is", number)
                     setSelectNumber(number)
                   }}
@@ -983,7 +1009,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </div>
 
                   ) : (
-                    userData?.planCapabilities?.allowLiveCallTransfer === true ? (
+                    isFromAgencyOrAdmin?.planCapabilities?.allowLiveCallTransfer === true || (!isFromAgencyOrAdmin && userData?.planCapabilities?.allowLiveCallTransfer === true) ? (
                       <div>
                         <div className="w-full">
                           <div style={styles.headingStyle}>
@@ -991,7 +1017,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             wants to talk to you?
                           </div>
                           <PhoneInput
-                            className="border outline-none bg-white"
+                            className="border outline-none bg-white mt-2"
                             country={"us"} // restrict to US only
                             onlyCountries={["us", "mx", "ca"]}
                             disableDropdown={true}
@@ -1054,7 +1080,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         </div>
                       </div>
                     ) : (
-                      < div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                      <div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
                         <div className="w-full h-full flex items-center justify-center">
                           <UpgardView
                             setShowSnackMsg={setShowSnackMsg}

@@ -51,10 +51,10 @@ const Page = () => {
     >
       <Image
         className=""
-        src="/otherAssets/agentx4.jpg"
-        style={{alignSelf:'flex-start' }}
-        height={30}
-        width={130}
+        src="/assets/assignX.png"
+        style={{ height: "29px", width: "122px", resize: "contain",alignSelf:'flex-start' }}
+        height={29}
+        width={122}
         alt="*"
       />
       <div className="-mt-4 w-full ">

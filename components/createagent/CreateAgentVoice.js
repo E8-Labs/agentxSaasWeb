@@ -208,6 +208,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       return 60;
     } else if (item.name === "Luna") {
       return 50;
+    }else if(item.name === "Max") {
+      return 30;
     }
 
     return 70;
@@ -226,11 +228,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     } else if (item.name === "Kaia") {
       return 50;
     } else if (item.name === "Axel") {
-      return 55;
+      return 35;
     } else if (item.name === "Aria") {
       return 58;
     } else if (item.name === "Luna") {
       return 50;
+    }else if(item.name === "Max") {
+      return 40;
     }
 
     return 60;
@@ -242,7 +246,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     } else if (item.name === "Dax") {
       return 3;
     } else if (item.name === "Axel") {
-      return 7;
+      return 0;
     } else if (item.name === "Niko") {
       return 5;
     } else if (item.name === "Lex") {

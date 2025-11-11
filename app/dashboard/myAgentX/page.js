@@ -142,7 +142,7 @@ function Page() {
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://app.assignx.ai/"
-      : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+      : "https://dev.assignx.ai/";
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -4608,6 +4608,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                                     flexDirection: "row",
                                     alignItems: "center",
                                     justifyContent: "space-between",
+                                    marginLeft: item.name === "Max" || item.name === "Axel" ? 5 : 0,
                                   }}
                                   value={item.name}
                                   key={index}
@@ -4615,8 +4616,8 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                                 >
                                   <Image
                                     src={item.img}
-                                    height={40}
-                                    width={35}
+                                    height={item.name === "Axel" || item.name === "Max" ? 40 : 35}
+                                    width={item.name === "Axel" || item.name === "Max" ? 22 : 35}
                                     alt="*"
                                   />
                                   <div>{item.name}</div>

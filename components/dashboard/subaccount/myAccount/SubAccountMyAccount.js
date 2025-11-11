@@ -88,7 +88,7 @@ function SubAccountMyAccount() {
     },
     {
       id: 8,
-      heading: "Terms & Condition",
+      heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
@@ -145,7 +145,7 @@ function SubAccountMyAccount() {
     // },
     {
       id: 7,
-      heading: "Terms & Condition",
+      heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },

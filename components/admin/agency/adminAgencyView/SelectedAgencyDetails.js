@@ -498,7 +498,7 @@ function SelectedAgencyDetails({
                                 ) : selectedManu.name == "Account" ? (
                                     <AgencyMyAccount selectedAgency={selectedUser} />
                                 ) : (
-                                    "Comming soon..."
+                                    "Coming soon..."
                                 )
                             }
                         </div>

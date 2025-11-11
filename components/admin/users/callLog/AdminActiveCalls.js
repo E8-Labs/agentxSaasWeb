@@ -149,7 +149,7 @@ function AdminActiveCalls({ selectedUser }) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
+      let ApiPath = `${Apis.getSheduledCallLogs}`;
       ApiPath = ApiPath + "&userId=" + selectedUser.id
       // //console.log; //scheduled
       // return

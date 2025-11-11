@@ -206,7 +206,7 @@ export default function TestPlansPage() {
               </button>
 
               <div className="space-y-3">
-                {plan.features.map((feature, featureIndex) => (
+                {Array.isArray(plan.features) && plan.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
                     <Check
                       className={`w-5 h-5 mt-0.5 flex-shrink-0 ${

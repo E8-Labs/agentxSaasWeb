@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { TextField, Button, Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 function SubAccountBasicInfo() {
   const router = useRouter();
@@ -86,9 +87,20 @@ function SubAccountBasicInfo() {
   const [loading10, setLoading10] = useState(false);
   const [loading11, setLoading11] = useState(false);
   const [loading12, setLoading12] = useState(false);
+  const [loading13, setLoading13] = useState(false);
 
   const [srviceLoader, setServiceLoader] = useState(false);
   const [areaLoading, setAreaLoading] = useState(false);
+
+  // Email editing state
+  const [isEmailChanged, setIsEmailChanged] = useState(false);
+  const emailRef = useRef(null);
+
+  // Success and error message states
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [selected, setSelected] = useState([]);
   const [selectedArea, setSelectedArea] = useState([]);
@@ -599,6 +611,37 @@ function SubAccountBasicInfo() {
     }
   };
 
+  // Helper function to show success message
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessMessage(true);
+  };
+
+  // Function to handle email save
+  const handleEmailSave = async () => {
+    try {
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMessage("Please enter a valid email address");
+        setShowErrorMessage(true);
+        return;
+      }
+
+      setLoading13(true);
+      const data = { email: email };
+      await UpdateProfile(data);
+      setLoading13(false);
+      setIsEmailChanged(false);
+      showSuccess("Email updated successfully");
+    } catch (e) {
+      setLoading13(false);
+      setErrorMessage("Failed to update email. Please try again.");
+      setShowErrorMessage(true);
+      console.error("Error updating email:", e);
+    }
+  };
+
   const handleserviceId = (id) => {
     // //console.log;
     // //console.log;
@@ -941,23 +984,47 @@ function SubAccountBasicInfo() {
         }}
       >
         <input
-          readOnly
+          ref={emailRef}
           className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
+          onFocus={() => setFocusedEmail(true)}
+          onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
             setEmail(event.target.value);
+            setIsEmailChanged(true);
           }}
-          type="text"
+          type="email"
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
-        {/* {
- email.length > 0 && (
- <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
- )
- } */}
+        {isEmailChanged ? (
+          loading13 ? (
+            <CircularProgress size={20} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleEmailSave();
+              }}
+              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+            >
+              Save
+            </button>
+          )
+        ) : (
+          <button
+            onClick={() => {
+              emailRef.current?.focus();
+            }}
+            className="outline-none"
+          >
+            <Image
+              src={'/svgIcons/editIcon.svg'}
+              width={24}
+              height={24}
+              alt="edit"
+            />
+          </button>
+        )}
       </div>
 
       <div
@@ -973,7 +1040,7 @@ function SubAccountBasicInfo() {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid ${focusedEmail ? "#8a2be2" : "#00000010"}`,
+          border: `1px solid #00000010`,
           transition: "border-color 0.3s ease",
         }}
       >
@@ -2000,6 +2067,22 @@ function SubAccountBasicInfo() {
           )}
         </>
       )}
+
+      {/* Success Message */}
+      <AgentSelectSnackMessage
+        isVisible={showSuccessMessage}
+        hide={() => setShowSuccessMessage(false)}
+        message={successMessage}
+        type={SnackbarTypes.Success}
+      />
+
+      {/* Error Message */}
+      <AgentSelectSnackMessage
+        isVisible={showErrorMessage}
+        hide={() => setShowErrorMessage(false)}
+        message={errorMessage}
+        type={SnackbarTypes.Error}
+      />
     </div>
   );
 }

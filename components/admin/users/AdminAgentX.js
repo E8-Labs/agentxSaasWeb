@@ -76,13 +76,23 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import DuplicateButton from "@/components/animation/DuplicateButton";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
 import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import UpgardView from "@/constants/UpgardView";
+import ActionsTab from "@/components/dashboard/myagentX/ActionsTab";
+import UpgradeModal from "@/constants/UpgradeModal";
+import AddScoringModal from "@/components/modals/add-scoring-modal";
+import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
+import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
+import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
+import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
+import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
+import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://app.assignx.ai/"
-      : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+      : "https://dev.assignx.ai/";
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -276,6 +286,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const [selectedGptManu, setSelectedGptManu] = useState(models[0]);
 
+  // Note: user state is kept for admin authentication token, but selectedUser should be used for data operations
   const [user, setUser] = useState(null);
 
   let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
@@ -313,6 +324,30 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [duplicateLoader, setDuplicateLoader] = useState(false);
 
   const searchTimeoutRef = useRef(null);
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: null,
+    message: "",
+    isVisible: false
+  });
+
+const [showUpgradeModal,setShowUpgradeModal] = useState(false);
+const [showAddScoringModal,setShowAddScoringModal] = useState(false);
+
+// Web Agent Modal states
+const [showWebAgentModal, setShowWebAgentModal] = useState(false);
+const [showNewSmartListModal, setShowNewSmartListModal] = useState(false);
+const [showAllSetModal, setShowAllSetModal] = useState(false);
+const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null);
+
+// Embed Modal states
+const [showEmbedModal, setShowEmbedModal] = useState(false);
+const [showEmbedSmartListModal, setShowEmbedSmartListModal] = useState(false);
+const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false);
+const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null);
+const [embedCode, setEmbedCode] = useState('');
+const [selectedSmartList, setSelectedSmartList] = useState('');
+const [fetureType, setFetureType] = useState("");
+
 
   const playVoice = (url) => {
     if (audio) {
@@ -518,36 +553,101 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   //copy and vapi widget-code
-  const handleWebhookClick = (assistantId, baseUrl) => {
-    let url = baseUrl + "api/agent/demoAi/" + assistantId
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Webhook URL Copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+  const handleWebhookClick = () => {
+    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else {
+      let agent = {
+        ...selectedAgentForWebAgent,
+        smartListId: selectedSmartList
+      };
+      setSelectedAgentForWebAgent(agent);
+      let modelId = showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || "";
+      let url = demoBaseUrl + "api/agent/demoAi/" + modelId;
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          setShowSuccessSnack("Webhook URL Copied");
+          setIsVisibleSnack(true);
+          setShowWebAgentModal(false);
+          setShowAllSetModal(false);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
   };
 
   const handleCopy = (assistantId, baseUrl) => {
-    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else {
+      setSelectedAgentForEmbed(showDrawerSelectedAgent);
+      setShowEmbedModal(true);
+    }
+  };
+
+  // Web Agent handlers
+  const handleWebAgentClick = (agent) => {
+    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else {
+      setSelectedAgentForWebAgent(agent);
+      setShowWebAgentModal(true);
+    }
+  };
+
+  const handleEmbedClick = (agent) => {
+    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else {
+      setSelectedAgentForEmbed(agent);
+      setShowEmbedModal(true);
+    }
+  };
+
+  const handleOpenAgentInNewTab = () => {
+    const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || "");
+    const name = encodeURIComponent(selectedAgentForWebAgent?.name || "");
+    window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+  };
+
+  const handleShowNewSmartList = () => {
+    setShowWebAgentModal(false);
+    setShowNewSmartListModal(true);
+  };
+
+  const handleSmartListCreated = (smartListId) => {
+    setShowNewSmartListModal(false);
+    setSelectedSmartList(smartListId);
+    setShowAllSetModal(true);
+  };
+
+  const handleCloseAllSetModal = () => {
+    setShowAllSetModal(false);
+    setSelectedAgentForWebAgent(null);
+    setSelectedSmartList('');
+  };
+
+  const handleShowEmbedSmartList = () => {
+    setShowEmbedModal(false);
+    setShowEmbedSmartListModal(true);
+  };
+
+  const handleEmbedSmartListCreated = (smartListId) => {
+    setShowEmbedSmartListModal(false);
+    const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`;
+    setEmbedCode(code);
+    setShowEmbedAllSetModal(true);
+  };
 
-    navigator.clipboard
-      .writeText(iframeCode)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Embed widget copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+  const handleCloseEmbedAllSetModal = () => {
+    setShowEmbedAllSetModal(false);
+    setSelectedAgentForEmbed(null);
+    setEmbedCode('');
   };
 
   //function for numbers width
@@ -1807,6 +1907,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   useEffect(() => {
+    console.log('selectedUser in useEffect', selectedUser)
     getCalenders();
     setInitialLoader(true)
     getAgents()
@@ -2600,7 +2701,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     setErrorMessage("");
                   }}
                 >
-                  <CloseBtn onClick={() => {}} />
+                  <CloseBtn onClick={() => { }} />
                 </button>
               </div>
 
@@ -3045,16 +3146,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       loading={duplicateLoader}
                     />
                     <button onClick={() => {
-                      console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
-                      // return;
-                      // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
-                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                      const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
-                      const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
-
-                      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
-
+                      handleWebAgentClick(showDrawerSelectedAgent);
                     }}
                     >
                       <Image
@@ -3067,7 +3159,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <button
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
-                        handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                        handleEmbedClick(showDrawerSelectedAgent);
                       }}
                     >
                       <Image src={'/svgIcons/embedIcon.svg'}
@@ -3078,7 +3170,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <button
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
-                        handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                        if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                          setShowUpgradeModal(true);
+                        } else {
+                          setFetureType("webhook");
+                          setSelectedAgentForWebAgent(showDrawerSelectedAgent);
+                          setShowWebAgentModal(true);
+                        }
                       }}
                     >
                       <Image src={'/svgIcons/webhook.svg'}
@@ -4175,37 +4273,64 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
                 </div>
               ) : activeTab === "Actions" ? (
-                <div>
-                  <div
-                    className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                    style={
-                      {
-                        // backgroundColor: "red"
+                selectedUser?.agencyCapabilities?.allowToolsAndActions === false ? (
+                  <UpgardView
+                    setShowSnackMsg={setShowSnackMsg}
+                    title={"Unlock Actions"}
+                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                  />
+                ) : !selectedUser?.planCapabilities?.allowToolsAndActions ? (
+                  <UpgardView
+                    setShowSnackMsg={setShowSnackMsg}
+                    title={"Unlock Actions"}
+                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                  />
+                ) :
+                  <div className="w-full">
+                    <div
+                      className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                      style={
+                        {
+                          // backgroundColor: "red"
+                        }
                       }
-                    }
-                  >
-                    {/*<VideoCard
-                        duration="2 min 42 sec"
-                        horizontal={false}
-                        playVideo={() => {
-                          setIntroVideoModal2(true);
-                        }}
-                        title="Learn how to add a calendar"
-                      />*/}
-                  </div>
+                    ></div>
 
+                    <ActionsTab
+                      calendarDetails={calendarDetails}
+                      setUserDetails={setMainAgentsList}
+                      selectedAgent={showDrawerSelectedAgent}
+                      setSelectedAgent={setShowDrawerSelectedAgent}
+                      mainAgentId={MainAgentId}
+                      previousCalenders={previousCalenders}
+                      updateVariableData={updateAfterAddCalendar}
+                      setShowUpgradeModal={setShowUpgradeModal}
+                      activeTab={activeTab}
+                      showDrawerSelectedAgent={showDrawerSelectedAgent}
+                      setShowAddScoringModal={setShowAddScoringModal}
+                      setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    />
+
+                    {/* Calendar Section 
                   <UserCalender
-                    selectedUser={selectedUser}
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
                     selectedAgent={showDrawerSelectedAgent}
+                    setSelectedAgent={setShowDrawerSelectedAgent}
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
-                    selectGHLCalendar={selectGHLCalendar}
-                    setSelectGHLCalendar={setSelectGHLCalendar}
-                  />
-                </div>
+                    setShowUpgradeModal={setShowUpgradeModal}
+                  />*/}
+
+                    {/* Lead Scoring Section 
+                  <LeadScoring
+                    activeTab={activeTab}
+                    showDrawerSelectedAgent={showDrawerSelectedAgent}
+                    setShowAddScoringModal={setShowAddScoringModal}
+
+                  />*/}
+                  </div>
               ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">
                   <PiepelineAdnStage
@@ -4217,11 +4342,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 </div>
               ) : activeTab === "Knowledge" ? (
                 <div className="flex flex-col gap-4">
-                  <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
+                  <Knowledgebase user={selectedUser} agent={showDrawerSelectedAgent} />
                 </div>
               ) : activeTab === "Voicemail" ? (
                 <div className="flex flex-col gap-4 w-full">
                   <VoiceMailTab
+                    selectedUser={selectedUser}
                     setMainAgentsList={setMainAgentsList}
                     agent={showDrawerSelectedAgent}
                     setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
@@ -5045,7 +5171,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <KYCs
                     kycsDetails={setKycsData}
                     mainAgentId={MainAgentId}
-                    user={user && user}
+                    user={selectedUser}
                     selectedUser={selectedUser}
                   />
                 </div>
@@ -5064,250 +5190,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         videoUrl={HowtoVideos.script}
       />
 
-      {/* <Modal
-        open={false}
-        onClose={() => setIntroVideoModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box className="lg:w-5/12 sm:w-full w-8/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-full w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div className="flex flex-row justify-end">
-                <CloseBtn onClick={() => setIntroVideoModal(false)} />
-              </div>
-
-              <div
-                className="text-center sm:font-24 font-16"
-                style={{ fontWeight: "700" }}
-              >
-                Learn more about assigning leads
-              </div>
-
-              <div className="mt-6">
-                <iframe
-                  src={HowtoVideos.Leads} //?autoplay=1&mute=1 to make it autoplay
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="YouTube video"
-                  // className='w-20vh h-40vh'
-                  style={{
-                    width: "100%",
-                    height: "50vh",
-                    borderRadius: 15,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal> */}
-
-      {/* Code for Purchase and find number popup */}
-      {/* <Modal
-        open={showClaimPopup}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div>
-                <div className="flex flex-row justify-end">
-                  <CloseBtn onClick={handleCloseClaimPopup} />
-                </div>
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: "700",
-                    textAlign: "center",
-                  }}
-                >
-                  {`Let's claim your phone number`}
-                </div>
-                <div
-                  className="mt-2"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "700",
-                    textAlign: "center",
-                  }}
-                >
-                  Enter the 3 digit area code you would like to use
-                </div>
-                <div
-                  className="mt-4"
-                  style={{
-                    fontSize: 13,
-                    fontWeight: "500",
-                    color: "#15151550",
-                  }}
-                >
-                  Number
-                </div>
-                <div className="mt-2">
-                  <input
-                    className="border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0"
-                    type=""
-                    placeholder="Ex: 619, 213, 313"
-                    value={findNumber}
-                    onChange={(e) => {
-                      setFindeNumberLoader(true);
-                      if (timerRef.current) {
-                        clearTimeout(timerRef.current);
-                      }
-
-                      const value = e.target.value;
-                      setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
-                      // handleFindeNumbers(value)
-                      if (value) {
-                        timerRef.current = setTimeout(() => {
-                          handleFindeNumbers(value);
-                        }, 300);
-                      } else {
-                        ////console.log
-                        return;
-                      }
-                    }}
-                  />
-                </div>
-
-                {findNumber ? (
-                  <div>
-                    {findeNumberLoader ? (
-                      <div className="flex flex-row justify-center mt-6">
-                        <CircularProgress size={35} />
-                      </div>
-                    ) : (
-                      <div
-                        className="mt-6 max-h-[40vh] overflow-auto"
-                        style={{ scrollbarWidth: "none" }}
-                      >
-                        {foundeNumbers?.length > 0 ? (
-                          <div className="w-full">
-                            {foundeNumbers.map((item, index) => (
-                              <div
-                                key={index}
-                                className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4"
-                                style={{
-                                  border:
-                                    index === selectedPurchasedIndex
-                                      ? "2px solid #7902DF"
-                                      : "1px solid #00000020",
-                                  backgroundColor:
-                                    index === selectedPurchasedIndex
-                                      ? "#402FFF05"
-                                      : "",
-                                }}
-                              >
-                                <button
-                                  className="flex flex-row items-start justify-between outline-none"
-                                  onClick={(e) => {
-                                    handlePurchaseNumberClick(item, index);
-                                  }}
-                                >
-                                  <div>
-                                    <div style={styles.findNumberTitle}>
-                                      {item.phoneNumber}
-                                    </div>
-                                    <div
-                                      className="text-start mt-2"
-                                      style={styles.findNumberDescription}
-                                    >
-                                      {item.locality} {item.region}
-                                    </div>
-                                  </div>
-                                  <div className="flex flex-row items-start gap-4">
-                                    <div style={styles.findNumberTitle}>
-                                      ${item.price}/mo
-                                    </div>
-                                    <div>
-                                      {index == selectedPurchasedIndex ? (
-                                        <Image
-                                          src={"/assets/charmTick.png"}
-                                          height={35}
-                                          width={35}
-                                          alt="*"
-                                        />
-                                      ) : (
-                                        <Image
-                                          src={"/assets/charmUnMark.png"}
-                                          height={35}
-                                          width={35}
-                                          alt="*"
-                                        />
-                                      )}
-                                    </div>
-                                  </div>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-xl font-[600] text-center mt-4">
-                            No result found. Try a new search
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-xl font-[600] text-center mt-4">
-                    Enter number to search
-                  </div>
-                )}
-              </div>
-              <div className="h-[50px]">
-                <div>
-                  {purchaseLoader ? (
-                    <div className="w-full flex flex-row justify-center mt-4">
-                      <CircularProgress size={32} />
-                    </div>
-                  ) : (
-                    <div>
-                      {selectedPurchasedNumber && (
-                        <button
-                          className="text-white bg-purple w-full h-[50px] rounded-lg"
-                          onClick={handlePurchaseNumber}
-                        >
-                          Proceed to Buy
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal> */}
       {showClaimPopup && (
         <ClaimNumber
           selectedUSer={selectedUser}
@@ -5320,6 +5202,95 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           AssignNumber={AssignNumber}
         />
       )}
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        title="Unlock More Features"
+        subTitle="Upgrade to access advanced features and capabilities"
+      />
+
+      <AddScoringModal
+        open={showAddScoringModal}
+        onClose={() => {
+          setShowAddScoringModal(false);
+        }}
+        selectedAgent={showDrawerSelectedAgent}
+        agentId={showDrawerSelectedAgent?.id}
+        onSubmit={() => {
+          // Refresh agents list after adding scoring
+          getAgents(false, search);
+        }}
+      />
+
+      {/* Web Agent Modals */}
+      <WebAgentModal
+        open={showWebAgentModal}
+        onClose={() => setShowWebAgentModal(false)}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        modelId={selectedAgentForWebAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onOpenAgent={handleOpenAgentInNewTab}
+        onShowNewSmartList={handleShowNewSmartList}
+        agentSmartRefill={selectedAgentForWebAgent?.smartListId}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
+        selectedSmartList={selectedSmartList}
+        setSelectedSmartList={setSelectedSmartList}
+      />
+
+      <NewSmartListModal
+        open={showNewSmartListModal}
+        onClose={() => setShowNewSmartListModal(false)}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onSuccess={handleSmartListCreated}
+      />
+
+      <AllSetModal
+        open={showAllSetModal}
+        onClose={handleCloseAllSetModal}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        onOpenAgent={handleOpenAgentInNewTab}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
+      />
+
+      {/* Embed Modals */}
+      <EmbedModal
+        open={showEmbedModal}
+        onClose={() => setShowEmbedModal(false)}
+        agentName={selectedAgentForEmbed?.name || ""}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        onShowSmartList={handleShowEmbedSmartList}
+        onShowAllSet={() => {
+          setShowEmbedModal(false);
+          setShowEmbedAllSetModal(true);
+          const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+          setEmbedCode(code);
+        }}
+      />
+
+      <EmbedSmartListModal
+        open={showEmbedSmartListModal}
+        onClose={() => setShowEmbedSmartListModal(false)}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        onSuccess={handleEmbedSmartListCreated}
+        fetureType={fetureType}
+      />
+
+      <AllSetModal
+        open={showEmbedAllSetModal}
+        onClose={handleCloseEmbedAllSetModal}
+        agentName={selectedAgentForEmbed?.name || ""}
+        isEmbedFlow={true}
+        embedCode={embedCode}
+      />
     </div>
   );
 }

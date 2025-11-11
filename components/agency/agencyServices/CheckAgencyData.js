@@ -19,6 +19,7 @@ export const getAgencyLocalData = () => {
 export const CheckStripe = () => {
     const localData = getAgencyLocalData();
     console.log("Is agency local data available 🤔", Boolean(localData));
+    console.log("Can agency receive payments 🤔", localData?.canAcceptPaymentsAgencyccount);
     return localData?.canAcceptPaymentsAgencyccount;
 }
 

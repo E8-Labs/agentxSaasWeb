@@ -44,6 +44,27 @@ export default function AddMonthlyPlanAnimation({
         }
     }, [open, isEditPlan, selectedPlan]);
 
+    //set the basics data when editing plan - runs when modal opens or plan changes
+    useEffect(() => {
+        if (open && isEditPlan && selectedPlan) {
+            console.log("Setting basics data from selected plan:", selectedPlan);
+            const basics = {
+                title: selectedPlan?.title || "",
+                tag: selectedPlan?.tag || "",
+                planDescription: selectedPlan?.planDescription || "",
+                planDuration: selectedPlan?.duration || selectedPlan?.billingCycle || "monthly",
+                originalPrice: selectedPlan?.originalPrice || 0,
+                discountedPrice: selectedPlan?.discountedPrice && selectedPlan?.minutes 
+                    ? (selectedPlan.discountedPrice / selectedPlan.minutes) 
+                    : 0,
+                minutes: selectedPlan?.minutes || 0,
+                isDefault: selectedPlan?.isDefault || false,
+            };
+            console.log("Basics data for edit plan:", basics);
+            setBasicsData(basics);
+        }
+    }, [open, isEditPlan, selectedPlan]);
+
     //set the configuration data when editing plan
     useEffect(() => {
         console.log("Status of edit plans is", isEditPlan)

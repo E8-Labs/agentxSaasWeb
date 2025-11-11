@@ -1,5 +1,5 @@
 import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
@@ -26,7 +26,7 @@ function AdminTransactions() {
     search: ''
   });
 
-  const typeOptions = ['all','Agent', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
+  const typeOptions = ['all', 'Agent', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
@@ -35,13 +35,14 @@ function AdminTransactions() {
     { value: 'customRange', label: 'Custom Range' }
   ];
 
-  const [selectedAgency,setSelectedAgency] = useState(null)
-  const [selectedSubAccount,setSelectedSubAccount] = useState(null)
+  const [selectedAgency, setSelectedAgency] = useState(null)
+  const [selectedSubAccount, setSelectedSubAccount] = useState(null)
+  const [releasingTransactionId, setReleasingTransactionId] = useState(null)
 
   useEffect(() => {
     getTransactions();
   }, [filters, page]);
-  
+
 
   const getTransactions = async (resetData = false) => {
     try {
@@ -84,7 +85,7 @@ function AdminTransactions() {
       if (response.data?.status && response.data?.data) {
         const newData = response.data.data.transactions;
         const newSummary = response.data.data.summary;
-        
+
         console.log('Transactions response:', response.data);
 
         if (resetData) {
@@ -93,7 +94,7 @@ function AdminTransactions() {
         } else {
           setTransactions(prev => [...prev, ...newData]);
         }
-        
+
         setSummary(newSummary);
         setHasMore(newData.length === 50);
       }
@@ -112,6 +113,54 @@ function AdminTransactions() {
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1);
+  };
+
+  const handleReleaseFunds = async (transaction) => {
+    if (!transaction.onHold || !transaction.agencyId) {
+      console.error('Transaction is not on hold or missing agency ID');
+      return;
+    }
+
+    try {
+      setReleasingTransactionId(transaction.id);
+
+      const localData = localStorage.getItem("User");
+      const AuthToken = localData ? JSON.parse(localData).token : null;
+
+      const response = await axios.post(
+        Apis.releaseHeldFunds,
+        {
+          agencyId: transaction.agencyId,
+          transactionIds: [transaction.id]
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${AuthToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data?.success) {
+        // Update the transaction in the list
+        setTransactions(prev =>
+          prev.map(t =>
+            t.id === transaction.id
+              ? { ...t, onHold: false, releasedAt: new Date().toISOString() }
+              : t
+          )
+        );
+        alert('Funds released successfully');
+      } else {
+        alert(response.data?.message || 'Failed to release funds');
+      }
+    } catch (error) {
+      console.error("Error releasing funds:", error);
+      const errorMessage = error.response?.data?.message || 'Failed to release funds';
+      alert(errorMessage);
+    } finally {
+      setReleasingTransactionId(null);
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -161,7 +210,7 @@ function AdminTransactions() {
               <div className="text-sm text-gray-600">Total Amount</div>
               <div className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalAmount)}</div>
             </div>
-            
+
             <div className="bg-white rounded-lg p-4 shadow">
               <div className="text-sm text-gray-600">Collected Total </div>
               <div className="text-2xl font-bold text-purple-600">{formatCurrency(summary.totalPlatformFees)}</div>
@@ -238,7 +287,7 @@ function AdminTransactions() {
                     />
                   </PopoverContent>
                 </Popover>
-                
+
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -278,16 +327,17 @@ function AdminTransactions() {
 
       {/* Table Header */}
       <div className="w-full flex flex-row mt-3 px-10 bg-gray-50 py-3">
-        <div className="w-2/12"><div style={styles.header}>Agency Name</div></div>
-        <div className="w-2/12"><div style={styles.header}>Subaccount Name</div></div>
-        <div className="w-1/12"><div style={styles.header}>Amount</div></div>
-        <div className="w-2/12"><div style={styles.header}>Product</div></div>
-        <div className="w-1/12"><div style={styles.header}>Type</div></div>
-        <div className="w-1/12"><div style={styles.header}>Stripe Fee</div></div>
-        <div className="w-1/12"><div style={styles.header}>Collected</div></div>
-        <div className="w-1/12"><div style={styles.header}>Payout</div></div>
+        <div className="w-[15%]"><div style={styles.header}>Agency Name</div></div>
+        <div className="w-[15%]"><div style={styles.header}>Subaccount Name</div></div>
+        <div className="w-[8%]"><div style={styles.header}>Amount</div></div>
+        <div className="w-[15%]"><div style={styles.header}>Product</div></div>
+        <div className="w-[7%]"><div style={styles.header}>Type</div></div>
+        <div className="w-[7%]"><div style={styles.header}>Stripe Fee</div></div>
+        <div className="w-[7%]"><div style={styles.header}>Collected</div></div>
+        <div className="w-[8%]"><div style={styles.header}>Payout</div></div>
         {/* <div className="w-1/12"><div style={styles.header}>Status</div></div> */}
-        <div className="w-1/12"><div style={styles.header}>Date</div></div>
+        <div className="w-[8%]"><div style={styles.header}>Date</div></div>
+        <div className="w-[10%]"><div style={styles.header}>Actions</div></div>
       </div>
 
       {/* Table Content */}
@@ -298,8 +348,8 @@ function AdminTransactions() {
               key={transaction.id}
               className="w-full flex flex-row items-center px-10 hover:bg-[#402FFF05] py-3 border-b"
             >
-              <div className="w-2/12">
-                <div 
+              <div className="w-[15%]">
+                <div
                   style={styles.cellLink}
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => {
@@ -311,8 +361,8 @@ function AdminTransactions() {
                 </div>
               </div>
 
-              <div className="w-2/12">
-                <div 
+              <div className="w-[15%]">
+                <div
                   style={styles.cellLink}
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => {
@@ -325,30 +375,58 @@ function AdminTransactions() {
                 </div>
               </div>
 
-              <div className="w-1/12">
+              <div className="w-[8%]">
                 <div style={styles.cell}>{formatCurrency(transaction.amountPaid)}</div>
               </div>
 
-              <div className="w-2/12">
-                <div style={styles.cell}>{transaction.productName}</div>
+              <div className="w-[15%]">
+                <div style={styles.cell}>{transaction.title}</div>
               </div>
 
-              <div className="w-1/12">
+              <div className="w-[7%]">
                 <span className={`px-2 py-1 rounded-full text-xs ${getTypeColor(transaction.type)}`}>
                   {transaction.type}
                 </span>
               </div>
 
-              <div className="w-1/12">
+              <div className="w-[7%]">
                 <div style={styles.cell}>{formatCurrency(transaction.stripeFee)}</div>
               </div>
 
-              <div className="w-1/12">
+              <div className="w-[7%]">
                 <div style={styles.cell}>{formatCurrency(transaction.collected)}</div>
               </div>
-              
-              <div className="w-1/12">
-                <div style={styles.cell}>{formatCurrency(transaction.agencyNetAmount)}</div>
+
+              <div className="w-[8%]">
+                <div style={styles.cell} className="flex items-center gap-2 flex-wrap">
+                  {formatCurrency(transaction.agencyNetAmount)}
+                  {transaction.onHold && (
+                    <Tooltip
+                     title="This payment is on hold for either failed payments or plan cancellation. Please check your billing details."
+                     componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "14px",
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                     >
+                      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap">
+                        On Hold
+                      </span>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
 
               {/*<div className="w-1/12">
@@ -357,10 +435,29 @@ function AdminTransactions() {
                 </div>
               </div>*/}
 
-              <div className="w-1/12">
+              <div className="w-[8%]">
                 <div style={styles.cell}>
                   {moment(transaction.date).format("MM/DD/YYYY")}
                 </div>
+              </div>
+
+              <div className="w-[10%]">
+                {transaction.onHold ? (
+                  <Button
+                    onClick={() => handleReleaseFunds(transaction)}
+                    disabled={releasingTransactionId === transaction.id}
+                    className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1"
+                    size="sm"
+                  >
+                    {releasingTransactionId === transaction.id ? (
+                      <CircularProgress size={14} color="inherit" />
+                    ) : (
+                      'Release'
+                    )}
+                  </Button>
+                ) : (
+                  <div style={styles.cell} className="text-gray-400">-</div>
+                )}
               </div>
             </div>
           ))

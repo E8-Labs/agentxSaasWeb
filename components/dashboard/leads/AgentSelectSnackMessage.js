@@ -1,4 +1,7 @@
-import React, { useEffect } from "react";
+"use client"
+
+import React, { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 export const SnackbarTypes = {
   Error: "Error",
@@ -16,102 +19,92 @@ export default function AgentSelectSnackMessage({
   isVisible,
   hide,
 }) {
-  // //console.log;
-  // //console.log;
-  // //console.log;
-  function GetIcon() {
-    if (type == SnackbarTypes.Error) {
-      return "/assets/salmanassets/danger_conflict.svg";
-    }
-    if (type == SnackbarTypes.Success) {
-      return "/svgIcons/successMsgIcon.svg";
-    }
-    if (type == SnackbarTypes.Warning) {
-      return "/assets/salmanassets/danger_conflict.svg";
-    }
-    if (type == SnackbarTypes.Loading) {
-      // return "";///assets/salmanassets/danger_conflict.svg
-      console.log("Loading snack");
-      return "/assets/salmanassets/danger_conflict.svg";
-    }
-
-    return "/assets/salmanassets/danger_conflict.svg";
-  }
-
-  //code to hide after timer
-  // const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
+  const toastIdRef = useRef(null);
+  const lastMessageRef = useRef(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
-    if (type) {
-      // //console.log;
-    }
-  }, [type]);
-
-  useEffect(() => {
-    // //console.log;
-
-    if (isVisible) {
-      let timer = setTimeout(() => {
-        // setErrorMessage(null);
-        // //console.log;
-        hide();
-      }, time);
-      return () => {
-        // //console.log;
-        clearTimeout(timer);
-      };
+    // Dismiss existing toast when visibility becomes false
+    if (!isVisible) {
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+        toastIdRef.current = null;
+      }
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      lastMessageRef.current = null;
+      return;
     }
 
-    // if (isVisible) {
-    //   let timer = setTimeout(() => {
-    //     //console.log
-    //     hide()
-    //   }, 4000);
-    //   return (() => { clearTimeout(timer) })
-    // }
-  }, [isVisible]);
+    // Show toast when isVisible is true and we have a message
+    if (isVisible && (message || title)) {
+      const currentMessage = title || message;
+      const messageKey = `${currentMessage}-${type}`;
+      
+      // Only show new toast if message or type changed
+      if (lastMessageRef.current !== messageKey) {
+        // Dismiss previous toast if it exists
+        if (toastIdRef.current) {
+          toast.dismiss(toastIdRef.current);
+        }
+        if (timerRef.current) {
+          clearTimeout(timerRef.current);
+        }
 
-  return (
-    isVisible && (
-      <div
-        className="flex items-center justify-center  w-full z-[99999]"
-        style={{
-          position: "absolute",
-          left: "50%",
-          translate: "-50%",
-          top: 10,
-          // display: isVisible ? "flex" : "hidden",
-        }}
-      >
-        <div
-          className="flex items-center space-x-2 p-1 pe-2 bg-white  rounded-lg shadow-md"
-          style={{ width: "fit-content" }}
-        >
-          {/* Icon Section */}
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 flex items-center justify-center rounded-full">
-              <img src={GetIcon()}></img>
-            </div>
-          </div>
+        const toastMessage = title || message;
+        const toastDescription = title ? message : null;
+        
+        const toastOptions = {
+          duration: time,
+          description: toastDescription,
+        };
 
-          {/* Text Section */}
-          <div style={{ width: "fit-content" }}>
-            {/* {title && ( */}
-            <h3 className="text-[16px] font-[500] text-gray-900">
-              {title || message}
-            </h3>
-            {/* // )} */}
-            <p
-              className={`${!title ? "text-[14px" : "text-sm"} text-gray-600`}
-              style={{
-                fontWeight: !title ? "250" : "500",
-              }}
-            >
-              {title && message}
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  );
+        let toastId;
+        
+        switch (type) {
+          case SnackbarTypes.Success:
+            toastId = toast.success(toastMessage, toastOptions);
+            break;
+          case SnackbarTypes.Error:
+            toastId = toast.error(toastMessage, toastOptions);
+            break;
+          case SnackbarTypes.Warning:
+            toastId = toast.warning(toastMessage, toastOptions);
+            break;
+          case SnackbarTypes.Loading:
+            toastId = toast.loading(toastMessage, toastOptions);
+            break;
+          default:
+            toastId = toast(toastMessage, toastOptions);
+        }
+
+        toastIdRef.current = toastId;
+        lastMessageRef.current = messageKey;
+
+        // Auto-dismiss after timer and call hide callback
+        timerRef.current = setTimeout(() => {
+          if (toastIdRef.current) {
+            toast.dismiss(toastIdRef.current);
+            toastIdRef.current = null;
+          }
+          if (hide) {
+            hide();
+          }
+          timerRef.current = null;
+        }, time);
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isVisible, message, title, type, time, hide]);
+
+  // Return null since Sonner handles rendering
+  return null;
 }

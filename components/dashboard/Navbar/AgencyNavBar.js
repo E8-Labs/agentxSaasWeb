@@ -39,6 +39,7 @@ import CheckList from "./CheckList";
 import AgencyChecklist from "./AgencyChecklist";
 import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
 import { checkCurrentUserRole } from "@/components/constants/constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 
 let stripePublickKey =
@@ -56,7 +57,7 @@ const AgencyNavBar = () => {
   const [loader, setLoader] = useState(false);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
-
+  const [showAddPaymentPopup, setShowAddPaymentPopup] = useState(false);
 
   const initialUser =
     typeof window !== "undefined"
@@ -68,7 +69,7 @@ const AgencyNavBar = () => {
   const [localUser, setLocalUser] = useState(null);
   const [userDetails, setUserDetails] = useState(null); // This is the API version
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
-
+  const [showPaymentFailedPopup, setShowPaymentFailedPopup] = useState(false);
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
 
@@ -148,6 +149,7 @@ const AgencyNavBar = () => {
       setCheckStripeStatusLoader(true);
       const agencyProfile = await getProfileDetails();
       const stripeStatus = agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount;
+      console.log('Stripe status is', stripeStatus)
       setCheckStripeStatus(!stripeStatus);
       setCheckStripeStatusLoader(false);
     } catch (error) {
@@ -190,12 +192,23 @@ const AgencyNavBar = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+      let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false;
+      console.log('Stripe status is', stripeStatus)
+      setCheckStripeStatus(!stripeStatus);
       // setUserDetails(LocalData);
+      
       const agencyProfile = await getProfileDetails();
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
 
+        // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
+        if (agencyProfileData.consecutivePaymentFailures == 1 || agencyProfileData.consecutivePaymentFailures == 2) {
+          setShowPaymentFailedPopup(true);
+        } else if (agencyProfileData.consecutivePaymentFailures >= 3) {
+          router.push("/plan");
+          // setShowPaymentFailedPopup(false)
+        }
         setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
           const d = {
@@ -295,8 +308,8 @@ const AgencyNavBar = () => {
       id: 5,
       name: "Activity",
       href: "/agency/dashboard/callLogs",
-      selected: "/agencyNavbarIcons/callLogSel.png",
-      uneselected: "/agencyNavbarIcons/callLogUnSel.png",
+      selected: "/otherAssets/selectedActivityLog.png",
+      uneselected: "/otherAssets/activityLog.png",
     },
     {
       id: 6,
@@ -306,10 +319,28 @@ const AgencyNavBar = () => {
       uneselected: "/agencyNavbarIcons/unSelectedTeamIcon.png",
 
     },
+    {
+      id: 7,
+      name: "Whitelabel",
+      href: "/agency/dashboard/whitelabel",
+      selected: "/agencyNavbarIcons/selectedWhitelabelling.png",
+      uneselected: "/agencyNavbarIcons/unSelectedWhitelabelling.png",
+    },
   ];
 
 
   const styles = {
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
     paymentModal: {
       // height: "auto",
       bgcolor: "transparent",
@@ -375,7 +406,7 @@ const AgencyNavBar = () => {
   return (
     <div>
       <AgentSelectSnackMessage
-        isVisible={showsuccessSnack}
+        isVisible={true}
         hide={() => setShowSuccessSnack(false)}
         message={successSnack}
         type={SnackbarTypes.Success}
@@ -395,7 +426,7 @@ const AgencyNavBar = () => {
             <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
               <CircularProgress size={20} />
               <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
-                {`Checking Stripe status...`}
+                {`Connecting to Stripe...`}
               </div>
             </div>
           </div>
@@ -482,8 +513,8 @@ const AgencyNavBar = () => {
                       src={
                         pathname === item.href ? item.selected : item.uneselected
                       }
-                      height={24}
-                      width={24}
+                      height={item.name === "Activity" ? 16 : 24}
+                      width={item.name === "Activity" ? 16 : 24}
                       alt="icon"
                     />
                     <div
@@ -493,6 +524,7 @@ const AgencyNavBar = () => {
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
                       }}
                     >
                       {item.name}
@@ -530,7 +562,7 @@ const AgencyNavBar = () => {
               textDecoration: "none",
             }}
           >
-            {userDetails?.user?.thumb_profile_image ? (
+            {localUser?.user?.thumb_profile_image ? (
               <div
                 style={{
                   width: "32px",
@@ -550,7 +582,7 @@ const AgencyNavBar = () => {
               </div>
             ) : (
               <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.name.slice(0, 1).toUpperCase()}
+                {localUser?.name.slice(0, 1).toUpperCase()}
               </div>
             )}
 
@@ -565,7 +597,7 @@ const AgencyNavBar = () => {
                   color: "black",
                 }}
               >
-                {userDetails?.name?.split(" ")[0]}
+                {localUser?.name?.split(" ")[0]}
               </div>
               <div
                 className="truncate w-[120px]"
@@ -576,13 +608,118 @@ const AgencyNavBar = () => {
                   textOverflow: "ellipsis",
                 }}
               >
-                {userDetails?.email}
+                {localUser?.email}
               </div>
             </div>
           </Link>
         </div>
       </div>
 
+
+      <Modal open={showPaymentFailedPopup}
+        onClose={() => setShowPaymentFailedPopup(false)}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          }
+        }}
+      >
+        <Box className="flex justify-center items-center w-full h-full">
+          <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+            <div className='flex flex-row justify-between items-center w-full'>
+              <div style={{ fontWeight: "600", fontSize: 22 }}>
+                Payment Failed
+              </div>
+              <CloseBtn
+                onClick={() => setShowPaymentFailedPopup(false)}
+              />
+            </div>
+            <div
+              className="mt-4"
+              style={{
+                fontSize: 16,
+                fontWeight: 400,
+                color: "#000000",
+              }}
+            >
+              Your subscription payment has failed, please update your payment method to prevent service interruption. Your account is at risk of being canceled.
+            </div>
+
+            <div className="w-full">
+              <button
+                className={`bg-purple text-white px-4 h-[40px] rounded-lg mt-4 w-full`}
+                onClick={() => {
+                  setShowAddPaymentPopup(true);
+                  setShowPaymentFailedPopup(false);
+                }}
+              >
+                Update Payment Method
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={showAddPaymentPopup} //addPaymentPopUp
+        // open={true}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12  sm:w-full w-full" sx={styles.paymentModal}>
+          <div className="flex flex-row justify-center items-center w-full h-full">
+            <div
+              className="sm:w-7/12 w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-between items-center">
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                  }}
+                >
+                  Payment Details
+                </div>
+                <CloseBtn
+                  onClick={() => setShowAddPaymentPopup(false)}
+                />
+              </div>
+              <Elements stripe={stripePromise}>
+                <AddCardDetails
+                  //selectedPlan={selectedPlan}
+                  // stop={stop}
+                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                  handleClose={(result) => {
+                    console.log('result is', result)
+                    if(result){
+                      setShowAddPaymentPopup(false)
+                      setSuccessSnack("Payment method updated")
+                    }else{
+                      setShowAddPaymentPopup(false)
+                      setShowErrorSnack("Failed to update payment method")
+                    }
+                  }}
+                // togglePlan={""}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                />
+              </Elements>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 };

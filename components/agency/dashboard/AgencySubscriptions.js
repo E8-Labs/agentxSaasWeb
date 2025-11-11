@@ -31,6 +31,82 @@ import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import moment from "moment";
 
+import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
+
+// Helper function to format numbers with commas
+const formatNumberWithCommas = (num) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to format currency with commas
+const formatCurrency = (num) => {
+  return `$${formatNumberWithCommas(num.toFixed(2))}`;
+};
+
+// Custom Tooltip Component for Plans Chart
+const PlansChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const amount = data.value;
+    const userCount = data.userCount;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        {userCount !== null && userCount !== undefined && (
+          <div style={{ color: "#6b7280", fontSize: "13px", marginBottom: "4px" }}>
+            Count: {userCount}
+          </div>
+        )}
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Amount: {formatCurrency(amount)}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Custom Tooltip Component for Reactivation Rate Chart
+const ReactivationChartTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const planName = data.name;
+    const count = data.value;
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "8px",
+          padding: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div style={{ color: "#7902DF", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
+          {planName}
+        </div>
+        <div style={{ color: "#6b7280", fontSize: "13px" }}>
+          Count: {count}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 function AgencySubscriptions({
   selectedAgency
 }) {
@@ -61,6 +137,7 @@ function AgencySubscriptions({
     moment(currantDate).format("YYYY-MM-DD")
   );
   const [selectedSubRange, setSelectedSubRange] = useState("All Time");
+  const [dateFilter, setDateFilter] = useState(null); // null, 'last7Days', 'last30Days', 'customRange'
 
   const [selectedPlanRange, setSelectedPlanRange] = useState("All Time");
   const [planStartDate, setPlanStartDate] = useState("2025-01-01");
@@ -144,16 +221,23 @@ function AgencySubscriptions({
 
   // Transform data into required format
   const planChartData = Object.keys(analyticData?.activePlansUsers || {}).map(
-    (planName, index) => ({
-      name: planName || "",
-      value: analyticData.activePlansUsers[planName] || 0,
-      color: colors[index % colors.length],
-    })
+    (planName, index) => {
+      const planData = analyticData.activePlansUsers[planName];
+      const revenue = typeof planData === 'object' && planData !== null 
+        ? (planData.revenue || 0) 
+        : (planData || 0); // Fallback for old format
+      return {
+        name: planName || "",
+        value: typeof revenue === 'string' ? parseFloat(revenue) : Number(revenue) || 0,
+        userCount: typeof planData === 'object' && planData !== null ? (planData.userCount || 0) : null,
+        color: colors[index % colors.length],
+      };
+    }
   );
 
   // Calculate max value for plans chart to set Y-axis domain with increments of 1
-  const maxPlanValue = planChartData.length > 0 
-    ? Math.max(...planChartData.map(d => d.value)) 
+  const maxPlanValue = planChartData.length > 0
+    ? Math.max(...planChartData.map(d => d.value))
     : 0;
 
 
@@ -167,8 +251,8 @@ function AgencySubscriptions({
   );
 
   // Calculate max value for reactivation chart to set Y-axis domain with increments of 1
-  const maxReactivationValue = reActivationChartData.length > 0 
-    ? Math.max(...reActivationChartData.map(d => d.value)) 
+  const maxReactivationValue = reActivationChartData.length > 0
+    ? Math.max(...reActivationChartData.map(d => d.value))
     : 0;
 
   const cancellationsRateData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
@@ -213,61 +297,87 @@ function AgencySubscriptions({
     getAdminAnalytics();
   }, []);
 
-  const getAdminAnalytics = async (customeRange = false) => {
-    console.log("Check 1 clear");
+  const getAdminAnalytics = async (filterType = null) => {
     try {
       const data = localStorage.getItem("User");
-      console.log("Check 2 clear");
 
       if (data) {
         let u = JSON.parse(data);
 
-        // console.log(u.token);
-
-        let path = Apis.AdminAnalytics;
-        let seperator = "?"
-        if (customeRange) {
-          path =
-            path + seperator + "startDate=" +
-            subscriptionStartDate +
-            "&endDate=" +
-            subscriptionEndDate;
-
-          seperator = "&"
-
-        }
+        // Call both APIs: AdminAnalytics for all data, and new API for filtered subscription stats
+        let analyticsPath = Apis.AdminAnalytics;
         if (selectedAgency) {
-          path = path + seperator + `userId=${selectedAgency.id}`
+          analyticsPath = `${analyticsPath}?userId=${selectedAgency.id}`;
         }
 
-        console.log("Api path is ", path);
-        const response = await axios.get(path, {
-          headers: {
-            "Authorization": "Bearer " + u.token,
-            "Content-Type": "application/json",
-          },
-        });
+        const [analyticsRes, subscriptionsRes] = await Promise.all([
+          // Get all analytics data
+          axios.get(analyticsPath, {
+            headers: {
+              "Authorization": "Bearer " + u.token,
+              "Content-Type": "application/json",
+            },
+          }),
+          // Get filtered subscription stats
+          (async () => {
+            let path = Apis.getPlanSubscriptions;
+            const params = new URLSearchParams();
 
-        if (response) {
-          console.log("Api response", response);
-          if (response.data.status == true) {
-            console.log("Response of unknown api is", response.data.data);
-            setAnalyticData(response.data.data);
-            const planStats = response.data.data.planSubscriptionStats;
+            // Set dateFilter
+            if (filterType === 'last7Days') {
+              params.set('dateFilter', 'last7Days');
+              setDateFilter('last7Days');
+            } else if (filterType === 'last30Days') {
+              params.set('dateFilter', 'last30Days');
+              setDateFilter('last30Days');
+            } else if (filterType === 'customRange') {
+              params.set('dateFilter', 'customRange');
+              params.set('startDate', subscriptionStartDate);
+              params.set('endDate', subscriptionEndDate);
+              setDateFilter('customRange');
+            } else {
+              // All Time - use last30Days as default
+              params.set('dateFilter', 'last30Days');
+              setDateFilter(null);
+            }
 
-            const planTitles = Object.keys(planStats);
-            setTestPlans(planTitles);
-            console.log("Plan Titles:", planTitles);
+            // Add userId if selectedAgency is provided
+            if (selectedAgency) {
+              params.set('userId', selectedAgency.id);
+            }
 
-          } else {
-            //console.log;
-          }
+            const queryString = params.toString();
+            const fullPath = queryString ? `${path}?${queryString}` : path;
+
+            return axios.get(fullPath, {
+              headers: {
+                "Authorization": "Bearer " + u.token,
+                "Content-Type": "application/json",
+              },
+            });
+          })()
+        ]);
+
+        // Merge data from both APIs
+        if (analyticsRes.data?.status && subscriptionsRes.data?.status) {
+          const analyticsData = analyticsRes.data.data;
+          const subscriptionsData = subscriptionsRes.data.data;
+          
+          setAnalyticData({
+            ...analyticsData,
+            planSubscriptionStats: subscriptionsData.planSubscriptionStats || analyticsData.planSubscriptionStats || {},
+            newSubscriptions: subscriptionsData.newSubscriptions || analyticsData.newSubscriptions || 0,
+            totalSubscriptions: subscriptionsData.totalSubscriptions || analyticsData.totalSubscriptions || 0,
+          });
+          
+          const planStats = subscriptionsData.planSubscriptionStats || analyticsData.planSubscriptionStats || {};
+          const planTitles = Object.keys(planStats);
+          setTestPlans(planTitles);
+          console.log("Plan Titles:", planTitles);
         }
-      } else {
-        //console.log;
       }
     } catch (e) {
-      console.log("Error occured in unknow api is", e);
+      console.log("Error occurred in analytics api:", e);
     }
   };
 
@@ -300,7 +410,7 @@ function AgencySubscriptions({
   };
 
   return (
-    analyticData?.totalSubscriptions? (
+    analyticData?.totalSubscriptions ? (
       <div
         className="flex flex-col items-center justify-center w-full h-[88vh]"
         style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "4rem" }}
@@ -326,7 +436,7 @@ function AgencySubscriptions({
                     setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
                     setSubscriptionStartDate("2025-01-01")
                     setSelectedSubRange("All Time")
-                    getAdminAnalytics(false)
+                    getAdminAnalytics(null)
                     setShowCustomRange(false)
                   }}
                 >
@@ -403,12 +513,31 @@ function AgencySubscriptions({
                               );
                               setSubscriptionStartDate("2025-01-01");
                               setSelectedSubRange("All Time");
-                              getAdminAnalytics(false);
-                              setShowCustomRange(false)
-
+                              getAdminAnalytics(null);
+                              setShowCustomRange(false);
                             }}
                           >
                             All Time
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-100 px-3"
+                            onClick={() => {
+                              setSelectedSubRange("Last 7 Days");
+                              getAdminAnalytics('last7Days');
+                              setShowCustomRange(false);
+                            }}
+                          >
+                            Last 7 Days
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="hover:bg-gray-100 px-3"
+                            onClick={() => {
+                              setSelectedSubRange("Last 30 Days");
+                              getAdminAnalytics('last30Days');
+                              setShowCustomRange(false);
+                            }}
+                          >
+                            Last 30 Days
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
@@ -539,68 +668,63 @@ function AgencySubscriptions({
 
 
                     </div>
+                    {
+                      planChartData.length > 0 ?
+                        (
 
-                    <BarChart
-                      zIndex={1}
-                      width={400}
-                      height={300}
-                      data={planChartData}
-                      margin={{
-                        top: 20,
-                        right: 20,
-                        left: 20,
-                        bottom: 20,
-                      }}
-                    >
-                      {/* X-Axis */}
-                      <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                      />
+                          <BarChart
+                            zIndex={1}
+                            width={400}
+                            height={300}
+                            data={planChartData}
+                            margin={{
+                              top: 20,
+                              right: 20,
+                              left: 20,
+                              bottom: 20,
+                            }}
+                          >
+                            {/* X-Axis */}
+                            <XAxis
+                              dataKey="name"
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                            />
 
-                      {/* Y-Axis */}
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                        domain={[0, maxPlanValue > 0 ? maxPlanValue + 1 : 1]}
-                        allowDecimals={false}
-                        ticks={Array.from({ length: (maxPlanValue > 0 ? maxPlanValue + 2 : 2) }, (_, i) => i)}
-                      />
+                            {/* Y-Axis */}
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                              domain={[0, maxPlanValue > 0 ? maxPlanValue * 1.1 : 1]}
+                              allowDecimals={true}
+                              label={{ value: "Revenue (US$)", angle: -90, position: "insideLeft", style: { textAnchor: "middle", fontSize: 12, fill: "#6b7280",marginLeft: "10px" } }}
+                              tickFormatter={(value) => formatNumberWithCommas(value)}
+                            />
 
-                      {/* Tooltip */}
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: "8px",
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          padding: "10px",
-                        }}
-                        formatter={(value, name, props) => {
-                          const { percentage, count } = props.payload;
-                          if (percentage && count) {
-                            return `${percentage} (${count})`;
-                          }
-                          return value;
-                        }}
-                        labelStyle={{ color: "#6b7280" }}
-                      />
+                            {/* Tooltip */}
+                            <Tooltip content={<PlansChartTooltip />} />
 
-                      {/* Bars */}
-                      {planChartData.length > 0 && (
-                        <Bar
-                          zIndex={1}
-                          dataKey="value"
-                          fill="#7902DF"
-                          isAnimationActive={true}
-                          radius={[4, 4, 0, 0]}
-                          barSize={20}
-                        />
-                      )}
+                            {/* Bars */}
+                            {planChartData.length > 0 && (
+                              <Bar
+                                zIndex={1}
+                                dataKey="value"
+                                fill="#7902DF"
+                                isAnimationActive={true}
+                                radius={[4, 4, 0, 0]}
+                                barSize={20}
+                              />
+                            )}
 
-                    </BarChart>
+                          </BarChart>
+                        ) : (
+                          <div className="mt-10">
+                            Not enough data available.
+                          </div>
+                        )
+                    }
                   </div>
                 </div>
 
@@ -633,81 +757,75 @@ function AgencySubscriptions({
                       </div>
 
                     </div>
-
-                    <BarChart
-                      zIndex={1}
-                      width={400}
-                      height={300}
-                      data={reActivationChartData}
-                      margin={{
-                        top: 20,
-                        right: 20,
-                        left: 20,
-                        bottom: 20,
-                      }}
-                    >
-                      {/* X-Axis */}
-                      <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                      />
-
-                      {/* Y-Axis */}
-                      <YAxis
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 12, fill: "#6b7280" }}
-                        domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
-                        allowDecimals={false}
-                        ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
-                      />
-
-                      {/* Tooltip */}
-                      <Tooltip
-                        contentStyle={{
-                          borderRadius: "8px",
-                          backgroundColor: "white",
-                          border: "1px solid #e5e7eb",
-                          padding: "10px",
-                        }}
-                        formatter={(value, name, props) => {
-                          const { percentage, count } = props.payload;
-                          if (percentage && count) {
-                            return `${percentage} (${count})`;
-                          }
-                          return value;
-                        }}
-                        labelStyle={{ color: "#6b7280" }}
-                      />
-
-                      {/* Bars */}
-                      {
-                        reActivationChartData.length > 0 ? (
-                          <Bar
+                    {
+                      reActivationChartData.length > 0 ?
+                        (
+                          <BarChart
                             zIndex={1}
-                            dataKey="value"
-                            fill="#7902DF"
-                            radius={[4, 4, 0, 0]}
-                            barSize={20}
-                          />
-                        ) : (
-                          <Bar
-                            dataKey="fallback"
-                            fill="#ccc"
-                            radius={[4, 4, 0, 0]}
-                            barSize={20}
-                            isAnimationActive={false}
-                            data={[
-                              { name: "No User", fallback: 2 },
-                              { name: "No User", fallback: 1 }
-                            ]}
-                          />
-                        )
-                      }
+                            width={400}
+                            height={300}
+                            data={reActivationChartData}
+                            margin={{
+                              top: 20,
+                              right: 20,
+                              left: 20,
+                              bottom: 20,
+                            }}
+                          >
+                            {/* X-Axis */}
+                            <XAxis
+                              dataKey="name"
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                            />
 
-                    </BarChart>
+                            {/* Y-Axis */}
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fontSize: 12, fill: "#6b7280" }}
+                              domain={[0, maxReactivationValue > 0 ? maxReactivationValue + 1 : 1]}
+                              allowDecimals={false}
+                              ticks={Array.from({ length: (maxReactivationValue > 0 ? maxReactivationValue + 2 : 2) }, (_, i) => i)}
+                            />
+
+                            {/* Tooltip */}
+                            <Tooltip content={<ReactivationChartTooltip />} />
+
+                            {/* Bars */}
+                            {
+                              reActivationChartData.length > 0 ? (
+                                <Bar
+                                  zIndex={1}
+                                  dataKey="value"
+                                  fill="#7902DF"
+                                  radius={[4, 4, 0, 0]}
+                                  barSize={20}
+                                />
+                              ) : (
+                                <Bar
+                                  dataKey="fallback"
+                                  fill="#ccc"
+                                  radius={[4, 4, 0, 0]}
+                                  barSize={20}
+                                  isAnimationActive={false}
+                                  data={[
+                                    { name: "No User", fallback: 2 },
+                                    { name: "No User", fallback: 1 }
+                                  ]}
+                                />
+                              )
+                            }
+
+                          </BarChart>
+                        ) : (
+                          <div className="mt-10">
+                            Not enough data available.
+                          </div>
+                        )
+                    }
+
                   </div>
                 </div>
               </div>
@@ -912,36 +1030,33 @@ function AgencySubscriptions({
               </div>
             </div>
 
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">MRR</h3>
-
-
-              </div>
-
-              {/* Value */}
+            {/*
               <div
-                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                style={{ border: "2px solid white" }}
+                className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
               >
-                ${analyticData?.mrr}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-purple">MRR</h3>
+                </div>
+  
+                <div
+                  style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                >
+                  ${analyticData?.mrr}
+                </div>
+  
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    fontSize: 15,
+                    fontWeight: "700",
+                    color: "#000",
+                  }}
+                >
+                Monthly Recurring Revenue
+                </div>
               </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-              Monthly Recurring Revenue
-              </div>
-            </div>
+            */}
 
             <div
               style={{ border: "2px solid white" }}
@@ -973,36 +1088,34 @@ function AgencySubscriptions({
                 Annual Recurring Revenue (ARR)
               </div>
             </div>
-            <div
-              style={{ border: "2px solid white" }}
-              className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
-            >
-              {/* Title */}
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-purple">NRR</h3>
 
-
-              </div>
-
-              {/* Value */}
+            {/*
               <div
-                style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                style={{ border: "2px solid white" }}
+                className="flex flex-col justify-between p-4 bg-[#ffffff68] w-[18vw] rounded-lg"
               >
-                ${analyticData?.nrr}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-purple">NRR</h3>
+                </div>
+  
+                <div
+                  style={{ whiteSpace: "nowrap", fontSize: 23, fontWeight: "500" }}
+                >
+                  ${analyticData?.nrr}
+                </div>
+  
+                <div
+                  style={{
+                    whiteSpace: "nowrap",
+                    fontSize: 15,
+                    fontWeight: "700",
+                    color: "#000",
+                  }}
+                >
+                  Net Revenue Retention (NRR)
+                </div>
               </div>
-
-              {/* Subtitle */}
-              <div
-                style={{
-                  whiteSpace: "nowrap",
-                  fontSize: 15,
-                  fontWeight: "700",
-                  color: "#000",
-                }}
-              >
-                Net Revenue Retention (NRR)
-              </div>
-            </div>
+            */}
           </div>
 
         </div>
@@ -1081,9 +1194,9 @@ function AgencySubscriptions({
                   className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                   style={{ height: "50px" }}
                   onClick={() => {
-                    getAdminAnalytics(true);
+                    getAdminAnalytics('customRange');
                     setShowCustomRangePopup(null);
-                    setShowCustomRange(true)
+                    setShowCustomRange(true);
                   }}
                 >
                   Continue
@@ -1094,12 +1207,7 @@ function AgencySubscriptions({
         </Modal>
       </div>
     ) : (
-      <div className="w-[90%] h-[84svh] flex items-center justify-center ml-5">
-        <Image
-          alt="placeholder" src="/agencyIcons/activityPlaceholder.png" width={900} height={900}
-          style={{ width: "100%", height: "100%" }}
-        />
-      </div>
+      <AgencyDashboardDefaultUI />
     )
   );
 }

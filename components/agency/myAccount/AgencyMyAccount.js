@@ -28,7 +28,7 @@ function AgencyMyAccount({
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(1);
+  const [tabSelected, setTabSelected] = useState(2);
 
   const manuBar = [
     {
@@ -51,7 +51,7 @@ function AgencyMyAccount({
     },
     {
       id: 4,
-      heading: "Terms & Condition",
+      heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
@@ -75,11 +75,11 @@ function AgencyMyAccount({
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
     console.log("Value of tab is", tab);
-    let number = Number(tab) || 1;
+    let number = Number(tab) || 2;
     // //console.log;
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(1);
+      setParamsInSearchBar(2);
     }
   }, []);
 

@@ -35,6 +35,7 @@ import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import AdminActiveCalls from "../activeCalls/AdminActiveCalls";
 import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
+import AdminCallAnalytics from "./AdminCallAnalytics";
 
 function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const LimitPerPage = 30;
@@ -443,7 +444,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           className="pl-10 mt-5"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
-          {"Activities"}
+          {"Activity"}
         </div>
         {
           !selectedAgency && (
@@ -559,7 +560,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Activities", "Campaign Activities"].map((tab) => (//, "Scheduled"
+        {["All Activities", "Campaign Activities", "Call Analytics"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -586,6 +587,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             onFiltersApplied={() => {
               // This callback can be used to refresh if needed
             }}
+          />
+        ) : activeTab === "Call Analytics" ? (
+          <AdminCallAnalytics
+            selectedAgency={selectedAgency}
+            isFromAgency={isFromAgency}
           />
         ) : activeTab === "All Activities" ? (
           <div className="w-full">
@@ -637,41 +643,41 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
 
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agency Name</div>
                       </div>
 
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Sub Account</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agent</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0 ">
+                      <div className="w-[200px] flex-shrink-0 ">
                         <div style={styles.text}>Contact</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Pipeline</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Stage</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Type</div>
                       </div>
 
-                      <div className="min-w-[200px] flex-shrink-0">
+                      <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Status</div>
                       </div>
-                      <div className="min-w-[400px] flex-shrink-0">
+                      <div className="w-[400px] flex-shrink-0">
                         <div style={styles.text}>Date</div>
                       </div>
                       {/*
-                        <div className="min-w-[200px] flex-shrink-0">
+                        <div className="w-[200px] flex-shrink-0">
                           <div style={styles.text}>Time</div>
                         </div>
                       */}
-                      <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                      <div className="w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                         <div style={styles.text}>More</div>
                       </div>
                     </div>
@@ -687,21 +693,21 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
                               <div style={styles.text2}>
                                 {item.agency?.name || "-"}
                               </div>
                             </div>
 
-                            <div className="w-[200px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
+                            <div className="w-[200px] pr-3 flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
                                 {
                                   item.user?.name
                                   || "-"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
-                              <div style={styles.text2}>
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
+                              <div style={styles.text2} className="truncate  w-full">
                                 {item.agent?.name ? (
                                   <div>{item.agent.name}</div>
                                 ) : (
@@ -709,8 +715,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 )}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0 truncate">
-                              <div style={styles.text2}>
+                            <div className="w-[200px] flex-shrink-0 pr-3 truncate">
+                              <div style={styles.text2} className="truncate">
                                 {item.LeadModel?.phone ? (
                                   <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
                                 ) : (
@@ -719,38 +725,38 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipeline ? item?.pipeline?.title : "-"}
                               </div>
                             </div>
 
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.callOutcome ? item?.callOutcome : "-"}
                               </div>
                             </div>
 
-                            <div className="min-w-[400px] flex-shrink-0 truncate ">
+                            <div className="w-[400px] flex-shrink-0 truncate ">
                               <div style={styles.text2}>
                                 {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                               </div>
                             </div>
 
-                            <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                            <div className="w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                               <button
                                 onClick={() => {
                                   setselectedLeadsDetails(item);

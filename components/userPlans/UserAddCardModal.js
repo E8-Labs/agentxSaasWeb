@@ -317,7 +317,7 @@ const UserAddCard = ({
                 plan: planType,
             };
 
-            if (isFrom == "SubAccount") {
+            if (isFrom == "SubAccount" || isFrom == "Agency") {
                 ApiData = {
                     planId: selectedPlan.id
                 }
@@ -327,6 +327,8 @@ const UserAddCard = ({
 
             let ApiPath = Apis.subscribePlan;
             if (isFrom == "SubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            }else if(isFrom == "Agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             // //console.log;

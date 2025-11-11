@@ -533,7 +533,7 @@ function UpgradePlanContent({
                     switch (plan.billingCycle || plan.duration) {
                         case "monthly":
                             monthly.push(plan);
-                            if (!plan.discountPrice) {
+                            if (plan.discountedPrice === 0) {
                                 freePlan = plan;
                             }
                             break;
@@ -612,7 +612,7 @@ function UpgradePlanContent({
             return;
         }
         console.log("Selected plan index is", index, item);
-        setSelectedPlan(item);
+        // setSelectedPlan(item);
         // setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setCurrentSelectedPlan(item);
@@ -916,7 +916,7 @@ function UpgradePlanContent({
             let ApiData = {
                 plan: planType,
             };
-            if (from === "SubAccount") {
+            if (from === "SubAccount"||(UserLocalData?.userRole === "AgencySubAccount")) {
                 ApiData = {
                     planId: currentSelectedPlan?.id
                 }
@@ -952,6 +952,8 @@ function UpgradePlanContent({
             if (selectedUser) {
                 ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
             }
+
+            console.log("Api path is", ApiPath);
 
             //headers for api
             let headers = {
@@ -1443,7 +1445,7 @@ function UpgradePlanContent({
                                                         <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
+                                                        {currentSelectedPlan ? `$${formatFractional2(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice))}` : "$0"}
                                                     </div>
                                                 </div>
 

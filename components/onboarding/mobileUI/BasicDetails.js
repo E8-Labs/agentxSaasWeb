@@ -471,10 +471,10 @@ const BasicDetails = ({
 
   return (
     <div
-      style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-col justify-center items-center h-[100svh] "
+      style={{ width: "100%",scrollbarWidth:'none'}}
+      className="overflow-y-auto flex flex-col justify-center items-center h-[100svh]"
     >
-      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[90%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[90%] sm:max-h-[90%] py-4 overflow-hidden scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header h-[84svh]*/}
           <div className="h-[10%]">
@@ -490,7 +490,7 @@ const BasicDetails = ({
               Your Contact Information
             </div>
             <div
-              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-hidden scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
               style={{ scrollbarWidth: "none" }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>

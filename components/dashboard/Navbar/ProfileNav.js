@@ -49,6 +49,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -108,6 +109,10 @@ const ProfileNav = () => {
   const [showLowMinsModal, setShowLowMinsModal] = useState(false);
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
   const [loading, setLoading] = useState(false);
+  const [localUser, setLocalUser] = useState(null);
+
+
+
   useEffect(() => {
     console.log("Search url is", pathname);
     if (pathname === '/dashboard') {
@@ -146,6 +151,11 @@ const ProfileNav = () => {
   // }, []);
 
   useEffect(() => {
+    const local = localStorage.getItem("User");
+    if (local) {
+      const parsed = JSON.parse(local);
+      setLocalUser(parsed.user);
+    }
     const testNot = async () => {
       try {
         const localData = localStorage.getItem("User");
@@ -365,21 +375,20 @@ const ProfileNav = () => {
 
   const checkTrialDays = (userData) => {
     if (userData?.isTrial) {
-      const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
-      const today = moment();
-      const totalTrialDays = userData?.plan?.trialValidForDays;
-      // const totalTrialDays = 10;
+      // nextChargeDate is the trial END date (when the trial expires)
+      const trialEnd = moment(userData?.nextChargeDate || new Date());
+      const today = moment().startOf('day'); // Start of day for accurate day counting
+      const trialEndStartOfDay = trialEnd.startOf('day');
+      
+      // Calculate days remaining: trialEnd - today
+      // This gives positive number when trial hasn't ended yet
+      let daysLeft = trialEndStartOfDay.diff(today, "days");
 
-      // Calculate how many full days have passed since start
-      const daysElapsed = today.diff(trialStart, "days");
+      // Ensure daysLeft is never negative (trial already ended)
+      daysLeft = Math.max(daysLeft, 0);
 
-      // Calculate how many trial days remain
-      const daysLeft = Math.max(totalTrialDays - daysElapsed, 0);
-
-      console.log(`Trial days total: ${totalTrialDays}`);
-      console.log(`Trial days started: ${trialStart.format("MMMM DD")}`);
+      console.log(`Trial ends at: ${trialEnd.format("MMMM DD")}`);
       console.log(`Trial days Today: ${today.format("MMMM DD")}`);
-      console.log(`Trial days Days elapsed: ${daysElapsed}`);
       console.log(`Trial days Days left: ${daysLeft}`);
 
       return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
@@ -785,14 +794,9 @@ const ProfileNav = () => {
           }
           if (
             Data?.userRole === "AgencySubAccount" &&
-            (Data?.plan == null ||
-              (Data?.plan &&
-                Data?.plan?.status !== "active" &&
-                isBalanceLow)
-              ||
-              (Data?.plan &&
-                Data?.plan?.status === "active" &&
-                isBalanceLow))
+            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active" ))
+              // ||
+              // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
             console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
               userRole: Data?.userRole,
@@ -840,7 +844,7 @@ const ProfileNav = () => {
             ) {
               console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-            } else if (isBalanceLow && (Data?.plan?.price !== 0 || Data?.smartRefill === false)) {
+            } else if (isBalanceLow && (Data?.plan?.price === 0 || Data?.smartRefill === false)) {
               console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
@@ -1115,6 +1119,24 @@ const ProfileNav = () => {
     }
   };
 
+  const handleSmartRefill = async () => {
+    setLoading(true);
+    let response = await SmartRefillApi();
+    if (response.data.status === true) {
+      setLoading(false);
+      setShowUpgradePlanBar(false);
+      setShowFailedPaymentBar(false);
+      setShowPlanPausedBar(false);
+      setShowSuccessSnack(true);
+      setSuccessSnack(response.data.message);
+      await refreshUserData();
+    } else {
+      setLoading(false);
+      setShowErrorSnack(true);
+      setErrorSnack(response.data.message);
+    }
+  }
+
   const resumeAccount = async () => {
     setLoading(true);
 
@@ -1136,6 +1158,11 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           await getProfile();
           setShowPlanPausedBar(false);
+          
+          // Dispatch event to notify other components that subscription has been resumed
+          window.dispatchEvent(
+            new CustomEvent("subscriptionResumed", { detail: { update: true } })
+          );
         } else {
           setShowErrorSnack(true);
           setErrorSnack(response.data.message);
@@ -1168,7 +1195,7 @@ const ProfileNav = () => {
         {
           showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
-              {`Your account is paused. Click here to resume`} <span
+              {`Your account is paused. Click here to`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
                   resumeAccount()
@@ -1202,10 +1229,10 @@ const ProfileNav = () => {
                       {reduxUser?.smartRefill === false && (<span
                         className="text-purple underline cursor-pointer"
                         onClick={() => {
-                          router.push('/dashboard/myAccount?tab=2')
+                          handleSmartRefill();
                         }}
                       >
-                        Turn on Smart Refill <span> or </span>
+                      {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
                       </span>)}  <span
                         className="text-purple underline cursor-pointer"
                         onClick={() => {
@@ -1735,7 +1762,7 @@ const ProfileNav = () => {
         <UpgradeModal
           open={showUpgradePlanModal}
           handleClose={() => setShowUpgradePlanModal(false)}
-          title={"You've Hit Your 20 Minute Limit"}
+          title={"You've Hit Your AI credits Limit"}
           subTitle={"Upgrade to get more call time and keep your converstaions going"}
           buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
         />

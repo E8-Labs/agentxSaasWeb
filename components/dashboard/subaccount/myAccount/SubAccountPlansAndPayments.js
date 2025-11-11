@@ -35,6 +35,8 @@ import UserPlans from "@/components/userPlans/UserPlans";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { useUser } from "@/hooks/redux-hooks";
+import CancelConfirmation from "@/components/myAccount/cancelationFlow/CancelConfirmation";
+import CancelPlanAnimation from "@/components/myAccount/cancelationFlow/CancelPlanAdnimation";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -78,6 +80,10 @@ function SubAccountPlansAndPayments({
     //snack messages variables
     const [successSnack, setSuccessSnack] = useState(null);
     const [errorSnack, setErrorSnack] = useState(null);
+    const [showSnack, setShowSnack] = useState({
+        message: null,
+        type: null
+    });
 
     //variables for cancel plan
     const [giftPopup, setGiftPopup] = useState(false);
@@ -85,6 +91,9 @@ function SubAccountPlansAndPayments({
     const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] = useState(false);
     const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
+    const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+    const [showCancelPopup, setShowCancelPopup] = useState(false);
+    const [cancelInitiateLoader, setCancelInitiateLoader] = useState(false);
 
     const [plans, setPlans] = useState([])
     const [initialLoader, setInitialLoader] = useState(false);
@@ -124,6 +133,7 @@ function SubAccountPlansAndPayments({
     //plans details
     const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
 
+    const [confirmChecked, setConfirmChecked] = useState(false);
 
     useEffect(() => {
         console.log('current full plan in subaccount plans and payments', currentPlanDetails)
@@ -531,19 +541,45 @@ function SubAccountPlansAndPayments({
         // setTogglePlan(prevId => (prevId === id ? null : id));
     };
 
-    //handle cancel pla click
-    const handleCancelPlanClick = () => {
-        if (
-            userLocalData?.isTrial === false &&
-            userLocalData?.cancelPlanRedemptions === 0
-        ) {
-            // //console.log;
-            setGiftPopup(true);
-        } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
-        else {
-            // //console.log;
-            setShowConfirmCancelPlanPopup(true);
+    //handle cancel plan click
+    const handleCancelPlanClick = async () => {
+        setCancelInitiateLoader(true);
+        try {
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            // Use initiateCancellation from UserPlanServices, but we need to call API directly for subaccounts
+            let ApiPath = Apis.initiateCancelation;
+            if (selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
+
+            await axios.post(ApiPath, {}, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            setShowCancelPopup(true);
+        } catch (error) {
+            console.error("Error initiating cancellation:", error);
+            setErrorSnack("Failed to initiate cancellation");
+        } finally {
+            setCancelInitiateLoader(false);
         }
+    }
+
+    const handleCloseCancelation = async () => {
+        setShowCancelPopup(false);
+        await getProfile();
+        // Refresh payment history and cards after cancellation
+        await getPaymentHistory();
+        await getCardsList();
     }
 
     //function to subscribe plan
@@ -683,19 +719,13 @@ function SubAccountPlansAndPayments({
                 AuthToken = LocalDetails.token;
             }
 
-            const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`;
+            const ApiPath = Apis.cancelPlan
 
-            // //console.log;
-
-            //// //console.log;
-            // //console.log;
-
-            const ApiData = {
-                // patanai: "Sari dunya",
-            };
-
+            if (selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
             // return
-            const response = await axios.post(ApiPath, ApiData, {
+            const response = await axios.post(ApiPath, {}, {
                 headers: {
                     Authorization: "Bearer " + AuthToken,
                     "Content-Type": "application/json",
@@ -705,7 +735,7 @@ function SubAccountPlansAndPayments({
             if (response) {
                 //console.log;
                 if (response.data.status === true) {
-                    // //console.log;
+                    console.log("Plan cancellation ", response.data);
                     // window.location.reload();
                     await getProfileDetails();
                     setShowConfirmCancelPlanPopup(false);
@@ -719,8 +749,10 @@ function SubAccountPlansAndPayments({
                     let user = userLocalData
                     user.plan.status = "cancelled"
                     setUserLocalData(user)
+                    await getProfile();
                     //console.log
-                    setSuccessSnack("Your plan was successfully cancelled");
+                    setSuccessSnack("Account canceled");
+
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }
@@ -783,7 +815,7 @@ function SubAccountPlansAndPayments({
                     setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
                     setSelectedPlan(response2?.data?.data?.plan);
                     if (response2.data.status === true) {
-                        setSuccessSnack("You've claimed an extra 30 mins");
+                        setSuccessSnack("You've claimed 30 AI Credits");
                     } else if (response2.data.status === false) {
                         setErrorSnack(response2.data.message);
                     }
@@ -860,7 +892,7 @@ function SubAccountPlansAndPayments({
                     //console.log;
                     if (response.data.status === true) {
                         setShowConfirmCancelPlanPopup2(false);
-                        setSuccessSnack(response.data.message);
+                        setSuccessSnack("Reason submitted");
                     } else if (response.data.status === true) {
                         setErrorSnack(response.data.message);
                     }
@@ -879,8 +911,9 @@ function SubAccountPlansAndPayments({
     const planTitleTag = () => {
 
         console.log("Current plan id is", currentPlan);
-        console.log("Toggle plan id is", selectedPlan?.sequenceId);
+        console.log("Toggle plan id is", selectedPlan);
         console.log("Current plan sequence id is", currentPlanSequenceId);
+
 
         // if (!selectedPlan?.sequenceId) return "Select other Plan";
 
@@ -888,6 +921,10 @@ function SubAccountPlansAndPayments({
         //     console.log("Plan status is Current");
         //     return "Current Plan";
         // }
+
+        if(currentPlanDetails?.status === "cancelled") {
+            return "";
+        }
 
         // check if selected togglePlan is higher id than currentPlan → Upgrade
         if (selectedPlan?.sequenceId > currentPlanSequenceId) {
@@ -929,6 +966,14 @@ function SubAccountPlansAndPayments({
                 }}
                 message={successSnack}
                 type={SnackbarTypes.Success}
+            />
+            <AgentSelectSnackMessage
+                isVisible={showSnack.message != null}
+                hide={() => {
+                    setShowSnack({ message: null, type: null });
+                }}
+                message={showSnack.message}
+                type={showSnack.type}
             />
             <div className="w-full flex flex-row items-center justify-between">
                 <div className="flex flex-col">
@@ -1099,139 +1144,6 @@ function SubAccountPlansAndPayments({
 
             {/* code for current plans available */}
 
-            {/*plans?.map((item, index) => (
-                <button
-                    key={item.id}
-                    className="w-9/12 mt-4 outline-none"
-                    onClick={(e) => handleTogglePlanClick(item)}
-                >
-                    {item.hasTrial && (
-                        <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
-                            <div className="flex flex-row items-center gap-2">
-                                <Image
-                                    src={"/otherAssets/batchIcon.png"}
-                                    alt="*"
-                                    height={24}
-                                    width={24}
-                                />
-                                <div
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 18,
-                                        color: "white",
-                                    }}
-                                >
-                                    First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    <div
-                        className={`px-4 py-1 pb-4 ${item.hasTrial ? "rounded-b-lg" : "rounded-lg"}`}
-                        style={{
-                            ...styles.pricingBox,
-                            border:
-                                item.id === togglePlan
-                                    ? "2px solid #7902DF"
-                                    : "1px solid #15151520",
-                            backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                        }}
-                    >
-                        <div
-                            style={{ ...styles.triangleLabel, borderTopRightRadius: item.hasTrial ? "0px" : "7px" }}
-                        ></div>
-                        <span style={styles.labelText}>{item.percentageDiscount}</span>
-                        <div
-                            className="flex flex-row items-start gap-3"
-                            style={styles.content}
-                        >
-                            <div className="mt-1">
-                                <div>
-                                    {item.id === togglePlan ? (
-                                        <Image
-                                            src={"/svgIcons/checkMark.svg"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    ) : (
-                                        <Image
-                                            src={"/svgIcons/unCheck.svg"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            <div className="w-full">
-                                {item.id === currentPlan && (
-                                    <div
-                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 11.6,
-                                            fontWeight: "500",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
-                                    </div>
-                                )}
-
-                                <div className="flex flex-row items-center gap-3">
-                                    <div className="flex flex-row items-center gap-4">
-                                        <div
-                                            style={{
-                                                color: "#151515",
-                                                fontSize: 20,
-                                                fontWeight: "600",
-                                            }}
-                                        >
-                                            {item.title} | {item.minutes} mins
-                                        </div>
-                                        {item.tag && (
-                                            <div className="bg-purple text-white px-4 py-1 rounded-full">
-                                                {item.tag}
-                                            </div>
-                                        )}
-                                    </div>
-                                    {item.status && (
-                                        <div
-                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                            style={{ fontSize: 11.6, fontWeight: "500" }}
-                                        >
-                                            {item.status}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-row items-center justify-between">
-                                    <div
-                                        className="mt-2"
-                                        style={{
-                                            color: "#15151590",
-                                            fontSize: 12,
-                                            width: "60%",
-                                            fontWeight: "600",
-                                        }}
-                                    >
-                                        {item.planDescription}
-                                    </div>
-                                    <div className="flex flex-row items-center">
-
-                                        <div className="flex flex-row justify-start items-start ">
-                                            <div style={styles.discountedPrice}>
-                                                ${formatFractional2(item.discountedPrice)}
-                                            </div>
-                                            <p style={{ color: "#15151580" }}>/mo*</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </button>
-            ))*/}
-
             {
                 (
                     // count how many have length > 0
@@ -1330,14 +1242,27 @@ function SubAccountPlansAndPayments({
                                         */}
                                         <div>
                                             {
-                                                item.id === currentPlan && userLocalData?.nextChargeDate && (
-                                                    <div style={{
-                                                        fontSize: 11.6,
-                                                        fontWeight: "500",
-                                                        width: "fit-content",
-                                                    }}>
-                                                        Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
-                                                    </div>
+                                                item.id === currentPlan && (
+                                                    userLocalData?.plan?.status === "cancelled" ? (
+                                                        <div
+                                                            className="flex px-2 py-1 bg-red-500 rounded-full text-white"
+                                                            style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}
+                                                        >
+                                                            Cancelled
+                                                        </div>
+                                                    ) : userLocalData?.nextChargeDate ? (
+                                                        <div style={{
+                                                            fontSize: 11.6,
+                                                            fontWeight: "500",
+                                                            width: "fit-content",
+                                                        }}>
+                                                            Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
+                                                        </div>
+                                                    ) : null
                                                 )
                                             }
                                         </div>
@@ -1378,7 +1303,7 @@ function SubAccountPlansAndPayments({
                                             msOverflowStyle: "none", // IE/Edge
                                         }}
                                     >
-                                        {item.features && item.features.length > 0 && (
+                                        {Array.isArray(item.features) && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
                                                     {item.features.slice(0, 6).map((feature, featureIndex) => (
@@ -1440,7 +1365,7 @@ function SubAccountPlansAndPayments({
 
                                 <div className="flex flex-row items-center justify-between w-full">
                                     <div>
-                                        {item.id === currentPlan && (
+                                        {item.id === currentPlan &&   userLocalData?.plan?.status !== "cancelled" && (
                                             <div
                                                 className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
                                                 style={{
@@ -1514,6 +1439,7 @@ function SubAccountPlansAndPayments({
                                     // handleSubscribePlan();
                                 }
                             }}
+                            disabled={cancelInitiateLoader}
                         >
                             {planTitleTag()}
                         </button>
@@ -1565,11 +1491,12 @@ function SubAccountPlansAndPayments({
                     selectedUser={selectedUser}
                     allPlans={plans}
                     handleClose={async (upgradeResult) => {
+                        console.log("selectedPlan in subaccount", selectedPlan);
                         setShowUpgradeModal(false);
 
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
+                            // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             getProfile();
                         }
@@ -1645,6 +1572,44 @@ function SubAccountPlansAndPayments({
                     />
                 )
             }
+
+            {/* Features to lose window (Cancel Confirmation) */}
+            <Modal
+                open={showCancelConfirmation}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000030",
+                    },
+                }}
+            >
+                <Box
+                    className="md:w-8/12 lg:w-7/12 sm:w-11/12 w-full"
+                    sx={styles.paymentModal}
+                >
+                    <div className="bg-white rounded-2xl p-6 max-w-4xl w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                        <div className='flex flex-row justify-between items-center w-full mb-4'>
+                            <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                {`What You'll Lose`}
+                            </div>
+                            <CloseBtn
+                                onClick={() => setShowCancelConfirmation(false)}
+                            />
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <CancelConfirmation
+                                handleContinue={(nextAction) => {
+                                    if (nextAction === "finalStep") {
+                                        setShowCancelConfirmation(false);
+                                        setShowConfirmCancelPlanPopup(true);
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
 
             {/* Add Payment Modal */}
             <Modal
@@ -1761,7 +1726,7 @@ function SubAccountPlansAndPayments({
                                         alignSelf: "center",
                                     }}
                                 >
-                                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                                    {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
                                 </div>
                             </div>
 
@@ -1815,7 +1780,7 @@ function SubAccountPlansAndPayments({
                                             fontWeight: "700",
                                         }}
                                     >
-                                        Mins
+                                        AI Credits
                                     </div>
                                 </div>
                                 {redeemLoader ? (
@@ -1833,7 +1798,7 @@ function SubAccountPlansAndPayments({
                                         }}
                                         onClick={handleRedeemPlan}
                                     >
-                                        Claim my 30 minutes
+                                        Claim my 30 AI Credits
                                     </button>
                                 )}
                                 <button
@@ -1843,10 +1808,11 @@ function SubAccountPlansAndPayments({
                                         fontSize: 16.8,
                                     }}
                                     onClick={() => {
-                                        setShowConfirmCancelPlanPopup(true);
+                                        setGiftPopup(false);
+                                        setShowCancelConfirmation(true);
                                     }}
                                 >
-                                    {`No thank you, I’d like to cancel my Agentx`}
+                                    {`No thank you, I'd like to cancel my AssignX`}
                                 </button>
                             </div>
                         </div>
@@ -1911,7 +1877,7 @@ function SubAccountPlansAndPayments({
                                         alignSelf: "center",
                                     }}
                                 >
-                                    Canceling your AgentX means you lose access to your agents,
+                                    Canceling your AssignX means you lose access to your agents,
                                     leads, pipeline, staff and more.
                                 </div>
                             </div>
@@ -1923,8 +1889,9 @@ function SubAccountPlansAndPayments({
                                     fontSize: 16.8,
                                     outline: "none",
                                 }}
+                                onClick={() => setShowConfirmCancelPlanPopup(false)}
                             >
-                                Never mind, keep my AgentX
+                                Never mind, keep my AssignX
                             </button>
 
                             {cancelPlanLoader ? (
@@ -1985,7 +1952,7 @@ function SubAccountPlansAndPayments({
                                         paddingLeft: "12px",
                                     }}
                                 >
-                                    Cancel Plan
+
                                 </div>
                                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                                     <Image
@@ -2014,7 +1981,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                AgentX Successfully Canceled
+                                Account Successfully Canceled
                             </div>
 
                             <div
@@ -2025,7 +1992,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 30,
                                 }}
                             >
-                                {`Tell us why you’re canceling to better improve our platform for you.`}
+                                {`Tell us why you're cancelling so we can improve.`}
                             </div>
 
                             <div className="w-full flex flex-row items-center justify-center">
@@ -2140,6 +2107,17 @@ function SubAccountPlansAndPayments({
                     </div>
                 </Box>
             </Modal>
+
+            {/* Cancel Plan Animation Modal */}
+            <CancelPlanAnimation
+                showModal={showCancelPopup}
+                handleClose={handleCloseCancelation}
+                userLocalData={userLocalData}
+                setShowSnak={setShowSnack}
+                isPaused={false}
+                isSubaccount={true}
+                selectedUser={selectedUser}
+            />
         </div>
     );
 }

@@ -209,7 +209,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   
     setLoading(true);
     try {
-      let token = AuthToken()
+      let token = AuthToken();
       const response = await axios.post(Apis.AddKnowledgebase, formData, {
         headers: {
           Authorization: `Bearer ${token}`,

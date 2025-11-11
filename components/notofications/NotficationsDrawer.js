@@ -396,6 +396,27 @@ function NotficationsDrawer({ close }) {
       return (
         <Image src={"/svgIcons/2Listings.svg"} height={22} width={22} alt="*" />
       );
+    }else if (item.type === NotificationTypes.PlanUpgraded || item.type === NotificationTypes.PlanSubscribed) {
+      return (
+        <Image src={"/svgIcons/chevrons-up.svg"} height={22} width={22} alt="*" />
+      );
+    }else if (item.type === NotificationTypes.PlanDowngraded) {
+      return (
+        <Image src={"/svgIcons/chevrons-down.svg"} height={22} width={22} alt="*" />
+      );
+    }else if (item.type === NotificationTypes.PlanCancelled) {
+      return (
+        <Image src={"/svgIcons/cancel.svg"} height={22} width={22} alt="*" />
+      );
+    }else if (item.type === NotificationTypes.AccountPaused) {
+      return (
+        <Image src={"/svgIcons/pause.svg"} height={22} width={22} alt="*" />
+      );
+    }
+    else if (item.type === NotificationTypes.AccountResumed) {
+      return (
+        <Image src={"/svgIcons/resume.svg"} height={22} width={22} alt="*" />
+      );
     }
 
     //2Listings

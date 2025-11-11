@@ -283,7 +283,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           // alert("This is working function") 
           if (isFrom === "UpgradePlanForTeam") {
             handleClose();
-          } else if (subaccount) {
+          } else if (handleContinue && subaccount) {
             handleContinue()
           } else {
             setPlanSubscribed(true);

@@ -92,30 +92,31 @@ const UpgradeModal = ({
                                     }
                                 />
                             </div>
-                            <div className='w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[80vh]'>
 
-                                <div className="flex flex-row items-center justify-center gap-4">
-                                    <div
-                                        className="text-purple"
-                                        style={{ fontSize: "29px", fontWeight: "700" }}
-                                    >
-                                        {title}
-                                    </div>
-                                    <Image
-                                        alt="*"
-                                        src={"/otherAssets/starsIcon2.png"}
-                                        height={28}
-                                        width={26}
-                                    />
-                                </div>
+                            <div className="flex flex-row items-center justify-center gap-4">
                                 <div
-                                    className=""
-                                    style={{ fontSize: "13px", fontWeight: "400", color: "#00000050" }}>
-                                    {subTitle}
+                                    className="text-purple"
+                                    style={{ fontSize: "29px", fontWeight: "700" }}
+                                >
+                                    {title}
                                 </div>
-                                <div className="mt-4 w-full text-start" style={{ fontSize: "18px", fontWeight: "700" }}>
-                                    {`What You’ll Get`}
-                                </div>
+                                <Image
+                                    alt="*"
+                                    src={"/otherAssets/starsIcon2.png"}
+                                    height={28}
+                                    width={26}
+                                />
+                            </div>
+                            <div
+                                className=""
+                                style={{ fontSize: "13px", fontWeight: "400", color: "#00000050" }}>
+                                {subTitle}
+                            </div>
+                            <div className="mt-4 w-full text-start px-8 " style={{ fontSize: "18px", fontWeight: "700" }}>
+                                {`What You’ll Get`}
+                            </div>
+                            <div className='w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[50vh]'>
+
                                 <div className='w-full flex flex-row items-start mt-4'>
                                     <div className="w-1/2 flex flex-col gap-4">
                                         {

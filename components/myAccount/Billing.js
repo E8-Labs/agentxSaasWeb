@@ -103,7 +103,7 @@ function Billing() {
         // Filter features to only show those with thumb = true
         const filteredPlans = plansData.map(plan => ({
           ...plan,
-          features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+          features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
         }));
         setPlans(filteredPlans);
       } else {
@@ -977,7 +977,7 @@ function Billing() {
                 </div>
                 
                 {/* Features section - only show features with thumb = true */}
-                {item.features && item.features.length > 0 && (
+                {Array.isArray(item.features) && item.features.length > 0 && (
                   <div className="mt-4">
                     <div className="flex flex-col gap-2">
                       {item.features.map((feature, featureIndex) => (
@@ -1511,7 +1511,7 @@ function Billing() {
                   outline: "none",
                 }}
               >
-                Never mind, keep my AgentX
+              Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (

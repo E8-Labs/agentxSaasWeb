@@ -12,8 +12,8 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { getReadableStatus } from "@/utilities/UserUtility";
 
-function AdminDashboardActiveCall({ 
-  isFromAgency, 
+function AdminDashboardActiveCall({
+  isFromAgency,
   selectedUser,
   selectedFromDate,
   selectedToDate,
@@ -66,7 +66,7 @@ function AdminDashboardActiveCall({
   const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
 
   let sortData = { sort: "", sortOrder: "" };
-  
+
   // Use ref to track initial mount and previous filter values
   const isInitialMount = useRef(true);
   const prevFilters = useRef({ selectedFromDate, selectedToDate, selectedStatus, selectedAgency });
@@ -99,7 +99,7 @@ function AdminDashboardActiveCall({
     }
 
     // Check if filters actually changed
-    const filtersChanged = 
+    const filtersChanged =
       prevFilters.current.selectedFromDate !== selectedFromDate ||
       prevFilters.current.selectedToDate !== selectedToDate ||
       JSON.stringify(prevFilters.current.selectedStatus || []) !== JSON.stringify(selectedStatus || []) ||
@@ -176,17 +176,17 @@ function AdminDashboardActiveCall({
   };
 
   function getCallStatusWithSchedule(item) {
-    const currentTime = moment();
-    const startTime = moment(item.startTime);
+    // const currentTime = moment();
+    // const startTime = moment(item.startTime);
 
-    // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime)) {
-      // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
-      return `Scheduled `;
-    } else {
-      return getReadableStatus(item.status);
-    }
+    // // Check if the call is scheduled in the future
+    // if (item.startTime && startTime.isAfter(currentTime)) {
+    //   // Format the date as "Scheduled - Sep 05" or similar
+    //   const formattedDate = startTime.format('MMM DD');
+    //   return `Scheduled `;
+    // } else {
+    return getReadableStatus(item.status);
+    // }
 
     // Return the regular readable status for past or current calls
   }
@@ -196,11 +196,11 @@ function AdminDashboardActiveCall({
     console.log("Data passed is", passedData);
 
     // Check if we should load from cache (initial load with no pagination, sorting, or filters)
-    const hasFilters = passedData?.selectedFromDate || passedData?.selectedToDate || 
-                      (passedData?.selectedStatus && passedData.selectedStatus.length > 0) || 
-                      passedData?.selectedAgency;
-    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && 
-                                !passedData?.isPagination && !hasFilters;
+    const hasFilters = passedData?.selectedFromDate || passedData?.selectedToDate ||
+      (passedData?.selectedStatus && passedData.selectedStatus.length > 0) ||
+      passedData?.selectedAgency;
+    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData &&
+      !passedData?.isPagination && !hasFilters;
 
     if (shouldLoadFromCache) {
       const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
@@ -229,29 +229,29 @@ function AdminDashboardActiveCall({
 
       const token = AuthToken();
       if (!token) return;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}&scheduled=false`
-      
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
+
       if (passedData?.sortData) {
         ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
       }
-      
+
       // Add date filters
       if (passedData?.selectedFromDate && passedData?.selectedToDate) {
         const startDate = moment(passedData.selectedFromDate).format("MM-DD-YYYY");
         const endDate = moment(passedData.selectedToDate).format("MM-DD-YYYY");
         ApiPath += `&startDate=${startDate}&endDate=${endDate}`;
       }
-      
+
       // Add status filters
       if (passedData?.selectedStatus && passedData.selectedStatus.length > 0) {
         ApiPath += `&status=${passedData.selectedStatus.join(",")}`;
       }
-      
+
       // Add agency filter (userId)
       if (passedData?.selectedAgency) {
         ApiPath += `&userId=${passedData.selectedAgency.id}`;
       }
-      
+
       console.log("Api path is", ApiPath);
 
       const response = await axios.get(ApiPath, {
@@ -291,7 +291,7 @@ function AdminDashboardActiveCall({
           localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
           console.log("Saved call activities to cache:", agents.length, "items");
         }
-        
+
         // Notify parent if callback is provided
         if (onFiltersApplied && hasFilters) {
           onFiltersApplied();
@@ -532,7 +532,7 @@ function AdminDashboardActiveCall({
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
       console.log(
         "Api Call Leads : ",
-       path
+        path
       );
       const response = await fetch(path,
         {
@@ -722,7 +722,7 @@ function AdminDashboardActiveCall({
           <button
             className="text-start outline-none"
             onClick={() => {
-                handleShowLeads(SelectedAgent, SelectedItem)
+              handleShowLeads(SelectedAgent, SelectedItem)
 
               // handleShowDetails();
             }}
@@ -805,25 +805,25 @@ function AdminDashboardActiveCall({
                   <div className="w-full flex flex-row mt-2 px-10">
                     {
                       !isFromAgency && (
-                        <div className="min-w-[200px] flex-shrink-0">
+                        <div className=" w-[200px] flex-shrink-0">
                           <div style={styles.text}>Agency Name</div>
                         </div>
                       )
                     }
-                    <div className="min-w-[200px] flex-shrink-0">
+                    <div className=" w-[200px] flex-shrink-0">
                       <div style={styles.text}>Sub Account</div>
                     </div>
-                    <div className="min-w-[150px] flex-shrink-0">
+                    <div className=" w-[150px] flex-shrink-0">
                       <div style={styles.text}>Agent</div>
                     </div>
 
-                    <div className="min-w-[200px] flex-shrink-0">
+                    <div className=" w-[200px] flex-shrink-0 truncate">
                       <div style={styles.text}>List Name</div>
                     </div>
 
-                    
-                    <div className="min-w-[150px] flex-shrink-0">
-                      <button className=""
+
+                    <div className=" w-[150px] flex-shrink-0">
+                      <button className="truncate"
                         onClick={() => {
 
                           let sortOrder = selectedSortOrder;
@@ -866,8 +866,8 @@ function AdminDashboardActiveCall({
                       </button>
 
                     </div>
-                    
-                    <div className="min-w-[200px] flex-shrink-0 whitespace-nowrap">
+
+                    <div className=" w-[200px] flex-shrink-0 whitespace-nowrap">
                       <button className=""
                         onClick={() => {
 
@@ -911,10 +911,10 @@ function AdminDashboardActiveCall({
                         ) : null}
                       </button>
                     </div>
-                    <div className="min-w-[200px] flex-shrink-0">
+                    <div className=" w-[200px] flex-shrink-0">
                       <div style={styles.text}>Call Status</div>
                     </div>
-                    <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                    <div className=" w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                       <div style={styles.text}>Action</div>
                     </div>
                   </div>
@@ -932,32 +932,31 @@ function AdminDashboardActiveCall({
                               >
                                 {
                                   !isFromAgency && (
-                                    <div className="min-w-[200px] flex-shrink-0">
+                                    <div className="w-[200px] flex-shrink-0 truncate">
                                       <div style={styles.text2}>
-                                        {item.agency?.name || "AgentX Main Admin"}
+                                        {item.agency?.name || "-"}
                                       </div>
                                     </div>
                                   )
                                 }
 
-                                <div className="min-w-[200px] flex-shrink-0">
-                                  <button 
-                                    className="w-full text-start outline-none"
-                                    onClick={() => {
-                                      if (item?.user?.id) {
-                                        // Open a new tab with user ID as query param
-                                        let url = ` admin/users?userId=${item?.user?.id}`
-                                        //console.log
-                                        window.open(url, "_blank");
-                                      }
-                                    }}
-                                  >
-                                    <div style={styles.text2} className="truncate">{item?.user?.name}</div>
-                                  </button>
+                                <div className="w-[200px] flex-shrink-0 truncate"
+
+                                  onClick={() => {
+                                    if (item?.user?.id) {
+                                      // Open a new tab with user ID as query param
+                                      let url = ` admin/users?userId=${item?.user?.id}`
+                                      //console.log
+                                      window.open(url, "_blank");
+                                    }
+                                  }}
+                                >
+                                  <div style={styles.text2} className="truncate">{item?.user?.name}</div>
+
                                 </div>
 
-                                <div className="min-w-[150px] flex-shrink-0">
-                                  <div style={styles.text2}>{
+                                <div className="w-[150px] flex-shrink-0 truncate">
+                                  <div style={styles.text2} className="truncate">{
                                     agent?.agents[0].agentType === "outbound" ? (
                                       agent?.agents[0]?.name
                                     ) : (
@@ -966,19 +965,19 @@ function AdminDashboardActiveCall({
                                   }</div>
                                 </div>
 
-                                
-                                <div className="min-w-[200px] flex-shrink-0">
+
+                                <div className="w-[200px] flex-shrink-0 truncate">
                                   <div style={styles.text2} className="truncate">
                                     {item.Sheet?.sheetName || "-"}
                                   </div>
                                 </div>
 
-                                <div className="min-w-[150px] flex-shrink-0">
+                                <div className=" w-[150px] max-w-[250px] flex-shrink-0 truncate">
                                   <button
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
                                     onClick={() => {
-                                       handleShowLeads(agent, item);
+                                      handleShowLeads(agent, item);
                                     }}
                                   >
                                     {item?.totalLeads}
@@ -986,7 +985,7 @@ function AdminDashboardActiveCall({
                                 </div>
 
 
-                                <div className="min-w-[200px] flex-shrink-0">
+                                <div className=" w-[200px] max-w-[250px] flex-shrink-0 truncate">
                                   {item?.createdAt ? (
                                     <div style={styles.text2}>
                                       {GetFormattedDateString(item?.createdAt)}
@@ -995,8 +994,8 @@ function AdminDashboardActiveCall({
                                     <div style={styles.text2}>-</div>
                                   )}
                                 </div>
-                                <div className="min-w-[200px] flex-shrink-0" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
-                                <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
+                                <div className=" w-[200px] max-w-[250px] flex-shrink-0 truncate" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                                <div className=" w-[150px] max-w-[250px]  flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"

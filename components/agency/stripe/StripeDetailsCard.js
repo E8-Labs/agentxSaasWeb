@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
@@ -7,9 +8,11 @@ import { AuthToken } from "../plan/AuthDetails";
 import Image from "next/image";
 
 export default function StripeDetailsCard({
-    stripeData
+    stripeData,
+    fromDashboard = true
 }) {
 
+    const router = useRouter();
     const [loader, setLoader] = useState(false);
     const handleViewStripeAccount = async () => {
 
@@ -103,10 +106,14 @@ export default function StripeDetailsCard({
                             ) : (
                                 <button className="bg-purple text-white rounded-lg h-[50px] w-full"
                                     onClick={() => {
-                                        handleViewStripeAccount();
+                                        if (fromDashboard) {
+                                            handleViewStripeAccount();
+                                        } else {
+                                            router.push("/agency/dashboard");
+                                        }
                                     }}
                                 >
-                                    View Stripe Account
+                                    {fromDashboard ? "View Stripe Account" : "View Dashboard"}
                                 </button>
                             )
                         }

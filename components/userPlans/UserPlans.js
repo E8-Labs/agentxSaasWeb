@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 import { isSubaccountTeamMember, isTeamMember } from '@/constants/teamTypes/TeamTypes';
 import FitText from './FitText';
 import FeatureLine from './FeatureLine';
+import LoaderAnimation from '../animations/LoaderAnimation';
 
 
 function UserPlans({
@@ -84,14 +85,16 @@ function UserPlans({
     const [addCardFailure, setAddCardFailure] = useState(false)
     const [addCardSuccess, setAddCardSuccess] = useState(false)
     const [addCardErrtxt, setAddCardErrtxt] = useState("")
+    const [routedFrom, setRoutedFrom] = useState(isFrom)
 
+    const [showRoutingLoader, setShowRoutingLoader] = useState(false);
 
 
 
     useEffect(() => {
         console.log("reduxUser", reduxUser)
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
-        if (reduxUser?.plan && from !== "billing-modal") {
+        if (reduxUser?.plan && reduxUser?.availableSeconds > 120 && from !== "billing-modal") {
             if (handleContinue) {
                 handleContinue()
             }
@@ -109,12 +112,15 @@ function UserPlans({
                 }
                 else if (user.user.userRole === "AgencySubAccount") {
                     isFrom = "SubAccount"
+                } else if (user.user.userRole === "Agency") {
+                    isFrom = "Agency"
                 } else {
                     isFrom = "User"
                 }
             }
 
         }
+        setRoutedFrom(isFrom)
         getPlans()
     }, [])
 
@@ -122,12 +128,21 @@ function UserPlans({
         console.log("Card added details are here", data);
         if (data) {
             // const userProfile = await getProfileDetails();
-            if (handleContinue) {
-                handleContinue()
+            if (isFrom == "Agency" || routedFrom == "Agency") {
+                router.push("/agency/dashboard")
+                //show routing loader animation
+                setShowRoutingLoader(true);
+                setTimeout(() => {
+                    setShowRoutingLoader(false);
+                }, 3000);
+            } else {
+                if (handleContinue) {
+                    handleContinue()
+                }
             }
+            setAddPaymentPopUp(false);
+            // handleSubscribePlan()
         }
-        setAddPaymentPopUp(false);
-        // handleSubscribePlan()
     };
 
     // Function to refresh user data after plan upgrade
@@ -178,16 +193,16 @@ function UserPlans({
                 plan: selectedPlan?.id,
             };
 
-            if (isFrom === "SubAccount") {
+            if (isFrom === "SubAccount" || reduxUser?.userRole === "Agency") {
                 ApiData = {
-                    planId: "id"
+                    planId: selectedPlan?.id || hoverPlan?.id
                 }
             }
 
             // //console.log;
 
             let ApiPath = Apis.subscribePlan;
-            if (isFrom === "SubAccount") {
+            if (isFrom === "SubAccount" || reduxUser?.userRole === "Agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             // //console.log;
@@ -203,6 +218,10 @@ function UserPlans({
                 console.log("Response of subscribe plan api is", response.data);
                 if (response.data.status === true) {
                     await refreshUserData();
+                    if(reduxUser?.userRole === "Agency") {
+                        router.push("/agency/dashboard");
+                        return;
+                    }
                     if (from === "dashboard") {
                         router.push("/dashboard")
                         console.log('route to dashboard')
@@ -234,7 +253,13 @@ function UserPlans({
             if (isFrom !== "SubAccount") {
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
-                    features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
+                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => !feature.thumb) : []
+                }));
+            }
+            if (isFrom === "Agency") {
+                filteredPlans = plansList?.map(plan => ({
+                    ...plan,
+                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
                 }));
             }
             console.log("Filtered plans are", filteredPlans)
@@ -400,6 +425,7 @@ function UserPlans({
 
     return (
         <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
+            <LoaderAnimation isOpen={showRoutingLoader} title="Redirecting to dashboard..." />
             <AgentSelectSnackMessage
                 isVisible={addCardFailure}
                 hide={() => setAddCardFailure(false)}
@@ -429,10 +455,10 @@ function UserPlans({
                     )
                 }
 
-                <div className={`flex flex-row items-end justify-between w-full ${hideProgressBar ? "mt-6" : "mt-10"}`}>
+                <div className={`flex flex-col md:flex-row items-start md:items-end justify-between w-full gap-4 md:gap-0 ${hideProgressBar ? "mt-6" : "mt-10"}`}>
 
 
-                    <div className='flex flex-col items-start'>
+                    <div className='flex flex-col items-start w-full'>
                         <div //className='text-4xl font-semibold'
                             // onClick={getPlans}
                             style={{
@@ -448,14 +474,14 @@ function UserPlans({
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
-                            <span>😉</span>
+                            }}>{`Gets more done than coffee. Cheaper too. ${reduxUser?.userRole != "Agency" ? "Cancel anytime." : ""}`}<span>😉</span></span>
+
                         </div>
                     </div>
-                    <div className='flex flex-col items-end'>
+                    <div className='flex flex-col items-end w-full'>
                         {
                             isFrom !== "SubAccount" && (
-                                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
+                                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto'>
                                     {
                                         duration?.map((item) => (
                                             item.save && (
@@ -472,38 +498,39 @@ function UserPlans({
                                 </div>
                             )
                         }
-
-                        {
-                            (
-                                // count how many have length > 0
-                                [
-                                    monthlyPlans?.length > 0,
-                                    quaterlyPlans?.length > 0,
-                                    yearlyPlans?.length > 0
-                                ].filter(Boolean).length >= 2
-                            ) && (
-                                <div
-                                    // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
-                                    className='border flex flex-row items-center bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
-                                >
-                                    {
-                                        duration?.map((item) => (
-                                            <button
-                                                key={item.id}
-                                                // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                onClick={() => {
-                                                    setSelectedDuration(item);
-                                                    // getCurrentPlans();
-                                                }}
-                                            >
-                                                {item.title}
-                                            </button>
-                                        ))
-                                    }
-                                </div>
-                            )
-                        }
+                        <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+                            {
+                                (
+                                    // count how many have length > 0
+                                    [
+                                        monthlyPlans?.length > 0,
+                                        quaterlyPlans?.length > 0,
+                                        yearlyPlans?.length > 0
+                                    ].filter(Boolean).length >= 2
+                                ) && (
+                                    <div
+                                        // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
+                                        className='border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start'
+                                    >
+                                        {
+                                            duration?.map((item) => (
+                                                <button
+                                                    key={item.id}
+                                                    // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                    onClick={() => {
+                                                        setSelectedDuration(item);
+                                                        // getCurrentPlans();
+                                                    }}
+                                                >
+                                                    {item.title}
+                                                </button>
+                                            ))
+                                        }
+                                    </div>
+                                )
+                            }
+                        </div>
 
                     </div>
                 </div>
@@ -533,32 +560,7 @@ function UserPlans({
                                     e.preventDefault();
                                     e.stopPropagation();
                                     handleTogglePlanClick(item, index);
-                                    console.log("item.discountPrice", item.discountPrice)
-                                    if (isFrom == "SubAccount") {
-                                        setTimeout(() => {
-                                            setAddPaymentPopUp(true)
-                                        }, 300)
-                                        return;
-                                    }
-
-                                    // If opened from billing modal, callback with selected plan
-                                    if (from === 'billing-modal' && onPlanSelected) {
-                                        onPlanSelected(item);
-                                        return;
-                                    }
-
-                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                        // Monthly plan selected - show yearly plan modal
-                                        setSelectedMonthlyPlan(item);
-                                        setShowYearlyPlanModal(true);
-                                    } else {
-                                        if (item.discountPrice > 0) {
-                                            // Quarterly or Yearly plan - proceed directly
-                                            setAddPaymentPopUp(true)
-                                        } else {
-                                            handleSubscribePlan()
-                                        }
-                                    }
+                                  
                                 }}
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
@@ -643,11 +645,16 @@ function UserPlans({
                                                             e.stopPropagation();
                                                             handleTogglePlanClick(item, index);
                                                             console.log("item.discountPrice", item.discountPrice)
-                                                            if (isFrom == "SubAccount") {
+                                                            console.log("isFrom in user plans", isFrom)
+                                                            if (reduxUser?.consecutivePaymentFailures >= 3) {
                                                                 setTimeout(() => {
                                                                     setAddPaymentPopUp(true)
                                                                 }, 300)
                                                                 return;
+                                                            }
+                                                            if(reduxUser?.userRole === "Agency") {
+                                                               handleSubscribePlan()
+                                                               return;
                                                             }
 
                                                             // If opened from billing modal, callback with selected plan
@@ -697,7 +704,7 @@ function UserPlans({
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
                                             {
-                                                isFrom === "SubAccount" ? (
+                                                isFrom === "SubAccount" || routedFrom === "Agency" ? (
                                                     ""
                                                 ) : (
                                                     <div>
@@ -714,7 +721,7 @@ function UserPlans({
 
                                             <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
-                                                    item.features?.map((feature, featureIndex) => (
+                                                    Array.isArray(item.features) && item.features?.map((feature, featureIndex) => (
                                                         <div
                                                             key={feature.text}
                                                             className="flex flex-row items-start gap-3 mb-3 w-full"
@@ -764,9 +771,9 @@ function UserPlans({
                             }
                         }
                     }}
-                        setSelectedPlan={()=>{
-              console.log("setSelectedPlan is called")
-             }}
+                    setSelectedPlan={() => {
+                        console.log("setSelectedPlan is called")
+                    }}
 
                 />
             </Elements>
@@ -824,7 +831,7 @@ function UserPlans({
                                 <UserAddCard
                                     handleClose={handleClose}
                                     selectedPlan={selectedPlan}
-                                    isFrom={isFrom}
+                                    isFrom={isFrom || routedFrom}
                                     setCredentialsErr={setCredentialsErr}
                                     setAddCardFailure={setAddCardFailure}
                                     setAddCardSuccess={setAddCardSuccess}

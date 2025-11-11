@@ -635,7 +635,8 @@ const OtherDetails = ({
             // //console.log;
           } else {
             // //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
           }
         } else {
           setSnackMessage(response.data.message)

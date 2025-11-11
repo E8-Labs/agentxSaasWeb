@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { TextField, Button, Box, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -9,11 +9,13 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 function AgencyBasicInfo({
   selectedAgency
 }) {
   const router = useRouter();
+  const emailRef = useRef(null);
 
   const [serviceLoader, setServiceLoader] = useState(false);
 
@@ -27,10 +29,16 @@ function AgencyBasicInfo({
   const [phone, setPhone] = useState("");
 
   const [isNameChanged, setIsNameChanged] = useState(false);
+  const [isEmailChanged, setIsEmailChanged] = useState(false);
 
   const [loading, setloading] = useState(false);
 
   const [loading5, setloading5] = useState(false);
+  const [loading13, setLoading13] = useState(false);
+
+  // Success message states
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
 
 
@@ -274,7 +282,31 @@ function AgencyBasicInfo({
       await UpdateProfile(data);
       setloading(false);
       setIsNameChanged(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      // //console.log;
+    }
+  };
+
+  // Helper function to show success message
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessMessage(true);
+  };
+
+  const handleEmailSave = async () => {
+    try {
+      setLoading13(true);
+      const data = { email: email };
+      if (selectedAgency) {
+        data.userId = selectedAgency.id;
+      }
+      await UpdateProfile(data);
+      setLoading13(false);
+      setIsEmailChanged(false);
+      showSuccess("Account Updated");
+    } catch (e) {
+      setLoading13(false);
       // //console.log;
     }
   };
@@ -444,30 +476,49 @@ function AgencyBasicInfo({
         Email address
       </div>
       <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
+        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
         style={{
-          border: `1px solid ${focusedEmail ? "#8a2be2" : "#00000010"}`,
+          border: `1px solid #00000010`,
           transition: "border-color 0.3s ease",
         }}
       >
         <input
-          readOnly
+          ref={emailRef}
           className="w-11/12 outline-none focus:ring-0"
           // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
+          onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
             setEmail(event.target.value);
+            setIsEmailChanged(true);
           }}
           type="text"
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
-        {/* {
- email.length > 0 && (
- <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
- )
- } */}
+        {isEmailChanged ?
+          (loading13 ? (
+            <CircularProgress size={20} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleEmailSave();
+              }}
+              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+            >
+              Save
+            </button>
+          )) : (
+            <button
+              onClick={() => {
+                emailRef.current?.focus();
+              }}
+            >
+              <Image src={'/svgIcons/editIcon.svg'}
+                width={24} height={24} alt="*"
+              />
+            </button>
+          )}
       </div>
 
       <div
@@ -598,7 +649,13 @@ function AgencyBasicInfo({
         </select>
       </div>
 
-
+      {/* Success Message */}
+      <AgentSelectSnackMessage
+        isVisible={showSuccessMessage}
+        hide={() => setShowSuccessMessage(false)}
+        message={successMessage}
+        type={SnackbarTypes.Success}
+      />
     </div>
   );
 }

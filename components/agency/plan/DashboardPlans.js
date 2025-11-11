@@ -80,18 +80,31 @@ function DashboardPlans({
             const currentPlanId = u.user?.plan?.planId;
             const agencyPlansList = localStorage.getItem("agencyPlansList");
             if (selectedAgency) {
-                console.log("Selected agency is", selectedAgency)
-                setAgencyPlanCost(selectedAgency.plan.ratePerMin);
+                if(selectedAgency?.planCapabilities?.aiCreditRate){
+                    setAgencyPlanCost(selectedAgency?.planCapabilities?.aiCreditRate);
+                }else{
+                    setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
+                }
+                console.log("Selected agency is UseEffect 88", selectedAgency)
+                // setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
             } else {
-                if (agencyPlansList) {
-                    const u = JSON.parse(agencyPlansList);
-                    const matchedPlan = u.find(plan => plan.id === currentPlanId);
-                    console.log("Matched plan is", matchedPlan);
-                    if (matchedPlan?.capabilities?.aiCreditRate) {
-                        console.log("matchedPlan plan is", matchedPlan)
-                        // capabilities?.aiCreditRate
-                        setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
+                let agencyFromLocal = u.user;
+
+                if (agencyFromLocal) {
+                    // const u = JSON.parse(agencyFromLocal);
+                    if(agencyFromLocal?.planCapabilities?.aiCreditRate){
+                        setAgencyPlanCost(agencyFromLocal?.planCapabilities?.aiCreditRate);
+                    }else{
+                        setAgencyPlanCost(agencyFromLocal?.plan?.capabilities?.aiCreditRate);
                     }
+                    console.log("LocalStorage agency is", agencyFromLocal)
+                    // const matchedPlan = u.find(plan => plan.id === currentPlanId);
+                    // console.log("Matched plan is", matchedPlan);
+                    // if (matchedPlan?.capabilities?.aiCreditRate) {
+                    //     console.log("matchedPlan plan is", matchedPlan)
+                    //     // capabilities?.aiCreditRate
+                    //     setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
+                    // }
                 }
             }
         }
@@ -433,10 +446,10 @@ function DashboardPlans({
                 </div>
             </div>
 
-            <div className='w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md'>
+            <div className='w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 shadow-md'>
 
                 <div
-                    className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
+                    className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 "
                     style={{
                         backgroundImage: "url('/agencyIcons/plansBannerBg.png')",//plansBannerBg //svgIcons/bg.svg
                         backgroundSize: "cover",
@@ -469,7 +482,7 @@ function DashboardPlans({
 
                 </div>
 
-                <div className='w-full flex flex-row items-center justify-between'>
+                <div className='w-full flex flex-row items-center justify-between '>
                     <div className='px-4 mt-6 flex flex-row gap-4 border-b' style={{ fontSize: "15", fontWeight: "500", width: "fit-content" }}>
                         <div
                             className={`pb-2 flex flex-row items-center px-4 ${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"} gap-4`}>
@@ -562,7 +575,7 @@ function DashboardPlans({
                             </div>
 
                             <div
-                                className={`h-[71vh] overflow-auto w-full`}
+                                className={`h-[71vh] overflow-auto w-full `}
                                 id="scrollableDiv1"
                                 style={{ scrollbarWidth: "none" }}
                             >
@@ -588,7 +601,7 @@ function DashboardPlans({
                                                                 }}
                                                             >
                                                                 <div style={{ ...styles.text2, ...{ width: "80%", } }}>
-                                                                    {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
+                                                                    {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays || 0} Day Free Trial`)}
                                                                 </div>
                                                             </div>
                                                             <div className="w-3/12"
@@ -759,7 +772,7 @@ function DashboardPlans({
                 {/* code for modals */}
 
                 {
-                    planType === "monthly" ?
+                    (planType === "monthly" && open) ?
                         <AddMonthlyPlanAnimation
                             open={open}
                             handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated}
@@ -820,11 +833,6 @@ function DashboardPlans({
                     )
                 }
 
-                {/* Warning popup */}
-                <EditPlanWarning
-                    open={false}
-                // handleClose={handleClosePlanPopUp}
-                />
 
             </div>
 

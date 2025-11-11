@@ -49,6 +49,10 @@ const ConnectStripe = ({ fullScreen = false }) => {
         }
     }
 
+    const handleSkip = () => {
+        router.push("/agency/dashboard");
+    }
+
     const handleVerifyClick = async () => {
         // Open popup immediately on user click to avoid popup blocker
         const popupWindow = window.open('about:blank', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
@@ -136,6 +140,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
                                 checkStripeStatus ? (
                                     <StripeDetailsCard
                                         stripeData={agencydata?.stripeAccount}
+                                        fromDashboard={false}
                                     />
                                 ) : (
                                     <div className={`w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 ${fullScreen ? "" : "mt-6"}`}>
@@ -188,19 +193,28 @@ const ConnectStripe = ({ fullScreen = false }) => {
                                                     <div className='mt-4'>
                                                         <CircularProgress size={30} />
                                                     </div> :
-                                                    <button
-                                                        className='bg-purple text-white py-2 px-4 rounded-md w-20vw mt-4 h-[40px]'
-                                                        style={styles.btnText}
-                                                        onClick={() => {
-                                                            if (agencydata?.canAcceptPaymentsAgencyccount) {
-                                                                setSnackMsg("Stripe already connected.");
-                                                            } else {
-                                                                handleVerifyClick();
-                                                            }
-                                                        }}
-                                                    >
-                                                        Add Stripe
-                                                    </button>
+                                                    <div className='flex flex-col items-center gap-3 w-full mt-4'>
+                                                        <button
+                                                            className='bg-purple text-white py-2 px-4 rounded-md w-full h-[40px]'
+                                                            style={styles.btnText}
+                                                            onClick={() => {
+                                                                if (agencydata?.canAcceptPaymentsAgencyccount) {
+                                                                    setSnackMsg("Stripe already connected.");
+                                                                } else {
+                                                                    handleVerifyClick();
+                                                                }
+                                                            }}
+                                                        >
+                                                            Add Stripe
+                                                        </button>
+                                                        <button
+                                                            className='text-gray-600 py-2 px-4 rounded-md w-full h-[40px] border border-gray-300 hover:bg-gray-50 transition-colors'
+                                                            style={styles.btnText}
+                                                            onClick={handleSkip}
+                                                        >
+                                                            Skip for now
+                                                        </button>
+                                                    </div>
                                             }
                                         </div>
                                     </div>

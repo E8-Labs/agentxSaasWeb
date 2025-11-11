@@ -29,6 +29,7 @@ function AdminBasicInfo({ selectedUser }) {
   //my variable
   const [serviceId, setServiceId] = useState([]);
   const [servicesData, setServicesData] = useState([]);
+  const [focusedTerritory, setFocusedTerritory] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

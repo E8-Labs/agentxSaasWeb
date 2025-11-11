@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { ReduxProvider } from "../components/providers/redux-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -111,7 +112,7 @@ export default function RootLayout({ children }) {
                 t.type = "text/javascript", t.async = !0, t.src = 'https://set.myagentx.com/js/am.js', t.onload = t.onreadystatechange = function() {
                     var t = this.readyState;
                     if (!t || "complete" == t || "loaded" == t) try {
-                      affiliateManager.init('UoIYax6ZF0P9Ds6xa6mC', 'https://backend.leadconnectorhq.com', '.agentx-git-test-salman-majid-alis-projects.vercel.app')
+                      affiliateManager.init('UoIYax6ZF0P9Ds6xa6mC', 'https://backend.leadconnectorhq.com', '.dev.assignx.ai')
                     } catch (t) {}
                 };
                 var e = document.getElementsByTagName("script")[0];
@@ -127,6 +128,7 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           {children}
         </ReduxProvider>
+        <Toaster />
 
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">

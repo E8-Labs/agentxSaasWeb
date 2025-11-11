@@ -26,7 +26,6 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { PersistanceKeys } from "@/constants/Constants";
 import AgencyActivity from "./AgencyActivity";
-import AgencySubscriptions from "./AgencySubscriptions";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
@@ -68,7 +67,7 @@ export default function AgencyDashboard({
           <TabsList className="flex flex-row items-center justify-start gap-4 border-b pb-2 w-full pl-10 bg-transparent">
             <TabsTrigger value="user-activity">User Activity</TabsTrigger>
             {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
+            <TabsTrigger value="revenue" className="outline-none">Revenue</TabsTrigger>
           </TabsList>
 
           <TabsContent value="user-activity">
@@ -78,8 +77,8 @@ export default function AgencyDashboard({
             <AgenyEngagements />
           </TabsContent> */}
 
-          <TabsContent value="subscription">
-            <AgencySubscriptions selectedAgency={selectedAgency} />
+          <TabsContent value="revenue">
+            <AgencyRevenueDashboard selectedAgency={selectedAgency} />
           </TabsContent>
         </Tabs>
 

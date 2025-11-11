@@ -148,6 +148,21 @@ function NewBilling() {
         getCardsList();
     }, []);
 
+    // Listen for subscription resumed event from ProfileNav
+    useEffect(() => {
+        const handleSubscriptionResumed = async (event) => {
+            console.log("🔄 [NEW-BILLING] Subscription resumed event received, refreshing profile...");
+            // Refresh profile to update isPaused state
+            await getProfile();
+        };
+
+        window.addEventListener("subscriptionResumed", handleSubscriptionResumed);
+
+        return () => {
+            window.removeEventListener("subscriptionResumed", handleSubscriptionResumed);
+        };
+    }, []);
+
 
     useEffect(() => {
         console.log('selectedPlan changed:', selectedPlan);
@@ -179,7 +194,7 @@ function NewBilling() {
             if (!isSubaccountTeamMember(userData.user)) {
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
-                    features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
                 }));
 
                 // console.log('filteredPlans', filteredPlans)
@@ -849,7 +864,7 @@ function NewBilling() {
                     setTogglePlan(planType);
                     setCurrentPlan(planType);
                     if (response2.data.status === true) {
-                        setSuccessSnack("You've claimed an extra 30 mins");
+                        setSuccessSnack("You've claimed 30 AI Credits");
                     } else if (response2.data.status === false) {
                         setErrorSnack(response2.data.message);
                     }
@@ -1745,13 +1760,26 @@ function NewBilling() {
                                                 <div>
                                                     {
                                                         item.id === currentPlan && (
-                                                            <div style={{
-                                                                fontSize: 11.6,
-                                                                fontWeight: "500",
-                                                                width: "fit-content",
-                                                            }}>
-                                                                Renews on: {reduxUser?.nextChargeDate && moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
-                                                            </div>
+                                                            userLocalData?.plan?.status === "cancelled" ? (
+                                                                <div
+                                                                    className="flex px-2 py-1 bg-red-500 rounded-full text-white"
+                                                                    style={{
+                                                                        fontSize: 11.6,
+                                                                        fontWeight: "500",
+                                                                        width: "fit-content",
+                                                                    }}
+                                                                >
+                                                                    Cancelled
+                                                                </div>
+                                                            ) : (
+                                                                <div style={{
+                                                                    fontSize: 11.6,
+                                                                    fontWeight: "500",
+                                                                    width: "fit-content",
+                                                                }}>
+                                                                    Renews on: {reduxUser?.nextChargeDate && moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
+                                                                </div>
+                                                            )
                                                         )
                                                     }
                                                 </div>
@@ -1851,7 +1879,7 @@ function NewBilling() {
 
 
                                 <div className="flex flex-row items-center justify-between w-full mt-4">
-                                    {item.id === currentPlan && (
+                                    {item.id === currentPlan && userLocalData?.plan?.status !== "cancelled"&& (
                                         <div
                                             className="flex px-2 py-1 bg-purple rounded-full text-white"
                                             style={{

@@ -271,7 +271,7 @@ function AdminBilling({ selectedUser, from }) {
       if (!isSubaccountTeamMember(userData.user)) {
         filteredPlans = plansList?.map(plan => ({
           ...plan,
-          features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+          features: plan.features && Array.isArray(plan.features)  ? plan.features.filter(feature => feature.thumb === true) : []
         }));
 
         setPlans(filteredPlans)

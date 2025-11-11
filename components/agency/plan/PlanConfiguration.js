@@ -73,7 +73,9 @@ export default function PlanConfiguration({
         embedBrowserWebhookAgent: false,
         apiKey: false,
         voicemail: false,
+        allowTextMessages: false,
         twilio: false,
+        sendText: false,
         allowTrial: false,
         allowTeamSeats: false,
     });
@@ -86,6 +88,7 @@ export default function PlanConfiguration({
         embedBrowserWebhookAgent: false,
         apiKey: false,
         voicemail: false,
+        allowTextMessages: false,
         twilio: false,
         allowTrial: true,
         allowTeamSeats: false,
@@ -119,13 +122,13 @@ export default function PlanConfiguration({
             stateKey: "ragKnowledgeBase",
         },
         {
-            label: "Embed / Browser / Webhook Agent",
-            tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
+            label: "Web Agents",
+            tooltip: "Bring AI Agents to browsers and websites using webhooks or embedding.", //"Embed the agent into sites, browsers, or trigger webhooks.",
             stateKey: "embedBrowserWebhookAgent",
-        },
+          },
         {
-            label: "API Key",
-            tooltip: "",//Enable API access for integrations.
+            label: "Enable API integrations",
+            tooltip: "Connect your AI agents to external tools like Zapier, Make, GHL and more.",
             stateKey: "apiKey",
         },
         {
@@ -137,6 +140,11 @@ export default function PlanConfiguration({
             label: "Twilio",
             tooltip: "Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.", //"Integrate with Twilio for calls & SMS.",
             stateKey: "twilio",
+        },
+        {
+            label: "Text Messages",
+            tooltip: "Enable SMS/text messaging capabilities for agents.",
+            stateKey: "allowTextMessages",
         },
         {
             // label: "Allow Team Seats",
@@ -172,7 +180,9 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: false,
                 apiKey: false,
                 voicemail: false,
+                allowTextMessages: false,
                 twilio: false,
+                sendText: false,
                 allowTrial: false,
                 allowTeamSeats: false,
             });
@@ -250,6 +260,10 @@ export default function PlanConfiguration({
                 text: `${basicsData?.minutes} AI Credits`,
             });
         }
+            extraFeatures.push({
+            id:'english&spanish',
+            text:'English and Spanish Compatible'
+            })
 
         // Add custom features to the allowed features
         // const customFeaturesList = customFeatures?.filter(feature => feature.trim() !== "")?.map((feature, index) => ({
@@ -333,6 +347,13 @@ export default function PlanConfiguration({
             setNoOfContacts(configurationData?.maxLeads);
             setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent);
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
+            const allowTextMessagesValue = dynamicFeatures?.allowTextMessages || dynamicFeatures?.allowTextMessages || false;
+            const twilioValue = dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false;
+            // If Text Messages is enabled, ensure Twilio is also enabled
+            const finalTwilioValue = allowTextMessagesValue ? true : twilioValue;
+            // If Twilio is disabled, ensure Text Messages is also disabled
+            const finalAllowTextMessagesValue = twilioValue ? allowTextMessagesValue : false;
+            
             setFeatures({
                 // allowLanguageSelection:
                 //     dynamicFeatures?.allowLanguageSelection ??
@@ -347,7 +368,9 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
                 apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
-                twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+                allowTextMessages: finalAllowTextMessagesValue,
+                twilio: finalTwilioValue,
+                sendText: dynamicFeatures?.sendText || dynamicFeatures?.allowTextMessages || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
                 allowLanguageSelection: dynamicFeatures?.allowLanguageSelection,
@@ -396,7 +419,9 @@ export default function PlanConfiguration({
             embedBrowserWebhookAgent: false,
             apiKey: false,
             voicemail: false,
+            allowTextMessages: false,
             twilio: false,
+            sendText: false,
             allowTrial: false,
             allowTeamSeats: false,
         });
@@ -451,6 +476,7 @@ export default function PlanConfiguration({
         formData.append("allowEmbedBrowserWebhookAgent", features.embedBrowserWebhookAgent);
         formData.append("allowAPIKey", features.apiKey);
         formData.append("allowVoicemail", features.voicemail);
+        formData.append("allowTextMessages", features.allowTextMessages);
         formData.append("allowTwilio", features.twilio);
         formData.append("allowTrial", features.allowTrial);
         if (customFeatures?.length > 0) {
@@ -607,7 +633,10 @@ export default function PlanConfiguration({
         }
 
         const requiredFieldsFilled = requiredData;
-        const trialValid = features.allowTrial ? trialValidForDays : true;
+        let trialValid = true
+        if(features.allowTrial){
+            trialValid = trialValidForDays > 0;
+        }
 
         return requiredFieldsFilled && trialValid;
     };
@@ -662,6 +691,7 @@ export default function PlanConfiguration({
         if (localData) {
             const LD = JSON.parse(localData);
             const dynamicFeatures = LD?.user?.planCapabilities || {};
+            console.log("dynamic features are", dynamicFeatures)
             const planType = LD?.user?.plan?.title?.toLowerCase?.() || "";
             const canUseMultilingual =
                 planType.includes("growth") || planType.includes("scale");
@@ -675,8 +705,10 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedAndWebAgents,
                 apiKey: dynamicFeatures?.allowAPIAccess,
                 voicemail: dynamicFeatures?.allowVoicemail,
+                allowTextMessages: dynamicFeatures?.allowTextMessages,
                 twilio: dynamicFeatures?.allowTwilioIntegration,
                 allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
+                sendText: dynamicFeatures?.allowTextMessages,
                 allowTrial: true,
             });
         }
@@ -705,6 +737,7 @@ export default function PlanConfiguration({
             return;
         }
 
+      
         setFeatures((prev) => {
             const newState = { ...prev, [key]: !prev[key] };
 
@@ -717,6 +750,16 @@ export default function PlanConfiguration({
                     setLanguage("english");
                     setLanguageTitle("English and Spanish Compatible");
                 }
+            }
+
+            // If Text Messages is enabled, automatically enable Twilio
+            if (key === "allowTextMessages" && newState.allowTextMessages) {
+                newState.twilio = true;
+            }
+
+            // If Twilio is disabled, automatically disable Text Messages
+            if (key === "twilio" && !newState.twilio) {
+                newState.allowTextMessages = false;
             }
 
             // if allowTeamSeats just got enabled, scroll down

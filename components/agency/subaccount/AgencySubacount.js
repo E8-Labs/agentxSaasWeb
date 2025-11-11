@@ -29,6 +29,7 @@ import { useUser } from "@/hooks/redux-hooks";
 import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { formatFractional2 } from "../plan/AgencyUtilities";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 
 function AgencySubacount({
@@ -61,7 +62,7 @@ function AgencySubacount({
   //del subAcc
   const [delLoader, setDelLoader] = useState(false);
   const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
-
+  const [rortingLoader, setRortingLoader] = useState(false);
   //variables for dropdown
   // const [accountAnchorel, setAccountAnchorel] = useState(null);
   // const openAccountDropDown = Boolean(accountAnchorel);
@@ -96,6 +97,7 @@ function AgencySubacount({
   //twilio warning modal
   const [noTwillio, setNoTwillio] = useState(false);
   const [showXBarPopup, setShowXBarPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   //redux data
   useEffect(() => {
@@ -163,17 +165,21 @@ function AgencySubacount({
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
+      setLoading(true);
       // getLocalData();
       //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan(selectedAgency);
       const xBarOptions = await getXBarOptions(selectedAgency);
       let stripeStatus = null;
       setTimeout(() => {
-        // console.log("Curent checking data is", agencyData);
+        console.log("Current checking data is", selectedAgency);
         if (selectedAgency) {
+          console.log("selected agency is", selectedAgency);
           stripeStatus = selectedAgency.stripeConnected
         } else {
+          console.log("no selected agency")
           stripeStatus = CheckStripe();
+          
         }
 
         if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
@@ -185,12 +191,13 @@ function AgencySubacount({
           } else if (xBarOptions.length === 0) {
             setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
           } else if (!stripeStatus) {
-            setShowSnackMessage("You're Stripe account has not been connected.");
+            setShowSnackMessage("Your Stripe account has not been connected.");
           } else if (agencyData?.isTwilioConnected === false) {
             setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
             setNoTwillio(true);
           }
         }
+        setLoading(false);
       }, 100);
 
     } catch (error) {
@@ -242,7 +249,7 @@ function AgencySubacount({
       }
 
 
-      console.log("Api path for dashboard monthly plans api is", ApiPAth)
+      console.log("Api path for get subaccounts api is", ApiPAth)
       const Token = AuthToken();
       // console.log(Token);
       const response = await axios.get(ApiPAth, {
@@ -251,7 +258,7 @@ function AgencySubacount({
           "Content-Type": "application/json",
         },
       });
-
+      console.log("Response of get subaccounts api 1 is", response);
       if (response) {
         console.log("Response of get subaccounts api is", response.data);
         setSubAccountsList(response.data.data);
@@ -484,6 +491,13 @@ function AgencySubacount({
 
   return (
     <div className="w-full flex flex-col items-center ">
+      {rortingLoader && (
+        <LoaderAnimation
+          loaderModal={true}
+          isOpen={rortingLoader}
+          title="Redirecting to Twilio integration..."
+        />
+      )}
       <AgentSelectSnackMessage
         isVisible={showSnackMessage}
         hide={() => {
@@ -534,6 +548,9 @@ function AgencySubacount({
             setShowSnackType(SnackbarTypes.Success);
           }
         }}
+        setRortingLoader={(d) => {
+          setRortingLoader(d);
+        }}
       // showSuccess={(d) => {
       //   setShowSnackMessage(d);
       //   setShowSnackType(SnackbarTypes.Success);
@@ -567,7 +584,8 @@ function AgencySubacount({
               handleCheckPlans();
             }}
           >
-            Create Sub Account
+
+            {loading ? <CircularProgress size={20} /> : "Create Sub Account"}
           </button>
         </div>
         <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
@@ -711,7 +729,7 @@ function AgencySubacount({
           </div>
         ) : (
           <div
-            className={`h-[71vh] overflow-auto w-full`}
+            className={`h-[68vh] overflow-auto w-full`}
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >

@@ -51,8 +51,8 @@ function SelectedUserDetails({
         }, {
             id: 4,
             name: 'Activity',
-            selectedImage: '/svgIcons/selectedCallIcon.svg',
-            unSelectedImage: '/svgIcons/unSelectedCallIcon.svg'
+            selectedImage: "/otherAssets/selectedActivityLog.png",
+            unSelectedImage: "/otherAssets/activityLog.png",
         }, {
             id: 5,
             name: 'Pipeline',
@@ -367,10 +367,10 @@ function SelectedUserDetails({
                                         ${selectedManu.id == item.id && "border-b-[2px] border-purple"}`
                                             }>
                                             <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
-                                                height={24} width={24} alt='*'
+                                                height={item.name === "Activity" ? 16 : 24} width={item.name === "Activity" ? 16 : 24} alt='*'
                                             />
 
-                                            <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
+                                            <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000', paddingLeft : item.name === "Activity" ? "5px" : "0px", }}>
                                                 {item.name}
                                             </div>
 
@@ -516,7 +516,7 @@ function SelectedUserDetails({
                                                     ) : (
                                                         selectedManu.name == "Account" ? (
                                                             <AdminProfileData selectedUser={selectedUser} from={from} />
-                                                        ) : "Comming soon..."
+                                                        ) : "Coming soon..."
                                                     )
                                                 )
                                             )

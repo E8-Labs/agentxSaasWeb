@@ -547,7 +547,7 @@ function SubAccountBilling({
           setTogglePlan(togglePlan);
           setCurrentPlan(togglePlan);
           if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 mins");
+            setSuccessSnack("You've claimed an extra 30 AI Credits");
           } else if (response2.data.status === false) {
             setErrorSnack(response2.data.message);
           }
@@ -604,7 +604,7 @@ function SubAccountBilling({
     try {
       setTransactionDetailsLoader(true);
       const Token = AuthToken();
-      
+
       const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`;
       console.log("Api path for transaction details is", ApiPath);
 
@@ -763,9 +763,8 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${
-                  transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
-                }`}
+                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                  }`}
                 onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
               >
                 <div className="w-5/12 flex flex-row gap-2">
@@ -936,7 +935,7 @@ function SubAccountBilling({
                     alignSelf: "center",
                   }}
                 >
-                  {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                  {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
                 </div>
               </div>
 
@@ -990,7 +989,7 @@ function SubAccountBilling({
                       fontWeight: "700",
                     }}
                   >
-                    Mins
+                    AI Credits
                   </div>
                 </div>
                 {redeemLoader ? (
@@ -1008,7 +1007,7 @@ function SubAccountBilling({
                     }}
                     onClick={handleRedeemPlan}
                   >
-                    Claim my 30 minutes
+                    Claim my 30 AI Credits
                   </button>
                 )}
                 <button
@@ -1086,8 +1085,7 @@ function SubAccountBilling({
                     alignSelf: "center",
                   }}
                 >
-                  Canceling your AgentX means you lose access to your agents,
-                  leads, pipeline, staff and more.
+                  Canceling your account means you lose access to your agents, leads, pipeline, staff and more.
                 </div>
               </div>
 
@@ -1099,7 +1097,7 @@ function SubAccountBilling({
                   outline: "none",
                 }}
               >
-                Never mind, keep my AgentX
+                Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (
@@ -1200,7 +1198,7 @@ function SubAccountBilling({
                   marginTop: 30,
                 }}
               >
-                {`Tell us why you’re canceling to better improve our platform for you.`}
+                {`Tell us why you're cancelling so we can improve`}
               </div>
 
               <div className="w-full flex flex-row items-center justify-center">
