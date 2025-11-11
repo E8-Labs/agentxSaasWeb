@@ -618,9 +618,7 @@ function AgencyPlansPayments({
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
-                    let user = userLocalData
-                    user.plan.status = "cancelled"
-                    setUserLocalData(user)
+                    getProfile()
                     setSuccessSnack("Your plan was successfully cancelled");
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
