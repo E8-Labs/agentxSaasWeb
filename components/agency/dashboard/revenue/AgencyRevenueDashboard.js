@@ -13,6 +13,7 @@ import moment from "moment";
 import AgencyDashboard from "../AgencyDashboard";
 import AgencyDashboardDefaultUI from "../AgencyDashboardDefaultUI";
 import { CircularProgress } from "@mui/material";
+import { formatFractional2 } from "../../plan/AgencyUtilities";
 
 /**
  * AgencyRevenueDashboard - Main dashboard component arranging all revenue-related components
@@ -304,12 +305,12 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       accountIcon: String((idx % 9) + 1),
       product: t.productName || t.title || "Product",
       type: t.type || "-",
-      totalPaid: `$${Number(t.amountPaid || 0).toLocaleString()}`,
-      stripeFee: `$${Number(t.stripeFee || 0).toLocaleString()}`,
-      platformFee: `$${Number(t.platformFeeAmount || 0).toLocaleString()}`,
-      serviceCost: `$${Number(t.serviceCost || 0).toLocaleString()}`,
-      agentXShare: `$${Number(t.agentXShare || 0).toLocaleString()}`,
-      payout: `$${Number(t.agencyNetAmount || 0).toLocaleString()}`,
+      totalPaid: `$${formatFractional2(Number(t.amountPaid || 0))}`,
+      stripeFee: `$${formatFractional2(Number(t.stripeFee || 0))}`,
+      platformFee: `$${formatFractional2(Number(t.platformFeeAmount || 0))}`,
+      serviceCost: `$${formatFractional2(Number(t.serviceCost || 0))}`,
+      agentXShare: `$${formatFractional2(Number(t.agentXShare || 0))}`,
+      payout: `$${formatFractional2(Number(t.agencyNetAmount || 0))}`,
       date: moment(t.date).format("MM/DD/YYYY"),
       onHold: t.onHold || false,
       status: (t.status || "completed").toLowerCase().includes("complete")

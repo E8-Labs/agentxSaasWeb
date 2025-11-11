@@ -325,13 +325,58 @@ function TransactionTable({
               <TableHeader>
                 <TableRow className="border-b border-gray-200">
                   <TableHead className="text-gray-600 font-medium">Sub account</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Product...</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Product Name</TableHead>
                   <TableHead className="text-gray-600 font-medium">Type</TableHead>
                   <TableHead className="text-gray-600 font-medium">Total Paid</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Stripe Fee</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Platform Fee</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Service Cost</TableHead>
-                  <TableHead className="text-gray-600 font-medium">AgentX Share</TableHead>
+                  <TableHead className="text-gray-600 font-medium">Stripe</TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    <Tooltip
+                        title={`The partner share isn’t just a fee — it’s what fuels new features, better tools, and ongoing innovation designed to help your agency reach the next level. Upgrade to save 20%.`}
+                        componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff",
+                            color: "#333",
+                            fontSize: "14px",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff",
+                          },
+                        },
+                      }}
+                    >
+                      <span className="cursor-help">Partner Share</span>
+                    </Tooltip>
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    <Tooltip
+                      title={` Its the cost of your AI credits sold on this plan. Currently your cost per credit is dependent on your plan. Upgrade to save 30%. `}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff",
+                            color: "#333",
+                            fontSize: "14px",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff",
+                          },
+                        },
+                      }}
+                    >
+                      <span className="cursor-help">Credits</span>
+                    </Tooltip>
+                  </TableHead>
                   <TableHead className="text-gray-600 font-medium">Payout</TableHead>
                   <TableHead className="text-gray-600 font-medium">Date</TableHead>
                   <TableHead className="text-gray-600 font-medium">Status</TableHead>
