@@ -193,16 +193,16 @@ function UserPlans({
                 plan: selectedPlan?.id,
             };
 
-            if (isFrom === "SubAccount") {
+            if (isFrom === "SubAccount" || reduxUser?.userRole === "Agency") {
                 ApiData = {
-                    planId: "id"
+                    planId: selectedPlan?.id || hoverPlan?.id
                 }
             }
 
             // //console.log;
 
             let ApiPath = Apis.subscribePlan;
-            if (isFrom === "SubAccount") {
+            if (isFrom === "SubAccount" || reduxUser?.userRole === "Agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             // //console.log;
@@ -218,6 +218,10 @@ function UserPlans({
                 console.log("Response of subscribe plan api is", response.data);
                 if (response.data.status === true) {
                     await refreshUserData();
+                    if(reduxUser?.userRole === "Agency") {
+                        router.push("/agency/dashboard");
+                        return;
+                    }
                     if (from === "dashboard") {
                         router.push("/dashboard")
                         console.log('route to dashboard')
@@ -556,33 +560,7 @@ function UserPlans({
                                     e.preventDefault();
                                     e.stopPropagation();
                                     handleTogglePlanClick(item, index);
-                                    console.log("item.discountPrice", item.discountPrice)
-                                    console.log("isFrom in user plans", isFrom)
-                                    if (isFrom == "SubAccount" || isFrom == "Agency") {
-                                        setTimeout(() => {
-                                            setAddPaymentPopUp(true)
-                                        }, 300)
-                                        return;
-                                    }
-
-                                    // If opened from billing modal, callback with selected plan
-                                    if (from === 'billing-modal' && onPlanSelected) {
-                                        onPlanSelected(item);
-                                        return;
-                                    }
-
-                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                        // Monthly plan selected - show yearly plan modal
-                                        setSelectedMonthlyPlan(item);
-                                        setShowYearlyPlanModal(true);
-                                    } else {
-                                        if (item.discountPrice > 0) {
-                                            // Quarterly or Yearly plan - proceed directly
-                                            setAddPaymentPopUp(true)
-                                        } else {
-                                            handleSubscribePlan()
-                                        }
-                                    }
+                                  
                                 }}
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
@@ -668,11 +646,15 @@ function UserPlans({
                                                             handleTogglePlanClick(item, index);
                                                             console.log("item.discountPrice", item.discountPrice)
                                                             console.log("isFrom in user plans", isFrom)
-                                                            if (isFrom == "SubAccount" || (routedFrom == "Agency" && reduxUser?.consecutivePaymentFailures >= 3)) {
+                                                            if (reduxUser?.consecutivePaymentFailures >= 3) {
                                                                 setTimeout(() => {
                                                                     setAddPaymentPopUp(true)
                                                                 }, 300)
                                                                 return;
+                                                            }
+                                                            if(reduxUser?.userRole === "Agency") {
+                                                               handleSubscribePlan()
+                                                               return;
                                                             }
 
                                                             // If opened from billing modal, callback with selected plan
