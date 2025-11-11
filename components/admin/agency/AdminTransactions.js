@@ -380,7 +380,7 @@ function AdminTransactions() {
               </div>
 
               <div className="w-[15%]">
-                <div style={styles.cell}>{transaction.productName}</div>
+                <div style={styles.cell}>{transaction.title}</div>
               </div>
 
               <div className="w-[7%]">
