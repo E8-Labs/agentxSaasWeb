@@ -36,6 +36,7 @@ import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { useUser } from "@/hooks/redux-hooks";
 import CancelConfirmation from "@/components/myAccount/cancelationFlow/CancelConfirmation";
+import CancelPlanAnimation from "@/components/myAccount/cancelationFlow/CancelPlanAdnimation";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -82,6 +83,10 @@ function SubAccountPlansAndPayments({
     //snack messages variables
     const [successSnack, setSuccessSnack] = useState(null);
     const [errorSnack, setErrorSnack] = useState(null);
+    const [showSnack, setShowSnack] = useState({
+        message: null,
+        type: null
+    });
 
     //variables for cancel plan
     const [giftPopup, setGiftPopup] = useState(false);
@@ -90,6 +95,8 @@ function SubAccountPlansAndPayments({
     const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
     const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+    const [showCancelPopup, setShowCancelPopup] = useState(false);
+    const [cancelInitiateLoader, setCancelInitiateLoader] = useState(false);
 
     const [plans, setPlans] = useState([])
     const [initialLoader, setInitialLoader] = useState(false);
@@ -537,18 +544,45 @@ function SubAccountPlansAndPayments({
         // setTogglePlan(prevId => (prevId === id ? null : id));
     };
 
-    //handle cancel pla click
-    const handleCancelPlanClick = () => {
-        if (
-            userLocalData?.isTrial === false &&
-            userLocalData?.cancelPlanRedemptions === 0
-        ) {
-            // Show gift window first if allowed
-            setGiftPopup(true);
-        } else {
-            // If gift not allowed, go directly to features to lose window
-            setShowCancelConfirmation(true);
+    //handle cancel plan click
+    const handleCancelPlanClick = async () => {
+        setCancelInitiateLoader(true);
+        try {
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            // Use initiateCancellation from UserPlanServices, but we need to call API directly for subaccounts
+            let ApiPath = Apis.initiateCancelation;
+            if (selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
+
+            await axios.post(ApiPath, {}, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            setShowCancelPopup(true);
+        } catch (error) {
+            console.error("Error initiating cancellation:", error);
+            setErrorSnack("Failed to initiate cancellation");
+        } finally {
+            setCancelInitiateLoader(false);
         }
+    }
+
+    const handleCloseCancelation = async () => {
+        setShowCancelPopup(false);
+        await getProfile();
+        // Refresh payment history and cards after cancellation
+        await getPaymentHistory();
+        await getCardsList();
     }
 
     //function to subscribe plan
@@ -720,7 +754,7 @@ function SubAccountPlansAndPayments({
                     setUserLocalData(user)
                     await getProfile();
                     //console.log
-                    setSuccessSnack(response.data.message);
+                    setSuccessSnack("Account canceled");
 
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -861,7 +895,7 @@ function SubAccountPlansAndPayments({
                     //console.log;
                     if (response.data.status === true) {
                         setShowConfirmCancelPlanPopup2(false);
-                        setSuccessSnack(response.data.message);
+                        setSuccessSnack("Reason submitted");
                     } else if (response.data.status === true) {
                         setErrorSnack(response.data.message);
                     }
@@ -935,6 +969,14 @@ function SubAccountPlansAndPayments({
                 }}
                 message={successSnack}
                 type={SnackbarTypes.Success}
+            />
+            <AgentSelectSnackMessage
+                isVisible={showSnack.message != null}
+                hide={() => {
+                    setShowSnack({ message: null, type: null });
+                }}
+                message={showSnack.message}
+                type={showSnack.type}
             />
             <div className="w-full flex flex-row items-center justify-between">
                 <div className="flex flex-col">
@@ -1104,139 +1146,6 @@ function SubAccountPlansAndPayments({
             <SmartRefillCard />
 
             {/* code for current plans available */}
-
-            {/*plans?.map((item, index) => (
-                <button
-                    key={item.id}
-                    className="w-9/12 mt-4 outline-none"
-                    onClick={(e) => handleTogglePlanClick(item)}
-                >
-                    {item.hasTrial && (
-                        <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
-                            <div className="flex flex-row items-center gap-2">
-                                <Image
-                                    src={"/otherAssets/batchIcon.png"}
-                                    alt="*"
-                                    height={24}
-                                    width={24}
-                                />
-                                <div
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 18,
-                                        color: "white",
-                                    }}
-                                >
-                                    First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    <div
-                        className={`px-4 py-1 pb-4 ${item.hasTrial ? "rounded-b-lg" : "rounded-lg"}`}
-                        style={{
-                            ...styles.pricingBox,
-                            border:
-                                item.id === togglePlan
-                                    ? "2px solid #7902DF"
-                                    : "1px solid #15151520",
-                            backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                        }}
-                    >
-                        <div
-                            style={{ ...styles.triangleLabel, borderTopRightRadius: item.hasTrial ? "0px" : "7px" }}
-                        ></div>
-                        <span style={styles.labelText}>{item.percentageDiscount}</span>
-                        <div
-                            className="flex flex-row items-start gap-3"
-                            style={styles.content}
-                        >
-                            <div className="mt-1">
-                                <div>
-                                    {item.id === togglePlan ? (
-                                        <Image
-                                            src={"/svgIcons/checkMark.svg"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    ) : (
-                                        <Image
-                                            src={"/svgIcons/unCheck.svg"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            <div className="w-full">
-                                {item.id === currentPlan && currentPlanDetails?.status === "active" && (
-                                    <div
-                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 11.6,
-                                            fontWeight: "500",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
-                                    </div>
-                                )}
-
-                                <div className="flex flex-row items-center gap-3">
-                                    <div className="flex flex-row items-center gap-4">
-                                        <div
-                                            style={{
-                                                color: "#151515",
-                                                fontSize: 20,
-                                                fontWeight: "600",
-                                            }}
-                                        >
-                                            {item.title} | {item.minutes} credits
-                                        </div>
-                                        {item.tag && (
-                                            <div className="bg-purple text-white px-4 py-1 rounded-full">
-                                                {item.tag}
-                                            </div>
-                                        )}
-                                    </div>
-                                    {item.status && (
-                                        <div
-                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                            style={{ fontSize: 11.6, fontWeight: "500" }}
-                                        >
-                                            {item.status}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-row items-center justify-between">
-                                    <div
-                                        className="mt-2"
-                                        style={{
-                                            color: "#15151590",
-                                            fontSize: 12,
-                                            width: "60%",
-                                            fontWeight: "600",
-                                        }}
-                                    >
-                                        {item.planDescription}
-                                    </div>
-                                    <div className="flex flex-row items-center">
-
-                                        <div className="flex flex-row justify-start items-start ">
-                                            <div style={styles.discountedPrice}>
-                                                ${formatFractional2(item.discountedPrice)}
-                                            </div>
-                                            <p style={{ color: "#15151580" }}>/mo*</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </button>
-            ))*/}
 
             {
                 (
@@ -1459,7 +1368,7 @@ function SubAccountPlansAndPayments({
 
                                 <div className="flex flex-row items-center justify-between w-full">
                                     <div>
-                                        {item.id === currentPlan && (
+                                        {item.id === currentPlan &&   userLocalData?.plan?.status !== "cancelled" && (
                                             <div
                                                 className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
                                                 style={{
@@ -1533,6 +1442,7 @@ function SubAccountPlansAndPayments({
                                     // handleSubscribePlan();
                                 }
                             }}
+                            disabled={cancelInitiateLoader}
                         >
                             {planTitleTag()}
                         </button>
@@ -2200,6 +2110,17 @@ function SubAccountPlansAndPayments({
                     </div>
                 </Box>
             </Modal>
+
+            {/* Cancel Plan Animation Modal */}
+            <CancelPlanAnimation
+                showModal={showCancelPopup}
+                handleClose={handleCloseCancelation}
+                userLocalData={userLocalData}
+                setShowSnak={setShowSnack}
+                isPaused={false}
+                isSubaccount={true}
+                selectedUser={selectedUser}
+            />
         </div>
     );
 }

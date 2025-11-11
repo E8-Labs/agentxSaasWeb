@@ -6,7 +6,9 @@ import { getUserPlans } from '@/components/userPlans/UserPlanServices'
 import { getFeaturesToLose, getFreePlan } from '@/utilities/PlanComparisonUtils'
 import { useUser } from '@/hooks/redux-hooks'
 function CancelConfirmation({
-    handleContinue
+    handleContinue,
+    isSubaccount = false,
+    selectedUser = null
 }) {
 
     const [confirmChecked, setConfirmChecked] = useState(false)
@@ -68,7 +70,7 @@ function CancelConfirmation({
                 console.log('🔍 [CANCELATION FLOW] User plan:', userPlan)
                 console.log('🔍 [CANCELATION FLOW] Current plan details:', currentPlanDetails)
 
-                if (currentPlanDetails) {
+                if (currentPlanDetails && !isSubaccount) {
                     // Get free plan for comparison (cancellation means going to free)
                     let freePlan = allPlans.find(plan => plan.name === 'Free' || plan.isFree === 1)
 
@@ -102,6 +104,9 @@ function CancelConfirmation({
                     }))
 
                     setFeatures(planFeatures)
+                } else if (isSubaccount) {
+                    console.log('🔍 [CANCELATION FLOW] setting features for subaccount', selectedUser)
+                    setFeatures(selectedUser?.plan?.features)
                 } else {
                     // Fallback to default features if plan details not found
                     setFeatures(getDefaultFeatures())
@@ -163,7 +168,7 @@ function CancelConfirmation({
                         <div
                             className="text-center text-sm lg:text-base font-normal leading-tight lg:leading-normal"
                         >
-                            {`Cancelling means you'll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
+                            {`Cancelling means you'll lose access to the features below starting  `}<span className="font-bold">{nxtCharge}</span>{` . Still want to move forward?`}    
                         </div>
 
                         <div

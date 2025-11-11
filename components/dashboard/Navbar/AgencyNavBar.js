@@ -406,7 +406,7 @@ const AgencyNavBar = () => {
   return (
     <div>
       <AgentSelectSnackMessage
-        isVisible={showsuccessSnack}
+        isVisible={true}
         hide={() => setShowSuccessSnack(false)}
         message={successSnack}
         type={SnackbarTypes.Success}
@@ -702,7 +702,16 @@ const AgencyNavBar = () => {
                   //selectedPlan={selectedPlan}
                   // stop={stop}
                   // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
-                  handleClose={() => setShowAddPaymentPopup(false)}
+                  handleClose={(result) => {
+                    console.log('result is', result)
+                    if(result){
+                      setShowAddPaymentPopup(false)
+                      setSuccessSnack("Payment method updated")
+                    }else{
+                      setShowAddPaymentPopup(false)
+                      setShowErrorSnack("Failed to update payment method")
+                    }
+                  }}
                 // togglePlan={""}
                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />

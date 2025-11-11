@@ -2,11 +2,15 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import { completeCancelation, pauseSubscription } from '@/components/userPlans/UserPlanServices';
 import { CircularProgress, TextField } from '@mui/material';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react';
+import axios from 'axios';
+import Apis from '@/components/apis/Apis';
+import { AuthToken } from '@/components/agency/plan/AuthDetails';
 
 function CancelationFinalStep({
     handleContinue,
-    setShowSnak
+    setShowSnak,
+    selectedUser = null
 }) {
 
 
@@ -65,14 +69,37 @@ function CancelationFinalStep({
     const handleCancel = async () => {
         setloading(true)
         let response = null;
-        if (selectReason === "Others") {
-            response = await completeCancelation(otherReasonInput)
-        } else
-             response = await completeCancelation(selectReason)
+        const reason = selectReason === "Others" ? otherReasonInput : selectReason;
+        
+        // For subaccounts, call API directly with userId
+        if (selectedUser) {
+            try {
+                const token = AuthToken();
+                const ApiPath = `${Apis.completeCancelatiton}?userId=${selectedUser.id}`;
+                
+                const apiResponse = await axios.post(ApiPath, {
+                    cancellationReason: reason
+                }, {
+                    headers: {
+                        "Authorization": 'Bearer ' + token,
+                        "Content-Type": 'application/json'
+                    }
+                });
+                
+                response = apiResponse.data;
+            } catch (error) {
+                console.error('Error completing cancellation:', error);
+                setShowError(error?.response?.data?.message || "Failed to cancel subscription");
+                setloading(false);
+                return;
+            }
+        } else {
+            response = await completeCancelation(reason);
+        }
         console.log('data', response)
 
         setShowSnak({
-            message: response.message,
+            message: "Account canceled",
             type: SnackbarTypes.Success
         })
         if (response.status === true) {

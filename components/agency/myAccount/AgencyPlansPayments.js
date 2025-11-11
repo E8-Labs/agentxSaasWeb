@@ -614,13 +614,14 @@ function AgencyPlansPayments({
             if (response) {
                 if (response.data.status === true) {
                     console.log("response.data.data", response.data)
-                    await getProfileDetails();
+                   
                     setShowConfirmCancelPlanPopup(false);
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
                     getProfile()
-                    setSuccessSnack("Your plan was successfully cancelled");
+                    setSuccessSnack("Account canceled");
+                    await getProfileDetails();
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }

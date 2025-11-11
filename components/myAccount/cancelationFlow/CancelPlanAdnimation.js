@@ -32,7 +32,8 @@ export default function CancelPlanAnimation({
     userLocalData,
     setShowSnak,
     isPaused,
-
+    isSubaccount = false,
+    selectedUser = null,
 }) {
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [direction, setDirection] = useState(0);
@@ -48,7 +49,10 @@ export default function CancelPlanAnimation({
 
     const getCUrrentComponent = async () => {
         console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
-        if (isPaused || userLocalData?.subscriptionPauseUsed > 0) {
+
+        // For subaccounts, skip pause and deal windows - go directly to CancelConfirmation
+
+        if ((isPaused || userLocalData?.subscriptionPauseUsed > 0) && !isSubaccount) {
             if (
                 userLocalData?.isTrial === false &&
                 userLocalData?.cancelPlanRedemptions === 0
@@ -67,7 +71,19 @@ export default function CancelPlanAnimation({
                     setCurrentIndex((prevIndex) => prevIndex + 4);
                 }
             }
-        } else {
+        } else if (isSubaccount) {
+            if (
+                userLocalData?.cancelPlanRedemptions === 0
+            ) {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 2);
+            }else {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 4);
+            }
+        }
+
+        else {
             setCurrentIndex(0)
         }
     }
@@ -78,9 +94,13 @@ export default function CancelPlanAnimation({
             console.log(nextAction);
             if (nextAction === "closeModel") {
                 handleClose()
-                setCurrentIndex(0)
+                setCurrentIndex(isSubaccount ? 3 : 0)
             } else if (nextAction == "claimGift") {
-                if (
+                // Skip gift/offer windows for subaccounts
+                if (isSubaccount) {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex + 1); // Go to CancelConfirmation
+                } else if (
                     userLocalData?.isTrial === false &&
                     userLocalData?.cancelPlanRedemptions === 0
                 ) {
@@ -97,23 +117,33 @@ export default function CancelPlanAnimation({
                         setDirection(1);
                         setCurrentIndex((prevIndex) => prevIndex + 3);
                     }
-
-
                 }
 
             } else if (nextAction === "obtainOffer") {
-                setDirection(1);
-                setCurrentIndex((prevIndex) => prevIndex + 1);
-            } else if (nextAction === "cancelConfirmationFromGift") {
-                let data = await getDiscount()
-
-                console.log('data', data)
-                if (data?.discountOffer?.alreadyUsed === false) {
+                // Skip offer window for subaccounts
+                if (isSubaccount) {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 1);
+                    setCurrentIndex((prevIndex) => prevIndex + 1); // Go to CancelConfirmation
                 } else {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 2);
+                    setCurrentIndex((prevIndex) => prevIndex + 1);
+                }
+            } else if (nextAction === "cancelConfirmationFromGift") {
+                // Skip for subaccounts - already at CancelConfirmation
+                if (isSubaccount) {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex); // Stay at CancelConfirmation
+                } else {
+                    let data = await getDiscount()
+
+                    console.log('data', data)
+                    if (data?.discountOffer?.alreadyUsed === false) {
+                        setDirection(1);
+                        setCurrentIndex((prevIndex) => prevIndex + 1);
+                    } else {
+                        setDirection(1);
+                        setCurrentIndex((prevIndex) => prevIndex + 2);
+                    }
                 }
             } else if (nextAction === "cancelConfirmationFromDeal") {
                 setDirection(1);
@@ -275,6 +305,8 @@ export default function CancelPlanAnimation({
                                         <CancelConfirmation
                                             handleContinue={handleContinue}
                                             setShowSnak={setShowSnak}
+                                            isSubaccount={isSubaccount}
+                                            selectedUser={selectedUser}
                                         />
                                     </div>
                                 </div>
@@ -305,6 +337,7 @@ export default function CancelPlanAnimation({
                                     <CancelationFinalStep
                                         handleContinue={handleContinue}
                                         setShowSnak={setShowSnak}
+                                        selectedUser={selectedUser}
                                     />
 
                                 </div>
