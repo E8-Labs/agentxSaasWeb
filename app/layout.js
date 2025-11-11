@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { ReduxProvider } from "../components/providers/redux-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -127,6 +128,7 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           {children}
         </ReduxProvider>
+        <Toaster />
 
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
