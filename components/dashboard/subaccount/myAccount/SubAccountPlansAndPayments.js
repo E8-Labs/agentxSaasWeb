@@ -35,6 +35,7 @@ import UserPlans from "@/components/userPlans/UserPlans";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { useUser } from "@/hooks/redux-hooks";
+import CancelConfirmation from "@/components/myAccount/cancelationFlow/CancelConfirmation";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -88,6 +89,7 @@ function SubAccountPlansAndPayments({
     const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] = useState(false);
     const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
+    const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
 
     const [plans, setPlans] = useState([])
     const [initialLoader, setInitialLoader] = useState(false);
@@ -541,12 +543,11 @@ function SubAccountPlansAndPayments({
             userLocalData?.isTrial === false &&
             userLocalData?.cancelPlanRedemptions === 0
         ) {
-            // //console.log;
+            // Show gift window first if allowed
             setGiftPopup(true);
-        } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
-        else {
-            // //console.log;
-            setShowConfirmCancelPlanPopup(true);
+        } else {
+            // If gift not allowed, go directly to features to lose window
+            setShowCancelConfirmation(true);
         }
     }
 
@@ -1163,7 +1164,7 @@ function SubAccountPlansAndPayments({
                                 </div>
                             </div>
                             <div className="w-full">
-                                {item.id === currentPlan && (
+                                {item.id === currentPlan && currentPlanDetails?.status === "active" && (
                                     <div
                                         className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                                         style={{
@@ -1328,14 +1329,27 @@ function SubAccountPlansAndPayments({
                                         */}
                                         <div>
                                             {
-                                                item.id === currentPlan && userLocalData?.nextChargeDate && (
-                                                    <div style={{
-                                                        fontSize: 11.6,
-                                                        fontWeight: "500",
-                                                        width: "fit-content",
-                                                    }}>
-                                                        Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
-                                                    </div>
+                                                item.id === currentPlan && (
+                                                    userLocalData?.plan?.status === "cancelled" ? (
+                                                        <div
+                                                            className="flex px-2 py-1 bg-red-500 rounded-full text-white"
+                                                            style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}
+                                                        >
+                                                            Cancelled
+                                                        </div>
+                                                    ) : userLocalData?.nextChargeDate ? (
+                                                        <div style={{
+                                                            fontSize: 11.6,
+                                                            fontWeight: "500",
+                                                            width: "fit-content",
+                                                        }}>
+                                                            Renews on: {moment(userLocalData.nextChargeDate).format("MM/DD/YYYY")}
+                                                        </div>
+                                                    ) : null
                                                 )
                                             }
                                         </div>
@@ -1645,6 +1659,44 @@ function SubAccountPlansAndPayments({
                 )
             }
 
+            {/* Features to lose window (Cancel Confirmation) */}
+            <Modal
+                open={showCancelConfirmation}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000030",
+                    },
+                }}
+            >
+                <Box
+                    className="md:w-8/12 lg:w-7/12 sm:w-11/12 w-full"
+                    sx={styles.paymentModal}
+                >
+                    <div className="bg-white rounded-2xl p-6 max-w-4xl w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                        <div className='flex flex-row justify-between items-center w-full mb-4'>
+                            <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                What You'll Lose
+                            </div>
+                            <CloseBtn
+                                onClick={() => setShowCancelConfirmation(false)}
+                            />
+                        </div>
+                        <div className="flex-1 overflow-y-auto">
+                            <CancelConfirmation
+                                handleContinue={(nextAction) => {
+                                    if (nextAction === "finalStep") {
+                                        setShowCancelConfirmation(false);
+                                        setShowConfirmCancelPlanPopup(true);
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+
             {/* Add Payment Modal */}
             <Modal
                 open={addPaymentPopUp} //addPaymentPopUp
@@ -1842,10 +1894,11 @@ function SubAccountPlansAndPayments({
                                         fontSize: 16.8,
                                     }}
                                     onClick={() => {
-                                        setShowConfirmCancelPlanPopup(true);
+                                        setGiftPopup(false);
+                                        setShowCancelConfirmation(true);
                                     }}
                                 >
-                                    {`No thank you, I’d like to cancel my AssignX`}
+                                    {`No thank you, I'd like to cancel my AssignX`}
                                 </button>
                             </div>
                         </div>

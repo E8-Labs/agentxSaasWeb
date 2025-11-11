@@ -1760,13 +1760,26 @@ function NewBilling() {
                                                 <div>
                                                     {
                                                         item.id === currentPlan && (
-                                                            <div style={{
-                                                                fontSize: 11.6,
-                                                                fontWeight: "500",
-                                                                width: "fit-content",
-                                                            }}>
-                                                                Renews on: {reduxUser?.nextChargeDate && moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
-                                                            </div>
+                                                            userLocalData?.plan?.status === "cancelled" ? (
+                                                                <div
+                                                                    className="flex px-2 py-1 bg-red-500 rounded-full text-white"
+                                                                    style={{
+                                                                        fontSize: 11.6,
+                                                                        fontWeight: "500",
+                                                                        width: "fit-content",
+                                                                    }}
+                                                                >
+                                                                    Cancelled
+                                                                </div>
+                                                            ) : (
+                                                                <div style={{
+                                                                    fontSize: 11.6,
+                                                                    fontWeight: "500",
+                                                                    width: "fit-content",
+                                                                }}>
+                                                                    Renews on: {reduxUser?.nextChargeDate && moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
+                                                                </div>
+                                                            )
                                                         )
                                                     }
                                                 </div>

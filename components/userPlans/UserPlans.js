@@ -470,7 +470,7 @@ function UserPlans({
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}>{`Gets more done than coffee. Cheaper too. ${isFrom != "Agency" ? "Cancel anytime." : ""}`}<span>😉</span></span>
+                            }}>{`Gets more done than coffee. Cheaper too. ${reduxUser?.userRole != "Agency" ? "Cancel anytime." : ""}`}<span>😉</span></span>
 
                         </div>
                     </div>

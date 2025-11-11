@@ -91,6 +91,7 @@ function CancelConfirmation({
                         console.log('🔧 [CANCELATION FLOW] Added capabilities to free plan:', freePlan);
                     }
 
+
                     // Use getFeaturesToLose function to get actual features that will be lost
                     const featuresToLose = getFeaturesToLose(currentPlanDetails, freePlan)
 

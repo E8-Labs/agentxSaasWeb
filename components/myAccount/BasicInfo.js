@@ -117,6 +117,10 @@ function BasicInfo() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Error message states
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const [selected, setSelected] = useState([]);
   const [selectedArea, setSelectedArea] = useState([]);
 
@@ -505,15 +509,25 @@ function BasicInfo() {
 
   const handleEmailSave = async () => {
     try {
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMessage("Please enter a valid email address");
+        setShowErrorMessage(true);
+        return;
+      }
+
       setLoading13(true);
       const data = { email: email };
       await UpdateProfile(data);
       setLoading13(false);
       setIsEmailChanged(false);
-      showSuccess("Account Updated");
+      showSuccess("Email updated successfully");
     } catch (e) {
       setLoading13(false);
-      // //console.log;
+      setErrorMessage("Failed to update email. Please try again.");
+      setShowErrorMessage(true);
+      console.error("Error updating email:", e);
     }
   };
 
@@ -1047,7 +1061,7 @@ function BasicInfo() {
             setEmail(event.target.value);
             setIsEmailChanged(true);
           }}
-          type="text"
+          type="email"
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
@@ -2314,6 +2328,14 @@ function BasicInfo() {
         hide={() => setShowSuccessMessage(false)}
         message={successMessage}
         type={SnackbarTypes.Success}
+      />
+
+      {/* Error Message */}
+      <AgentSelectSnackMessage
+        isVisible={showErrorMessage}
+        hide={() => setShowErrorMessage(false)}
+        message={errorMessage}
+        type={SnackbarTypes.Error}
       />
     </div>
   );

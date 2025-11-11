@@ -26,6 +26,8 @@ import { useUser } from "../../hooks/redux-hooks";
 import { usePlanCapabilities } from "../../hooks/use-plan-capabilities";
 import getProfileDetails from "../apis/GetProfile";
 import { isPlanActive } from "../userPlans/UserPlanServices";
+import { Input } from "@/components/ui/input"
+
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
@@ -874,24 +876,23 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
                   </div>
                 </Popover>
-                <input
+                <Input
+                  value={agentName}
+                  onChange={(e) => {
+                    setAgentName(e.target.value);
+                  }}
+                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                  style={{
+                    ...styles.inputStyle,
+                    border: "1px solid #00000020",
+                  }}
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck="false"
                   enterKeyHint="done"
                   maxLength={40}
-                  style={{
-                    ...styles.inputStyle,
-                    border: "1px solid #00000020",
-                  }}
-                  value={agentName}
-                  onChange={(e) => {
-                    setAgentName(e.target.value);
-                  }}
                 />
-
 
                 <div className="mt-2" style={styles.headingStyle}>
                   {`What's this AI agent's task?`}
@@ -971,7 +972,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div className="mt-2" style={styles.headingStyle}>
                   {`What's this AI agent's title?`}
                 </div>
-                <input
+                <Input
                   autoComplete="off"
                   autoCorrect="on"
                   spellCheck="true"
@@ -1058,11 +1059,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                                             value={otherObjVal}
                                             onChange={(e) => { setOtherObjVal(e.target.value) }}
                                         /> */}
-                    <input
+                    <Input
                       ref={bottomRef}
-                      // autoComplete="off"
-                      // autoCorrect="off"
-                      // spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Type Here...."
                       className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
@@ -1338,19 +1336,17 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
 
                     <div className="mt-1">
-                      <input
-                        className="h-[50px] border rounded-lg outline-none border p-3 w-full focus:outline-none focus:ring-0"
-                        // rows={3}
-                        placeholder="Type here..."
-                        value={otherStatus}
-                        onChange={(e) => {
-                          setOtherStatus(e.target.value);
-                        }}
-                        style={{
-                          ...styles.inputStyle,
-                          border: "1px solid #00000020",
-                        }}
-                      />
+                    <Input
+                    className="h-[50px] border rounded-lg p-3 w-full focus:outline-none focus:ring-0 focus:border-[#00000020]"
+                    placeholder="Type here..."
+                    value={otherStatus}
+                    onChange={(e) => setOtherStatus(e.target.value)}
+                    style={{
+                      ...styles.inputStyle,
+                      border: "1px solid #00000020",
+                    }}
+                  />
+                  
                     </div>
                   </div>
                 )}
@@ -1360,7 +1356,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 </div>
                 {/* Simple address input */}
                 <div className="mt-1 pb-4">
-                  <input
+                  <Input
                     className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
                     style={{ border: "1px solid #00000020" }}
                     placeholder="Enter property address..."

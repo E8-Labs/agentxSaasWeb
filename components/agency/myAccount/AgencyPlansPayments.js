@@ -800,9 +800,11 @@ function AgencyPlansPayments({
 
         console.log("Current plan id is", currentPlan);
         console.log("Toggle plan id is", togglePlan);
+        console.log("Current plan details are", currentPlanDetails?.status);
         console.log("Plans list:", plansList.map(p => p.id)); // ✅ this will print all IDs
 
         if (!togglePlan) return "Select a Plan";
+        if(currentPlanDetails?.status === "cancelled") return "";
 
         // if (togglePlan === currentPlan) {
         //     console.log("Plan status is Current");
@@ -1134,7 +1136,7 @@ function AgencyPlansPayments({
                                 </div>
                             </div>
                             <div className="w-full">
-                                {item.id === currentPlan && (
+                                {item.id === currentPlan && currentPlanDetails?.status === "active" && (
                                     <div
                                         className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                                         style={{
@@ -1246,13 +1248,26 @@ function AgencyPlansPayments({
                                         <div>
                                             {
                                                 item.id === currentPlan && (
-                                                    <div style={{
-                                                        fontSize: 11.6,
-                                                        fontWeight: "500",
-                                                        width: "fit-content",
-                                                    }}>
-                                                        Renews on: {userLocalData?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
-                                                    </div>
+                                                    userLocalData?.plan?.status === "cancelled" ? (
+                                                        <div
+                                                            className="flex px-2 py-1 bg-red-500 rounded-full text-white"
+                                                            style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}
+                                                        >
+                                                            Cancelled
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{
+                                                            fontSize: 11.6,
+                                                            fontWeight: "500",
+                                                            width: "fit-content",
+                                                        }}>
+                                                            Renews on: {userLocalData?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                        </div>
+                                                    )
                                                 )
                                             }
                                         </div>
@@ -1321,7 +1336,7 @@ function AgencyPlansPayments({
 
                                 <div className="flex flex-row items-center justify-between w-full">
                                     <div>
-                                        {item.id === currentPlan && (
+                                        {item.id === currentPlan && currentPlanDetails?.status === "active" && (
                                             <div
                                                 className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
                                                 style={{
