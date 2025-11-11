@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Tooltip } from "@mui/material";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -381,9 +381,30 @@ function TransactionTable({
                       <div className="flex items-center gap-2 flex-wrap">
                         {item.payout}
                         {item.onHold && (
-                          <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap">
-                            On Hold
-                          </span>
+                          <Tooltip
+                            title="This payment is on hold for either failed payments or plan cancellation. Please check your billing details."
+                            componentsProps={{
+                              tooltip: {
+                                sx: {
+                                  backgroundColor: "#ffffff",
+                                  color: "#333",
+                                  fontSize: "14px",
+                                  padding: "10px 15px",
+                                  borderRadius: "8px",
+                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                                },
+                              },
+                              arrow: {
+                                sx: {
+                                  color: "#ffffff",
+                                },
+                              },
+                            }}
+                          >
+                            <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 font-semibold whitespace-nowrap cursor-help">
+                              On Hold
+                            </span>
+                          </Tooltip>
                         )}
                       </div>
                     </TableCell>

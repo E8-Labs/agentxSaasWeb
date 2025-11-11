@@ -609,8 +609,27 @@ export default function AddMonthlyPlan({
                 msOverflowStyle: "none",
               }}
             >
-              <div className="mb-4" style={{ fontWeight: "600", fontSize: 18 }}>
-                {isEditPlan ? "Edit Plan" : "New Plan"}
+              <div className="mb-4 flex items-center justify-between" style={{ fontWeight: "600", fontSize: 18 }}>
+                <div>
+                  {isEditPlan ? "Edit Plan" : "New Plan"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium" style={{ fontSize: "15px", fontWeight: "500" }}>Default Plan</label>
+                  <Switch
+                    checked={isDefault}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'white',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: '#7902DF',
+                      },
+                    }}
+                    onChange={(e) => {
+                      setIsDefault(e.target.checked)
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="w-full flex flex-row items-center justify-center gap-2">
@@ -842,25 +861,6 @@ export default function AddMonthlyPlan({
                       : sanitized;
                     // setOriginalPrice(valid);
                     setOriginalPrice(valid);
-                  }}
-                />
-              </div>
-
-              {/* Default plan */}
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">Default Plan</label>
-                <Switch
-                  checked={isDefault}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: 'white',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#7902DF',
-                    },
-                  }}
-                  onChange={(e) => {
-                    setIsDefault(e.target.checked)
                   }}
                 />
               </div>

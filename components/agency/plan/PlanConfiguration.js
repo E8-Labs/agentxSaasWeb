@@ -351,6 +351,8 @@ export default function PlanConfiguration({
             const twilioValue = dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false;
             // If Text Messages is enabled, ensure Twilio is also enabled
             const finalTwilioValue = allowTextMessagesValue ? true : twilioValue;
+            // If Twilio is disabled, ensure Text Messages is also disabled
+            const finalAllowTextMessagesValue = twilioValue ? allowTextMessagesValue : false;
             
             setFeatures({
                 // allowLanguageSelection:
@@ -366,7 +368,7 @@ export default function PlanConfiguration({
                 embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
                 apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
-                allowTextMessages: allowTextMessagesValue,
+                allowTextMessages: finalAllowTextMessagesValue,
                 twilio: finalTwilioValue,
                 sendText: dynamicFeatures?.sendText || dynamicFeatures?.allowTextMessages || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
@@ -753,6 +755,11 @@ export default function PlanConfiguration({
             // If Text Messages is enabled, automatically enable Twilio
             if (key === "allowTextMessages" && newState.allowTextMessages) {
                 newState.twilio = true;
+            }
+
+            // If Twilio is disabled, automatically disable Text Messages
+            if (key === "twilio" && !newState.twilio) {
+                newState.allowTextMessages = false;
             }
 
             // if allowTeamSeats just got enabled, scroll down
