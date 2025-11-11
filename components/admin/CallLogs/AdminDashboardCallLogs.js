@@ -444,7 +444,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           className="pl-10 mt-5"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
-          {"Activities"}
+          {"Activity"}
         </div>
         {
           !selectedAgency && (
@@ -693,29 +693,29 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
 
-                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
                               <div style={styles.text2}>
                                 {item.agency?.name || "-"}
                               </div>
                             </div>
 
-                            <div className="w-[200px] flex-shrink-0 flex flex-row gap-2 truncate items-center">
+                            <div className="w-[200px] pr-3 flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
                                 {
                                   item.user?.name
                                   || "-"}
                               </div>
                             </div>
-                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
-                              <div style={styles.text2} className="truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
+                              <div style={styles.text2} className="truncate  w-full">
                                 {item.agent?.name ? (
-                                  <div>{item.agent.name}m.agent.n</div>
+                                  <div>{item.agent.name}</div>
                                 ) : (
                                   "-"
                                 )}
                               </div>
                             </div>
-                            <div className="w-[200px] flex-shrink-0 truncate">
+                            <div className="w-[200px] flex-shrink-0 pr-3 truncate">
                               <div style={styles.text2} className="truncate">
                                 {item.LeadModel?.phone ? (
                                   <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
@@ -725,20 +725,20 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               </div>
                             </div>
 
-                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipeline ? item?.pipeline?.title : "-"}
                               </div>
                             </div>
 
 
-                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
                               </div>
                             </div>
 
-                            <div className="w-[200px] flex-shrink-0 capitalize truncate">
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
                                 {item?.communicationType ? item?.communicationType : "-"}
                               </div>

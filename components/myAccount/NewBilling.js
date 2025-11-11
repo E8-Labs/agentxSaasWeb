@@ -1879,7 +1879,7 @@ function NewBilling() {
 
 
                                 <div className="flex flex-row items-center justify-between w-full mt-4">
-                                    {item.id === currentPlan && (
+                                    {item.id === currentPlan && userLocalData?.plan?.status !== "cancelled"&& (
                                         <div
                                             className="flex px-2 py-1 bg-purple rounded-full text-white"
                                             style={{
