@@ -101,6 +101,10 @@ const UPSell = () => {
             const token = AuthToken();
             if (!token) return;
 
+            console.log("Calculation api url ", Apis.agencyCalculator);
+            console.log("productType is", productType);
+            console.log("price is", parseFloat(price));
+            console.log("quantity is", 1);
             const response = await axios.post(
                 Apis.agencyCalculator,
                 {
@@ -120,9 +124,11 @@ const UPSell = () => {
                 const calculatorData = response.data.data;
                 
                 // Update the appropriate calculator result
+                console.log("calculatorData for service is", calculatorData);
                 if (from === "phonePrice") {
                     setPhoneCalculatorResult(calculatorData);
                 } else if (from === "dncPrice") {
+                   
                     setDncCalculatorResult(calculatorData);
                 } else if (from === "enrichmentPrice") {
                     setEnrichmentCalculatorResult(calculatorData);
@@ -685,7 +691,7 @@ const UPSell = () => {
                                                 Perplexity Enrichment
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Upsell perplexity enrichment
+                                            Easily upsell Perplexity lead enrichment | Your cost = $0.05
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">

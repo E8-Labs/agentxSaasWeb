@@ -560,7 +560,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Activities", "Campaign Activities", "Call Analytics"].map((tab) => (//, "Scheduled"
+        {["All Activities", "Campaigns", "Analytics"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -577,7 +577,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className="w-full">
-        {activeTab === "Campaign Activities" ? (
+        {activeTab === "Campaigns" ? (
           <AdminDashboardActiveCall
             isFromAgency={isFromAgency}
             selectedFromDate={selectedFromDate}
@@ -588,7 +588,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
               // This callback can be used to refresh if needed
             }}
           />
-        ) : activeTab === "Call Analytics" ? (
+        ) : activeTab === "Analytics" ? (
           <AdminCallAnalytics
             selectedAgency={selectedAgency}
             isFromAgency={isFromAgency}
@@ -1077,7 +1077,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     setShowFilterModal(false);
 
                     // Reset filters for the active tab when modal was opened
-                    if (activeTabWhenModalOpened === "Campaign Activities") {
+                    if (activeTabWhenModalOpened === "Campaigns") {
                       // For Campaign Activities, filters are passed as props, so resetting them will trigger refresh
                       // Reset state
                       setCallDetails([]);
@@ -1126,7 +1126,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         setShowFilterModal(false);
 
                         // Apply filter based on which tab was active when modal opened
-                        if (activeTabWhenModalOpened === "Campaign Activities") {
+                        if (activeTabWhenModalOpened === "Campaigns") {
                           // For Campaign Activities, the filter will be applied via props passed to AdminDashboardActiveCall
                           // Trigger a refresh by resetting the component state
                           setCallDetails([]);
