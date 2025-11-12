@@ -11,7 +11,7 @@ const DomainConfig = () => {
       <LabelingHeader
         img={"/agencyIcons/globe.png"}
         title={"Setup your custom domain"}
-        description={"Set your default brand elements to determine how Stripe products appear to your customers."}
+        description={"Connect your domain and add DNS record."}
       />
 
       {/* Brand Configuration Card */}
