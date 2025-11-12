@@ -183,9 +183,9 @@ function PayoutMetricsSection({ metrics = {} }) {
         value={
           <div className="flex flex-col">
             <span>{nextPayoutDate}</span>
-            <span className="text-lg font-normal text-gray-600">
+            {/* <span className="text-lg font-normal text-gray-600">
               {nextPayoutTime}
-            </span>
+            </span> */}
           </div>
         }
         iconComponent={<CalendarIcon />}

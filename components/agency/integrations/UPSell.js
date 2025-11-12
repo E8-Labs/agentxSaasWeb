@@ -405,7 +405,7 @@ const UPSell = () => {
                                                 Phone Numbers
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Easily upsell phone numbers
+                                            Easily upsell phone number | Your cost = $1.15 
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
@@ -460,7 +460,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {phoneCalculatorResult && (
+                                                {phoneCalculatorResult && !addUpSellPhone && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue
@@ -600,7 +600,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {dncCalculatorResult && (
+                                                {dncCalculatorResult && !addDNC && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue
@@ -740,7 +740,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {enrichmentCalculatorResult && (
+                                                {enrichmentCalculatorResult && !addPerplexityEnrichment && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue
