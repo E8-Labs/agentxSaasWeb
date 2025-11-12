@@ -612,6 +612,46 @@ function UpgradePlanContent({
         return [];
     };
 
+    // Handler for duration change
+    const handleDurationChange = (newDuration) => {
+        setSelectedDuration(newDuration);
+        
+        // Get plans for the new duration
+        let newDurationPlans = [];
+        if (newDuration.id === 1) newDurationPlans = monthlyPlans;
+        else if (newDuration.id === 2) newDurationPlans = quaterlyPlans;
+        else if (newDuration.id === 3) newDurationPlans = yearlyPlans;
+
+        // Check if current selected plan exists in the new duration's plans
+        if (currentSelectedPlan && newDurationPlans.length > 0) {
+            const matchingPlan = newDurationPlans.find(plan => 
+                plan.id === currentSelectedPlan.id || 
+                plan.name === currentSelectedPlan.name
+            );
+
+            if (matchingPlan) {
+                // Plan exists in new duration, keep it selected
+                const planIndex = newDurationPlans.findIndex(plan => 
+                    plan.id === matchingPlan.id || 
+                    plan.name === matchingPlan.name
+                );
+                setCurrentSelectedPlan(matchingPlan);
+                setSelectedPlanIndex(planIndex);
+                setTogglePlan(matchingPlan.id);
+            } else {
+                // Plan doesn't exist in new duration, set to null
+                setCurrentSelectedPlan(null);
+                setSelectedPlanIndex(null);
+                setTogglePlan(null);
+            }
+        } else {
+            // No current plan or no plans available, set to null
+            setCurrentSelectedPlan(null);
+            setSelectedPlanIndex(null);
+            setTogglePlan(null);
+        }
+    };
+
     const handleTogglePlanClick = (item, index) => {
         // Don't allow selection of current plan
         const isCurrentPlan = isPlanCurrent(item);
@@ -1238,7 +1278,7 @@ function UpgradePlanContent({
 
                                         <DurationView
                                             selectedDuration={selectedDuration}
-                                            handleDurationChange={(item) => setSelectedDuration(item)}
+                                            handleDurationChange={handleDurationChange}
                                             from={from}
                                             duration={duration}
                                         />
@@ -1275,7 +1315,7 @@ function UpgradePlanContent({
                                                         <button
                                                             className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
                                                         ${isCurrentPlan
-                                                                    ? "border-gray-300 cursor-not-allowed opacity-60"
+                                                                    ? `${currentSelectedPlan?.id === item.id ? "border-purple" : "border-gray-300"} cursor-not-allowed opacity-60`
                                                                     : currentSelectedPlan?.id === item.id
                                                                         ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
                                                                         : "border-gray-200 hover:border-purple hover:shadow-md"
