@@ -349,6 +349,26 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       refundsAmount: `$${Number(refundsAmount).toLocaleString()}`,
     };
   }, [payouts, subscriptionData]);
+
+  // Helper function to check if there's no meaningful revenue data
+  const hasNoData = useMemo(() => {
+    // If subscriptionData is null/undefined, show placeholder
+    if (!subscriptionData) {
+      return true;
+    }
+
+    // Check if subscriptionData has meaningful values
+    const hasSubscriptions = (subscriptionData.totalSubscriptions || 0) > 0;
+    const hasMRR = parseFloat(subscriptionData.mrr || "0") > 0;
+    const hasARR = parseFloat(subscriptionData.arr || "0") > 0;
+
+    // Check if summary has meaningful values
+    const hasTotalRevenue = (summary?.totalRevenue || 0) > 0;
+
+    // Show placeholder if all metrics are zero/empty
+    return !hasSubscriptions && !hasMRR && !hasARR && !hasTotalRevenue;
+  }, [subscriptionData, summary]);
+
   return (
     loading ? (
       <div className="flex flex-col justify-center items-center h-[90svh]">
@@ -361,8 +381,9 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "2rem" }}
       >
         {
-          subscriptionData ? (
-
+          hasNoData ? (
+            <AgencyDashboardDefaultUI />
+          ) : (
             <div className="flex flex-col items-start w-11/12 gap-6 pb-6">
               {/* Top Metrics Section */}
               <div className="w-full">
@@ -428,9 +449,6 @@ function AgencyRevenueDashboard({ selectedAgency }) {
               </div>
 
             </div>
-
-          ) : (
-            <AgencyDashboardDefaultUI />
           )
         }
       </div>
