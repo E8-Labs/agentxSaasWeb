@@ -112,8 +112,8 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
 
       if (response) {
         console.log(
-          "Response of get plans api is",
-          response
+          "Response of get plans api is 2",
+          response.data?.data?.monthlyPlans
         );
         setUserPlans(response.data?.data?.monthlyPlans);
         setInitialLoader(false);

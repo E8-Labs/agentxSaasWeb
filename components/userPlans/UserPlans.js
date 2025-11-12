@@ -270,7 +270,7 @@ function UserPlans({
             console.log("Status f is from is", isFrom)
             if (isFrom == "SubAccount") {
                 console.log("My condition should run 😲")
-                plansList?.monthlyPlans?.forEach(plan => {
+                plansList?.forEach(plan => {
                     switch (plan.duration) {
                         case "monthly":
                             monthly.push(plan);
@@ -663,12 +663,14 @@ function UserPlans({
                                                                 return;
                                                             }
 
-                                                            if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                                                // Monthly plan selected - show yearly plan modal
-                                                                setSelectedMonthlyPlan(item);
-                                                                setShowYearlyPlanModal(true);
+                                                            if(reduxUser.userRole === "AgentX"){
+                                                                if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                                                    // Monthly plan selected - show yearly plan modal
+                                                                    setSelectedMonthlyPlan(item);
+                                                                    setShowYearlyPlanModal(true);
+                                                                }
                                                             } else {
-                                                                if (item.discountPrice > 0) {
+                                                                if (item.discountedPrice > 0) {
                                                                     // Quarterly or Yearly plan - proceed directly
                                                                     setAddPaymentPopUp(true)
                                                                 } else {

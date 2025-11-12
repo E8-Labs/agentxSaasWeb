@@ -55,6 +55,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
   // Function to load plans for onboarding context
   const loadOnboardingPlans = async () => {
     try {
+      console.log("Loading onboarding plans");
       // Load main plans with trial
       const mainPlansData = await PlansService.getCachedPlans(
         'onboarding_plans_main',

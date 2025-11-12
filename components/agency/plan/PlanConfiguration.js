@@ -224,11 +224,18 @@ export default function PlanConfiguration({
         const coreFeatures = featuresList
             .filter(item => item.stateKey !== "allowTrial") // exclude Allow Trial
             .filter(item => features[item.stateKey])
-            .map(item => ({
-                id: item.stateKey,
-                // text: item.label,
-                text: item.label === "Multilingual" ? "Multilingual Compatible" : item.label,
-            }));
+            .map(item => {
+                let displayText = item.label;
+                if (item.label === "Multilingual") {
+                    displayText = "Multilingual Compatible";
+                } else if (item.label === "Twilio") {
+                    displayText = "Local Phone Number";
+                }
+                return {
+                    id: item.stateKey,
+                    text: displayText,
+                };
+            });
 
 
         const extraFeatures = [];
