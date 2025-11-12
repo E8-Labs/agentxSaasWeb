@@ -659,7 +659,7 @@ function SheduledCalls({ user }) {
     const startTime = moment(item.startTime);
 
     // // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime)) {
+    if (item.startTime && startTime.isAfter(currentTime) && item.status === "Active") {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
       return `Scheduled`;
