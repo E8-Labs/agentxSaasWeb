@@ -291,7 +291,7 @@ function UserPlans({
                     switch (plan.billingCycle) {
                         case "monthly":
                             monthly.push(plan);
-                            if (!plan.discountPrice) {
+                            if (plan.discountedPrice == 0) {
                                 freePlan = plan;
                             }
                             break;
@@ -307,10 +307,10 @@ function UserPlans({
                 });
             }
 
-            if (freePlan) {
-                quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
-                yearly.unshift({ ...freePlan, billingCycle: "yearly" });
-            }
+            // if (freePlan) {
+            //     quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
+            //     yearly.unshift({ ...freePlan, billingCycle: "yearly" });
+            // }
 
             //select duration selection dynamically
             console.log("Isfrom is", isFrom);
@@ -401,7 +401,7 @@ function UserPlans({
         setShowYearlyPlanModal(false);
 
         // Check if the yearly plan is free before showing payment popup
-        if (selectedPlan && !selectedPlan.discountPrice) {
+        if (selectedPlan && selectedPlan.discountedPrice === 0) {
             // Free yearly plan - subscribe directly
             await handleSubscribePlan();
         } else {
@@ -413,7 +413,7 @@ function UserPlans({
     const handleContinueMonthly = async () => {
         // Proceed with monthly plan
 
-        if (!selectedMonthlyPlan.discountPrice) {
+        if (selectedMonthlyPlan.discountedPrice === 0) {
             await handleSubscribePlan()
         } else {
             setAddPaymentPopUp(true);
@@ -622,7 +622,7 @@ function UserPlans({
                                                     )
                                                 }
                                                 <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                    ${formatFractional2(item.discountPrice || item.discountedPrice || 0)}
+                                                    ${formatFractional2( item.discountedPrice || 0)}
                                                 </span>
                                             </div>
 
@@ -644,7 +644,7 @@ function UserPlans({
                                                             e.preventDefault();
                                                             e.stopPropagation();
                                                             handleTogglePlanClick(item, index);
-                                                            console.log("item.discountPrice", item.discountPrice)
+                                                            console.log("item.discountPrice", item.discountedPrice)
                                                             console.log("isFrom in user plans", isFrom)
                                                             if (reduxUser?.consecutivePaymentFailures >= 3) {
                                                                 setTimeout(() => {
@@ -787,7 +787,7 @@ function UserPlans({
                 onContinueMonthly={handleContinueMonthly}
                 selectedDuration={selectedDuration}
                 loading={subscribeLoader}
-                isFree={!selectedPlan?.discountPrice ? true : false}
+                isFree={!selectedPlan?.discountedPrice ? true : false}
             />
 
             <Modal
