@@ -13,6 +13,16 @@ const FeatureLine = ({
     const containerRef = useRef(null);
     const textRef = useRef(null);
     const [fontSize, setFontSize] = useState(max);
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+    // Initialize mobile detection synchronously to avoid controlled/uncontrolled switch
+    const [isMobile, setIsMobile] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth < 768;
+            return isTouchDevice || isSmallScreen;
+        }
+        return false;
+    });
 
     const fit = () => {
         const container = containerRef.current;
@@ -48,6 +58,38 @@ const FeatureLine = ({
         return () => window.removeEventListener("resize", onResize);
     }, []);
 
+    // Detect mobile/touch devices
+    useEffect(() => {
+        const checkMobile = () => {
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const isSmallScreen = window.innerWidth < 768;
+            setIsMobile(isTouchDevice || isSmallScreen);
+        };
+        
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
+    // Close tooltip when clicking outside on mobile
+    useEffect(() => {
+        if (!isMobile || !tooltipOpen) return;
+
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setTooltipOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+        
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [isMobile, tooltipOpen]);
+
     return (
         <div
             ref={containerRef}
@@ -68,46 +110,100 @@ const FeatureLine = ({
             </span>
 
             {info && (
-                <Tooltip
-                    title={info}
-                    arrow
-                    placement="top"
-                    componentsProps={{
-                        tooltip: {
-                            sx: {
-                                backgroundColor: "#ffffff",
-                                color: "#333",
-                                fontSize: "10px",
-                                padding: "10px 15px",
-                                borderRadius: "8px",
-                                boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
-                            },
-                        },
-                        arrow: { sx: { color: "#ffffff" } },
-                    }}
-                >
-                    <div
-                        className="flex-shrink-0"
-                        style={{
-                            width: iconSize,
-                            height: iconSize,
-                            marginLeft: gap,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transform: "translateY(1px)",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <Image
-                            src="/agencyIcons/InfoIcon.jpg"
-                            alt="info"
-                            width={iconSize}
-                            height={iconSize}
-                            className="rounded-full"
-                        />
-                    </div>
-                </Tooltip>
+                <>
+                    {isMobile ? (
+                        <Tooltip
+                            title={info}
+                            arrow
+                            placement="top"
+                            open={tooltipOpen}
+                            onClose={() => setTooltipOpen(false)}
+                            disableHoverListener
+                            disableFocusListener
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff",
+                                        color: "#333",
+                                        fontSize: "10px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
+                                    },
+                                },
+                                arrow: { sx: { color: "#ffffff" } },
+                            }}
+                        >
+                            <div
+                                className="flex-shrink-0"
+                                style={{
+                                    width: iconSize,
+                                    height: iconSize,
+                                    marginLeft: gap,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transform: "translateY(1px)",
+                                    cursor: "pointer",
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setTooltipOpen(!tooltipOpen);
+                                }}
+                            >
+                                <Image
+                                    src="/agencyIcons/InfoIcon.jpg"
+                                    alt="info"
+                                    width={iconSize}
+                                    height={iconSize}
+                                    className="rounded-full"
+                                />
+                            </div>
+                        </Tooltip>
+                    ) : (
+                        <Tooltip
+                            title={info}
+                            arrow
+                            placement="top"
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff",
+                                        color: "#333",
+                                        fontSize: "10px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0,0,0,0.2)",
+                                    },
+                                },
+                                arrow: { sx: { color: "#ffffff" } },
+                            }}
+                        >
+                            <div
+                                className="flex-shrink-0"
+                                style={{
+                                    width: iconSize,
+                                    height: iconSize,
+                                    marginLeft: gap,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transform: "translateY(1px)",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image
+                                    src="/agencyIcons/InfoIcon.jpg"
+                                    alt="info"
+                                    width={iconSize}
+                                    height={iconSize}
+                                    className="rounded-full"
+                                />
+                            </div>
+                        </Tooltip>
+                    )}
+                </>
             )}
         </div>
     );
