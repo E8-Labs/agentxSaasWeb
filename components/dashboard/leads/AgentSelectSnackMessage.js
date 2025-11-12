@@ -29,7 +29,7 @@ export default function AgentSelectSnackMessage({
       if (toastIdRef.current) {
         toast.dismiss(toastIdRef.current);
         toastIdRef.current = null;
-      }
+    }
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
@@ -51,7 +51,7 @@ export default function AgentSelectSnackMessage({
         }
         if (timerRef.current) {
           clearTimeout(timerRef.current);
-        }
+    }
 
         const toastMessage = title || message;
         const toastDescription = title ? message : null;
@@ -90,10 +90,10 @@ export default function AgentSelectSnackMessage({
             toastIdRef.current = null;
           }
           if (hide) {
-            hide();
+        hide();
           }
           timerRef.current = null;
-        }, time);
+      }, time);
       }
     }
 

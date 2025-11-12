@@ -29,6 +29,10 @@ function CancelConfirmation({
         console.log('🔍 [CANCELATION FLOW] Redux User:', reduxUser)
     }, [reduxUser])
 
+    useEffect(() => {
+        console.log('🔍 [CANCELATION FLOW] Selected User in UseEffect:', selectedUser)
+    }, [selectedUser])  
+
     const getUserData = () => {
         let data = localStorage.getItem("User")
 
@@ -105,8 +109,27 @@ function CancelConfirmation({
 
                     setFeatures(planFeatures)
                 } else if (isSubaccount) {
-                    console.log('🔍 [CANCELATION FLOW] setting features for subaccount', selectedUser)
-                    setFeatures(selectedUser?.plan?.features)
+                    let currentPlanFeatures = currentPlanDetails.features 
+                    console.log('🔍 [CANCELATION FLOW] Current plan features:', currentPlanFeatures)
+                    if(typeof currentPlanFeatures === 'object') {
+                        console.log('🔍 [CANCELATION FLOW] Current plan features is an object')
+                        currentPlanFeatures = currentPlanFeatures.map(feature => feature.text)
+                    }
+                    else if(typeof currentPlanFeatures === 'string') {
+                        console.log('🔍 [CANCELATION FLOW] Current plan features is a string')
+                        //convert to json array 
+                        let planFeaturesJson = JSON.parse(currentPlanFeatures)
+                        console.log('🔍 [CANCELATION FLOW] Plan features JSON:', planFeaturesJson)
+                        currentPlanFeatures = planFeaturesJson.map(feature => feature.text)
+                    }
+                    const featuresToLose = currentPlanFeatures.map((feature, index) => {
+                        return {
+                            id: index, title: feature
+                        }
+                    })
+                    console.log('🔍 [CANCELATION FLOW] setting features for subaccount', featuresToLose)
+                    
+                    setFeatures(featuresToLose)
                 } else {
                     // Fallback to default features if plan details not found
                     setFeatures(getDefaultFeatures())

@@ -321,82 +321,7 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        const initializePlans = async () => {
-            if (open) {
-                setLoading(true);
-                // Load plans and wait for completion
-                const plansData = await getPlans();
-                getCardsList();
-                getCurrentUserPlan();
-
-                // Only proceed with plan selection if we have plans data and haven't triggered yet
-                if (plansData && !isPreSelectedPlanTriggered) {
-                    setIsPreSelectedPlanTriggered(true);
-
-                    console.log("selected plan from previous screen in pre selected plan useeffect is ", selectedPlan);
-
-                    // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
-                    let planDuration = null;
-
-                    if (selectedPlan) {
-                        planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
-                        console.log("Billing bicycle of selected plan", planDuration);
-                        if (planDuration) {
-                            setSelectedDuration(planDuration);
-                        }
-                    } else {
-                        console.log("no selected plan, set first plan as current selected plan ");
-                        // if selectedPlan is null then set selected duration of current plan
-                        if (currentUserPlan && currentUserPlan.billingCycle) {
-                            planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
-                            console.log("Billing bicycle of current user plan", planDuration);
-                        } else {
-                            // Use the first available plan from the loaded data
-                            const firstPlan = plansData.monthly[0] || plansData.quarterly[0] || plansData.yearly[0];
-                            if (firstPlan) {
-                                planDuration = getDurationFromBillingCycle(firstPlan.billingCycle);
-                            }
-                        }
-                        if (planDuration) {
-                            setSelectedDuration(planDuration);
-                            console.log("Billing bicycle of current plan2", planDuration);
-                        }
-                    }
-
-                    // Wait a bit for selectedDuration to update, then find matching plan
-                    setTimeout(() => {
-                        // Get current plans based on the updated selectedDuration
-                        let currentPlans = [];
-                        if (planDuration?.id === 1) currentPlans = plansData.monthly;
-                        else if (planDuration?.id === 2) currentPlans = plansData.quarterly;
-                        else if (planDuration?.id === 3) currentPlans = plansData.yearly;
-
-                        console.log("current plans are before checking matching plan", currentPlans);
-
-                        const matchingPlan = currentPlans.find(plan =>
-                            // plan.name === selectedPlan?.name ||
-                            plan.id === selectedPlan?.id //||
-                            // plan.planType === selectedPlan?.planType
-                        );
-
-                        if (matchingPlan) {
-                            console.log("matching plan found is", matchingPlan);
-                            console.log("selected duration is", planDuration);
-                            setCurrentSelectedPlan(matchingPlan);
-                            const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
-                            setSelectedPlanIndex(planIndex);
-                            setTogglePlan(matchingPlan.id);
-                        } else {
-                            setCurrentSelectedPlan(currentPlans[0]);
-                            setSelectedPlanIndex(0);
-                            setTogglePlan(currentPlans[0].id);
-                            console.log("no matching plan found");
-                        }
-                    }, 100);
-                }
-                setLoading(false);
-            }
-        };
+        
 
         initializePlans();
     }, [open])
@@ -491,6 +416,88 @@ function UpgradePlanContent({
         return () => window.removeEventListener('resize', checkScreenHeight);
     }, []);
 
+
+    const initializePlans = async () => {
+        if (open) {
+            setLoading(true);
+            // Load plans and wait for completion
+            const plansData = await getPlans();
+            getCardsList();
+            getCurrentUserPlan();
+
+            console.log("plansData in initializePlans", plansData)
+
+            // Only proceed with plan selection if we have plans data and haven't triggered yet
+            if (plansData && !isPreSelectedPlanTriggered) {
+                setIsPreSelectedPlanTriggered(true);
+
+                console.log("selected plan from previous screen in pre selected plan useeffect is ", selectedPlan);
+
+                // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
+                let planDuration = null;
+
+                if (selectedPlan) {
+                    console.log("Finding duration from billing cycle of selected plan", selectedPlan?.billingCycle)
+                    planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
+                    console.log("Found Billing cycle of selected plan", planDuration);
+                    if (planDuration) {
+                        setSelectedDuration(planDuration);
+                    }
+                } else {
+                    console.log("no selected plan, set first plan as current selected plan ");
+                    // if selectedPlan is null then set selected duration of current plan
+                    if (currentUserPlan && currentUserPlan.billingCycle) {
+                        planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
+                        console.log("Billing bicycle of current user plan", planDuration);
+                    } else {
+                        // Use the first available plan from the loaded data
+                        const firstPlan = plansData.monthly[0] || plansData.quarterly[0] || plansData.yearly[0];
+                        if (firstPlan) {
+                            planDuration = getDurationFromBillingCycle(firstPlan.billingCycle);
+                        }
+                    }
+                    if (planDuration) {
+                        setSelectedDuration(planDuration);
+                        console.log("Billing bicycle of current plan2", planDuration);
+                    }
+                }
+
+                // Wait a bit for selectedDuration to update, then find matching plan
+                setTimeout(() => {
+                    // Get current plans based on the updated selectedDuration
+                    let currentPlans = [];
+                    if (planDuration?.id === 1) currentPlans = plansData.monthly;
+                    else if (planDuration?.id === 2) currentPlans = plansData.quarterly;
+                    else if (planDuration?.id === 3) currentPlans = plansData.yearly;
+
+                    console.log("selected plan duration is ", planDuration)
+                    console.log("current plans are before checking matching plan", currentPlans);
+
+                    const matchingPlan = currentPlans.find(plan =>
+                        // plan.name === selectedPlan?.name ||
+                        plan.id === selectedPlan?.id //||
+                        // plan.planType === selectedPlan?.planType
+                    );
+
+                    if (matchingPlan) {
+                        console.log("matching plan found is", matchingPlan);
+                        console.log("selected duration is", planDuration);
+                        setCurrentSelectedPlan(matchingPlan);
+                        const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
+                        setSelectedPlanIndex(planIndex);
+                        setTogglePlan(matchingPlan.id);
+                    } else {
+                        setCurrentSelectedPlan(currentPlans[0]);
+                        setSelectedPlanIndex(0);
+                        setTogglePlan(currentPlans[0].id);
+                        console.log("no matching plan found");
+                    }
+                }, 100);
+            }
+            setLoading(false);
+        }
+    };
+
     const getCurrentUserPlan = () => {
         const localData = localStorage.getItem("User");
         if (localData) {
@@ -512,16 +519,19 @@ function UpgradePlanContent({
             const UserLocalData = getUserLocalData();
             if (from === "SubAccount" || UserLocalData?.userRole === "AgencySubAccount") {
                 console.log("Current plan upgrade type is subaccount")
-                plansList?.monthlyPlans?.forEach(plan => {
-                    switch (plan.duration) {
+                plansList?.forEach(plan => {
+                    switch (plan.billingCycle) {
                         case "monthly":
                             monthly.push(plan);
+                            console.log("Added monthly plan", plan)
                             break;
                         case "quarterly":
                             quarterly.push(plan);
+                            console.log("Added quarterly plan", plan)
                             break;
                         case "yearly":
                             yearly.push(plan);
+                            console.log("Added yearly plan", plan)
                             break;
                         default:
                             break;
@@ -530,7 +540,7 @@ function UpgradePlanContent({
             } else {
                 console.log("Current plan upgrade type is Simple user")
                 plansList.forEach(plan => {
-                    switch (plan.billingCycle || plan.duration) {
+                    switch (plan.billingCycle) {
                         case "monthly":
                             monthly.push(plan);
                             if (plan.discountedPrice === 0) {

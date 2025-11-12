@@ -1984,7 +1984,7 @@ function SubAccountPlansAndPayments({
                                     marginTop: 10,
                                 }}
                             >
-                                Account Successfully Canceled
+                                Account Successfully Cancelled
                             </div>
 
                             <div

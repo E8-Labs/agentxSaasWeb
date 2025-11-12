@@ -1760,10 +1760,10 @@ function AgencyPlansPayments({
                                     fontWeight: "600",
                                     fontSize: 22,
                                     textAlign: "center",
-                                    marginTop: 10,
+                                    marginTop: 5,
                                 }}
                             >
-                                Account Successfully Canceled
+                                Account Successfully Cancelled
                             </div>
 
                             <div
@@ -1771,14 +1771,14 @@ function AgencyPlansPayments({
                                     fontWeight: "500",
                                     fontSize: 16,
                                     textAlign: "center",
-                                    marginTop: 30,
+                                    marginTop: 5,
                                 }}
                             >
                                 {`Tell us why you're cancelling so we can improve.`}
                             </div>
 
                             <div className="w-full flex flex-row items-center justify-center">
-                                <div className="mt-9 w-10/12">
+                                <div className="mt-3 w-10/12">
                                     {cancelPlanReasons.map((item, index) => (
                                         <button
                                             onClick={() => {
