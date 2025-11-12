@@ -612,8 +612,6 @@ function UpgradePlanContent({
         return [];
     };
 
-
-
     const handleTogglePlanClick = (item, index) => {
         // Don't allow selection of current plan
         const isCurrentPlan = isPlanCurrent(item);

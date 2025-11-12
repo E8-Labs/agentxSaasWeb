@@ -40,6 +40,7 @@ import AgencyChecklist from "./AgencyChecklist";
 import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import AgencyWalkThrough from "@/components/agency/walkthrough/AgencyWalkThrough";
 
 
 let stripePublickKey =
@@ -89,6 +90,11 @@ const AgencyNavBar = () => {
   const [checkStripeStatus, setCheckStripeStatus] = useState(false);
   const [checkStripeStatusLoader, setCheckStripeStatusLoader] = useState(false);
 
+  const [showAgencyWalkThrough, setShowAgencyWalkThrough] = useState(false);
+
+
+  
+
   //check stripe
   useEffect(() => {
     // 
@@ -123,6 +129,7 @@ const AgencyNavBar = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
+    getShowWalkThrough();
     getAgencyPlans();
     const LocalData = localStorage.getItem("User");
 
@@ -155,6 +162,41 @@ const AgencyNavBar = () => {
     } catch (error) {
       setCheckStripeStatusLoader(false);
       console.log("Eror in gettin stripe status", error)
+    }
+  }
+
+  const getShowWalkThrough = () => {
+    console.log("rigered the intro video")
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      const watched = UserDetails?.user?.walkthroughWatched;
+
+      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+        console.log("✅ should show intro video");
+        setShowAgencyWalkThrough(true);
+      } else {
+        // 👇 Prevent flipping it back off if it’s already been set
+        // console.log("⛔ should not show intro video");
+        // Do not set it to false here — allow modal to control it via onClose
+      }
+    }
+  };
+
+
+  const updateWalkthroughWatched = async () => {
+    try {
+      const apidata = {
+        walkthroughWatched: true
+      }
+      const response = await UpdateProfile(apidata);
+      if (response) {
+        setShowAgencyWalkThrough(false);
+
+      }
+      // console.log("Response of update profile api is", response)
+    } catch (error) {
+      console.log("Error occured in update catch api is", error)
     }
   }
 
@@ -614,6 +656,11 @@ const AgencyNavBar = () => {
           </Link>
         </div>
       </div>
+
+      <AgencyWalkThrough
+        open={showAgencyWalkThrough}
+        onClose={updateWalkthroughWatched}
+      />
 
 
       <Modal open={showPaymentFailedPopup}
