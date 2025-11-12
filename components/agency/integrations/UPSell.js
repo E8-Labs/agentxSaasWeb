@@ -545,7 +545,7 @@ const UPSell = () => {
                                                 DNC
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Upsell seats to your members
+                                                Easily upsell DNC | Your cost = $0.03
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
