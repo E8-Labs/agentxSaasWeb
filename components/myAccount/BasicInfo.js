@@ -121,6 +121,13 @@ function BasicInfo() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Email validation and checking states
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [emailLoader, setEmailLoader] = useState(false);
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
+  const [validEmail, setValidEmail] = useState("");
+  const emailTimerRef = useRef(null);
+
   const [selected, setSelected] = useState([]);
   const [selectedArea, setSelectedArea] = useState([]);
 
@@ -248,6 +255,7 @@ function BasicInfo() {
       setName(userData?.user?.name);
       setSelectedImage(userData?.user?.thumb_profile_image);
       setEmail(userData?.user?.email);
+      setOriginalEmail(userData?.user?.email || "");
       setFarm(userData?.user?.farm);
       setTransaction(userData?.user?.averageTransactionPerYear);
       setBrokerAge(userData?.user?.brokerage);
@@ -320,6 +328,60 @@ function BasicInfo() {
   const showSuccess = (message) => {
     setSuccessMessage(message);
     setShowSuccessMessage(true);
+  };
+
+  // Email validation function
+  const validateEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    // Check if email contains consecutive dots, which are invalid
+    if (/\.\./.test(email)) {
+      return false;
+    }
+
+    // Check the general pattern for a valid email
+    return emailPattern.test(email);
+  };
+
+  // Function to check if email exists in database
+  const checkEmail = async (value) => {
+    try {
+      // Don't check if email hasn't changed
+      if (value === originalEmail) {
+        setEmailCheckResponse(null);
+        setValidEmail("");
+        return;
+      }
+
+      setValidEmail("");
+      setEmailLoader(true);
+
+      const ApiPath = Apis.CheckEmail;
+
+      const ApiData = {
+        email: value,
+      };
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        if (response.data.status === true) {
+          // Email is available
+          setEmailCheckResponse(response.data);
+        } else {
+          // Email is taken
+          setEmailCheckResponse(response.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+    } finally {
+      setEmailLoader(false);
+    }
   };
 
   const uploadeImage = async (imageUrl) => {
@@ -509,12 +571,34 @@ function BasicInfo() {
 
   const handleEmailSave = async () => {
     try {
-      // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      // Validate email format
+      if (!validateEmail(email)) {
         setErrorMessage("Please enter a valid email address");
         setShowErrorMessage(true);
         return;
+      }
+
+      // Check if email is taken (only if it's different from original)
+      if (email !== originalEmail) {
+        // Wait for email check to complete if it's in progress
+        if (emailLoader) {
+          setErrorMessage("Please wait while we check the email availability");
+          setShowErrorMessage(true);
+          return;
+        }
+
+        // If email check hasn't been done or email is taken
+        if (emailCheckResponse === null) {
+          setErrorMessage("Please wait for email validation to complete");
+          setShowErrorMessage(true);
+          return;
+        }
+
+        if (emailCheckResponse.status === false) {
+          setErrorMessage("Email is already taken");
+          setShowErrorMessage(true);
+          return;
+        }
       }
 
       setLoading13(true);
@@ -522,6 +606,9 @@ function BasicInfo() {
       await UpdateProfile(data);
       setLoading13(false);
       setIsEmailChanged(false);
+      setOriginalEmail(email); // Update original email after successful save
+      setEmailCheckResponse(null);
+      setValidEmail("");
       showSuccess("Email updated successfully");
     } catch (e) {
       setLoading13(false);
@@ -1058,16 +1145,42 @@ function BasicInfo() {
           onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
-            setEmail(event.target.value);
+            const value = event.target.value;
+            setEmail(value);
             setIsEmailChanged(true);
+            setEmailCheckResponse(null);
+
+            if (!value) {
+              setValidEmail("");
+              return;
+            }
+
+            if (!validateEmail(value)) {
+              setValidEmail("Invalid");
+            } else {
+              setValidEmail("");
+              // Clear previous timer
+              if (emailTimerRef.current) {
+                clearTimeout(emailTimerRef.current);
+              }
+
+              // Set a new timeout to check email after user stops typing
+              emailTimerRef.current = setTimeout(() => {
+                checkEmail(value);
+              }, 300);
+            }
           }}
           type="email"
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
-        {isEmailChanged ?
-          (loading13 ? (
+        {isEmailChanged ? (
+          emailLoader ? (
             <CircularProgress size={20} />
+          ) : validEmail === "Invalid" ? (
+            <div style={{ fontSize: 12, color: "red" }}>Invalid</div>
+          ) : emailCheckResponse?.status === false ? (
+            <div style={{ fontSize: 12, color: "red" }}>Taken</div>
           ) : (
             <button
               onClick={async () => {
@@ -1077,17 +1190,18 @@ function BasicInfo() {
             >
               Save
             </button>
-          )) : (
-            <button
-              onClick={() => {
-                emailRef.current?.focus();
-              }}
-            >
-              <Image src={'/svgIcons/editIcon.svg'}
-                width={24} height={24} alt="*"
-              />
-            </button>
-          )}
+          )
+        ) : (
+          <button
+            onClick={() => {
+              emailRef.current?.focus();
+            }}
+          >
+            <Image src={'/svgIcons/editIcon.svg'}
+              width={24} height={24} alt="*"
+            />
+          </button>
+        )}
       </div>
 
       <div
