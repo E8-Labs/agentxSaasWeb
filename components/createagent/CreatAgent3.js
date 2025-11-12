@@ -642,7 +642,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                         }}
                       >
                         Custom solution specific to your business. Integrate
-                        AgentX into your sales operation.
+                        AssignX into your sales operation.
                       </div>
                       <button
                         className="text-[#ffffff] pe-8"

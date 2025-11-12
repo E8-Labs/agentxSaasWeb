@@ -101,7 +101,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                             CNAM
                         </div>
                         <div>
-                            <TwilioProfileToolTip toolTip={"CNAM is the name that shows up on someone's phone when you call them — like “AgentX Real Estate” or “John from ABC Corp.”"} />
+                            <TwilioProfileToolTip toolTip={"CNAM is the name that shows up on someone's phone when you call them — like AssignX Real Estate” or “John from ABC Corp.”"} />
                         </div>
                     </div>
                     <div className='flex flex-row items-center gap-2'>

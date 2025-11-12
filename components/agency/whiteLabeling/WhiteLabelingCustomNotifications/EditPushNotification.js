@@ -96,22 +96,22 @@ const EditPushNotification = ({
                     {/* Modal Header */}
                     <div className="w-full flex flex-row items-center justify-between mt-4">
                         <Typography id="edit-push-notification-modal" variant="h6" component="h2" sx={{ fontWeight: 600 }}>
-                            Edit Push Notification
+                            App Notification
                         </Typography>
                         <CloseBtn onClick={onClose} />
                     </div>
 
                     {/* Section Title */}
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: "#7902DF", marginBottom: "16px" }}>
                             App Notification
                         </h3>
-                    </div>
+                    </div> */}
 
                     {/* Push Notification Title Field */}
-                    <div className="space-y-2">
+                    <div className="space-y-1 mt-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Push Notification Title
+                            Title
                         </label>
                         <input
                             ref={titleInputRef}
@@ -125,9 +125,9 @@ const EditPushNotification = ({
                     </div>
 
                     {/* Push Notification Body Field */}
-                    <div className="space-y-2">
+                    <div className="space-y-1 mt-2">
                         <label className="text-sm font-medium text-gray-700">
-                            Push Notification Body
+                            Body
                         </label>
                         <input
                             placeholder="Push notification body"
@@ -140,7 +140,7 @@ const EditPushNotification = ({
 
                     {/* CTA Field - Only show if notification supports CTA */}
                     {notificationData?.supportsCTA && formData?.cta !== undefined && (
-                        <div className="space-y-2">
+                        <div className="flex flex-col space-y-1 mt-2">
                             <label className="text-sm font-medium text-gray-700">
                                 CTA
                             </label>
@@ -148,7 +148,7 @@ const EditPushNotification = ({
                                 placeholder="Call to action button"
                                 value={formData.cta}
                                 onChange={(e) => handleInputChange('cta', e.target.value)}
-                                className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                                className="w-6/12 border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
                             />
                         </div>
                     )}

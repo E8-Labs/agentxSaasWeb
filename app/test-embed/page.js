@@ -44,7 +44,7 @@ const TestEmbedPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            AgentX Support Widget Embed Generator
+          AssignX Support Widget Embed Generator
           </h1>
           <p className="text-lg text-gray-600">
             Generate and test embed codes for your AI support agents
@@ -156,7 +156,7 @@ const TestEmbedPage = () => {
                     pointerEvents: 'auto'
                   }}
                   allow="microphone"
-                  title="AgentX Support Widget Preview"
+                  title="AssignX Support Widget Preview"
                 />
               </div>
             </div>

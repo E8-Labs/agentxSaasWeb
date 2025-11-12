@@ -337,7 +337,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
             "Unlimited Minutes",
             "Unlimited Agents",
             "Unlimited Teams",
-            "LLMs (AgentX, OpenAI, Llama, Gemini) ",
+            "LLMs (AssignX, OpenAI, Llama, Gemini) ",
             "7000+ Integrations",
             "Mins roll over for 6 months",
             "Custom Monthly Plans",

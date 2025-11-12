@@ -198,17 +198,15 @@ const WhiteLabel = () => {
                 </div>
 
                 {/* Copy Agency Link - Fixed Overlay Panel */}
-                <div className="fixed right-4 bg-white shadow-lg border rounded-lg" style={{
+                <div className="fixed right-4 bg-gray-100 shadow-lg rounded-lg" style={{
                     zIndex: 10,
                     top: 'calc(10svh + 16px)',
                     width: '420px'
                 }}>
                     <div className="w-full flex flex-row items-center justify-between px-4 py-4 gap-4">
                         <div className='flex flex-row items-center gap-3 flex-1'>
-                            <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg p-3 flex items-center justify-center flex-shrink-0">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 6L6 18M6 6L18 18" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                            <div className="flex items-center justify-center flex-shrink-0">
+                                <Image alt="AssignX Icon" src={"/assets/newAssignX.png"} height={45} width={45} />
                             </div>
                             <div className="flex-1">
                                 <div style={{ fontSize: "16px", fontWeight: "bold", color: "#000" }}>
@@ -220,7 +218,7 @@ const WhiteLabel = () => {
                             </div>
                         </div>
                         <button
-                            className="flex flex-row items-center justify-center gap-2 bg-white border border-purple-200 rounded-lg px-4 py-2 hover:bg-purple-50 transition-colors flex-shrink-0"
+                            className="flex flex-row items-center justify-center gap-2 bg-purple-100/50 rounded-lg px-4 py-2 hover:bg-purple-100/70 transition-colors flex-shrink-0"
                             onClick={() => {
                                 if(!reduxUser?.twilio?.twilAuthToken){
                                     setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
