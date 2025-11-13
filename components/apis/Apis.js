@@ -338,6 +338,10 @@ const Apis = {
   resumeSubscription: `${BasePath}api/user/cancellation/resume`,
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
 
+  getHowToVideo: `${BasePath}api/user/getHowToVideos`,
+toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
+updateHowToVideo: `${BasePath}api/user/updateHowToVideo`,
+
   
 };
 

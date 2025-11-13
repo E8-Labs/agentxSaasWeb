@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Modal, CircularProgress } from '@mui/material';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import { HowToVideoTypes } from '@/constants/Constants';
 
 const AddEditTutorials = ({
     showModal,
@@ -13,6 +14,7 @@ const AddEditTutorials = ({
 }) => {
     const [title, setTitle] = useState("");
     const [videoUrl, setVideoUrl] = useState("");
+    const [videoType, setVideoType] = useState(HowToVideoTypes.GettingStarted);
     const [isDisabled, setIsDisabled] = useState(true);
     
     // Show success/error snack
@@ -27,9 +29,11 @@ const AddEditTutorials = ({
         if (isEditMode && tutorialData) {
             setTitle(tutorialData.title || "");
             setVideoUrl(tutorialData.videoUrl || "");
+            setVideoType(tutorialData.videoType || HowToVideoTypes.GettingStarted);
         } else {
             setTitle("");
             setVideoUrl("");
+            setVideoType(HowToVideoTypes.GettingStarted);
         }
     }, [tutorialData, showModal, isEditMode]);
 
@@ -46,7 +50,8 @@ const AddEditTutorials = ({
         if (!isDisabled) {
             const tutorialInfo = {
                 title: title.trim(),
-                videoUrl: videoUrl.trim()
+                videoUrl: videoUrl.trim(),
+                videoType: videoType
             };
             handleSave(tutorialInfo);
         }
@@ -129,7 +134,7 @@ const AddEditTutorials = ({
                         </div>
 
                         {/* Video URL Input */}
-                        <div className='mb-6'>
+                        <div className='mb-4'>
                             <div className='mb-2' style={styles.regularFont}>
                                 Video URL
                             </div>
@@ -143,6 +148,29 @@ const AddEditTutorials = ({
                                         setVideoUrl(e.target.value);
                                     }}
                                 />
+                            </div>
+                        </div>
+
+                        {/* Video Type Selection */}
+                        <div className='mb-6'>
+                            <div className='mb-2' style={styles.regularFont}>
+                                Video Type
+                            </div>
+                            <div className='h-[50px] ps-3 pe-3 border rounded-lg flex items-center'>
+                                <select
+                                    className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0 bg-transparent'
+                                    value={videoType}
+                                    onChange={(e) => {
+                                        setVideoType(e.target.value);
+                                    }}
+                                >
+                                    <option value={HowToVideoTypes.GettingStarted}>Getting Started</option>
+                                    <option value={HowToVideoTypes.FirstCampaign}>First Campaign</option>
+                                    <option value={HowToVideoTypes.LeadsAndContacts}>Leads and Contacts</option>
+                                    <option value={HowToVideoTypes.AgentConfiguration}>Agent Configuration</option>
+                                    <option value={HowToVideoTypes.CRMIntegration}>CRM Integration</option>
+                                    <option value={HowToVideoTypes.Analytics}>Analytics</option>
+                                </select>
                             </div>
                         </div>
                     </div>

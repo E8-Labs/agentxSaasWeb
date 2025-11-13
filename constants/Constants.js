@@ -73,6 +73,16 @@ export const HowtoVideos = {
   TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub,
 };
 
+export const HowToVideoTypes = {
+  GettingStarted:"GettingStarted",
+  FirstCampaign:"FirstCampaign",
+  LeadsAndContacts:"LeadsAndContacts",
+  AgentConfiguration:"AgentConfiguration",
+  CRMIntegration:"CRMIntegration",
+  Analytics:"Analytics",
+  Generic:"Generic"
+}
+
 export const Constants = {
   GlobalPhoneNumber: "+16505403715",
 };

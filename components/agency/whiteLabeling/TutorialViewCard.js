@@ -6,6 +6,7 @@ const TutorialViewCard = ({
   tutorialData,
   onEditClick,
   onToggleSwitch,
+  onPlayVideo,
   isEnabled = true,
   thumbnailSrc = "/assets/youtubeplay.png"
 }) => {
@@ -18,17 +19,32 @@ const TutorialViewCard = ({
   return (
     <div className="w-full flex flex-row items-center justify-between">
       <div className="flex flex-row items-center gap-2 w-[85%]">
-        <div className="relative flex-shrink-0">
+        <div 
+          className="relative flex-shrink-0 cursor-pointer"
+          onClick={() => onPlayVideo && onPlayVideo(tutorialData)}
+        >
           <Image
             src={thumbnailSrc}
             alt="Video thumbnail"
             width={Number.parseInt(80, 10)}
             height={Number.parseInt(150, 10)}
             priority
-            className="rounded-lg object-cover"
+            className="rounded-lg object-cover hover:opacity-80 transition-opacity"
           />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src={"/assets/youtubeplay.png"}
+              alt="Play"
+              width={40}
+              height={40}
+              className="opacity-90"
+            />
+          </div>
         </div>
-        <div>
+        <div 
+          className="flex-1 cursor-pointer"
+          onClick={() => onPlayVideo && onPlayVideo(tutorialData)}
+        >
           <div className="text-start mb-2" style={styles.regularHeading}>
             {tutorialData.title}
           </div>
@@ -37,7 +53,7 @@ const TutorialViewCard = ({
           </div>
         </div>
       </div>
-      <div className="w-[15%] flex flex-col items-end justify-end">
+      <div className="w-[15%] flex flex-col items-end justify-end gap-2">
         <div className="flex justify-end w-full">
           <Switch
             checked={isEnabled}
@@ -52,20 +68,18 @@ const TutorialViewCard = ({
             }}
           />
         </div>
-        {isEnabled && (
-          <button 
-            className="pe-4 border-none outline-none" 
-            onClick={() => onEditClick(tutorialData)}
-          >
-            <Image
-              src={"/assets/editPen.png"}
-              height={17}
-              width={17}
-              alt="Edit"
-              className="cursor-pointer"
-            />
-          </button>
-        )}
+        <button 
+          className="pe-4 border-none outline-none" 
+          onClick={() => onEditClick(tutorialData)}
+        >
+          <Image
+            src={"/assets/editPen.png"}
+            height={17}
+            width={17}
+            alt="Edit"
+            className="cursor-pointer"
+          />
+        </button>
       </div>
     </div>
   );

@@ -118,7 +118,7 @@ const WhiteLabel = () => {
         { id: 1, title: "Brand Config" },
         { id: 2, title: "Domain Config" },
         { id: 3, title: "Email Config" },
-        { id: 4, title: "Notification Settings" },
+        { id: 4, title: "Notification Config" },
         { id: 5, title: "Tutorial Videos" },
         { id: 6, title: "Support widget" },
         { id: 7, title: "Upsell" },
