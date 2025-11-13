@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 
-const AgencyDashboardDefaultUI = () => {
+const AgencyDashboardDefaultUI = ({ title, description }) => {
   return (
     <div className="flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 w-full"
       style={{ overflow: "auto", scrollbarWidth: "none" }}>
@@ -40,7 +40,7 @@ const AgencyDashboardDefaultUI = () => {
           No data to show
         </h2>
         <p className="text-normal text-gray-600 font-normal text-center max-w-md">
-          Your agency revenue metrics will appear once you have account activities
+          {description}
         </p>
       </div>
     </div>

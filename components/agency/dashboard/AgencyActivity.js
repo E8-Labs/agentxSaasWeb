@@ -446,7 +446,7 @@ function AgencyActivity({
           </div>
         </div>
       ) : (
-        <AgencyDashboardDefaultUI />
+        <AgencyDashboardDefaultUI title={"User Activity"} description={"Your user activity metrics will appear once you have account activities"} />
       )
     ));
 }

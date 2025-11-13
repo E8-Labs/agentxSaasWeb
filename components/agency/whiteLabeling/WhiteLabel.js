@@ -20,13 +20,13 @@ const WhiteLabel = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [selectedWhiteLabelTabs, setSelectedWhiteLabelTabs] = useState(1);
-    
+
     // Copy Agency Link state
     const [linkCopied, setLinkCopied] = useState(false);
     const [showCopyLinkWarning, setShowCopyLinkWarning] = useState(false);
     const [agencyData, setAgencyData] = useState(null);
     const [copyLinkLoader, setCopyLinkLoader] = useState(false);
-    const {user:reduxUser, setUser:setReduxUser} = useUser();
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
     const [showSnackMessage, setShowSnackMessage] = useState({
         type: SnackbarTypes.Error,
         message: "",
@@ -153,7 +153,15 @@ const WhiteLabel = () => {
                                     onClick={() => { handleTabChange(item.id) }}
                                     style={styles.regular}
                                 >
+
                                     {item.title}
+                                    {
+                                        (item.id === 1 || item.id === 2) && (
+
+                                            <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                                                Coming Soon
+                                            </div>
+                                        )}
                                 </button>
                             )
                         })
@@ -220,7 +228,7 @@ const WhiteLabel = () => {
                         <button
                             className="flex flex-row items-center justify-center gap-2 bg-purple-100/50 rounded-lg px-4 py-2 hover:bg-purple-100/70 transition-colors flex-shrink-0"
                             onClick={() => {
-                                if(!reduxUser?.twilio?.twilAuthToken){
+                                if (!reduxUser?.twilio?.twilAuthToken) {
                                     setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
                                     return;
                                 }

@@ -382,7 +382,10 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       >
         {
           hasNoData ? (
-            <AgencyDashboardDefaultUI />
+            <AgencyDashboardDefaultUI
+              title={"Revenue Dashboard"}
+              description={"Your agency revenue metrics will appear once you have account activities"}
+             />
           ) : (
             <div className="flex flex-col items-start w-11/12 gap-6 pb-6">
               {/* Top Metrics Section */}

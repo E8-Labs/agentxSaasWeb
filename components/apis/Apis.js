@@ -340,7 +340,7 @@ const Apis = {
 
   getHowToVideo: `${BasePath}api/user/getHowToVideos`,
 toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
-updateHowToVideo: `${BasePath}api/user/updateHowToVideo`,
+updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
 
   
 };

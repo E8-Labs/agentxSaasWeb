@@ -7,6 +7,7 @@ import { AuthToken } from '../plan/AuthDetails';
 import { HowtoVideos, HowToVideoTypes } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const TutorialConfig = () => {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -14,7 +15,12 @@ const TutorialConfig = () => {
   const [selectedTutorial, setSelectedTutorial] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [tutorials, setTutorials] = useState([]);
-
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSnack, setShowSnack] = useState({
+    type: SnackbarTypes.Error,
+    message: "",
+    isVisible: false
+  });
 
 
   let defaultTutorials = [
@@ -24,7 +30,7 @@ const TutorialConfig = () => {
       description: "1:41",
       videoUrl: HowtoVideos.GettingStarted,
       enabled: true,
-      videoType:HowToVideoTypes.GettingStarted,
+      videoType: HowToVideoTypes.GettingStarted,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
     {
@@ -33,7 +39,7 @@ const TutorialConfig = () => {
       description: "11:27",
       videoUrl: HowtoVideos.Leads,
       enabled: true,
-      videoType:HowToVideoTypes.FirstCampaign,
+      videoType: HowToVideoTypes.FirstCampaign,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
     {
@@ -42,7 +48,7 @@ const TutorialConfig = () => {
       description: "7:15",
       videoUrl: HowtoVideos.Leads,
       enabled: false,
-      videoType:HowToVideoTypes.LeadsAndContacts,
+      videoType: HowToVideoTypes.LeadsAndContacts,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
     {
@@ -51,7 +57,7 @@ const TutorialConfig = () => {
       description: "12:20",
       videoUrl: HowtoVideos.KycQuestions,
       enabled: true,
-      videoType:HowToVideoTypes.AgentConfiguration,
+      videoType: HowToVideoTypes.AgentConfiguration,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
     {
@@ -60,7 +66,7 @@ const TutorialConfig = () => {
       description: "8:50",
       videoUrl: HowtoVideos.Pipeline,
       enabled: false,
-      videoType:HowToVideoTypes.CRMIntegration,
+      videoType: HowToVideoTypes.CRMIntegration,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
     {
@@ -69,7 +75,7 @@ const TutorialConfig = () => {
       description: "6:10",
       videoUrl: HowtoVideos.script,
       enabled: true,
-      videoType:HowToVideoTypes.Analytics,
+      videoType: HowToVideoTypes.Analytics,
       thumbnailSrc: "/assets/youtubeplay.png"
     }
   ]
@@ -125,58 +131,76 @@ const TutorialConfig = () => {
   };
 
   const handleSaveTutorial = async (updatedData) => {
+    setIsSaving(true);
     try {
       let token = AuthToken();
-      let payload = {
-        title: updatedData.title,
-        videoUrl: updatedData.videoUrl,
-        videoType: updatedData.videoType,
-        enabled: isEditMode && selectedTutorial ? selectedTutorial.enabled : true
-      };
+      let response;
 
-      if (isEditMode && selectedTutorial) {
-        // Update existing tutorial
-        payload.id = selectedTutorial.id;
-        const response = await axios.put(Apis.updateHowToVideo, payload, {
-          headers: {
-            "Authorization": "Bearer " + token,
-          }
-        });
-        
-        if (response.data.status === true) {
+      console.log("updatedData is of handleSaveTutorial", updatedData);
+
+      // If a new video file is uploaded, send FormData
+
+      const formData = new FormData();
+      formData.append("media", updatedData.media);
+      formData.append("videoType", selectedTutorial.videoType);
+      formData.append("title", updatedData.title);
+      formData.append("enabled", isEditMode && selectedTutorial ? selectedTutorial.enabled : true);
+
+      formData.forEach((value, key) => {
+        console.log("key is of formData", key);
+        console.log("value is of formData", value);
+      });
+
+      // Upload video file with metadata
+      response = await axios.put(Apis.updateHowToVideo, formData, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "multipart/form-data",
+        }
+      });
+
+
+      if (response.data.status === true) {
+        const finalVideoUrl = response.data.data?.videoUrl || updatedData.videoUrl || updatedData.videoPreview;
+
+        if (isEditMode && selectedTutorial) {
+          // Update existing tutorial
           setTutorials(prev => prev.map(tutorial =>
             tutorial.id === selectedTutorial.id
-              ? { ...tutorial, ...payload }
+              ? {
+                ...tutorial,
+                title: updatedData.title,
+                videoUrl: finalVideoUrl
+              }
               : tutorial
           ));
-        }
-      } else {
-        // Add new tutorial - using update endpoint which may handle creation
-        const response = await axios.put(Apis.updateHowToVideo, payload, {
-          headers: {
-            "Authorization": "Bearer " + token,
-          }
-        });
-        
-        if (response.data.status === true) {
+        } else {
+          // Add new tutorial
           const newTutorial = {
             id: response.data.data?.id || Math.max(...tutorials.map(t => t.id || 0), 0) + 1,
             title: updatedData.title,
             description: "0:00", // Default duration
-            videoUrl: updatedData.videoUrl,
+            videoUrl: finalVideoUrl,
             enabled: true,
-            videoType: updatedData.videoType,
             thumbnailSrc: "/assets/youtubeplay.png"
           };
           setTutorials(prev => [...prev, newTutorial]);
         }
       }
-      
+
       setShowEditModal(false);
       setSelectedTutorial(null);
       setIsEditMode(false);
     } catch (error) {
       console.log("error saving tutorial:", error);
+      setShowSnack({
+        type: SnackbarTypes.Error,
+        message: "Failed to save tutorial. Please try again.",
+        isVisible: true
+      });
+      // alert("Failed to save tutorial. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -187,7 +211,7 @@ const TutorialConfig = () => {
 
       const newEnabledStatus = !tutorial.enabled;
       let token = AuthToken();
-      
+
       const response = await axios.put(Apis.toggleHowToVideo, {
         id: tutorialId,
         enabled: newEnabledStatus
@@ -215,6 +239,19 @@ const TutorialConfig = () => {
   };
   return (
     <div>
+      <AgentSelectSnackMessage
+        type={showSnack.type}
+        message={showSnack.message}
+        isVisible={showSnack.isVisible}
+        hide={() => {
+          setShowSnack({
+            message: "",
+            isVisible: false,
+            type: SnackbarTypes.Error,
+
+          });
+        }}
+      />
       {/* Banner Section */}
       <LabelingHeader
         img={"/agencyIcons/Notification.png"}
@@ -261,6 +298,7 @@ const TutorialConfig = () => {
         handleSave={handleSaveTutorial}
         tutorialData={selectedTutorial}
         isEditMode={isEditMode}
+        isLoading={isSaving}
       />
 
       {/* Video Player Modal */}

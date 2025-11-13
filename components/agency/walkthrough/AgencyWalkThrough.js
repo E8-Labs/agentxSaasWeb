@@ -11,6 +11,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
     const [loader, setLoader] = useState(false);
     const [videoLoading, setVideoLoading] = useState(false);
     const [playedVideos, setPlayedVideos] = useState(new Set());
+    const [skoolModalOpen, setSkoolModalOpen] = useState(false);
 
     const modalStyles = {
         position: "fixed",
@@ -32,7 +33,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
             {
                 id: 1,
                 label: 'Platform Walkthrough',
-                videoUrl: '/videos/twilioVideo.mp4',
+                videoUrl: '/videos/Platformwalkthrough.mp4',
                 route: null,
             },
             {
@@ -59,12 +60,19 @@ const AgencyWalkThrough = ({ open, onClose }) => {
 
     const handleItemClick = (item, index) => {
         if (item.id === 4) {
-            // Skool link - open in new tab and mark as played
-            window.open(item.route, "_blank");
-            setPlayedVideos(prev => new Set([...prev, item.id]));
+            // Skool link - show modal instead of opening directly
+            setSkoolModalOpen(true);
+            setCurrentStep(index);
+            onClose();
             return;
         }
         setCurrentStep(index);
+    };
+
+    const handleJoinCommunity = (skoolUrl) => {
+        window.open(skoolUrl, "_blank");
+        setPlayedVideos(prev => new Set([...prev, 4]));
+        setSkoolModalOpen(false);
     };
 
     const handleVideoPlay = () => {
@@ -101,8 +109,63 @@ const AgencyWalkThrough = ({ open, onClose }) => {
     };
 
     const currentVideoUrl = checklist[currentStep]?.videoUrl;
+    const skoolItem = checklist.find(item => item.id === 4);
 
     return (
+        <>
+        {/* Skool Modal */}
+        <Modal
+            open={skoolModalOpen}
+            // onClose={() => setSkoolModalOpen(false)}
+            closeAfterTransition
+            BackdropProps={{
+                timeout: 100,
+                sx: {
+                    backgroundColor: "#00000040",
+                    backdropFilter: "blur(10px)",
+                },
+            }}
+        >
+            <Box sx={modalStyles}>
+                <div
+                    className="w-full w-1/2"
+                    style={{
+                        backgroundColor: "#F2F9FF",
+                        padding: 48,
+                        borderRadius: "16px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 24,
+                    }}
+                >
+                    {/* Skool Logo */}
+                    <div className="flex items-center justify-center">
+                        {/* Use Image component for Skool logo - add your logo file to public/otherAssets/skool-logo.png */}
+                        <Image
+                            src="/otherAssets/skool-logo.svg"
+                            alt="Skool"
+                            height={80}
+                            width={200}
+                            className="object-contain"
+                        />
+                    </div>
+
+                    {/* Join Community Button */}
+                    <button
+                        onClick={() => handleJoinCommunity(skoolItem?.route)}
+                        className="w-full bg-purple text-white rounded-lg py-4 px-6 font-semibold text-lg hover:bg-purple/90 transition-colors"
+                        style={{
+                            backgroundColor: '#7902DF',
+                        }}
+                    >
+                        Join Community
+                    </button>
+                </div>
+            </Box>
+        </Modal>
+
+        {/* Main Walkthrough Modal */}
         <Modal
             open={open}
             onClose={onClose}
@@ -146,7 +209,9 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                                 Watch these short video tutorials to properly setup your agency.{" "}
                                 <span
                                     className="text-purple cursor-pointer hover:underline"
-                                    onClick={() => window.open("https://www.skool.com/agentx", "_blank")}
+                                    onClick={()=>{
+                                        setSkoolModalOpen(true);
+                                    }}
                                 >
                                     Join us on Skool for more tutorials
                                 </span>
@@ -274,6 +339,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                 </div>
             </Box>
         </Modal>
+        </>
     );
 };
 

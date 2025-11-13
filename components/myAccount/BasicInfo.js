@@ -1085,10 +1085,9 @@ function BasicInfo() {
       </div>
 
       <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
         style={{
           border: `1px solid #00000010`,
-          transition: "border-color 0.3s ease",
         }}
       >
         <input
@@ -1132,10 +1131,9 @@ function BasicInfo() {
       </div>
 
       <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
         style={{
-          border: `1px solid ${focusedEmail ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
+          border: `1px solid ${focusedEmail ? "#000000" : "#00000010"}`,
         }}
       >
         <input
@@ -1215,10 +1213,9 @@ function BasicInfo() {
         Phone number
       </div>
       <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
+        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 outline-none focus-within:border-black transition-colors"
         style={{
           border: `1px solid #00000010`,
-          transition: "border-color 0.3s ease",
         }}
       >
         <input
@@ -1254,10 +1251,9 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${focusedFarm ? "#000000" : "#00000010"}`,
                 }}
               >
                 <input
@@ -1322,11 +1318,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedServiceArea ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1389,11 +1384,10 @@ function BasicInfo() {
                   </div>
 
                   <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                    className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                     style={{
-                      border: `1px solid ${focusedTerritory ? "#8a2be2" : "#00000010"
+                      border: `1px solid ${focusedTerritory ? "#000000" : "#00000010"
                         }`,
-                      transition: "border-color 0.3s ease",
                     }}
                   >
                     <input
@@ -1459,11 +1453,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedBrokerage ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1528,11 +1521,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedCompany ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1592,11 +1584,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedWebsite ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1658,11 +1649,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedCompany ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1726,11 +1716,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedTransaction ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1794,11 +1783,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedInstallationVolume ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1865,11 +1853,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedProjectSize ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1929,11 +1916,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedClientsPerMonth ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
@@ -1993,11 +1979,10 @@ function BasicInfo() {
               </div>
 
               <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
+                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
                 style={{
-                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                  border: `1px solid ${focusedClientsPerMonth ? "#000000" : "#00000010"
                     }`,
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <input
