@@ -19,6 +19,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import Image from "next/image";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 
 export default function DncConfirmationPopup({
   open,
