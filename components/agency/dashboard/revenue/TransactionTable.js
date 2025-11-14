@@ -374,7 +374,7 @@ function TransactionTable({
                         },
                       }}
                     >
-                      <span className="cursor-help">Credits</span>
+                      <span className="cursor-help">Service Cost</span>
                     </Tooltip>
                   </TableHead>
                   <TableHead className="text-gray-600 font-medium">Payout</TableHead>
@@ -419,9 +419,9 @@ function TransactionTable({
                     <TableCell className="text-sm text-gray-700">
                       {item.serviceCost}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-700">
+                    {/* <TableCell className="text-sm text-gray-700">
                       {item.agentXShare}
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="text-sm text-gray-700 font-medium">
                       <div className="flex items-center gap-2 flex-wrap">
                         {item.payout}
