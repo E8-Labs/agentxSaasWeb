@@ -152,7 +152,7 @@ const TutorialConfig = () => {
       });
 
       // Upload video file with metadata
-      response = await axios.put(Apis.updateHowToVideo, formData, {
+      response = await axios.post(Apis.updateHowToVideo, formData, {
         headers: {
           "Authorization": "Bearer " + token,
           "Content-Type": "multipart/form-data",

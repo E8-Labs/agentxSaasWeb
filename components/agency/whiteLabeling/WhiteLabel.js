@@ -106,7 +106,12 @@ const WhiteLabel = () => {
     }, [searchParams]);
 
     // Handle tab change and update URL
-    const handleTabChange = (tabId) => {
+    const handleTabChange = (item) => {
+        if(item.comingSoon){
+            setShowSnackMessage({ type: SnackbarTypes.Error, message: "This feature is coming soon", isVisible: true });
+            return;
+        }
+        const tabId = item.id;
         setSelectedWhiteLabelTabs(tabId);
         // Update URL without page reload
         const newSearchParams = new URLSearchParams(searchParams);
@@ -115,13 +120,13 @@ const WhiteLabel = () => {
     };
 
     const WhiteLabelTabs = [
-        { id: 1, title: "Brand Config" },
-        { id: 2, title: "Domain Config" },
-        { id: 3, title: "Email Config" },
-        { id: 4, title: "Notification Config" },
-        { id: 5, title: "Tutorial Videos" },
-        { id: 6, title: "Support widget" },
-        { id: 7, title: "Upsell" },
+        { id: 1, title: "Brand Config", comingSoon: true },
+        { id: 2, title: "Domain Config", comingSoon: true },
+        { id: 3, title: "Email Config", comingSoon: false },
+        { id: 4, title: "Notification Config", comingSoon: false },
+        { id: 5, title: "Tutorial Videos", comingSoon: false  },
+        { id: 6, title: "Support widget", comingSoon: false },
+        { id: 7, title: "Upsell", comingSoon: false  },
     ];
 
     return (
@@ -149,19 +154,16 @@ const WhiteLabel = () => {
                             return (
                                 <button
                                     key={item.id}
-                                    className={`${selectedWhiteLabelTabs === item.id ? "text-purple border-purple bg-purple-100 rounded-lg" : "text-black"} outline-none text-start h-[48px] px-2`}
-                                    onClick={() => { handleTabChange(item.id) }}
+                                    className={`${selectedWhiteLabelTabs === item.id ? "text-purple border-purple bg-purple-100 rounded-lg" : "text-black"} outline-none text-start h-[48px] px-2 flex flex-row items-center`}
+                                    onClick={() => { handleTabChange(item) }}
                                     style={styles.regular}
                                 >
-
-                                    {item.title}
-                                    {
-                                        (item.id === 1 || item.id === 2) && (
-
-                                            <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                                                Coming Soon
-                                            </div>
-                                        )}
+                                    <span>{item.title}</span>
+                                    {item.comingSoon && (
+                                        <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium whitespace-nowrap">
+                                            Coming Soon
+                                        </div>
+                                    )}
                                 </button>
                             )
                         })
