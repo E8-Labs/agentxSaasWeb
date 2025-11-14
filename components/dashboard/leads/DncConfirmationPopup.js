@@ -20,6 +20,7 @@ import Image from "next/image";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 export default function DncConfirmationPopup({
   open,
@@ -38,6 +39,8 @@ export default function DncConfirmationPopup({
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
   const [creditCost, setCreditCost] = useState(null)
+  const [minimumCost, setMinimumCost] = useState(null)
+  const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
 
   useEffect(() => {
     let data = getUserLocalData()
@@ -48,21 +51,55 @@ export default function DncConfirmationPopup({
 
 
   const getCreditCost = async () => {
-    let batchSize = leadsCount
-    console.log("batchSize is", batchSize)
-    const credit = await calculateCreditCost({
-      leadCount: batchSize,
-      type: "dnc"
-    })
-    console.log("credit cost is", credit)
-    setCreditCost(credit)
+    if (!userData || !leadsCount) return
+
+    const isAgencySubAccount = userData?.user?.userRole === 'AgencySubAccount'
     
+    // Check if we need to enforce minimum for agency subaccount
+    if (isAgencySubAccount && leadsCount < 100) {
+      // Calculate cost for 100 leads (minimum requirement)
+      let minimumData = {
+        leadCount: 100,
+        type: "dnc"
+      }
+      const minimumCostData = await calculateCreditCost(minimumData)
+      console.log("DncConfirmationPopup - minimumCostData for 100 leads", minimumCostData)
+      setMinimumCost(minimumCostData)
+      setIsMinimumEnforced(true)
+      
+      // Also get the cost for the actual lead count to show comparison
+      let data = {
+        leadCount: leadsCount,
+        type: "dnc"
+      }
+      const credit = await calculateCreditCost(data)
+      console.log("credit cost is", credit)
+      setCreditCost(credit)
+    } else {
+      // Normal flow - calculate for actual lead count
+      let batchSize = leadsCount
+      console.log("batchSize is", batchSize)
+      const credit = await calculateCreditCost({
+        leadCount: batchSize,
+        type: "dnc"
+      })
+      console.log("credit cost is", credit)
+      setCreditCost(credit)
+      setIsMinimumEnforced(false)
+      setMinimumCost(null)
+    }
   }
-  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost?.pricePerLead||0;
 
   useEffect(() => {
-    getCreditCost()
-  }, [])
+    if (open && userData) {
+      getCreditCost()
+    }
+  }, [open, userData, leadsCount])
+
+  // Use minimum cost if enforced, otherwise use creditCost
+  const displayLeadCount = isMinimumEnforced && minimumCost ? (minimumCost?.creditsToReceive || 100) : leadsCount
+  const displayPricePerLead = isMinimumEnforced && minimumCost ? (minimumCost?.pricePerLead || minimumCost?.pricing?.agencyPrice || '0.03') : (creditCost?.pricePerLead || creditCost?.pricing?.agencyPrice || '0.03')
+  const displayTotalCost = isMinimumEnforced && minimumCost ? (minimumCost?.totalCharge || 0) : (creditCost?.totalCharge || (leadsCount < 34 ? 1 : leadsCount * (creditCost?.pricePerLead || 0)))
 
   const handleClose = (data) => {
     console.log("data of add card", data)
@@ -110,40 +147,62 @@ export default function DncConfirmationPopup({
             mb: 1,
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 1.5,
-              // backgroundColor: "#F6F0FF",
-              // padding: "12px 16px",
-              borderRadius: "8px",
-              mb: 0,
-            }}
-          >
-            <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
-            <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`DNC Checklist is $${formatDecimalValue(creditCost?.pricePerLead||0)}/number.`}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 1.5,
-              // backgroundColor: "#F6F0FF",
-              // padding: "12px 16px",
-              borderRadius: "8px",
-              mb: 0,
-            }}
-          >
-            <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
-            <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`If less than 20 leads, it's $1.`}
-            </Typography>
-          </Box>
+          {isMinimumEnforced && minimumCost && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 1.5,
+                borderRadius: "8px",
+                mb: 0,
+                width: "100%",
+              }}
+            >
+              <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+              <Typography sx={{ fontSize: "14px", color: "#000", fontWeight: "600" }}>
+                {`${leadsCount} leads selected. Minimum payment is for 100 leads.`}
+              </Typography>
+            </Box>
+          )}
+          {!isMinimumEnforced && (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 1.5,
+                  // backgroundColor: "#F6F0FF",
+                  // padding: "12px 16px",
+                  borderRadius: "8px",
+                  mb: 0,
+                }}
+              >
+                <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+                <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                  {`DNC Checklist is $${formatDecimalValue(displayPricePerLead)}/number.`}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 1.5,
+                  // backgroundColor: "#F6F0FF",
+                  // padding: "12px 16px",
+                  borderRadius: "8px",
+                  mb: 0,
+                }}
+              >
+                <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
+                <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                  {`If less than 20 leads, it's $1.`}
+                </Typography>
+              </Box>
+            </>
+          )}
         </Box>
 
         {/* Modal Content */}
@@ -159,7 +218,7 @@ export default function DncConfirmationPopup({
               Total Leads
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              {leadsCount}
+              {displayLeadCount}
             </Typography>
           </Box>
 
@@ -174,7 +233,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${formatFractional2(creditCost?.pricePerLead||0)}
+              ${formatFractional2(displayPricePerLead)}
             </Typography>
           </Box>
 
@@ -191,7 +250,7 @@ export default function DncConfirmationPopup({
               Total Cost
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${totalCost.toFixed(2)}
+              ${typeof displayTotalCost === 'number' ? displayTotalCost.toFixed(2) : (displayLeadCount < 34 ? "1.00" : (displayPricePerLead * displayLeadCount).toFixed(2))}
             </Typography>
           </Box>
         </DialogContent>

@@ -6,6 +6,9 @@ import {
 import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { useEffect, useState } from "react";
+import { getUserLocalData } from "@/components/constants/constants";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 
 
 
@@ -17,7 +20,49 @@ export default function EnrichConfirmModal({
     Loader,
     creditCost,
 }) {
-    let totalCost =creditCost?.pricePerLead * creditCost?.leadCount //processedData?.length * creditCost.pricePerLead
+    const [userData, setUserData] = useState(null)
+    const [minimumCost, setMinimumCost] = useState(null)
+    const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
+
+    useEffect(() => {
+        let data = getUserLocalData()
+        if (data) {
+            setUserData(data)
+        }
+    }, [])
+
+    useEffect(() => {
+        const checkMinimumRequirement = async () => {
+            if (!showenrichConfirmModal || !userData || !processedData) return
+
+            const leadCount = processedData.length
+            const isAgencySubAccount = userData?.user?.userRole === 'AgencySubAccount'
+
+            // Check if we need to enforce minimum for agency subaccount
+            if (isAgencySubAccount && leadCount < 100) {
+                // Calculate cost for 100 leads (minimum requirement)
+                let minimumData = {
+                    leadCount: 100,
+                    type: "enrichment"
+                }
+                const minimumCostData = await calculateCreditCost(minimumData)
+                console.log("EnrichConfirmModal - minimumCostData for 100 leads", minimumCostData)
+                setMinimumCost(minimumCostData)
+                setIsMinimumEnforced(true)
+            } else {
+                setIsMinimumEnforced(false)
+                setMinimumCost(null)
+            }
+        }
+
+        checkMinimumRequirement()
+    }, [showenrichConfirmModal, userData, processedData])
+
+    // Use minimum cost if enforced, otherwise use creditCost
+    const displayLeadCount = isMinimumEnforced && minimumCost ? (minimumCost?.creditsToReceive || 100) : (creditCost?.leadCount || processedData?.length)
+    const displayPricePerLead = isMinimumEnforced && minimumCost ? (minimumCost?.pricePerLead || minimumCost?.pricing?.agencyPrice || '0.05') : (creditCost?.pricePerLead || creditCost?.pricing?.agencyPrice || '0.05')
+    const displayTotalCost = isMinimumEnforced && minimumCost ? (minimumCost?.totalCharge || 0) : (creditCost?.totalCharge || (creditCost?.pricePerLead * creditCost?.leadCount))
+    
     return (
         <Dialog
             open={showenrichConfirmModal}
@@ -62,44 +107,65 @@ export default function EnrichConfirmModal({
                     mb: 1,
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 1.5,
-                        // backgroundColor: "#F6F0FF",
-                        // padding: "12px 16px",
-                        borderRadius: "8px",
-                        mb: 0,
-                    }}
-                >
-                    <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
-                    <Typography sx={{ fontSize: "14px", color: "#000" }}>
-                        {`Enrichment is $${creditCost?.pricePerLead} / lead `}
-                    </Typography>
-
-                   
-                </Box>
-
-                <Box
+                {isMinimumEnforced && minimumCost && (
+                    <Box
                         sx={{
                             display: "flex",
                             flexDirection: "row",
                             alignItems: "center",
                             gap: 1.5,
-                            // backgroundColor: "#F6F0FF",
-                            // padding: "12px 16px",
                             borderRadius: "8px",
                             mb: 0,
+                            width: "100%",
                         }}
                     >
-                        <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
-                        <Typography sx={{ fontSize: "14px", color: "#000" }}>
-                            {`If less than 10 leads, it's $1.`}
+                        <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+                        <Typography sx={{ fontSize: "14px", color: "#000", fontWeight: "600" }}>
+                            {`${processedData?.length} leads selected. Minimum payment is for 100 leads.`}
                         </Typography>
                     </Box>
+                )}
+                {!isMinimumEnforced && (
+                    <>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                alignItems: "center",
+                                gap: 1.5,
+                                // backgroundColor: "#F6F0FF",
+                                // padding: "12px 16px",
+                                borderRadius: "8px",
+                                mb: 0,
+                            }}
+                        >
+                            <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+                            <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                                {`Enrichment is $${displayPricePerLead} / lead `}
+                            </Typography>
 
+                           
+                        </Box>
+
+                        <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                    // backgroundColor: "#F6F0FF",
+                                    // padding: "12px 16px",
+                                    borderRadius: "8px",
+                                    mb: 0,
+                                }}
+                            >
+                                <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
+                                <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                                    {`If less than 10 leads, it's $1.`}
+                                </Typography>
+                            </Box>
+                    </>
+                )}
             </Box>
 
 
@@ -116,7 +182,7 @@ export default function EnrichConfirmModal({
                         Total Leads
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        {creditCost?.leadCount}
+                        {displayLeadCount}
                     </Typography>
                 </Box>
 
@@ -131,7 +197,7 @@ export default function EnrichConfirmModal({
                         Cost Per Lead
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                    ${creditCost?.pricePerLead}
+                    ${displayPricePerLead}
                     </Typography>
                 </Box>
 
@@ -148,7 +214,7 @@ export default function EnrichConfirmModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${creditCost?.leadCount <= 10 ? "1" : totalCost.toFixed(2)}
+                        ${typeof displayTotalCost === 'number' ? displayTotalCost.toFixed(2) : (displayLeadCount <= 10 ? "1.00" : (displayPricePerLead * displayLeadCount).toFixed(2))}
                     </Typography>
                 </Box>
             </DialogContent>
