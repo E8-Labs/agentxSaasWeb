@@ -60,11 +60,13 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  HowToVideoTypes,
   models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import Link from "next/link";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
@@ -6188,8 +6190,8 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle=" Learn how to customize your script"
-        videoUrl={HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
       />
 
       <IntroVideoModal

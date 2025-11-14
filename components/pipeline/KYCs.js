@@ -10,7 +10,8 @@ import UserType from "../onboarding/UserType";
 import { UserTypes } from "@/constants/UserTypes";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 
 const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -1160,17 +1161,20 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
-          videoTitle="Learn about asking questions (KYC)"
-          videoUrl={HowtoVideos.KycQuestions}
+          videoTitle={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
+          videoUrl={getVideoUrlByType(HowToVideoTypes.AgentConfiguration) || HowtoVideos.KycQuestions}
         />
         <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
           <VideoCard
-            duration="1 min 38 sec"
+            duration={(() => {
+              const tutorial = getTutorialByType(HowToVideoTypes.AgentConfiguration);
+              return tutorial?.description || "1 min 38 sec";
+            })()}
             horizontal={false}
             playVideo={() => {
               setIntroVideoModal(true);
             }}
-            title="Learn about asking questions (KYC)"
+            title={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
           />
         </div>
       </div>

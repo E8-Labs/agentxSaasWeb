@@ -55,10 +55,12 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  HowToVideoTypes,
   models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
 
@@ -4957,14 +4959,17 @@ const [fetureType, setFetureType] = useState("");
                     <div className="w-full">
                       <div className="w-5/12">
                         <VideoCard
-                          duration={"13 min 56 sec"}
+                          duration={(() => {
+                            const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
+                            return tutorial?.description || "13 min 56 sec";
+                          })()}
                           width="80"
                           height="100"
                           horizontal={false}
                           playVideo={() => {
                             setIntroVideoModal(true);
                           }}
-                          title="Learn how to customize your script"
+                          title={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
                         />
                       </div>
 
@@ -5200,8 +5205,8 @@ const [fetureType, setFetureType] = useState("");
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle=" Learn how to customize your script"
-        videoUrl={HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
       />
 
       {showClaimPopup && (

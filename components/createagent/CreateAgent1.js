@@ -15,7 +15,8 @@ import IntroVideoModal from "./IntroVideoModal";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import { UserTypes } from "@/constants/UserTypes";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -777,8 +778,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn about getting started"
-            videoUrl={HowtoVideos.GettingStarted}
+            videoTitle={getTutorialByType(HowToVideoTypes.GettingStarted)?.title || "Learn about getting started"}
+            videoUrl={getVideoUrlByType(HowToVideoTypes.GettingStarted) || HowtoVideos.GettingStarted}
           />
 
           {/* header */}
@@ -798,12 +799,15 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             }}
           >
             <VideoCard
-              duration="1 min 47 sec"
+              duration={(() => {
+                const tutorial = getTutorialByType(HowToVideoTypes.GettingStarted);
+                return tutorial?.description || "1 min 47 sec";
+              })()}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
               }}
-              title="Learn about getting started"
+              title={getTutorialByType(HowToVideoTypes.GettingStarted)?.title || "Learn about getting started"}
             />
           </div>
           <div className="flex flex-col items-center px-4 w-full h-[90%]">

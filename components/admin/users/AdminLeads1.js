@@ -29,7 +29,8 @@ import AgentSelectSnackMessage, {
 import { SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import {
   LeadDefaultColumns,
   LeadDefaultColumnsArray,
@@ -1004,12 +1005,15 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 }}
               >
                 <VideoCard
-                  duration={"11 min 27 sec"}
+                  duration={(() => {
+                    const tutorial = getTutorialByType(HowToVideoTypes.LeadsAndContacts);
+                    return tutorial?.description || "11 min 27 sec";
+                  })()}
                   horizontal={false}
                   playVideo={() => {
                     setIntroVideoModal(true);
                   }}
-                  title=" Learn how to add leads to your CRM"
+                  title={getTutorialByType(HowToVideoTypes.LeadsAndContacts)?.title || "Learn how to add leads to your CRM"}
                 />
               </div>
             </div>
@@ -1893,8 +1897,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
-          videoTitle="Learn how to add leads to your CRM"
-          videoUrl={HowtoVideos.Leads}
+          videoTitle={getTutorialByType(HowToVideoTypes.LeadsAndContacts)?.title || "Learn how to add leads to your CRM"}
+          videoUrl={getVideoUrlByType(HowToVideoTypes.LeadsAndContacts) || HowtoVideos.Leads}
           duratuin={11}
         />
         {/* Modal to add custom sheet When no leads are added */}

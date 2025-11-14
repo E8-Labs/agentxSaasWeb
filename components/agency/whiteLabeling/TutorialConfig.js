@@ -85,11 +85,16 @@ const TutorialConfig = () => {
     getHowToVideos();
   }, []);
 
-
+  // Helper function to format duration from seconds to "M:SS" or "MM:SS" format
+  const formatDuration = (seconds) => {
+    if (!seconds || seconds === 0) return "0:00";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const getHowToVideos = async () => {
     try {
-
       let token = AuthToken();
       const response = await axios.get(Apis.getHowToVideo, {
         headers: {
@@ -97,18 +102,40 @@ const TutorialConfig = () => {
         }
       });
       console.log("response is of getHowToVideos", response.data);
+      
       if (response.data.status === true) {
-        let tutorials = response.data.data;
-        if (tutorials.length > 0) {
-          setTutorials(tutorials);
-        } else {
-          setTutorials(defaultTutorials);
-        }
+        let uploadedVideos = response.data.data || [];
+        
+        // Merge: Start with defaults, replace with uploaded videos if videoType matches
+        const mergedTutorials = defaultTutorials.map(defaultTutorial => {
+          const uploadedVideo = uploadedVideos.find(
+            uv => uv.videoType === defaultTutorial.videoType
+          );
+          
+          if (uploadedVideo) {
+            // Use uploaded video, but preserve default thumbnailSrc if not provided
+            return {
+              ...uploadedVideo,
+              thumbnailSrc: uploadedVideo.thumbnailSrc || defaultTutorial.thumbnailSrc,
+              description: uploadedVideo.videoDuration 
+                ? formatDuration(uploadedVideo.videoDuration) 
+                : defaultTutorial.description
+            };
+          }
+          
+          // No uploaded video for this type, keep default
+          return defaultTutorial;
+        });
+        
+        setTutorials(mergedTutorials);
       } else {
+        // If API fails, show defaults
         console.log("error is of getHowToVideos", response.data.message);
+        setTutorials(defaultTutorials);
       }
     } catch (error) {
       console.log("error is of getHowToVideos", error);
+      setTutorials(defaultTutorials); // Fallback to defaults
     }
   }
 
@@ -161,31 +188,8 @@ const TutorialConfig = () => {
 
 
       if (response.data.status === true) {
-        const finalVideoUrl = response.data.data?.videoUrl || updatedData.videoUrl || updatedData.videoPreview;
-
-        if (isEditMode && selectedTutorial) {
-          // Update existing tutorial
-          setTutorials(prev => prev.map(tutorial =>
-            tutorial.id === selectedTutorial.id
-              ? {
-                ...tutorial,
-                title: updatedData.title,
-                videoUrl: finalVideoUrl
-              }
-              : tutorial
-          ));
-        } else {
-          // Add new tutorial
-          const newTutorial = {
-            id: response.data.data?.id || Math.max(...tutorials.map(t => t.id || 0), 0) + 1,
-            title: updatedData.title,
-            description: "0:00", // Default duration
-            videoUrl: finalVideoUrl,
-            enabled: true,
-            thumbnailSrc: "/assets/youtubeplay.png"
-          };
-          setTutorials(prev => [...prev, newTutorial]);
-        }
+        // Refresh the list after saving to get updated data from server
+        await getHowToVideos();
       }
 
       setShowEditModal(false);
@@ -204,34 +208,35 @@ const TutorialConfig = () => {
     }
   };
 
-  const handleToggleSwitch = async (tutorialId) => {
-    try {
-      const tutorial = tutorials.find(t => t.id === tutorialId);
-      if (!tutorial) return;
+  // Toggle functionality commented out - toggle buttons removed
+  // const handleToggleSwitch = async (tutorialId) => {
+  //   try {
+  //     const tutorial = tutorials.find(t => t.id === tutorialId);
+  //     if (!tutorial) return;
 
-      const newEnabledStatus = !tutorial.enabled;
-      let token = AuthToken();
+  //     const newEnabledStatus = !tutorial.enabled;
+  //     let token = AuthToken();
 
-      const response = await axios.put(Apis.toggleHowToVideo, {
-        id: tutorialId,
-        enabled: newEnabledStatus
-      }, {
-        headers: {
-          "Authorization": "Bearer " + token,
-        }
-      });
+  //     const response = await axios.put(Apis.toggleHowToVideo, {
+  //       id: tutorialId,
+  //       enabled: newEnabledStatus
+  //     }, {
+  //       headers: {
+  //         "Authorization": "Bearer " + token,
+  //       }
+  //     });
 
-      if (response.data.status === true) {
-        setTutorials(prev => prev.map(t =>
-          t.id === tutorialId
-            ? { ...t, enabled: newEnabledStatus }
-            : t
-        ));
-      }
-    } catch (error) {
-      console.log("error toggling tutorial status:", error);
-    }
-  };
+  //     if (response.data.status === true) {
+  //       setTutorials(prev => prev.map(t =>
+  //         t.id === tutorialId
+  //           ? { ...t, enabled: newEnabledStatus }
+  //           : t
+  //       ));
+  //     }
+  //   } catch (error) {
+  //     console.log("error toggling tutorial status:", error);
+  //   }
+  // };
 
   const handlePlayVideo = (tutorial) => {
     setSelectedTutorial(tutorial);
@@ -277,11 +282,11 @@ const TutorialConfig = () => {
           {/* Tutorial Videos */}
           <div className="w-full flex flex-col gap-8">
             {tutorials.map((tutorial) => (
+              // onToggleSwitch={() => handleToggleSwitch(tutorial.id)} - Toggle functionality commented out - toggle buttons removed
               <TutorialViewCard
                 key={tutorial.id}
                 tutorialData={tutorial}
                 onEditClick={handleEditClick}
-                onToggleSwitch={() => handleToggleSwitch(tutorial.id)}
                 onPlayVideo={handlePlayVideo}
                 isEnabled={tutorial.enabled}
                 thumbnailSrc={tutorial.thumbnailSrc}

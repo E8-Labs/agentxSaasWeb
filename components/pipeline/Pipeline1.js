@@ -26,7 +26,8 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
@@ -684,8 +685,8 @@ const Pipeline1 = ({ handleContinue }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn about pipeline and stages"
-            videoUrl={HowtoVideos.Pipeline}
+            videoTitle={getTutorialByType(HowToVideoTypes.CRMIntegration)?.title || "Learn about pipeline and stages"}
+            videoUrl={getVideoUrlByType(HowToVideoTypes.CRMIntegration) || HowtoVideos.Pipeline}
           />
 
           <div
@@ -700,12 +701,15 @@ const Pipeline1 = ({ handleContinue }) => {
             }}
           >
             <VideoCard
-              duration="8 min 17 sec"
+              duration={(() => {
+                const tutorial = getTutorialByType(HowToVideoTypes.CRMIntegration);
+                return tutorial?.description || "8 min 17 sec";
+              })()}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
               }}
-              title="Learn about pipeline and stages"
+              title={getTutorialByType(HowToVideoTypes.CRMIntegration)?.title || "Learn about pipeline and stages"}
             />
           </div>
 

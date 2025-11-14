@@ -13,7 +13,8 @@ import { KycCategory } from "@/components/constants/constants";
 import AgentSelectSnackMessage from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import { BuyerKycsQuestions, GetKycQuestionsForUser } from "@/constants/Kycs";
 
 const BuyerKycs = ({ handleContinue }) => {
@@ -449,18 +450,21 @@ const BuyerKycs = ({ handleContinue }) => {
             <IntroVideoModal
               open={introVideoModal}
               onClose={() => setIntroVideoModal(false)}
-              videoTitle="Learn about asking questions (KYC)"
-              videoUrl={HowtoVideos.KycQuestions}
+              videoTitle={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
+              videoUrl={getVideoUrlByType(HowToVideoTypes.AgentConfiguration) || HowtoVideos.KycQuestions}
             />
             <div className="flex flex-row w-full justify-center h-[100%]">
               <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
                 <VideoCard
-                  duration="1 min 38 sec"
+                  duration={(() => {
+                    const tutorial = getTutorialByType(HowToVideoTypes.AgentConfiguration);
+                    return tutorial?.description || "1 min 38 sec";
+                  })()}
                   horizontal={false}
                   playVideo={() => {
                     setIntroVideoModal(true);
                   }}
-                  title="Learn about asking questions (KYC)"
+                  title={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
                 />
               </div>
               <div className="flex flex-col justify-start items-center w-8/12 ml-4">
