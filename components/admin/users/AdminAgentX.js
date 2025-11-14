@@ -3133,6 +3133,20 @@ const [fetureType, setFetureType] = useState("");
                               sx={{ width: 24, height: 24 }}
                             />
                             {model.name}
+
+                             <div
+                                style={{
+                                  backgroundColor: "#7902DF05",
+                                  color: "#7902DF",
+                                  padding: "4px 8px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  minWidth: "fit-content",
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
                           </MenuItem>
                         ))}
                       </Menu>

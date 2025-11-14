@@ -142,18 +142,20 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
         // Any paid plan to Free (cancellation)
         else if (currentPlanName !== 'Free' && targetPlanName === 'Free') {
             // Add all premium features for cancellation
-            featuresToLose.push(
-                "AI Agents", 
-                "Contacts", 
-                "Team Seats", 
-                "AI Credits", 
-                "Priority Support",
-                "Lead Source",
-                "RAG Knowledge Base",
-                "Success Manager",
-                "Zoom Support Webinar",
-                "GHL Subaccount & Snapshots"
-            );
+            let currentPlanFeatures = currentPlan.features || [];
+            featuresToLose = currentPlanFeatures.map(feature => feature.text);
+            // featuresToLose.push(
+            //     "AI Agents", 
+            //     "Contacts", 
+            //     "Team Seats", 
+            //     "AI Credits", 
+            //     "Priority Support",
+            //     "Lead Source",
+            //     "RAG Knowledge Base",
+            //     "Success Manager",
+            //     "Zoom Support Webinar",
+            //     "GHL Subaccount & Snapshots"
+            // );
         }
     }
 

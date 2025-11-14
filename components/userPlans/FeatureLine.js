@@ -58,7 +58,7 @@ const FeatureLine = ({
         return () => window.removeEventListener("resize", onResize);
     }, []);
 
-    // Detect mobile/touch devices
+    // Update mobile detection on resize
     useEffect(() => {
         const checkMobile = () => {
             const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -66,7 +66,6 @@ const FeatureLine = ({
             setIsMobile(isTouchDevice || isSmallScreen);
         };
         
-        checkMobile();
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
     }, []);

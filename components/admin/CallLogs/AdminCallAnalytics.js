@@ -382,7 +382,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     {formatNumber(analyticsData.summary?.overallBookedLeads)}
                   </div>
                 </div>
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                {/* <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total SMS
                   </div>
@@ -397,7 +397,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                   <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
                     {formatNumber(analyticsData.summary?.totalEmails)}
                   </div>
-                </div>
+                </div> */}
               </div>
             </>
           )}

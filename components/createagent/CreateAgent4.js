@@ -928,7 +928,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   </div>
 
                   <PhoneInput
-                    className="border outline-none bg-white"
+                    className="border outline-none bg-white focus-within:border-black transition-colors"
                     country={"us"} // restrict to US only
                     onlyCountries={["us", "mx", "ca"]}
                     disableDropdown={true}
@@ -939,14 +939,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     placeholder={"Enter Phone Number"}
                     // disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: "7px" }}
+                    style={{ borderRadius: "7px", border: "1px solid #00000020" }}
                     inputStyle={{
                       width: "100%",
                       borderWidth: "0px",
                       backgroundColor: "transparent",
                       paddingLeft: "60px",
-                      paddingTop: "12px",
-                      paddingBottom: "12px",
+                      paddingTop: "10px",
+                      paddingBottom: "10px",
+                      paddingRight: "12px",
                     }}
                     buttonStyle={{
                       border: "none",
@@ -1017,7 +1018,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             wants to talk to you?
                           </div>
                           <PhoneInput
-                            className="border outline-none bg-white mt-2"
+                            className="border outline-none bg-white mt-2 focus-within:border-black transition-colors"
                             country={"us"} // restrict to US only
                             onlyCountries={["us", "mx", "ca"]}
                             disableDropdown={true}
@@ -1028,14 +1029,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                             placeholder={"Enter Phone Number"}
                             // disabled={loading} // Disable input if still loading
-                            style={{ borderRadius: "7px" }}
+                            style={{ borderRadius: "7px", border: "1px solid #00000020" }}
                             inputStyle={{
                               width: "100%",
                               borderWidth: "0px",
                               backgroundColor: "transparent",
                               paddingLeft: "60px",
-                              paddingTop: "12px",
-                              paddingBottom: "12px",
+                              paddingTop: "14px",
+                              paddingBottom: "14px",
+                              paddingRight: "16px",
                             }}
                             buttonStyle={{
                               border: "none",

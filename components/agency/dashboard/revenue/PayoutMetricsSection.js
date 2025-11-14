@@ -179,13 +179,13 @@ function PayoutMetricsSection({ metrics = {} }) {
     <div className="w-full grid grid-cols-5 gap-4">
       <MetricCard
         icon="calendar"
-        label="Next Payout Date & Time"
+        label="Next Payout"
         value={
           <div className="flex flex-col">
             <span>{nextPayoutDate}</span>
-            <span className="text-lg font-normal text-gray-600">
+            {/* <span className="text-lg font-normal text-gray-600">
               {nextPayoutTime}
-            </span>
+            </span> */}
           </div>
         }
         iconComponent={<CalendarIcon />}
@@ -200,14 +200,14 @@ function PayoutMetricsSection({ metrics = {} }) {
 
       <MetricCard
         icon="chart"
-        label="Avg. Transaction Value (ATV)"
+        label="Avg. Transaction Value"
         value={avgTransactionValue}
         iconComponent={<ChartIcon />}
       />
 
       <MetricCard
         icon="chart"
-        label="Customer Lifetime Value (CLV)"
+        label="Lifetime Value (CLV)"
         value={clv}
         iconComponent={<ChartIcon />}
       />

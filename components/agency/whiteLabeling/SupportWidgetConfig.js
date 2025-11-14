@@ -7,9 +7,9 @@ const SupportWidgetConfig = () => {
     <div>
       {/* Banner Section */}
       <LabelingHeader
-        img={"/agencyIcons/email.png"}
-        title={"Support Widget"}
-        description={"Customize your brand settings to shape how your Stripe offerings are presented to your clients."}
+        img={"/otherAssets/whiteSupportICon.png"}
+        title={"Setup your support widget"}
+        description={"Give your users access to requesting support using the support widget."}
       />
 
       {/* Brand Configuration Card */}

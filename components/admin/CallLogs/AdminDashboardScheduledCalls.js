@@ -646,7 +646,7 @@ function AdminDashboardScheduledCalls({ }) {
                             > 
                               <div className="w-2/12">
                                 <div style={styles.text2}>
-                                  {item.agency?.name || "AgentX Main Admin"}
+                                  {item.agency?.name || "AssignX Main Admin"}
                                 </div>
                               </div>
 

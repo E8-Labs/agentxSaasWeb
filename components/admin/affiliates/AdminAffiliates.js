@@ -225,7 +225,7 @@ function AdminAffiliates({ selectedUser }) {
       let localAffiliate = JSON.parse(affiliat)
       setAffiliatesList(localAffiliate);
       setFilteredAffiliates(localAffiliate);
-      return
+      // return
     }
     try {
       setGetAffiliatesLoader(true);

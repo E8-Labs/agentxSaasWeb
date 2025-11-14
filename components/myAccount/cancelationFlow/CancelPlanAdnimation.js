@@ -38,6 +38,9 @@ export default function CancelPlanAnimation({
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [direction, setDirection] = useState(0);
 
+    // Check if user is AgencySubAccount
+    const isAgencySubAccount = isSubaccount || userLocalData?.userRole === 'AgencySubAccount';
+
     useEffect(() => {
         if (showModal) {
             getCUrrentComponent()
@@ -52,7 +55,7 @@ export default function CancelPlanAnimation({
 
         // For subaccounts, skip pause and deal windows - go directly to CancelConfirmation
 
-        if ((isPaused || userLocalData?.subscriptionPauseUsed > 0) && !isSubaccount) {
+        if ((isPaused || userLocalData?.subscriptionPauseUsed > 0) && !isAgencySubAccount) {
             if (
                 userLocalData?.isTrial === false &&
                 userLocalData?.cancelPlanRedemptions === 0
@@ -71,15 +74,17 @@ export default function CancelPlanAnimation({
                     setCurrentIndex((prevIndex) => prevIndex + 4);
                 }
             }
-        } else if (isSubaccount) {
+        } else if (isAgencySubAccount) {
             if (
                 userLocalData?.cancelPlanRedemptions === 0
             ) {
                 setDirection(1);
-                setCurrentIndex((prevIndex) => prevIndex + 2);
+                // For subaccounts: go to ClaimGift (index 1), then skip ObtainOffer (index 2) to CancelConfirmation (index 3)
+                setCurrentIndex(1);
             }else {
                 setDirection(1);
-                setCurrentIndex((prevIndex) => prevIndex + 4);
+                // Skip directly to CancelConfirmation (index 3) for subaccounts who already redeemed
+                setCurrentIndex(3);
             }
         }
 
@@ -94,12 +99,12 @@ export default function CancelPlanAnimation({
             console.log(nextAction);
             if (nextAction === "closeModel") {
                 handleClose()
-                setCurrentIndex(isSubaccount ? 3 : 0)
+                setCurrentIndex(isAgencySubAccount ? 3 : 0)
             } else if (nextAction == "claimGift") {
                 // Skip gift/offer windows for subaccounts
-                if (isSubaccount) {
+                if (isAgencySubAccount) {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 1); // Go to CancelConfirmation
+                    setCurrentIndex(3); // Go directly to CancelConfirmation (skip ObtainOffer at index 2)
                 } else if (
                     userLocalData?.isTrial === false &&
                     userLocalData?.cancelPlanRedemptions === 0
@@ -120,17 +125,17 @@ export default function CancelPlanAnimation({
                 }
 
             } else if (nextAction === "obtainOffer") {
-                // Skip offer window for subaccounts
-                if (isSubaccount) {
+                // Skip offer window for subaccounts - go directly to CancelConfirmation
+                if (isAgencySubAccount) {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 1); // Go to CancelConfirmation
+                    setCurrentIndex(3); // Go directly to CancelConfirmation (skip ObtainOffer at index 2)
                 } else {
                     setDirection(1);
                     setCurrentIndex((prevIndex) => prevIndex + 1);
                 }
             } else if (nextAction === "cancelConfirmationFromGift") {
                 // Skip for subaccounts - already at CancelConfirmation
-                if (isSubaccount) {
+                if (isAgencySubAccount) {
                     setDirection(1);
                     setCurrentIndex((prevIndex) => prevIndex); // Stay at CancelConfirmation
                 } else {
@@ -162,7 +167,15 @@ export default function CancelPlanAnimation({
 
     const handleBack = () => {
         setDirection(-1);
-        setCurrentIndex((prevIndex) => prevIndex - 1);
+        // Skip index 2 (ObtainOffer) for AgencySubAccount users when going back
+        setCurrentIndex((prevIndex) => {
+            const nextIndex = prevIndex - 1;
+            // If going back from index 3 and user is subaccount, skip index 2 and go to index 1
+            if (isAgencySubAccount && nextIndex === 2) {
+                return 1;
+            }
+            return nextIndex;
+        });
     };
 
     //code to close modal
@@ -250,7 +263,7 @@ export default function CancelPlanAnimation({
                         )}
 
 
-                        {currentIndex === 2 && (
+                        {currentIndex === 2 && !isAgencySubAccount && (
                             <motion.div
                                 key="box2"
                                 custom={direction}
@@ -305,7 +318,7 @@ export default function CancelPlanAnimation({
                                         <CancelConfirmation
                                             handleContinue={handleContinue}
                                             setShowSnak={setShowSnak}
-                                            isSubaccount={isSubaccount}
+                                            isSubaccount={isAgencySubAccount}
                                             selectedUser={selectedUser}
                                         />
                                     </div>

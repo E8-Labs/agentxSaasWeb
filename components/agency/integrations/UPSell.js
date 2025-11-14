@@ -101,6 +101,10 @@ const UPSell = () => {
             const token = AuthToken();
             if (!token) return;
 
+            console.log("Calculation api url ", Apis.agencyCalculator);
+            console.log("productType is", productType);
+            console.log("price is", parseFloat(price));
+            console.log("quantity is", 1);
             const response = await axios.post(
                 Apis.agencyCalculator,
                 {
@@ -120,9 +124,11 @@ const UPSell = () => {
                 const calculatorData = response.data.data;
                 
                 // Update the appropriate calculator result
+                console.log("calculatorData for service is", calculatorData);
                 if (from === "phonePrice") {
                     setPhoneCalculatorResult(calculatorData);
                 } else if (from === "dncPrice") {
+                   
                     setDncCalculatorResult(calculatorData);
                 } else if (from === "enrichmentPrice") {
                     setEnrichmentCalculatorResult(calculatorData);
@@ -405,7 +411,7 @@ const UPSell = () => {
                                                 Phone Numbers
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Easily upsell phone numbers
+                                            Easily upsell phone number | Your cost = $1.15 
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
@@ -460,7 +466,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {phoneCalculatorResult && (
+                                                {phoneCalculatorResult && !addUpSellPhone && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue
@@ -545,7 +551,7 @@ const UPSell = () => {
                                                 DNC
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Upsell seats to your members
+                                                Easily upsell DNC | Your cost = $0.03
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
@@ -600,7 +606,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {dncCalculatorResult && (
+                                                {dncCalculatorResult && !addDNC && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue
@@ -685,7 +691,7 @@ const UPSell = () => {
                                                 Perplexity Enrichment
                                             </div>
                                             <div style={styles.subHeading}>
-                                                Upsell perplexity enrichment
+                                            Easily upsell Perplexity lead enrichment | Your cost = $0.05
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
@@ -740,7 +746,7 @@ const UPSell = () => {
                                                         />
                                                     </button>
                                                 </div>
-                                                {enrichmentCalculatorResult && (
+                                                {enrichmentCalculatorResult && !addPerplexityEnrichment && (
                                                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
                                                         <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500", marginBottom: 4 }}>
                                                             Your Net Revenue

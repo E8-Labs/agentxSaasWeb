@@ -243,7 +243,7 @@ const WebAgentModal = ({
         },
       }}
     >
-      <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12 flex flex-col items-center justify-center" sx={styles.modalsStyle}>
+      <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-6/12 flex flex-col items-center justify-center" sx={styles.modalsStyle}>
         <div className="flex flex-col justify-center items-center bg-white rounded-lg px-4 py-6 w-full">
           {/* Header */}
           <div style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>

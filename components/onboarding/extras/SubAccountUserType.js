@@ -118,7 +118,7 @@ const SubAccountUserType = ({
             agentType: "Website Agent",
             // icon: "/agentXOrb.gif",
             icon: "/agencyIcons/agentsView/website.jpg",
-            areaOfFocusTitle: "How would you use AgentX?",
+            areaOfFocusTitle: "How would you use AssignX?",
             userType: "WebsiteAgent",
             roundedImage: true,
         },

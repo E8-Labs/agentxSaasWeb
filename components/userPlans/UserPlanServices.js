@@ -147,7 +147,9 @@ export const getUserPlans = async (from, selectedUser) => {
 
                 // Cache the fresh data
                 setCachedPlans(plansData, from);
-
+                if (UserLocalData?.userRole === "AgencySubAccount") {
+                    return response.data.data.monthlyPlans;
+                }
                 return plansData;
             } else {
                 // If API fails but we have stale cache, return it

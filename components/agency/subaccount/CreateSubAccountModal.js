@@ -166,7 +166,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             title: "Website Agent",
             agentType: "Website Agent",
             icon: "/agentXOrb.gif",
-            areaOfFocusTitle: "How would you use AgentX?",
+            areaOfFocusTitle: "How would you use AssignX?",
             userType: "WebsiteAgent",
             roundedImage: true,
         },

@@ -56,37 +56,13 @@ const BrandConfig = () => {
       {/* Banner Section */}
       <LabelingHeader
         img={"/agencyIcons/copied.png"}
-        title={"Define how to be seen"}
-        description={"Set your default brand elements to determine how Stripe products appear to your customers."}
+        title={"Define your brand"}
+        description={"Upload your logo and choose your brand colors."}
       />
 
       {/* Brand Configuration Card */}
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-
-          {/* Company Name */}
-          <div className="w-full">
-            <div className="text-start mb-2" style={styles.regular}>Company Name</div>
-            <input
-              style={styles.inputs}
-              className="w-full border border-gray-200 outline-none focus:ring-0 rounded p-2"
-              placeholder="Type here"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-            />
-          </div>
-
-          {/* Brand Tagline */}
-          <div className="w-full">
-            <div className="text-start mb-2" style={styles.regular}>Brand Tagline</div>
-            <input
-              style={styles.inputs}
-              className="w-full border border-gray-200 outline-none focus:ring-0 rounded p-2"
-              placeholder="Type here"
-              value={brandTagline}
-              onChange={(e) => setBrandTagline(e.target.value)}
-            />
-          </div>
 
           {/* Logo Upload */}
           <div className="self-stretch inline-flex justify-between items-center gap-[3px]">
@@ -126,11 +102,13 @@ const BrandConfig = () => {
               />
             </div>
             <div className="w-32 self-stretch bg-white/80 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-900/10 inline-flex flex-col justify-start items-start gap-[5px] overflow-hidden">
-              <div className="self-stretch h-12 p-2.5 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-white inline-flex justify-start items-center gap-2">
+              <div className="self-stretch h-12 p-2.5 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-white inline-flex justify-start items-center gap-2"
+              onClick={() => document.getElementById('primary-color-picker').click()}
+              
+              >
                 <div
                   className="w-6 h-6 rounded-full shadow-[0px_5.591172695159912px_12.160799980163574px_0px_rgba(0,0,0,0.20)] border-[2.80px] border-white cursor-pointer"
                   style={{ backgroundColor: primaryColor }}
-                  onClick={() => document.getElementById('primary-color-picker').click()}
                 ></div>
                 <div className="flex-1 justify-start text-black text-base font-medium font-['Inter'] leading-snug">{primaryColor}</div>
                 <input
@@ -151,11 +129,12 @@ const BrandConfig = () => {
               />
             </div>
             <div className="w-32 self-stretch bg-white/80 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-900/10 inline-flex flex-col justify-start items-start gap-[5px] overflow-hidden">
-              <div className="self-stretch h-12 p-2.5 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-white inline-flex justify-start items-center gap-2">
+              <div className="self-stretch h-12 p-2.5 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-white inline-flex justify-start items-center gap-2"
+              onClick={() => document.getElementById('secondary-color-picker').click()}
+              >
                 <div
                   className="w-6 h-6 rounded-full shadow-[0px_5.591172695159912px_12.160799980163574px_0px_rgba(0,0,0,0.20)] border-[2.80px] border-white cursor-pointer"
                   style={{ backgroundColor: secondaryColor }}
-                  onClick={() => document.getElementById('secondary-color-picker').click()}
                 ></div>
                 <div className="flex-1 justify-start text-black text-base font-medium font-['Inter'] leading-snug">{secondaryColor}</div>
                 <input

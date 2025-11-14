@@ -268,7 +268,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
               }}
             />
           </div>
-          <div style={styles.mediumTxt}>SSID</div>
+          <div style={styles.mediumTxt}>SID</div>
           <div>
             <input
               value={sid}
@@ -276,7 +276,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
                 setSid(e.target.value);
               }}
               style={styles.inputTxt}
-              placeholder="Paste SSID"
+              placeholder="Paste SID"
               className="border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none"
             />
           </div>
@@ -288,7 +288,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
                 setTwilioAuthToken(e.target.value);
               }}
               style={styles.inputTxt}
-              placeholder="Paste Key"
+              placeholder="Paste Token"
               className="border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none"
             />
           </div>

@@ -151,7 +151,7 @@ function CancelationFinalStep({
                 {`Help Us Understand What’s Missing!`}
             </div>
 
-            <div className="mt-9 w-full flex-col  justify-between">
+            <div className="mt-3 w-full flex-col  justify-between">
                 <div className=''>
                     {cancelPlanReasons.map((item, index) => (
                         <button

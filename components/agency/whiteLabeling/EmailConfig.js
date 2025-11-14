@@ -19,7 +19,7 @@ const EmailConfig = () => {
       <LabelingHeader
         img={"/agencyIcons/email.png"}
         title={"Configure email and SMTP Connection"}
-        description={"Set your default brand elements to determine how Stripe products appear to your customers."}
+        description={"Connect your domain and add DNS record."}
       />
 
       {/* Sender Details */}

@@ -277,7 +277,7 @@ function AdminBilling({ selectedUser, from }) {
         setPlans(filteredPlans)
       } else {
         // filter the plans and show only first 6 features of each plan
-        filteredPlans = plansList.monthlyPlans.map(plan => ({
+        filteredPlans = plansList?.map(plan => ({
           ...plan,
           features: plan.features ? plan.features.slice(0, 6) : []
         }));

@@ -53,7 +53,7 @@ const Page = () => {
           className="mt-4"
           style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}
         >
-          Send Invite to team members to join you on AgentX
+          Send Invite to team members to join you on AssignX
         </div>
         <button
           className="bg-purple text-white p-2 rounded-md w-20vw mt-8"

@@ -4,9 +4,9 @@
 let BasePath =
 // process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
+    ? "https://apimyagentx.com/agentx/" 
     : "https://apimyagentx.com/agentxtest/"
-  // ) //https://www.blindcircle.com
+  // ) 
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -337,6 +337,10 @@ const Apis = {
 
   resumeSubscription: `${BasePath}api/user/cancellation/resume`,
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
+
+  getHowToVideo: `${BasePath}api/user/getHowToVideos`,
+toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
+updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
 
   
 };

@@ -36,6 +36,13 @@ function AgencyBasicInfo({
   const [loading5, setloading5] = useState(false);
   const [loading13, setLoading13] = useState(false);
 
+  // Email validation and checking states
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [emailLoader, setEmailLoader] = useState(false);
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
+  const [validEmail, setValidEmail] = useState("");
+  const emailTimerRef = useRef(null);
+
   // Success message states
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -88,6 +95,7 @@ function AgencyBasicInfo({
     setName(data.name);
     setSelectedImage(data.thumb_profile_image);
     setEmail(data.email);
+    setOriginalEmail(data.email || "");
 
     setPhone(data.phone);
 
@@ -294,8 +302,88 @@ function AgencyBasicInfo({
     setShowSuccessMessage(true);
   };
 
+  // Email validation function
+  const validateEmail = (email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    // Check if email contains consecutive dots, which are invalid
+    if (/\.\./.test(email)) {
+      return false;
+    }
+
+    // Check the general pattern for a valid email
+    return emailPattern.test(email);
+  };
+
+  // Function to check if email exists in database
+  const checkEmail = async (value) => {
+    try {
+      // Don't check if email hasn't changed
+      if (value === originalEmail) {
+        setEmailCheckResponse(null);
+        setValidEmail("");
+        return;
+      }
+
+      setValidEmail("");
+      setEmailLoader(true);
+
+      const ApiPath = Apis.CheckEmail;
+
+      const ApiData = {
+        email: value,
+      };
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        if (response.data.status === true) {
+          // Email is available
+          setEmailCheckResponse(response.data);
+        } else {
+          // Email is taken
+          setEmailCheckResponse(response.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking email:", error);
+    } finally {
+      setEmailLoader(false);
+    }
+  };
+
   const handleEmailSave = async () => {
     try {
+      // Validate email format
+      if (!validateEmail(email)) {
+        setShowSuccessMessage(false);
+        setSuccessMessage("");
+        // We'll show error in the UI via validEmail state
+        return;
+      }
+
+      // Check if email is taken (only if it's different from original)
+      if (email !== originalEmail) {
+        // Wait for email check to complete if it's in progress
+        if (emailLoader) {
+          return;
+        }
+
+        // If email check hasn't been done or email is taken
+        if (emailCheckResponse === null) {
+          return;
+        }
+
+        if (emailCheckResponse.status === false) {
+          // Email is taken, error will show in UI
+          return;
+        }
+      }
+
       setLoading13(true);
       const data = { email: email };
       if (selectedAgency) {
@@ -304,6 +392,9 @@ function AgencyBasicInfo({
       await UpdateProfile(data);
       setLoading13(false);
       setIsEmailChanged(false);
+      setOriginalEmail(email); // Update original email after successful save
+      setEmailCheckResponse(null);
+      setValidEmail("");
       showSuccess("Account Updated");
     } catch (e) {
       setLoading13(false);
@@ -489,16 +580,42 @@ function AgencyBasicInfo({
           onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
-            setEmail(event.target.value);
+            const value = event.target.value;
+            setEmail(value);
             setIsEmailChanged(true);
+            setEmailCheckResponse(null);
+
+            if (!value) {
+              setValidEmail("");
+              return;
+            }
+
+            if (!validateEmail(value)) {
+              setValidEmail("Invalid");
+            } else {
+              setValidEmail("");
+              // Clear previous timer
+              if (emailTimerRef.current) {
+                clearTimeout(emailTimerRef.current);
+              }
+
+              // Set a new timeout to check email after user stops typing
+              emailTimerRef.current = setTimeout(() => {
+                checkEmail(value);
+              }, 300);
+            }
           }}
           type="text"
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
-        {isEmailChanged ?
-          (loading13 ? (
+        {isEmailChanged ? (
+          emailLoader ? (
             <CircularProgress size={20} />
+          ) : validEmail === "Invalid" ? (
+            <div style={{ fontSize: 12, color: "red" }}>Invalid</div>
+          ) : emailCheckResponse?.status === false ? (
+            <div style={{ fontSize: 12, color: "red" }}>Taken</div>
           ) : (
             <button
               onClick={async () => {
@@ -508,7 +625,8 @@ function AgencyBasicInfo({
             >
               Save
             </button>
-          )) : (
+          )
+        ) : (
             <button
               onClick={() => {
                 emailRef.current?.focus();

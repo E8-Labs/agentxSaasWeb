@@ -33,7 +33,6 @@ const NotificationConfig = () => {
 
   const notificationTabs = [
     { id: 1, title: "Standard" },
-    { id: 2, title: "Trial Period" },
     { id: 3, title: "Post Trial Period" },
     { id: 4, title: "Gamification" },
   ];
@@ -42,8 +41,8 @@ const NotificationConfig = () => {
     <div>
       {/* Banner Section */}
       <LabelingHeader
-        img={"/agencyIcons/notification.png"}
-        title={"Notification Settings"}
+        img={"/agencyIcons/Notification.png"}
+        title={"Configure your notifications "}
         description={"Customize your notification preferences to control how clients experience the platform."}
       />
 

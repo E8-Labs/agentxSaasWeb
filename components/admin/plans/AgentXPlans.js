@@ -86,7 +86,7 @@ const AgentXPlans = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">AgentX Plans</h1>
+        <h1 className="text-2xl font-bold text-gray-900">AssignX Plans</h1>
         <Button onClick={handleAdd} className="bg-purple-600 hover:bg-purple-700">
           <Plus className="w-4 h-4 mr-2" />
           Add New Plan
@@ -95,7 +95,7 @@ const AgentXPlans = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>All AgentX Plans</CardTitle>
+          <CardTitle>All AssignX Plans</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

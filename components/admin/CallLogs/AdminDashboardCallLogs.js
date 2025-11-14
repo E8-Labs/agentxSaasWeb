@@ -454,130 +454,133 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           )
         }
       </div>
-
-      <div className="flex w-full pl-10 flex-row items-center gap-3 mt-4">
-        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
-          <input
-            style={{ fontSize: 15 }}
-            type="text"
-            placeholder="Search by name, email or phone"
-            className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
-            value={searchValue}
-            onChange={(e) => {
-              const value = e.target.value;
-              // handleSearchChange(value);
-              setSearchValue(value);
-            }}
-          />
-          <img
-            src={"/otherAssets/searchIcon.png"}
-            alt="Search"
-            width={20}
-            height={20}
-          />
-        </div>
-
-        <button
-          className="flex-shrink-0"
-          onClick={() => {
-            setActiveTabWhenModalOpened(activeTab);
-            setShowFilterModal(true);
-          }}
-        >
-          <Image
-            src={"/otherAssets/filterBtn.png"}
-            height={36}
-            width={36}
-            alt="Search"
-          />
-        </button>
-
-        {/* Show filters here in a row*/}
-        <div
-          className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
-          style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
-        >
-          {GetFiltersFromSelection().map((filter, index) => (
-            <div className="flex-shrink-0" key={index}>
-              <div
-                className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                style={{ fontWeight: "500", fontSize: 15 }}
-              >
-                {getFilterTitle(filter)}
-
-                {/* Remove Filter Button */}
-                <button
-                  className="outline-none"
-                  onClick={() => {
-                    console.log("filter.key", filter.key);
-
-                    // Calculate the updated filter values before updating state
-                    let updatedFromDate = selectedFromDate;
-                    let updatedToDate = selectedToDate;
-                    let updatedStatus = [...selectedStatus];
-                    let updatedSubaccount = selectedSubaccount;
-
-                    if (filter.key === "date") {
-                      updatedFromDate = null;
-                      updatedToDate = null;
-                      setSelectedFromDate(null);
-                      setSelectedToDate(null);
-                    } else if (filter.key === "status") {
-                      updatedStatus = selectedStatus.filter((s) => s !== filter.values[0]);
-                      setSelectedStatus(updatedStatus);
-                    } else if (filter.key === "filterUserId") {
-                      updatedSubaccount = null;
-                      setSelectedSubaccount(null);
-                    }
-
-                    // Refresh Call Logs after filter removal with updated filter values
-                    setTimeout(() => {
-                      setCallDetails([]);
-                      setFilteredCallDetails([]);
-                      setHasMore(true);
-                      // Pass updated filter values explicitly to ensure API path is reset correctly
-                      getCallLogs(0, {
-                        selectedFromDate: updatedFromDate,
-                        selectedToDate: updatedToDate,
-                        selectedStatus: updatedStatus,
-                        selectedSubaccount: updatedSubaccount
-                      });
-                    }, 100);
-                  }}
-                >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={20}
-                    width={20}
-                    alt="Remove Filter"
-                  />
-                </button>
-              </div>
-            </div>
+      <div className="w-full flex flex-row items-center justify-between overflow-x-auto"
+      style={{scrollbarWidth: "none"}}
+      >
+        <div className="flex flex-row mt-10 gap-8 pb-2 mb-4 pl-10 flex-shrink-0">
+          {["All Activities", "Campaigns", "Analytics"].map((tab) => (//, "Scheduled"
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`${activeTab === tab
+                ? "text-purple border-b-2 border-purple outline-none"
+                : ""
+                }`}
+              style={{ fontSize: 15, fontWeight: "500" }}
+            >
+              {tab}
+            </button>
           ))}
         </div>
-      </div>
 
+        <div className="flex px-10 flex-row items-center gap-3 mt-4">
+          <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
+            <input
+              style={{ fontSize: 15 }}
+              type="text"
+              placeholder="Search by name, email or phone"
+              className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+              value={searchValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                // handleSearchChange(value);
+                setSearchValue(value);
+              }}
+            />
+            <img
+              src={"/otherAssets/searchIcon.png"}
+              alt="Search"
+              width={20}
+              height={20}
+            />
+          </div>
 
-      <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Activities", "Campaign Activities", "Call Analytics"].map((tab) => (//, "Scheduled"
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`${activeTab === tab
-              ? "text-purple border-b-2 border-purple outline-none"
-              : ""
-              }`}
-            style={{ fontSize: 15, fontWeight: "500" }}
+            className="flex-shrink-0"
+            onClick={() => {
+              setActiveTabWhenModalOpened(activeTab);
+              setShowFilterModal(true);
+            }}
           >
-            {tab}
+            <Image
+              src={"/otherAssets/filterBtn.png"}
+              height={36}
+              width={36}
+              alt="Search"
+            />
           </button>
-        ))}
+
+          {/* Show filters here in a row*/}
+          <div
+            className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
+            style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
+          >
+            {GetFiltersFromSelection().map((filter, index) => (
+              <div className="flex-shrink-0" key={index}>
+                <div
+                  className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                  style={{ fontWeight: "500", fontSize: 15 }}
+                >
+                  {getFilterTitle(filter)}
+
+                  {/* Remove Filter Button */}
+                  <button
+                    className="outline-none"
+                    onClick={() => {
+                      console.log("filter.key", filter.key);
+
+                      // Calculate the updated filter values before updating state
+                      let updatedFromDate = selectedFromDate;
+                      let updatedToDate = selectedToDate;
+                      let updatedStatus = [...selectedStatus];
+                      let updatedSubaccount = selectedSubaccount;
+
+                      if (filter.key === "date") {
+                        updatedFromDate = null;
+                        updatedToDate = null;
+                        setSelectedFromDate(null);
+                        setSelectedToDate(null);
+                      } else if (filter.key === "status") {
+                        updatedStatus = selectedStatus.filter((s) => s !== filter.values[0]);
+                        setSelectedStatus(updatedStatus);
+                      } else if (filter.key === "filterUserId") {
+                        updatedSubaccount = null;
+                        setSelectedSubaccount(null);
+                      }
+
+                      // Refresh Call Logs after filter removal with updated filter values
+                      setTimeout(() => {
+                        setCallDetails([]);
+                        setFilteredCallDetails([]);
+                        setHasMore(true);
+                        // Pass updated filter values explicitly to ensure API path is reset correctly
+                        getCallLogs(0, {
+                          selectedFromDate: updatedFromDate,
+                          selectedToDate: updatedToDate,
+                          selectedStatus: updatedStatus,
+                          selectedSubaccount: updatedSubaccount
+                        });
+                      }, 100);
+                    }}
+                  >
+                    <Image
+                      src={"/otherAssets/crossIcon.png"}
+                      height={20}
+                      width={20}
+                      alt="Remove Filter"
+                    />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
 
       <div className="w-full">
-        {activeTab === "Campaign Activities" ? (
+        {activeTab === "Campaigns" ? (
           <AdminDashboardActiveCall
             isFromAgency={isFromAgency}
             selectedFromDate={selectedFromDate}
@@ -588,7 +591,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
               // This callback can be used to refresh if needed
             }}
           />
-        ) : activeTab === "Call Analytics" ? (
+        ) : activeTab === "Analytics" ? (
           <AdminCallAnalytics
             selectedAgency={selectedAgency}
             isFromAgency={isFromAgency}
@@ -642,10 +645,14 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 ) : (
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
+                      {
+                        !isFromAgency && (
+                          <div className="w-[200px] flex-shrink-0">
+                            <div style={styles.text}>Agency Name</div>
+                          </div>
+                        )
+                      }
 
-                      <div className="w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Agency Name</div>
-                      </div>
 
                       <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Sub Account</div>
@@ -692,12 +699,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             style={{ cursor: "pointer" }}
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
+                            {
+                              !isFromAgency && (
+                                <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
+                                  <div style={styles.text2}>
+                                    {item.agency?.name || "-"}
+                                  </div>
+                                </div>
+                              )
+                            }
 
-                            <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
-                              <div style={styles.text2}>
-                                {item.agency?.name || "-"}
-                              </div>
-                            </div>
 
                             <div className="w-[200px] pr-3 flex-shrink-0 flex flex-row gap-2 truncate items-center">
                               <div className="truncate w-full capitalize" style={styles.text2}>
@@ -1077,7 +1088,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     setShowFilterModal(false);
 
                     // Reset filters for the active tab when modal was opened
-                    if (activeTabWhenModalOpened === "Campaign Activities") {
+                    if (activeTabWhenModalOpened === "Campaigns") {
                       // For Campaign Activities, filters are passed as props, so resetting them will trigger refresh
                       // Reset state
                       setCallDetails([]);
@@ -1126,7 +1137,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         setShowFilterModal(false);
 
                         // Apply filter based on which tab was active when modal opened
-                        if (activeTabWhenModalOpened === "Campaign Activities") {
+                        if (activeTabWhenModalOpened === "Campaigns") {
                           // For Campaign Activities, the filter will be applied via props passed to AdminDashboardActiveCall
                           // Trigger a refresh by resetting the component state
                           setCallDetails([]);

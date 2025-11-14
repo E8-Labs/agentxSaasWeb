@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
 import dynamic from 'next/dynamic';
 import DOMPurify from 'dompurify';
 import 'react-quill-new/dist/quill.snow.css';
@@ -6,12 +6,12 @@ import 'react-quill-new/dist/quill.snow.css';
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
-const RichTextEditor = ({
+const RichTextEditor = forwardRef(({
   value,
   onChange,
   placeholder = 'Enter text...',
   availableVariables = []
-}) => {
+}, ref) => {
   const quillRef = useRef(null);
 
   // Quill modules configuration
@@ -59,30 +59,13 @@ const RichTextEditor = ({
     }
   };
 
+  // Expose insertVariable via ref
+  useImperativeHandle(ref, () => ({
+    insertVariable
+  }));
+
   return (
     <div className="rich-text-editor-container">
-      {/* Variable Insertion Dropdown */}
-      {availableVariables && availableVariables.length > 0 && (
-        <div className="mb-2">
-          <select
-            value=""
-            onChange={(e) => {
-              if (e.target.value) {
-                insertVariable(e.target.value);
-              }
-            }}
-            className="text-sm border border-gray-300 rounded px-2 py-1 bg-white text-gray-700 outline-none focus:border-purple focus:ring-0"
-          >
-            <option value="">Insert Variable...</option>
-            {availableVariables.map((variable, index) => (
-              <option key={index} value={variable}>
-                {variable}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
       {/* Rich Text Editor */}
       <div className="quill-editor-wrapper">
         <ReactQuill
@@ -105,6 +88,7 @@ const RichTextEditor = ({
           border: 1px solid #e5e7eb;
           border-radius: 0.375rem;
           overflow: hidden;
+          margin-top: 8px;
         }
 
         .quill-editor-wrapper .ql-toolbar {
@@ -166,6 +150,8 @@ const RichTextEditor = ({
       `}</style>
     </div>
   );
-};
+});
+
+RichTextEditor.displayName = 'RichTextEditor';
 
 export default RichTextEditor;

@@ -148,7 +148,7 @@ const AgentBox = ({ user }) => {
           <div
             style={{ fontSize: "13px", color: "#888", fontWeight: "normal" }}
           >
-            Created an AgentX
+            Created an AssignX
           </div>
         </div>
       </div>

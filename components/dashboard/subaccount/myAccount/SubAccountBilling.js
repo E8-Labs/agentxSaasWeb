@@ -1187,7 +1187,7 @@ function SubAccountBilling({
                   marginTop: 10,
                 }}
               >
-                AgentX Successfully Canceled
+                AssignX Successfully Canceled
               </div>
 
               <div

@@ -881,7 +881,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   onChange={(e) => {
                     setAgentName(e.target.value);
                   }}
-                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                   style={{
                     ...styles.inputStyle,
                     border: "1px solid #00000020",
@@ -978,7 +978,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   spellCheck="true"
                   enterKeyHint="done"
                   placeholder="Ex: Senior Property Acquisition Specialist"
-                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black transition-colors"
                   style={{
                     ...styles.inputStyle,
                     border: "1px solid #00000020",
@@ -1063,7 +1063,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       ref={bottomRef}
                       enterKeyHint="done"
                       placeholder="Type Here...."
-                      className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
+                      className="border w-6/12 rounded px-3 py-2.5 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0 focus:border-black transition-colors"
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000020",
@@ -1337,7 +1337,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                     <div className="mt-1">
                     <Input
-                    className="h-[50px] border rounded-lg p-3 w-full focus:outline-none focus:ring-0 focus:border-[#00000020]"
+                    className="h-[50px] border rounded-lg px-3 py-2.5 w-full focus:outline-none focus:ring-0 focus:border-black transition-colors"
                     placeholder="Type here..."
                     value={otherStatus}
                     onChange={(e) => setOtherStatus(e.target.value)}
@@ -1357,7 +1357,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 {/* Simple address input */}
                 <div className="mt-1 pb-4">
                   <Input
-                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
+                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 focus:border-black px-3 py-2.5 transition-colors"
                     style={{ border: "1px solid #00000020" }}
                     placeholder="Enter property address..."
                     value={addressValue}

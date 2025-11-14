@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Box, Typography } from '@mui/material';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 import dynamic from 'next/dynamic';
@@ -15,6 +15,8 @@ const EditEmailNotification = ({
     notificationData,
     onSave
 }) => {
+    const richTextEditorRef = useRef(null);
+    const [selectedVariable, setSelectedVariable] = useState('');
     const [formData, setFormData] = useState({
         emailSubject: '',
         emailBody: '',
@@ -81,17 +83,17 @@ const EditEmailNotification = ({
                     {/* Modal Header */}
                     <div className="w-full flex flex-row items-center justify-between mt-4">
                         <Typography id="edit-email-notification-modal" variant="h6" component="h2" sx={{ fontWeight: 600 }}>
-                            Edit Email Notification
+                            Email Notification
                         </Typography>
                         <CloseBtn onClick={onClose} />
                     </div>
 
                     {/* Section Title */}
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                         <h3 style={{ fontSize: 18, fontWeight: 600, color: "#7902DF", marginBottom: "16px" }}>
                             Email Notification
                         </h3>
-                    </div>
+                    </div> */}
 
                     {/* Email Subject Field */}
                     <div className="space-y-2">
@@ -109,14 +111,39 @@ const EditEmailNotification = ({
 
                     {/* Email Body / Description Field */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                            Body
-                        </label>
+                        <div className="flex flex-row items-center justify-between">
+                            <label className="text-sm font-medium text-gray-700">
+                                Body
+                            </label>
+                            {notificationData?.availableVariables && notificationData.availableVariables.length > 0 && (
+                                <div className="variable-dropdown-inline">
+                                    <select
+                                        value={selectedVariable}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setSelectedVariable('');
+                                            if (value && richTextEditorRef.current) {
+                                                richTextEditorRef.current.insertVariable(value);
+                                            }
+                                        }}
+                                        className="text-sm border border-gray-300 rounded px-2 py-1 bg-white text-gray-700 outline-none focus:border-purple focus:ring-0"
+                                    >
+                                        <option value="">Insert Variable...</option>
+                                        {notificationData.availableVariables.map((variable, index) => (
+                                            <option key={index} value={variable}>
+                                                {variable}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
                         <RichTextEditor
+                            ref={richTextEditorRef}
                             value={formData.emailBody}
                             onChange={(html) => handleInputChange('emailBody', html)}
                             placeholder="Enter email body with rich formatting..."
-                            availableVariables={notificationData?.availableVariables || []}
+                            availableVariables={[]}
                         />
                     </div>
 
