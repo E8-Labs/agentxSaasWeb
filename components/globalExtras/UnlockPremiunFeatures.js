@@ -14,7 +14,7 @@ const UnlockPremiunFeatures = ({
     from,
     handleConfirmDownGrade,
 
-    
+
 }) => {
 
     console.log("title passed to unlock premium features is", title)
@@ -56,9 +56,16 @@ const UnlockPremiunFeatures = ({
                 setFeatureTitleValue("SupportSettings");
                 // if (!Data?.allowLiveSupportWebinar) {
                 // }
-            }else{
+            }
+
+            else if (title === "Unlock Calendar Integration") {
+                if (!Data?.allowCalendarIntegration) {
+                    setFeatureTitleValue("CalendarIntegration");
+                }
+            } else {
                 setFeatureTitleValue(title);
             }
+
         }
     }, [localUserData]);
 
@@ -99,7 +106,7 @@ const UnlockPremiunFeatures = ({
             const Token = AuthToken();
             const ApiPath = Apis.requestFeatureFromAgency;
             const ApiData = {
-                featureTitle: featureTitleValue||title
+                featureTitle: featureTitleValue || title
             }
             console.log("Apidata for request feature is", ApiData);
             const response = await axios.post(ApiPath, ApiData, {
@@ -123,12 +130,10 @@ const UnlockPremiunFeatures = ({
                 setSnackMsgType(SnackbarTypes.Error);
             }
         } catch (error) {
-            if(error.response.data.status === false){
-                setSnackMsg(error.response.data.message);
-                setSnackMsgType(SnackbarTypes.Error);
+            if (error.response.data.status === false) {
+                setRequestLoader(false);
+                console.error("Error occured in request feature api is", error)
             }
-            setRequestLoader(false);
-            console.error("Error occured in request feature api is", error)
         }
     }
 

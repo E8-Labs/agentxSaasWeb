@@ -5407,13 +5407,7 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              user?.agencyCapabilities?.allowToolsAndActions === false ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={"Unlock Actions"}
-                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
-                />
-              ) : !allowToolsAndActions ? (
+               !allowToolsAndActions && reduxUser?.userRole !== "AgencySubAccount" ? (
                 <UpgardView
                   setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Actions"}
@@ -5443,6 +5437,7 @@ function Page() {
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
                     setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    setShowSnackMsg={setShowSnackMsg}
                   />
 
                   {/* Calendar Section 

@@ -37,23 +37,34 @@ function UpgardView({
         console.log("Title passed to upgrade view is", title)
         console.log("Plan capabilities in upgrade view is", Data)
         if (localUserData?.userRole === "AgencySubAccount") {
-            if (title === "Enable Live Transfer") {
-                if (!Data?.allowLiveCallTransfer) {
-                    setShowUnlockPremiumFeaturesBtn(true);
+            if (reduxUser?.agencyCapabilities?.allowCalendarIntegration === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
+            } else if (reduxUser?.agencyCapabilities?.allowToolsAndActions === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
+            } else if (reduxUser?.agencyCapabilities?.allowKnowledgeBases === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
+            } else if (reduxUser?.agencyCapabilities?.allowVoicemail === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
+            } else if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
+            } else
+                if (title === "Enable Live Transfer") {
+                    if (!Data?.allowLiveCallTransfer) {
+                        setShowUnlockPremiumFeaturesBtn(true);
+                    }
+                } else if (title === "Unlock Actions") {
+                    if (!Data?.allowToolsAndActions) {
+                        setShowUnlockPremiumFeaturesBtn(true);
+                    }
+                } else if (title === "Unlock Knowledge Base" || title === "Add Knowledge Base") {
+                    if (!Data?.allowKnowledgeBases) {
+                        setShowUnlockPremiumFeaturesBtn(true);
+                    }
+                } else if (title === "Unlock Voicemail" || title === "Enable Voicemail") {
+                    if (!Data?.allowVoicemail) {
+                        setShowUnlockPremiumFeaturesBtn(true);
+                    }
                 }
-            } else if (title === "Unlock Actions") {
-                if (!Data?.allowToolsAndActions) {
-                    setShowUnlockPremiumFeaturesBtn(true);
-                }
-            } else if (title === "Unlock Knowledge Base" || title === "Add Knowledge Base") {
-                if (!Data?.allowKnowledgeBases) {
-                    setShowUnlockPremiumFeaturesBtn(true);
-                }
-            } else if (title === "Unlock Voicemail" || title === "Enable Voicemail") {
-                if (!Data?.allowVoicemail) {
-                    setShowUnlockPremiumFeaturesBtn(true);
-                }
-            }
         }
     }, [localUserData]);
 

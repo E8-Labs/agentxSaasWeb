@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import UserCalender from './UserCallender'
 import LeadScoring from './leadScoring/LeadScoring'
+import { useUser } from '@/hooks/redux-hooks';
+import UpgardView from '@/constants/UpgardView';
 
 const ActionsTab = ({
     calendarDetails,
@@ -15,7 +17,10 @@ const ActionsTab = ({
     showDrawerSelectedAgent,
     setShowAddScoringModal,
     setShowDrawerSelectedAgent,
+    setShowSnackMsg,
 }) => {
+
+    const { user: reduxUser } = useUser();
 
     const [selectedActionTab, setSelectedActionTab] = useState(1);
 
@@ -58,37 +63,62 @@ const ActionsTab = ({
 
             {
                 selectedActionTab === 1 ? (
-                    <UserCalender
-                        calendarDetails={calendarDetails}
-                        setUserDetails={setUserDetails}
-                        selectedAgent={selectedAgent}
-                        setSelectedAgent={setSelectedAgent}
-                        mainAgentId={mainAgentId}
-                        previousCalenders={previousCalenders}
-                        updateVariableData={updateVariableData}
-                        setShowUpgradeModal={setShowUpgradeModal}
-                        showTools={false}
-                    />
-                ) : selectedActionTab === 2 ?
-                    <UserCalender
-                        calendarDetails={calendarDetails}
-                        setUserDetails={setUserDetails}
-                        selectedAgent={selectedAgent}
-                        setSelectedAgent={setSelectedAgent}
-                        mainAgentId={mainAgentId}
-                        previousCalenders={previousCalenders}
-                        updateVariableData={updateVariableData}
-                        setShowUpgradeModal={setShowUpgradeModal}
-                        showTools={true}
-                    />
-                    :
-                    <LeadScoring
-                        activeTab={activeTab}
-                        showDrawerSelectedAgent={showDrawerSelectedAgent}
-                        setShowAddScoringModal={setShowAddScoringModal}
-                        setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                        setUserDetails={setUserDetails}
-                    />
+                    reduxUser?.userRole === "AgencySubAccount" && reduxUser?.agencyCapabilities?.allowCalendarIntegration === false ? (
+                        <UpgardView
+                            setShowSnackMsg={setShowSnackMsg}
+                            title={"Unlock Calendar Integration"}
+                            subTitle={"Upgrade to enable calendar integration for your agents."}
+                        />
+                    ) : (
+                        <UserCalender
+                            calendarDetails={calendarDetails}
+                            setUserDetails={setUserDetails}
+                            selectedAgent={selectedAgent}
+                            setSelectedAgent={setSelectedAgent}
+                            mainAgentId={mainAgentId}
+                            previousCalenders={previousCalenders}
+                            updateVariableData={updateVariableData}
+                            setShowUpgradeModal={setShowUpgradeModal}
+                            showTools={false}
+                        />
+                    )
+                ) : selectedActionTab === 2 ? (
+                    reduxUser?.userRole === "AgencySubAccount" && reduxUser?.agencyCapabilities?.allowToolsAndActions === false ? (
+                        <UpgardView
+                            setShowSnackMsg={setShowSnackMsg}
+                            title={"Unlock Actions"}
+                            subTitle={"Upgrade to enable tools and actions for your agents."}
+                        />
+                    ) : (
+                        <UserCalender
+                            calendarDetails={calendarDetails}
+                            setUserDetails={setUserDetails}
+                            selectedAgent={selectedAgent}
+                            setSelectedAgent={setSelectedAgent}
+                            mainAgentId={mainAgentId}
+                            previousCalenders={previousCalenders}
+                            updateVariableData={updateVariableData}
+                            setShowUpgradeModal={setShowUpgradeModal}
+                            showTools={true}
+                        />
+                    )
+                ) : selectedActionTab === 3 ? (
+                    reduxUser?.userRole === "AgencySubAccount" && reduxUser?.agencyCapabilities?.allowLeadScoring === false ? (
+                        <UpgardView
+                            setShowSnackMsg={setShowSnackMsg}
+                            title={"Unlock Lead Scoring"}
+                            subTitle={"Upgrade to enable lead scoring for your agents."}
+                        />
+                    ) : (
+                        <LeadScoring
+                            activeTab={activeTab}
+                            showDrawerSelectedAgent={showDrawerSelectedAgent}
+                            setShowAddScoringModal={setShowAddScoringModal}
+                            setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                            setUserDetails={setUserDetails}
+                        />
+                    )
+                ) : null
             }
 
         </div>
