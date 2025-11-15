@@ -1347,8 +1347,8 @@ const ProfileNav = () => {
                           ? item.selected
                           : item.uneselected
                       }
-                      height={item.name === "Activity" ? 16 : 24}
-                      width={item.name === "Activity" ? 16 : 24}
+                      height={24}
+                      width={24}
                       alt="icon"
                     />
                     <div
