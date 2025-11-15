@@ -1,6 +1,7 @@
 import getProfileDetails from '@/components/apis/GetProfile';
 import { UpdateProfile } from '@/components/apis/UpdateProfile';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import { useUser } from '@/hooks/redux-hooks';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,23 +20,16 @@ const EditAgencyName = ({
     const [snackMsg, setSnackMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Success);
 
+    const {user:reduxUser, setUser:setReduxUser} = useUser();
+
     useEffect(() => {
         fetchData();
 
     }, []);
 
     const fetchData = async () => {
-        try {
-            const response = await getProfileDetails();
-            console.log("Response of get profile details is", response);
-            if (response) {
-                const F = response.data.data;
-                setUserData(F);
-                setAgencyName(F?.company)
-            }
-        } catch (err) {
-            console.log("Error occure in get profile details is", err)
-        }
+        setUserData(reduxUser);
+        setAgencyName(reduxUser?.user?.company);
     }
 
 

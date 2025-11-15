@@ -266,7 +266,7 @@ const WhiteLabel = () => {
                             }, 500);
                             getLocalData();
                         }}
-                        userData={agencyData}
+                        userData={reduxUser}
                     />
                 )
             }

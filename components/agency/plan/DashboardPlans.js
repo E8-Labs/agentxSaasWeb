@@ -7,7 +7,7 @@ import AddXBarPlan from './AddXBarPlan';
 import { AuthToken } from './AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
-import { Modal, Box, CircularProgress } from '@mui/material';
+import { Modal, Box, CircularProgress, Menu, MenuItem } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
 import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
@@ -24,6 +24,7 @@ function DashboardPlans({
     selectedAgency
 }) {
 
+    const [anchorEl, setAnchorEl] = useState(null);
     const [moreDropdown, setmoreDropdown] = useState(null);
 
     const [plansList, setPlansList] = useState([]);
@@ -333,6 +334,7 @@ function DashboardPlans({
             getPlanApiTrigerer();
         }
         setmoreDropdown(null);
+        setAnchorEl(null);
         setSelectedPlan(null);
         setSelectedPlanDetails(null);
     }
@@ -377,6 +379,7 @@ function DashboardPlans({
                     setSelectedPlan(null);
                     setSelectedPlanDetails(null);
                     setmoreDropdown(null);
+                    setAnchorEl(null);
                     setShowDeleteModal(false);
                 } else if (response.data.status === false) {
                     setSnackMsg(response.data.message);
@@ -639,61 +642,56 @@ function DashboardPlans({
                                                             <div className="w-1/12 relative">
                                                                 <button
                                                                     id={`dropdown-toggle-${item.id}`}
-                                                                    onClick={() => {
-                                                                        setmoreDropdown(
-                                                                            moreDropdown === item.id ? null : item.id
-                                                                        );
-                                                                        setSelectedPlan(selectedPlan === item ? null : item);
+                                                                    onClick={(e) => {
+                                                                        setAnchorEl(e.currentTarget);
+                                                                        setSelectedPlan(item);
+                                                                        setmoreDropdown(item.id);
                                                                     }}
                                                                 >
                                                                     <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
                                                                 </button>
 
-                                                                {moreDropdown === item.id && (
-                                                                    <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
-                                                                        <div>
-                                                                            <button
-                                                                                className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
-                                                                                onClick={() => {
-                                                                                    // setmoreDropdown(null)
-                                                                                    if (selectedPlan.subscriberCount > 0) {
-                                                                                        setSnackMsg("Cannot edit plan with active subscriptions.");
-                                                                                        setSnackMsgType(SnackbarTypes.Warning);
-                                                                                    } else {
-                                                                                        setIsEditPlan(true);
-                                                                                        setOpen(true);
-                                                                                    }
-                                                                                }}
-                                                                            >
-                                                                                Edit
-                                                                            </button>
-                                                                        </div>
-                                                                        <button
-                                                                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start bg-transparent"
-                                                                            onClick={() => {
-                                                                                setShowDeleteModal(true);
-                                                                            }}
-                                                                        >
-                                                                            Delete
-                                                                        </button>
-                                                                        {
-                                                                            showDeleteModal && (
-                                                                                <DelConfirmationPopup
-                                                                                    showDeleteModal={showDeleteModal}
-                                                                                    handleClose={() => {
-                                                                                        setShowDeleteModal(false);
-                                                                                    }}
-                                                                                    delLoading={delLoading}
-                                                                                    handleDelete={() => {
-                                                                                        // console.log('planType', planType)
-                                                                                        handleDeletePlan()
-                                                                                    }}
-                                                                                    selectedPlan={selectedPlan}
-                                                                                />
-                                                                            )
-                                                                        }
-                                                                    </div>
-                                                                )}
+                                                                <Menu
+                                                                    anchorEl={anchorEl}
+                                                                    open={Boolean(anchorEl) && moreDropdown === item.id}
+                                                                    onClose={() => {
+                                                                        setAnchorEl(null);
+                                                                        setmoreDropdown(null);
+                                                                    }}
+                                                                    anchorOrigin={{
+                                                                        vertical: 'bottom',
+                                                                        horizontal: 'right',
+                                                                    }}
+                                                                    transformOrigin={{
+                                                                        vertical: 'top',
+                                                                        horizontal: 'right',
+                                                                    }}
+                                                                >
+                                                                    <MenuItem
+                                                                        onClick={() => {
+                                                                            setAnchorEl(null);
+                                                                            setmoreDropdown(null);
+                                                                            if (selectedPlan?.subscriberCount > 0) {
+                                                                                setSnackMsg("Cannot edit plan with active subscriptions.");
+                                                                                setSnackMsgType(SnackbarTypes.Warning);
+                                                                            } else {
+                                                                                setIsEditPlan(true);
+                                                                                setOpen(true);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        onClick={() => {
+                                                                            setAnchorEl(null);
+                                                                            setmoreDropdown(null);
+                                                                            setShowDeleteModal(true);
+                                                                        }}
+                                                                    >
+                                                                        Delete
+                                                                    </MenuItem>
+                                                                </Menu>
                                                             </div>
 
                                                         </div>
@@ -791,6 +789,23 @@ function DashboardPlans({
                             selectedPlan={selectedPlan}
                             selectedAgency={selectedAgency}
                         />
+                }
+
+                {/* Code for delete confirmation modal */}
+                {
+                    showDeleteModal && (
+                        <DelConfirmationPopup
+                            showDeleteModal={showDeleteModal}
+                            handleClose={() => {
+                                setShowDeleteModal(false);
+                            }}
+                            delLoading={delLoading}
+                            handleDelete={() => {
+                                handleDeletePlan()
+                            }}
+                            selectedPlan={selectedPlan}
+                        />
+                    )
                 }
 
                 {/* Code for plan details */}

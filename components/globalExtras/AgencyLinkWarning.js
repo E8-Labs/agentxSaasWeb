@@ -40,7 +40,7 @@ const AgencyLinkWarning = ({
                         className="mt-4"
                         style={styles.subHeading}
                     >
-                        {`If your subaccount limit exceeds ${userData?.planCapabilities?.maxSubAccounts} your account will automatically be upgraded to the next plan to prevent service interruptions.`}
+                        {`If your subaccount limit exceeds your account will automatically be upgraded to the next plan to prevent service interruptions.`}
                     </div>
                     {
                         agencyOnboardingLink ? (
