@@ -104,7 +104,10 @@ const Ap2MessagingDetails = ({
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}
-                    handleShowAddModal={() => { setShowAddMessage(true) }}
+                    handleShowAddModal={() => {
+                        window.open("https://www.twilio.com/docs/messaging/compliance/a2p-10dlc", "_blank");
+                        // setShowAddMessage(true)
+                        }}
                     btnTitle='Get Approved'
                     twilioData={twilioHubData}
                     description="Get a2p verified by Twilio to start sending text messages to your leads."

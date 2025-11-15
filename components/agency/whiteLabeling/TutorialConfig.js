@@ -315,7 +315,6 @@ const TutorialConfig = () => {
         }}
         videoTitle={selectedTutorial?.title}
         videoUrl={selectedTutorial?.videoUrl}
-        videoDescription={selectedTutorial?.description}
       />
     </div>
   )

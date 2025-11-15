@@ -375,18 +375,33 @@ function UserPlans({
     const isCurrentPlan = (plan) => {
         if (!reduxUser?.plan || !plan) return false;
         const userPlan = reduxUser.plan;
-        // Match by ID or planId
-        if (userPlan.id === plan.id || userPlan.planId === plan.id || plan.planId === userPlan.id) {
-            return true;
-        }
-        // Match by name and billing cycle (for cases where IDs might differ)
-        if (userPlan.name === plan.name || userPlan.name === plan.title) {
-            const userBillingCycle = userPlan.billingCycle || userPlan.duration;
-            const planBillingCycle = plan.billingCycle || plan.duration;
-            if (userBillingCycle === planBillingCycle) {
+        
+        // First, try to match by ID or planId (most reliable)
+        const userPlanId = userPlan.id ?? userPlan.planId;
+        const planId = plan.id ?? plan.planId;
+        
+        // Only match by ID if both IDs exist and are truthy
+        if (userPlanId != null && planId != null) {
+            // Convert to strings for consistent comparison (handles number vs string)
+            if (String(userPlanId) === String(planId)) {
                 return true;
             }
         }
+        
+        // Fallback: Match by name and billing cycle (for cases where IDs might differ)
+        // Only match if both name and billing cycle match exactly
+        const userPlanName = userPlan.name || userPlan.title;
+        const planName = plan.name || plan.title;
+        const userBillingCycle = (userPlan.billingCycle || userPlan.duration || '').toLowerCase().trim();
+        const planBillingCycle = (plan.billingCycle || plan.duration || '').toLowerCase().trim();
+        
+        // Both name and billing cycle must exist and match
+        if (userPlanName && planName && userPlanName === planName) {
+            if (userBillingCycle && planBillingCycle && userBillingCycle === planBillingCycle) {
+                return true;
+            }
+        }
+        
         return false;
     };
 
