@@ -88,8 +88,12 @@ import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
 import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
 import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
+import { UpgradeTagWithModal } from "@/components/constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
+  // Redux hooks for upgrade modal functionality
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -333,6 +337,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   });
 
 const [showUpgradeModal,setShowUpgradeModal] = useState(false);
+const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
 const [showAddScoringModal,setShowAddScoringModal] = useState(false);
 
 // Web Agent Modal states
@@ -2343,10 +2348,23 @@ const [featureTitle, setFeatureTitle] = useState("");
   };
 
   const handleLanguageChange = async (event) => {
-    setShowLanguageLoader(true);
     let value = event.target.value;
     console.log("selected language is", value)
     // console.log("selected voice is",SelectedVoice)
+
+    // Check capabilities for Multilingual option
+    if (value === "Multilingual") {
+      // Check agency capabilities first, then plan capabilities
+      if (selectedUser?.agencyCapabilities?.allowLanguageSelection === false) {
+        setShowUpgradePlanModal(true);
+        return;
+      } else if (selectedUser?.planCapabilities?.allowLanguageSelection === false) {
+        setShowUpgradePlanModal(true);
+        return;
+      }
+    }
+
+    setShowLanguageLoader(true);
 
     let voice = voicesList.find((voice) => voice.name === SelectedVoice)
 
@@ -3438,6 +3456,11 @@ const [featureTitle, setFeatureTitle] = useState("");
                                     className="flex flex-row items-center gap-2"
                                     value={item.title}
                                     key={index}
+                                    style={
+                                      item.value === "multi" && selectedUser?.planCapabilities?.allowLanguageSelection === false
+                                        ? { pointerEvents: "auto" }
+                                        : {}
+                                    }
                                   // disabled={languageValue === item.title || languageValue !== "en-US"}
                                   >
                                     <Image
@@ -3455,6 +3478,20 @@ const [featureTitle, setFeatureTitle] = useState("");
                                     >
                                       {item.subLang}
                                     </div>
+
+                                    {
+                                      item.value === "multi" && (
+                                        selectedUser?.agencyCapabilities?.allowLanguageSelection === false ||
+                                        selectedUser?.planCapabilities?.allowLanguageSelection === false
+                                      ) && (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                        />
+                                      )
+                                    }
                                   </MenuItem>
                                 );
                               })}
@@ -4244,32 +4281,45 @@ const [featureTitle, setFeatureTitle] = useState("");
                         </div>
                       </div>
 
-                      <div className="flex flex-row items-center justify-between gap-2">
-                        <div>
-                          {showDrawerSelectedAgent?.liveTransferNumber ? (
-                            <div>
-                              {showDrawerSelectedAgent?.liveTransferNumber}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
+                      {selectedUser?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                          requestFeature={true}
+                        />
+                      ) : selectedUser?.planCapabilities?.allowLiveCallTransfer === false ? (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                        />
+                      ) : (
+                        <div className="flex flex-row items-center justify-between gap-2">
+                          <div>
+                            {showDrawerSelectedAgent?.liveTransferNumber ? (
+                              <div>
+                                {showDrawerSelectedAgent?.liveTransferNumber}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              setShowEditNumberPopup(
+                                showDrawerSelectedAgent?.liveTransferNumber
+                              );
+                              setSelectedNumber("Calltransfer");
+                            }}
+                          >
+                            <Image
+                              src={"/svgIcons/editIcon2.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => {
-                            setShowEditNumberPopup(
-                              showDrawerSelectedAgent?.liveTransferNumber
-                            );
-                            setSelectedNumber("Calltransfer");
-                          }}
-                        >
-                          <Image
-                            src={"/svgIcons/editIcon2.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
+                      )}
                     </div>
                   </div>
 

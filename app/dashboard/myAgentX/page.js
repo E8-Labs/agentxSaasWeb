@@ -4520,6 +4520,7 @@ function Page() {
                                   {
                                     item.value === "multi" && (
                                       // Combined check - Redux first, localStorage fallback
+                                      reduxUser?.agencyCapabilities?.allowLanguageSelection === false ? true :
                                       (reduxUser?.planCapabilities ?
                                         !isFeatureAllowed('allowLanguageSelection') :
                                         user?.user?.planCapabilities?.allowLanguageSelection === false
@@ -5315,8 +5316,6 @@ function Page() {
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
                           requestFeature={true}
-
-
                         />
                       ) : !allowLiveCallTransfer ? (
                         <UpgradeTagWithModal
