@@ -371,6 +371,25 @@ function UserPlans({
         return [];
     };
 
+    // Check if a plan is the current user's plan
+    const isCurrentPlan = (plan) => {
+        if (!reduxUser?.plan || !plan) return false;
+        const userPlan = reduxUser.plan;
+        // Match by ID or planId
+        if (userPlan.id === plan.id || userPlan.planId === plan.id || plan.planId === userPlan.id) {
+            return true;
+        }
+        // Match by name and billing cycle (for cases where IDs might differ)
+        if (userPlan.name === plan.name || userPlan.name === plan.title) {
+            const userBillingCycle = userPlan.billingCycle || userPlan.duration;
+            const planBillingCycle = plan.billingCycle || plan.duration;
+            if (userBillingCycle === planBillingCycle) {
+                return true;
+            }
+        }
+        return false;
+    };
+
 
     const handleTogglePlanClick = (item, index) => {
         console.log("Selected plan index is", index, item);
@@ -550,11 +569,15 @@ function UserPlans({
                     }}
                 >
                     {
-                        getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => (
+                        getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => {
+                            const isCurrentUserPlan = isCurrentPlan(item);
+                            const isDisabled = disAblePlans || isCurrentUserPlan;
+                            
+                            return (
                             <button
                                 key={index}
                                 onClick={(e) => {
-                                    if (disAblePlans) {
+                                    if (isDisabled) {
                                         return;
                                     }
                                     e.preventDefault();
@@ -562,12 +585,13 @@ function UserPlans({
                                     handleTogglePlanClick(item, index);
                                   
                                 }}
-                                onMouseEnter={() => { setHoverPlan(item) }}
+                                onMouseEnter={() => { if (!isDisabled) setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
-                                // disabled={disAblePlans}
+                                disabled={isDisabled}
 
-                                className={`flex flex-col items-center rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
-                                 ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
+                                className={`flex flex-col items-center rounded-lg ${!isDisabled && "hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]"}
+                                 ${selectedPlan?.id === item.id && !isDisabled ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
+                                 ${isDisabled ? "opacity-75 cursor-not-allowed" : ""}
                                 flex-shrink-0
                                  `}
                                 style={{ width: from === "billing-modal" ? "280px" : "280px" }}
@@ -578,7 +602,7 @@ function UserPlans({
                                             item.status ? (
                                                 <div className=' flex flex-row items-center gap-2'>
                                                     <Image
-                                                        src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/powerWhite.svg" :
+                                                        src={(selectedPlan?.id === item.id || (hoverPlan?.id === item.id && !isDisabled)) ? "/svgIcons/powerWhite.svg" :
                                                             "/svgIcons/power.svg"
                                                         }
                                                         height={24} width={24} alt='*'
@@ -586,12 +610,12 @@ function UserPlans({
 
                                                     <div className='text-base font-semibold'
                                                         style={{
-                                                            color: (selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "white" : '#7902df'
+                                                            color: (selectedPlan?.id === item.id || (hoverPlan?.id === item.id && !isDisabled)) ? "white" : '#7902df'
                                                         }}>
                                                         {item.status}
                                                     </div>
                                                     <Image
-                                                        src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/enterArrowWhite.svg" :
+                                                        src={(selectedPlan?.id === item.id || (hoverPlan?.id === item.id && !isDisabled)) ? "/svgIcons/enterArrowWhite.svg" :
                                                             "/svgIcons/enterArrow.svg"
                                                         }
                                                         height={20} width={20} alt='*'
@@ -628,18 +652,18 @@ function UserPlans({
 
                                             <div
                                                 //  className='text-[14px] font-normal text-black/50 '
-                                                className={`text-center mt-1 ${disAblePlans && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}
+                                                className={`text-center mt-1 ${isDisabled && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}
                                             >
                                                 {item.details || item.description || item.planDescription}
                                             </div>
 
-                                            {!disAblePlans && (
+                                            {!isDisabled && (
                                                 subscribeLoader === item.id ? (
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <div
                                                         className="w-[95%] py-3.5 h-[50px] mt-3 bg-purple rounded-lg text-white cursor-pointer"
-                                                        disabled={disAblePlans}
+                                                        disabled={isDisabled}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
@@ -690,7 +714,7 @@ function UserPlans({
                                                                 {item?.trialValidForDays} Day Free Trial
                                                             </span>
                                                         ) : (
-                                                            !disAblePlans && (
+                                                            !isDisabled && (
                                                                 <span className="text-base font-normal">
                                                                     Get Started
                                                                 </span>
@@ -698,6 +722,16 @@ function UserPlans({
                                                         )}
                                                     </div>
                                                 )
+                                            )}
+                                            
+                                            {isCurrentUserPlan && (
+                                                <div
+                                                    className="w-[95%] py-3.5 h-[50px] mt-3 bg-gray-300 rounded-lg text-gray-600 cursor-not-allowed flex items-center justify-center"
+                                                >
+                                                    <span className="text-base font-semibold">
+                                                        Current Plan
+                                                    </span>
+                                                </div>
                                             )}
 
                                         </div>
@@ -753,7 +787,8 @@ function UserPlans({
                                     </div>
                                 </div>
                             </button>
-                        ))
+                            );
+                        })
                     }
 
                 </div>

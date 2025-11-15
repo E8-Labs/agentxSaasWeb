@@ -92,7 +92,7 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                                     onClick={onContinueYearly}
                                     className="w-full bg-purple text-white py-3 px-6 rounded-xl font-semibold text-base hover:bg-purple-700 transition-colors"
                                 >
-                                    Continue Yearly
+                                    Get Yearly
                                 </button>
                                 {
                                     loading ? (
