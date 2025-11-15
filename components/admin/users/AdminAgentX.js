@@ -349,6 +349,7 @@ const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null);
 const [embedCode, setEmbedCode] = useState('');
 const [selectedSmartList, setSelectedSmartList] = useState('');
 const [fetureType, setFetureType] = useState("");
+const [featureTitle, setFeatureTitle] = useState("");
 
 
   const playVoice = (url) => {
@@ -556,7 +557,10 @@ const [fetureType, setFetureType] = useState("");
 
   //copy and vapi widget-code
   const handleWebhookClick = () => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       let agent = {
@@ -581,7 +585,9 @@ const [fetureType, setFetureType] = useState("");
   };
 
   const handleCopy = (assistantId, baseUrl) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForEmbed(showDrawerSelectedAgent);
@@ -591,7 +597,11 @@ const [fetureType, setFetureType] = useState("");
 
   // Web Agent handlers
   const handleWebAgentClick = (agent) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForWebAgent(agent);
@@ -600,7 +610,10 @@ const [fetureType, setFetureType] = useState("");
   };
 
   const handleEmbedClick = (agent) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForEmbed(agent);
@@ -3186,7 +3199,10 @@ const [fetureType, setFetureType] = useState("");
                     <button
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
-                        if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+                          setShowUpgradeModal(true);
+                          setFeatureTitle("EmbedAgents");
+                        } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
                           setShowUpgradeModal(true);
                         } else {
                           setFetureType("webhook");
@@ -5226,9 +5242,11 @@ const [fetureType, setFetureType] = useState("");
         open={showUpgradeModal}
         handleClose={() => {
           setShowUpgradeModal(false);
+          setFeatureTitle("");
         }}
         title="Unlock More Features"
         subTitle="Upgrade to access advanced features and capabilities"
+        featureTitle={featureTitle}
       />
 
       <AddScoringModal

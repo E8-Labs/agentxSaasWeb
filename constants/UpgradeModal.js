@@ -11,8 +11,10 @@ import axios from 'axios';
 import getProfileDetails from '@/components/apis/GetProfile';
 import { webAgentFeatures, pipelineFeatures, defaultFeatures } from './UpgradeModalFeatures';
 import { useUser } from '@/hooks/redux-hooks';
+import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures';
 
 const UpgradeModal = ({
+    featureTitle,
     title,
     subTitle,
     buttonTitle,
@@ -55,10 +57,17 @@ const UpgradeModal = ({
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
     const { user: reduxUser, setUser: setReduxUser } = useUser();
+    const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false)
 
 
 
-    return (
+    const handleRequestFeature = (featureTitle) => {
+        console.log("featureTitle in upgrade modal is", featureTitle)
+        setShowUnlockPremiumFeaturesPopup(true);
+    }
+
+
+        return (
         <div className='w-full'>
             <Modal
                 open={open}
@@ -165,10 +174,14 @@ const UpgradeModal = ({
                                     className="h-[54px] w-[20vw] rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
                                     style={{ fontSize: "15px", fontWeight: "500" }}
                                     onClick={() => {
-                                        setShowUpgradePlanPopup(true)
+                                        if (featureTitle) {
+                                            handleRequestFeature(featureTitle);
+                                        } else {
+                                            setShowUpgradePlanPopup(true)
+                                        }
                                     }}
                                 >
-                                    Upgrade
+                                    {featureTitle ? "Request Feature" : "Upgrade"}
                                 </button>
 
                                 <button className='text-purple mt-4'
@@ -183,6 +196,15 @@ const UpgradeModal = ({
                 </Box>
             </Modal>
 
+            <UnlockPremiunFeatures
+                title={featureTitle}
+                open={showUnlockPremiumFeaturesPopup}
+                handleClose={() => {
+                    setShowUnlockPremiumFeaturesPopup(false)
+                    handleClose()
+
+                }}
+            />
 
             <Elements stripe={stripePromise}>
                 <UpgradePlan

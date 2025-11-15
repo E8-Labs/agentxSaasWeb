@@ -1,4 +1,5 @@
 import React from 'react';
+import UnlockPremiunFeatures from '../globalExtras/UnlockPremiunFeatures';
 
 export const KycCategory = {
   CategoryNeeds: "need",
@@ -124,8 +125,8 @@ export const copyAgencyOnboardingLink = ({
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
       : "http://dev.assignx.ai/";
-      // ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
-      // : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+  // ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
+  // : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
   // console.log("Agency uuid link copied check 2", d)
   if (d) {
     console.log("Agency uuid link copied check 3")
@@ -149,35 +150,36 @@ export const copyAgencyOnboardingLink = ({
 }
 
 
-export const getUserLocalData = () =>{
+export const getUserLocalData = () => {
   let data = localStorage.getItem("User")
-  if(data){
+  if (data) {
     let u = JSON.parse(data)
 
-    return  u
+    return u
   }
 }
 
 
-export const UpgradeTag = ({ onClick, className = "",reduxUser,setReduxUser }) => {
+export const UpgradeTag = ({ onClick, className = "", reduxUser, setReduxUser, requestFeature = false }) => {
+  console.log("request feature in upgrade tag is", requestFeature)
   return (
-    <div 
+    <div
       className={`bg-[#7902df10] items-center gap-2 p-2 rounded-lg text-purple text-[12px] cursor-pointer hover:bg-[#7902df20] transition-colors ${className}`}
       onClick={onClick}
     >
-      Upgrade
+      {requestFeature ? "Request Feature" : "Upgrade"}
     </div >
   )
 }
 
 // Wrapper component that handles upgrade modal functionality
-export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, externalTrigger = false, onModalClose }) => {
+export const UpgradeTagWithModal = ({ className = "", reduxUser, setReduxUser, externalTrigger = false, onModalClose, requestFeature = false,}) => {
   const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
-  
-  // Import necessary components dynamically to avoid circular dependencies
+  const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = React.useState(false);
+    // Import necessary components dynamically to avoid circular dependencies
   const getProfileDetails = require("@/components/apis/GetProfile").default;
   const UpgradePlan = require("@/components/userPlans/UpgradePlan").default;
-  
+
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
@@ -188,18 +190,18 @@ export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, ext
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = JSON.parse(localStorage.getItem("User") || '{}');
-        
+
         console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
-        
+
         // Update Redux with fresh data
         const updatedUserData = {
           token: localData.token,
           user: freshUserData
         };
-        
+
         setReduxUser(updatedUserData);
         localStorage.setItem("User", JSON.stringify(updatedUserData));
-        
+
         return true;
       }
       return false;
@@ -217,17 +219,27 @@ export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, ext
   }, [externalTrigger]);
 
   const handleUpgradeClick = () => {
-    setShowUpgradeModal(true);
+    if (requestFeature) {
+      handleRequestFeature();
+    } else {
+      setShowUpgradeModal(true);
+    }
+  };
+
+  const handleRequestFeature = () => {
+
+    console.log("requestFeature is true")
+    setShowUnlockPremiumFeaturesPopup(true);
   };
 
   const handleModalClose = async (upgradeResult) => {
     setShowUpgradeModal(false);
-    
+
     // Call external callback if provided
     if (onModalClose) {
       onModalClose();
     }
-    
+
     // If upgrade was successful, refresh user data
     if (upgradeResult) {
       console.log('🎉 [UPGRADE-TAG] Upgrade successful, refreshing user data...');
@@ -237,19 +249,27 @@ export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, ext
 
   return (
     <>
-      <UpgradeTag 
+      <UpgradeTag
         onClick={handleUpgradeClick}
         className={className}
+        requestFeature={requestFeature}
       />
-      
+      <UnlockPremiunFeatures
+        title={"Enable Live Transfer"}
+        open={showUnlockPremiumFeaturesPopup}
+        handleClose={() => {
+          setShowUnlockPremiumFeaturesPopup(false)
+        }}
+      />
+
       <UpgradePlan
         open={showUpgradeModal}
         handleClose={handleModalClose}
         plan={null}
         currentFullPlan={reduxUser?.user?.plan}
-        setSelectedPlan={()=>{
+        setSelectedPlan={() => {
           console.log("setSelectedPlan is called")
-         }}
+        }}
       />
     </>
   );

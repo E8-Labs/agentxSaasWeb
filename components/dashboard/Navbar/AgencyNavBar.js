@@ -236,6 +236,7 @@ const AgencyNavBar = () => {
       const LocalData = JSON.parse(data);
       let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false;
       console.log('Stripe status is', stripeStatus)
+      if(showAgencyWalkThrough) return; //if walkthrough is shown, don't check stripe status
       setCheckStripeStatus(!stripeStatus);
       // setUserDetails(LocalData);
       
