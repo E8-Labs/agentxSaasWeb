@@ -289,4 +289,16 @@ a.text-red:hover {
   color: #DC2626 !important;
 }
 
+/* Sonner Toast Centering */
+[data-sonner-toaster][data-position="top-center"] {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+}
+
+[data-sonner-toaster][data-position="top-center"] [data-sonner-toast] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 

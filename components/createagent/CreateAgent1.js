@@ -973,6 +973,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   </div>
                 </div>
 
+                <div className="mt-1 text-[13px] text-gray-500 font-[500]">
+                  Inbound and Outbound calls need to be handled by different agents
+                </div>
+
                 <div className="mt-2" style={styles.headingStyle}>
                   {`What's this AI agent's title?`}
                 </div>
@@ -1340,17 +1344,17 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
 
                     <div className="mt-1">
-                    <Input
-                    className="h-[50px] border rounded-lg px-3 py-2.5 w-full focus:outline-none focus:ring-0 focus:border-black transition-colors"
-                    placeholder="Type here..."
-                    value={otherStatus}
-                    onChange={(e) => setOtherStatus(e.target.value)}
-                    style={{
-                      ...styles.inputStyle,
-                      border: "1px solid #00000020",
-                    }}
-                  />
-                  
+                      <Input
+                        className="h-[50px] border rounded-lg px-3 py-2.5 w-full focus:outline-none focus:ring-0 focus:border-black transition-colors"
+                        placeholder="Type here..."
+                        value={otherStatus}
+                        onChange={(e) => setOtherStatus(e.target.value)}
+                        style={{
+                          ...styles.inputStyle,
+                          border: "1px solid #00000020",
+                        }}
+                      />
+
                     </div>
                   </div>
                 )}

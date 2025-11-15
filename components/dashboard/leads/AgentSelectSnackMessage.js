@@ -101,6 +101,8 @@ export default function AgentSelectSnackMessage({
             width: dynamicWidth,
             maxWidth: dynamicWidth,
             minWidth: dynamicWidth,
+            marginLeft: 'auto',
+            marginRight: 'auto',
           },
         };
 

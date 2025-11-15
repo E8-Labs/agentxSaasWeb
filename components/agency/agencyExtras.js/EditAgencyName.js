@@ -29,7 +29,7 @@ const EditAgencyName = ({
 
     const fetchData = async () => {
         setUserData(reduxUser);
-        setAgencyName(reduxUser?.user?.company);
+        setAgencyName(reduxUser?.company);
     }
 
 
@@ -54,7 +54,7 @@ const EditAgencyName = ({
 
     //close modal and donot save data
     const handleCancel = () => {
-        setAgencyName(userData?.user?.company);
+        setAgencyName(userData?.company);
         setShowEditModal(false);
     }
 
