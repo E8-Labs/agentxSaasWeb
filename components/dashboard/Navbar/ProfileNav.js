@@ -1432,12 +1432,12 @@ const ProfileNav = () => {
                   >
                     {/*userDetails?.user?.name?.split(" ")[0]*/}
                     {(() => {
-                      const name = userDetails?.user?.name?.split(" ")[0] || "";
+                      const name = reduxUser?.name?.split(" ")[0] || "";
                       return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                     })()}
                   </div>
                   <div className="text-xs font-medium text-purple">
-                    {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : ""}
+                    {checkTrialDays(reduxUser) ? `${checkTrialDays(reduxUser)}` : ""}
                   </div>
                 </div>
                 <div
@@ -1449,7 +1449,7 @@ const ProfileNav = () => {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {userDetails?.user?.email}
+                  {reduxUser?.email}
                 </div>
               </div>
 
@@ -1483,7 +1483,7 @@ const ProfileNav = () => {
 
         {
           (showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
-            <SnackBarForUpgradePlan Data={userDetails?.user}
+            <SnackBarForUpgradePlan Data={reduxUser}
             />
           )
         }
@@ -1528,7 +1528,7 @@ const ProfileNav = () => {
               setShowPlansPopup(false)
             }}
               metadata={{
-                renewal: userDetails?.user?.nextChargeDate || ''
+                renewal: reduxUser?.nextChargeDate || ''
               }} />
             {/* <div
               className="flex flex-row justify-center w-full"
@@ -1834,7 +1834,7 @@ const ProfileNav = () => {
             setSelectedPlan={() => {
               console.log("setSelectedPlan is called")
             }}
-            currentFullPlan={userDetails?.user?.plan}
+            currentFullPlan={reduxUser?.plan}
             open={showUpgradePlanModal2}
             handleClose={(upgradeResult) => {
               setShowUpgradePlanModal2(false)

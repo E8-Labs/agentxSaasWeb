@@ -508,6 +508,10 @@ function UpgradePlanContent({
         }
     }
 
+    useEffect(() => {
+        console.log("duration in upgrade plan is", duration)
+    }, [duration])
+
     const getPlans = async () => {
         let plansList = await getUserPlans(from, selectedUser)
         if (plansList) {
@@ -574,7 +578,7 @@ function UpgradePlanContent({
 
             const emptyDurations = [monthly, quarterly, yearly].filter(arr => arr.length === 0).length;
             console.log("Empty durations are", emptyDurations);
-            if (from === "SubAccount") {
+            // if (from === "SubAccount") {
                 if (emptyDurations >= 2) {
                     setDuration([]);
                 } else {
@@ -592,7 +596,7 @@ function UpgradePlanContent({
                     }
 
                 }
-            }
+            // }
 
             console.log('monthly', monthly)
             console.log('quarterly', quarterly)
@@ -604,7 +608,7 @@ function UpgradePlanContent({
         return null;
     }
     const getCurrentPlans = () => {
-        console.log("selected duration in get current plans is", selectedDuration)
+        // console.log("selected duration in get current plans is", selectedDuration)
         if (selectedDuration.id === 1) return monthlyPlans;
         if (selectedDuration.id === 2) return quaterlyPlans;
         if (selectedDuration.id === 3) return yearlyPlans;
@@ -1275,13 +1279,16 @@ function UpgradePlanContent({
                                     </div>
 
                                     <div className='w-full flex flex-row items-end justify-end'>
-
+                                    {
+                                       ! loading && (
                                         <DurationView
                                             selectedDuration={selectedDuration}
-                                            handleDurationChange={handleDurationChange}
-                                            from={from}
-                                            duration={duration}
-                                        />
+                                                handleDurationChange={handleDurationChange}
+                                                from={from}
+                                                duration={duration}
+                                            />
+                                        )
+                                    }
                                     </div>
                                 </div>
 

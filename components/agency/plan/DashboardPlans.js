@@ -633,7 +633,7 @@ function DashboardPlans({
                                                                     console.log("Item is", item)
                                                                     showPlanDetails(item);
                                                                 }}>
-                                                                {item.minutes || "X"}-Credits
+                                                                {item.minutes || "X"}
                                                             </div>
 
                                                             <div className="w-1/12 relative">

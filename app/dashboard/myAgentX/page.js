@@ -108,6 +108,7 @@ import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import ActionsTab from "@/components/dashboard/myagentX/ActionsTab";
 import { isPlanActive } from "@/components/userPlans/UserPlanServices";
+import UnlockPremiunFeatures from "@/components/globalExtras/UnlockPremiunFeatures";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -243,6 +244,7 @@ function Page() {
     useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+  const [showNoAudioModal, setShowNoAudioModal] = useState(null);
   const [kycsData, setKycsData] = useState(null);
   //greeting tag input
   const [greetingTagInput, setGreetingTagInput] = useState("");
@@ -382,6 +384,7 @@ function Page() {
   })
   const [featureTitle, setFeatureTitle] = useState("")
   const [selectedSmartList, setSelectedSmartList] = useState('');
+  const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false)
 
 
 
@@ -3007,6 +3010,11 @@ function Page() {
     // Combined language selection checking - Redux first, localStorage fallback
     if (value === "Multilingual") {
       // Use Redux plan capabilities as primary source
+      if (reduxUser?.agencyCapabilities?.allowLanguageSelection === false) {
+        setShowUnlockPremiumFeaturesPopup(true);
+        setFeatureTitle("LanguageSelection");
+        return
+      }
       if (reduxUser?.planCapabilities) {
         if (!isFeatureAllowed('allowLanguageSelection')) {
           // Trigger the upgrade modal from UpgradeTagWithModal
@@ -3760,6 +3768,14 @@ function Page() {
           </div>
         </Box>
       </Modal>
+
+      <UnlockPremiunFeatures
+        open={showUnlockPremiumFeaturesPopup}
+        handleClose={() => {
+          setShowUnlockPremiumFeaturesPopup(false);
+        }}
+        title={featureTitle}
+      />
 
       <UpgradeModal
         open={showUpgradeModal}
@@ -4518,21 +4534,25 @@ function Page() {
                                   </div>
 
                                   {
-                                    item.value === "multi" && (
+                                    (item.value === "multi" && (
                                       // Combined check - Redux first, localStorage fallback
-                                      reduxUser?.agencyCapabilities?.allowLanguageSelection === false ? true :
-                                      (reduxUser?.planCapabilities ?
-                                        !isFeatureAllowed('allowLanguageSelection') :
-                                        user?.user?.planCapabilities?.allowLanguageSelection === false
-                                      )
-                                    ) && (
-                                      <UpgradeTagWithModal
-                                        externalTrigger={showUpgradePlanModal}
-                                        onModalClose={() => setShowUpgradePlanModal(false)}
-                                        reduxUser={reduxUser}
-                                        setReduxUser={setReduxUser}
-                                      />
-                                    )
+                                      reduxUser?.agencyCapabilities?.allowLanguageSelection === false ? (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                          requestFeature={true}
+                                        />
+                                      ) : (!isFeatureAllowed('allowLanguageSelection') && (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                        />
+                                      ))
+                                    ))
                                   }
                                 </MenuItem>
                               );
