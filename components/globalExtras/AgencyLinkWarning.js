@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import CloseBtn from './CloseBtn';
 import { PersistanceKeys } from '@/constants/Constants';
+import { useUser } from '@/hooks/redux-hooks';
 
 const AgencyLinkWarning = ({
     open,
@@ -14,7 +15,9 @@ const AgencyLinkWarning = ({
 }) => {
 
     const [confirmChecked, setConfirmChecked] = useState(false);
-
+    const { user: reduxUser } = useUser();
+    console.log("reduxUser", reduxUser)
+    console.log("User data", userData)
     return (
         <Modal
             open={open}
@@ -40,7 +43,7 @@ const AgencyLinkWarning = ({
                         className="mt-4"
                         style={styles.subHeading}
                     >
-                        {`If your subaccount limit exceeds your account will automatically be upgraded to the next plan to prevent service interruptions.`}
+                        {`If your subaccount limit exceeds ${reduxUser?.planCapabilities?.maxSubAccounts || ''} your account will automatically be upgraded to the next plan to prevent service interruptions.`}
                     </div>
                     {
                         agencyOnboardingLink ? (

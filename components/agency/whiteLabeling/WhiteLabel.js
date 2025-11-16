@@ -234,7 +234,9 @@ const WhiteLabel = () => {
                                     setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
                                     return;
                                 }
-                                if (reduxUser?.plan?.title !== "Scale" && agencyData?.agencyOnboardingLink === null) {
+                                console.log("reduxUser?.planCapabilities?.maxSubAccounts", reduxUser?.planCapabilities?.maxSubAccounts)
+                                console.log("reduxUser?.plan?.title", reduxUser?.plan?.title)
+                                if ((reduxUser?.plan?.title !== "Scale" && reduxUser?.planCapabilities?.maxSubAccounts < 1000) && agencyData?.agencyOnboardingLink === null) {
                                     setShowCopyLinkWarning(true);
                                     upgradeProfile();
                                 } else {
