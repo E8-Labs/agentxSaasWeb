@@ -10,11 +10,13 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { useUser } from "@/hooks/redux-hooks";
 
 function AgencyBasicInfo({
   selectedAgency
 }) {
   const router = useRouter();
+  const { setUser: setReduxUser } = useUser();
   const emailRef = useRef(null);
 
   const [serviceLoader, setServiceLoader] = useState(false);
@@ -46,6 +48,10 @@ function AgencyBasicInfo({
   // Success message states
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Error message states
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
 
 
@@ -140,16 +146,25 @@ function AgencyBasicInfo({
 
             //// //console.log
             localStorage.setItem("User", JSON.stringify(u));
+            // Update Redux store immediately
+            setReduxUser(u);
             // //console.log;
             window.dispatchEvent(
               new CustomEvent("UpdateProfile", { detail: { update: true } })
             );
             return response.data.data;
+          } else {
+            throw new Error("Upload failed: Invalid response status");
           }
+        } else {
+          throw new Error("Upload failed: No response received");
         }
+      } else {
+        throw new Error("Upload failed: No user data found");
       }
     } catch (e) {
-      // //console.log;
+      // Re-throw the error so it can be caught by the caller
+      throw e;
     }
   };
 
@@ -173,9 +188,14 @@ function AgencyBasicInfo({
 
       setSelectedImage(imageUrl); // Set the preview image
 
-      uploadeImage(file);
+      const result = await uploadeImage(file);
+      if (result) {
+        showSuccess("Profile image uploaded successfully");
+      }
     } catch (error) {
       // console.error("Error uploading image:", error);
+      setErrorMessage("Failed to upload profile image");
+      setShowErrorMessage(true);
     } finally {
       setloading5(false);
     }
@@ -186,8 +206,21 @@ function AgencyBasicInfo({
     setDragging(false);
     const file = event.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      try {
+        setloading5(true);
+        const imageUrl = URL.createObjectURL(file);
+        setSelectedImage(imageUrl);
+        const result = await uploadeImage(file);
+        if (result) {
+          showSuccess("Profile image uploaded successfully");
+        }
+      } catch (error) {
+        // console.error("Error uploading image:", error);
+        setErrorMessage("Failed to upload profile image");
+        setShowErrorMessage(true);
+      } finally {
+        setloading5(false);
+      }
     }
   };
 
@@ -773,6 +806,14 @@ function AgencyBasicInfo({
         hide={() => setShowSuccessMessage(false)}
         message={successMessage}
         type={SnackbarTypes.Success}
+      />
+
+      {/* Error Message */}
+      <AgentSelectSnackMessage
+        isVisible={showErrorMessage}
+        hide={() => setShowErrorMessage(false)}
+        message={errorMessage}
+        type={SnackbarTypes.Error}
       />
     </div>
   );

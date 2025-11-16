@@ -283,6 +283,21 @@ const AgencyNavBar = () => {
     getUserProfile();
   }, []);
 
+  // Listen for UpdateProfile event to update Redux store immediately
+  useEffect(() => {
+    const handleUpdateProfile = (event) => {
+      const data = localStorage.getItem("User");
+      if (data) {
+        const LocalData = JSON.parse(data);
+        setReduxUser(LocalData); // Update Redux from localStorage
+      }
+    };
+    window.addEventListener("UpdateProfile", handleUpdateProfile);
+    return () => {
+      window.removeEventListener("UpdateProfile", handleUpdateProfile);
+    };
+  }, [setReduxUser]);
+
   //code for verify now
 
   const handleVerifyClick = async () => {

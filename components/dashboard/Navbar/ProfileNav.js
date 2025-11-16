@@ -413,6 +413,8 @@ const ProfileNav = () => {
       }
       // checkTrialDays(LocalData.user);
       setUserDetails(LocalData);
+      // Update Redux store
+      setReduxUser(LocalData);
       if (LocalData.user.plan == null) {
         // user haven't subscribed to any plan - load plans with trial
         await loadPlans(true);
