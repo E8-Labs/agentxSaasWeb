@@ -1008,7 +1008,17 @@ function AgencyPlansPayments({
         console.log("Plans list:", plansList.map(p => p.id));
 
         if (!togglePlan) return "Select a Plan";
-        if (currentPlanDetails?.status === "cancelled") return "";
+        
+        // Check user's plan status from userLocalData (not currentPlanDetails which is from DB)
+        // currentPlanDetails comes from database plan list and doesn't have status field
+        if (userLocalData?.plan?.status === "cancelled") {
+            // If same plan selected, show "Subscribe" (can't cancel an already cancelled plan)
+            if (togglePlan === currentPlan) {
+                return "Subscribe";
+            }
+            // If different plan selected, allow subscription
+            return "Subscribe";
+        }
 
         // If same plan selected, show cancel subscription
         if (togglePlan === currentPlan) {
@@ -1527,26 +1537,23 @@ function AgencyPlansPayments({
                                         {item.features && Array.isArray(item.features) && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
-                                                    {item?.features?.slice(0, 6).map((feature, featureIndex) => (
-                                                        <div key={featureIndex} className="flex flex-row items-start gap-1">
-                                                            <Image
-                                                                src="/svgIcons/selectedTickBtn.svg"
-                                                                height={16}
-                                                                width={16}
-                                                                alt="✓"
-                                                                className="mt-0.5 flex-shrink-0"
-                                                            />
-                                                            <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                                {
-                                                                    feature.thumb && (
-                                                                        <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                                            {feature.text}
-                                                                        </div>
-                                                                    )
-                                                                }
+                                                    {item?.features
+                                                        ?.filter(feature => feature.thumb === true)
+                                                        ?.slice(0, 6)
+                                                        ?.map((feature, featureIndex) => (
+                                                            <div key={featureIndex} className="flex flex-row items-start gap-1">
+                                                                <Image
+                                                                    src="/svgIcons/selectedTickBtn.svg"
+                                                                    height={16}
+                                                                    width={16}
+                                                                    alt="✓"
+                                                                    className="mt-0.5 flex-shrink-0"
+                                                                />
+                                                                <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
+                                                                    {feature.text}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        ))}
                                                 </div>
                                             </div>
                                         )}

@@ -275,38 +275,60 @@ function UpgradePlanContent({
 
     // Function to determine if upgrade button should be enabled
     const isUpgradeButtonEnabled = () => {
-
         //disable if snack msg is visible
         if (showSnackMsg?.isVisible) {
+            console.log("Button disabled: snack msg visible");
             return false;
         }
-        // Must have a selected plan and it shouldn't be the current plan
-        if (!currentSelectedPlan || isPlanCurrent(currentSelectedPlan)) {
+        
+        // Must have a selected plan
+        if (!currentSelectedPlan) {
+            console.log("Button disabled: no selected plan");
+            return false;
+        }
+        
+        // Check if selected plan is the current plan
+        const isCurrent = isPlanCurrent(currentSelectedPlan);
+        console.log("isPlanCurrent check:", {
+            currentSelectedPlanId: currentSelectedPlan?.id,
+            currentUserPlanId: currentUserPlan?.planId,
+            isCurrent: isCurrent
+        });
+        
+        if (isCurrent) {
+            console.log("Button disabled: selected plan is current plan");
             return false;
         }
 
         // If user is adding a new payment method, they must agree to terms
         if (isAddingNewPaymentMethod && !agreeTerms) {
+            console.log("Button disabled: adding payment but terms not agreed");
             return false;
         }
 
         // If user has existing payment methods and is not adding new ones, they can proceed
         if (haveCards && !isAddingNewPaymentMethod) {
+            console.log("Button enabled: has cards and not adding new");
             return true;
         }
 
         // If user has no payment methods, they must be adding one
         if (!haveCards && isAddingNewPaymentMethod) {
-            return CardAdded && CardExpiry && CVC && agreeTerms;
+            const canProceed = CardAdded && CardExpiry && CVC && agreeTerms;
+            console.log("Button check (no cards, adding new):", { CardAdded, CardExpiry, CVC, agreeTerms, canProceed });
+            return canProceed;
         }
 
         // If user has payment methods and is adding new ones, they must complete the form
         if (haveCards && isAddingNewPaymentMethod) {
-            return CardAdded && CardExpiry && CVC && agreeTerms;
+            const canProceed = CardAdded && CardExpiry && CVC && agreeTerms;
+            console.log("Button check (has cards, adding new):", { CardAdded, CardExpiry, CVC, agreeTerms, canProceed });
+            return canProceed;
         }
 
-
-        return false;
+        // If no cards and not adding new, still allow if plan is selected (they might add card during subscription)
+        console.log("Button enabled: fallback case");
+        return true;
     };
 
     useEffect(() => {
@@ -321,9 +343,11 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        
-
-        initializePlans();
+        if (open) {
+            // Ensure currentUserPlan is set when modal opens
+            getCurrentUserPlan();
+            initializePlans();
+        }
     }, [open])
 
     useEffect(() => {
@@ -503,9 +527,11 @@ function UpgradePlanContent({
         if (localData) {
             const userData = JSON.parse(localData);
             const plan = userData.user?.plan;
-            console.log('Current user plan:', plan);
+            console.log('Current user plan from localStorage:', plan);
             setCurrentUserPlan(plan);
+            return plan;
         }
+        return null;
     }
 
     useEffect(() => {
@@ -671,22 +697,36 @@ function UpgradePlanContent({
     };
 
     const isPlanCurrent = (item) => {
-        if (!currentUserPlan) return false;
+        if (!currentUserPlan || !item) {
+            return false;
+        }
 
-
-
-        // Handle free plan case
-        // if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
-        //     return true;
-        // }
-
-        // Handle paid plans
-        if (item.id === currentUserPlan.planId) {
+        // Compare by planId - currentUserPlan.planId is the database plan ID
+        // item.id is the plan ID from the plans list
+        // Convert both to numbers for strict comparison
+        const itemPlanId = Number(item.id || item.planId);
+        const currentPlanId = Number(currentUserPlan.planId);
+        
+        // Only log when there's a potential match to reduce noise
+        if (itemPlanId === currentPlanId) {
+            console.log("✅ isPlanCurrent: plan IDs match - THIS IS THE CURRENT PLAN", { 
+                itemPlanId, 
+                currentPlanId,
+                itemTitle: item.title || item.name
+            });
             return true;
         }
+        
+        // Fallback comparison by name (if both have names)
+        const itemName = item.name || item.title;
+        const currentPlanName = currentUserPlan.name;
+        if (itemName && currentPlanName && itemName === currentPlanName) {
+            console.log("✅ isPlanCurrent: plan names match", { itemName, currentPlanName });
+            return true;
+        }
+        
+        // Not the current plan - don't log to reduce noise
         return false;
-        // Fallback comparison by name
-        return item.name === currentUserPlan.name;
     };
 
     const getCardImage = (item) => {
@@ -1062,32 +1102,125 @@ function UpgradePlanContent({
 
     console.log('price is ', (currentSelectedPlan?.discountPrice))
 
+    // Function to get button text, checking for cancelled plan status first
+    const getButtonText = () => {
+        if (!currentSelectedPlan) return "Select a Plan";
+        
+        // Check user's plan status from userLocalData (not currentFullPlan which is from DB)
+        // currentFullPlan comes from database plan list and doesn't have status field
+        // getUserLocalData() returns the user object directly, so access plan directly
+        // Also check currentUserPlan state which is set from localStorage
+        const UserLocalData = getUserLocalData();
+        const planStatus = UserLocalData?.plan?.status || currentUserPlan?.status;
+        console.log("🔍 [getButtonText] UserLocalData:", UserLocalData);
+        console.log("🔍 [getButtonText] currentUserPlan:", currentUserPlan);
+        console.log("🔍 [getButtonText] currentSelectedPlan:", currentSelectedPlan);
+        console.log("🔍 [getButtonText] currentFullPlan:", currentFullPlan);
+        console.log("🔍 [getButtonText] Plan status:", planStatus);
+        
+        // If plan is cancelled, show "Subscribe" regardless of which plan is selected
+        if (planStatus === "cancelled") {
+            console.log("🔍 [getButtonText] Plan cancelled, returning Subscribe");
+            return "Subscribe";
+        }
+
+        // Check if the selected plan is the user's current plan
+        // Compare by planId from currentUserPlan with id from currentSelectedPlan
+        const isCurrentPlan = currentUserPlan && (
+            currentSelectedPlan.id === currentUserPlan.planId ||
+            currentSelectedPlan.planId === currentUserPlan.planId
+        );
+        
+        console.log("🔍 [getButtonText] isCurrentPlan:", isCurrentPlan, {
+            selectedPlanId: currentSelectedPlan.id,
+            currentPlanId: currentUserPlan?.planId
+        });
+        
+        // If selected plan is the current plan, show "Cancel Subscription"
+        if (isCurrentPlan) {
+            console.log("🔍 [getButtonText] Same plan, returning Cancel Subscription");
+            return "Cancel Subscription";
+        }
+
+        // If no current plan, show "Subscribe"
+        if (!currentUserPlan) {
+            console.log("🔍 [getButtonText] No current plan, returning Subscribe");
+            return "Subscribe";
+        }
+
+        // Try to use currentFullPlan for comparison if available
+        if (currentFullPlan) {
+            const comparison = comparePlans(currentFullPlan, currentSelectedPlan);
+            console.log("🔍 [getButtonText] Comparison result:", comparison);
+            
+            if (comparison === 'upgrade') {
+                return "Upgrade";
+            } else if (comparison === 'downgrade') {
+                return "Downgrade";
+            }
+        }
+
+        // Fallback: Compare prices directly from currentUserPlan and currentSelectedPlan
+        // Try multiple possible price fields
+        const currentPrice = currentUserPlan?.price || currentUserPlan?.discountPrice || currentUserPlan?.discountedPrice || 0;
+        const selectedPrice = currentSelectedPlan?.discountPrice || 
+                              currentSelectedPlan?.discountedPrice || 
+                              currentSelectedPlan?.price || 
+                              currentSelectedPlan?.originalPrice || 
+                              0;
+        
+        console.log("🔍 [getButtonText] Price comparison:", {
+            currentPrice,
+            selectedPrice,
+            currentSelectedPlanKeys: Object.keys(currentSelectedPlan || {}),
+            currentSelectedPlanFull: currentSelectedPlan
+        });
+        
+        if (selectedPrice > currentPrice && selectedPrice > 0) {
+            console.log("🔍 [getButtonText] Price-based upgrade");
+            return "Upgrade";
+        } else if (selectedPrice < currentPrice && selectedPrice > 0) {
+            console.log("🔍 [getButtonText] Price-based downgrade");
+            return "Downgrade";
+        }
+
+        // Final fallback
+        console.log("🔍 [getButtonText] Fallback to Subscribe");
+        return "Subscribe";
+    };
 
     const comparePlans = (currentPlan, targetPlan) => {
         if (!currentPlan || !targetPlan) {
             return null; // Changed from 'same' to null to indicate loading state
         }
 
-        // Get monthly prices (discountPrice is already per-month for all billing cycles)
-        const currentPrice = currentPlan.discountPrice || currentPlan.price || 0;
-        const targetPrice = targetPlan.discountPrice || targetPlan.price || 0;
-
-        // console.log('🔍 [PLAN-COMPARE] Current plan:', currentPlan.name, 'Price:', currentPrice, 'Billing:', currentPlan.billingCycle);
-        // console.log('🔍 [PLAN-COMPARE] Target plan:', targetPlan.name, 'Price:', targetPrice, 'Billing:', targetPlan.billingCycle);
-
         // If same plan (by ID), it's the same
         if (currentPlan.id === targetPlan.id || currentPlan.planId === targetPlan.id) {
             return 'same';
         }
 
-        // If target is free plan and current is paid, it's a downgrade
-        if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
-            return 'downgrade';
-        }
+        // Define tier ranking: Starter < Growth < Scale
+        const tierRanking = {
+            'Starter': 1,
+            'Growth': 2,
+            'Scale': 3
+        };
 
-        // If current is free and target is paid, it's an upgrade
-        if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
-            return 'upgrade';
+        // Get plan titles/names (try both fields)
+        const currentTitle = (currentPlan.title || currentPlan.name || '').toLowerCase();
+        const targetTitle = (targetPlan.title || targetPlan.name || '').toLowerCase();
+
+        let currentTierRank = -1;
+        let targetTierRank = -1;
+
+        // Try to match tier from title/name
+        for (const [tier, rank] of Object.entries(tierRanking)) {
+            if (currentTitle.includes(tier.toLowerCase())) {
+                currentTierRank = rank;
+            }
+            if (targetTitle.includes(tier.toLowerCase())) {
+                targetTierRank = rank;
+            }
         }
 
         // Get billing cycle order (monthly < quarterly < yearly)
@@ -1097,19 +1230,71 @@ function UpgradePlanContent({
             'yearly': 3
         };
 
-        const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 1;
-        const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 1;
+        const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 
+                                   billingCycleOrder[currentPlan.duration] || 
+                                   1;
+        const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 
+                                  billingCycleOrder[targetPlan.duration] || 
+                                  1;
 
-        // If same name/tier but different billing cycle
-        if (currentPlan.name === targetPlan.name) {
-            // Longer billing cycle is considered an upgrade (more commitment)
+        console.log("🔍 [comparePlans] Tier comparison:", {
+            currentTitle: currentPlan.title || currentPlan.name,
+            currentTierRank,
+            targetTitle: targetPlan.title || targetPlan.name,
+            targetTierRank,
+            currentBillingCycle: currentPlan.billingCycle || currentPlan.duration,
+            targetBillingCycle: targetPlan.billingCycle || targetPlan.duration
+        });
+
+        // If we can determine tier ranks, compare them first
+        // Rule: Scale > Growth > Starter (regardless of billing cycle)
+        if (currentTierRank >= 0 && targetTierRank >= 0) {
+            // Different tiers - tier comparison determines upgrade/downgrade
+            if (targetTierRank > currentTierRank) {
+                console.log('🔍 [comparePlans] Result: UPGRADE (tier change)');
+                return 'upgrade';
+            } else if (targetTierRank < currentTierRank) {
+                console.log('🔍 [comparePlans] Result: DOWNGRADE (tier change)');
+                return 'downgrade';
+            }
+            // Same tier - compare billing cycles
             if (targetBillingOrder > currentBillingOrder) {
+                console.log('🔍 [comparePlans] Result: UPGRADE (same tier, longer billing cycle)');
                 return 'upgrade';
             } else if (targetBillingOrder < currentBillingOrder) {
+                console.log('🔍 [comparePlans] Result: DOWNGRADE (same tier, shorter billing cycle)');
                 return 'downgrade';
             } else {
+                console.log('🔍 [comparePlans] Result: SAME (same tier and billing cycle)');
                 return 'same';
             }
+        }
+
+        // Fall back to price comparison if tier can't be determined
+        const currentPrice = currentPlan.discountPrice || 
+                            currentPlan.discountedPrice || 
+                            currentPlan.price || 
+                            currentPlan.originalPrice || 
+                            0;
+        const targetPrice = targetPlan.discountPrice || 
+                           targetPlan.discountedPrice || 
+                           targetPlan.price || 
+                           targetPlan.originalPrice || 
+                           0;
+
+        console.log("🔍 [comparePlans] Fallback to price comparison:", {
+            currentPrice,
+            targetPrice
+        });
+
+        // If target is free plan and current is paid, it's a downgrade
+        if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
+            return 'downgrade';
+        }
+
+        // If current is free and target is paid, it's an upgrade
+        if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
+            return 'upgrade';
         }
 
         // Compare prices
@@ -1621,7 +1806,7 @@ function UpgradePlanContent({
                                                                 }
                                                             }}
                                                         >
-                                                            {comparePlans(currentFullPlan, currentSelectedPlan) === 'downgrade' ? "Downgrade" : "Upgrade"}
+                                                            {getButtonText()}
                                                         </button>
                                                     )
                                                 }
