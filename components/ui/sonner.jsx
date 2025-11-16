@@ -1,10 +1,10 @@
 "use client"
 
 import {
-  CircleCheckIcon,
+  CheckCircle2,
   InfoIcon,
   Loader2Icon,
-  OctagonXIcon,
+  XCircle,
   TriangleAlertIcon,
 } from "lucide-react"
 import { Toaster as Sonner } from "sonner"
@@ -16,10 +16,10 @@ const Toaster = ({ ...props }) => {
       position="top-center"
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
+        success: <CheckCircle2 className="size-4" />,
         info: <InfoIcon className="size-4" />,
         warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
+        error: <XCircle className="size-4" />,
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       style={{

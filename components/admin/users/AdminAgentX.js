@@ -55,10 +55,12 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  HowToVideoTypes,
   models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
 
@@ -86,8 +88,12 @@ import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
 import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
 import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
+import { UpgradeTagWithModal } from "@/components/constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
+  // Redux hooks for upgrade modal functionality
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -331,6 +337,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   });
 
 const [showUpgradeModal,setShowUpgradeModal] = useState(false);
+const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
 const [showAddScoringModal,setShowAddScoringModal] = useState(false);
 
 // Web Agent Modal states
@@ -347,6 +354,7 @@ const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null);
 const [embedCode, setEmbedCode] = useState('');
 const [selectedSmartList, setSelectedSmartList] = useState('');
 const [fetureType, setFetureType] = useState("");
+const [featureTitle, setFeatureTitle] = useState("");
 
 
   const playVoice = (url) => {
@@ -554,7 +562,10 @@ const [fetureType, setFetureType] = useState("");
 
   //copy and vapi widget-code
   const handleWebhookClick = () => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       let agent = {
@@ -579,7 +590,9 @@ const [fetureType, setFetureType] = useState("");
   };
 
   const handleCopy = (assistantId, baseUrl) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForEmbed(showDrawerSelectedAgent);
@@ -589,7 +602,11 @@ const [fetureType, setFetureType] = useState("");
 
   // Web Agent handlers
   const handleWebAgentClick = (agent) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForWebAgent(agent);
@@ -598,7 +615,10 @@ const [fetureType, setFetureType] = useState("");
   };
 
   const handleEmbedClick = (agent) => {
-    if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+    if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true);
+      setFeatureTitle("EmbedAgents");
+    } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true);
     } else {
       setSelectedAgentForEmbed(agent);
@@ -2328,10 +2348,23 @@ const [fetureType, setFetureType] = useState("");
   };
 
   const handleLanguageChange = async (event) => {
-    setShowLanguageLoader(true);
     let value = event.target.value;
     console.log("selected language is", value)
     // console.log("selected voice is",SelectedVoice)
+
+    // Check capabilities for Multilingual option
+    if (value === "Multilingual") {
+      // Check agency capabilities first, then plan capabilities
+      if (selectedUser?.agencyCapabilities?.allowLanguageSelection === false) {
+        setShowUpgradePlanModal(true);
+        return;
+      } else if (selectedUser?.planCapabilities?.allowLanguageSelection === false) {
+        setShowUpgradePlanModal(true);
+        return;
+      }
+    }
+
+    setShowLanguageLoader(true);
 
     let voice = voicesList.find((voice) => voice.name === SelectedVoice)
 
@@ -3184,7 +3217,10 @@ const [fetureType, setFetureType] = useState("");
                     <button
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
-                        if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        if (selectedUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+                          setShowUpgradeModal(true);
+                          setFeatureTitle("EmbedAgents");
+                        } else if (selectedUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
                           setShowUpgradeModal(true);
                         } else {
                           setFetureType("webhook");
@@ -3420,6 +3456,11 @@ const [fetureType, setFetureType] = useState("");
                                     className="flex flex-row items-center gap-2"
                                     value={item.title}
                                     key={index}
+                                    style={
+                                      item.value === "multi" && selectedUser?.planCapabilities?.allowLanguageSelection === false
+                                        ? { pointerEvents: "auto" }
+                                        : {}
+                                    }
                                   // disabled={languageValue === item.title || languageValue !== "en-US"}
                                   >
                                     <Image
@@ -3437,6 +3478,20 @@ const [fetureType, setFetureType] = useState("");
                                     >
                                       {item.subLang}
                                     </div>
+
+                                    {
+                                      item.value === "multi" && (
+                                        selectedUser?.agencyCapabilities?.allowLanguageSelection === false ||
+                                        selectedUser?.planCapabilities?.allowLanguageSelection === false
+                                      ) && (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                        />
+                                      )
+                                    }
                                   </MenuItem>
                                 );
                               })}
@@ -4226,32 +4281,45 @@ const [fetureType, setFetureType] = useState("");
                         </div>
                       </div>
 
-                      <div className="flex flex-row items-center justify-between gap-2">
-                        <div>
-                          {showDrawerSelectedAgent?.liveTransferNumber ? (
-                            <div>
-                              {showDrawerSelectedAgent?.liveTransferNumber}
-                            </div>
-                          ) : (
-                            "-"
-                          )}
+                      {selectedUser?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                          requestFeature={true}
+                        />
+                      ) : selectedUser?.planCapabilities?.allowLiveCallTransfer === false ? (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                        />
+                      ) : (
+                        <div className="flex flex-row items-center justify-between gap-2">
+                          <div>
+                            {showDrawerSelectedAgent?.liveTransferNumber ? (
+                              <div>
+                                {showDrawerSelectedAgent?.liveTransferNumber}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
+                          </div>
+                          <button
+                            onClick={() => {
+                              setShowEditNumberPopup(
+                                showDrawerSelectedAgent?.liveTransferNumber
+                              );
+                              setSelectedNumber("Calltransfer");
+                            }}
+                          >
+                            <Image
+                              src={"/svgIcons/editIcon2.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          </button>
                         </div>
-                        <button
-                          onClick={() => {
-                            setShowEditNumberPopup(
-                              showDrawerSelectedAgent?.liveTransferNumber
-                            );
-                            setSelectedNumber("Calltransfer");
-                          }}
-                        >
-                          <Image
-                            src={"/svgIcons/editIcon2.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
+                      )}
                     </div>
                   </div>
 
@@ -4957,14 +5025,17 @@ const [fetureType, setFetureType] = useState("");
                     <div className="w-full">
                       <div className="w-5/12">
                         <VideoCard
-                          duration={"13 min 56 sec"}
+                          duration={(() => {
+                            const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
+                            return tutorial?.description || "13 min 56 sec";
+                          })()}
                           width="80"
                           height="100"
                           horizontal={false}
                           playVideo={() => {
                             setIntroVideoModal(true);
                           }}
-                          title="Learn how to customize your script"
+                          title={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
                         />
                       </div>
 
@@ -5200,8 +5271,8 @@ const [fetureType, setFetureType] = useState("");
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle=" Learn how to customize your script"
-        videoUrl={HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
       />
 
       {showClaimPopup && (
@@ -5221,9 +5292,11 @@ const [fetureType, setFetureType] = useState("");
         open={showUpgradeModal}
         handleClose={() => {
           setShowUpgradeModal(false);
+          setFeatureTitle("");
         }}
         title="Unlock More Features"
         subTitle="Upgrade to access advanced features and capabilities"
+        featureTitle={featureTitle}
       />
 
       <AddScoringModal

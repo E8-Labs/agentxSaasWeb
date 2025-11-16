@@ -289,4 +289,57 @@ a.text-red:hover {
   color: #DC2626 !important;
 }
 
+/* Sonner Toast Centering */
+[data-sonner-toaster][data-position="top-center"] {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  right: auto !important;
+}
+
+[data-sonner-toaster][data-position="top-center"] [data-sonner-toast] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Sonner Toast Icon Colors - Target all possible icon containers */
+[data-sonner-toast][data-type="success"] [data-icon] svg,
+[data-sonner-toast][data-type="success"] svg[data-icon],
+[data-sonner-toast][data-type="success"] [data-icon] > svg {
+  color: #7902DF !important;
+  stroke: #7902DF !important;
+  fill: none !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] svg,
+[data-sonner-toast][data-type="error"] svg[data-icon],
+[data-sonner-toast][data-type="error"] [data-icon] > svg {
+  color: #FF4E4E !important;
+  stroke: #FF4E4E !important;
+  fill: none !important;
+}
+
+/* Target Lucide icons specifically by class */
+[data-sonner-toast][data-type="success"] svg.lucide,
+[data-sonner-toast][data-type="success"] [data-icon] svg.lucide {
+  color: #7902DF !important;
+  stroke: #7902DF !important;
+}
+
+[data-sonner-toast][data-type="error"] svg.lucide,
+[data-sonner-toast][data-type="error"] [data-icon] svg.lucide {
+  color: #FF4E4E !important;
+  stroke: #FF4E4E !important;
+}
+
+/* Fallback for any SVG in success/error toasts */
+[data-sonner-toast][data-type="success"] svg {
+  color: #7902DF !important;
+  stroke: #7902DF !important;
+}
+
+[data-sonner-toast][data-type="error"] svg {
+  color: #FF4E4E !important;
+  stroke: #FF4E4E !important;
+}
+
 

@@ -59,6 +59,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   // const length = 6;
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState("");
@@ -97,44 +98,78 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
 
   useEffect(() => {
-    // //console.log;
-    const localData = localStorage.getItem("User");
-    if (localData) {
-      let d = JSON.parse(localData);
-      getProfileDetails()
-      // //console.log;
+    // Check authentication status
+    const checkAuthStatus = async () => {
+      if (typeof window === "undefined") {
+        setIsCheckingAuth(false);
+        return;
+      }
 
-      // set user type in global variable
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        try {
+          let d = JSON.parse(localData);
+          
+          // Verify the user data is still valid by calling the profile API
+          const profileResponse = await getProfileDetails();
+          
+          // If profile API fails (returns null or 404), user is not authenticated
+          if (!profileResponse || profileResponse?.data?.status !== true) {
+            // Clear invalid localStorage data
+            localStorage.removeItem("User");
+            setIsCheckingAuth(false);
+            return;
+          }
 
-      if (d.user.userType == "admin") {
-        router.push("/admin");
-      } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
-        router.push("/agency/dashboard");
-      } else if (d.user.userRole == "AgencySubAccount") {
-        if (d.user.plan) {
-          router.push("/dashboard");
-        } else {
-          router.push("/subaccountInvite/subscribeSubAccountPlan");
+          // Profile is valid, update local data and route
+          const updatedData = JSON.parse(localStorage.getItem("User") || localData);
+          d = updatedData;
+
+          // set user type in global variable
+          if (d.user.userType == "admin") {
+            router.push("/admin");
+          } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
+            router.push("/agency/dashboard");
+          } else if (d.user.userRole == "AgencySubAccount") {
+            if (d.user.plan) {
+              router.push("/dashboard");
+            } else {
+              router.push("/subaccountInvite/subscribeSubAccountPlan");
+            }
+          } else {
+            router.push("/dashboard");
+          }
+          // Keep loading state true while redirecting
+          return;
+        } catch (error) {
+          // If there's an error, clear localStorage and show login form
+          console.error("Error checking authentication:", error);
+          localStorage.removeItem("User");
+          setIsCheckingAuth(false);
+          return;
         }
-      } else {
-        router.push("/dashboard");
       }
-    }
 
-    const localLoc = localStorage.getItem(
-      PersistanceKeys.LocalStorageUserLocation
-    );
-    if (!localLoc) {
-      // getLocation();
-      // getLocation2();
-    } else if (localLoc) {
-      // const L = JSON.parse(localLoc);
-      // setCountryCode(L.location);
-      let Data = getLocalLocation();
-      if (userPhoneNumber == "") {
-        // setCountryCode(Data);
+      // User is not logged in, show login form
+      setIsCheckingAuth(false);
+
+      const localLoc = localStorage.getItem(
+        PersistanceKeys.LocalStorageUserLocation
+      );
+      if (!localLoc) {
+        // getLocation();
+        // getLocation2();
+      } else if (localLoc) {
+        // const L = JSON.parse(localLoc);
+        // setCountryCode(L.location);
+        let Data = getLocalLocation();
+        if (userPhoneNumber == "") {
+          // setCountryCode(Data);
+        }
       }
-    }
+    };
+
+    checkAuthStatus();
   }, []);
 
   //get location
@@ -727,6 +762,18 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       outline: "none",
     },
   };
+
+  // Show loading screen while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="flex flex-row w-full justify-center h-[100svh] items-center">
+        <LoaderAnimation
+          loaderModal={true}
+          title="Checking authentication..."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-row w-full justify-center h-[100svh]">

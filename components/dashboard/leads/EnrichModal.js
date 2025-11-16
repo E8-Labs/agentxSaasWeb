@@ -31,6 +31,9 @@ export default function EnrichModal({
 
     const [userData, setUserData] = useState(null)
     const [showAddCard, setShowAddCard] = useState(false)
+    const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
+    const [minimumCost, setMinimumCost] = useState(null)
+    const [originalLeadCount, setOriginalLeadCount] = useState(0)
 
     useEffect(() => {
         let data = getUserLocalData()
@@ -45,19 +48,52 @@ export default function EnrichModal({
         const getCreditCost = async () => {
             console.log("processedData", processedData)
 
-            let data = {
-                leadCount: processedData.length,
-                type: "enrichment"
+            const leadCount = processedData.length
+            const isAgencySubAccount = userData?.user?.userRole === 'AgencySubAccount'
+            
+            // Check if we need to enforce minimum for agency subaccount
+            if (isAgencySubAccount && leadCount < 100) {
+                // Calculate cost for 100 leads (minimum requirement)
+                let minimumData = {
+                    leadCount: 100,
+                    type: "enrichment"
+                }
+                const minimumCostData = await calculateCreditCost(minimumData)
+                console.log("minimumCostData for 100 leads", minimumCostData)
+                console.log("minimumCostData pricePerLead:", minimumCostData?.pricePerLead)
+                console.log("minimumCostData pricing:", minimumCostData?.pricing)
+                setMinimumCost(minimumCostData)
+                setIsMinimumEnforced(true)
+                setOriginalLeadCount(leadCount)
+                
+                // Also get the cost for the actual lead count to show comparison
+                let data = {
+                    leadCount: leadCount,
+                    type: "enrichment"
+                }
+                const creditCost = await calculateCreditCost(data)
+                console.log("creditCost", creditCost)
+                console.log("creditCost pricePerLead:", creditCost?.pricePerLead)
+                console.log("creditCost pricing:", creditCost?.pricing)
+                setCreditCost(creditCost)
+            } else {
+                // Normal flow - calculate for actual lead count
+                let data = {
+                    leadCount: leadCount,
+                    type: "enrichment"
+                }
+                const creditCost = await calculateCreditCost(data)
+                console.log("creditCost", creditCost)
+                setCreditCost(creditCost)
+                setIsMinimumEnforced(false)
+                setMinimumCost(null)
+                setOriginalLeadCount(leadCount)
             }
-
-            const creditCost = await calculateCreditCost(data)
-            console.log("creditCost", creditCost)
-            setCreditCost(creditCost)
         }
-        if (showenrichModal) {
+        if (showenrichModal && userData) {
             getCreditCost()
         }
-    }, [showenrichModal])
+    }, [showenrichModal, userData])
 
     const handleEnrichFalse = () => {
         setIsEnrichToggle(false);
@@ -132,10 +168,26 @@ export default function EnrichModal({
                                 <div style={{ fontSize: 18, fontWeight: '700' }}>
                                     Enrich Lead
                                 </div>
+                                
+                                {isMinimumEnforced && minimumCost && (
+                                    <div style={{ 
+                                        fontSize: 14, 
+                                        fontWeight: '600', 
+                                        color: '#7902DF',
+                                        textAlign: 'center',
+                                        width: '30vw',
+                                        padding: '8px 12px',
+                                        backgroundColor: '#F4F0F5',
+                                        borderRadius: '8px'
+                                    }}>
+                                        {`${originalLeadCount} leads selected. Minimum payment is for 100 leads. You will be charged $${(minimumCost?.totalCharge || 0).toFixed(2)} for 100 leads.`}
+                                    </div>
+                                )}
+
                                 <div className="flex flex-row gap-2 items-center">
 
                                     <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
-                                        credit cost (${creditCost?.pricePerLead}/lead)
+                                        credit cost (${isMinimumEnforced && minimumCost ? (minimumCost?.pricePerLead || minimumCost?.pricing?.agencyPrice || '0.05') : (creditCost?.pricePerLead || creditCost?.pricing?.agencyPrice || '0.05')}/lead)
                                     </div>
 
                                     <Tooltip

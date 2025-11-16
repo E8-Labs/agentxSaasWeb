@@ -42,6 +42,8 @@ const DashboardSlider = ({
       image: "/otherAssets/resourceHubBlack.jpg",
       image2: "/otherAssets/resourceHubBlue.jpg",
       url: PersistanceKeys.ResourceHubUrl,
+      height: 18,
+      width: 18,
     },
     {
       id: 2,
@@ -303,17 +305,19 @@ const DashboardSlider = ({
                               onMouseLeave={() => setHoverIndex(null)}
                             >
                               <button
-                                className="w-full flex flex-row items-center gap-2"
+                                className="w-full flex flex-row items-center gap-2 "
                                 onClick={() => handleOnClick(item, index)}
                               >
-                                <Image
+                                <div className="" style={{ height: 24, width: 24 }}>
+                                <Image className=""
                                   src={
                                     index === hoverIndex ? item.image2 : item.image
                                   }
-                                  width={24}
-                                  height={24}
+                                  width={item.height || 24}
+                                  height={item.width || 24}
                                   alt="*"
                                 />
+                                </div>
                                 <div
                                   className="text-black hover:text-purple whitespace-nowrap"
                                   style={{ fontSize: 15, fontWeight: "500" }}
@@ -365,8 +369,8 @@ const DashboardSlider = ({
                           src={
                             index === hoverIndex ? item.image2 : item.image
                           }
-                          width={24}
-                          height={24}
+                          width={item.width || 24}
+                          height={item.height || 24}
                           alt="*"
                         />
                         <div

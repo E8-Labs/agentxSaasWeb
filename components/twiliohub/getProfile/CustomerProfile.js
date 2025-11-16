@@ -119,7 +119,7 @@ const CustomerProfile = ({
                         Learn more about Twilio Trust Hub
                     </button>
                     <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                    // onClick={() => setIntroVideoModal2(true)}
+                    onClick={() => setIntroVideoModal2(true)}
                     />
                 </div>
             </div>

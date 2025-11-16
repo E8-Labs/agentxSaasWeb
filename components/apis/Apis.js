@@ -245,6 +245,7 @@ const Apis = {
   templets : `${BasePath}api/templates`,
   gmailAccount :`${BasePath}api/mail/accounts`,
   connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+  agencyMailAccount: `${BasePath}api/mail/agency-account`,
   a2pNumbers :`${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,

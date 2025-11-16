@@ -13,7 +13,8 @@ import { KycCategory } from "../constants/constants";
 import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import { GetKycQuestionsForUser, SellerKycsQuestions } from "@/constants/Kycs";
 import { UserTypes } from "@/constants/UserTypes";
 
@@ -531,18 +532,21 @@ const SellerKycs = ({ handleContinue }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn about asking questions (KYC)"
-            videoUrl={HowtoVideos.KycQuestions}
+            videoTitle={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
+            videoUrl={getVideoUrlByType(HowToVideoTypes.AgentConfiguration) || HowtoVideos.KycQuestions}
           />
           <div className="flex flex-row w-full justify-center h-[98%]">
             <div className="hidden lg:inline xl:w-[350px] lg:w-[350px] -ml-4 mt-12">
               <VideoCard
-                duration="1 min 38 sec"
+                duration={(() => {
+                  const tutorial = getTutorialByType(HowToVideoTypes.AgentConfiguration);
+                  return tutorial?.description || "1 min 38 sec";
+                })()}
                 horizontal={false}
                 playVideo={() => {
                   setIntroVideoModal(true);
                 }}
-                title="Learn about asking questions (KYC)"
+                title={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
               />
             </div>
             <div className="flex flex-col items-center px-4 w-full h-[90%]">

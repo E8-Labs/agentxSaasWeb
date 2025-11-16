@@ -330,10 +330,16 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
-                    Total Credits
+                    Total Mins
                   </div>
                   <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
-                    {formatNumber(analyticsData.summary?.totalMinutesUsed?.toFixed(2))}
+                    {formatNumber(
+                      (
+                        (analyticsData.summary?.totalMinutesUsed || 0) +
+                        (analyticsData.summary?.smsCredits || 0) +
+                        (analyticsData.summary?.emailCredits || 0)
+                      ).toFixed(2)
+                    )}
                   </div>
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -432,7 +438,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     <th style={styles.tableHeader}>Total Calls</th>
                     <th style={styles.tableHeader}>Total Emails</th>
                     <th style={styles.tableHeader}>Total Texts</th>
-                    <th style={styles.tableHeader}>Total Credits</th>
+                    <th style={styles.tableHeader}>Total Mins</th>
                     <th style={styles.tableHeader}>Nurtured Leads</th>
                     <th style={styles.tableHeader}>Hot Leads</th>
                     <th style={styles.tableHeader}>Booked Leads</th>

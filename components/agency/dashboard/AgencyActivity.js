@@ -37,7 +37,7 @@ import axios from "axios";
 import Image from "next/image";
 import AgencyDashboardDefaultUI from "./AgencyDashboardDefaultUI";
 import { CircularProgress } from "@mui/material";
-  // import { stat } from "fs";
+// import { stat } from "fs";
 
 const data = [
   { name: "Jan", users: 4000 },
@@ -353,7 +353,9 @@ function AgencyActivity({
                 setShowAllVoices(true);
               }}
               onViewUniqueNumbers={() => {
-                setShowAllUsersWithUniqueNumbers(true);
+                if (stats?.uniquePhoneUsers.count > 0) {
+                  setShowAllUsersWithUniqueNumbers(true);
+                }
               }}
               from="agency"
             />
@@ -364,7 +366,9 @@ function AgencyActivity({
             {/* Top Metrics */}
             <button
               onClick={() => {
-                setShowAllUsersWithAgents(true);
+                if (stats?.agentUsers.count > 0) {
+                    setShowAllUsersWithAgents(true);
+                  }
               }}
             >
               {GetStatView(
@@ -377,7 +381,9 @@ function AgencyActivity({
 
             <button
               onClick={() => {
-                setShowAllUsersWithPipelines(true);
+                if (stats?.pipelineUsers.count > 0) {
+                  setShowAllUsersWithPipelines(true);
+                }
               }}
             >
               {GetStatView(
@@ -390,7 +396,9 @@ function AgencyActivity({
 
             <button
               onClick={() => {
-                setShowAllUsersWithLeads(true);
+                if (stats?.leadsUsers.count > 0) {
+                  setShowAllUsersWithLeads(true);
+                }
               }}
             >
               {GetStatView(
@@ -403,7 +411,9 @@ function AgencyActivity({
 
             <button
               onClick={() => {
-                setShowAllUsersWithTeam(true);
+                if (stats?.teamsUsers.count > 0) {
+                    setShowAllUsersWithTeam(true);
+                }
               }}
             >
               {GetStatView(
@@ -416,7 +426,9 @@ function AgencyActivity({
 
             <button
               onClick={() => {
-                setShowAllUsersWithCalender(true);
+                if (stats?.calendarUsers.count > 0) {
+                  setShowAllUsersWithCalender(true);
+                }
               }}
             >
               {GetStatView(

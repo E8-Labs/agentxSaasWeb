@@ -12,8 +12,12 @@ const UnlockPremiunFeatures = ({
     handleClose,
     title,
     from,
-    handleConfirmDownGrade
+    handleConfirmDownGrade,
+
+
 }) => {
+
+    console.log("title passed to unlock premium features is", title)
 
     const [requestLoader, setRequestLoader] = useState(false);
     //code for snack messages    
@@ -28,9 +32,10 @@ const UnlockPremiunFeatures = ({
     useEffect(() => {
         fetchLocalUserData();
         const Data = localUserData?.agencyCapabilities;
-        console.log("Title passed to upgrade view is", title)
+        console.log("featureTitle passed to upgrade view is", title)
         console.log("Plan capabilities in upgrade view is", Data)
         if (localUserData?.userRole === "AgencySubAccount") {
+
             if (title === "Enable Live Transfer") {
                 if (!Data?.allowLiveCallTransfer) {
                     setFeatureTitleValue("LiveTransfer");
@@ -52,6 +57,15 @@ const UnlockPremiunFeatures = ({
                 // if (!Data?.allowLiveSupportWebinar) {
                 // }
             }
+
+            else if (title === "Unlock Calendar Integration") {
+                if (!Data?.allowCalendarIntegration) {
+                    setFeatureTitleValue("CalendarIntegration");
+                }
+            } else {
+                setFeatureTitleValue(title);
+            }
+
         }
     }, [localUserData]);
 
@@ -92,7 +106,7 @@ const UnlockPremiunFeatures = ({
             const Token = AuthToken();
             const ApiPath = Apis.requestFeatureFromAgency;
             const ApiData = {
-                featureTitle: featureTitleValue
+                featureTitle: featureTitleValue || title
             }
             console.log("Apidata for request feature is", ApiData);
             const response = await axios.post(ApiPath, ApiData, {
@@ -116,8 +130,10 @@ const UnlockPremiunFeatures = ({
                 setSnackMsgType(SnackbarTypes.Error);
             }
         } catch (error) {
-            setRequestLoader(false);
-            console.error("Error occured in request feature api is", error)
+            if (error.response.data.status === false) {
+                setRequestLoader(false);
+                console.error("Error occured in request feature api is", error)
+            }
         }
     }
 

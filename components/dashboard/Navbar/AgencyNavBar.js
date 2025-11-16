@@ -41,6 +41,7 @@ import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData"
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AgencyWalkThrough from "@/components/agency/walkthrough/AgencyWalkThrough";
+import { useUser } from "@/hooks/redux-hooks";
 
 
 let stripePublickKey =
@@ -67,8 +68,6 @@ const AgencyNavBar = () => {
 
 
 
-  const [localUser, setLocalUser] = useState(null);
-  const [userDetails, setUserDetails] = useState(null); // This is the API version
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
   const [showPaymentFailedPopup, setShowPaymentFailedPopup] = useState(false);
   const [togglePlan, setTogglePlan] = useState(false);
@@ -93,7 +92,7 @@ const AgencyNavBar = () => {
   const [showAgencyWalkThrough, setShowAgencyWalkThrough] = useState(false);
 
 
-  
+  const {user:reduxUser, setUser:setReduxUser} = useUser();
 
   //check stripe
   useEffect(() => {
@@ -120,7 +119,7 @@ const AgencyNavBar = () => {
     const local = localStorage.getItem("User");
     if (local) {
       const parsed = JSON.parse(local);
-      setLocalUser(parsed.user);
+
     }
 
     // getAgencyPlans();
@@ -236,6 +235,7 @@ const AgencyNavBar = () => {
       const LocalData = JSON.parse(data);
       let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false;
       console.log('Stripe status is', stripeStatus)
+      if(showAgencyWalkThrough) return; //if walkthrough is shown, don't check stripe status
       setCheckStripeStatus(!stripeStatus);
       // setUserDetails(LocalData);
       
@@ -282,6 +282,21 @@ const AgencyNavBar = () => {
     console.log('called from useeffect')
     getUserProfile();
   }, []);
+
+  // Listen for UpdateProfile event to update Redux store immediately
+  useEffect(() => {
+    const handleUpdateProfile = (event) => {
+      const data = localStorage.getItem("User");
+      if (data) {
+        const LocalData = JSON.parse(data);
+        setReduxUser(LocalData); // Update Redux from localStorage
+      }
+    };
+    window.addEventListener("UpdateProfile", handleUpdateProfile);
+    return () => {
+      window.removeEventListener("UpdateProfile", handleUpdateProfile);
+    };
+  }, [setReduxUser]);
 
   //code for verify now
 
@@ -511,7 +526,7 @@ const AgencyNavBar = () => {
             msOverflowStyle: "none",
           }}
         >
-          <div className="w-full flex flex-row gap-3 items-center justify-center">
+          <div className="w-full flex flex-row gap-3 items-center justify-start">
             <div className="w-10/12 flex flex-col items-end">
               <div className="w-full">
                 {/*userDetails?.user?.name || "Agency Name"*/}
@@ -555,8 +570,8 @@ const AgencyNavBar = () => {
                       src={
                         pathname === item.href ? item.selected : item.uneselected
                       }
-                      height={item.name === "Activity" ? 16 : 24}
-                      width={item.name === "Activity" ? 16 : 24}
+                      height={24}
+                      width={24}
                       alt="icon"
                     />
                     <div
@@ -594,7 +609,7 @@ const AgencyNavBar = () => {
             // className="w-full"
             style={{
               borderBottom: "1px solid #00000010",
-            }}>{userDetails && <AgencyChecklist userDetails={userDetails || localUser} />
+              }}>{reduxUser && <AgencyChecklist userDetails={reduxUser} />
             }</div>
           <Link
             href={"/agency/dashboard/myAccount"}
@@ -604,7 +619,7 @@ const AgencyNavBar = () => {
               textDecoration: "none",
             }}
           >
-            {localUser?.user?.thumb_profile_image ? (
+            {reduxUser?.thumb_profile_image ? (
               <div
                 style={{
                   width: "32px",
@@ -617,14 +632,14 @@ const AgencyNavBar = () => {
                 }}
               >
                 <img
-                  src={userDetails?.thumb_profile_image}
+                  src={reduxUser?.thumb_profile_image}
                   alt="*"
                   style={{ height: "100%", width: "100%" }}
                 />
               </div>
             ) : (
               <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {localUser?.name.slice(0, 1).toUpperCase()}
+                {reduxUser?.name.slice(0, 1).toUpperCase()}
               </div>
             )}
 
@@ -639,7 +654,7 @@ const AgencyNavBar = () => {
                   color: "black",
                 }}
               >
-                {localUser?.name?.split(" ")[0]}
+                {reduxUser?.name?.split(" ")[0]}
               </div>
               <div
                 className="truncate w-[120px]"
@@ -650,7 +665,7 @@ const AgencyNavBar = () => {
                   textOverflow: "ellipsis",
                 }}
               >
-                {localUser?.email}
+                {reduxUser?.email}
               </div>
             </div>
           </Link>

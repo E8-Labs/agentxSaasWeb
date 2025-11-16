@@ -81,7 +81,7 @@ const VideoPlayerModal = ({ open, onClose, videoTitle, videoUrl, videoDescriptio
 
           {videoDescription && (
             <div
-              className="text-center mb-4"
+              className="text-center mb-2"
               style={{ fontWeight: "600", fontSize: 18, color: "#616161" }}
             >
               {videoDescription}
@@ -89,7 +89,7 @@ const VideoPlayerModal = ({ open, onClose, videoTitle, videoUrl, videoDescriptio
           )}
 
           {/* Video Section */}
-          <div className="mt-6">
+          <div className="mt-2">
             {isLoading ? (
               <div className="w-full flex flex-row items-center justify-center mt-4">
                 <CircularProgress />

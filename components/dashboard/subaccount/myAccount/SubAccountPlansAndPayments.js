@@ -914,15 +914,18 @@ function SubAccountPlansAndPayments({
         console.log("Toggle plan id is", selectedPlan);
         console.log("Current plan sequence id is", currentPlanSequenceId);
 
+        // If plan is cancelled
+        if (userLocalData?.plan?.status === "cancelled" || currentPlanDetails?.status === "cancelled") {
+            // If no plan is selected, hide the button (return empty string)
+            if (!selectedPlan || !togglePlan || selectedPlan?.id === currentPlan) {
+                return "";
+            }
+            // If a plan is selected while current plan is cancelled, show Upgrade
+            return "Upgrade";
+        }
 
-        // if (!selectedPlan?.sequenceId) return "Select other Plan";
-
-        // if (togglePlan === currentPlan) {
-        //     console.log("Plan status is Current");
-        //     return "Current Plan";
-        // }
-
-        if(currentPlanDetails?.status === "cancelled") {
+        // If no plan is selected, don't show button
+        if (!selectedPlan || !togglePlan) {
             return "";
         }
 
@@ -937,6 +940,7 @@ function SubAccountPlansAndPayments({
             console.log("Plan status is Downgrade");
             return "Downgrade";
         }
+            
 
         // fallback
         return "Cancel Subscription";
@@ -1407,7 +1411,7 @@ function SubAccountPlansAndPayments({
                 ))}
             </div>
 
-            {userLocalData?.plan && (
+            {userLocalData?.plan && planTitleTag() && (
                 <div className="w-full flex flex-row items-center justify-center">
                     {subscribePlanLoader ? (
                         <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
@@ -1429,7 +1433,7 @@ function SubAccountPlansAndPayments({
                             }}
                             onClick={() => {
                                 const title = planTitleTag();
-                                if (title === "Select a Plan") { return }
+                                if (title === "Select a Plan" || !title) { return }
                                 if (title === "Cancel Subscription") {
                                     handleCancelPlanClick();
                                 } else if (title === "Downgrade") {

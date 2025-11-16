@@ -16,7 +16,7 @@ export const getMonthlyPlan = async (agencyId) => {
             const P = JSON.parse(localPlans);
             console.log("HCheck 2");
             console.log(P);
-            return P;
+            return Array.isArray(P) ? P : [];
         } else {
             console.log("HCheck 3");
             const Token = AuthToken();
@@ -32,17 +32,19 @@ export const getMonthlyPlan = async (agencyId) => {
                     }
                 }
             );
-            if (response) {
+            if (response && response.data && response.data.data) {
                 console.log("HCheck 4");
                 console.log("Response of get monthly plan api is", response.data);
                 localStorage.setItem("agencyMonthlyPlans", JSON.stringify(response.data.data));
-                return response.data.data;
+                return Array.isArray(response.data.data) ? response.data.data : [];
             }
+            return [];
         }
     } catch (error) {
         // setInitialLoader(false);
         console.error("Error occured in getting monthly plan", error);
         console.log("HCheck error");
+        return [];
     } finally {
         console.log("data recieved");
         console.log("HCheck 5");
@@ -64,7 +66,7 @@ export const getXBarOptions = async (agencyId) => {
         ) {
             const d = JSON.parse(localXbarPlans);
             console.log(d);
-            return d;
+            return Array.isArray(d) ? d : [];
         } else {
             const Token = AuthToken();
             let ApiPath = Apis.getXBarOptions;
@@ -81,15 +83,17 @@ export const getXBarOptions = async (agencyId) => {
                     }
                 }
             );
-            if (response) {
+            if (response && response.data && response.data.data) {
                 console.log("Response of XBar Option api is", response.data);
                 localStorage.setItem("XBarOptions", JSON.stringify(response.data.data));
-                return response.data.data;
+                return Array.isArray(response.data.data) ? response.data.data : [];
             }
+            return [];
         }
     } catch (error) {
         // setInitialLoader(false);
         console.error("Error occured in getting XBar Option is", error);
+        return [];
     } finally {
         // setInitialLoader(false);
         console.log("data recieved");

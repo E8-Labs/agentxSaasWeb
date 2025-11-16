@@ -60,11 +60,13 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  HowToVideoTypes,
   models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import Link from "next/link";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
@@ -106,6 +108,7 @@ import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import ActionsTab from "@/components/dashboard/myagentX/ActionsTab";
 import { isPlanActive } from "@/components/userPlans/UserPlanServices";
+import UnlockPremiunFeatures from "@/components/globalExtras/UnlockPremiunFeatures";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -132,6 +135,7 @@ function Page() {
     allowVoicemail,
     allowToolsAndActions,
     allowKnowledgeBases,
+    allowLiveCallTransfer,
     isFeatureAllowed,
     getUpgradeMessage,
     isFreePlan,
@@ -240,6 +244,7 @@ function Page() {
     useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+  const [showNoAudioModal, setShowNoAudioModal] = useState(null);
   const [kycsData, setKycsData] = useState(null);
   //greeting tag input
   const [greetingTagInput, setGreetingTagInput] = useState("");
@@ -377,8 +382,9 @@ function Page() {
     message: "",
     isVisible: false
   })
-
+  const [featureTitle, setFeatureTitle] = useState("")
   const [selectedSmartList, setSelectedSmartList] = useState('');
+  const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false)
 
 
 
@@ -451,7 +457,7 @@ function Page() {
           "Content-Type": "application/json",
         },
       });
-      
+
       console.log("response of get kycs", response)
       if (response) {
         setKycsData(response.data.data);
@@ -469,10 +475,24 @@ function Page() {
 
   // Web Agent Modal handlers
   const handleWebAgentClick = (agent) => {
-    setSelectedAgentForWebAgent(agent);
-    setShowWebAgentModal(true);
-    setFetureType("webagent")
-  };
+
+    if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+      setFeatureTitle("EmbedAgents");
+    } else {
+      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+        setShowUpgradeModal(true)
+        setTitle("Unlock your Web Agent")
+        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+      } else {
+        setSelectedAgentForWebAgent(agent);
+        setShowWebAgentModal(true);
+        setFetureType("webagent")
+      }
+    }
+  }
 
   const handleOpenAgentInNewTab = () => {
     let agent = {
@@ -528,9 +548,22 @@ function Page() {
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
-    setSelectedAgentForEmbed(agent);
-    setShowEmbedModal(true);
-  };
+    if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+      setFeatureTitle("EmbedAgents");
+    } else {
+      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+        setShowUpgradeModal(true)
+        setTitle("Unlock your Web Agent")
+        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+      } else {
+        setSelectedAgentForEmbed(agent);
+        setShowEmbedModal(true);
+      };
+    }
+  }
 
   const handleShowEmbedSmartList = () => {
     setShowEmbedModal(false);
@@ -621,6 +654,10 @@ function Page() {
   }, [showScriptModal]);
 
   useEffect(() => {
+
+    console.log("redux user", reduxUser)
+    console.log("user data is", user)
+
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
     if (d) {
       let calendarAddedByGoogle = JSON.parse(d)
@@ -2646,8 +2683,8 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
-console.log("handleAddNewAgent is called", reduxUser?.plan)
-console.log("isPlanActive", isPlanActive(reduxUser?.plan))
+    console.log("handleAddNewAgent is called", reduxUser?.plan)
+    console.log("isPlanActive", isPlanActive(reduxUser?.plan))
     if (!isPlanActive(reduxUser?.plan)) {
       setShowErrorSnack("Your plan is paused. Activate to create agents")
       setIsVisibleSnack2(true)
@@ -2973,6 +3010,11 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
     // Combined language selection checking - Redux first, localStorage fallback
     if (value === "Multilingual") {
       // Use Redux plan capabilities as primary source
+      if (reduxUser?.agencyCapabilities?.allowLanguageSelection === false) {
+        setShowUnlockPremiumFeaturesPopup(true);
+        setFeatureTitle("LanguageSelection");
+        return
+      }
       if (reduxUser?.planCapabilities) {
         if (!isFeatureAllowed('allowLanguageSelection')) {
           // Trigger the upgrade modal from UpgradeTagWithModal
@@ -3727,18 +3769,26 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
         </Box>
       </Modal>
 
+      <UnlockPremiunFeatures
+        open={showUnlockPremiumFeaturesPopup}
+        handleClose={() => {
+          setShowUnlockPremiumFeaturesPopup(false);
+        }}
+        title={featureTitle}
+      />
+
       <UpgradeModal
         open={showUpgradeModal}
         handleClose={() => {
+          setFeatureTitle("");
           setShowUpgradeModal(false)
         }}
         onUpgradeSuccess={handleUpgradeSuccess}
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
-        buttonTitle={"No Thanks"} f
+        buttonTitle={"No Thanks"}
         functionality="webAgent"
-
-
+        featureTitle={featureTitle}
       />
 
       <UpgradePlan
@@ -4151,13 +4201,8 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                     }}
                   >
                     <button onClick={() => {
-                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
-                        setShowUpgradeModal(true)
-                        setTitle("Unlock your Web Agent")
-                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
-                      } else {
-                        handleWebAgentClick(showDrawerSelectedAgent);
-                      }
+
+                      handleWebAgentClick(showDrawerSelectedAgent);
                     }}
                     >
                       <Image
@@ -4191,13 +4236,9 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                     <button
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
-                        if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
-                          setShowUpgradeModal(true)
-                          setTitle("Unlock your Web Agent")
-                          setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
-                        } else {
-                          handleEmbedClick(showDrawerSelectedAgent);
-                        }
+
+                        handleEmbedClick(showDrawerSelectedAgent);
+
                       }}
                     >
                       <Image src={'/svgIcons/embedIcon.svg'}
@@ -4230,15 +4271,22 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                       style={{ paddingLeft: "3px" }}
                       onClick={() => {
                         // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
-                        if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
                           setShowUpgradeModal(true)
                           setTitle("Unlock your Web Agent")
                           setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                          setFeatureTitle("EmbedAgents");
                         } else {
+                          if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                            setShowUpgradeModal(true)
+                            setTitle("Unlock your Web Agent")
+                            setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                          } else {
 
-                          setFetureType("webhook")
-                          setSelectedAgentForWebAgent(showDrawerSelectedAgent)
-                          setShowWebAgentModal(true)
+                            setFetureType("webhook")
+                            setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                            setShowWebAgentModal(true)
+                          }
                         }
                       }}
                     >
@@ -4486,20 +4534,25 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                                   </div>
 
                                   {
-                                    item.value === "multi" && (
+                                    (item.value === "multi" && (
                                       // Combined check - Redux first, localStorage fallback
-                                      (reduxUser?.planCapabilities ?
-                                        !isFeatureAllowed('allowLanguageSelection') :
-                                        user?.user?.planCapabilities?.allowLanguageSelection === false
-                                      )
-                                    ) && (
-                                      <UpgradeTagWithModal
-                                        externalTrigger={showUpgradePlanModal}
-                                        onModalClose={() => setShowUpgradePlanModal(false)}
-                                        reduxUser={reduxUser}
-                                        setReduxUser={setReduxUser}
-                                      />
-                                    )
+                                      reduxUser?.agencyCapabilities?.allowLanguageSelection === false ? (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                          requestFeature={true}
+                                        />
+                                      ) : (!isFeatureAllowed('allowLanguageSelection') && (
+                                        <UpgradeTagWithModal
+                                          externalTrigger={showUpgradePlanModal}
+                                          onModalClose={() => setShowUpgradePlanModal(false)}
+                                          reduxUser={reduxUser}
+                                          setReduxUser={setReduxUser}
+                                        />
+                                      ))
+                                    ))
                                   }
                                 </MenuItem>
                               );
@@ -5278,39 +5331,46 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                       </div>
                     </div>
                     {
-                      reduxUser?.planCapabilities?.allowLiveCallTransfer ? (
-                        <div className="flex flex-row items-center justify-between gap-2">
-                          <div>
-                            {showDrawerSelectedAgent?.liveTransferNumber ? (
-                              <div>
-                                {showDrawerSelectedAgent?.liveTransferNumber}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </div>
-                          <button
-                            onClick={() => {
-                              setShowEditNumberPopup(
-                                showDrawerSelectedAgent?.liveTransferNumber
-                              );
-                              setSelectedNumber("Calltransfer");
-                            }}
-                          >
-                            <Image
-                              src={"/svgIcons/editIcon2.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          </button>
-                        </div>
-                      ) : (
+                      reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                          requestFeature={true}
+                        />
+                      ) : !allowLiveCallTransfer ? (
                         <UpgradeTagWithModal
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
                         />
-                      )
+                      ) :
+                        (
+                          <div className="flex flex-row items-center justify-between gap-2">
+                            <div>
+                              {showDrawerSelectedAgent?.liveTransferNumber ? (
+                                <div>
+                                  {showDrawerSelectedAgent?.liveTransferNumber}
+                                </div>
+                              ) : (
+                                "-"
+                              )}
+                            </div>
+                            <button
+                              onClick={() => {
+                                setShowEditNumberPopup(
+                                  showDrawerSelectedAgent?.liveTransferNumber
+                                );
+                                setSelectedNumber("Calltransfer");
+                              }}
+                            >
+                              <Image
+                                src={"/svgIcons/editIcon2.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            </button>
+                          </div>
+                        )
                     }
                   </div>
                 </div>
@@ -5347,13 +5407,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              user?.agencyCapabilities?.allowToolsAndActions === false ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={"Unlock Actions"}
-                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
-                />
-              ) : !allowToolsAndActions ? (
+               !allowToolsAndActions && reduxUser?.userRole !== "AgencySubAccount" ? (
                 <UpgardView
                   setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Actions"}
@@ -5383,6 +5437,7 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
                     setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    setShowSnackMsg={setShowSnackMsg}
                   />
 
                   {/* Calendar Section 
@@ -6188,8 +6243,8 @@ console.log("isPlanActive", isPlanActive(reduxUser?.plan))
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle=" Learn how to customize your script"
-        videoUrl={HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
       />
 
       <IntroVideoModal

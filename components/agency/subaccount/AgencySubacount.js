@@ -164,44 +164,63 @@ function AgencySubacount({
 
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
+    // Prevent multiple simultaneous calls
+    if (loading) {
+      return;
+    }
+
     try {
       setLoading(true);
-      // getLocalData();
+      
+      // Fetch agency data if not available
+      let currentAgencyData = agencyData;
+      if (!currentAgencyData) {
+        const profileResponse = await getProfileDetails();
+        if (profileResponse?.data?.status === true) {
+          currentAgencyData = profileResponse.data.data;
+          setAgencyData(currentAgencyData);
+        }
+      }
+      
       //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan(selectedAgency);
       const xBarOptions = await getXBarOptions(selectedAgency);
+      
+      // Ensure we have arrays, not undefined
+      const plans = monthlyPlans || [];
+      const xBars = xBarOptions || [];
+      
       let stripeStatus = null;
-      setTimeout(() => {
-        console.log("Current checking data is", selectedAgency);
-        if (selectedAgency) {
-          console.log("selected agency is", selectedAgency);
-          stripeStatus = selectedAgency.stripeConnected
-        } else {
-          console.log("no selected agency")
-          stripeStatus = CheckStripe();
-          
-        }
+      console.log("Current checking data is", selectedAgency);
+      if (selectedAgency) {
+        console.log("selected agency is", selectedAgency);
+        stripeStatus = selectedAgency.stripeConnected
+      } else {
+        console.log("no selected agency")
+        stripeStatus = CheckStripe();
+      }
 
-        if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
-          setShowModal(true);
-        } else {
-          setShowSnackType(SnackbarTypes.Error);
-          if (monthlyPlans.length === 0) {
-            setShowSnackMessage("You'll need to add plans to create subaccounts ");
-          } else if (xBarOptions.length === 0) {
-            setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
-          } else if (!stripeStatus) {
-            setShowSnackMessage("Your Stripe account has not been connected.");
-          } else if (agencyData?.isTwilioConnected === false) {
-            setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
-            setNoTwillio(true);
-          }
+      if (stripeStatus && plans.length > 0 && xBars.length > 0 && currentAgencyData?.isTwilioConnected === true) {
+        setShowModal(true);
+      } else {
+        setShowSnackType(SnackbarTypes.Error);
+        if (plans.length === 0) {
+          setShowSnackMessage("You'll need to add plans to create subaccounts ");
+        } else if (xBars.length === 0) {
+          setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+        } else if (!stripeStatus) {
+          setShowSnackMessage("Your Stripe account has not been connected.");
+        } else if (!currentAgencyData?.isTwilioConnected) {
+          setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
+          setNoTwillio(true);
         }
-        setLoading(false);
-      }, 100);
-
+      }
     } catch (error) {
       console.error("Error occured in api is", error);
+      setShowSnackType(SnackbarTypes.Error);
+      setShowSnackMessage("An error occurred while checking plans. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 

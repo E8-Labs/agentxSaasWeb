@@ -38,7 +38,8 @@ import ReactMentions from "../test/ReactMentions";
 import DraftMentions from "../test/DraftMentions";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
+import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
 import { ScriptLoader } from "./ScriptLoader";
 
 const Pipeline2 = ({ handleContinue, handleBack }) => {
@@ -773,12 +774,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             }}
           >
             <VideoCard
-              duration="13 min 56 sec"
+              duration={(() => {
+                const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
+                return tutorial?.description || "13 min 56 sec";
+              })()}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
               }}
-              title="Learn about creating a script"
+              title={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn about creating a script"}
             />
           </div>
           <div
@@ -789,8 +793,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             <IntroVideoModal
               open={introVideoModal}
               onClose={() => setIntroVideoModal(false)}
-              videoTitle="Learn about creating a script"
-              videoUrl={HowtoVideos.script}
+              videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn about creating a script"}
+              videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
             />
 
             <div

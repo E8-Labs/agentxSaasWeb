@@ -15,9 +15,9 @@ const DefaultMessage = null;
 // Calculate dynamic width based on text length
 const calculateToastWidth = (title, description) => {
   // Base width for padding, icon, and spacing
-  const baseWidth = 80;
+  const baseWidth = 60;
   // Average character width in pixels (approximate)
-  const charWidth = 7;
+  const charWidth = 8;
   
   // Calculate width for title
   const titleLength = title ? title.length : 0;
@@ -101,11 +101,13 @@ export default function AgentSelectSnackMessage({
             width: dynamicWidth,
             maxWidth: dynamicWidth,
             minWidth: dynamicWidth,
+            marginLeft: 'auto',
+            marginRight: 'auto',
           },
         };
 
+        // Use typed toast functions - they will use the custom icons from Toaster component
         let toastId;
-        
         switch (type) {
           case SnackbarTypes.Success:
             toastId = toast.success(toastMessage, toastOptions);

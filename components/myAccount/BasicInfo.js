@@ -11,10 +11,12 @@ import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
 import { useRef } from 'react';
 import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import { useUser } from "@/hooks/redux-hooks";
 
 
 function BasicInfo() {
   const router = useRouter();
+  const { setUser: setReduxUser } = useUser();
 
 
   const emailRef = useRef(null);
@@ -415,16 +417,25 @@ function BasicInfo() {
 
             //// //console.log
             localStorage.setItem("User", JSON.stringify(u));
+            // Update Redux store immediately
+            setReduxUser(u);
             // //console.log;
             window.dispatchEvent(
               new CustomEvent("UpdateProfile", { detail: { update: true } })
             );
             return response.data.data;
+          } else {
+            throw new Error("Upload failed: Invalid response status");
           }
+        } else {
+          throw new Error("Upload failed: No response received");
         }
+      } else {
+        throw new Error("Upload failed: No user data found");
       }
     } catch (e) {
-      // //console.log;
+      // Re-throw the error so it can be caught by the caller
+      throw e;
     }
   };
 
@@ -448,9 +459,14 @@ function BasicInfo() {
 
       setSelectedImage(imageUrl); // Set the preview image
 
-      uploadeImage(file);
+      const result = await uploadeImage(file);
+      if (result) {
+        showSuccess("Profile image uploaded successfully");
+      }
     } catch (error) {
       // console.error("Error uploading image:", error);
+      setErrorMessage("Failed to upload profile image");
+      setShowErrorMessage(true);
     } finally {
       setloading5(false);
     }
@@ -461,8 +477,21 @@ function BasicInfo() {
     setDragging(false);
     const file = event.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      try {
+        setloading5(true);
+        const imageUrl = URL.createObjectURL(file);
+        setSelectedImage(imageUrl);
+        const result = await uploadeImage(file);
+        if (result) {
+          showSuccess("Profile image uploaded successfully");
+        }
+      } catch (error) {
+        // console.error("Error uploading image:", error);
+        setErrorMessage("Failed to upload profile image");
+        setShowErrorMessage(true);
+      } finally {
+        setloading5(false);
+      }
     }
   };
 

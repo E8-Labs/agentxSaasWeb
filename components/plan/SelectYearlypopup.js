@@ -58,7 +58,7 @@ const SelectYearlypopup = ({
                         <button
                             className='outline-none border-none bg-purple text-white rounded-xl h-[55px] w-1/2'
                             onClick={continueYearlyPlan}>
-                            Continue Yearly
+                            Get Yearly
                         </button>
                         <button
                             className='outline-none border rounded-xl h-[55px] w-1/2'

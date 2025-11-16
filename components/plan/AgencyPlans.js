@@ -72,12 +72,46 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
     const [showYearlyPlan, setShowYearlyPlan] = useState(false);
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
-
-
+    // Current user plan state
+    const [currentUserPlan, setCurrentUserPlan] = useState(null);
 
     useEffect(() => {
         getPlans();
+        getCurrentUserPlan();
     }, []);
+
+    // Function to get current user plan from localStorage
+    const getCurrentUserPlan = () => {
+        const localData = localStorage.getItem("User");
+        if (localData) {
+            const userData = JSON.parse(localData);
+            const plan = userData.user?.plan;
+            console.log('Current user plan in AgencyPlans:', plan);
+            setCurrentUserPlan(plan);
+        }
+    };
+
+    // Function to check if a plan is the current user's plan
+    const isPlanCurrent = (item) => {
+        if (!currentUserPlan || !item) return false;
+
+        // Check if plan ID matches
+        if (item.id === currentUserPlan.planId) {
+            return true;
+        }
+
+        // Fallback: Check by name and duration if IDs don't match
+        const planName = (item.title || item.name || '').toLowerCase();
+        const userPlanName = (currentUserPlan.title || currentUserPlan.name || '').toLowerCase();
+        const planDuration = (item.duration || '').toLowerCase();
+        const userPlanDuration = (currentUserPlan.duration || '').toLowerCase();
+
+        if (planName === userPlanName && planDuration === userPlanDuration) {
+            return true;
+        }
+
+        return false;
+    };
 
     //if Noah said to resume this then apply this for yearly plan
     const selectDefaultPlan = (monthly) => {
@@ -479,11 +513,13 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => item ? (
+                                getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => {
+                                    const isCurrentPlan = isPlanCurrent(item);
+                                    return item ? (
                                     <button
                                         key={item.id}
                                         onClick={() => {
-                                            if (disAblePlans) { return };
+                                            if (disAblePlans || isCurrentPlan) { return };
                                             handleTogglePlanClick(item, index);
                                             const currentItem = item;
                                             const currentIndex = index;
@@ -493,13 +529,15 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                 console.error("Item or item.id is undefined:", currentItem);
                                             }
                                         }}
-                                        // disabled={disAblePlans}
+                                        disabled={disAblePlans || isCurrentPlan}
                                         onMouseEnter={() => {
-                                            console.log("Hover entered on plan", item.tag);
-                                            setHoverPlan(item)
+                                            if (!isCurrentPlan) {
+                                                console.log("Hover entered on plan", item.tag);
+                                                setHoverPlan(item)
+                                            }
                                         }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
-                                        className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        className={`w-[370px] rounded-2xl p-2 ${isCurrentPlan ? "border py-2 opacity-60 cursor-not-allowed" : selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]" : "border py-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]"}`}
                                         style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                                     >
                                         <div className='flex flex-col items-center h-auto w-full'>
@@ -508,7 +546,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                     item.tag ? (
                                                         <div className=' flex flex-row items-center gap-2'>
                                                             <Image
-                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/powerWhite.svg" :
+                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) && !isCurrentPlan ? "/svgIcons/powerWhite.svg" :
                                                                     "/svgIcons/power.svg"
                                                                 }
                                                                 height={24} width={24} alt='*'
@@ -516,12 +554,12 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
                                                             <div
                                                                 style={{
-                                                                    fontSize: 16, fontWeight: '700', color: (selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "white" : '#7902df'
+                                                                    fontSize: 16, fontWeight: '700', color: (selectedPlan?.id === item.id || hoverPlan?.id === item.id) && !isCurrentPlan ? "white" : '#7902df'
                                                                 }}>
                                                                 {item.tag}
                                                             </div>
                                                             <Image
-                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/enterArrowWhite.svg" :
+                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) && !isCurrentPlan ? "/svgIcons/enterArrowWhite.svg" :
                                                                     "/svgIcons/enterArrow.svg"
                                                                 }
                                                                 height={20} width={20} alt='*'
@@ -582,17 +620,19 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                                     ) : (
 
                                                                         <button
-                                                                            // disabled={!togglePlan}
-                                                                            className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
-                                                                            flex items-center"
+                                                                            disabled={isCurrentPlan}
+                                                                            className={`w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 rounded-lg flex items-center ${
+                                                                                isCurrentPlan 
+                                                                                    ? "bg-gray-400 text-white cursor-not-allowed" 
+                                                                                    : "bg-purple text-white"
+                                                                            }`}
                                                                             style={{
                                                                                 fontSize: 16.8,
                                                                                 fontWeight: "600",
-                                                                                // backgroundColor:  "#00000020",
-                                                                                // color:  "#000000",
                                                                                 alignSelf: 'center'
                                                                             }}
                                                                             onClick={(e) => {
+                                                                                if (isCurrentPlan) return;
                                                                                 e.preventDefault();
                                                                                 e.stopPropagation();
                                                                                 const currentItem = item;
@@ -605,7 +645,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                                                     console.error("Item or item.id is undefined:", currentItem);
                                                                                 }
                                                                             }}>
-                                                                            {selectedPlan?.id === item.id ? "Continue" : "Get Started"}
+                                                                            {isCurrentPlan ? "Current Plan" : selectedPlan?.id === item.id ? "Continue" : "Get Started"}
                                                                         </button>
                                                                     )}
                                                                 </div>
@@ -761,8 +801,8 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                             </div>
                                         </div>
                                     </button>
-
-                                ) : null)
+                                    ) : null;
+                                })
                             )
                         }
 
