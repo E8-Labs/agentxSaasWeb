@@ -181,12 +181,16 @@ function AgencyPlansPayments({
     }, []);
 
     useEffect(() => {
-        getProfile();
+        if (plans.length > 0) {
+            getProfile();
+        }
     }, [plans])
 
     useEffect(() => {
-        sequenceIdDetecter();
-    }, [currentPlan])
+        if (currentPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+            sequenceIdDetecter();
+        }
+    }, [currentPlan, monthlyPlans, quaterlyPlans, yearlyPlans])
 
     //for updating the plan duration tab use the loginc to useeffect on currentplans change compare the title of available plans with the duration of current plan and selet that plan
     //get plans apis
@@ -434,18 +438,9 @@ function AgencyPlansPayments({
 
     //functions for selecting plans
     const handleTogglePlanClick = (item) => {
-        // if (togglePlan) {
-        //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-        //     setSelectedPlan(prevId => (prevId === item ? null : item));
-        // } else {
-        //     setSelectedPlan(prevId => (prevId === item ? null : item));
-        //     setAddPaymentPopUp(true);
-        // }
-        // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
         setTogglePlan(item.id);
-        setSelectedPlan((prevId) => (prevId === item ? null : item));
+        setSelectedPlan(item); // Always set selectedPlan to the clicked item
         planTitleTag();
-        // setTogglePlan(prevId => (prevId === id ? null : id));
     };
 
     const handleCancelPlanClick = () => {
@@ -794,6 +789,215 @@ function AgencyPlansPayments({
         return [];
     };
 
+    // Helper function to find matching plan by tier name in a different billing cycle
+    // This finds a plan with the same tier (Starter/Growth/Scale) in the target plans list
+    const findMatchingPlanByTier = (sourcePlan, targetPlans) => {
+        if (!sourcePlan || !targetPlans || targetPlans.length === 0) {
+            return null;
+        }
+
+        // Get the tier name from source plan (normalize to lowercase)
+        const sourceTitle = (sourcePlan.title || sourcePlan.name || '').toLowerCase();
+        
+        // Determine tier from source plan
+        let tierName = null;
+        if (sourceTitle.includes('starter')) {
+            tierName = 'starter';
+        } else if (sourceTitle.includes('growth')) {
+            tierName = 'growth';
+        } else if (sourceTitle.includes('scale')) {
+            tierName = 'scale';
+        }
+
+        if (!tierName) {
+            console.log('🔍 [FIND-MATCH] Could not determine tier from source plan:', sourceTitle);
+            return null;
+        }
+
+        // Find plan with matching tier in target plans
+        const matchingPlan = targetPlans.find(plan => {
+            const planTitle = (plan.title || plan.name || '').toLowerCase();
+            return planTitle.includes(tierName);
+        });
+
+        if (matchingPlan) {
+            console.log(`🔍 [FIND-MATCH] Found matching ${tierName} plan in target duration:`, matchingPlan.title);
+        } else {
+            console.log(`🔍 [FIND-MATCH] No matching ${tierName} plan found in target duration`);
+        }
+
+        return matchingPlan || null;
+    };
+
+    // Function to handle duration change and auto-select matching plan
+    const handleDurationChange = (newDuration) => {
+        setSelectedDuration(newDuration);
+        
+        // Get target plans for the new duration
+        let targetPlans = [];
+        if (newDuration.id === 1) {
+            targetPlans = monthlyPlans;
+        } else if (newDuration.id === 2) {
+            targetPlans = quaterlyPlans;
+        } else if (newDuration.id === 3) {
+            targetPlans = yearlyPlans;
+        }
+
+        if (targetPlans.length === 0) {
+            console.log('⚠️ [DURATION-CHANGE] No plans available for selected duration');
+            return;
+        }
+
+        // Check if user has manually selected a plan that's different from their current plan
+        const hasManualSelection = selectedPlan && selectedPlan.id !== currentPlan;
+
+        // Priority 1: If user has manually selected a plan (different from current), find its matching tier in new duration
+        // This handles the case where user selected Growth Yearly, then switches to Quarterly
+        // We want to auto-select Growth Quarterly (the selected plan's tier)
+        if (hasManualSelection) {
+            const matchingTierPlan = findMatchingPlanByTier(selectedPlan, targetPlans);
+            if (matchingTierPlan) {
+                console.log('✅ [DURATION-CHANGE] Found matching tier for manually selected plan, auto-selecting:', matchingTierPlan.title);
+                setTogglePlan(matchingTierPlan.id);
+                setSelectedPlan(matchingTierPlan);
+                return;
+            }
+        }
+
+        // Priority 2: If user has a current plan ID, try to find the exact plan in the new duration
+        // This handles the case where the user's actual plan exists in the new duration
+        if (currentPlan) {
+            const currentPlanInNewDuration = targetPlans.find(p => p.id === currentPlan);
+            if (currentPlanInNewDuration) {
+                console.log('✅ [DURATION-CHANGE] Found current plan by ID in new duration, auto-selecting:', currentPlanInNewDuration.title);
+                setTogglePlan(currentPlanInNewDuration.id);
+                setSelectedPlan(currentPlanInNewDuration);
+                // Update currentPlanDetails to the found plan
+                setCurrentPlanDetails(currentPlanInNewDuration);
+                return;
+            }
+        }
+
+        // Priority 3: If current plan not found by ID, find matching tier plan in new duration
+        // This handles the case where user has Scale Yearly, switches to Monthly, then back to Yearly
+        // We want to find Scale Yearly again (matching tier)
+        if (currentPlanDetails) {
+            const matchingTierPlan = findMatchingPlanByTier(currentPlanDetails, targetPlans);
+            if (matchingTierPlan) {
+                console.log('✅ [DURATION-CHANGE] Found matching tier plan for current plan, auto-selecting:', matchingTierPlan.title);
+                setTogglePlan(matchingTierPlan.id);
+                setSelectedPlan(matchingTierPlan);
+                // Update currentPlanDetails if this is the user's actual current plan
+                if (matchingTierPlan.id === currentPlan) {
+                    setCurrentPlanDetails(matchingTierPlan);
+                }
+                return;
+            }
+        }
+
+        // If no match found, don't auto-select anything
+        console.log('⚠️ [DURATION-CHANGE] No matching plan found, keeping current selection');
+    };
+
+    // Helper function to compare plans based on tier and billing cycle
+    // Returns: 'upgrade' | 'downgrade' | 'same' | null
+    // Logic: 
+    // 1. Compare plan tiers first (Starter < Growth < Scale)
+    // 2. If same tier, compare billing cycles (monthly < quarterly < yearly)
+    // 3. Fall back to price comparison if tier can't be determined
+    const comparePlans = (currentPlanObj, targetPlanObj) => {
+        if (!currentPlanObj || !targetPlanObj) {
+            return null;
+        }
+
+        // Get monthly prices (for fallback comparison)
+        const currentPrice = currentPlanObj.originalPrice || currentPlanObj.price || 0;
+        const targetPrice = targetPlanObj.originalPrice || targetPlanObj.price || 0;
+
+        console.log('🔍 [PLAN-COMPARE] Current plan:', currentPlanObj.title, 'Price:', currentPrice, 'Duration:', currentPlanObj.duration);
+        console.log('🔍 [PLAN-COMPARE] Target plan:', targetPlanObj.title, 'Price:', targetPrice, 'Duration:', targetPlanObj.duration);
+
+        // If same plan (by ID), it's the same
+        if (currentPlanObj.id === targetPlanObj.id || currentPlanObj.planId === targetPlanObj.id) {
+            return 'same';
+        }
+
+        // Plan tier hierarchy (lower number = lower tier)
+        const tierRanking = {
+            'starter': 1,
+            'growth': 2,
+            'scale': 3,
+        };
+
+        // Get plan titles/names (normalize to lowercase for comparison)
+        const currentTitle = (currentPlanObj.title || currentPlanObj.name || '').toLowerCase();
+        const targetTitle = (targetPlanObj.title || targetPlanObj.name || '').toLowerCase();
+
+        // Get tier ranks (default to -1 if not found)
+        let currentTierRank = -1;
+        let targetTierRank = -1;
+
+        // Try to match tier from title/name
+        for (const [tier, rank] of Object.entries(tierRanking)) {
+            if (currentTitle.includes(tier)) {
+                currentTierRank = rank;
+            }
+            if (targetTitle.includes(tier)) {
+                targetTierRank = rank;
+            }
+        }
+
+        // Get billing cycle order (monthly < quarterly < yearly)
+        const billingCycleOrder = {
+            'monthly': 1,
+            'quarterly': 2,
+            'yearly': 3
+        };
+
+        const currentBillingOrder = billingCycleOrder[currentPlanObj.duration] || billingCycleOrder[currentPlanObj.billingCycle] || 1;
+        const targetBillingOrder = billingCycleOrder[targetPlanObj.duration] || billingCycleOrder[targetPlanObj.billingCycle] || 1;
+
+        // If we can determine tier ranks, compare them first
+        if (currentTierRank >= 0 && targetTierRank >= 0) {
+            // Different tiers - tier comparison determines upgrade/downgrade
+            if (targetTierRank > currentTierRank) {
+                console.log('🔍 [PLAN-COMPARE] Result: UPGRADE (tier change)');
+                return 'upgrade';
+            } else if (targetTierRank < currentTierRank) {
+                console.log('🔍 [PLAN-COMPARE] Result: DOWNGRADE (tier change)');
+                return 'downgrade';
+            }
+            // Same tier - compare billing cycles
+            if (targetBillingOrder > currentBillingOrder) {
+                console.log('🔍 [PLAN-COMPARE] Result: UPGRADE (same tier, longer billing cycle)');
+                return 'upgrade';
+            } else if (targetBillingOrder < currentBillingOrder) {
+                console.log('🔍 [PLAN-COMPARE] Result: DOWNGRADE (same tier, shorter billing cycle)');
+                return 'downgrade';
+            } else {
+                console.log('🔍 [PLAN-COMPARE] Result: SAME (same tier and billing cycle)');
+                return 'same';
+            }
+        }
+
+        // Fall back to price comparison if tier can't be determined
+        console.log('⚠️ [PLAN-COMPARE] Tier not determined, falling back to price comparison');
+        if (targetPrice > currentPrice) {
+            return 'upgrade';
+        } else if (targetPrice < currentPrice) {
+            return 'downgrade';
+        }
+
+        // Same price, compare billing cycles
+        if (targetBillingOrder > currentBillingOrder) {
+            return 'upgrade';
+        } else if (targetBillingOrder < currentBillingOrder) {
+            return 'downgrade';
+        }
+
+        return 'same';
+    };
+
     //get the plan title for the button to upgrade and own grade also cancel plan subscription
     const planTitleTag = () => {
         const plansList = getCurrentPlans();
@@ -801,29 +1005,46 @@ function AgencyPlansPayments({
         console.log("Current plan id is", currentPlan);
         console.log("Toggle plan id is", togglePlan);
         console.log("Current plan details are", currentPlanDetails?.status);
-        console.log("Plans list:", plansList.map(p => p.id)); // ✅ this will print all IDs
+        console.log("Plans list:", plansList.map(p => p.id));
 
         if (!togglePlan) return "Select a Plan";
-        if(currentPlanDetails?.status === "cancelled") return "";
+        if (currentPlanDetails?.status === "cancelled") return "";
 
-        // if (togglePlan === currentPlan) {
-        //     console.log("Plan status is Current");
-        //     return "Current Plan";
-        // }
-
-        // check if selected togglePlan is higher id than currentPlan → Upgrade
-        if (togglePlan > currentPlan) {
-            console.log("Plan status is Upgrade");
-            return "Upgrade";
+        // If same plan selected, show cancel subscription
+        if (togglePlan === currentPlan) {
+            return "Cancel Subscription";
         }
 
-        // check if selected togglePlan is lower id than currentPlan → Downgrade
-        if (togglePlan < currentPlan) {
+        // Find the target plan object
+        const targetPlan = plansList.find(p => p.id === togglePlan);
+        if (!targetPlan) {
+            console.warn("Target plan not found in current plans list");
+            return "Select a Plan";
+        }
+
+        // Compare plans using tier and price logic
+        const comparison = comparePlans(currentPlanDetails, targetPlan);
+
+        if (comparison === 'upgrade') {
+            console.log("Plan status is Upgrade");
+            return "Upgrade";
+        } else if (comparison === 'downgrade') {
             console.log("Plan status is Downgrade");
+            return "Downgrade";
+        } else if (comparison === 'same') {
+            return "Cancel Subscription";
+        }
+
+        // Fallback: compare by ID if comparison failed
+        if (togglePlan > currentPlan) {
+            console.log("Plan status is Upgrade (fallback)");
+            return "Upgrade";
+        } else if (togglePlan < currentPlan) {
+            console.log("Plan status is Downgrade (fallback)");
             return "Downgrade";
         }
 
-        // fallback
+        // Final fallback
         return "Cancel Subscription";
     };
 
@@ -1059,8 +1280,7 @@ function AgencyPlansPayments({
                                     className={`px-2 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-sm shadow-purple" : "text-black"} rounded-tl-lg rounded-tr-lg`}
                                     style={{ fontWeight: "600", fontSize: "13px" }}
                                     onClick={() => {
-                                        setSelectedDuration(item);
-                                        getCurrentPlans();
+                                        handleDurationChange(item);
                                     }}
                                 >
                                     {item.title}
@@ -1078,8 +1298,7 @@ function AgencyPlansPayments({
                             <button key={item.id}
                                 className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
                                 onClick={() => {
-                                    setSelectedDuration(item);
-                                    getCurrentPlans();
+                                    handleDurationChange(item);
                                 }}
                             >
                                 {item.title}
@@ -1402,11 +1621,24 @@ function AgencyPlansPayments({
                             onClick={() => {
                                 const title = planTitleTag();
                                 if (title === "Select a Plan") { return }
+                                
+                                // Ensure selectedPlan is set from togglePlan
+                                if (!selectedPlan && togglePlan) {
+                                    const plansList = getCurrentPlans();
+                                    const plan = plansList.find(p => p.id === togglePlan);
+                                    if (plan) {
+                                        setSelectedPlan(plan);
+                                    }
+                                }
+                                
                                 if (title === "Cancel Subscription") {
                                     handleCancelPlanClick()
                                 } else if (title === "Downgrade") {
-                                    console.log("Currenlty selectd plan is", selectedPlan?.capabilities?.maxSubAccounts);
-                                    if (selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
+                                    console.log("Currently selected plan is", selectedPlan?.capabilities?.maxSubAccounts);
+                                    console.log("Current sub accounts count:", currentSubAccounts?.length);
+                                    // Check if downgrade would exceed sub-account limits
+                                    if (selectedPlan?.capabilities?.maxSubAccounts !== undefined && 
+                                        selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
                                         setShowDowngradePlanWarning(true)
                                     } else {
                                         setShowDowngradePlanPopup(true)
@@ -1485,12 +1717,11 @@ function AgencyPlansPayments({
                 open={showDowngradePlanWarning}
                 handleClose={() => { setShowDowngradePlanWarning(false) }}
                 handleConfirmDownGrade={() => {
-                    // setShowDowngradePlanWarning(false);
-                    // setShowDowngradePlanPopup(true);
-                    // handleSubscribePlan()
+                    setShowDowngradePlanWarning(false);
                     window.location.href = "/agency/dashboard/subAccounts";
                 }}
                 from={"agencyPayments"}
+                title={selectedPlan?.title || "Downgrade Plan"}
             />
 
             {/* Downgrade plan confirmation popup */}
@@ -1604,7 +1835,6 @@ function AgencyPlansPayments({
                             <Elements stripe={stripePromise}>
                                 <AddCardDetails
                                     //selectedPlan={selectedPlan}
-                                    stop={stop}
                                     getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                                     handleClose={handleClose}
                                 // togglePlan={""}

@@ -511,7 +511,7 @@ const AgencyNavBar = () => {
             msOverflowStyle: "none",
           }}
         >
-          <div className="w-full flex flex-row gap-3 items-center justify-center">
+          <div className="w-full flex flex-row gap-3 items-center justify-start">
             <div className="w-10/12 flex flex-col items-end">
               <div className="w-full">
                 {/*userDetails?.user?.name || "Agency Name"*/}

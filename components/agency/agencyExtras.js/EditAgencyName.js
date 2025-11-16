@@ -66,7 +66,7 @@ const EditAgencyName = ({
                 hide={() => { setSnackMsg(null) }}
                 type={snackMsgType}
             />
-            <div className='flex w-full flex-row items-center gap-2'>
+            <div className='flex w-full flex-row justify-start items-center gap-2'>
                 <div className='sm:text-lg lg:text-2xl lg:font-bold truncate overflow-hidden whitespace-nowrap'>
                     {agencyName}
                 </div>

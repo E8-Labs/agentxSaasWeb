@@ -106,8 +106,8 @@ export default function AgentSelectSnackMessage({
           },
         };
 
+        // Use typed toast functions - they will use the custom icons from Toaster component
         let toastId;
-        
         switch (type) {
           case SnackbarTypes.Success:
             toastId = toast.success(toastMessage, toastOptions);
