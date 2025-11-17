@@ -351,6 +351,18 @@ updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
   deletePromoCode: `${BasePath}api/admin/promo-codes`,
   getPromoCodeUsage: `${BasePath}api/admin/promo-codes`,
 
+  // Agency Branding/White Labeling APIs
+  getAgencyBranding: `${BasePath}api/agency/branding`,
+  updateAgencyBrandingCompany: `${BasePath}api/agency/branding/company`,
+  updateAgencyBrandingColors: `${BasePath}api/agency/branding/colors`,
+  uploadBrandingLogo: `${BasePath}api/agency/branding/logo`,
+  uploadBrandingFavicon: `${BasePath}api/agency/branding/favicon`,
+  addCustomDomain: `${BasePath}api/agency/branding/domain`,
+  verifyCustomDomain: `${BasePath}api/agency/branding/domain/verify`,
+  getDomainStatus: `${BasePath}api/agency/branding/domain`,
+  removeCustomDomain: `${BasePath}api/agency/branding/domain`,
+  getBrandingAuditLogs: `${BasePath}api/agency/branding/audit`,
+
   
 };
 

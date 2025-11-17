@@ -135,6 +135,9 @@ const AdminPromoCodes = () => {
       });
 
       if (response.data?.status) {
+        console.log("📊 Usage API Response:", response.data);
+        console.log("📊 Usage Data:", response.data.data);
+        console.log("📊 Summary:", response.data.data?.summary);
         setUsageData(response.data.data);
       }
     } catch (error) {
@@ -368,116 +371,157 @@ const AdminPromoCodes = () => {
                 </div>
               ) : usageData ? (
                 <div className="space-y-6">
-                  {/* Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-gray-600">Total Redemptions</p>
-                          <p className="text-2xl font-bold">
-                            {usageData.summary?.totalRedemptions || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Total Discount Given</p>
-                          <p className="text-2xl font-bold">
-                            ${(usageData.summary?.totalDiscountGiven || 0).toFixed(2)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Active Subscriptions</p>
-                          <p className="text-2xl font-bold">
-                            {usageData.summary?.activeSubscriptions || 0}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Expired Subscriptions</p>
-                          <p className="text-2xl font-bold">
-                            {usageData.summary?.expiredSubscriptions || 0}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {/* Calculate summary from usageRecords if summary is not available */}
+                  {(() => {
+                    const usageRecords = usageData?.usageRecords || [];
+                    const summary = usageData?.summary || {
+                      totalRedemptions: usageRecords.length,
+                      totalDiscountGiven: usageRecords.reduce((sum, record) => {
+                        return sum + (parseFloat(record.totalDiscountGiven) || 0);
+                      }, 0),
+                      activeSubscriptions: usageRecords.filter(
+                        (r) => r.status === "active" && (r.monthsRemaining || 0) > 0
+                      ).length,
+                      expiredSubscriptions: usageRecords.filter(
+                        (r) => r.status === "expired"
+                      ).length,
+                    };
+                    
+                    return (
+                      <>
+                        {/* Summary Statistics */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Summary</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div>
+                                <p className="text-sm text-gray-600">Total Redemptions</p>
+                                <p className="text-2xl font-bold">
+                                  {summary.totalRedemptions || 0}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600">Total Discount Given</p>
+                                <p className="text-2xl font-bold">
+                                  ${(summary.totalDiscountGiven || 0).toFixed(2)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600">Active Subscriptions</p>
+                                <p className="text-2xl font-bold">
+                                  {summary.activeSubscriptions || 0}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600">Expired Subscriptions</p>
+                                <p className="text-2xl font-bold">
+                                  {summary.expiredSubscriptions || 0}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
 
-                  {/* Active Tracking */}
-                  {usageData.activeTracking && usageData.activeTracking.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Active Subscriptions</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>User</TableHead>
-                              <TableHead>Email</TableHead>
-                              <TableHead>Discount</TableHead>
-                              <TableHead>Months Remaining</TableHead>
-                              <TableHead>Total Discount Given</TableHead>
-                              <TableHead>Next Charge Date</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {usageData.activeTracking.map((tracking) => (
-                              <TableRow key={tracking.id}>
-                                <TableCell>{tracking.userName || "N/A"}</TableCell>
-                                <TableCell>{tracking.userEmail || "N/A"}</TableCell>
-                                <TableCell>
-                                  {tracking.discountType === "percentage"
-                                    ? `${tracking.discountValue}%`
-                                    : `$${tracking.discountValue}`}
-                                </TableCell>
-                                <TableCell>{tracking.monthsRemaining || 0}</TableCell>
-                                <TableCell>${(tracking.totalDiscountGiven || 0).toFixed(2)}</TableCell>
-                                <TableCell>
-                                  {formatDate(tracking.nextChargeDate)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Redemptions History */}
-                  {usageData.redemptions && usageData.redemptions.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Redemption History</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>User</TableHead>
-                              <TableHead>Email</TableHead>
-                              <TableHead>Type</TableHead>
-                              <TableHead>Discount Applied</TableHead>
-                              <TableHead>Redeemed At</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {usageData.redemptions.map((redemption, index) => (
-                              <TableRow key={index}>
-                                <TableCell>{redemption.userName || "N/A"}</TableCell>
-                                <TableCell>{redemption.userEmail || "N/A"}</TableCell>
-                                <TableCell>{redemption.redemptionType || "N/A"}</TableCell>
-                                <TableCell>
-                                  ${(redemption.discountApplied || 0).toFixed(2)}
-                                </TableCell>
-                                <TableCell>{formatDate(redemption.redeemedAt)}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </CardContent>
-                    </Card>
-                  )}
+                        {/* Usage Records Table */}
+                        {usageRecords && usageRecords.length > 0 ? (
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>All Usage Records</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="overflow-x-auto">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead>User</TableHead>
+                                      <TableHead>Email</TableHead>
+                                      <TableHead>Discount Type</TableHead>
+                                      <TableHead>Discount Value</TableHead>
+                                      <TableHead>Status</TableHead>
+                                      <TableHead>Months Remaining</TableHead>
+                                      <TableHead>Total Discount Given</TableHead>
+                                      <TableHead>Applied At</TableHead>
+                                      <TableHead>Next Charge Date</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {usageRecords.map((record) => (
+                                      <TableRow key={record.id}>
+                                        <TableCell>
+                                          {record.User?.name || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {record.User?.email || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Badge
+                                            variant="outline"
+                                            className={
+                                              record.discountType === "percentage"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : "bg-green-100 text-green-800"
+                                            }
+                                          >
+                                            {record.discountType || "N/A"}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                          {record.discountType === "percentage"
+                                            ? `${record.discountValue}%`
+                                            : `$${record.discountValue}`}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Badge
+                                            variant={
+                                              record.status === "active"
+                                                ? "default"
+                                                : record.status === "expired"
+                                                ? "secondary"
+                                                : "outline"
+                                            }
+                                          >
+                                            {record.status || "N/A"}
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                          {record.monthsRemaining || 0} / {record.totalMonthsApplicable || 0}
+                                        </TableCell>
+                                        <TableCell>
+                                          ${(parseFloat(record.totalDiscountGiven) || 0).toFixed(2)}
+                                        </TableCell>
+                                        <TableCell>
+                                          {formatDate(record.appliedAt)}
+                                        </TableCell>
+                                        <TableCell>
+                                          {formatDate(record.nextChargeDate)}
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                              {usageData?.pagination && (
+                                <div className="mt-4 text-sm text-gray-600">
+                                  Showing {usageRecords.length} of {usageData.pagination.total} records
+                                  {usageData.pagination.totalPages > 1 && (
+                                    <span> (Page {usageData.pagination.page} of {usageData.pagination.totalPages})</span>
+                                  )}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <Card>
+                            <CardContent className="py-8 text-center text-gray-500">
+                              No usage records found
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">

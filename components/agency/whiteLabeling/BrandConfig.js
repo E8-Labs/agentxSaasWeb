@@ -1,24 +1,137 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import axios from "axios";
 import WhiteLAbelTooltTip from "./WhiteLAbelTooltTip";
 import UploadImageButton from "./UploadImageButton";
 import LabelingHeader from "./LabelingHeader";
+import Apis from "@/components/apis/Apis";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const BrandConfig = () => {
-
   //tool tip
   const Logo1Tip = "Logo should be maximum 512kb for better rendering";
   const FaviconTip = "Image should be maximum 512kb and should be square";
 
-  const [companyName, setCompanyName] = useState("");
-  const [brandTagline, setBrandTagline] = useState("");
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
   const [primaryColor, setPrimaryColor] = useState("#C90202");
   const [secondaryColor, setSecondaryColor] = useState("#2302C9");
+  
+  // File states for uploads
+  const [logoFile, setLogoFile] = useState(null);
+  const [faviconFile, setFaviconFile] = useState(null);
+  
+  // Loading and error states
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [showSnackMessage, setShowSnackMessage] = useState({
+    type: SnackbarTypes.Error,
+    message: "",
+    isVisible: false
+  });
+
+  // Original values for reset
+  const [originalValues, setOriginalValues] = useState({
+    logoUrl: null,
+    faviconUrl: null,
+    primaryColor: "#C90202",
+    secondaryColor: "#2302C9"
+  });
+
+  // Fetch branding data on mount
+  useEffect(() => {
+    fetchBrandingData();
+  }, []);
+
+  const fetchBrandingData = async () => {
+    try {
+      setFetching(true);
+      const localData = localStorage.getItem("User");
+      let authToken = null;
+      
+      if (localData) {
+        const userData = JSON.parse(localData);
+        authToken = userData.token;
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: "Authentication required",
+          isVisible: true
+        });
+        setFetching(false);
+        return;
+      }
+
+      const response = await axios.get(Apis.getAgencyBranding, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response?.data?.status === true && response?.data?.data) {
+        const branding = response.data.data.branding || {};
+        
+        // Set form values
+        setPrimaryColor(branding.primaryColor || "#C90202");
+        setSecondaryColor(branding.secondaryColor || "#2302C9");
+        
+        // Set preview images if URLs exist
+        if (branding.logoUrl) {
+          setLogoPreview(branding.logoUrl);
+        }
+        if (branding.faviconUrl) {
+          setFaviconPreview(branding.faviconUrl);
+        }
+
+        // Store original values
+        setOriginalValues({
+          logoUrl: branding.logoUrl || null,
+          faviconUrl: branding.faviconUrl || null,
+          primaryColor: branding.primaryColor || "#C90202",
+          secondaryColor: branding.secondaryColor || "#2302C9"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching branding data:", error);
+      // Don't show error if it's a 404 (no branding data yet)
+      if (error.response?.status !== 404) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: error.response?.data?.message || "Failed to fetch branding data",
+          isVisible: true
+        });
+      }
+    } finally {
+      setFetching(false);
+    }
+  };
 
   //logo image selector
   const handleLogoUpload = (file) => {
+    // Validate file size (512kb = 524288 bytes)
+    if (file.size > 524288) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: "Logo file size must be less than 512kb",
+        isVisible: true
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: "Please upload a valid image file",
+        isVisible: true
+      });
+      return;
+    }
+
+    setLogoFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setLogoPreview(reader.result);
     reader.readAsDataURL(file);
@@ -26,6 +139,27 @@ const BrandConfig = () => {
 
   //favicon image selector
   const handleFaviconUpload = (file) => {
+    // Validate file size
+    if (file.size > 524288) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: "Favicon file size must be less than 512kb",
+        isVisible: true
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: "Please upload a valid image file",
+        isVisible: true
+      });
+      return;
+    }
+
+    setFaviconFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setFaviconPreview(reader.result);
     reader.readAsDataURL(file);
@@ -41,18 +175,173 @@ const BrandConfig = () => {
     setSecondaryColor(color);
   };
 
-  //reset all the values to default
+  //reset all the values to original
   const handleReset = () => {
-    setCompanyName("");
-    setBrandTagline("");
-    setLogoPreview(null);
-    setFaviconPreview(null);
-    setPrimaryColor("#C90202");
-    setSecondaryColor("#2302C9");
+    setPrimaryColor(originalValues.primaryColor);
+    setSecondaryColor(originalValues.secondaryColor);
+    setLogoPreview(originalValues.logoUrl);
+    setFaviconPreview(originalValues.faviconUrl);
+    setLogoFile(null);
+    setFaviconFile(null);
   };
+
+  // Upload logo file
+  const uploadLogo = async (authToken) => {
+    if (!logoFile) return null;
+
+    const formData = new FormData();
+    formData.append("logo", logoFile);
+
+    try {
+      const response = await axios.post(Apis.uploadBrandingLogo, formData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response?.data?.status === true) {
+        return response.data.data?.logoUrl || null;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      throw new Error(error.response?.data?.message || "Failed to upload logo");
+    }
+  };
+
+  // Upload favicon file
+  const uploadFavicon = async (authToken) => {
+    if (!faviconFile) return null;
+
+    const formData = new FormData();
+    formData.append("favicon", faviconFile);
+
+    try {
+      const response = await axios.post(Apis.uploadBrandingFavicon, formData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response?.data?.status === true) {
+        return response.data.data?.faviconUrl || null;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error uploading favicon:", error);
+      throw new Error(error.response?.data?.message || "Failed to upload favicon");
+    }
+  };
+
+  // Save all branding changes
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const localData = localStorage.getItem("User");
+      let authToken = null;
+      
+      if (localData) {
+        const userData = JSON.parse(localData);
+        authToken = userData.token;
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: "Authentication required",
+          isVisible: true
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Upload logo if new file selected
+      let logoUrl = originalValues.logoUrl;
+      if (logoFile) {
+        logoUrl = await uploadLogo(authToken);
+        if (!logoUrl) {
+          throw new Error("Failed to upload logo");
+        }
+      }
+
+      // Upload favicon if new file selected
+      let faviconUrl = originalValues.faviconUrl;
+      if (faviconFile) {
+        faviconUrl = await uploadFavicon(authToken);
+        if (!faviconUrl) {
+          throw new Error("Failed to upload favicon");
+        }
+      }
+
+      // Update colors if changed
+      if (primaryColor !== originalValues.primaryColor || secondaryColor !== originalValues.secondaryColor) {
+        const colorsData = {
+          primaryColor: primaryColor,
+          secondaryColor: secondaryColor
+        };
+
+        await axios.put(Apis.updateAgencyBrandingColors, colorsData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+      }
+
+      // Update original values with new data
+      setOriginalValues({
+        logoUrl: logoUrl || originalValues.logoUrl,
+        faviconUrl: faviconUrl || originalValues.faviconUrl,
+        primaryColor: primaryColor,
+        secondaryColor: secondaryColor
+      });
+
+      // Clear file states
+      setLogoFile(null);
+      setFaviconFile(null);
+
+      setShowSnackMessage({
+        type: SnackbarTypes.Success,
+        message: "Branding settings saved successfully",
+        isVisible: true
+      });
+
+      // Refresh data to get latest from server
+      await fetchBrandingData();
+
+    } catch (error) {
+      console.error("Error saving branding:", error);
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: error.response?.data?.message || error.message || "Failed to save branding settings",
+        isVisible: true
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
+    return (
+      <div className="w-full flex flex-row justify-center pt-8">
+        <div className="text-gray-500">Loading branding settings...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
+      <AgentSelectSnackMessage
+        isVisible={showSnackMessage.isVisible}
+        hide={() => {
+          setShowSnackMessage({ type: SnackbarTypes.Error, message: "", isVisible: false });
+        }}
+        message={showSnackMessage.message}
+        type={showSnackMessage.type}
+      />
+      
       {/* Banner Section */}
       <LabelingHeader
         img={"/agencyIcons/copied.png"}
@@ -151,13 +440,22 @@ const BrandConfig = () => {
           {/* Save Buttons */}
           <div className="self-stretch inline-flex justify-between items-center mt-4">
             <div
-              className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer"
+              className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
               onClick={handleReset}
             >
               <div className="text-slate-900 text-base font-normal leading-relaxed">Reset</div>
             </div>
-            <div className="px-4 py-2 bg-purple-700 rounded-md flex justify-center items-center gap-2.5 cursor-pointer">
-              <div className="text-white text-base font-normal leading-relaxed">Save Changes</div>
+            <div 
+              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
+                loading 
+                  ? "bg-purple-400 cursor-not-allowed" 
+                  : "bg-purple-700 hover:bg-purple-800"
+              }`}
+              onClick={loading ? undefined : handleSave}
+            >
+              <div className="text-white text-base font-normal leading-relaxed">
+                {loading ? "Saving..." : "Save Changes"}
+              </div>
             </div>
           </div>
         </div>
