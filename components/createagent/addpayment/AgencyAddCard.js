@@ -419,14 +419,11 @@ const AgencyAddCard = ({
                             }}
                         />
                     </div>
-                    <div className="mb-12 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
+                    <div className="mb-10 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
                         <div// className="mt-8"
                         >
-                            <div className="mb-10">
-                                <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
-                                <div className="mt-2" style={{ fontWeight: "400", fontSize: 15 }}>Enter your payment details to continue</div>
-                            </div>
-                            <div className="mt-4" style={{ fontWeight: "600", fontSize: 22 }}>Add Payment Details</div>
+                            <div className="mb-12">
+                                <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>                            </div>
                             <div
                                 style={{
                                     fontWeight: "400",
@@ -438,7 +435,7 @@ const AgencyAddCard = ({
                                 Card Number
                             </div>
                             <div
-                                className="mt-2 px-3 py-1 border relative flex items-center"
+                                className="mt-1 px-3 py-1 border relative flex items-center"
                                 style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                             >
                                 <div className="flex-1">
@@ -482,7 +479,7 @@ const AgencyAddCard = ({
                                     Exp Date
                                 </div>
                                 <div
-                                    className="mt-2 px-3 py-1 border"
+                                    className="mt-1 px-3 py-1 border"
                                     style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                                 >
                                     <CardExpiryElement
@@ -523,7 +520,7 @@ const AgencyAddCard = ({
                                     CVV
                                 </div>
                                 <div
-                                    className="mt-2 px-3 py-1 border"
+                                    className="mt-1 px-3 py-1 border"
                                     style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                                 >
                                     <CardCvcElement
@@ -572,7 +569,7 @@ const AgencyAddCard = ({
                             {`Referral Code (optional)`}
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-1">
                             <input
                                 value={inviteCode}
                                 onChange={(e) => {
@@ -681,10 +678,10 @@ const AgencyAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan.title}
+                                    {selectedPlan?.title}
                                 </div>
                                 {/*
-                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.duration} subscription</div>
+                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.duration} subscription</div>
                                 */}
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: ${(selectedPlan?.originalPrice * 12)?.toLocaleString()}</div>
                             </div>
@@ -704,7 +701,7 @@ const AgencyAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div className="capitalize" style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Total Billed {selectedPlan.duration}
+                                    Total Billed {selectedPlan?.duration}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>{/* hh:mma */}
                             </div>
@@ -767,7 +764,7 @@ const AgencyAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
-                            and agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected.
+                            and agree to a 12-month license term. Payments are billed {selectedPlan?.duration} as selected.
                         </div>
                     </div>
                 </div>

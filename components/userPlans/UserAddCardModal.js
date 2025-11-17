@@ -328,7 +328,7 @@ const UserAddCard = ({
             let ApiPath = Apis.subscribePlan;
             if (isFrom == "SubAccount") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
-            }else if(isFrom == "Agency") {
+            } else if (isFrom == "Agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             // //console.log;
@@ -399,15 +399,24 @@ const UserAddCard = ({
                             height={320} width={320}
                         />
                     </div>
-                    <div className=" LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
+                    <div className="mt-[10vh] LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
                         <div// className="mt-8"
                         >
-                            <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
-                            <div className="mt-2" style={{ fontWeight: "400", fontSize: 15 }}>Enter your payment details to continue</div>
-                            <div className="mt-4" style={{ fontWeight: "600", fontSize: 22 }}>Add Payment Details</div>
+                            <div className="mb-12">
+                                <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>                            </div>
                             <div
-                                className="mt-8 px-3 py-1 border relative flex items-center bg-[#ffffff70]"
-                                style={{ borderRadius: "8px" }}
+                                style={{
+                                    fontWeight: "400",
+
+                                    fontSize: 14,
+                                    color: "#4F5B76",
+                                }}
+                            >
+                                Card Number
+                            </div>
+                            <div
+                                className="mt-1 px-3 py-1 border relative flex items-center"
+                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                             >
                                 <div className="flex-1">
                                     <CardNumberElement
@@ -437,13 +446,21 @@ const UserAddCard = ({
                                 </div>
                             </div>
                         </div>
-
-
-                        <div className="flex flex-row gap-2 w-full mt-8">
+                        <div className="flex flex-row gap-2 w-full mt-4">
                             <div className="w-6/12">
                                 <div
-                                    className="mt-2 px-3 py-1 border bg-[#ffffff70]"
-                                    style={{ borderRadius: "8px" }}
+                                    style={{
+                                        fontWeight: "400",
+
+                                        fontSize: 14,
+                                        color: "#4F5B76",
+                                    }}
+                                >
+                                    Exp Date
+                                </div>
+                                <div
+                                    className="mt-1 px-3 py-1 border"
+                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                                 >
                                     <CardExpiryElement
                                         options={elementOptions}
@@ -473,8 +490,18 @@ const UserAddCard = ({
                             </div>
                             <div className="w-6/12">
                                 <div
-                                    className="mt-2 px-3 py-1 border bg-[#ffffff70]"
-                                    style={{ borderRadius: "8px" }}
+                                    style={{
+                                        fontWeight: "400",
+
+                                        fontSize: 14,
+                                        color: "#4F5B76",
+                                    }}
+                                >
+                                    CVV
+                                </div>
+                                <div
+                                    className="mt-1 px-3 py-1 border"
+                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                                 >
                                     <CardCvcElement
                                         // options={elementOptions}
@@ -510,15 +537,28 @@ const UserAddCard = ({
 
                         {/* Optional input field for agent x invite code */}
 
-                        <div className="mt-4">
+                        <div
+                            className="mt-4"
+                            style={{
+                                fontWeight: "400",
+
+                                fontSize: 14,
+                                color: "#4F5B76",
+                            }}
+                        >
+                            {`Referral Code (optional)`}
+                        </div>
+
+                        <div className="mt-1">
                             <input
                                 value={inviteCode}
                                 onChange={(e) => {
                                     setInviteCode(e.target.value);
                                 }}
-                                className="outline-none focus:ring-0 w-full h-[50px] bg-[#ffffff70]"
+                                className="outline-none focus:ring-0 w-full h-[50px]"
                                 style={{
-                                    color: "#000",
+                                    color: "#000000",
+                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
                                     borderRadius: "8px",
                                     border: "1px solid #00000020",
                                     fontSize: 15,
@@ -527,105 +567,92 @@ const UserAddCard = ({
                                 placeholder="Enter Referral code"
                             />
                             <style jsx>{`
-          input::placeholder {
-            color: #00000050; /* Set placeholder text color to red */
-          }
-        `}</style>
+      input::placeholder {
+        color: #00000050; /* Set placeholder text color to red */
+      }
+    `}</style>
                         </div>
-
-                        {inviteCode ? (
-                            <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
-                                {referralStatus === "loading" && (
-                                    <>
-                                        <div style={{ fontSize: 12, color: "#4F5B76" }}>Validating code…</div>
-                                    </>
-                                )}
-                                {referralStatus === "invalid" && (
-                                    <div style={{ fontSize: 12, color: "#D93025", fontWeight: 600 }}>{referralMessage || "Invalid referral code"}</div>
-                                )}
-                            </div>
-                        ) : null}
 
                         {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
 
                         {/*
-                        <div className="mt-4 w-full flex flex-row items-center gap-4">
-                            <button
-                                className="outline-none border-none"
-                                onClick={() => { handleToggleTermsClick() }}>
-                                {agreeTerms ? (
-                                    <div
-                                        className="bg-purple flex flex-row items-center justify-center rounded"
-                                        style={{ height: "24px", width: "24px" }}
-                                    >
-                                        <Image
-                                            src={"/assets/whiteTick.png"}
-                                            height={8}
-                                            width={10}
-                                            alt="*"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                        style={{ height: "24px", width: "24px" }}
-                                    ></div>
-                                )}
-                            </button>
-                            <div
-                                className="flex flex-row items-center gap-1"
-                                style={{
-                                    fontWeight: "500",
-                                    fontSize: 15
-                                }}>
-                                <div>
-                                    I agree to
-                                </div>
-                                <a
-                                    href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                                    style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
-                                    target="_blank" // Opens in a new tab (optional)
-                                    rel="noopener noreferrer" // Security for external links
+                    <div className="mt-4 w-full flex flex-row items-center gap-4">
+                        <button
+                            className="outline-none border-none"
+                            onClick={() => { handleToggleTermsClick() }}>
+                            {agreeTerms ? (
+                                <div
+                                    className="bg-purple flex flex-row items-center justify-center rounded"
+                                    style={{ height: "24px", width: "24px" }}
                                 >
-                                    Terms & Conditions
-                                </a>
-                            </div>
-                        </div>
-                    */}
-
-                        {/*
-                        <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
-                            {addCardLoader ? (
-                                <div className="flex flex-row justify-center items-center mt-8 w-full">
-                                    <CircularProgress size={30} />
+                                    <Image
+                                        src={"/assets/whiteTick.png"}
+                                        height={8}
+                                        width={10}
+                                        alt="*"
+                                    />
                                 </div>
                             ) : (
-                                <div className="flex flex-row justify-end items-center mt-8 w-full">
-                                    {CardAdded && CardExpiry && CVC && agreeTerms ? (
-                                        <button
-                                            onClick={handleAddCard}
-                                            className="w-full h-[50px] rounded-xl px-8 text-white py-3"
-                                            style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    ) : (
-                                        <button
-                                            disabled={true}
-                                            className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
-                                            style={{ fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    )}
-                                </div>
+                                <div
+                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                    style={{ height: "24px", width: "24px" }}
+                                ></div>
                             )}
-                            <p className="text-[#15151580]">{textBelowContinue}</p>
+                        </button>
+                        <div
+                            className="flex flex-row items-center gap-2"
+                            style={{
+                                fontWeight: "500",
+                                fontSize: 15
+                            }}>
+                            <div>
+                                I agree to
+                            </div>
+                            <a
+                                href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+                                style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+                                target="_blank" // Opens in a new tab (optional)
+                                rel="noopener noreferrer" // Security for external links
+                            >
+                                Terms & Conditions
+                            </a>
                         </div>
-                    */}
+                    </div>
+                */}
+
+                        {/*
+                    <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
+                        {addCardLoader ? (
+                            <div className="flex flex-row justify-center items-center mt-8 w-full">
+                                <CircularProgress size={30} />
+                            </div>
+                        ) : (
+                            <div className="flex flex-row justify-end items-center mt-8 w-full">
+                                {CardAdded && CardExpiry && CVC && agreeTerms ? (
+                                    <button
+                                        onClick={handleAddCard}
+                                        className="w-full h-[50px] rounded-xl px-8 text-white py-3"
+                                        style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
+                                    >
+                                        Continue
+                                    </button>
+                                ) : (
+                                    <button
+                                        disabled={true}
+                                        className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
+                                        style={{ fontWeight: "600", fontSize: 17 }}
+                                    >
+                                        Continue
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                        <p className="text-[#15151580]">{textBelowContinue}</p>
+                    </div>
+                */}
                     </div>
                 </div>
-                <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg mt-5" style={{ backgroundColor: 'transparent' }}>
+                <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg -mt-5" style={{ backgroundColor: 'transparent' }}>
                     <div className="rounded-lg p-2 w-[90%] flex flex-col" style={{ backgroundColor: '#ffffff' }}>
                         <div className={`w-full flex flex-col items-start text-[#000]`}>
                             <div className=' text-xl font-semibold '>

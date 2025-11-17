@@ -623,12 +623,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </div>
 
               <div
-                className="border rounded-lg"
+                className="border rounded-lg focus-within:border-black transition-colors"
                 style={{
                   height: "clamp(45px, 50px, 55px)",
                   fontSize: "clamp(11px, 2vw, 13px)",
                   overflow: "hidden",
-                  boxSizing: "border-box"
+                  boxSizing: "border-box",
+                  border: "1px solid #00000020",
                 }}
               >
                 <Box className="w-full h-full">
@@ -664,10 +665,16 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         "& .MuiOutlinedInput-notchedOutline": {
                           border: "none",
                         },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
                         "& .MuiSelect-select": {
                           display: "flex",
                           alignItems: "center",
                           height: "100%",
+                        },
+                        "&:focus": {
+                          outline: "none",
                         },
                       }}
                     >
@@ -928,7 +935,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   </div>
 
                   <PhoneInput
-                    className="border outline-none bg-white focus-within:border-black transition-colors"
+                    containerClass="phone-input-container"
+                    className="outline-none bg-white focus:ring-0"
                     country={"us"} // restrict to US only
                     onlyCountries={["us", "mx"]}
                     disableDropdown={true}
@@ -939,7 +947,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     placeholder={"Enter Phone Number"}
                     // disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: "7px", border: "1px solid #00000020" }}
+                    style={{ 
+                      borderRadius: "7px", 
+                      border: "1px solid #00000020",
+                      outline: "none",
+                      boxShadow: "none",
+                    }}
                     inputStyle={{
                       width: "100%",
                       borderWidth: "0px",
@@ -948,10 +961,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       paddingTop: "10px",
                       paddingBottom: "10px",
                       paddingRight: "12px",
+                      outline: "none",
+                      boxShadow: "none",
                     }}
                     buttonStyle={{
                       border: "none",
                       backgroundColor: "transparent",
+                      outline: "none",
                     }}
                     dropdownStyle={{
                       maxHeight: "150px",
@@ -1018,7 +1034,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             wants to talk to you?
                           </div>
                           <PhoneInput
-                            className="border outline-none bg-white mt-2 focus-within:border-black transition-colors"
+                            containerClass="phone-input-container"
+                            className="outline-none bg-white mt-2 focus:ring-0"
                             country={"us"} // restrict to US only
                             onlyCountries={["us", "mx"]}
                             disableDropdown={true}
@@ -1029,7 +1046,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                             placeholder={"Enter Phone Number"}
                             // disabled={loading} // Disable input if still loading
-                            style={{ borderRadius: "7px", border: "1px solid #00000020" }}
+                            style={{ 
+                              borderRadius: "7px", 
+                              border: "1px solid #00000020",
+                              outline: "none",
+                              boxShadow: "none",
+                            }}
                             inputStyle={{
                               width: "100%",
                               borderWidth: "0px",
@@ -1038,10 +1060,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               paddingTop: "14px",
                               paddingBottom: "14px",
                               paddingRight: "16px",
+                              outline: "none",
+                              boxShadow: "none",
                             }}
                             buttonStyle={{
                               border: "none",
                               backgroundColor: "transparent",
+                              outline: "none",
                             }}
                             dropdownStyle={{
                               maxHeight: "150px",

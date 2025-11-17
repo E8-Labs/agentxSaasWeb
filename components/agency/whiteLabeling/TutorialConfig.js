@@ -261,7 +261,7 @@ const TutorialConfig = () => {
       />
       {/* Banner Section */}
       <LabelingHeader
-        img={"/agencyIcons/Notification.png"}
+        img={"/otherAssets/tutorialIcon.png"}
         title={"Tutorial Videos"}
         description={"Control the tutorial videos you display for your users."}
       />

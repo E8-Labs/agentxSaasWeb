@@ -8,6 +8,7 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import getProfileDetails from '@/components/apis/GetProfile';
 import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
+import LabelingHeader from '../whiteLabeling/LabelingHeader';
 
 const UPSell = () => {
 
@@ -42,7 +43,7 @@ const UPSell = () => {
     //warning message
     const [snackBannerMsg, setSnackBannerMsg] = useState(null);
     const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Warning);
-    
+
     // Calculator results for each product type
     const [phoneCalculatorResult, setPhoneCalculatorResult] = useState(null);
     const [dncCalculatorResult, setDncCalculatorResult] = useState(null);
@@ -52,7 +53,7 @@ const UPSell = () => {
         dnc: false,
         enrichment: false
     });
-    
+
     // Debounce timers for calculator
     const calculatorTimers = React.useRef({
         phone: null,
@@ -71,7 +72,7 @@ const UPSell = () => {
     useEffect(() => {
         getUserSettings();
         getLocalData();
-        
+
         // Cleanup timers on unmount
         return () => {
             Object.values(calculatorTimers.current).forEach(timer => {
@@ -122,13 +123,13 @@ const UPSell = () => {
 
             if (response?.data?.status && response?.data?.data) {
                 const calculatorData = response.data.data;
-                
+
                 // Update the appropriate calculator result
                 console.log("calculatorData for service is", calculatorData);
                 if (from === "phonePrice") {
                     setPhoneCalculatorResult(calculatorData);
                 } else if (from === "dncPrice") {
-                   
+
                     setDncCalculatorResult(calculatorData);
                 } else if (from === "enrichmentPrice") {
                     setEnrichmentCalculatorResult(calculatorData);
@@ -168,16 +169,16 @@ const UPSell = () => {
                 setSnackBannerMsg(null);
             }
         }
-        
+
         // Calculate earnings when price changes (with debounce)
         if (price > 0) {
             const productType = from === "phonePrice" ? "phone" : from === "dncPrice" ? "dnc" : "enrichment";
-            
+
             // Clear existing timer
             if (calculatorTimers.current[productType]) {
                 clearTimeout(calculatorTimers.current[productType]);
             }
-            
+
             // Set new timer to debounce API call
             calculatorTimers.current[productType] = setTimeout(() => {
                 calculateEarnings(productType, price, from);
@@ -209,7 +210,7 @@ const UPSell = () => {
                 setAllowDNC(Data?.upsellDnc);
                 setAllowPerplexityEnrichment(Data?.upsellEnrichment);
                 setInitialLoader(false);
-                
+
                 // Calculate earnings for existing prices
                 if (Data?.phonePrice) {
                     calculateEarnings("phone", Data.phonePrice, "phonePrice");
@@ -320,7 +321,7 @@ const UPSell = () => {
                     setAddUpSellPhone(false);
                     setAddPerplexityEnrichment(false);
                     setSettingsData(response.data.data);
-                    
+
                     // Recalculate earnings after save
                     if (from === "phonePrice" && response.data.data?.phonePrice) {
                         calculateEarnings("phone", response.data.data.phonePrice, "phonePrice");
@@ -377,7 +378,12 @@ const UPSell = () => {
     }
 
     return (
-        <div className="flex flex-row justify-center h-[73vh] w-full overflow-y-auto">
+        <div className="flex flex-row justify-center overflow-y-auto pb-10"
+        style={{
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+        }}
+        >
             <div className='w-11/12 pt-4'>
                 <AgentSelectSnackMessage
                     isVisible={snackBannerMsg !== null}
@@ -395,13 +401,22 @@ const UPSell = () => {
                     type={showSnackType}
                     message={showSnackMessage}
                 />
+
+                {/* Banner Section */}
+                <LabelingHeader
+                    img={"/otherAssets/upsellIcon.png"}
+                    title={"Upsell in-app purchases"}
+                    description={"Add your upsell prices and generated additional streams of revenue. "}
+                />
                 {
                     initialLoader ? (
-                        <div className="flex flex-row items-center justify-center w-full">
+                        <div className="flex flex-row items-center justify-center w-full mt-8">
                             <CircularProgress size={30} />
                         </div>
                     ) : (
-                        <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl">
+
+
+                        <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl mt-8">
                             <div style={{ fontWeight: "600", fontSize: "22px", color: "#000000" }}>Upsell Features</div>
                             <div className='border-b'>
                                 <div className="border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]">
@@ -411,7 +426,7 @@ const UPSell = () => {
                                                 Phone Numbers
                                             </div>
                                             <div style={styles.subHeading}>
-                                            Easily upsell phone number | Your cost = $1.15 
+                                                Easily upsell phone number | Your cost = $1.15
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
@@ -691,7 +706,7 @@ const UPSell = () => {
                                                 Perplexity Enrichment
                                             </div>
                                             <div style={styles.subHeading}>
-                                            Easily upsell Perplexity lead enrichment | Your cost = $0.05
+                                                Easily upsell Perplexity lead enrichment | Your cost = $0.05
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">

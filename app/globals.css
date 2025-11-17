@@ -342,4 +342,16 @@ a.text-red:hover {
   stroke: #FF4E4E !important;
 }
 
+/* PhoneInput focus border styling */
+.phone-input-container:focus-within,
+.phone-input-container:focus-within > div {
+  border-color: #000000 !important;
+}
+
+.phone-input-container:focus-within input:focus,
+.phone-input-container:focus-within .react-tel-input input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 

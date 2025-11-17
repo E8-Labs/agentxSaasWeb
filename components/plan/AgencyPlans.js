@@ -860,8 +860,8 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
                 {/* Code for add payment modal */}
                 <Modal
-                    open={addPaymentPopUp}
-                    // open={true}
+                    // open={addPaymentPopUp}
+                    open={true}
                     closeAfterTransition
                     BackdropProps={{
                         timeout: 100,
