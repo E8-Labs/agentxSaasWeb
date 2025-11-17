@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { X } from "lucide-react";
 import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import { CircularProgress } from "@mui/material";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Area, AreaChart, Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const PromoCodeModal = ({ promoCode, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -57,6 +59,18 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
       });
     }
   }, [promoCode]);
+
+  // Chart data for recurring discounts
+  const recurringDiscountData = useMemo(() => {
+    if (!formData.discountDurationMonths || formData.discountDurationMonths <= 0) {
+      return [];
+    }
+    const months = formData.discountDurationMonths;
+    return Array.from({ length: months }, (_, i) => ({
+      month: `Month ${i + 1}`,
+      discount: formData.discountValue,
+    }));
+  }, [formData.discountDurationMonths, formData.discountValue]);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -309,6 +323,130 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                     discount (e.g., 3 for 3 months).
                   </p>
                 </div>
+
+                {/* Discount Preview Chart */}
+                {formData.discountValue > 0 && (
+                  <div className="mt-6">
+                    <Label className="text-base font-semibold mb-4 block">
+                      Discount Preview
+                    </Label>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <ChartContainer
+                          config={{
+                            discount: {
+                              label: formData.discountType === "percentage" 
+                                ? `Discount (%)` 
+                                : `Discount ($)`,
+                              color: "hsl(var(--chart-1))",
+                            },
+                          }}
+                          className="h-[250px] w-full"
+                        >
+                          {formData.discountDurationMonths && formData.discountDurationMonths > 0 ? (
+                            // Recurring discount - show area chart over time
+                            <AreaChart
+                              data={recurringDiscountData}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                              <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                tickFormatter={(value) => value.replace("Month ", "M")}
+                              />
+                              <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                tickFormatter={(value) =>
+                                  formData.discountType === "percentage" ? `${value}%` : `$${value}`
+                                }
+                              />
+                              <ChartTooltip
+                                content={
+                                  <ChartTooltipContent
+                                    formatter={(value) =>
+                                      formData.discountType === "percentage"
+                                        ? `${value}%`
+                                        : `$${value}`
+                                    }
+                                  />
+                                }
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="discount"
+                                stroke="hsl(var(--chart-1))"
+                                fill="hsl(var(--chart-1))"
+                                fillOpacity={0.2}
+                                strokeWidth={2}
+                              />
+                            </AreaChart>
+                          ) : (
+                            // One-time discount - show bar chart
+                            <BarChart
+                              data={[
+                                {
+                                  type: formData.discountType === "percentage"
+                                    ? "Discount (%)"
+                                    : "Discount ($)",
+                                  value: formData.discountValue,
+                                },
+                              ]}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                              <XAxis
+                                dataKey="type"
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                              />
+                              <YAxis
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                tickFormatter={(value) =>
+                                  formData.discountType === "percentage" ? `${value}%` : `$${value}`
+                                }
+                              />
+                              <ChartTooltip
+                                content={
+                                  <ChartTooltipContent
+                                    formatter={(value) =>
+                                      formData.discountType === "percentage"
+                                        ? `${value}%`
+                                        : `$${value}`
+                                    }
+                                  />
+                                }
+                              />
+                              <Bar
+                                dataKey="value"
+                                fill="hsl(var(--chart-1))"
+                                radius={[8, 8, 0, 0]}
+                              />
+                            </BarChart>
+                          )}
+                        </ChartContainer>
+                        <div className="mt-4 text-sm text-gray-600 text-center">
+                          {formData.discountDurationMonths && formData.discountDurationMonths > 0 ? (
+                            <p>
+                              This discount will apply for{" "}
+                              <span className="font-semibold">
+                                {formData.discountDurationMonths} month
+                                {formData.discountDurationMonths > 1 ? "s" : ""}
+                              </span>
+                            </p>
+                          ) : (
+                            <p>This is a <span className="font-semibold">one-time</span> discount</p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
 
                 <div className="flex items-center space-x-2">
                   <Switch

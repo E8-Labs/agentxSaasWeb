@@ -1320,7 +1320,7 @@ const ProfileNav = () => {
                 <>
                   {/* If logo exists, show only logo */}
                   {reduxUser.agencyBranding.logoUrl ? (
-                    <div className="w-full flex justify-center">
+                    <div className="w-full flex justify-start pl-6">
                       <Image
                         src={reduxUser.agencyBranding.logoUrl}
                         alt="agency logo"
@@ -1333,7 +1333,7 @@ const ProfileNav = () => {
                   ) : (
                     /* If no logo, show only agency name */
                     reduxUser.agencyBranding.companyName && (
-                      <div className="w-full text-center">
+                      <div className="w-full text-left pl-6">
                         <div className="text-lg font-bold text-black truncate">
                           {reduxUser.agencyBranding.companyName}
                         </div>
@@ -1343,13 +1343,15 @@ const ProfileNav = () => {
                 </>
               ) : (
                 /* Default assignX logo for regular users */
-                <Image
-                  src={"/assets/assignX.png"}
-                  alt="profile"
-                  height={33}
-                  width={140}
-                  objectFit="contain"
-                />
+                <div className="w-full flex justify-start pl-6">
+                  <Image
+                    src={"/assets/assignX.png"}
+                    alt="profile"
+                    height={33}
+                    width={140}
+                    objectFit="contain"
+                  />
+                </div>
               )}
             </div>
           </div>
