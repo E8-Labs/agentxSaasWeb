@@ -1,18 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Paperclip, Smile, Bold, Underline, List, ListOrdered, Quote } from 'lucide-react';
 import { Modal, Box, Typography } from '@mui/material';
+import { Input } from '@/components/ui/input';
+import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
-import dynamic from 'next/dynamic';
-
-// Dynamically import RichTextEditor to avoid SSR issues
-const RichTextEditor = dynamic(
-    () => import('@/components/common/RichTextEditor'),
-    { ssr: false }
-);
 
 const EditNotifications = ({
     isOpen,
@@ -28,7 +18,6 @@ const EditNotifications = ({
         cta: ''
     });
 
-    const [showVariables, setShowVariables] = useState(false);
     const titleInputRef = useRef(null);
 
     // Update form data when notificationData changes
@@ -74,18 +63,6 @@ const EditNotifications = ({
         onClose();
     };
 
-    const insertVariable = (variable) => {
-        const currentDescription = formData.emailBody;
-        const newDescription = currentDescription + `${variable}`;
-        handleInputChange('emailBody', newDescription);
-        setShowVariables(false);
-    };
-
-    const formatText = (format) => {
-        // Basic text formatting implementation
-        // This would need to be enhanced based on your specific requirements
-        console.log(`Format text: ${format}`);
-    };
 
     const handleTitleFocus = (e) => {
         // Prevent auto-selection on focus
@@ -142,13 +119,16 @@ const EditNotifications = ({
                         <label className="text-sm font-medium text-gray-700">
                             Push Title
                         </label>
-                        <input
+                        <Input
                             ref={titleInputRef}
                             placeholder="Push notification title"
                             value={formData.pushTitle}
                             onChange={(e) => handleInputChange('pushTitle', e.target.value)}
                             onFocus={handleTitleFocus}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                            style={{
+                                border: "1px solid #00000020",
+                            }}
                             autoFocus={false}
                         />
                     </div>
@@ -158,11 +138,14 @@ const EditNotifications = ({
                         <label className="text-sm font-medium text-gray-700">
                             Push Body
                         </label>
-                        <input
+                        <Input
                             placeholder="Push notification body"
                             value={formData.pushBody}
                             onChange={(e) => handleInputChange('pushBody', e.target.value)}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                            style={{
+                                border: "1px solid #00000020",
+                            }}
                             autoFocus={false}
                         />
                     </div>
@@ -172,11 +155,14 @@ const EditNotifications = ({
                         <label className="text-sm font-medium text-gray-700">
                             Email Subject
                         </label>
-                        <input
+                        <Input
                             placeholder="Email subject line"
                             value={formData.emailSubject}
                             onChange={(e) => handleInputChange('emailSubject', e.target.value)}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                            style={{
+                                border: "1px solid #00000020",
+                            }}
                             autoFocus={false}
                         />
                     </div>
@@ -186,11 +172,14 @@ const EditNotifications = ({
                         <label className="text-sm font-medium text-gray-700">
                             Email Body
                         </label>
-                        <RichTextEditor
-                            value={formData.emailBody}
-                            onChange={(html) => handleInputChange('emailBody', html)}
-                            placeholder="Enter email body with rich formatting..."
-                            availableVariables={notificationData?.availableVariables || []}
+                        <PromptTagInput
+                            promptTag={formData.emailBody}
+                            tagValue={(text) => handleInputChange('emailBody', text)}
+                            uniqueColumns={notificationData?.availableVariables || []}
+                            kycsList={[]}
+                            placeholder="Enter email body..."
+                            from="EditNotification"
+                            isEdit={true}
                         />
                     </div>
 
@@ -201,11 +190,14 @@ const EditNotifications = ({
                                 <label className="text-sm font-medium text-gray-700">
                                     CTA
                                 </label>
-                                <input
+                                <Input
                                     placeholder="Call to action button"
                                     value={formData.cta}
                                     onChange={(e) => handleInputChange('cta', e.target.value)}
-                                    className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                                    className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                                    style={{
+                                        border: "1px solid #00000020",
+                                    }}
                                 />
                             </div>
                         )

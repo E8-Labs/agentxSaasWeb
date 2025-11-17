@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Box, Typography } from '@mui/material';
+import { Input } from '@/components/ui/input';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const EditPushNotification = ({
@@ -113,13 +114,16 @@ const EditPushNotification = ({
                         <label className="text-sm font-medium text-gray-700">
                             Title
                         </label>
-                        <input
+                        <Input
                             ref={titleInputRef}
                             placeholder="Push notification title"
                             value={formData.pushTitle}
                             onChange={(e) => handleInputChange('pushTitle', e.target.value)}
                             onFocus={handleTitleFocus}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                            style={{
+                                border: "1px solid #00000020",
+                            }}
                             autoFocus={false}
                         />
                     </div>
@@ -129,11 +133,14 @@ const EditPushNotification = ({
                         <label className="text-sm font-medium text-gray-700">
                             Body
                         </label>
-                        <input
+                        <Input
                             placeholder="Push notification body"
                             value={formData.pushBody}
                             onChange={(e) => handleInputChange('pushBody', e.target.value)}
-                            className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                            className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                            style={{
+                                border: "1px solid #00000020",
+                            }}
                             autoFocus={false}
                         />
                     </div>
@@ -144,11 +151,14 @@ const EditPushNotification = ({
                             <label className="text-sm font-medium text-gray-700">
                                 CTA
                             </label>
-                            <input
+                            <Input
                                 placeholder="Call to action button"
                                 value={formData.cta}
                                 onChange={(e) => handleInputChange('cta', e.target.value)}
-                                className="w-6/12 border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-6/12 transition-colors"
+                                style={{
+                                    border: "1px solid #00000020",
+                                }}
                             />
                         </div>
                     )}

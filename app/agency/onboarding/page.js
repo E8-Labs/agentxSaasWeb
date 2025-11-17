@@ -39,7 +39,7 @@ function Page() {
     if (userData) {
       const D = JSON.parse(userData);
       if (D) {
-        // setCurrentIndex(1);
+        setCurrentIndex(1);
       }
     }
   }, []);
