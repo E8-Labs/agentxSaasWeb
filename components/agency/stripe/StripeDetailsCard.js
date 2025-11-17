@@ -102,18 +102,16 @@ export default function StripeDetailsCard({
 
                         {
                             loader ? (
-                                <CircularProgress size={20} />
+                                <div className="w-full flex justify-center items-center">
+                                    <CircularProgress size={20} />
+                                </div>
                             ) : (
                                 <button className="bg-purple text-white rounded-lg h-[50px] w-full"
                                     onClick={() => {
-                                        if (fromDashboard) {
-                                            handleViewStripeAccount();
-                                        } else {
-                                            router.push("/agency/dashboard");
-                                        }
+                                        handleViewStripeAccount();
                                     }}
                                 >
-                                    {fromDashboard ? "View Stripe Account" : "View Dashboard"}
+                                    {"View Stripe Account"}
                                 </button>
                             )
                         }

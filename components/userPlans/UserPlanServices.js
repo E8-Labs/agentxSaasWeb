@@ -213,12 +213,19 @@ export const initiateCancellation = async (userId) => {
     }
 }
 
-export const pauseSubscription = async () => {
+export const pauseSubscription = async (selectedUser = null) => {
     try {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.pauseSubscription, {}, {
+        let path = Apis.pauseSubscription
+        if (selectedUser) {
+            path = `${path}?userId=${selectedUser.id}`
+        }
+
+        console.log('path of pause subscription', path)
+
+        const response = await axios.post(path, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -242,12 +249,19 @@ export const pauseSubscription = async () => {
     }
 }
 
-export const claimGift = async () => {
+export const claimGift = async (selectedUser = null) => {
     try {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.claimGiftMins, {}, {
+        let path = Apis.claimGiftMins
+        if (selectedUser) {
+            path = `${path}?userId=${selectedUser.id}`
+        }
+
+        console.log('path of claim gift', path)
+
+            const response = await axios.post(path, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -298,13 +312,18 @@ export const getDiscount = async () => {
     }
 }
 
-export const completeCancelation = async (reason) => {
+export const completeCancelation = async (reason, selectedUser = null) => {
     try {
         let token = AuthToken()
 
-        console.log('trying to obtain offer')
+        let path = Apis.completeCancelatiton
+        if (selectedUser) {
+            path = `${path}?userId=${selectedUser.id}`
+        }
 
-        const response = await axios.post(Apis.completeCancelatiton, {
+        console.log('path of complete cancelation', path)
+
+        const response = await axios.post(path, {
             cancellationReason: reason
         }, {
             headers: {

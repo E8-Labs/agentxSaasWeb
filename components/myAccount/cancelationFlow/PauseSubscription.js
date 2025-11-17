@@ -8,7 +8,8 @@ import React, { useEffect, useState } from 'react'
 
 function PauseSubscription({
     handleContinue,
-    setShowSnak
+    setShowSnak,    
+    selectedUser
 }) {
 
 
@@ -38,7 +39,7 @@ function PauseSubscription({
 
     const handlePause = async () => {
         setPuaseLoading(true)
-        let response = await pauseSubscription()
+        let response = await pauseSubscription(selectedUser)
         let nextAction = "closeModel"
         if(response){
             setShowSnak({

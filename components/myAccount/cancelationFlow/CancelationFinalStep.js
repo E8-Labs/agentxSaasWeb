@@ -71,44 +71,13 @@ function CancelationFinalStep({
         let response = null;
         const reason = selectReason === "Others" ? otherReasonInput : selectReason;
         
-        // For subaccounts, call API directly with userId
         if (selectedUser) {
-            try {
-                const token = AuthToken();
-                const ApiPath = `${Apis.completeCancelatiton}?userId=${selectedUser.id}`;
-                
-                const apiResponse = await axios.post(ApiPath, {
-                    cancellationReason: reason
-                }, {
-                    headers: {
-                        "Authorization": 'Bearer ' + token,
-                        "Content-Type": 'application/json'
-                    }
-                });
-                
-                response = apiResponse.data;
-            } catch (error) {
-                console.error('Error completing cancellation:', error);
-                setShowError(error?.response?.data?.message || "Failed to cancel subscription");
-                setloading(false);
-                return;
-            }
+            response = await completeCancelation(reason, selectedUser);
         } else {
             response = await completeCancelation(reason);
         }
-        console.log('data', response)
-
-        setShowSnak({
-            message: "Account canceled",
-            type: SnackbarTypes.Success
-        })
-        if (response.status === true) {
-            let nextAction = "completeCancelation"
-            handleContinue(nextAction)
-        } else {
-            setShowError(response.message)
-        }
         setloading(false)
+        return response;
     }
 
 

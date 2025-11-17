@@ -13,6 +13,8 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
 
     const [showDetails, setShowDetails] = useState(false);
     const [showAddVoice, setShowAddVoice] = useState(false);
+    //temporary Voice Integrity Status
+    const [voiceIntegrityStatus, setVoiceIntegrityStatus] = useState("");
     //show snack
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
@@ -23,6 +25,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
     const [allowAddDetails, setAllowAddDetails] = useState(true);
 
     useEffect(() => {
+        checkVoiceIntegrityStatus();
         if (twilioHubData) {
             console.log("Allow add");
             setAllowAddDetails(false);
@@ -31,6 +34,27 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
             console.log("Donot allow add");
         }
     }, [twilioHubData]);
+
+    const checkVoiceIntegrityStatus = () => {
+        // If twilioHubData is null (disconnected), clear status and localStorage
+        if (!twilioHubData) {
+            setVoiceIntegrityStatus("");
+            localStorage.removeItem("VoiceIntegrityStatusReview");
+            return;
+        }
+        const Data = localStorage.getItem("VoiceIntegrityStatusReview");
+        if (!twilioHubData?.status && Data) {
+            const data = JSON.parse(Data);
+            setVoiceIntegrityStatus(data.status);
+            return;
+        }
+        if (twilioHubData?.status) {
+            setVoiceIntegrityStatus(twilioHubData?.status);
+            localStorage.removeItem("VoiceIntegrityStatusReview");
+        } else {
+            setVoiceIntegrityStatus("");
+        }
+    }
 
     //styles
     const styles = {
@@ -89,15 +113,15 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                         </div>
                     </div>
                     <div className='flex flex-row items-center gap-2'>
-                        {twilioHubData?.status && (
+                        {voiceIntegrityStatus && (
                             <ShowResubmitBtn
-                                status={twilioHubData?.status}
+                                status={voiceIntegrityStatus}
                                 handleOpenModal={() => { setShowAddVoice(true) }}
                             />
                         )}
                         <button
                             className='border p-2 rounded-full'
-                            disabled={!twilioHubData}
+                            disabled={!twilioHubData && !voiceIntegrityStatus}
                             onClick={() => {
                                 setShowDetails(!showDetails);
                             }}>
@@ -112,9 +136,9 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                     </div>
                 </div>
             </div>
-            {twilioHubData?.status ? (
+            {voiceIntegrityStatus ? (
                 <ShowRequestStatus
-                    status={twilioHubData?.status}
+                    status={voiceIntegrityStatus}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -170,6 +194,12 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                         handleClose={(d) => {
                             setShowAddVoice(false);
                             if (d) {
+                                const data = {
+                                    message: "Voice Integrity is being reviewed",
+                                    status: "in-review"
+                                }
+                                localStorage.setItem("VoiceIntegrityStatusReview", JSON.stringify(data));
+                                checkVoiceIntegrityStatus();
                                 getProfileData(d);
                                 setShowSnack({
                                     message: d.message,

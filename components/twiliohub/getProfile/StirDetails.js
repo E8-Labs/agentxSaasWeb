@@ -12,6 +12,8 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
 
     const [showDetails, setShowDetails] = useState(false);
     const [showShakenStirModal, setShowShakenStirModal] = useState(false);
+    //temporary SHAKEN/STIR Status
+    const [stirStatus, setStirStatus] = useState("");
     //allow add details btn
     const [allowAddDetails, setAllowAddDetails] = useState(true);
 
@@ -22,12 +24,34 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
     });
 
     useEffect(() => {
+        checkStirStatus();
         if (twilioHubData) {
             setAllowAddDetails(false);
         } else {
             setAllowAddDetails(true);
         }
     }, [twilioHubData]);
+
+    const checkStirStatus = () => {
+        // If twilioHubData is null (disconnected), clear status and localStorage
+        if (!twilioHubData) {
+            setStirStatus("");
+            localStorage.removeItem("StirStatusReview");
+            return;
+        }
+        const Data = localStorage.getItem("StirStatusReview");
+        if (!twilioHubData?.status && Data) {
+            const data = JSON.parse(Data);
+            setStirStatus(data.status);
+            return;
+        }
+        if (twilioHubData?.status) {
+            setStirStatus(twilioHubData?.status);
+            localStorage.removeItem("StirStatusReview");
+        } else {
+            setStirStatus("");
+        }
+    }
 
     //styles
     const styles = {
@@ -98,15 +122,15 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                         </div>
                     </div>
                     <div className='flex flex-row items-center gap-2'>
-                        {twilioHubData?.status && (
+                        {stirStatus && (
                             <ShowResubmitBtn
-                                status={twilioHubData?.status}
+                                status={stirStatus}
                                 handleOpenModal={() => { setShowShakenStirModal(true) }}
                             />
                         )}
                         <button
                             className='border p-2 rounded-full'
-                            disabled={!twilioHubData}
+                            disabled={!twilioHubData && !stirStatus}
                             onClick={() => {
                                 setShowDetails(!showDetails);
                             }}>
@@ -121,9 +145,9 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                     </div>
                 </div>
             </div>
-            {twilioHubData?.status ? (
+            {stirStatus ? (
                 <ShowRequestStatus
-                    status={twilioHubData?.status}
+                    status={stirStatus}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -178,12 +202,18 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                             setShowShakenStirModal(false);
                             if (d) {
                                 console.log("Value of d is", d)
+                                const data = {
+                                    message: "SHAKEN/STIR is being reviewed",
+                                    status: "in-review"
+                                }
+                                localStorage.setItem("StirStatusReview", JSON.stringify(data));
+                                checkStirStatus();
+                                getProfileData(d);
                                 setShowSnack({
                                     message: d.message,
                                     isVisible: true,
                                     type: SnackbarTypes.Success,
                                 });
-                                getProfileData(d);
                             }
                         }}
                     />

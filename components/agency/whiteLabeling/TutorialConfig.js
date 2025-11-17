@@ -168,7 +168,9 @@ const TutorialConfig = () => {
       // If a new video file is uploaded, send FormData
 
       const formData = new FormData();
+      if (updatedData.media) {
       formData.append("media", updatedData.media);
+      }
       formData.append("videoType", selectedTutorial.videoType);
       formData.append("title", updatedData.title);
       formData.append("enabled", isEditMode && selectedTutorial ? selectedTutorial.enabled : true);

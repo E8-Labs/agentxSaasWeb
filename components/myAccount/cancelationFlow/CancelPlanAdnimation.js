@@ -52,6 +52,10 @@ export default function CancelPlanAnimation({
 
     const getCUrrentComponent = async () => {
         console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
+        console.log('selectedUser', selectedUser)   
+        if(selectedUser){
+            userLocalData = selectedUser;
+        }
 
         // For subaccounts, skip pause and deal windows - go directly to CancelConfirmation
 
@@ -228,7 +232,7 @@ export default function CancelPlanAnimation({
                                             }}
                                         />
                                     </div>
-                                    <PauseSubscription handleContinue={handleContinue} setShowSnak={setShowSnak} />
+                                    <PauseSubscription handleContinue={handleContinue} setShowSnak={setShowSnak} selectedUser={selectedUser} />
                                 </div>
                             </motion.div>
                         )}
@@ -257,6 +261,7 @@ export default function CancelPlanAnimation({
                                     <ClaimGift
                                         handleContinue={handleContinue}
                                         setShowSnak={setShowSnak}
+                                        selectedUser={selectedUser}
                                     />
                                 </div>
                             </motion.div>
@@ -287,6 +292,7 @@ export default function CancelPlanAnimation({
                                     <ObtainOffer
                                         handleContinue={handleContinue}
                                         setShowSnak={setShowSnak}
+                                        selectedUser={selectedUser}
                                     />
                                 </div>
                             </motion.div>
