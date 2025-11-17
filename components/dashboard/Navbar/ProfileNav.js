@@ -1313,47 +1313,46 @@ const ProfileNav = () => {
             msOverflowStyle: "none",
           }}
         >
-          <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-11/12 flex flex-col items-center gap-2">
-              {/* Show agency branding for subaccount users, otherwise show assignX */}
-              {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
-                <>
-                  {/* If logo exists, show only logo */}
-                  {reduxUser.agencyBranding.logoUrl ? (
-                    <div className="w-full flex justify-start pl-6">
-                      <Image
-                        src={reduxUser.agencyBranding.logoUrl}
-                        alt="agency logo"
-                        height={40}
-                        width={140}
-                        objectFit="contain"
-                        style={{ maxHeight: "40px" }}
-                      />
-                    </div>
-                  ) : (
-                    /* If no logo, show only agency name */
-                    reduxUser.agencyBranding.companyName && (
-                      <div className="w-full text-left pl-6">
-                        <div className="text-lg font-bold text-black truncate">
-                          {reduxUser.agencyBranding.companyName}
-                        </div>
+          <div className="w-full flex flex-col gap-2">
+            {/* Show agency branding for subaccount users, otherwise show assignX */}
+            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
+              <>
+                {/* If logo exists, show only logo */}
+                {reduxUser.agencyBranding.logoUrl ? (
+                  <div className="w-full flex justify-start pl-6">
+                    <Image
+                      src={reduxUser.agencyBranding.logoUrl}
+                      alt="agency logo"
+                      height={40}
+                      width={140}
+                      objectFit="contain"
+                      style={{ maxHeight: "40px", marginLeft: "-8px" }}
+                    />
+                  </div>
+                ) : (
+                  /* If no logo, show only agency name */
+                  reduxUser.agencyBranding.companyName && (
+                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                      <div className="text-lg font-bold text-black truncate">
+                        {reduxUser.agencyBranding.companyName}
                       </div>
-                    )
-                  )}
-                </>
-              ) : (
-                /* Default assignX logo for regular users */
-                <div className="w-full flex justify-start pl-6">
-                  <Image
-                    src={"/assets/assignX.png"}
-                    alt="profile"
-                    height={33}
-                    width={140}
-                    objectFit="contain"
-                  />
-                </div>
-              )}
-            </div>
+                    </div>
+                  )
+                )}
+              </>
+            ) : (
+              /* Default assignX logo for regular users */
+              <div className="w-full flex justify-start pl-6">
+                <Image
+                  src={"/assets/assignX.png"}
+                  alt="profile"
+                  height={33}
+                  width={140}
+                  objectFit="contain"
+                  style={{ marginLeft: "-8px" }}
+                />
+              </div>
+            )}
           </div>
 
           <div className="w-full mt-8 flex flex-col items-center gap-3">
