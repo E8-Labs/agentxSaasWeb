@@ -1318,8 +1318,8 @@ const ProfileNav = () => {
               {/* Show agency branding for subaccount users, otherwise show assignX */}
               {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
                 <>
-                  {/* Agency Logo */}
-                  {reduxUser.agencyBranding.logoUrl && (
+                  {/* If logo exists, show only logo */}
+                  {reduxUser.agencyBranding.logoUrl ? (
                     <div className="w-full flex justify-center">
                       <Image
                         src={reduxUser.agencyBranding.logoUrl}
@@ -1330,23 +1330,16 @@ const ProfileNav = () => {
                         style={{ maxHeight: "40px" }}
                       />
                     </div>
-                  )}
-                  {/* Agency Name - always show if available */}
-                  {reduxUser.agencyBranding.companyName && (
-                    <div className="w-full text-center">
-                      <div className="text-lg font-bold text-black truncate">
-                        {reduxUser.agencyBranding.companyName}
+                  ) : (
+                    /* If no logo, show only agency name */
+                    reduxUser.agencyBranding.companyName && (
+                      <div className="w-full text-center">
+                        <div className="text-lg font-bold text-black truncate">
+                          {reduxUser.agencyBranding.companyName}
+                        </div>
                       </div>
-                    </div>
+                    )
                   )}
-                  {/* Powered by assignX */}
-                  <div className="w-full flex justify-center mt-1">
-                    <div className="text-xs text-gray-500">
-                      Powered by{" "}
-                      <span className="text-purple">assignX</span>
-                      <span className="text-gray-400">.ai</span>
-                    </div>
-                  </div>
                 </>
               ) : (
                 /* Default assignX logo for regular users */
