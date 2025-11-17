@@ -89,7 +89,7 @@ const VideoPlayerModal = ({ open, onClose, videoTitle, videoUrl, videoDescriptio
           )}
 
           {/* Video Section */}
-          <div className="mt-2">
+          <div className="">
             {isLoading ? (
               <div className="w-full flex flex-row items-center justify-center mt-4">
                 <CircularProgress />

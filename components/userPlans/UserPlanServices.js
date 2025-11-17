@@ -185,11 +185,14 @@ export const getUserLocalData = () => {
     return null;
 }
 
-export const initiateCancellation = async () => {
+export const initiateCancellation = async (userId) => {
     try {
         let token = AuthToken()
-
-        const response = await axios.post(Apis.initiateCancelation, {}, {
+        let path = Apis.initiateCancelation
+        if (userId) {
+            path = `${path}?userId=${userId}`
+        }
+        const response = await axios.post(path, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'

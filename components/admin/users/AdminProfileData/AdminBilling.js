@@ -1061,7 +1061,7 @@ function AdminBilling({ selectedUser, from }) {
 
   const handleCancelClick = async () => {
     setCancelInitiateLoader(true)
-    await initiateCancellation()
+    await initiateCancellation(selectedUser.id)
     setShowCancelPoup(true)
     setCancelInitiateLoader(false)
   }
@@ -2017,6 +2017,7 @@ function AdminBilling({ selectedUser, from }) {
         userLocalData={userLocalData}
         setShowSnak={setShowSnack}
         isPaused={isPaused}
+        selectedUser={selectedUser}
       />
 
     </div>

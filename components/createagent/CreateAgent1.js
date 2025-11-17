@@ -974,7 +974,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 </div>
 
                 <div className="mt-1 text-[13px] text-gray-500 font-[500]">
-                  Inbound and Outbound calls need to be handled by different agents
+                 {`*Inbound and Outbound calls need to be handled by different agents.`}
                 </div>
 
                 <div className="mt-2" style={styles.headingStyle}>
