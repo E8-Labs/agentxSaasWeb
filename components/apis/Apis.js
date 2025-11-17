@@ -2,11 +2,11 @@
 
 // //console.log;
 let BasePath =
-// process.env.NEXT_PUBLIC_BASE_API_URL || (
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" 
     : "https://apimyagentx.com/agentxtest/"
-  // ) 
+  ) 
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -342,6 +342,14 @@ const Apis = {
   getHowToVideo: `${BasePath}api/user/getHowToVideos`,
 toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
 updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
+
+  // Promo Code APIs
+  getPromoCodes: `${BasePath}api/admin/promo-codes`,
+  getPromoCodeById: `${BasePath}api/admin/promo-codes`,
+  createPromoCode: `${BasePath}api/admin/promo-codes`,
+  updatePromoCode: `${BasePath}api/admin/promo-codes`,
+  deletePromoCode: `${BasePath}api/admin/promo-codes`,
+  getPromoCodeUsage: `${BasePath}api/admin/promo-codes`,
 
   
 };
