@@ -110,6 +110,7 @@ const ProfileNav = () => {
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
   const [loading, setLoading] = useState(false);
   const [localUser, setLocalUser] = useState(null);
+  
 
 
 
@@ -1313,14 +1314,50 @@ const ProfileNav = () => {
           }}
         >
           <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-11/12">
-              <Image
-                src={"/assets/assignX.png"}
-                alt="profile"
-                height={33}
-                width={140}
-                objectFit="contain"
-              />
+            <div className="w-11/12 flex flex-col items-center gap-2">
+              {/* Show agency branding for subaccount users, otherwise show assignX */}
+              {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
+                <>
+                  {/* Agency Logo */}
+                  {reduxUser.agencyBranding.logoUrl && (
+                    <div className="w-full flex justify-center">
+                      <Image
+                        src={reduxUser.agencyBranding.logoUrl}
+                        alt="agency logo"
+                        height={40}
+                        width={140}
+                        objectFit="contain"
+                        style={{ maxHeight: "40px" }}
+                      />
+                    </div>
+                  )}
+                  {/* Agency Name - always show if available */}
+                  {reduxUser.agencyBranding.companyName && (
+                    <div className="w-full text-center">
+                      <div className="text-lg font-bold text-black truncate">
+                        {reduxUser.agencyBranding.companyName}
+                      </div>
+                    </div>
+                  )}
+                  {/* Powered by assignX */}
+                  <div className="w-full flex justify-center mt-1">
+                    <div className="text-xs text-gray-500">
+                      Powered by{" "}
+                      <span className="text-purple">assignX</span>
+                      <span className="text-gray-400">.ai</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Default assignX logo for regular users */
+                <Image
+                  src={"/assets/assignX.png"}
+                  alt="profile"
+                  height={33}
+                  width={140}
+                  objectFit="contain"
+                />
+              )}
             </div>
           </div>
 
