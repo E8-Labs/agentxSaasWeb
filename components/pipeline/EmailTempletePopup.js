@@ -12,6 +12,7 @@ import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
 import { GreetingTagInput } from './tagInputs/GreetingTagInput';
 import { PersistanceKeys } from '@/constants/Constants';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 function EmailTempletePopup({
     open,
@@ -31,7 +32,8 @@ function EmailTempletePopup({
 
 }) {
 
-    const bodyRef = useRef(null);
+    const richTextEditorRef = useRef(null);
+    const [selectedVariable, setSelectedVariable] = useState('');
 
 
     console.log('EmailTempletePopup: addRow called with:', {
@@ -105,17 +107,12 @@ function EmailTempletePopup({
 
     const getColumns = async () => {
         let res = await getUniquesColumn()
-        // console.log('res', res)
+        console.log('uniqueColumns', res)
         if (res) {
             setUniqueColumns(res)
         }
     }
 
-    useEffect(() => {
-        if (bodyRef.current && body) {
-            bodyRef.current.innerHTML = body;
-        }
-    }, [open, body]);
 
     // Auto-fill form when editing
     useEffect(() => {
@@ -819,27 +816,58 @@ function EmailTempletePopup({
                             />
                         </div>
 
-                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-                            Body
-                        </div>
-
-                        <div className=' mt-2'>
-                            <PromptTagInput
-                                promptTag={body}
-                                // kycsList={kycsData}
-                                uniqueColumns={uniqueColumns}
-                                tagValue={(t) => {
-                                    setBody(t);
-                                    setBodyChanged(true)
+                        <div className="space-y-2 mt-4">
+                            <div className="flex flex-row items-center justify-between">
+                                <label className="text-[15px] font-[400] text-[#00000080]">
+                                    Body
+                                </label>
+                                {uniqueColumns && uniqueColumns.length > 0 && (
+                                    <FormControl size="small" sx={{ minWidth: 180 }}>
+                                        <Select
+                                            value={selectedVariable}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                setSelectedVariable('');
+                                                if (value && richTextEditorRef.current) {
+                                                    richTextEditorRef.current.insertVariable(value);
+                                                }
+                                            }}
+                                            displayEmpty
+                                            sx={{
+                                                fontSize: '0.875rem',
+                                                height: '36px',
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#d1d5db',
+                                                },
+                                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#7902DF',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    borderColor: '#7902DF',
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                <em>Insert Variable...</em>
+                                            </MenuItem>
+                                            {uniqueColumns.map((variable, index) => (
+                                                <MenuItem key={index} value={variable}>
+                                                    {variable}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                )}
+                            </div>
+                            <RichTextEditor
+                                ref={richTextEditorRef}
+                                value={body}
+                                onChange={(html) => {
+                                    setBody(html);
+                                    setBodyChanged(true);
                                 }}
-                                showSaveChangesBtn={body}
-                                // from={"Template"}
-                                saveUpdates={async () => {
-
-                                }}
-                                editTitle={((isEditing && !IsdefaultCadence) || selectedTemp) ? 'Edit Email Body' : 'Email Body'}
-                                limit={160}
-                                from={"CreateEmail"}
+                                placeholder="Type here..."
+                                availableVariables={uniqueColumns || []}
                             />
                         </div>
 

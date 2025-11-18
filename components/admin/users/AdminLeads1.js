@@ -41,6 +41,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPerplexityModal";
 import AdminLeads from "./AdminLeads";
 import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const addColRef = useRef(null);
@@ -945,7 +946,13 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               />
             </div>
           ) : (
+
             <div className="h-[95vh]">
+              {selectedUser?.planCapabilities?.maxLeads < 10000000 && selectedUser?.plan?.planId != null && (
+                <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080', padding: 20 }}>
+                  {`${formatFractional2(selectedUser?.currentUsage?.maxLeads)}/${formatFractional2(selectedUser?.planCapabilities?.maxLeads || 0)} used`}
+                </div>
+              )}
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}

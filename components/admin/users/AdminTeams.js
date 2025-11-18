@@ -1,5 +1,5 @@
 "use client";
-import { Button, CircularProgress, colors, Fab } from "@mui/material";
+import { Button, CircularProgress, colors, Fab, Tooltip } from "@mui/material";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import Menu from "@mui/material/Menu";
@@ -182,7 +182,7 @@ function AdminTeam({ selectedUser }) {
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId:selectedUser.id
+          userId: selectedUser.id
         };
 
         console.log("api data is", apidata);
@@ -504,7 +504,8 @@ function AdminTeam({ selectedUser }) {
           bottom: 0
         }}>
         <DashboardSlider
-          needHelp={false} />
+          needHelp={false}
+          selectedUser={selectedUser} />
       </div>
       {showSnak && (
         <AgentSelectSnackMessage
@@ -518,7 +519,59 @@ function AdminTeam({ selectedUser }) {
         className=" w-full flex flex-row justify-between items-center py-4 px-4"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Staff</div>
+
+
+        <div className="flex flex-row items-center gap-3">
+
+
+          <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
+          {(selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
+            <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+              {`${selectedUser?.currentUsage?.maxTeamMembers}/${selectedUser?.planCapabilities?.maxTeamMembers || 0} used`}
+            </div>
+          )}
+
+          {
+            (selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
+              <Tooltip
+                title={`Additional team seats are $${selectedUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#ffffff", // Ensure white background
+                      color: "#333", // Dark text color
+                      fontSize: "14px",
+                      padding: "10px 15px",
+                      borderRadius: "8px",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: "#ffffff", // Match tooltip background
+                    },
+                  },
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: "#000000",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                  // onClick={() => setIntroVideoModal2(true)}
+                  />
+                </div>
+              </Tooltip>
+            )
+          }
+
+        </div>
+
         {/* <div>
           <NotficationsDrawer />
         </div> */}

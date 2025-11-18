@@ -11,7 +11,6 @@ const AgencyWalkThrough = ({ open, onClose }) => {
     const [loader, setLoader] = useState(false);
     const [videoLoading, setVideoLoading] = useState(false);
     const [playedVideos, setPlayedVideos] = useState(new Set());
-    const [skoolModalOpen, setSkoolModalOpen] = useState(false);
 
     const modalStyles = {
         position: "fixed",
@@ -59,20 +58,12 @@ const AgencyWalkThrough = ({ open, onClose }) => {
 
 
     const handleItemClick = (item, index) => {
-        if (item.id === 4) {
-            // Skool link - show modal instead of opening directly
-            setSkoolModalOpen(true);
-            setCurrentStep(index);
-            onClose();
-            return;
-        }
         setCurrentStep(index);
     };
 
     const handleJoinCommunity = (skoolUrl) => {
         window.open(skoolUrl, "_blank");
         setPlayedVideos(prev => new Set([...prev, 4]));
-        setSkoolModalOpen(false);
     };
 
     const handleVideoPlay = () => {
@@ -96,7 +87,12 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                 setCurrentStep(currentStep + 1);
             }
         } else if (currentItem.id === 3) {
-            // Connecting Twilio - mark walkthrough as shown and close
+            // Connecting Twilio - move to next step (Skool)
+            if (currentStep < checklist.length - 1) {
+                setCurrentStep(currentStep + 1);
+            }
+        } else if (currentItem.id === 4) {
+            // Join us on Skool - mark walkthrough as shown and close
             localStorage.setItem('agencyWalkthroughShown', 'true');
             onClose();
         }
@@ -110,61 +106,10 @@ const AgencyWalkThrough = ({ open, onClose }) => {
 
     const currentVideoUrl = checklist[currentStep]?.videoUrl;
     const skoolItem = checklist.find(item => item.id === 4);
+    const isSkoolStep = checklist[currentStep]?.id === 4;
 
     return (
         <>
-        {/* Skool Modal */}
-        <Modal
-            open={skoolModalOpen}
-            // onClose={() => setSkoolModalOpen(false)}
-            closeAfterTransition
-            BackdropProps={{
-                timeout: 100,
-                sx: {
-                    backgroundColor: "#00000040",
-                    backdropFilter: "blur(10px)",
-                },
-            }}
-        >
-            <Box sx={modalStyles}>
-                <div
-                    className="w-full w-1/2"
-                    style={{
-                        backgroundColor: "#F2F9FF",
-                        padding: 48,
-                        borderRadius: "16px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 24,
-                    }}
-                >
-                    {/* Skool Logo */}
-                    <div className="flex items-center justify-center">
-                        {/* Use Image component for Skool logo - add your logo file to public/otherAssets/skool-logo.png */}
-                        <Image
-                            src="/otherAssets/skool-logo.svg"
-                            alt="Skool"
-                            height={80}
-                            width={200}
-                            className="object-contain"
-                        />
-                    </div>
-
-                    {/* Join Community Button */}
-                    <button
-                        onClick={() => handleJoinCommunity(skoolItem?.route)}
-                        className="w-full bg-purple text-white rounded-lg py-4 px-6 font-semibold text-lg hover:bg-purple/90 transition-colors"
-                        style={{
-                            backgroundColor: '#7902DF',
-                        }}
-                    >
-                        Join Community
-                    </button>
-                </div>
-            </Box>
-        </Modal>
-
         {/* Main Walkthrough Modal */}
         <Modal
             open={open}
@@ -210,7 +155,10 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                                 <span
                                     className="text-purple cursor-pointer hover:underline"
                                     onClick={()=>{
-                                        setSkoolModalOpen(true);
+                                        const skoolIndex = checklist.findIndex(item => item.id === 4);
+                                        if (skoolIndex !== -1) {
+                                            setCurrentStep(skoolIndex);
+                                        }
                                     }}
                                 >
                                     Join us on Skool for more tutorials
@@ -285,7 +233,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                             </div>
 
                             {/* Next Button */}
-                            {checklist[currentStep]?.id !== 4 && (
+                            { (
                                 <button
                                     onClick={handleNext}
                                     disabled={loader}
@@ -297,15 +245,51 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                                             <span>Loading...</span>
                                         </>
                                     ) : (
-                                        currentStep === checklist.length - 1 || currentStep === checklist.length - 2 ? "Done" : "Next"
+                                        currentStep === checklist.length - 1 || currentStep === checklist.length - 1 ? "Done" : "Next"
                                     )}
                                 </button>
                             )}
                         </div>
 
-                        {/* Right Column - Video Player */}
+                        {/* Right Column - Video Player or Skool UI */}
                         <div className="flex flex-col w-3/5 flex-1 min-h-0">
-                            {currentVideoUrl ? (
+                            {isSkoolStep ? (
+                                <div 
+                                    className="w-full h-full flex items-center justify-center rounded-lg min-h-[300px]"
+                                    style={{
+                                        backgroundColor: "#F2F9FF",
+                                        padding: 48,
+                                        borderRadius: "16px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        gap: 24,
+                                    }}
+                                >
+                                    {/* Skool Logo */}
+                                    <div className="flex items-center justify-center">
+                                        <Image
+                                            src="/otherAssets/skool-logo.svg"
+                                            alt="Skool"
+                                            height={80}
+                                            width={200}
+                                            className="object-contain"
+                                        />
+                                    </div>
+
+                                    {/* Join Community Button */}
+                                    <button
+                                        onClick={() => handleJoinCommunity(skoolItem?.route)}
+                                        className="w-full bg-purple text-white rounded-lg py-4 px-6 font-semibold text-lg hover:bg-purple/90 transition-colors"
+                                        style={{
+                                            backgroundColor: '#7902DF',
+                                            maxWidth: '400px',
+                                        }}
+                                    >
+                                        Join Community
+                                    </button>
+                                </div>
+                            ) : currentVideoUrl ? (
                                 <div className="relative w-full h-[40vh] flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
 
                                     <video

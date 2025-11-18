@@ -673,7 +673,8 @@ const AgencyNavBar = () => {
       </div>
 
       <AgencyWalkThrough
-        open={showAgencyWalkThrough}
+        // open={showAgencyWalkThrough}
+        open={true}
         onClose={updateWalkthroughWatched}
       />
 

@@ -179,7 +179,8 @@ function AdminIntegration({ selectedUser }) {
           bottom: 0
         }}>
         <DashboardSlider
-          needHelp={false} />
+          needHelp={false}
+          selectedUser={selectedUser} />
       </div>
       <AgentSelectSnackMessage
         isVisible={showCopySnak}

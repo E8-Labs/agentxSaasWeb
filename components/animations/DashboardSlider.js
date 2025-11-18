@@ -11,12 +11,14 @@ import { AuthToken } from "../agency/plan/AuthDetails";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import UnlockPremiunFeatures from "../globalExtras/UnlockPremiunFeatures";
+import AdminGetProfileDetails from "../admin/AdminGetProfileDetails";
 
 const DashboardSlider = ({
   onTop = false,
   needHelp = true,
   closeHelp,
   autoFocus = true,
+  selectedUser = null,
 }) => {
   const [visible, setVisible] = useState(false);
   const [showIcon, setShowIcon] = useState(false);
@@ -91,8 +93,23 @@ const DashboardSlider = ({
 
   //fetch local details
   useEffect(() => {
-    fetchLocalDetails();
-  }, []);
+    initializeDashboardSlider()
+  }, [selectedUser]);
+
+
+  const initializeDashboardSlider = async () => {
+    if (selectedUser) {
+      setInitialLoader(true);
+      let data = await AdminGetProfileDetails(selectedUser.id);
+      if (data) {
+        setUserDetails(data);
+        processUserSettings(data);
+      }
+      setInitialLoader(false);
+    } else {
+      fetchLocalDetails();
+    }
+  }
 
   useEffect(() => {
     if (needHelp) {
@@ -155,13 +172,13 @@ const DashboardSlider = ({
   console.log('openUpgradePlan', openUpgradePlan)
 
   const handleOnClick = (item) => {
-    if (item.id === 3) {
-
+    const currentUser = selectedUser || userDetails;
+    
+    if (item.id === 3 || item.label === "Ask Sky for Help") {
       setShowAskSkyModal(true);
       setShouldStartCall(true);
-    } else if (item.id == 2) {
-
-      if (!userDetails?.plan?.price) {
+    } else if (item.id == 2 || item.label === "Support Webinar" || item.label?.includes("Support Webinar")) {
+      if (!currentUser?.plan?.price) {
         console.log('open')
         setOpenUpgradePlan(true)
       } else {
@@ -180,6 +197,68 @@ const DashboardSlider = ({
     setOpenUpgradePlan(false)
   }
 
+  // Process user settings for dynamic buttons
+  const processUserSettings = (user) => {
+    console.log('user in processUserSettings', user)
+    if (user?.userRole === "AgencySubAccount") {
+      const dynamicButtons = [];
+      const Data = user?.agencySettings;
+
+      if (Data?.supportWebinarCalendar) {
+        dynamicButtons.push({
+          id: crypto.randomUUID(),
+          label: Data.supportWebinarTitle || "Support Webinar",
+          url: Data.supportWebinarCalendarUrl || PersistanceKeys.SupportWebinarUrl,
+          image: "/otherAssets/supportBlack.jpg",
+          image2: "/otherAssets/supportBlue.jpg",
+        });
+      }
+
+      if (Data?.giveFeedback) {
+        dynamicButtons.push({
+          id: crypto.randomUUID(),
+          label: Data.giveFeedbackTitle || "Give Feedback",
+          url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
+          image: "/otherAssets/feedBackIcon.jpg",
+          image2: "/otherAssets/feedBackIconBlue.jpg",
+        });
+      }
+
+      if (Data?.hireTeam) {
+        dynamicButtons.push({
+          id: crypto.randomUUID(),
+          label: Data.hireTeamTitle || "Hire the Team",
+          url: Data.hireTeamUrl || PersistanceKeys.HireTeamUrl,
+          image: "/otherAssets/hireTeamBlack.jpg",
+          image2: "/otherAssets/hireTeamBlue.jpg",
+        });
+      }
+
+      if (Data?.billingAndSupport) {
+        dynamicButtons.push({
+          id: crypto.randomUUID(),
+          label: Data.billingAndSupportTitle || "Billing Support",
+          url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
+          image: "/otherAssets/billingIcon.jpg",
+          image2: "/otherAssets/billingIconBlue.png",
+        });
+      }
+      
+      if (Data?.resourceHub) {
+        dynamicButtons.push({
+          id: crypto.randomUUID(),
+          label: Data.resourceHubTitle || "Resource Hub",
+          url: Data.resourceHubUrl,
+          image: "/otherAssets/resourceHubBlack.jpg",
+          image2: "/otherAssets/resourceHubBlue.jpg",
+        });
+      }
+
+      // Always set buttons for AgencySubAccount (even if empty array to show "No Support Widgets Found")
+      setButtons(dynamicButtons);
+    }
+  };
+
   //fetch user local data
   const fetchLocalDetails = () => {
     const localData = localStorage.getItem("User");
@@ -191,63 +270,7 @@ const DashboardSlider = ({
       setUserDetails(UserDetailsLD.user);
       AuthToken = UserDetailsLD.token;
       console.log("Checking local data in slider", UserDetailsLD?.user?.userRole)
-      if (UserDetailsLD?.user?.userRole === "AgencySubAccount") {
-        const dynamicButtons = [];
-        const Data = UserDetailsLD?.user?.agencySettings;
-
-        if (Data.supportWebinarCalendar) {
-          dynamicButtons.push({
-            id: crypto.randomUUID(),
-            label: Data.supportWebinarTitle || "Support Webinar",
-            url: Data.supportWebinarCalendarUrl || PersistanceKeys.SupportWebinarUrl,
-            image: "/otherAssets/supportBlack.jpg",
-            image2: "/otherAssets/supportBlue.jpg",
-          });
-        }
-
-        if (Data.giveFeedback) {
-          dynamicButtons.push({
-            id: crypto.randomUUID(),
-            label: Data.giveFeedbackTitle || "Give Feedback",
-            url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
-            image: "/otherAssets/feedBackIcon.jpg",
-            image2: "/otherAssets/feedBackIconBlue.jpg",
-          });
-        }
-
-        if (Data.hireTeam) {
-          dynamicButtons.push({
-            id: crypto.randomUUID(),
-            label: Data.hireTeamTitle || "Hire the Team",
-            url: Data.hireTeamUrl || PersistanceKeys.HireTeamUrl,
-            image: "/otherAssets/hireTeamBlack.jpg",
-            image2: "/otherAssets/hireTeamBlue.jpg",
-          });
-        }
-
-        if (Data.billingAndSupport) {
-          dynamicButtons.push({
-            id: crypto.randomUUID(),
-            label: Data.billingAndSupportTitle || "Billing Support",
-            url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
-            image: "/otherAssets/billingIcon.jpg",
-            image2: "/otherAssets/billingIconBlue.png",
-          });
-        }
-        
-        if (Data.resourceHub) {
-          dynamicButtons.push({
-            id: crypto.randomUUID(),
-            label: Data.resourceHubTitle || "Resource Hub",
-            url: Data.resourceHubUrl,
-            image: "/otherAssets/resourceHubBlack.jpg",
-            image2: "/otherAssets/resourceHubBlue.jpg",
-          });
-        }
-
-        // Replace static array with API-driven buttons
-        setButtons(dynamicButtons);
-      }
+      processUserSettings(UserDetailsLD.user);
       setInitialLoader(false);
     }
   }
@@ -257,7 +280,7 @@ const DashboardSlider = ({
     if (showAskSkyModal) {
       return (
         <SupportWidget
-          user={userDetails}
+          user={selectedUser || userDetails}
           shouldStart={shouldStartCall}
           setShowAskSkyModal={setShowAskSkyModal}
           setShouldStartCall={setShouldStartCall}
@@ -286,13 +309,12 @@ const DashboardSlider = ({
             }}
           >
             {
-              userDetails?.userRole === "AgencySubAccount" ? (
+              (selectedUser?.userRole === "AgencySubAccount" || userDetails?.userRole === "AgencySubAccount" || (selectedUser && initialLoader)) ? (
                 <div className="w-full">
                   {
                     initialLoader ? (
                       <div className="w-full flex flex-row items-center justify-center h-[100px] gap-2">
                         <CircularProgress size={30} />
-                        <span className="text-black text-[12px] font-bold">Fetching Support Widgets...</span>
                       </div>
                     ) : (
                       buttons.length > 0 ? (
@@ -325,7 +347,7 @@ const DashboardSlider = ({
                                   {item.label}
                                 </div>
                                 {
-                                  item.id === 3 && (
+                                  (item.id === 3 || item.label === "Ask Sky for Help") && (
 
                                     <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
                                       Beta
@@ -380,7 +402,7 @@ const DashboardSlider = ({
                           {item.label}
                         </div>
                         {
-                          item.id === 3 && (
+                          (item.id === 3 || item.label === "Ask Sky for Help") && (
 
                             <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
                               Beta
@@ -515,7 +537,7 @@ const DashboardSlider = ({
         <div style={{ pointerEvents: "auto", backgroundColor: "transparent", height: "100%", width: "100%" }}>
           <SupportWidget
             isEmbed={false}
-            user={userDetails}
+            user={selectedUser || userDetails}
             shouldStart={shouldStartCall}
             setShowAskSkyModal={setShowAskSkyModal}
             setShouldStartCall={setShouldStartCall}

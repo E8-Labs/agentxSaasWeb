@@ -67,6 +67,9 @@ const AgentsListPaginated = ({
   selectedUser
 }) => {
   console.log('loader for more data ')
+
+  console.log("agencyUser in agents list paginated", agencyUser);
+  console.log("from in agents list paginated", from);
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
@@ -135,7 +138,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" ? "" : "pb-12"}`}
+      className={`${agencyUser ? "h-[70vh]" : from === "Admin" || from === "agency" ? "h-[43svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" || from === "agency" ? "" : "pb-12"}`}
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >

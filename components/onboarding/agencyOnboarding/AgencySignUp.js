@@ -531,7 +531,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Name"
-                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-black focus-visible:border-black transition-colors h-[40px]"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
                   ref={(el) => (inputsFields.current[0] = el)}
                   style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                   value={userName}
@@ -603,7 +603,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Email address"
-                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-black focus-visible:border-black transition-colors h-[40px]"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
                   style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                   value={userEmail}
                   onChange={(e) => {
@@ -750,7 +750,7 @@ const AgencySignUp = ({
                       width: "100%",
                       borderWidth: "0px",
                       backgroundColor: "transparent",
-                      paddingLeft: "30px",
+                      // paddingLeft: "30px",
                       paddingTop: "20px",
                       paddingBottom: "20px",
                       outline: "none",
@@ -789,7 +789,7 @@ const AgencySignUp = ({
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Agency Name"
-                      className="border rounded px-3 py-2.5 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-black focus-visible:border-black transition-colors h-[40px] w-full"
+                      className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
                       style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                       value={company}
                       onChange={(e) => {
@@ -813,7 +813,7 @@ const AgencySignUp = ({
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Website"
-                      className="border rounded px-3 py-2.5 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-black focus-visible:border-black transition-colors h-[40px] w-full"
+                      className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
                       style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                       value={website}
                       onChange={(e) => {
@@ -995,7 +995,7 @@ const AgencySignUp = ({
                                 border: "1px solid #ccc",
                                 borderRadius: "5px",
                               }}
-                              className=" focus:outline-none focus:ring-0"
+                              className="border rounded px-3 py-2.5 focus:border-black transition-colors"
                             />
                           ))}
                         </div>

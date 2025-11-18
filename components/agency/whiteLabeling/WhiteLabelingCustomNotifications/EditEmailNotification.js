@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Box, Typography } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Box, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import { Input } from '@/components/ui/input';
 import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 const EditEmailNotification = ({
     isOpen,
@@ -10,6 +11,8 @@ const EditEmailNotification = ({
     notificationData,
     onSave
 }) => {
+    const richTextEditorRef = useRef(null);
+    const [selectedVariable, setSelectedVariable] = useState('');
     const [formData, setFormData] = useState({
         emailSubject: '',
         emailBody: '',
@@ -107,19 +110,57 @@ const EditEmailNotification = ({
 
                     {/* Email Body / Description Field */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                            Body
-                        </label>
-                        <PromptTagInput
-                            promptTag={formData.emailBody}
-                            tagValue={(text) => handleInputChange('emailBody', text)}
-                            uniqueColumns={notificationData?.availableVariables || []}
-                            kycsList={[]}
-                            placeholder="Enter email body..."
-                            from="EmailNotification"
-                            isEdit={true}
+                        <div className="flex flex-row items-center justify-between">
+                            <label className="text-sm font-medium text-gray-700">
+                                Body
+                            </label>
+                            {notificationData?.availableVariables && notificationData.availableVariables.length > 0 && (
+                                <FormControl size="small" sx={{ minWidth: 180 }}>
+                                    <Select
+                                        value={selectedVariable}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setSelectedVariable('');
+                                            if (value && richTextEditorRef.current) {
+                                                richTextEditorRef.current.insertVariable(value);
+                                            }
+                                        }}
+                                        displayEmpty
+                                        sx={{
+                                            fontSize: '0.875rem',
+                                            height: '36px',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#d1d5db',
+                                            },
+                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#7902DF',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#7902DF',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            <em>Insert Variable...</em>
+                                        </MenuItem>
+                                        {notificationData.availableVariables.map((variable, index) => (
+                                            <MenuItem key={index} value={variable}>
+                                                {variable}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
+                        </div>
+                        <RichTextEditor
+                            ref={richTextEditorRef}
+                            value={formData.emailBody}
+                            onChange={(html) => handleInputChange('emailBody', html)}
+                            placeholder="Type here..."
+                            availableVariables={[]}
                         />
                     </div>
+
 
                     {/* CTA Field - Only show if notification supports CTA */}
                     {notificationData?.supportsCTA && formData?.cta !== undefined && (

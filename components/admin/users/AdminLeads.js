@@ -51,6 +51,7 @@ import AdminAssignLead from "./AdminAssignLead";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -741,7 +742,7 @@ const AdminLeads = ({
             const data = response.data.data;
             if (offset == 0) {
               let sheetId = null;
-              if ( data && data.length > 0) {
+              if (data && data.length > 0) {
                 sheetId = data[0].sheetId;
                 setShowNoLeadsLabel(null);
               } else {
@@ -1595,7 +1596,8 @@ const AdminLeads = ({
           bottom: 0
         }}>
         <DashboardSlider
-          needHelp={false} />
+          needHelp={false}
+          selectedUser={selectedUser} />
       </div>
       <AgentSelectSnackMessage
         isVisible={showsnackMessage}
@@ -1608,7 +1610,18 @@ const AdminLeads = ({
         style={{ paddingTop: !agencyUser ? "156px" : "0px" }}
       // style={{ borderBottom: "1px solid #15151510" }}
       >
-        <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
+
+
+        <div className="flex fex-row items-center gap-2">
+          <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+          {selectedUser?.currentUsage?.maxLeads && selectedUser?.planCapabilities?.maxLeads < 10000000 && selectedUser?.plan?.planId != null && (
+            <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+              {`${formatFractional2(selectedUser?.currentUsage?.maxLeads)}/${formatFractional2(selectedUser?.planCapabilities?.maxLeads) || 0} used`}
+            </div>
+          )}
+        </div>
+
+
         <div className="flex fex-row items-center gap-6">
           <button
             style={{
@@ -1683,7 +1696,7 @@ const AdminLeads = ({
                         }}
                       >
                         <div className="flex flex-row justify-end">
-                          <CloseBtn onClick={() => setAssignLeadModal(false)}/>
+                          <CloseBtn onClick={() => setAssignLeadModal(false)} />
                         </div>
                         <div className="w-full">
                           <AdminAssignLead
@@ -1806,7 +1819,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters);
                             }}
                           >
-                            <CloseBtn onClick={() => {}} />
+                            <CloseBtn onClick={() => { }} />
                           </button>
                         </div>
                       </div>
@@ -1836,7 +1849,7 @@ const AdminLeads = ({
                                 alt="*"
                               />
                             </button>
-                            <div style={{ fontSize: "15", fontWeight: "600",whiteSpace: "nowrap" }}>
+                            <div style={{ fontSize: "15", fontWeight: "600", whiteSpace: "nowrap" }}>
                               Select All
                             </div>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
@@ -2167,7 +2180,7 @@ const AdminLeads = ({
                 <div className="w-full flex flex-col items-center justify-start ">
                   <div className="flex flex-row items-center justify-between w-full">
                     <div>Filter</div>
-                    <CloseBtn onClick={() => setShowFilterModal(false)}/>
+                    <CloseBtn onClick={() => setShowFilterModal(false)} />
                   </div>
                   <div className="mt-2 w-full overflow-auto h-[85%]">
                     <div className="flex flex-row items-start gap-4">
@@ -2510,7 +2523,7 @@ const AdminLeads = ({
                             { id: 5, value: "" },
                             { id: 6, value: "" },
                           ]);
-                        }}/>
+                        }} />
                       </div>
 
                       <div className="px-4 w-full">
@@ -2582,12 +2595,12 @@ const AdminLeads = ({
                               />
                               <div style={{ width: "5%" }}>
                                 {index > 2 && (
-                                    <button
-                                      className="outline-none border-none"
-                                      onClick={() => handleDelete(input.id)}
-                                    >
-                                      <CloseBtn onClick={() => handleDelete(input.id)} />
-                                    </button>
+                                  <button
+                                    className="outline-none border-none"
+                                    onClick={() => handleDelete(input.id)}
+                                  >
+                                    <CloseBtn onClick={() => handleDelete(input.id)} />
+                                  </button>
                                 )}
                               </div>
                             </div>

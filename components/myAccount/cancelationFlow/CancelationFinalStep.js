@@ -70,24 +70,20 @@ function CancelationFinalStep({
         setloading(true)
         let response = null;
         const reason = selectReason === "Others" ? otherReasonInput : selectReason;
-        
+
         if (selectedUser) {
             response = await completeCancelation(reason, selectedUser);
         } else {
             response = await completeCancelation(reason);
-        }
+         }
         setloading(false)
+
+        let nextAction = "closeModel"
+        handleContinue(nextAction)
+        setShowSnak(response.message, SnackbarTypes.Success)
         return response;
     }
 
-
-    const handlePause = async () => {
-        setloading2(true)
-        await pauseSubscription()
-        let nextAction = "closeModel"
-        handleContinue(nextAction)
-        setloading2(false)
-    }
 
 
     return (

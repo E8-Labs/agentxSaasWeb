@@ -367,7 +367,7 @@ function SelectedUserDetails({
                                         ${selectedManu.id == item.id && "border-b-[2px] border-purple"}`
                                             }>
                                             <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
-                                                height={item.name === "Activity" ? 16 : 24} width={item.name === "Activity" ? 16 : 24} alt='*'
+                                                height={24} width={24} alt='*'
                                             />
 
                                             <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000', paddingLeft : item.name === "Activity" ? "5px" : "0px", }}>

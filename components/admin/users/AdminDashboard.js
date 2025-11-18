@@ -320,7 +320,7 @@ const AdminDashboard = ({ selectedUser }) => {
           right: 0,
           bottom: 0
         }}>
-        <DashboardSlider />
+        <DashboardSlider selectedUser={selectedUser} />
       </div>
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
