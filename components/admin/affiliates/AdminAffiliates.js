@@ -630,6 +630,8 @@ function AdminAffiliates({ selectedUser }) {
                           setShowUsersModal(true)
                           setSelectedAffiliate(item)
                         }}
+                        className="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                        style={{ cursor: 'pointer' }}
                       >
                         {item.totalUsers ? item?.totalUsers : "-"}
                       </button>
@@ -638,7 +640,7 @@ function AdminAffiliates({ selectedUser }) {
                   <div className="w-3/12  h-full border-r-2 border-[#15151510] pl-4">
                     <div style={styles.text2}>
                       {item.topSpender
-                        ? `${item.topSpender?.User?.name}
+                        ? `${item.topSpender?.user?.name}
                         ($${item.topSpender?.totalSpent.toFixed(2)})`
                         : ""}
                     </div>

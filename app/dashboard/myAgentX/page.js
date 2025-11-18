@@ -5338,7 +5338,7 @@ function Page() {
                           setReduxUser={setReduxUser}
                           requestFeature={true}
                         />
-                      ) : !allowLiveCallTransfer ? (
+                      ) : !reduxUser?.agencyCapabilities?.allowLiveCallTransfer ? (
                         <UpgradeTagWithModal
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
