@@ -18,6 +18,12 @@ const getProfileDetails = async (selectedAgency) => {
         Authtoken = Data.token;
       }
 
+      // Early return if no token - don't make API call
+      if (!Authtoken) {
+        console.log("No auth token found, skipping profile API call");
+        return null;
+      }
+
       // //console.log;
 
       let ApiPath = Apis.getProfileData;

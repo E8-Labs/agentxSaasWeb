@@ -52,13 +52,19 @@ const AddEditTutorials = ({
     }, [videoPreview]);
 
     // Check if the values are entered
+    // In edit mode, allow saving if title is provided (video is optional)
+    // In add mode, require both title and video
     useEffect(() => {
-        if (!title.trim() || (!selectedVideo && !videoPreview)) {
+        if (!title.trim()) {
             setIsDisabled(true);
-        } else {
+        } else if (isEditMode) {
+            // In edit mode, only title is required
             setIsDisabled(false);
+        } else {
+            // In add mode, both title and video are required
+            setIsDisabled(!selectedVideo && !videoPreview);
         }
-    }, [title, selectedVideo, videoPreview]);
+    }, [title, selectedVideo, videoPreview, isEditMode]);
 
     const processFile = (file) => {
         if (!file) return;

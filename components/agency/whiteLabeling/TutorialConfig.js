@@ -164,14 +164,38 @@ const TutorialConfig = () => {
       let response;
 
       console.log("updatedData is of handleSaveTutorial", updatedData);
-
-      // If a new video file is uploaded, send FormData
+      console.log("selectedTutorial is", selectedTutorial);
+      console.log("isEditMode is", isEditMode);
 
       const formData = new FormData();
-      if (updatedData.media) {
-      formData.append("media", updatedData.media);
+      
+      // Check if this is an uploaded video (has database properties like uploadStatus, userId, or videoUrl from uploads)
+      // Default tutorials have IDs like 1, 2, 3 and videoUrl from HowtoVideos constants
+      const isUploadedVideo = selectedTutorial && (
+        selectedTutorial.uploadStatus !== undefined || 
+        selectedTutorial.userId !== undefined ||
+        (selectedTutorial.videoUrl && (
+          selectedTutorial.videoUrl.includes('/uploads/') || 
+          selectedTutorial.videoUrl.includes('/agentx/uploads/') ||
+          selectedTutorial.videoUrl.includes('/agentxtest/uploads/')
+        ))
+      );
+      
+      // If editing an existing uploaded video, include videoId
+      if (isEditMode && isUploadedVideo && selectedTutorial.id) {
+        formData.append("videoId", selectedTutorial.id);
       }
-      formData.append("videoType", selectedTutorial.videoType);
+      
+      // Only append media if a new file is selected
+      if (updatedData.media) {
+        formData.append("media", updatedData.media);
+      }
+      
+      // Only append videoType if we have it (for new uploads or when updating)
+      if (selectedTutorial && selectedTutorial.videoType) {
+        formData.append("videoType", selectedTutorial.videoType);
+      }
+      
       formData.append("title", updatedData.title);
       formData.append("enabled", isEditMode && selectedTutorial ? selectedTutorial.enabled : true);
 
@@ -180,18 +204,30 @@ const TutorialConfig = () => {
         console.log("value is of formData", value);
       });
 
-      // Upload video file with metadata
-      response = await axios.post(Apis.updateHowToVideo, formData, {
+      // Use update endpoint only if editing an existing uploaded video
+      // Use upload endpoint for default tutorials (even in "edit" mode) or new uploads
+      const apiEndpoint = (isEditMode && isUploadedVideo && selectedTutorial.id) 
+        ? Apis.updateHowToVideo 
+        : Apis.uploadHowToVideo;
+
+      console.log("Using API endpoint:", apiEndpoint);
+      console.log("isUploadedVideo:", isUploadedVideo);
+
+      response = await axios.post(apiEndpoint, formData, {
         headers: {
           "Authorization": "Bearer " + token,
           "Content-Type": "multipart/form-data",
         }
       });
 
-
       if (response.data.status === true) {
         // Refresh the list after saving to get updated data from server
         await getHowToVideos();
+        setShowSnack({
+          type: SnackbarTypes.Success,
+          message: "Tutorial saved successfully!",
+          isVisible: true
+        });
       }
 
       setShowEditModal(false);
@@ -201,10 +237,9 @@ const TutorialConfig = () => {
       console.log("error saving tutorial:", error);
       setShowSnack({
         type: SnackbarTypes.Error,
-        message: "Failed to save tutorial. Please try again.",
+        message: error.response?.data?.message || "Failed to save tutorial. Please try again.",
         isVisible: true
       });
-      // alert("Failed to save tutorial. Please try again.");
     } finally {
       setIsSaving(false);
     }

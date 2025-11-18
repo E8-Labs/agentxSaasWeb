@@ -18,6 +18,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
+import { usePathname } from "next/navigation";
 import { PersistanceKeys, setUserType, userType } from "@/constants/Constants";
 import {
   getLocalLocation,
@@ -37,6 +38,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const timerRef = useRef();
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [snackMessage, setSnackMessage] = useState("");
   const [msgType, setMsgType] = useState(null);
@@ -110,8 +112,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         try {
           let d = JSON.parse(localData);
           
+          // Check if token exists before making API call
+          if (!d.token) {
+            // No token, clear localStorage and show login form
+            localStorage.removeItem("User");
+            setIsCheckingAuth(false);
+            return;
+          }
+          
           // Verify the user data is still valid by calling the profile API
-          const profileResponse = await getProfileDetails();
+          // Add timeout to prevent hanging
+          const profileResponse = await Promise.race([
+            getProfileDetails(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error("Profile check timeout")), 5000)
+            )
+          ]).catch(error => {
+            console.error("Error or timeout checking authentication:", error);
+            return null;
+          });
           
           // If profile API fails (returns null or 404), user is not authenticated
           if (!profileResponse || profileResponse?.data?.status !== true) {
@@ -125,21 +144,46 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           const updatedData = JSON.parse(localStorage.getItem("User") || localData);
           d = updatedData;
 
-          // set user type in global variable
+          // Safety check: ensure user object exists
+          if (!d || !d.user) {
+            console.error("Invalid user data structure, clearing localStorage");
+            localStorage.removeItem("User");
+            setIsCheckingAuth(false);
+            return;
+          }
+
+          // Determine redirect path based on user type
+          let redirectPath = "/dashboard";
           if (d.user.userType == "admin") {
-            router.push("/admin");
+            redirectPath = "/admin";
           } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
-            router.push("/agency/dashboard");
+            redirectPath = "/agency/dashboard";
           } else if (d.user.userRole == "AgencySubAccount") {
             if (d.user.plan) {
-              router.push("/dashboard");
+              redirectPath = "/dashboard";
             } else {
-              router.push("/subaccountInvite/subscribeSubAccountPlan");
+              redirectPath = "/subaccountInvite/subscribeSubAccountPlan";
             }
-          } else {
-            router.push("/dashboard");
           }
-          // Keep loading state true while redirecting
+
+          // Check if we're already on the correct path (or a subpath)
+          // This prevents redirect loops
+          if (pathname === redirectPath || pathname.startsWith(redirectPath + "/")) {
+            console.log("✅ Already on correct path, no redirect needed");
+            setIsCheckingAuth(false);
+            return;
+          }
+
+          // IMPORTANT: Set cookie before redirecting so middleware can see it
+          if (typeof document !== "undefined" && d.user) {
+            setCookie(d.user, document);
+          }
+
+          console.log("✅ Authentication successful, redirecting to:", redirectPath);
+          
+          // Use window.location.href for hard redirect to ensure navigation happens
+          // This will completely reload the page and clear the loading state
+          window.location.href = redirectPath;
           return;
         } catch (error) {
           // If there's an error, clear localStorage and show login form

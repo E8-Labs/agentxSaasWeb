@@ -102,7 +102,7 @@ const Apis = {
 
   //cancel plan
   cancelPlan: `${BasePath}api/user/cancelPlan`,
-  canellationComplete: `${BasePath}api/user/cancellation/complete`,
+  // canellationComplete: `${BasePath}api/user/cancellation/complete`,
   //redeem plan
   redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
 
@@ -340,8 +340,9 @@ const Apis = {
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
 
   getHowToVideo: `${BasePath}api/user/getHowToVideos`,
-toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
-updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
+  toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
+  updateHowToVideo: `${BasePath}api/user/updateHowToVideo`,
+  uploadHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
 
   // Promo Code APIs
   getPromoCodes: `${BasePath}api/admin/promo-codes`,
