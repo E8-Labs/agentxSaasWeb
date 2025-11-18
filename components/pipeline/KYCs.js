@@ -383,8 +383,12 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   function GetTitleForKyc() {
     let type = "KYC - Seller";
     if (user) {
+      console.log("user is", user)
       let profile = user.user;
-      if (profile.userType != UserTypes.RealEstateAgent) {
+      if(selectedUser){
+        profile = selectedUser;
+      }
+      if (profile?.userType && profile?.userType != UserTypes.RealEstateAgent) {
         type = "KYC";
       }
     }
@@ -395,7 +399,10 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     let type = true;
     if (user) {
       let profile = user.user;
-      if (profile.userType != UserTypes.RealEstateAgent) {
+      if(selectedUser){
+        profile = selectedUser;
+      }
+      if (profile?.userType && profile?.userType != UserTypes.RealEstateAgent) {
         type = false;
       }
     }
