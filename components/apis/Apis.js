@@ -2,11 +2,11 @@
 
 // //console.log;
 let BasePath =
-// process.env.NEXT_PUBLIC_BASE_API_URL || (
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" 
     : "https://apimyagentx.com/agentxtest/"
-  // ) 
+  ) 
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -362,6 +362,11 @@ updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
   getDomainStatus: `${BasePath}api/agency/branding/domain`,
   removeCustomDomain: `${BasePath}api/agency/branding/domain`,
   getBrandingAuditLogs: `${BasePath}api/agency/branding/audit`,
+
+  // Agency Global Phone Number APIs
+  getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,
+  setAgencyGlobalNumber: `${BasePath}api/agency/set-global-number`,
+  unsetAgencyGlobalNumber: `${BasePath}api/agency/unset-global-number`,
 
   
 };

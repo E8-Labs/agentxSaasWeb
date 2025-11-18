@@ -1,0 +1,384 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import axios from "axios";
+import Apis from "@/components/apis/Apis";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import {
+  CircularProgress,
+  Button,
+  Snackbar,
+  Alert,
+  Fade,
+} from "@mui/material";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import moment from "moment";
+
+function AgencyPhoneNumbers({ selectedAgency }) {
+  const [phoneNumbers, setPhoneNumbers] = useState([]);
+  const [globalNumber, setGlobalNumber] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null); // Track which action is loading
+  const [snackMsg, setSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false,
+  });
+
+  useEffect(() => {
+    fetchPhoneNumbers();
+  }, []);
+
+  const fetchPhoneNumbers = async () => {
+    try {
+      setLoading(true);
+      const token = AuthToken();
+      if (!token) {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message: "Authentication token not found",
+          isVisible: true,
+        });
+        return;
+      }
+
+      const response = await axios.get(Apis.getAgencyPhoneNumbers, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response?.data?.status === true) {
+        const data = response.data.data;
+        setPhoneNumbers(data.phoneNumbers || []);
+        setGlobalNumber(data.globalNumber || null);
+      } else {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message: response?.data?.message || "Failed to fetch phone numbers",
+          isVisible: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching phone numbers:", error);
+      setSnackMsg({
+        type: SnackbarTypes.Error,
+        message:
+          error?.response?.data?.message ||
+          "An error occurred while fetching phone numbers",
+        isVisible: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSetGlobalNumber = async (phoneNumberId) => {
+    try {
+      setActionLoading(`set-${phoneNumberId}`);
+      const token = AuthToken();
+      if (!token) {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message: "Authentication token not found",
+          isVisible: true,
+        });
+        return;
+      }
+
+      const response = await axios.post(
+        Apis.setAgencyGlobalNumber,
+        { phoneNumberId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.status === true) {
+        const data = response.data.data;
+        setSnackMsg({
+          type: SnackbarTypes.Success,
+          message: data.alreadySet
+            ? "This number is already set as the global number"
+            : "Global number updated successfully",
+          isVisible: true,
+        });
+        // Refresh the list
+        await fetchPhoneNumbers();
+      } else {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message:
+            response?.data?.message || "Failed to set global number",
+          isVisible: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error setting global number:", error);
+      setSnackMsg({
+        type: SnackbarTypes.Error,
+        message:
+          error?.response?.data?.message ||
+          "An error occurred while setting global number",
+        isVisible: true,
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUnsetGlobalNumber = async () => {
+    try {
+      setActionLoading("unset");
+      const token = AuthToken();
+      if (!token) {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message: "Authentication token not found",
+          isVisible: true,
+        });
+        return;
+      }
+
+      const response = await axios.post(
+        Apis.unsetAgencyGlobalNumber,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.status === true) {
+        setSnackMsg({
+          type: SnackbarTypes.Success,
+          message: "Global number unset successfully",
+          isVisible: true,
+        });
+        // Refresh the list
+        await fetchPhoneNumbers();
+      } else {
+        setSnackMsg({
+          type: SnackbarTypes.Error,
+          message:
+            response?.data?.message || "Failed to unset global number",
+          isVisible: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error unsetting global number:", error);
+      setSnackMsg({
+        type: SnackbarTypes.Error,
+        message:
+          error?.response?.data?.message ||
+          "An error occurred while unsetting global number",
+        isVisible: true,
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const getSourceLabel = (source) => {
+    switch (source) {
+      case "agentx":
+        return "AgentX";
+      case "user_twilio":
+        return "Your Twilio";
+      case "imported":
+        return "Imported";
+      default:
+        return source || "Unknown";
+    }
+  };
+
+  const formatPhoneNumber = (phone) => {
+    // Format phone number for display (e.g., +1 (555) 123-4567)
+    if (!phone) return "";
+    const cleaned = phone.replace(/\D/g, "");
+    if (cleaned.length === 11 && cleaned[0] === "1") {
+      return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
+    }
+    return phone;
+  };
+
+  return (
+    <div className="w-full p-8" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      {/* Header */}
+      <div className="mb-6">
+        <div
+          className="text-2xl font-semibold mb-2"
+          style={{ color: "#000" }}
+        >
+          Phone Numbers List
+        </div>
+        <div className="text-sm" style={{ color: "#666" }}>
+          Manage your agency global phone numbers. The global number will be
+          visible to all subaccounts.
+        </div>
+      </div>
+
+      {/* Global Number Info Banner */}
+      {globalNumber && (
+        <div
+          className="mb-6 p-4 rounded-lg"
+          style={{
+            backgroundColor: "#7902DF10",
+            border: "1px solid #7902DF30",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold mb-1" style={{ color: "#7902DF" }}>
+                Current Global Number
+              </div>
+              <div className="text-lg font-medium" style={{ color: "#000" }}>
+                {formatPhoneNumber(globalNumber.phone)}
+              </div>
+            </div>
+            <Button
+              variant="outlined"
+              onClick={handleUnsetGlobalNumber}
+              disabled={actionLoading === "unset"}
+              style={{
+                borderColor: "#7902DF",
+                color: "#7902DF",
+                textTransform: "none",
+              }}
+            >
+              {actionLoading === "unset" ? (
+                <CircularProgress size={20} style={{ color: "#7902DF" }} />
+              ) : (
+                "Unset Global Number"
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Phone Numbers List */}
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <CircularProgress style={{ color: "#7902DF" }} />
+        </div>
+      ) : phoneNumbers.length === 0 ? (
+        <div
+          className="text-center py-12 rounded-lg"
+          style={{ backgroundColor: "#f5f5f5" }}
+        >
+          <div className="text-lg font-medium mb-2" style={{ color: "#666" }}>
+            No phone numbers found
+          </div>
+          <div className="text-sm" style={{ color: "#999" }}>
+            Add phone numbers to your account to get started.
+          </div>
+        </div>
+      ) : (
+        <div
+          className="flex flex-col gap-4 overflow-y-auto"
+          style={{ maxHeight: "600px" }}
+        >
+          {phoneNumbers.map((number) => {
+            const isGlobal = number.isAgencyGlobalNumber;
+            const isLoading = actionLoading === `set-${number.id}`;
+
+            return (
+              <div
+                key={number.id}
+                className="p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                style={{
+                  borderColor: isGlobal ? "#7902DF" : "#e0e0e0",
+                  backgroundColor: isGlobal ? "#7902DF10" : "#fff",
+                }}
+              >
+                {/* Left Section - Phone Number Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    {isGlobal && (
+                      <div
+                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                        style={{ backgroundColor: "#7902DF", color: "#fff" }}
+                      >
+                        Global Number
+                      </div>
+                    )}
+                    <div
+                      className="text-xl font-semibold"
+                      style={{ color: "#000" }}
+                    >
+                      {formatPhoneNumber(number.phone)}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                    <div style={{ color: "#666" }}>
+                      {getSourceLabel(number.source)}
+                      {number.isOwnTwilioAccount && " • Your Account"}
+                    </div>
+                    <div style={{ color: "#999" }}>
+                      <span className="font-medium">SID:</span> {number.phoneSid}
+                    </div>
+                    {number.createdAt && (
+                      <div style={{ color: "#999" }}>
+                        <span className="font-medium">Added:</span>{" "}
+                        {moment(number.createdAt).format("MMM DD, YYYY")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Section - Action Button */}
+                <div className="flex-shrink-0">
+                  {!isGlobal && (
+                    <Button
+                      variant="contained"
+                      onClick={() => handleSetGlobalNumber(number.id)}
+                      disabled={isLoading}
+                      style={{
+                        backgroundColor: "#7902DF",
+                        color: "#fff",
+                        textTransform: "none",
+                        minWidth: "180px",
+                      }}
+                    >
+                      {isLoading ? (
+                        <CircularProgress size={20} style={{ color: "#fff" }} />
+                      ) : (
+                        "Set as Global Number"
+                      )}
+                    </Button>
+                  )}
+
+                  {isGlobal && (
+                    <div
+                      className="text-sm py-2 px-4 text-center"
+                      style={{ color: "#7902DF", fontWeight: "500", minWidth: "180px" }}
+                    >
+                      Currently Global
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Snackbar for messages */}
+      <AgentSelectSnackMessage
+        snackMsg={snackMsg}
+        setSnackMsg={setSnackMsg}
+      />
+    </div>
+  );
+}
+
+export default AgencyPhoneNumbers;
+

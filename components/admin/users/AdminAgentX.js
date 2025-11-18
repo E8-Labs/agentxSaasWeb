@@ -90,6 +90,7 @@ import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListM
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 import { UpgradeTagWithModal } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
+import { getGlobalPhoneNumber } from "@/utilities/PhoneNumberUtility";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -4171,10 +4172,10 @@ const [featureTitle, setFeatureTitle] = useState("");
                                 })}
                                 <MenuItem
                                   style={styles.dropdownMenu}
-                                  value={showGlobalBtn ? 16505403715 : ""}
+                                  value={showGlobalBtn ? getGlobalPhoneNumber(reduxUser).replace("+", "") : ""}
                                   // disabled={!showGlobalBtn}
                                   disabled={
-                                    (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
+                                    (assignNumber && assignNumber.replace("+", "") === getGlobalPhoneNumber(reduxUser).replace("+", "")) ||
                                     (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
                                   }
                                   onClick={() => {
@@ -4183,11 +4184,11 @@ const [featureTitle, setFeatureTitle] = useState("");
                                       assignNumber
                                     );
                                     // return;
-                                    AssignNumber(Constants.GlobalPhoneNumber);
+                                    AssignNumber(getGlobalPhoneNumber(reduxUser));
                                     // handleReassignNumber(showConfirmationModal);
                                   }}
                                 >
-                                  {Constants.GlobalPhoneNumber}
+                                  {getGlobalPhoneNumber(reduxUser)}
                                   {showGlobalBtn &&
                                     " (available for testing calls only)"}
                                   {showGlobalBtn == false &&

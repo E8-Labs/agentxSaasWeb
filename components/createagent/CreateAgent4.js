@@ -28,6 +28,7 @@ import UpgardView from "@/constants/UpgardView";
 import { useUser } from "@/hooks/redux-hooks";
 import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 import AdminGetProfileDetails from "../admin/AdminGetProfileDetails";
+import { getGlobalPhoneNumber } from "@/utilities/PhoneNumberUtility";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -761,9 +762,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       ))}
                       <MenuItem
                         style={styles.dropdownMenu}
-                        value={showGlobalBtn ? 16505403715 : ""}
+                        value={showGlobalBtn ? getGlobalPhoneNumber(userData).replace("+", "") : ""}
                       >
-                        +16505403715
+                        {getGlobalPhoneNumber(userData)}
                         {showGlobalBtn && " (available for testing calls only)"}
                         {showGlobalBtn == false &&
                           " (Only for outbound agents. You must buy a number)"}

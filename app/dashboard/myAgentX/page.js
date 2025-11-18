@@ -96,6 +96,7 @@ import AskToUpgrade from "@/constants/AskToUpgrade";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { useUser } from "@/hooks/redux-hooks";
 import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
+import { getGlobalPhoneNumber } from "@/utilities/PhoneNumberUtility";
 import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
 import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
 import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
@@ -5214,12 +5215,12 @@ function Page() {
                               })}
                               <MenuItem
                                 style={styles.dropdownMenu}
-                                value={showGlobalBtn ? 16505403715 : ""}
+                                value={showGlobalBtn ? getGlobalPhoneNumber(reduxUser).replace("+", "") : ""}
                                 // disabled={!showGlobalBtn}
                                 disabled={
                                   (assignNumber &&
                                     assignNumber.replace("+", "") ===
-                                    Constants.GlobalPhoneNumber.replace(
+                                    getGlobalPhoneNumber(reduxUser).replace(
                                       "+",
                                       ""
                                     )) ||
@@ -5233,11 +5234,11 @@ function Page() {
                                   //   assignNumber
                                   // );
                                   // return;
-                                  AssignNumber(Constants.GlobalPhoneNumber);
+                                  AssignNumber(getGlobalPhoneNumber(reduxUser));
                                   // handleReassignNumber(showConfirmationModal);
                                 }}
                               >
-                                {Constants.GlobalPhoneNumber}
+                                {getGlobalPhoneNumber(reduxUser)}
                                 {showGlobalBtn &&
                                   " (available for testing calls only)"}
                                 {showGlobalBtn == false &&
