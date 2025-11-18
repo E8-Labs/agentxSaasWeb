@@ -25,6 +25,7 @@ import {
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
 import getProfileDetails from "../apis/GetProfile";
+import secureStorageService from "@/utilities/SecureStorageService";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginComponent = ({ length = 6, onComplete }) => {
@@ -472,21 +473,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       };
       console.log("Data sending in login api", ApiData);
       setLoginLoader(true);
-      const response = await axios.post(Apis.LogIn, ApiData, {
-
+      
+      // Use Next.js API route which sets httpOnly cookie
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
-        // credentials: "include", // Ensures cookies (JWT) are stored securely
-
+        credentials: 'include', // Include cookies in request
+        body: JSON.stringify(ApiData),
       });
-      // setLoginLoader(false);
-      //console.log;
-      if (response) {
-        // const data = response //await response.json();
-        console.log('data of login api is', response);
 
-        // console.log;
+      const data = await response.json();
+      console.log('data of login api is', data);
+
+      if (data) {
         // Redirect user or update state as needed
         let screenWidth = innerWidth;
 
@@ -495,97 +496,75 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setSnackMessage("Access your AI on Desktop");
         } else {
           setMsgType(
-            response.data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
+            data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
           );
 
-          setSnackMessage(response.data.message);
+          setSnackMessage(data.message);
         }
 
         setIsVisible(true);
 
-        if (response.data.status === true) {
+        if (data.status === true && data.data) {
 
-          if (response.data.data.user.profile_status === "paused") {
+          if (data.data.user.profile_status === "paused") {
             setLoginLoader(false)
             setMsgType(SnackbarTypes.Error)
             setSnackMessage("Your account has been frozen.")
             return
           }
           setLoaderTitle("Redirecting to dashboard...");
-          // if (
-          //   response.data.data.user.userType !== "RealEstateAgent" &&
-          //   response.data.data.user.userRole !== "Invitee"
-          // ) {
-          if (response.data.data.user.waitlist) {
-            // //console.log;
-
+          
+          if (data.data.user.waitlist) {
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              setCookie(response.data.data.user, document, twoHoursFromNow);
+              setCookie(data.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
           } else {
-            // //console.log;
-            // let routeTo = ""
-
-            localStorage.setItem("User", JSON.stringify(response.data.data));
-            //set cokie on locastorage to run middle ware
+            // Store user data using SecureStorageService
+            // This will store in both secure storage (cookies) and localStorage (for backward compatibility)
+            await secureStorageService.syncUser(data.data);
+            
+            // Also set cookie for middleware (if needed)
             if (typeof document !== "undefined") {
-              // //console.log;
-
-              setCookie(response.data.data.user, document);
+              setCookie(data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
-                // //console.log;
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                // //console.log;
-
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  console.log("user role is", response.data.data.user.userRole);
-                  // return
-                  if (response.data.data.user.userType == "admin") {
+                  console.log("user role is", data.data.user.userRole);
+                  if (data.data.user.userType == "admin") {
                     router.push("/admin");
-                  } else if (response.data.data.user.userRole == "AgencySubAccount") {
-                    if (response.data.data.user.plan) {
+                  } else if (data.data.user.userRole == "AgencySubAccount") {
+                    if (data.data.user.plan) {
                       router.push("/dashboard");
                     } else {
                       router.push("/subaccountInvite/subscribeSubAccountPlan");
                     }
-                  } else if (response.data.data.user.userRole == "Agency" || response.data.data.user.agencyTeammember === true) {
+                  } else if (data.data.user.userRole == "Agency" || data.data.user.agencyTeammember === true) {
                     router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/myAgentX");
                   }
                   return
-                  // if (data.data.user.userType == "admin") {
-                  //   router.push("/admin");
-                  // } 
-
-                  // else {
-                  //   router.push("/dashboard/leads");
-                  // }
                 }
               }
-            } else {
-              // //console.log;
             }
           }
         } else {
           setLoginLoader(false);
         }
-      } else {
-        // console.error("Login failed:", data.error);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error while login api:", error.response?.data || error.message);
-      } else {
-        console.error("General error while login api:", error);
-      }
+      console.error("Error occurred in login api:", error);
+      setLoginLoader(false);
+      setMsgType(SnackbarTypes.Error);
+      setSnackMessage("Login failed. Please try again.");
+      setIsVisible(true);
     }
   };
 

@@ -42,6 +42,7 @@ import { checkCurrentUserRole } from "@/components/constants/constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AgencyWalkThrough from "@/components/agency/walkthrough/AgencyWalkThrough";
 import { useUser } from "@/hooks/redux-hooks";
+import secureStorageService from "@/utilities/SecureStorageService";
 
 
 let stripePublickKey =
@@ -61,10 +62,18 @@ const AgencyNavBar = () => {
   const [showPlansPopup, setShowPlansPopup] = useState(false);
   const [showAddPaymentPopup, setShowAddPaymentPopup] = useState(false);
 
-  const initialUser =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("User"))?.user ?? null
-      : null;
+  const [initialUser, setInitialUser] = useState(null);
+  
+  // Initialize user from secure storage
+  useEffect(() => {
+    const loadUser = async () => {
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        setInitialUser(userData.user);
+      }
+    };
+    loadUser();
+  }, []);
 
 
 
@@ -116,31 +125,33 @@ const AgencyNavBar = () => {
 
 
   useEffect(() => {
-    const local = localStorage.getItem("User");
-    if (local) {
-      const parsed = JSON.parse(local);
-
-    }
-
-    // getAgencyPlans();
-    getUserProfile(); // sets `userDetails`
+    const loadUser = async () => {
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        // User data loaded
+      }
+      // getAgencyPlans();
+      getUserProfile(); // sets `userDetails`
+    };
+    loadUser();
   }, []);
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
-    getShowWalkThrough();
-    getAgencyPlans();
-    const LocalData = localStorage.getItem("User");
+    const initializeAgency = async () => {
+      await getShowWalkThrough();
+      await getAgencyPlans();
+      const userData = await secureStorageService.getUser();
 
-    let windowWidth = 1000;
-    if (typeof window !== "undefined") {
-      windowWidth = window.innerWidth;
-    }
-    if (windowWidth < 640) {
-      router.push("/createagent/desktop");
-    } else {
-      const d = localStorage.getItem("User");
-    }
+      let windowWidth = 1000;
+      if (typeof window !== "undefined") {
+        windowWidth = window.innerWidth;
+      }
+      if (windowWidth < 640) {
+        router.push("/createagent/desktop");
+      }
+    };
+    initializeAgency();
   }, []);
 
   // useEffect(() => {
@@ -164,14 +175,13 @@ const AgencyNavBar = () => {
     }
   }
 
-  const getShowWalkThrough = () => {
+  const getShowWalkThrough = async () => {
     console.log("rigered the intro video")
-    const localData = localStorage.getItem("User");
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      const watched = UserDetails?.user?.walkthroughWatched;
+    const userData = await secureStorageService.getUser();
+    if (userData) {
+      const watched = userData?.user?.walkthroughWatched;
 
-      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+      if (userData?.user?.plan && (watched === false || watched === "false")) {
         console.log("✅ should show intro video");
         setShowAgencyWalkThrough(true);
       } else {
@@ -204,9 +214,9 @@ const AgencyNavBar = () => {
   const getAgencyPlans = async () => {
     try {
       console.log('trying to get plans')
-      let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
-      if (localData) {
-        let u = JSON.parse(localData);
+      let userData = await secureStorageService.getUser();
+      if (userData) {
+        let u = userData;
 
         const response = await axios.get(Apis.getPlansForAgency, {
           headers: {
@@ -230,10 +240,9 @@ const AgencyNavBar = () => {
   }
 
   const getUserProfile = async () => {
-    const data = localStorage.getItem("User");
-    if (data) {
-      const LocalData = JSON.parse(data);
-      let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false;
+    const userData = await secureStorageService.getUser();
+    if (userData) {
+      let stripeStatus = userData?.user?.canAcceptPaymentsAgencyccount || false;
       console.log('Stripe status is', stripeStatus)
       if(showAgencyWalkThrough) return; //if walkthrough is shown, don't check stripe status
       setCheckStripeStatus(!stripeStatus);
@@ -285,11 +294,10 @@ const AgencyNavBar = () => {
 
   // Listen for UpdateProfile event to update Redux store immediately
   useEffect(() => {
-    const handleUpdateProfile = (event) => {
-      const data = localStorage.getItem("User");
-      if (data) {
-        const LocalData = JSON.parse(data);
-        setReduxUser(LocalData); // Update Redux from localStorage
+    const handleUpdateProfile = async (event) => {
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        setReduxUser(userData); // Update Redux from secure storage
       }
     };
     window.addEventListener("UpdateProfile", handleUpdateProfile);
@@ -303,10 +311,10 @@ const AgencyNavBar = () => {
   const handleVerifyClick = async () => {
     try {
       setLoader(true);
-      const data = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       console.log("Working");
-      if (data) {
-        const D = JSON.parse(data);
+      if (userData) {
+        const D = userData;
         if (D.user.plan) {
           const Token = AuthToken();
           const ApiPath = Apis.createOnboardingLink;

@@ -1,5 +1,6 @@
-import axios from "axios";
 import Apis from "./Apis";
+import apiClient from "@/utilities/ApiClient";
+import secureStorageService from "@/utilities/SecureStorageService";
 
 const getProfileDetails = async (selectedAgency) => {
   const maxRetries = 10;
@@ -7,38 +8,37 @@ const getProfileDetails = async (selectedAgency) => {
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      let Authtoken = null;
       let localDetails = null;
-      const localData = localStorage.getItem("User");
-
-      if (localData) {
-        const Data = JSON.parse(localData);
-        // //console.log;
-        localDetails = Data;
-        Authtoken = Data.token;
+      
+      // Get user data from secure storage or localStorage
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        localDetails = userData;
       }
 
-      // //console.log;
-
       let ApiPath = Apis.getProfileData;
-      console.log(`Calling get Profile api with token (attempt ${attempt}/${maxRetries})`, Authtoken)
+      console.log(`Calling get Profile api (attempt ${attempt}/${maxRetries})`);
 
       // if (selectedAgency) {
       //   ApiPath = ApiPath + `?userId=${selectedAgency.id}`
       // }
 
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + Authtoken,
-          "Content-Type": "application/json",
-        },
-      });
-      console.log('Get profile response is', response)
+      // Use ApiClient which handles authentication automatically
+      const response = await apiClient.get(ApiPath);
+      console.log('Get profile response is', response);
 
-      if (response) {
-        // //console.log;
-        if (response?.data?.status === true) {
-          localDetails.user = response.data.data;
+      if (response && response.data) {
+        if (response.data?.status === true) {
+          // Update local details with new user data
+          if (localDetails) {
+            localDetails.user = response.data.data;
+          } else {
+            localDetails = {
+              token: userData?.token || null,
+              user: response.data.data,
+            };
+          }
+
           console.log("🔄 [GET-PROFILE] Profile updated:", {
             userId: response.data.data?.id,
             planType: response.data.data?.plan?.type,
@@ -46,13 +46,29 @@ const getProfileDetails = async (selectedAgency) => {
             maxAgents: response.data.data?.planCapabilities?.maxAgents,
             currentAgents: response.data.data?.currentUsage?.maxAgents
           });
+
+          // Update storage (both secure storage and localStorage for backward compatibility)
           if (!selectedAgency) {
-            localStorage.setItem("User", JSON.stringify(localDetails));
+            await secureStorageService.syncUser(localDetails);
           }
-          return response;
+
+          // Return response in axios-like format for backward compatibility
+          return {
+            data: response.data,
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+          };
         }
       }
-      return response;
+      
+      // Return response in axios-like format
+      return {
+        data: response?.data,
+        status: response?.status,
+        statusText: response?.statusText,
+        headers: response?.headers,
+      };
     } catch (error) {
       console.error(`Error occurred in get profile api (attempt ${attempt}/${maxRetries}):`, error);
 

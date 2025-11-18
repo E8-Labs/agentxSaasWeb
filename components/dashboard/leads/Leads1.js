@@ -46,6 +46,7 @@ import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
 import { useUser } from "@/hooks/redux-hooks";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import secureStorageService from "@/utilities/SecureStorageService";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 const Leads1 = () => {
@@ -678,11 +679,10 @@ const Leads1 = () => {
   };
 
   const processEnrichmentPayment = async () => {
-    const localData = localStorage.getItem("User");
+    const userData = await secureStorageService.getUser();
     let AuthToken = null;
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      AuthToken = UserDetails.token;
+    if (userData) {
+      AuthToken = userData.token;
     }
     const response = await axios.post(Apis.processPayment, {
       totalLeadsCount: processedData.length,
@@ -705,19 +705,19 @@ const Leads1 = () => {
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
-        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const currentUserData = await secureStorageService.getUser();
 
         console.log('🔄 [LEADS] Fresh user data received after upgrade');
 
         // Update Redux with fresh data
         const updatedUserData = {
-          token: localData.token,
+          token: currentUserData?.token || null,
           user: freshUserData
         };
 
         setReduxUser(updatedUserData);
         setUser(updatedUserData);
-        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        await secureStorageService.syncUser(updatedUserData);
 
         return true;
       }
@@ -760,11 +760,10 @@ const Leads1 = () => {
     }
 
     // return
-    const localData = localStorage.getItem("User");
+    const userData = await secureStorageService.getUser();
     let AuthToken = null;
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      AuthToken = UserDetails.token;
+    if (userData) {
+      AuthToken = userData.token;
     }
 
     const ApiPath = Apis.createLead;
@@ -922,11 +921,10 @@ const Leads1 = () => {
     try {
       setShowaddCreateListLoader(true);
 
-      const localData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       // //console.log;

@@ -50,6 +50,7 @@ import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import secureStorageService from "@/utilities/SecureStorageService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -131,16 +132,16 @@ const ProfileNav = () => {
   //update profile if walkthrough is true
   useEffect(() => {
     if (walkthroughWatched) {
-      // UpdateProfile({});
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const u = JSON.parse(localData);
-        const watched = u?.user?.walkthroughWatched;
-        if (u?.user?.plan && (watched === false || watched === "false")) {
-          updateWalkthroughWatched();
+      const checkWalkthrough = async () => {
+        const userData = await secureStorageService.getUser();
+        if (userData) {
+          const watched = userData?.user?.walkthroughWatched;
+          if (userData?.user?.plan && (watched === false || watched === "false")) {
+            updateWalkthroughWatched();
+          }
         }
-      }
-      // updateWalkthroughWatched();
+      };
+      checkWalkthrough();
     }
   }, [walkthroughWatched]);
 
@@ -152,17 +153,18 @@ const ProfileNav = () => {
   // }, []);
 
   useEffect(() => {
-    const local = localStorage.getItem("User");
-    if (local) {
-      const parsed = JSON.parse(local);
-      setLocalUser(parsed.user);
-    }
-    const testNot = async () => {
-      try {
-        const localData = localStorage.getItem("User");
-        let AuthToken = null;
-        if (localData) {
-          const D = JSON.parse(localData);
+    const initializeUser = async () => {
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        setLocalUser(userData.user);
+      }
+      
+      const testNot = async () => {
+        try {
+          const userData = await secureStorageService.getUser();
+          let AuthToken = null;
+          if (userData) {
+            const D = userData;
           AuthToken = D.token;
         }
 
@@ -185,31 +187,33 @@ const ProfileNav = () => {
       } catch (error) {
         // console.error("Error occured in test not is"), error;
       }
+      };
+      testNot();
     };
-    testNot();
+    initializeUser();
   }, []);
 
 
   //conde for continue lead uploading on route change
 
   useEffect(() => {
-    const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState);
-    if (savedUpload) {
-      const {
-        data,
-        currentBatch,
-        sheetName,
-        columnMappings,
-        tagsValue,
-        enrich,
-      } = JSON.parse(savedUpload);
+    const continueUpload = async () => {
+      const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState);
+      if (savedUpload) {
+        const {
+          data,
+          currentBatch,
+          sheetName,
+          columnMappings,
+          tagsValue,
+          enrich,
+        } = JSON.parse(savedUpload);
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
-      }
+        const userData = await secureStorageService.getUser();
+        let AuthToken = null;
+        if (userData) {
+          AuthToken = userData.token;
+        }
 
       console.log("uploading in background after route change")
 
@@ -232,7 +236,9 @@ const ProfileNav = () => {
           console.log("Background lead upload complete.");
         },
       });
-    }
+      }
+    };
+    continueUpload();
   }, []);
 
 
@@ -299,14 +305,13 @@ const ProfileNav = () => {
   //   }
   // }
 
-  const getShowWalkThrough = () => {
+  const getShowWalkThrough = async () => {
     console.log("rigered the intro video")
-    const localData = localStorage.getItem("User");
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      const watched = UserDetails?.user?.walkthroughWatched;
+    const userData = await secureStorageService.getUser();
+    if (userData) {
+      const watched = userData?.user?.walkthroughWatched;
 
-      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+      if (userData?.user?.plan && (watched === false || watched === "false")) {
         console.log("✅ should show intro video");
         setWalkthroughWatched(true);
       } else {
@@ -398,25 +403,24 @@ const ProfileNav = () => {
 
   const getUserProfile = async () => {
     await getProfile();
-    const data = localStorage.getItem("User");
-    getShowWalkThrough();
-    if (data) {
-      const LocalData = JSON.parse(data);
+    const userData = await secureStorageService.getUser();
+    await getShowWalkThrough();
+    if (userData) {
       console.log(
-        "LocalData.user.profile_status",
-        LocalData.user.profile_status
+        "userData.user.profile_status",
+        userData.user.profile_status
       );
-      if (LocalData.user.profile_status === "paused") {
+      if (userData.user.profile_status === "paused") {
         setErrorSnack("Your account has been frozen.");
         logout("Profile status paused/frozen");
         router.push("/");
         return;
       }
-      // checkTrialDays(LocalData.user);
-      setUserDetails(LocalData);
+      // checkTrialDays(userData.user);
+      setUserDetails(userData);
       // Update Redux store
-      setReduxUser(LocalData);
-      if (LocalData.user.plan == null) {
+      setReduxUser(userData);
+      if (userData.user.plan == null) {
         // user haven't subscribed to any plan - load plans with trial
         await loadPlans(true);
       } else {
@@ -424,13 +428,11 @@ const ProfileNav = () => {
         await loadPlans(false);
       }
 
-      if (LocalData.user.needsChargeConfirmation) {
+      if (userData.user.needsChargeConfirmation) {
         setShowCallPausedPopup(true);
       }
 
-      console.log('LocalData', LocalData.user.needsChargeConfirmation)
-
-
+      console.log('userData', userData.user.needsChargeConfirmation)
     };
   }
 
@@ -438,8 +440,8 @@ const ProfileNav = () => {
     getUserProfile();
 
     // Initialize socket connection after getting user profile
-    const initializeSocket = () => {
-      const userData = localStorage.getItem("User");
+    const initializeSocket = async () => {
+      const userData = await secureStorageService.getUser();
       if (userData) {
         console.log('🔌 Initializing socket connection...');
         setSocketStatus('connecting');
@@ -534,18 +536,18 @@ const ProfileNav = () => {
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
-        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const currentUserData = await secureStorageService.getUser();
 
         console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
 
         // Update Redux with fresh data
         const updatedUserData = {
-          token: localData.token,
+          token: currentUserData?.token || null,
           user: freshUserData
         };
 
         setReduxUser(updatedUserData);
-        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        await secureStorageService.syncUser(updatedUserData);
 
         return true;
       }
@@ -745,11 +747,11 @@ const ProfileNav = () => {
 
       // //console.log;
 
-      const userlocalData = localStorage.getItem("User");
-      console.log('🔍 [getProfile] Local storage data exists:', !!userlocalData);
+      const userlocalData = await secureStorageService.getUser();
+      console.log('🔍 [getProfile] User data exists:', !!userlocalData);
       if (userlocalData) {
         // setUserDetails(response.data.data);
-        //removed this bcz i am getting data from localstorage and api data is creating issues here
+        //removed this bcz i am getting data from storage and api data is creating issues here
         // setUserDetails(userlocalData);
       }
 
@@ -914,13 +916,12 @@ const ProfileNav = () => {
     try {
       setSubscribePlanLoader(true);
 
-      const localData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
 
       let AuthToken = null;
 
-      if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       // //console.log;
@@ -983,11 +984,10 @@ const ProfileNav = () => {
       setSubscribePlanLoader(true);
       let AuthToken = null;
       let localDetails = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        localDetails = userData;
+        AuthToken = userData.token;
       }
       // if (localDetails.user.cards.length == 0) {
       //   setAddPaymentPopup(true);
@@ -1021,12 +1021,12 @@ const ProfileNav = () => {
           localDetails.user.plan = response.data.data;
           // //console.log;
           // getProfile();
-          localStorage.setItem("User", JSON.stringify(localDetails));
+          await secureStorageService.syncUser(localDetails);
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
           console.log("Should triger the intro video")
-          getShowWalkThrough();
+          await getShowWalkThrough();
           getProfile();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
@@ -1144,9 +1144,8 @@ const ProfileNav = () => {
     setLoading(true);
 
     try {
-      const user = localStorage.getItem("User");
-      if (user) {
-        const userData = JSON.parse(user);
+      const userData = await secureStorageService.getUser();
+      if (userData) {
         let token = userData.token;
         console.log("token is", token);
 

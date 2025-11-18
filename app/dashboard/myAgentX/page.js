@@ -96,6 +96,7 @@ import AskToUpgrade from "@/constants/AskToUpgrade";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { useUser } from "@/hooks/redux-hooks";
 import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
+import secureStorageService from "@/utilities/SecureStorageService";
 import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
 import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
 import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
@@ -397,18 +398,18 @@ function Page() {
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
-        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const currentUserData = await secureStorageService.getUser();
 
         console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
 
         // Update Redux with fresh data
         const updatedUserData = {
-          token: localData.token,
+          token: currentUserData?.token || null,
           user: freshUserData
         };
 
         setReduxUser(updatedUserData);
-        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        await secureStorageService.syncUser(updatedUserData);
 
         return true;
       }
@@ -423,11 +424,10 @@ function Page() {
   const getKyc = async () => {
     try {
       let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
+      const userData = await secureStorageService.getUser();
+      if (userData) {
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = userData.token;
       }
 
       let MainAgentData = null;
@@ -687,23 +687,24 @@ function Page() {
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
-        const localData = getUserLocalData();
+        const currentUserData = await secureStorageService.getUser();
 
         // console.log('🔄 [DASHBOARD] Syncing profile to Redux - userId:', freshUserData?.id);
 
         // Update Redux with fresh data
         setReduxUser({
-          token: localData.token,
+          token: currentUserData?.token || null,
           user: freshUserData
         });
 
-        // Only update localStorage if not skipped (to prevent loops during initialization)
+        // Only update storage if not skipped (to prevent loops during initialization)
         if (!skipLocalStorage) {
+          const currentUserData = await secureStorageService.getUser();
           const updatedUserData = {
-            token: localData.token,
+            token: currentUserData?.token || null,
             user: freshUserData
           };
-          localStorage.setItem("User", JSON.stringify(updatedUserData));
+          await secureStorageService.syncUser(updatedUserData);
           setUser(updatedUserData);
         }
       }
@@ -723,18 +724,18 @@ function Page() {
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
-        const localData = getUserLocalData();
+        const currentUserData = await secureStorageService.getUser();
 
         // console.log('✅ [DASHBOARD] Fresh profile data received - maxAgents:', freshUserData?.planCapabilities?.maxAgents);
 
         const updatedUserData = {
-          token: localData.token,
+          token: currentUserData?.token || null,
           user: freshUserData
         };
 
-        // Update both Redux and localStorage
+        // Update both Redux and storage
         setReduxUser(updatedUserData);
-        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        await secureStorageService.syncUser(updatedUserData);
         setUser(updatedUserData);
 
         // console.log('🎊 [DASHBOARD] User data successfully refreshed after upgrade!');
@@ -759,9 +760,8 @@ function Page() {
     // console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
 
     try {
-      const data = localStorage.getItem("User");
-      if (data) {
-        const userData = JSON.parse(data);
+      const userData = await secureStorageService.getUser();
+      if (userData) {
         // console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
 
         // Set local state (from test branch)
@@ -960,17 +960,16 @@ function Page() {
     attempts++;
     // console.log(`Trying to get user - try no ${attempts}`);
 
-    const data = localStorage.getItem("User");
-    let userData = null;
-    if (data) {
+    const userData = await secureStorageService.getUser();
+    if (userData) {
       // console.log(`User found on try ${attempts}`);
-      // console.log("user data for showing max agents is", JSON.parse(data))
-      setUser(JSON.parse(data));
+      // console.log("user data for showing max agents is", userData)
+      setUser(userData);
     } else if (attempts < maxAttempts) {
       // console.log(`User not found on try ${attempts}, retrying in 500ms...`);
       setTimeout(checkUser, 500); // retry after 500ms
     } else {
-      console.warn(`User not found in localStorage after ${attempts} attempts.`);
+      console.warn(`User not found in storage after ${attempts} attempts.`);
     }
   };
 
@@ -1091,12 +1090,11 @@ function Page() {
       // console.log("Trigered update api");
       setGlobalLoader(true);
 
-      const LocalData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
 
       let AuthToken = null;
 
-      if (LocalData) {
-        const userData = JSON.parse(LocalData);
+      if (userData) {
         //// //console.log;
         AuthToken = userData.token;
       }
@@ -1330,10 +1328,9 @@ function Page() {
       setFindeNumberLoader(true);
       const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
       let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       ////console.log;
@@ -1365,12 +1362,11 @@ function Page() {
       // return;
       setReassignLoader(item);
       let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       if (agentDetails) {
@@ -1505,12 +1501,11 @@ function Page() {
     try {
       setPurchaseLoader(true);
       let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       ////console.log;
@@ -1587,10 +1582,9 @@ function Page() {
       let AuthToken = null;
 
       // const agentDetails = localStorage.getItem("agentDetails");
-      const LocalData = localStorage.getItem("User");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        AuthToken = userData.token;
       }
       ////console.log;
       const ApiPath = Apis.userAvailablePhoneNumber;
@@ -1621,10 +1615,9 @@ function Page() {
       setRenameAgentLoader(true);
 
       let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        AuthToken = userData.token;
 
         const ApiPath = Apis.updateSubAgent;
 
@@ -1716,11 +1709,10 @@ function Page() {
       // setGlobalLoader(true);
       // getAgents()
       let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
+      const userData = await secureStorageService.getUser();
+      if (userData) {
         ////////console.log;
-        AuthToken = Data.token;
+        AuthToken = userData.token;
       }
 
       const ApiPath = Apis.updateAgent;
@@ -1873,10 +1865,9 @@ function Page() {
     // return
     try {
       let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+      const userData = await secureStorageService.getUser();
+      if (userData) {
+        AuthToken = userData.token;
 
         const ApiPath = Apis.updateSubAgent;
 
@@ -2017,11 +2008,10 @@ function Page() {
       // setAssignLoader(true);
       setShowPhoneLoader(true);
       let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
 
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       const formData = new FormData();
@@ -2216,12 +2206,11 @@ function Page() {
   const getUniquesColumn = async () => {
     try {
       // setColumnloader(true);
-      const localData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        // setUser(UserDetails);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        // setUser(userData);
+        AuthToken = userData.token;
       }
 
       ////////console.log;
@@ -2267,11 +2256,10 @@ function Page() {
     try {
       setDelLoader(true);
       let AuthToken = null;
-      const userData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       if (userData) {
-        const localData = JSON.parse(userData);
         ////console.log;
-        AuthToken = localData.token;
+        AuthToken = userData.token;
       }
 
       const ApiData = {
@@ -2358,12 +2346,11 @@ function Page() {
     try {
       setTestAIloader(true);
       let AuthToken = null;
-      const userData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
 
       if (userData) {
-        const localData = JSON.parse(userData);
         ////console.log;
-        AuthToken = localData.token;
+        AuthToken = userData.token;
       }
 
       const newArray = scriptKeys.map((key) => ({
@@ -2463,23 +2450,22 @@ function Page() {
       //// //console.log;
     }
 
-    const userData = localStorage.getItem("User");
-
-    try {
-      setInitialLoader(true);
-      if (userData) {
-        const userLocalData = JSON.parse(userData);
-        getAgents(); //userLocalData
+    const loadUserAndAgents = async () => {
+      try {
+        setInitialLoader(true);
+        const userData = await secureStorageService.getUser();
+        if (userData) {
+          getAgents(); //userData
+        }
+      } catch (error) {
+        //// console.error("Error occured is :", error);
+      } finally {
+        setShowPhoneLoader(false);
+        setInitialLoader(false);
       }
-    } catch (error) {
-      //// console.error("Error occured is :", error);
-    } finally {
-      setShowPhoneLoader(false);
-
-      setInitialLoader(false);
-    }
-
-    getCalenders();
+      getCalenders();
+    };
+    loadUserAndAgents();
 
     // Cleanup function to clear timeouts
     return () => {
@@ -2834,11 +2820,10 @@ function Page() {
   //function for getitng the calenders list
   const getCalenders = async () => {
     try {
-      const localData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+      if (userData) {
+        AuthToken = userData.token;
       }
 
       //// //console.log;
@@ -2940,10 +2925,9 @@ function Page() {
     // duplicate agent
     setDuplicateLoader(true);
     try {
-      const data = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
 
-      if (data) {
-        const userData = JSON.parse(data);
+      if (userData) {
         const token = AuthToken();
         const ApiPath = Apis.duplicateAgent;
 

@@ -36,19 +36,25 @@ export async function POST(req) {
       return NextResponse.json(data);
     }
 
-    // Securely store JWT token in a httpOnly cookie
-    const tokenCookie = serialize("auth_token", data.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
-    });
+    // Check if login was successful and token exists
+    if (data.status === true && data.data && data.data.token) {
+      // Securely store JWT token in a httpOnly cookie
+      const tokenCookie = serialize("auth_token", data.data.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        path: "/",
+      });
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { "Set-Cookie": tokenCookie },
-    });
+      return new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { "Set-Cookie": tokenCookie },
+      });
+    }
+
+    // If no token in response, return data without setting cookie
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
       {

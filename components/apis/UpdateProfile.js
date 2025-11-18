@@ -1,55 +1,53 @@
-import axios from "axios";
 import React from "react";
 import Apis from "./Apis";
 import { PersistanceKeys } from "@/constants/Constants";
+import apiClient from "@/utilities/ApiClient";
+import secureStorageService from "@/utilities/SecureStorageService";
 
 export const UpdateProfile = async (apidata) => {
-  // //console.log
-
+  // Get saved location from localStorage (non-sensitive data)
   let SavedLocation = localStorage.getItem(
     PersistanceKeys.LocalStorageCompleteLocation
   );
   if (SavedLocation) {
-    // //console.log;
     let parsedLocation = JSON.parse(SavedLocation);
     apidata.lat = parsedLocation.latitude;
     apidata.lang = parsedLocation.longitude;
   }
-  // //console.log;
-  // UpdateProfile()
+
   try {
-    const data = localStorage.getItem("User");
-    if (data) {
-      let u = JSON.parse(data);
+    // Get user data from secure storage
+    const userData = await secureStorageService.getUser();
+    if (userData) {
       let path = Apis.updateProfileApi;
-      // //console.log;
-      //console.log
-      // return
-      const response = await axios.post(path, apidata, {
-        headers: {
-          Authorization: "Bearer " + u.token,
-          "Content-Type": "application/json",
-        },
-      });
+      
+      // Use ApiClient which handles authentication automatically
+      const response = await apiClient.post(path, apidata);
 
-      if (response) {
-        console.log(response.data)
+      if (response && response.data) {
+        console.log(response.data);
         if (response.data.status === true) {
-          u.user = response.data.data;
+          // Update user data
+          const updatedUserData = {
+            ...userData,
+            user: response.data.data,
+          };
 
-          //// //console.log
-          localStorage.setItem("User", JSON.stringify(u));
-          //console.log
-          window.dispatchEvent(
-            new CustomEvent("UpdateProfile", { detail: { update: true } })
-          );
+          // Update storage (both secure storage and localStorage for backward compatibility)
+          await secureStorageService.syncUser(updatedUserData);
+          
+          // Dispatch event for components listening to profile updates
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(
+              new CustomEvent("UpdateProfile", { detail: { update: true } })
+            );
+          }
           return response.data.data;
         }
       }
-    }else{
-      //console.log
     }
   } catch (e) {
-    console.log("error in update profile api",e)
+    console.log("error in update profile api", e);
+    throw e;
   }
 };

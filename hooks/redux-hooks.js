@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   selectUser, 
   selectToken, 
@@ -19,6 +19,7 @@ import {
   setError,
   clearError
 } from '../store/slices/userSlice';
+import secureStorageService from '../utilities/SecureStorageService';
 
 // Custom hooks for user management
 export const useUser = () => {
@@ -32,31 +33,36 @@ export const useUser = () => {
   const isAgencyTeamMember = useSelector(selectIsAgencyTeamMember);
   const loading = useSelector(selectUserLoading);
   const error = useSelector(selectUserError);
+  const [isInitializing, setIsInitializing] = useState(false);
 
-  // Initialize Redux from localStorage if Redux is empty but localStorage has data
+  // Initialize Redux from secure storage or localStorage
   useEffect(() => {
-    if (!user && !token) {
-      try {
-        const localStorageData = localStorage.getItem('User');
-        if (localStorageData) {
-          const userData = JSON.parse(localStorageData);
-          if (userData.token && userData.user) {
-            console.log('🔄 [REDUX-HOOKS] Initializing Redux from localStorage:', {
+    if (!user && !token && !isInitializing) {
+      setIsInitializing(true);
+      const initializeUser = async () => {
+        try {
+          const userData = await secureStorageService.getUser();
+          if (userData && (userData.token || userData.user)) {
+            console.log('🔄 [REDUX-HOOKS] Initializing Redux from storage:', {
               userId: userData.user?.id,
               planType: userData.user?.plan?.type,
-              planName: userData.user?.plan?.name
+              planName: userData.user?.plan?.name,
+              hasToken: !!userData.token
             });
             dispatch(setUser(userData));
           }
+        } catch (error) {
+          console.warn('Failed to initialize Redux from storage:', error);
+        } finally {
+          setIsInitializing(false);
         }
-      } catch (error) {
-        console.warn('Failed to initialize Redux from localStorage:', error);
-      }
+      };
+      initializeUser();
     }
-  }, [user, token, dispatch]);
+  }, [user, token, dispatch, isInitializing]);
 
   const actions = {
-    setUser: (userData) => {
+    setUser: async (userData) => {
       // Check if userData has both user and token properties
       let dataToSave;
 
@@ -65,9 +71,9 @@ export const useUser = () => {
         dataToSave = userData;
       } else if (userData && !userData.hasOwnProperty('token')) {
         // Only user data provided - preserve existing token
-        const existingData = JSON.parse(localStorage.getItem('User') || '{}');
+        const existingData = await secureStorageService.getUser();
         dataToSave = {
-          token: existingData.token || null,
+          token: existingData?.token || null,
           user: userData
         };
       } else {
@@ -75,15 +81,32 @@ export const useUser = () => {
         dataToSave = userData;
       }
 
-      // Update localStorage
-      localStorage.setItem('User', JSON.stringify(dataToSave));
+      // Update storage (both secure storage and localStorage for backward compatibility)
+      await secureStorageService.syncUser(dataToSave);
       // Update Redux
       dispatch(setUser(dataToSave));
     },
     setToken: (token) => dispatch(setToken(token)),
-    updateProfile: (profileData) => dispatch(updateUserProfile(profileData)),
+    updateProfile: (profileData) => {
+      dispatch(updateUserProfile(profileData));
+      // Also update storage with updated profile
+      const updateStorage = async () => {
+        const currentData = await secureStorageService.getUser();
+        if (currentData) {
+          const updatedData = {
+            ...currentData,
+            user: { ...currentData.user, ...profileData }
+          };
+          await secureStorageService.syncUser(updatedData);
+        }
+      };
+      updateStorage();
+    },
     setAgencyUuid: (uuid) => dispatch(setAgencyUuid(uuid)),
-    logout: () => dispatch(clearUser()),
+    logout: async () => {
+      await secureStorageService.clearUser();
+      dispatch(clearUser());
+    },
     setLoading: (loading) => dispatch(setLoading(loading)),
     setError: (error) => dispatch(setError(error)),
     clearError: () => dispatch(clearError()),

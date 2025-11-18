@@ -24,6 +24,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { loadStripe } from "@stripe/stripe-js";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import secureStorageService from "@/utilities/SecureStorageService";
 
 const Page = () => {
   const router = useRouter();
@@ -160,13 +161,12 @@ const Page = () => {
       // setInitialLoader(true);
       // }
 
-      const localData = localStorage.getItem("User");
+      const userData = await secureStorageService.getUser();
       let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
+      if (userData) {
         // //console.log;
-        setUserDetails(UserDetails.user);
-        AuthToken = UserDetails.token;
+        setUserDetails(userData.user);
+        AuthToken = userData.token;
       }
 
       // //console.log;
