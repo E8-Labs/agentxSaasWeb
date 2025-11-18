@@ -259,7 +259,7 @@ function UserPlans({
             if (isFrom === "Agency") {
                 filteredPlans = plansList?.map(plan => ({
                     ...plan,
-                    features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
+                    features: plan.features && Array.isArray(plan.features) ? plan.features : []//.filter(feature => feature.thumb === true) : []
                 }));
             }
             console.log("Filtered plans are", filteredPlans)
