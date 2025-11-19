@@ -29,7 +29,8 @@ function AdminCallLogs({ selectedUser }) {
             bottom: 0
           }}>
           <DashboardSlider
-            needHelp={false} />
+            needHelp={false}
+            selectedUser={selectedUser} />
         </div>
         <div style={{ fontSize: 24, fontWeight: '600' }}>
         Activity

@@ -674,6 +674,7 @@ const AgencyNavBar = () => {
 
       <AgencyWalkThrough
         open={showAgencyWalkThrough}
+        // open={true}
         onClose={updateWalkthroughWatched}
       />
 

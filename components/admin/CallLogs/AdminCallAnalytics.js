@@ -334,11 +334,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                   </div>
                   <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
                     {formatNumber(
-                      (
-                        (analyticsData.summary?.totalMinutesUsed || 0) +
-                        (analyticsData.summary?.smsCredits || 0) +
-                        (analyticsData.summary?.emailCredits || 0)
-                      ).toFixed(2)
+                      (analyticsData.summary?.totalMinutesUsed || 0).toFixed(2)
                     )}
                   </div>
                 </div>
@@ -371,7 +367,20 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
 
               {/* Additional Summary Metrics */}
               <div className="grid grid-cols-4 gap-4 mb-8 pl-10 pr-10">
-               
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
+                    Total Credits
+                  </div>
+                  <div style={{ fontSize: 24, fontWeight: "600", color: "#7902DF", marginTop: 8 }}>
+                    {formatNumber(
+                      (
+                        (analyticsData.summary?.totalMinutesUsed || 0) +
+                        (analyticsData.summary?.smsCredits || 0) +
+                        (analyticsData.summary?.emailCredits || 0)
+                      ).toFixed(2)
+                    )}
+                  </div>
+                </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Hot Leads

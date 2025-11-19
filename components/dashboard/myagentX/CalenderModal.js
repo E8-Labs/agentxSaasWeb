@@ -493,7 +493,7 @@ function CalendarModal(props) {
               fontSize: 15,
               fontWeight: '600'
             }}>
-              GHL Calendar
+              Lead Connector
             </p>
 
             {calenderLoader ? (
@@ -509,7 +509,7 @@ function CalendarModal(props) {
                 flex items-center justify-center h-[31vh]"
               >
                 <Image
-                  src={'/assets/ghlCal.png'}
+                  src={'/otherAssets/leadConnector.png'}
                   height={104} width={104} alt="*"
                 />
               </button>

@@ -2,11 +2,11 @@
 
 // //console.log;
 let BasePath =
-// process.env.NEXT_PUBLIC_BASE_API_URL || (
+process.env.NEXT_PUBLIC_BASE_API_URL || (
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" 
     : "https://apimyagentx.com/agentxtest/"
-  // ) 
+  ) 
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
@@ -102,7 +102,7 @@ const Apis = {
 
   //cancel plan
   cancelPlan: `${BasePath}api/user/cancelPlan`,
-  canellationComplete: `${BasePath}api/user/cancellation/complete`,
+  // canellationComplete: `${BasePath}api/user/cancellation/complete`,
   //redeem plan
   redeemPlan: `${BasePath}api/user/redeemAbortCancelReward`,
 
@@ -340,8 +340,35 @@ const Apis = {
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
 
   getHowToVideo: `${BasePath}api/user/getHowToVideos`,
-toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
-updateHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
+  toggleHowToVideo: `${BasePath}api/user/toggleHowToVideoStatus`,
+  updateHowToVideo: `${BasePath}api/user/updateHowToVideo`,
+  uploadHowToVideo: `${BasePath}api/user/uploadHowToVideo`,
+
+  // Promo Code APIs
+  getPromoCodes: `${BasePath}api/admin/promo-codes`,
+  getPromoCodeById: `${BasePath}api/admin/promo-codes`,
+  createPromoCode: `${BasePath}api/admin/promo-codes`,
+  updatePromoCode: `${BasePath}api/admin/promo-codes`,
+  deletePromoCode: `${BasePath}api/admin/promo-codes`,
+  getPromoCodeUsage: `${BasePath}api/admin/promo-codes`,
+
+  // Agency Branding/White Labeling APIs
+  getAgencyBranding: `${BasePath}api/agency/branding`,
+  updateAgencyBrandingCompany: `${BasePath}api/agency/branding/company`,
+  updateAgencyBrandingColors: `${BasePath}api/agency/branding/colors`,
+  uploadBrandingLogo: `${BasePath}api/agency/branding/logo`,
+  uploadBrandingFavicon: `${BasePath}api/agency/branding/favicon`,
+  addCustomDomain: `${BasePath}api/agency/branding/domain`,
+  verifyCustomDomain: `${BasePath}api/agency/branding/domain/verify`,
+  getDomainStatus: `${BasePath}api/agency/branding/domain`,
+  removeCustomDomain: `${BasePath}api/agency/branding/domain`,
+  getBrandingAuditLogs: `${BasePath}api/agency/branding/audit`,
+  lookupAgencyByDomain: `${BasePath}api/agency/lookup-by-domain`,
+
+  // Agency Global Phone Number APIs
+  getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,
+  setAgencyGlobalNumber: `${BasePath}api/agency/set-global-number`,
+  unsetAgencyGlobalNumber: `${BasePath}api/agency/unset-global-number`,
 
   
 };

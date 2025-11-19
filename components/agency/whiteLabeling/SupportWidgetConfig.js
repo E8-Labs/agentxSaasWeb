@@ -7,7 +7,7 @@ const SupportWidgetConfig = () => {
     <div>
       {/* Banner Section */}
       <LabelingHeader
-        img={"/otherAssets/whiteSupportICon.png"}
+        img={"/otherAssets/supportIcon.png"}
         title={"Setup your support widget"}
         description={"Give your users access to requesting support using the support widget."}
       />

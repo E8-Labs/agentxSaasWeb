@@ -30,6 +30,7 @@ import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { color } from "framer-motion";
 import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { Input } from "@/components/ui/input";
 
 const AgencySignUp = ({
   handleContinue,
@@ -524,15 +525,15 @@ const AgencySignUp = ({
                 style={{ scrollbarWidth: "none" }}
               >
                 <div style={styles.headingStyle}>{`What's your full name`}</div>
-                <input
+                <Input
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Name"
-                  className="border border-[#00000010] px-2 outline-none focus:outline-none focus:ring-0 h-[40px]"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
                   ref={(el) => (inputsFields.current[0] = el)}
-                  style={{ ...styles.inputStyle, marginTop: "8px" }}
+                  style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                   value={userName}
                   onChange={(e) => {
                     const input = e.target.value;
@@ -595,15 +596,15 @@ const AgencySignUp = ({
                   </div>
                 </div>
 
-                <input
+                <Input
                   ref={(el) => (inputsFields.current[1] = el)}
                   autoComplete="off"
                   autoCorrect="off"
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Email address"
-                  className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0"
-                  style={{ ...styles.inputStyle, marginTop: "8px" }}
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
+                  style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                   value={userEmail}
                   onChange={(e) => {
                     let value = e.target.value;
@@ -725,7 +726,8 @@ const AgencySignUp = ({
                 <div style={{ marginTop: "8px" }}>
                   <PhoneInput
                     ref={(el) => (inputsFields.current[2] = el)}
-                    className="border outline-none bg-white"
+                    containerClass="phone-input-container"
+                    className="outline-none bg-white focus:ring-0"
                     country={"us"} // Default country
                     onlyCountries={["us", "ca", "mx"]} // Allow US, Canada, and Mexico
                     disableDropdown={false} // Enable dropdown to switch between US/CA
@@ -738,18 +740,26 @@ const AgencySignUp = ({
                         : "Enter Phone Number"
                     }
                     disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: "7px" }}
+                    style={{ 
+                      borderRadius: "7px",
+                      border: "1px solid #00000020",
+                      outline: "none",
+                      boxShadow: "none",
+                    }}
                     inputStyle={{
                       width: "100%",
                       borderWidth: "0px",
                       backgroundColor: "transparent",
-                      paddingLeft: "30px",
+                      // paddingLeft: "30px",
                       paddingTop: "20px",
                       paddingBottom: "20px",
+                      outline: "none",
+                      boxShadow: "none",
                     }}
                     buttonStyle={{
                       border: "none",
                       backgroundColor: "transparent",
+                      outline: "none",
                       // display: 'flex',
                       // alignItems: 'center',
                       // justifyContent: 'center',
@@ -772,15 +782,15 @@ const AgencySignUp = ({
                     <div style={styles.headingStyle}>
                       {`Agency Name`}
                     </div>
-                    <input
+                    <Input
                       ref={(el) => (inputsFields.current[3] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Agency Name"
-                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
+                      className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
+                      style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                       value={company}
                       onChange={(e) => {
                         setCompany(e.target.value);
@@ -796,15 +806,15 @@ const AgencySignUp = ({
                     <div style={styles.headingStyle}>
                       Website (optional)
                     </div>
-                    <input
+                    <Input
                       ref={(el) => (inputsFields.current[4] = el)}
                       autoComplete="off"
                       autoCorrect="off"
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Website"
-                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
-                      style={{ ...styles.inputStyle, marginTop: "8px" }}
+                      className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                      style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                       value={website}
                       onChange={(e) => {
                         setwebsite(e.target.value);
@@ -985,7 +995,7 @@ const AgencySignUp = ({
                                 border: "1px solid #ccc",
                                 borderRadius: "5px",
                               }}
-                              className=" focus:outline-none focus:ring-0"
+                              className="border rounded px-3 py-2.5 focus:border-black transition-colors"
                             />
                           ))}
                         </div>

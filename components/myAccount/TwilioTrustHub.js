@@ -81,6 +81,10 @@ const TwilioTrustHub = ({
         if (removeTrustHubData) {
             setTwilioHubData(null);
             setProfileStatus(true);
+            // Clear all product status localStorage items when trust hub data is removed
+            localStorage.removeItem("CNAMStatusReview");
+            localStorage.removeItem("VoiceIntegrityStatusReview");
+            localStorage.removeItem("StirStatusReview");
             if (typeof setRemoveTrustHubData === "function") {
                 setRemoveTrustHubData(false);
             }
@@ -181,6 +185,10 @@ const TwilioTrustHub = ({
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
                     localStorage.removeItem(PersistanceKeys.twilioHubData);
+                    // Clear all product status localStorage items when Twilio is disconnected
+                    localStorage.removeItem("CNAMStatusReview");
+                    localStorage.removeItem("VoiceIntegrityStatusReview");
+                    localStorage.removeItem("StirStatusReview");
                     setShowSnack({
                         message: "Twilio disconnected.",//ApiResponse.message
                         isVisible: true,

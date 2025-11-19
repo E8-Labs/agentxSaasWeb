@@ -587,7 +587,7 @@ function AgencyPlansPayments({
                 AuthToken = LocalDetails.token;
             }
 
-            const ApiPath = Apis.canellationComplete;
+            const ApiPath = Apis.completeCancelatiton;
 
             console.log("ApiPath", ApiPath)
 

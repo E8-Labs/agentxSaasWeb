@@ -1790,7 +1790,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
           bottom: 0
         }}>
         <DashboardSlider
-          needHelp={false} />
+          needHelp={false}
+          selectedUser={selectedUser} />
       </div>
       <AgentSelectSnackMessage
         type={SnackbarTypes.Success}

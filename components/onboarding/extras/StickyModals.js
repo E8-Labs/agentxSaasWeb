@@ -10,6 +10,8 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const TwilioWarning = ({
   // agencyData,
@@ -268,28 +270,26 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
               }}
             />
           </div>
-          <div style={styles.mediumTxt}>SID</div>
-          <div>
-            <input
+          <div className="mt-5">
+            <Label htmlFor="twilio-sid" style={styles.mediumTxt}>SID</Label>
+            <Input
               value={sid}
               onChange={(e) => {
                 setSid(e.target.value);
               }}
-              style={styles.inputTxt}
               placeholder="Paste SID"
-              className="border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none"
+              className="mt-2 focus-visible:ring-black focus-visible:border-black"
             />
           </div>
-          <div style={styles.mediumTxt}>Auth Token</div>
-          <div>
-            <input
+          <div className="mt-5">
+            <Label htmlFor="twilio-auth-token" style={styles.mediumTxt}>Auth Token</Label>
+            <Input
               value={twilioAuthToken}
               onChange={(e) => {
                 setTwilioAuthToken(e.target.value);
               }}
-              style={styles.inputTxt}
               placeholder="Paste Token"
-              className="border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none"
+              className="mt-2 focus-visible:ring-black focus-visible:border-black"
             />
           </div>
           <div className="w-full flex flex-row items-center justify-between mt-4 gap-2">

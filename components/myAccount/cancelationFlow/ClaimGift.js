@@ -4,15 +4,14 @@ import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
 
-
-function ClaimGift({ handleContinue, setShowSnak }) {
+function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
 
     const [claimLoader, setClaimLoader] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const handleClaimMins = async () => {
         setClaimLoader(true)
-        let response = await claimGift()
+        let response = await claimGift(selectedUser)
         if (response) {
             setShowSnak({
                 message: response.message,

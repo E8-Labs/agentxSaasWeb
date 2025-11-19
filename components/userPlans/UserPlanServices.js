@@ -128,17 +128,27 @@ export const getUserPlans = async (from, selectedUser) => {
         }
 
         console.log('path of get plans', path);
-        if (selectedUser) {
-            path = `${path}?userId=${selectedUser.id}`;
-        }
-
         console.log("Api path for user details view", path);
 
-        const response = await axios.get(path, {
-            headers: {
-                "Authorization": 'Bearer ' + token
-            }
-        });
+        // If selectedUser is provided (agency/admin calling for specific user), use POST with userId in body
+        // Otherwise use GET request
+        let response;
+        if (selectedUser) {
+            response = await axios.post(path, {
+                userId: selectedUser.id
+            }, {
+                headers: {
+                    "Authorization": 'Bearer ' + token,
+                    "Content-Type": 'application/json'
+                }
+            });
+        } else {
+            response = await axios.get(path, {
+                headers: {
+                    "Authorization": 'Bearer ' + token
+                }
+            });
+        }
 
         if (response) {
             console.log('user plans are', response.data);
@@ -185,11 +195,17 @@ export const getUserLocalData = () => {
     return null;
 }
 
-export const initiateCancellation = async () => {
+export const initiateCancellation = async (userId) => {
     try {
         let token = AuthToken()
-
-        const response = await axios.post(Apis.initiateCancelation, {}, {
+        let path = Apis.initiateCancelation
+        
+        const requestBody = {};
+        if (userId) {
+            requestBody.userId = userId;
+        }
+        
+        const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -210,12 +226,21 @@ export const initiateCancellation = async () => {
     }
 }
 
-export const pauseSubscription = async () => {
+export const pauseSubscription = async (selectedUser = null) => {
     try {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.pauseSubscription, {}, {
+        let path = Apis.pauseSubscription
+
+        console.log('path of pause subscription', path)
+
+        const requestBody = {};
+        if (selectedUser) {
+            requestBody.userId = selectedUser.id;
+        }
+
+        const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -239,12 +264,21 @@ export const pauseSubscription = async () => {
     }
 }
 
-export const claimGift = async () => {
+export const claimGift = async (selectedUser = null) => {
     try {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.claimGiftMins, {}, {
+        let path = Apis.claimGiftMins
+
+        console.log('path of claim gift', path)
+
+        const requestBody = {};
+        if (selectedUser) {
+            requestBody.userId = selectedUser.id;
+        }
+
+        const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -295,15 +329,22 @@ export const getDiscount = async () => {
     }
 }
 
-export const completeCancelation = async (reason) => {
+export const completeCancelation = async (reason, selectedUser = null) => {
     try {
         let token = AuthToken()
 
-        console.log('trying to obtain offer')
+        let path = Apis.completeCancelatiton
 
-        const response = await axios.post(Apis.completeCancelatiton, {
+        console.log('path of complete cancelation', path)
+
+        const requestBody = {
             cancellationReason: reason
-        }, {
+        };
+        if (selectedUser) {
+            requestBody.userId = selectedUser.id;
+        }
+
+        const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'
@@ -355,15 +396,21 @@ export const purchaseMins = async (mins) => {
 }
 
 
-export const checkReferralCode = async (code) => {
+export const checkReferralCode = async (code, planId = null) => {
     try {
         let token = AuthToken()
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.validateReferralCode, {
+        const requestBody = {
             referralCode: code
-        }, {
+        };
+        
+        if (planId) {
+            requestBody.planId = planId;
+        }
+
+        const response = await axios.post(Apis.validateReferralCode, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'

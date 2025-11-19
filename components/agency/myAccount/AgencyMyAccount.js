@@ -21,6 +21,7 @@ import AgencyBasicInfo from "./AgencyBasicInfo";
 import AgencyPlansPayments from "./AgencyPlansPayments";
 import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
 import BillingHistory from "@/components/myAccount/BillingHistory";
+import AgencyPhoneNumbers from "./AgencyPhoneNumbers";
 
 function AgencyMyAccount({
   selectedAgency
@@ -51,18 +52,24 @@ function AgencyMyAccount({
     },
     {
       id: 4,
+      heading: "Phone Numbers List",
+      subHeading: "Manage agency global phone numbers",
+      icon: "/svgIcons/call.svg",
+    },
+    {
+      id: 5,
       heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 6,
+      id: 7,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -104,6 +111,8 @@ function AgencyMyAccount({
         return <AgencyPlansPayments selectedAgency={selectedAgency} />;
       case 3:
         return <BillingHistory selectedUser={selectedAgency} />;
+      case 4:
+        return <AgencyPhoneNumbers selectedAgency={selectedAgency} />;
 
       // case 3:
       //   return <AgencySupport />;
@@ -147,19 +156,19 @@ function AgencyMyAccount({
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
-                  if (item.id === 4) {
+                  if (item.id === 5) {
                     window.open(
                       termsAndConditionUrl,
                       "_blank"
                     );
                     return
-                  } else if (item.id === 5) {
+                  } else if (item.id === 6) {
                     window.open(
                       "/privacy-policy",
                       "_blank"
                     );
                     return
-                  } else if (item.id === 6) {
+                  } else if (item.id === 7) {
                     window.open(
                       CancellationAndRefundUrl,
                       "_blank"

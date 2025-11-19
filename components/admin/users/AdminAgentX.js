@@ -17,6 +17,7 @@ import {
   InputLabel,
   Avatar,
   Menu,
+  Tooltip,
 } from "@mui/material";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
@@ -90,6 +91,7 @@ import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListM
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 import { UpgradeTagWithModal } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
+import { getGlobalPhoneNumber } from "@/utilities/PhoneNumberUtility";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -2460,7 +2462,8 @@ const [featureTitle, setFeatureTitle] = useState("");
           bottom: 0
         }}>
         <DashboardSlider
-          needHelp={false} />
+          needHelp={false}
+          selectedUser={selectedUser} />
       </div>
       {/* Code for popover */}
       <Popover
@@ -2554,7 +2557,61 @@ const [featureTitle, setFeatureTitle] = useState("");
         className="w-full flex flex-row justify-between items-center"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Agent</div>
+       <div className="flex flex-row items-center gap-3">
+
+          <div style={{ fontSize: 24, fontWeight: "600" }}
+            onClick={() => {
+              console.log("routing to createagent from agents title")
+              // router.push('/createagent')
+            }}
+          >
+            Agents
+          </div>
+          {selectedUser?.plan?.planId != null && selectedUser?.planCapabilities?.maxAgents < 1000 && (
+            <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+              {`${selectedUser?.currentUsage?.maxAgents}/${selectedUser?.planCapabilities?.maxAgents || 0} used`}
+            </div>
+          )}
+
+          {
+            (selectedUser?.plan?.planId != null && selectedUser?.planCapabilities?.maxAgents < 1000) && (
+              <Tooltip
+                title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#ffffff", // Ensure white background
+                      color: "#333", // Dark text color
+                      fontSize: "14px",
+                      padding: "10px 15px",
+                      borderRadius: "8px",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: "#ffffff", // Match tooltip background
+                    },
+                  },
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: "#000000",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                  // onClick={() => setIntroVideoModal2(true)}
+                  />
+                </div>
+              </Tooltip>
+            )
+          }
+        </div>
         <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
           <input
             // style={styles.paragraph}
@@ -2630,7 +2687,7 @@ const [featureTitle, setFeatureTitle] = useState("");
             keys={keys}
             canGetMore={canGetMore}
             paginationLoader={paginationLoader}
-            from="Admin"
+            from={"Admin"}
             selectedUser={selectedUser}
           />
         )}
@@ -4171,10 +4228,10 @@ const [featureTitle, setFeatureTitle] = useState("");
                                 })}
                                 <MenuItem
                                   style={styles.dropdownMenu}
-                                  value={showGlobalBtn ? 16505403715 : ""}
+                                  value={showGlobalBtn ? getGlobalPhoneNumber(reduxUser).replace("+", "") : ""}
                                   // disabled={!showGlobalBtn}
                                   disabled={
-                                    (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
+                                    (assignNumber && assignNumber.replace("+", "") === getGlobalPhoneNumber(reduxUser).replace("+", "")) ||
                                     (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
                                   }
                                   onClick={() => {
@@ -4183,11 +4240,11 @@ const [featureTitle, setFeatureTitle] = useState("");
                                       assignNumber
                                     );
                                     // return;
-                                    AssignNumber(Constants.GlobalPhoneNumber);
+                                    AssignNumber(getGlobalPhoneNumber(reduxUser));
                                     // handleReassignNumber(showConfirmationModal);
                                   }}
                                 >
-                                  {Constants.GlobalPhoneNumber}
+                                  {getGlobalPhoneNumber(reduxUser)}
                                   {showGlobalBtn &&
                                     " (available for testing calls only)"}
                                   {showGlobalBtn == false &&

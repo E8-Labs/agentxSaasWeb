@@ -168,7 +168,7 @@ const EmailConfig = () => {
       {/* Banner Section */}
       <LabelingHeader
         img={'/agencyIcons/email.png'}
-        title={'Configure email and SMTP Connection'}
+        title={'Configure your email'}
         description={'Connect your Gmail account to send billing emails to subaccounts.'}
       />
 

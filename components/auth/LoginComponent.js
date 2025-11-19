@@ -12,12 +12,14 @@ import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import { Progress } from "@/components/ui/progress";
 import SendVerificationCode from "@/components/onboarding/services/AuthVerification/AuthService";
 import SnackMessages from "@/components/onboarding/services/AuthVerification/SnackMessages";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { setCookie } from "@/utilities/cookies";
+import { usePathname } from "next/navigation";
 import { PersistanceKeys, setUserType, userType } from "@/constants/Constants";
 import {
   getLocalLocation,
@@ -37,6 +39,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const timerRef = useRef();
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [snackMessage, setSnackMessage] = useState("");
   const [msgType, setMsgType] = useState(null);
@@ -60,6 +63,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [authProgressValue, setAuthProgressValue] = useState(0);
+
+  // Agency branding state
+  const [agencyBranding, setAgencyBranding] = useState(null);
 
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState("");
@@ -69,6 +76,44 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // let number = Number(tab) || 6;
     // //console.log;
     setRedirect(redirect);
+  }, []);
+
+  // Get agency branding from cookie/localStorage (set by middleware)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Helper to get cookie value
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    };
+
+    // Try to get branding from cookie first (set by middleware)
+    const brandingCookie = getCookie('agencyBranding');
+    if (brandingCookie) {
+      try {
+        const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
+        // Store in localStorage for persistence
+        localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
+        setAgencyBranding(brandingData);
+        return;
+      } catch (error) {
+        console.log('Error parsing agencyBranding cookie:', error);
+      }
+    }
+
+    // Fallback to localStorage if cookie not found
+    const storedBranding = localStorage.getItem('agencyBranding');
+    if (storedBranding) {
+      try {
+        const brandingData = JSON.parse(storedBranding);
+        setAgencyBranding(brandingData);
+      } catch (error) {
+        console.log('Error parsing agencyBranding from localStorage:', error);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -110,8 +155,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         try {
           let d = JSON.parse(localData);
           
+          // Check if token exists before making API call
+          if (!d.token) {
+            // No token, clear localStorage and show login form
+            localStorage.removeItem("User");
+            setIsCheckingAuth(false);
+            return;
+          }
+          
           // Verify the user data is still valid by calling the profile API
-          const profileResponse = await getProfileDetails();
+          // Add timeout to prevent hanging
+          const profileResponse = await Promise.race([
+            getProfileDetails(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error("Profile check timeout")), 5000)
+            )
+          ]).catch(error => {
+            console.error("Error or timeout checking authentication:", error);
+            return null;
+          });
           
           // If profile API fails (returns null or 404), user is not authenticated
           if (!profileResponse || profileResponse?.data?.status !== true) {
@@ -125,21 +187,46 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           const updatedData = JSON.parse(localStorage.getItem("User") || localData);
           d = updatedData;
 
-          // set user type in global variable
+          // Safety check: ensure user object exists
+          if (!d || !d.user) {
+            console.error("Invalid user data structure, clearing localStorage");
+            localStorage.removeItem("User");
+            setIsCheckingAuth(false);
+            return;
+          }
+
+          // Determine redirect path based on user type
+          let redirectPath = "/dashboard";
           if (d.user.userType == "admin") {
-            router.push("/admin");
+            redirectPath = "/admin";
           } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
-            router.push("/agency/dashboard");
+            redirectPath = "/agency/dashboard";
           } else if (d.user.userRole == "AgencySubAccount") {
             if (d.user.plan) {
-              router.push("/dashboard");
+              redirectPath = "/dashboard";
             } else {
-              router.push("/subaccountInvite/subscribeSubAccountPlan");
+              redirectPath = "/subaccountInvite/subscribeSubAccountPlan";
             }
-          } else {
-            router.push("/dashboard");
           }
-          // Keep loading state true while redirecting
+
+          // Check if we're already on the correct path (or a subpath)
+          // This prevents redirect loops
+          if (pathname === redirectPath || pathname.startsWith(redirectPath + "/")) {
+            console.log("✅ Already on correct path, no redirect needed");
+            setIsCheckingAuth(false);
+            return;
+          }
+
+          // IMPORTANT: Set cookie before redirecting so middleware can see it
+          if (typeof document !== "undefined" && d.user) {
+            setCookie(d.user, document);
+          }
+
+          console.log("✅ Authentication successful, redirecting to:", redirectPath);
+          
+          // Use window.location.href for hard redirect to ensure navigation happens
+          // This will completely reload the page and clear the loading state
+          window.location.href = redirectPath;
           return;
         } catch (error) {
           // If there's an error, clear localStorage and show login form
@@ -763,14 +850,43 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     },
   };
 
+  // Animate progress bar for indeterminate effect when checking auth
+  useEffect(() => {
+    if (!isCheckingAuth) {
+      setAuthProgressValue(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setAuthProgressValue((prev) => {
+        if (prev >= 90) {
+          return 0;
+        }
+        return prev + 10;
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, [isCheckingAuth]);
+
   // Show loading screen while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="flex flex-row w-full justify-center h-[100svh] items-center">
-        <LoaderAnimation
-          loaderModal={true}
-          title="Checking authentication..."
-        />
+      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-white">
+        <div className="flex flex-col items-center w-64">
+          <Image
+            src="/agentXOrb.gif"
+            height={142}
+            width={152}
+            alt="Loading"
+            style={{ height: "142px", width: "152px", resize: "contain" }}
+          />
+          <div className="w-full mt-8">
+            <Progress 
+              value={authProgressValue} 
+              className="h-2 bg-gray-200 [&>div]:bg-purple"
+            />
+          </div>
+        </div>
       </div>
     );
   }
@@ -791,14 +907,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       </div> */}
       <div className="w-11/12 flex flex-col items-center h-[95svh] ">
         <div className="w-full gap-3 h-[10%] flex flex-row items-end">
-          <Image
-            className=""
-            src="/assets/assignX.png"
-            style={{ height: "29px", width: "122px", resize: "contain" }}
-            height={29}
-            width={122}
-            alt="*"
-          />
+          {agencyBranding?.logoUrl ? (
+            <Image
+              className=""
+              src={agencyBranding.logoUrl}
+              style={{ height: "29px", width: "auto", maxWidth: "200px", resize: "contain", objectFit: "contain" }}
+              height={29}
+              width={200}
+              alt="agency logo"
+            />
+          ) : (
+            <Image
+              className=""
+              src="/assets/assignX.png"
+              style={{ height: "29px", width: "122px", resize: "contain" }}
+              height={29}
+              width={122}
+              alt="*"
+            />
+          )}
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
         </div>
         <div className="w-full  h-[80%] flex flex-row items-center justify-center">
@@ -810,7 +937,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 width={260}
                 alt="avtr"
               />
-              <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
+              {agencyBranding?.logoUrl ? (
+                <Image 
+                  src={agencyBranding.logoUrl} 
+                  height={69} 
+                  width={69} 
+                  alt="agency logo"
+                  style={{ objectFit: "contain", maxHeight: "69px", maxWidth: "69px" }}
+                />
+              ) : (
+                <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
+              )}
             </div>
 
             {/* Code for phone input field */}

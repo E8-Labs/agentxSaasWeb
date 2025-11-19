@@ -59,6 +59,8 @@ export default function Page() {
           }}
           selectedUser={selectedUser}
           agencyUser={isFromAgency}
+          hideViewDetails = {true}
+          from = "agency"
         />
       ) : (
         <p>Loading...</p>

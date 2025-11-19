@@ -38,8 +38,14 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
     }, [twilioHubData]);
 
     const checkCnamStatus = () => {
+        // If twilioHubData is null (disconnected), clear status and localStorage
+        if (!twilioHubData) {
+            setCnamStatus("");
+            localStorage.removeItem("CNAMStatusReview");
+            return;
+        }
         const Data = localStorage.getItem("CNAMStatusReview");
-        if ((!twilioHubData || !twilioHubData?.status) && Data) {
+        if (!twilioHubData?.status && Data) {
             const data = JSON.parse(Data);
             setCnamStatus(data.status);
             return;
