@@ -119,29 +119,30 @@ export const getUserPlans = async (from, selectedUser) => {
         } else {
             if (UserLocalData?.userRole === "AgencySubAccount") {
                 path = Apis.getSubAccountPlans;
-            }
-            if (from === "SubAccount") {
-                path = Apis.getSubAccountPlans;
-            } else if (from === "agency" || from === "Agency") {
+            } else if (UserLocalData?.userRole === "Agency") {
                 path = Apis.getPlansForAgency;
-            }
+            } else if (from === "SubAccount") {
+                    path = Apis.getSubAccountPlans;
+                } else if (from === "agency" || from === "Agency") {
+                    path = Apis.getPlansForAgency;
+                }
         }
 
         console.log('path of get plans', path);
         console.log("Api path for user details view", path);
 
 
-        if(selectedUser){
+        if (selectedUser) {
             path = `${path}?userId=${selectedUser.id}`;
         }
         let response;
-        
-            response = await axios.get(path, {
-                headers: {
-                    "Authorization": 'Bearer ' + token
-                }
-            });
-        
+
+        response = await axios.get(path, {
+            headers: {
+                "Authorization": 'Bearer ' + token
+            }
+        });
+
 
         if (response) {
             console.log('user plans are', response.data);
@@ -192,12 +193,12 @@ export const initiateCancellation = async (userId) => {
     try {
         let token = AuthToken()
         let path = Apis.initiateCancelation
-        
+
         const requestBody = {};
         if (userId) {
             requestBody.userId = userId;
         }
-        
+
         const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
@@ -398,7 +399,7 @@ export const checkReferralCode = async (code, planId = null) => {
         const requestBody = {
             referralCode: code
         };
-        
+
         if (planId) {
             requestBody.planId = planId;
         }

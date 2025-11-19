@@ -21,7 +21,8 @@ import XBarSideUI from './XBarSideUI';
 
 
 function DashboardPlans({
-    selectedAgency
+    selectedAgency,
+    initialTab = "monthly"
 }) {
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -30,7 +31,12 @@ function DashboardPlans({
     const [plansList, setPlansList] = useState([]);
     const [filteredList, setFilteredList] = useState([]);
 
-    const [planType, setPlanType] = useState("monthly");
+    const [planType, setPlanType] = useState(initialTab);
+
+    // Sync planType when initialTab prop changes
+    useEffect(() => {
+        setPlanType(initialTab);
+    }, [initialTab]);
     const [open, setOpen] = useState(false);
     const [isEditPlan, setIsEditPlan] = useState(false);
     const [initialLoader, setInitialLoader] = useState(true);
