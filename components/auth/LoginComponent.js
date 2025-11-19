@@ -862,29 +862,72 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         if (prev >= 90) {
           return 0;
         }
-        return prev + 10;
+        // Smaller increments for smoother animation
+        return prev + 2;
       });
-    }, 200);
+    }, 50); // More frequent updates for smoother animation
     return () => clearInterval(interval);
   }, [isCheckingAuth]);
 
   // Show loading screen while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-white">
-        <div className="flex flex-col items-center w-64">
-          <Image
-            src="/agentXOrb.gif"
-            height={142}
-            width={152}
-            alt="Loading"
-            style={{ height: "142px", width: "152px", resize: "contain" }}
-          />
-          <div className="w-full mt-8">
-            <Progress 
-              value={authProgressValue} 
-              className="h-2 bg-gray-200 [&>div]:bg-purple"
+      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-black">
+        <div className="flex flex-col items-center w-full max-w-md px-8">
+          {/* Orb Image */}
+          <div className="mb-16 bg-white rounded-md p-4">
+            <Image
+              src="/agentXOrb.gif"
+              height={142}
+              width={152}
+              alt="Loading"
+              style={{ height: "142px", width: "152px", resize: "contain" }}
             />
+          </div>
+          
+          {/* Shooting Star Progress Bar */}
+          <div className="w-full relative" style={{ height: '2px' }}>
+            <div className="absolute inset-0 bg-gray-900 rounded-full" />
+            <div 
+              className="absolute left-0 top-0 rounded-full transition-all duration-300 ease-out"
+              style={{
+                width: `${authProgressValue}%`,
+                height: '2px',
+                background: `linear-gradient(90deg, 
+                  rgba(59, 130, 246, 0) 0%,
+                  rgba(59, 130, 246, 0.05) 10%,
+                  rgba(59, 130, 246, 0.15) 30%,
+                  rgba(59, 130, 246, 0.4) 50%,
+                  rgba(59, 130, 246, 0.7) 70%,
+                  rgba(59, 130, 246, 0.95) 85%,
+                  rgba(59, 130, 246, 1) 95%,
+                  rgba(59, 130, 246, 1) 100%
+                )`,
+                boxShadow: `
+                  0 0 2px rgba(59, 130, 246, 0.3),
+                  0 0 4px rgba(59, 130, 246, 0.5),
+                  0 0 8px rgba(59, 130, 246, 0.7)
+                `,
+                transition: 'width 0.2s ease-out',
+              }}
+            >
+              {/* Bright, thick head at the end */}
+              <div 
+                className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full"
+                style={{
+                  width: '12px',
+                  height: '4px',
+                  background: 'rgba(59, 130, 246, 1)',
+                  boxShadow: `
+                    0 0 6px rgba(59, 130, 246, 1),
+                    0 0 12px rgba(59, 130, 246, 0.9),
+                    0 0 20px rgba(59, 130, 246, 0.7),
+                    0 0 30px rgba(59, 130, 246, 0.5),
+                    inset 0 0 4px rgba(255, 255, 255, 0.3)
+                  `,
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

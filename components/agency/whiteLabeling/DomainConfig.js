@@ -494,17 +494,17 @@ const DomainConfig = () => {
                 <div className="flex items-center gap-2">
                   {getStatusBadge(domainStatus.status)}
                   {/* Show warning if DNS configuration is needed */}
-                  {domainStatus.needsDnsConfiguration && (
+                  {/* {domainStatus.needsDnsConfiguration && (
                     <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
                       ⚠️ DNS configuration needed
                     </span>
-                  )}
+                  )} */}
                   {/* Show warning if Vercel shows different status */}
-                  {!domainStatus.needsDnsConfiguration && domainStatus.vercelVerified === false && domainStatus.status === 'verified' && (
+                  {/* {!domainStatus.needsDnsConfiguration && domainStatus.vercelVerified === false && domainStatus.status === 'verified' && (
                     <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded">
                       ⚠️ DNS configuration needed
                     </span>
-                  )}
+                  )} */}
                   <button
                     className="bg-gray-500 text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handleVerifyDomain}
@@ -533,9 +533,11 @@ const DomainConfig = () => {
                       <div className="text-xs text-yellow-700">
                         {domainStatus.warning}
                       </div>
-                      <div className="text-xs text-yellow-600 mt-2">
-                        If DNS records are not shown below, please check your Vercel dashboard for the required DNS configuration.
-                      </div>
+                      {(!domainStatus.dnsRecords || domainStatus.dnsRecords.length === 0) && (
+                        <div className="text-xs text-yellow-600 mt-2">
+                          If DNS records are not shown above, please contact support for assistance with domain configuration.
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -551,7 +553,7 @@ const DomainConfig = () => {
                   </div>
                   <div className="text-xs text-blue-700 mb-2">
                     {domainStatus.status === 'verified'
-                      ? 'Your domain is verified, but you may need to update these DNS records if you see "Invalid Configuration" in Vercel.'
+                      ? 'Your domain is verified. If you experience any issues, please contact support.'
                       : 'Please add these DNS records to your domain provider to complete verification.'}
                   </div>
                 </div>
@@ -567,9 +569,9 @@ const DomainConfig = () => {
                     Your domain is marked as verified, but DNS records are not available. This usually means:
                   </div>
                   <ul className="text-xs text-orange-700 list-disc list-inside mb-2 space-y-1">
-                    <li>The domain may show &quot;Invalid Configuration&quot; in Vercel dashboard</li>
                     <li>DNS records need to be configured at your domain provider</li>
-                    <li>Please check your Vercel dashboard for the exact DNS records required</li>
+                    <li>The domain configuration may need to be updated</li>
+                    <li>Please contact support if you need assistance with DNS configuration</li>
                   </ul>
                   <div className="text-xs text-orange-600">
                     After adding DNS records, click &quot;Verify Domain&quot; to check the status.
