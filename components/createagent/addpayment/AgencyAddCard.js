@@ -27,7 +27,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 import moment from "moment";
-import { getNextChargeDate } from "@/components/userPlans/UserPlanServices";
+import { getNextChargeDate, checkReferralCode } from "@/components/userPlans/UserPlanServices";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 // import Apis from '../Apis/Apis';
 
@@ -61,6 +61,7 @@ const AgencyAddCard = ({
     const cardNumberRef = useRef(null);
     const cardExpiryRef = useRef(null);
     const cardCvcRef = useRef(null);
+    const referralRequestSeqRef = useRef(0);
 
     //check for button
     const [CardAdded, setCardAdded] = useState(false);
@@ -74,6 +75,20 @@ const AgencyAddCard = ({
     const [disableContinue, setDisableContinue] = useState(false);
 
     // Autofocus the first field when the component mounts
+
+
+
+
+    // referral code validation states
+    const [referralStatus, setReferralStatus] = useState("idle"); // idle | loading | valid | invalid
+    const [referralMessage, setReferralMessage] = useState("");
+    const [promoCodeDetails, setPromoCodeDetails] = useState(null); // Store promo code discount details
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+
+
     useEffect(() => {
         // //console.log;
         if (cardNumberRef.current) {
@@ -81,6 +96,61 @@ const AgencyAddCard = ({
             cardNumberRef.current.focus();
         }
     }, []);
+
+
+    useEffect(() => {
+        if (!inviteCode || inviteCode.trim().length === 0) {
+            setReferralStatus("idle");
+            setReferralMessage("");
+            setPromoCodeDetails(null);
+            return;
+        }
+
+        setReferralStatus("loading");
+        setReferralMessage("");
+        setPromoCodeDetails(null);
+        referralRequestSeqRef.current += 1;
+        const currentSeq = referralRequestSeqRef.current;
+        
+        const timer = setTimeout(async () => {
+            try {
+                // Include planId if a plan is selected for better discount calculation
+                const planId = selectedPlan?.id || null;
+
+                const resp = await checkReferralCode(inviteCode.trim(), planId);
+                
+                // Check if this request is still current
+                if (currentSeq !== referralRequestSeqRef.current) return;
+                
+                if (resp && resp.status) {
+                    setReferralStatus("valid");
+                    setReferralMessage(resp.message || "Code applied");
+                    
+                    // Store promo code details if it's a discount promo
+                    if (resp.data?.codeType === 'promo' && resp.data?.promoType === 'discount') {
+                        setPromoCodeDetails(resp.data);
+                    } else {
+                        setPromoCodeDetails(null);
+                    }
+                } else {
+                    setReferralStatus("invalid");
+                    setReferralMessage((resp && resp.message) || "Invalid code");
+                    setPromoCodeDetails(null);
+                }
+            } catch (e) {
+                // Check if this request is still current
+                if (currentSeq !== referralRequestSeqRef.current) return;
+                setReferralStatus("invalid");
+                setReferralMessage("Unable to validate code. Please try again.");
+                setPromoCodeDetails(null);
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [inviteCode, selectedPlan?.id]);
+
 
     //handle agree terms toggle btn
     const handleToggleTermsClick = () => {
@@ -107,29 +177,6 @@ const AgencyAddCard = ({
         e.preventDefault();
         handleBack();
     };
-
-    // //code for wide screen
-    // useEffect(() => {
-    //     const handleResize = () => {
-    //         // Check if width is greater than or equal to 1024px
-    //         setIsWideScreen(window.innerWidth >= 500);
-
-    //         // setIsWideScreen2(window.innerWidth >= 500);
-    //         // Check if height is greater than or equal to 1024px
-    //         // setIsHighScreen(window.innerHeight >= 640);
-
-    //         // Log the updated state values for debugging (Optional)
-    //        // //console.log;
-    //     };
-
-    //     handleResize(); // Set initial state
-    //     window.addEventListener("resize", handleResize);
-
-    //     return () => {
-    //         window.removeEventListener("resize", handleResize);
-    //     };
-    // }, []);
-
     const elementOptions = {
         style: {
             base: {
@@ -149,15 +196,7 @@ const AgencyAddCard = ({
         },
     };
 
-    //code for adding card api
-
-    // useEffect(()=>{
-    //    // //console.log
-    // }, [selectedPlan])
-
-    // useEffect(() => {})
-    ////console.log
-    // let selPlan = null;
+    
 
     //function to add card
     const handleAddCard = async (e) => {
@@ -357,7 +396,7 @@ const AgencyAddCard = ({
         const startDate = new Date();
         const endDate = new Date(startDate);
         console.log("End date is", endDate.setMonth(endDate.getMonth() + 1));
-        if(duration === "monthly"){
+        if (duration === "monthly") {
             return endDate.setMonth(endDate.getMonth() + 1);
         } else if (duration === "quarterly") {
             return endDate.setMonth(endDate.getMonth() + 4);
@@ -366,7 +405,7 @@ const AgencyAddCard = ({
         } else {
             return "-";
         }
-        
+
     }
 
     const getMonthsCount = () => {
@@ -376,6 +415,80 @@ const AgencyAddCard = ({
         return selectedPlan.duration === "monthly" ? 1 : selectedPlan.duration === "quarterly" ? 3 : 12;
     }
 
+    const GetMonthCountFronBillingCycle = (billingCycle) => {
+        if (billingCycle === "monthly") return 1;
+        if (billingCycle === "quarterly") return 3;
+        if (billingCycle === "yearly") return 12;
+        return 1;
+    }
+
+    // Calculate discounted price based on promo code and billing cycle
+    const calculateDiscountedPrice = (plan, promoDetails) => {
+        if (!plan || !promoDetails || promoDetails.promoType !== 'discount') {
+            return null;
+        }
+
+        const monthlyPrice = plan.discountPrice || plan.discountedPrice || plan.originalPrice || 0;
+        const billingCycle = plan.billingCycle || plan.duration || 'monthly';
+        const billingMonths = GetMonthCountFronBillingCycle(billingCycle);
+        
+        const discountType = promoDetails.discountType; // 'percentage' or 'flat_amount'
+        const discountValue = promoDetails.discountValue;
+        const discountDurationMonths = promoDetails.discountDurationMonths || 0;
+
+        // If no discount duration, it's a one-time discount
+        if (!discountDurationMonths || discountDurationMonths === 0) {
+            // One-time discount - apply to the billing cycle
+            let discountAmount = 0;
+            const totalPrice = monthlyPrice * billingMonths;
+            
+            if (discountType === 'percentage') {
+                discountAmount = (totalPrice * discountValue) / 100;
+            } else if (discountType === 'flat_amount') {
+                discountAmount = Math.min(discountValue, totalPrice);
+            }
+            
+            return {
+                originalPrice: totalPrice,
+                discountAmount: discountAmount,
+                finalPrice: totalPrice - discountAmount,
+                discountMonths: 0,
+                fullPriceMonths: billingMonths
+            };
+        }
+
+        // Duration-based discount
+        // Calculate how many months get discount vs full price
+        const discountMonths = Math.min(discountDurationMonths, billingMonths);
+        const fullPriceMonths = Math.max(0, billingMonths - discountMonths);
+
+        // Calculate discount per month
+        let discountPerMonth = 0;
+        if (discountType === 'percentage') {
+            discountPerMonth = (monthlyPrice * discountValue) / 100;
+        } else if (discountType === 'flat_amount') {
+            discountPerMonth = Math.min(discountValue, monthlyPrice);
+        }
+
+        // Calculate total discount
+        const totalDiscount = discountPerMonth * discountMonths;
+
+        // Calculate prices
+        const discountedMonthsPrice = (monthlyPrice - discountPerMonth) * discountMonths;
+        const fullPriceMonthsPrice = monthlyPrice * fullPriceMonths;
+        const originalPrice = monthlyPrice * billingMonths;
+        const finalPrice = discountedMonthsPrice + fullPriceMonthsPrice;
+
+        return {
+            originalPrice: originalPrice,
+            discountAmount: totalDiscount,
+            finalPrice: finalPrice,
+            discountMonths: discountMonths,
+            fullPriceMonths: fullPriceMonths,
+            monthlyPrice: monthlyPrice,
+            discountPerMonth: discountPerMonth
+        };
+    }
 
     const PayAsYouGoPlanTypes = {
         Plan30Min: "Plan30",
@@ -566,7 +679,7 @@ const AgencyAddCard = ({
                                 color: "#4F5B76",
                             }}
                         >
-                            {`Referral Code (optional)`}
+                            {`Promo or Referral code (optional)`}
                         </div>
 
                         <div className="mt-1">
@@ -584,7 +697,7 @@ const AgencyAddCard = ({
                                     fontSize: 15,
                                     fontWeight: "500",
                                 }}
-                                placeholder="Enter Referral code"
+                                placeholder="Enter Promo or Referral code"
                             />
                             <style jsx>{`
           input::placeholder {
@@ -592,6 +705,21 @@ const AgencyAddCard = ({
           }
         `}</style>
                         </div>
+                        {inviteCode ? (
+                            <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
+                                {referralStatus === "loading" && (
+                                    <>
+                                        <div style={{ fontSize: 12, color: "#4F5B76" }}>Validating code…</div>
+                                    </>
+                                )}
+                                {referralStatus === "invalid" && (
+                                    <div style={{ fontSize: 12, color: "#D93025", fontWeight: 600 }}>{referralMessage || "Invalid referral code"}</div>
+                                )}
+                                {referralStatus === "valid" && (
+                                    <div style={{ fontSize: 12, color: "#34A853", fontWeight: 600 }}>{referralMessage || "Code applied"}</div>
+                                )}
+                            </div>
+                        ) : null}
 
                         {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
 
@@ -687,32 +815,105 @@ const AgencyAddCard = ({
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>${formatFractional2(selectedPlan?.originalPrice)}</div>
                         </div>
-                        {/*
-                         <div className="flex flex-row items-start justify-between w-full mt-6">
-                             <div>
-                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                     Referral Code
-                                 </div>
-                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Code desc goes here: 2 months free or 25% off, etc</div>
-                             </div>
-                             <div style={{ fontWeight: "600", fontSize: 15 }}>$372</div>
-                         </div>
-                       */}
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                            <div>
-                                <div className="capitalize" style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Total Billed {selectedPlan?.duration}
-                                </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>{/* hh:mma */}
-                            </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
-                        </div>
+
+
+                        {/* Calculate discount if promo code is applied */}
+                        {(() => {
+                            const discountCalculation = promoCodeDetails
+                                ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                                : null;
+
+                            const billingMonths = GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration);
+                            const monthlyPrice = selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice || 0;
+                            const originalTotal = billingMonths * monthlyPrice;
+                            const finalTotal = discountCalculation ? discountCalculation.finalPrice : originalTotal;
+
+                            return (
+                                <>
+                                    {discountCalculation && (
+                                        <div className="flex flex-row items-start justify-between w-full mt-4">
+                                            <div>
+                                                <div style={{ fontWeight: "600", fontSize: 15, color: "#7902DF" }}>
+                                                    Promo Code Applied
+                                                </div>
+                                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "4px" }}>
+                                                    {promoCodeDetails.discountType === 'percentage'
+                                                        ? `${promoCodeDetails.discountValue}% off`
+                                                        : `$${promoCodeDetails.discountValue} off`
+                                                    }
+                                                    {promoCodeDetails.discountDurationMonths
+                                                        ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
+                                                        : ''
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div style={{ fontWeight: "600", fontSize: 15, color: "#7902DF" }}>
+                                                -${formatFractional2(discountCalculation.discountAmount)}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-row items-start justify-between w-full mt-6">
+                                        <div>
+                                            <div className='capitalize' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                                            </div>
+                                            <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                                Next Charge Date {getNextChargeDate(selectedPlan)}
+                                            </div>
+                                            {discountCalculation && discountCalculation.discountMonths > 0 && (
+                                                <div style={{ fontWeight: "400", fontSize: 12, marginTop: "4px", color: "#666" }}>
+                                                    {discountCalculation.discountMonths} month{discountCalculation.discountMonths > 1 ? 's' : ''} at {promoCodeDetails.discountType === 'percentage' ? `${promoCodeDetails.discountValue}%` : `$${promoCodeDetails.discountValue}`} off
+                                                    {discountCalculation.fullPriceMonths > 0 && `, ${discountCalculation.fullPriceMonths} month${discountCalculation.fullPriceMonths > 1 ? 's' : ''} at full price`}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                            {discountCalculation
+                                                ? `$${formatFractional2(finalTotal)}`
+                                                : `$${formatFractional2(originalTotal)}`
+                                            }
+                                        </div>
+                                    </div>
+
+                                    {inviteCode && !promoCodeDetails && (
+                                        <div>
+                                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                <div>
+                                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                        Referral Code
+                                                    </div>
+                                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                                        {referralMessage}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
+
                         <div className="mt-6 h-[1px] w-full bg-[#00000035]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div className="flex flex-col items-end">
                                 <div style={{ fontWeight: "600", fontSize: 22, }}>
-                                    {scalePlanValue()}
+                                    {(() => {
+                                        if (!selectedPlan) return "$0";
+                                        
+                                        const discountCalculation = promoCodeDetails 
+                                            ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                                            : null;
+                                        
+                                        if (discountCalculation) {
+                                            return `$${formatFractional2(discountCalculation.finalPrice)}`;
+                                        }
+                                        
+                                        const billingMonths = GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration);
+                                        const monthlyPrice = selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice || 0;
+                                        return `$${formatFractional2(billingMonths * monthlyPrice)}`;
+                                    })()}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>

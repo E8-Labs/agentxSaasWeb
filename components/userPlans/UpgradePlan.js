@@ -1792,7 +1792,7 @@ function UpgradePlanContent({
                                                                                 : `$${promoCodeDetails.discountValue} off`
                                                                             }
                                                                             {promoCodeDetails.discountDurationMonths 
-                                                                                ? ` for ${promoCodeDetails.discountDurationMonths} months`
+                                                                                ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
                                                                                 : ''
                                                                             }
                                                                         </div>
