@@ -12,6 +12,7 @@ import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import { Progress } from "@/components/ui/progress";
 import SendVerificationCode from "@/components/onboarding/services/AuthVerification/AuthService";
 import SnackMessages from "@/components/onboarding/services/AuthVerification/SnackMessages";
 import AgentSelectSnackMessage, {
@@ -62,6 +63,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [authProgressValue, setAuthProgressValue] = useState(0);
 
   // Agency branding state
   const [agencyBranding, setAgencyBranding] = useState(null);
@@ -848,14 +850,43 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     },
   };
 
+  // Animate progress bar for indeterminate effect when checking auth
+  useEffect(() => {
+    if (!isCheckingAuth) {
+      setAuthProgressValue(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setAuthProgressValue((prev) => {
+        if (prev >= 90) {
+          return 0;
+        }
+        return prev + 10;
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, [isCheckingAuth]);
+
   // Show loading screen while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="flex flex-row w-full justify-center h-[100svh] items-center">
-        <LoaderAnimation
-          loaderModal={true}
-          title="Checking authentication..."
-        />
+      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-white">
+        <div className="flex flex-col items-center w-64">
+          <Image
+            src="/agentXOrb.gif"
+            height={142}
+            width={152}
+            alt="Loading"
+            style={{ height: "142px", width: "152px", resize: "contain" }}
+          />
+          <div className="w-full mt-8">
+            <Progress 
+              value={authProgressValue} 
+              className="h-2 bg-gray-200 [&>div]:bg-purple"
+            />
+          </div>
+        </div>
       </div>
     );
   }

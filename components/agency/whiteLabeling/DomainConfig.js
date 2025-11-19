@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import axios from 'axios'
 import LabelingHeader from './LabelingHeader'
 import Apis from '@/components/apis/Apis'
@@ -29,16 +29,6 @@ const DomainConfig = () => {
       }
     }
   }, [])
-
-  // Auto-refresh domain status if pending
-  useEffect(() => {
-    if (domainStatus && domainStatus.status === 'pending') {
-      startAutoRefresh()
-    } else {
-      stopAutoRefresh()
-    }
-    return () => stopAutoRefresh()
-  }, [domainStatus])
 
   const fetchSubdomain = async () => {
     try {
@@ -72,7 +62,7 @@ const DomainConfig = () => {
     }
   }
 
-  const fetchDomainStatus = async () => {
+  const fetchDomainStatus = useCallback(async () => {
     try {
       const localData = localStorage.getItem('User')
       let authToken = null
@@ -123,7 +113,7 @@ const DomainConfig = () => {
     } finally {
       setFetching(false)
     }
-  }
+  }, [])
 
   const handleAddDomain = async () => {
     if (!customDomain.trim()) {
@@ -334,19 +324,29 @@ const DomainConfig = () => {
     }
   }
 
-  const startAutoRefresh = () => {
-    stopAutoRefresh() // Clear any existing interval
-    autoRefreshIntervalRef.current = setInterval(() => {
-      fetchDomainStatus()
-    }, 30000) // Refresh every 30 seconds
-  }
-
-  const stopAutoRefresh = () => {
+  const stopAutoRefresh = useCallback(() => {
     if (autoRefreshIntervalRef.current) {
       clearInterval(autoRefreshIntervalRef.current)
       autoRefreshIntervalRef.current = null
     }
-  }
+  }, [])
+
+  const startAutoRefresh = useCallback(() => {
+    stopAutoRefresh() // Clear any existing interval
+    autoRefreshIntervalRef.current = setInterval(() => {
+      fetchDomainStatus()
+    }, 30000) // Refresh every 30 seconds
+  }, [stopAutoRefresh, fetchDomainStatus])
+
+  // Auto-refresh domain status if pending
+  useEffect(() => {
+    if (domainStatus && domainStatus.status === 'pending') {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
+    return () => stopAutoRefresh()
+  }, [domainStatus, startAutoRefresh, stopAutoRefresh])
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -567,12 +567,12 @@ const DomainConfig = () => {
                     Your domain is marked as verified, but DNS records are not available. This usually means:
                   </div>
                   <ul className="text-xs text-orange-700 list-disc list-inside mb-2 space-y-1">
-                    <li>The domain may show "Invalid Configuration" in Vercel dashboard</li>
+                    <li>The domain may show &quot;Invalid Configuration&quot; in Vercel dashboard</li>
                     <li>DNS records need to be configured at your domain provider</li>
                     <li>Please check your Vercel dashboard for the exact DNS records required</li>
                   </ul>
                   <div className="text-xs text-orange-600">
-                    After adding DNS records, click "Verify Domain" to check the status.
+                    After adding DNS records, click &quot;Verify Domain&quot; to check the status.
                   </div>
                 </div>
               )}
