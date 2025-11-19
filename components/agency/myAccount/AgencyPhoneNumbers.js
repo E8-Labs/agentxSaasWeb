@@ -227,7 +227,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       </div>
 
       {/* Global Number Info Banner */}
-      {globalNumber && (
+      {/* {globalNumber && (
         <div
           className="mb-6 p-4 rounded-lg"
           style={{
@@ -262,7 +262,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             </Button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Phone Numbers List */}
       {loading ? (
@@ -293,7 +293,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             return (
               <div
                 key={number.id}
-                className="p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
                   borderColor: isGlobal ? "#7902DF" : "#e0e0e0",
                   backgroundColor: isGlobal ? "#7902DF10" : "#fff",
@@ -317,7 +317,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       {formatPhoneNumber(number.phone)}
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                  {/* <div className="flex flex-wrap items-center gap-4 text-xs">
                     <div style={{ color: "#666" }}>
                       {getSourceLabel(number.source)}
                       {number.isOwnTwilioAccount && " • Your Account"}
@@ -331,7 +331,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                         {moment(number.createdAt).format("MMM DD, YYYY")}
                       </div>
                     )}
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Right Section - Action Button */}
@@ -345,25 +345,25 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                         backgroundColor: "#7902DF",
                         color: "#fff",
                         textTransform: "none",
-                        minWidth: "180px",
+                        minWidth: "100px",
                       }}
                     >
                       {isLoading ? (
                         <CircularProgress size={20} style={{ color: "#fff" }} />
                       ) : (
-                        "Set as Global Number"
+                        "Set Global Number"
                       )}
                     </Button>
                   )}
 
-                  {isGlobal && (
+                  {/* {isGlobal && (
                     <div
                       className="text-sm py-2 px-4 text-center"
                       style={{ color: "#7902DF", fontWeight: "500", minWidth: "180px" }}
                     >
                       Currently Global
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             );
