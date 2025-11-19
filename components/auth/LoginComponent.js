@@ -63,6 +63,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [showVerifyPopup, setShowVerifyPopup] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  // Agency branding state
+  const [agencyBranding, setAgencyBranding] = useState(null);
+
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState("");
 
@@ -71,6 +74,44 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // let number = Number(tab) || 6;
     // //console.log;
     setRedirect(redirect);
+  }, []);
+
+  // Get agency branding from cookie/localStorage (set by middleware)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Helper to get cookie value
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    };
+
+    // Try to get branding from cookie first (set by middleware)
+    const brandingCookie = getCookie('agencyBranding');
+    if (brandingCookie) {
+      try {
+        const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
+        // Store in localStorage for persistence
+        localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
+        setAgencyBranding(brandingData);
+        return;
+      } catch (error) {
+        console.log('Error parsing agencyBranding cookie:', error);
+      }
+    }
+
+    // Fallback to localStorage if cookie not found
+    const storedBranding = localStorage.getItem('agencyBranding');
+    if (storedBranding) {
+      try {
+        const brandingData = JSON.parse(storedBranding);
+        setAgencyBranding(brandingData);
+      } catch (error) {
+        console.log('Error parsing agencyBranding from localStorage:', error);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -835,14 +876,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       </div> */}
       <div className="w-11/12 flex flex-col items-center h-[95svh] ">
         <div className="w-full gap-3 h-[10%] flex flex-row items-end">
-          <Image
-            className=""
-            src="/assets/assignX.png"
-            style={{ height: "29px", width: "122px", resize: "contain" }}
-            height={29}
-            width={122}
-            alt="*"
-          />
+          {agencyBranding?.logoUrl ? (
+            <Image
+              className=""
+              src={agencyBranding.logoUrl}
+              style={{ height: "29px", width: "auto", maxWidth: "200px", resize: "contain", objectFit: "contain" }}
+              height={29}
+              width={200}
+              alt="agency logo"
+            />
+          ) : (
+            <Image
+              className=""
+              src="/assets/assignX.png"
+              style={{ height: "29px", width: "122px", resize: "contain" }}
+              height={29}
+              width={122}
+              alt="*"
+            />
+          )}
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
         </div>
         <div className="w-full  h-[80%] flex flex-row items-center justify-center">
@@ -854,7 +906,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 width={260}
                 alt="avtr"
               />
-              <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
+              {agencyBranding?.logoUrl ? (
+                <Image 
+                  src={agencyBranding.logoUrl} 
+                  height={69} 
+                  width={69} 
+                  alt="agency logo"
+                  style={{ objectFit: "contain", maxHeight: "69px", maxWidth: "69px" }}
+                />
+              ) : (
+                <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
+              )}
             </div>
 
             {/* Code for phone input field */}

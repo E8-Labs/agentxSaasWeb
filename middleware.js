@@ -8,6 +8,7 @@ export async function middleware(request) {
   let agencyId = null;
   let agencySubdomain = null;
   let isCustomDomain = false;
+  let agencyBranding = null;
 
   // Check if it's a subdomain of assignx.ai
   if (hostname.includes('.assignx.ai')) {
@@ -36,6 +37,10 @@ export async function middleware(request) {
           const lookupData = await lookupResponse.json();
           if (lookupData.status && lookupData.data) {
             agencyId = lookupData.data.agencyId;
+            // Store branding for later use
+            if (lookupData.data.branding) {
+              agencyBranding = lookupData.data.branding;
+            }
           }
         }
       } catch (error) {
@@ -64,6 +69,10 @@ export async function middleware(request) {
         const lookupData = await lookupResponse.json();
         if (lookupData.status && lookupData.data) {
           agencyId = lookupData.data.agencyId;
+          // Store branding for later use
+          if (lookupData.data.branding) {
+            agencyBranding = lookupData.data.branding;
+          }
         }
       }
     } catch (error) {
@@ -105,6 +114,13 @@ export async function middleware(request) {
           httpOnly: false,
           sameSite: 'lax',
         });
+        if (agencyBranding) {
+          redirectResponse.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          });
+        }
       }
       return redirectResponse;
     }
@@ -150,6 +166,13 @@ export async function middleware(request) {
         httpOnly: false,
         sameSite: 'lax',
       });
+      if (agencyBranding) {
+        res.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+          httpOnly: false,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24,
+        });
+      }
     }
     return res;
   }
@@ -175,6 +198,13 @@ export async function middleware(request) {
         httpOnly: false,
         sameSite: 'lax',
       });
+      if (agencyBranding) {
+        publicResponse.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+          httpOnly: false,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24,
+        });
+      }
     }
     return publicResponse;
   }
@@ -252,6 +282,13 @@ export async function middleware(request) {
           httpOnly: false,
           sameSite: 'lax',
         });
+        if (agencyBranding) {
+          adminResponse.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          });
+        }
       }
       return adminResponse;
     }
@@ -268,6 +305,13 @@ export async function middleware(request) {
         httpOnly: false,
         sameSite: 'lax',
       });
+      if (agencyBranding) {
+        redirectResponse.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+          httpOnly: false,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24,
+        });
+      }
     }
     return redirectResponse;
   }
@@ -284,6 +328,14 @@ export async function middleware(request) {
       httpOnly: false,
       sameSite: 'lax',
     });
+    // Store branding in cookie for client-side access
+    if (agencyBranding) {
+      response.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+        httpOnly: false,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24, // 24 hours
+      });
+    }
   }
   return response;
 }
