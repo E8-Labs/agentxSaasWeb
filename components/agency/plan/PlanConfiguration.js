@@ -47,6 +47,7 @@ export default function PlanConfiguration({
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
     const [snackBannerMsg, setSnackBannerMsg] = useState(null);
     const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
+    const [trialDaysError, setTrialDaysError] = useState(false);
 
 
     //new variables
@@ -171,6 +172,7 @@ export default function PlanConfiguration({
             setLanguage("english");
             setLanguageTitle("English and Spanish Compatible");
             setTrialValidForDays("");
+            setTrialDaysError(false);
             setFeatures({
                 allowLanguageSelection: false,
                 toolsActions: false,
@@ -417,6 +419,7 @@ export default function PlanConfiguration({
         setLanguage("english");
         setLanguageTitle("English and Spanish Compatible");
         setTrialValidForDays("");
+        setTrialDaysError(false);
         setFeatures({
             allowLanguageSelection: false,
             toolsActions: false,
@@ -642,7 +645,8 @@ export default function PlanConfiguration({
         const requiredFieldsFilled = requiredData;
         let trialValid = true
         if(features.allowTrial){
-            trialValid = trialValidForDays > 0;
+            const trialDays = Number(trialValidForDays);
+            trialValid = trialDays > 0 && trialDays <= 14;
         }
 
         return requiredFieldsFilled && trialValid;
@@ -892,7 +896,7 @@ export default function PlanConfiguration({
                                             />
                                         </Tooltip>
                                     </div>
-                                    <div className={`border ${snackBannerMsg ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                                    <div className={`border ${snackBannerMsg && costPerAdditionalAgent && Number(costPerAdditionalAgent) < 5 ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                                         <div className="" style={styles.inputs}>
                                             $
                                         </div>
@@ -909,7 +913,11 @@ export default function PlanConfiguration({
                                                     setSnackBannerMsg("Price per agent cannot be less than $5.");
                                                     setSnackBannerMsgType(SnackbarTypes.Error);
                                                 } else {
-                                                    setSnackBannerMsg(null);
+                                                    // Only clear snackBannerMsg if it's the additional agent error
+                                                    // Check if current message is about additional agent before clearing
+                                                    if (snackBannerMsg && snackBannerMsg.includes("agent")) {
+                                                        setSnackBannerMsg(null);
+                                                    }
                                                 }
                                                 const sanitized = value.replace(/[^0-9.]/g, '');
 
@@ -1004,6 +1012,10 @@ export default function PlanConfiguration({
                                 costPerAdditionalSeat={costPerAdditionalSeat}
                                 setCostPerAdditionalSeat={setCostPerAdditionalSeat}
                                 handleToggle={handleToggle}
+                                setSnackBannerMsg={setSnackBannerMsg}
+                                setSnackBannerMsgType={setSnackBannerMsgType}
+                                trialDaysError={trialDaysError}
+                                setTrialDaysError={setTrialDaysError}
                             />
 
                         </div>

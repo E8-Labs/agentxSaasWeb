@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Switch, Tooltip } from "@mui/material";
 import Image from "next/image";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 export default function PlanFeatures({
     customFeatures,
@@ -18,7 +19,11 @@ export default function PlanFeatures({
     setNoOfSeats,
     costPerAdditionalSeat,
     setCostPerAdditionalSeat,
-    handleToggle
+    handleToggle,
+    setSnackBannerMsg,
+    setSnackBannerMsgType,
+    trialDaysError,
+    setTrialDaysError
 }) {
 
     // const handleToggle = (key) => {
@@ -198,15 +203,35 @@ export default function PlanFeatures({
                     <div className="w-full">
                         <div className="mt-2" styles={{
                             fontSize: "15px", fontWeight: "500",
-                        }}>{`Duration of Trial [Day]`}</div>
+                        }}>{`Duration of Trial [Day] (Max 14 days)`}</div>
                         <div className="w-full">
                             <input
                                 style={styles.inputs}
-                                className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Number of trial days"
+                                className={`w-full border ${trialDaysError ? "border-red" : "border-gray-200"} rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 ${trialDaysError ? "focus:border-red" : "focus:border-gray-200"}`}
+                                placeholder="Number of trial days (max 14)"
+                                type="number"
+                                min="1"
+                                max="14"
                                 value={trialValidForDays}
                                 onChange={(e) => {
-                                    setTrialValidForDays(e.target.value);
+                                    const value = e.target.value.replace(/[^0-9]/g, "");
+                                    const numValue = value ? Number(value) : 0;
+                                    
+                                    if (value && numValue > 14) {
+                                        setSnackBannerMsg("Trial days cannot exceed 14 days.");
+                                        setSnackBannerMsgType(SnackbarTypes.Error);
+                                        setTrialDaysError(true);
+                                    } else {
+                                        // Clear error state and message when value is valid
+                                        setTrialDaysError(false);
+                                        // Only clear snackBannerMsg if we're fixing the trial days error
+                                        // Check if current value was invalid before clearing
+                                        if (trialDaysError) {
+                                            setSnackBannerMsg(null);
+                                        }
+                                    }
+                                    
+                                    setTrialValidForDays(value);
                                 }}
                             />
                         </div>
