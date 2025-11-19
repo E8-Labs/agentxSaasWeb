@@ -1,25 +1,386 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
 import LabelingHeader from './LabelingHeader'
+import Apis from '@/components/apis/Apis'
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 const DomainConfig = () => {
+  const [subdomain, setSubdomain] = useState(null)
+  const [customDomain, setCustomDomain] = useState('')
+  const [domainStatus, setDomainStatus] = useState(null) // { domain, status, sslStatus, dnsRecords, verifiedAt, lastCheckedAt }
+  const [loading, setLoading] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [fetching, setFetching] = useState(true)
+  const [showSnackMessage, setShowSnackMessage] = useState({
+    type: SnackbarTypes.Error,
+    message: '',
+    isVisible: false,
+  })
+  const autoRefreshIntervalRef = useRef(null)
 
-  const [customDomain, setCustomDomain] = useState("");
+  // Fetch subdomain and domain status on mount
+  useEffect(() => {
+    fetchSubdomain()
+    fetchDomainStatus()
+    return () => {
+      // Cleanup auto-refresh on unmount
+      if (autoRefreshIntervalRef.current) {
+        clearInterval(autoRefreshIntervalRef.current)
+      }
+    }
+  }, [])
+
+  // Auto-refresh domain status if pending
+  useEffect(() => {
+    if (domainStatus && domainStatus.status === 'pending') {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
+    return () => stopAutoRefresh()
+  }, [domainStatus])
+
+  const fetchSubdomain = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (!authToken) {
+        setFetching(false)
+        return
+      }
+
+      const response = await axios.get(Apis.getAgencyBranding, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response?.data?.status === true && response?.data?.data) {
+        setSubdomain(response.data.data.subdomain)
+      }
+    } catch (error) {
+      console.error('Error fetching subdomain:', error)
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  const fetchDomainStatus = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (!authToken) {
+        setFetching(false)
+        return
+      }
+
+      const response = await axios.get(Apis.getDomainStatus, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response?.data?.status === true) {
+        if (response.data.data) {
+          setDomainStatus(response.data.data)
+          setCustomDomain(response.data.data.domain)
+        } else {
+          setDomainStatus(null)
+          setCustomDomain('')
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching domain status:', error)
+      if (error.response?.status !== 404) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: 'Failed to fetch domain status',
+          isVisible: true,
+        })
+      }
+    } finally {
+      setFetching(false)
+    }
+  }
+
+  const handleAddDomain = async () => {
+    if (!customDomain.trim()) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: 'Please enter a domain',
+        isVisible: true,
+      })
+      return
+    }
+
+    try {
+      setLoading(true)
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: 'Authentication required',
+          isVisible: true,
+        })
+        return
+      }
+
+      const response = await axios.post(
+        Apis.addCustomDomain,
+        { domain: customDomain.trim() },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      if (response?.data?.status === true) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: 'Domain added successfully. Please add the DNS records below.',
+          isVisible: true,
+        })
+        // Refresh domain status to get DNS records
+        await fetchDomainStatus()
+      }
+    } catch (error) {
+      console.error('Error adding domain:', error)
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message:
+          error.response?.data?.message ||
+          'Failed to add domain. Please try again.',
+        isVisible: true,
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyDomain = async () => {
+    if (!customDomain.trim()) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: 'No domain to verify',
+        isVisible: true,
+      })
+      return
+    }
+
+    try {
+      setVerifying(true)
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: 'Authentication required',
+          isVisible: true,
+        })
+        return
+      }
+
+      const response = await axios.post(
+        Apis.verifyCustomDomain,
+        { domain: customDomain.trim() },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      if (response?.data?.status === true) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: response.data.verified
+            ? 'Domain verified successfully!'
+            : 'Domain verification pending. Please check your DNS records.',
+          isVisible: true,
+        })
+        // Refresh domain status
+        await fetchDomainStatus()
+      }
+    } catch (error) {
+      console.error('Error verifying domain:', error)
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message:
+          error.response?.data?.message ||
+          'Failed to verify domain. Please try again.',
+        isVisible: true,
+      })
+    } finally {
+      setVerifying(false)
+    }
+  }
+
+  const handleRemoveDomain = async () => {
+    if (!customDomain.trim()) {
+      return
+    }
+
+    if (
+      !window.confirm(
+        'Are you sure you want to disconnect this domain? This action cannot be undone.',
+      )
+    ) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: 'Authentication required',
+          isVisible: true,
+        })
+        return
+      }
+
+      const response = await axios.delete(Apis.removeCustomDomain, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        data: { domain: customDomain.trim() },
+      })
+
+      if (response?.data?.status === true) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: 'Domain removed successfully',
+          isVisible: true,
+        })
+        setDomainStatus(null)
+        setCustomDomain('')
+      }
+    } catch (error) {
+      console.error('Error removing domain:', error)
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message:
+          error.response?.data?.message ||
+          'Failed to remove domain. Please try again.',
+        isVisible: true,
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const startAutoRefresh = () => {
+    stopAutoRefresh() // Clear any existing interval
+    autoRefreshIntervalRef.current = setInterval(() => {
+      fetchDomainStatus()
+    }, 30000) // Refresh every 30 seconds
+  }
+
+  const stopAutoRefresh = () => {
+    if (autoRefreshIntervalRef.current) {
+      clearInterval(autoRefreshIntervalRef.current)
+      autoRefreshIntervalRef.current = null
+    }
+  }
+
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      verified: { text: 'Verified', className: 'bg-green-100 text-green-800' },
+      pending: { text: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
+      failed: { text: 'Failed', className: 'bg-red-100 text-red-800' },
+      verifying: {
+        text: 'Verifying',
+        className: 'bg-blue-100 text-blue-800',
+      },
+    }
+
+    const config = statusConfig[status] || statusConfig.pending
+    return (
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-medium ${config.className}`}
+      >
+        {config.text}
+      </span>
+    )
+  }
 
   return (
     <div>
       {/* Banner Section */}
       <LabelingHeader
-        img={"/agencyIcons/globe.png"}
-        title={"Setup your custom domain"}
-        description={"Connect your domain and add DNS record."}
+        img={'/agencyIcons/globe.png'}
+        title={'Setup your custom domain'}
+        description={'Connect your domain and add DNS record.'}
       />
 
-      {/* Brand Configuration Card */}
+      {/* Domain Configuration Card */}
       <div className="w-full flex flex-row justify-center pt-8">
-        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-          {/* Domain Title */}
+        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col gap-6 overflow-hidden">
+          {/* Auto Subdomain Display (Always visible, read-only) */}
+          {subdomain && (
+            <div className="w-full">
+              <div className="text-start mb-2" style={styles.semiBoldHeading}>
+                Your Subdomain
+              </div>
+              <div className="w-full flex flex-row items-center gap-2">
+                <input
+                  style={styles.inputs}
+                  className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2 bg-gray-50"
+                  value={subdomain}
+                  readOnly
+                  disabled
+                />
+              </div>
+              <div className="text-sm text-gray-500 mt-1">
+                This subdomain is automatically assigned and always active
+              </div>
+            </div>
+          )}
+
+          {/* Connect Domain Section */}
           <div className="w-full">
-            <div className="text-start mb-2" style={styles.semiBoldHeading}>Custom Domain</div>
+            <div className="text-start mb-2" style={styles.semiBoldHeading}>
+              Connect Domain
+            </div>
             <div className="w-full flex flex-row items-center gap-2">
               <input
                 style={styles.inputs}
@@ -27,14 +388,120 @@ const DomainConfig = () => {
                 placeholder="example.com"
                 value={customDomain}
                 onChange={(e) => setCustomDomain(e.target.value)}
+                disabled={loading || !!domainStatus}
               />
-              <button className="bg-purple text-white rounded-md px-4 py-2 text-center">
-                Save
+              <button
+                className="bg-purple text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleAddDomain}
+                disabled={loading || !!domainStatus}
+              >
+                {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
+
+            {/* DNS Records Table */}
+            {domainStatus && domainStatus.dnsRecords && domainStatus.dnsRecords.length > 0 && (
+              <div className="mt-4">
+                <div className="text-sm font-medium mb-2">DNS Records</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-200">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                          Type
+                        </th>
+                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                          Host
+                        </th>
+                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                          Value
+                        </th>
+                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                          TTL
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {domainStatus.dnsRecords.map((record, index) => (
+                        <tr key={index}>
+                          <td className="border border-gray-200 px-3 py-2 text-sm">
+                            {record.type}
+                          </td>
+                          <td className="border border-gray-200 px-3 py-2 text-sm">
+                            {record.host}
+                          </td>
+                          <td className="border border-gray-200 px-3 py-2 text-sm break-all">
+                            {record.value}
+                          </td>
+                          <td className="border border-gray-200 px-3 py-2 text-sm">
+                            {record.ttl || '600/auto'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  After adding these records, it may take up to 48 hours for DNS
+                  changes to propagate globally
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Verify Domain Section */}
+          {domainStatus && (
+            <div className="w-full">
+              <div className="text-start mb-2" style={styles.semiBoldHeading}>
+                Verify Domain
+              </div>
+              <div className="w-full flex flex-row items-center gap-3">
+                <div className="flex-1">
+                  <input
+                    style={styles.inputs}
+                    className="w-full border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                    value={domainStatus.domain}
+                    readOnly
+                    disabled
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(domainStatus.status)}
+                  <button
+                    className="bg-gray-500 text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleVerifyDomain}
+                    disabled={verifying || domainStatus.status === 'verified'}
+                  >
+                    {verifying ? 'Verifying...' : 'Verify Domain'}
+                  </button>
+                  <button
+                    className="bg-gray-400 text-white rounded-md px-4 py-2 text-center hover:bg-gray-500"
+                    onClick={handleRemoveDomain}
+                    disabled={loading}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Snackbar Message */}
+      {showSnackMessage.isVisible && (
+        <AgentSelectSnackMessage
+          type={showSnackMessage.type}
+          message={showSnackMessage.message}
+          isVisible={showSnackMessage.isVisible}
+          onClose={() =>
+            setShowSnackMessage({
+              ...showSnackMessage,
+              isVisible: false,
+            })
+          }
+        />
+      )}
     </div>
   )
 }
@@ -42,8 +509,8 @@ const DomainConfig = () => {
 export default DomainConfig
 
 const styles = {
-  semiBoldHeading: { fontSize: 18, fontWeight: "600" },
-  smallRegular: { fontSize: 13, fontWeight: "400" },
-  regular: { fontSize: 16, fontWeight: "400" },
-  inputs: { fontSize: "15px", fontWeight: "500", color: "#000000" },
-};
+  semiBoldHeading: { fontSize: 18, fontWeight: '600' },
+  smallRegular: { fontSize: 13, fontWeight: '400' },
+  regular: { fontSize: 16, fontWeight: '400' },
+  inputs: { fontSize: '15px', fontWeight: '500', color: '#000000' },
+}

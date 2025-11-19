@@ -1,7 +1,75 @@
 import { NextResponse } from "next/server";
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get('host') || '';
+
+  // Subdomain and custom domain detection
+  let agencyId = null;
+  let agencySubdomain = null;
+  let isCustomDomain = false;
+
+  // Check if it's a subdomain of assignx.ai
+  if (hostname.includes('.assignx.ai')) {
+    // Extract subdomain: {uuid}.assignx.ai
+    const subdomainParts = hostname.split('.');
+    if (subdomainParts.length >= 3) {
+      agencySubdomain = hostname; // Full subdomain
+      const subdomainValue = subdomainParts[0]; // Just the UUID part
+
+      try {
+        // Call lookup API
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 
+          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+            ? "https://apimyagentx.com/agentx/"
+            : "https://apimyagentx.com/agentxtest/");
+        
+        const lookupResponse = await fetch(`${baseUrl}api/agency/lookup-by-domain`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ subdomain: subdomainValue }),
+        });
+
+        if (lookupResponse.ok) {
+          const lookupData = await lookupResponse.json();
+          if (lookupData.status && lookupData.data) {
+            agencyId = lookupData.data.agencyId;
+          }
+        }
+      } catch (error) {
+        console.error('Error looking up subdomain:', error);
+      }
+    }
+  } else if (hostname && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
+    // Check if it's a custom domain (not localhost and not assignx.ai)
+    isCustomDomain = true;
+    
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 
+        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+          ? "https://apimyagentx.com/agentx/"
+          : "https://apimyagentx.com/agentxtest/");
+      
+      const lookupResponse = await fetch(`${baseUrl}api/agency/lookup-by-domain`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ customDomain: hostname }),
+      });
+
+      if (lookupResponse.ok) {
+        const lookupData = await lookupResponse.json();
+        if (lookupData.status && lookupData.data) {
+          agencyId = lookupData.data.agencyId;
+        }
+      }
+    } catch (error) {
+      console.error('Error looking up custom domain:', error);
+    }
+  }
 
   // Grab User cookie early (needed for /agency redirect too)
   const userCookie = request.cookies.get("User");
@@ -26,10 +94,34 @@ export function middleware(request) {
   if (pathname === "/agency" || pathname === "/agency/") {
     if (user) {
       // Logged-in agency user → dashboard
-      return NextResponse.redirect(new URL("/agency/dashboard", request.url));
+      const redirectResponse = NextResponse.redirect(new URL("/agency/dashboard", request.url));
+      if (agencyId) {
+        redirectResponse.headers.set('x-agency-id', agencyId.toString());
+        redirectResponse.headers.set('x-agency-domain', hostname);
+        if (agencySubdomain) {
+          redirectResponse.headers.set('x-agency-subdomain', agencySubdomain);
+        }
+        redirectResponse.cookies.set('agencyId', agencyId.toString(), { 
+          httpOnly: false,
+          sameSite: 'lax',
+        });
+      }
+      return redirectResponse;
     }
     // Not logged in → send home
-    return NextResponse.redirect(new URL("/", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    if (agencyId) {
+      redirectResponse.headers.set('x-agency-id', agencyId.toString());
+      redirectResponse.headers.set('x-agency-domain', hostname);
+      if (agencySubdomain) {
+        redirectResponse.headers.set('x-agency-subdomain', agencySubdomain);
+      }
+      redirectResponse.cookies.set('agencyId', agencyId.toString(), { 
+        httpOnly: false,
+        sameSite: 'lax',
+      });
+    }
+    return redirectResponse;
   }
 
   // ---- Security headers for embed ----
@@ -48,6 +140,17 @@ export function middleware(request) {
         "frame-ancestors *",
       ].join("; ")
     );
+    if (agencyId) {
+      res.headers.set('x-agency-id', agencyId.toString());
+      res.headers.set('x-agency-domain', hostname);
+      if (agencySubdomain) {
+        res.headers.set('x-agency-subdomain', agencySubdomain);
+      }
+      res.cookies.set('agencyId', agencyId.toString(), { 
+        httpOnly: false,
+        sameSite: 'lax',
+      });
+    }
     return res;
   }
 
@@ -61,14 +164,38 @@ export function middleware(request) {
     pathname.startsWith("/agency/verify") ||
     pathname.startsWith("/recordings/")
   ) {
-    return NextResponse.next();
+    const publicResponse = NextResponse.next();
+    if (agencyId) {
+      publicResponse.headers.set('x-agency-id', agencyId.toString());
+      publicResponse.headers.set('x-agency-domain', hostname);
+      if (agencySubdomain) {
+        publicResponse.headers.set('x-agency-subdomain', agencySubdomain);
+      }
+      publicResponse.cookies.set('agencyId', agencyId.toString(), { 
+        httpOnly: false,
+        sameSite: 'lax',
+      });
+    }
+    return publicResponse;
   }
 
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
     console.log("🔄 MIDDLEWARE REDIRECT - Time:", new Date().toISOString(), "Reason: No user found", "Path:", pathname);
-    return NextResponse.redirect(new URL("/", request.url));
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    if (agencyId) {
+      redirectResponse.headers.set('x-agency-id', agencyId.toString());
+      redirectResponse.headers.set('x-agency-domain', hostname);
+      if (agencySubdomain) {
+        redirectResponse.headers.set('x-agency-subdomain', agencySubdomain);
+      }
+      redirectResponse.cookies.set('agencyId', agencyId.toString(), { 
+        httpOnly: false,
+        sameSite: 'lax',
+      });
+    }
+    return redirectResponse;
   }
 
   // 🚨 Force re-login if cookie is outdated (missing userRole or userType)
@@ -114,13 +241,51 @@ export function middleware(request) {
     console.log("Path mismatch detected");
     if(pathname === "/createagent" && user.userType === "admin") { // allowed createagent for admin
       console.log("Accessing /createagent as admin, allowing");
-      return NextResponse.next();
+      const adminResponse = NextResponse.next();
+      if (agencyId) {
+        adminResponse.headers.set('x-agency-id', agencyId.toString());
+        adminResponse.headers.set('x-agency-domain', hostname);
+        if (agencySubdomain) {
+          adminResponse.headers.set('x-agency-subdomain', agencySubdomain);
+        }
+        adminResponse.cookies.set('agencyId', agencyId.toString(), { 
+          httpOnly: false,
+          sameSite: 'lax',
+        });
+      }
+      return adminResponse;
     }
     console.log("🔄 MIDDLEWARE REDIRECT - Time:", new Date().toISOString(), "Reason: Path mismatch", "Current:", pathname, "Expected:", expectedPath, "UserType:", user.userType, "UserRole:", user.userRole);
-    return NextResponse.redirect(new URL(expectedPath, request.url));
+    const redirectResponse = NextResponse.redirect(new URL(expectedPath, request.url));
+    // Inject agency headers if found
+    if (agencyId) {
+      redirectResponse.headers.set('x-agency-id', agencyId.toString());
+      redirectResponse.headers.set('x-agency-domain', hostname);
+      if (agencySubdomain) {
+        redirectResponse.headers.set('x-agency-subdomain', agencySubdomain);
+      }
+      redirectResponse.cookies.set('agencyId', agencyId.toString(), { 
+        httpOnly: false,
+        sameSite: 'lax',
+      });
+    }
+    return redirectResponse;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  // Inject agency headers if found
+  if (agencyId) {
+    response.headers.set('x-agency-id', agencyId.toString());
+    response.headers.set('x-agency-domain', hostname);
+    if (agencySubdomain) {
+      response.headers.set('x-agency-subdomain', agencySubdomain);
+    }
+    response.cookies.set('agencyId', agencyId.toString(), { 
+      httpOnly: false,
+      sameSite: 'lax',
+    });
+  }
+  return response;
 }
 
 export const config = {
