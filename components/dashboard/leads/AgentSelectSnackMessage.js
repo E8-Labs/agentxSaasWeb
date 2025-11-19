@@ -17,7 +17,7 @@ const calculateToastWidth = (title, description) => {
   // Base width for padding, icon, and spacing
   const baseWidth = 60;
   // Average character width in pixels (approximate)
-  const charWidth = 8;
+  const charWidth = 7;
   
   // Calculate width for title
   const titleLength = title ? title.length : 0;

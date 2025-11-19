@@ -18,20 +18,34 @@ const VideoCard = ({
       }}
     >
       {/* Video Thumbnail */}
-      <div className="flex flex-row items-end gap-4">
-        <div className="relative flex-shrink-0">
-          <Image
-            src="/assets/youtubeplay.png"
-            alt="Video thumbnail"
-            width={parseInt(width, 10)}
-            height={parseInt(height, 10)}
-            priority
-            className="rounded-lg object-cover"
-          />
+      <div className="flex flex-row items-start justify-between w-full">
+        <div className="flex flex-row items-end gap-2">
+          <div className="relative flex-shrink-0">
+            <Image
+              src="/assets/youtubeplay.png"
+              alt="Video thumbnail"
+              width={parseInt(width, 10)}
+              height={parseInt(height, 10)}
+              priority
+              className="rounded-lg object-cover"
+            />
+          </div>
+          <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
+            <Image
+              src={'/svgIcons/youtube.svg'}
+              height={20} width={20} alt="*"
+            />
+
+            <div style={{
+              fontSize: 12, fontWeight: 500, color: "black"
+            }}>
+              Show me how!
+            </div>
+          </div>
+
         </div>
 
-       
-        <div className="flex px-2 py-1 flex-col justify-center items-center rounded-full border border-brdColor lg:block hidden min-w-[80px]">
+        <div className="flex px-2 py-1 rounded-full border min-w-[50px] border-brdColor ">
           <p className="text-sm md:text-xs text-gray-600">{duration}</p>
         </div>
       </div>
@@ -45,18 +59,6 @@ const VideoCard = ({
           {title}
         </h3>
 
-        <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
-          <Image
-            src={'/svgIcons/youtube.svg'}
-            height={20} width={20} alt="*"
-          />
-
-          <div style={{
-            fontSize:12,fontWeight:500,color:"black"
-          }}>
-            Show me how!
-          </div>
-        </div>
       </div>
     </div>
   );
