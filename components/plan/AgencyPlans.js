@@ -301,8 +301,8 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
     //subscribe plan
     const handleSubscribePlan = async (planId = null) => {
 
-        setAddPaymentPopUp(true);
-return
+        // setAddPaymentPopUp(true);
+// return
         console.log('trying to subscribe')
         // code for show plan add card popup
         const D = localStorage.getItem("User");
