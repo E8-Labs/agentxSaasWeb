@@ -872,7 +872,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   // Show loading screen while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-black">
+      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-white">
         <div className="flex flex-col items-center w-full max-w-md px-8">
           {/* Orb Image */}
           <div className="mb-16 bg-white rounded-md p-4">
@@ -887,26 +887,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           
           {/* Shooting Star Progress Bar */}
           <div className="w-full relative" style={{ height: '2px' }}>
-            <div className="absolute inset-0 bg-gray-900 rounded-full" />
+            <div className="absolute inset-0 bg-gray-200 rounded-full" />
             <div 
               className="absolute left-0 top-0 rounded-full transition-all duration-300 ease-out"
               style={{
                 width: `${authProgressValue}%`,
                 height: '2px',
                 background: `linear-gradient(90deg, 
-                  rgba(59, 130, 246, 0) 0%,
-                  rgba(59, 130, 246, 0.05) 10%,
-                  rgba(59, 130, 246, 0.15) 30%,
-                  rgba(59, 130, 246, 0.4) 50%,
-                  rgba(59, 130, 246, 0.7) 70%,
-                  rgba(59, 130, 246, 0.95) 85%,
-                  rgba(59, 130, 246, 1) 95%,
-                  rgba(59, 130, 246, 1) 100%
+                  rgba(121, 2, 223, 0.2) 0%,
+                  rgba(121, 2, 223, 0.4) 15%,
+                  rgba(121, 2, 223, 0.6) 35%,
+                  rgba(121, 2, 223, 0.75) 55%,
+                  rgba(121, 2, 223, 0.9) 75%,
+                  rgba(121, 2, 223, 1) 90%,
+                  rgba(121, 2, 223, 1) 100%
                 )`,
                 boxShadow: `
-                  0 0 2px rgba(59, 130, 246, 0.3),
-                  0 0 4px rgba(59, 130, 246, 0.5),
-                  0 0 8px rgba(59, 130, 246, 0.7)
+                  0 0 3px rgba(121, 2, 223, 0.6),
+                  0 0 6px rgba(121, 2, 223, 0.7),
+                  0 0 10px rgba(121, 2, 223, 0.8)
                 `,
                 transition: 'width 0.2s ease-out',
               }}
@@ -917,12 +916,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 style={{
                   width: '12px',
                   height: '4px',
-                  background: 'rgba(59, 130, 246, 1)',
+                  background: 'rgba(121, 2, 223, 1)',
                   boxShadow: `
-                    0 0 6px rgba(59, 130, 246, 1),
-                    0 0 12px rgba(59, 130, 246, 0.9),
-                    0 0 20px rgba(59, 130, 246, 0.7),
-                    0 0 30px rgba(59, 130, 246, 0.5),
+                    0 0 6px rgba(121, 2, 223, 1),
+                    0 0 12px rgba(121, 2, 223, 0.9),
+                    0 0 20px rgba(121, 2, 223, 0.7),
+                    0 0 30px rgba(121, 2, 223, 0.5),
                     inset 0 0 4px rgba(255, 255, 255, 0.3)
                   `,
                 }}
