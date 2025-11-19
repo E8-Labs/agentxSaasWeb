@@ -130,25 +130,18 @@ export const getUserPlans = async (from, selectedUser) => {
         console.log('path of get plans', path);
         console.log("Api path for user details view", path);
 
-        // If selectedUser is provided (agency/admin calling for specific user), use POST with userId in body
-        // Otherwise use GET request
+
+        if(selectedUser){
+            path = `${path}?userId=${selectedUser.id}`;
+        }
         let response;
-        if (selectedUser) {
-            response = await axios.post(path, {
-                userId: selectedUser.id
-            }, {
-                headers: {
-                    "Authorization": 'Bearer ' + token,
-                    "Content-Type": 'application/json'
-                }
-            });
-        } else {
+        
             response = await axios.get(path, {
                 headers: {
                     "Authorization": 'Bearer ' + token
                 }
             });
-        }
+        
 
         if (response) {
             console.log('user plans are', response.data);
