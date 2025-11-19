@@ -45,7 +45,7 @@ const VideoCard = ({
 
         </div>
 
-        <div className="flex px-2 py-1 rounded-full border min-w-[50px] border-brdColor ">
+        <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
           <p className="text-sm md:text-xs text-gray-600">{duration}</p>
         </div>
       </div>
