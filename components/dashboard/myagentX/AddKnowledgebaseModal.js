@@ -353,7 +353,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         />
 
         {isUrlValid === 0 && (
-          <div className="text-red text-sm">Invalid URL</div>
+          <div className="text-red text-sm">Invalid</div>
         )}
       </div>
     );
@@ -387,7 +387,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         />
 
         {isUrlValid === 0 && (
-          <div className="text-red text-sm">Invalid URL</div>
+          <div className="text-red text-sm">Invalid</div>
         )}
       </div>
     );

@@ -346,7 +346,7 @@ const ViewSubAccountPlans = ({
                                             {updatePlansLoader ? (
                                                 <CircularProgress size={25} sx={{ color: "white" }} />
                                             ) : (
-                                                "Upgrade"
+                                                "Update"
                                             )}
                                         </button>
                                     )}

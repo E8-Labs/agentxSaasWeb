@@ -140,7 +140,7 @@ function Perplexity({
             let name = parts[parts.length - 2]; // e.g., "webflow" from "andresgonzalez.webflow.io"
             return name; // fallback
         } catch (err) {
-            // console.error("Invalid URL", err);
+            // console.error("Invalid", err);
             return null;
         }
     }

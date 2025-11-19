@@ -442,7 +442,7 @@ const CustomNotifications = () => {
                                                             onClick={() => { handleUserSettings("suportWebCalendar") }}
                                                             disabled={isInValidUrlSuportWebCalendar || !suportWebCalendar}
                                                         >
-                                                            {isInValidUrlSuportWebCalendar ? "Invalid URL" : "Save"}
+                                                            {isInValidUrlSuportWebCalendar ? "Invalid" : "Save"}
                                                         </button>
                                                     )
                                                 }
@@ -617,7 +617,7 @@ const CustomNotifications = () => {
                                                             onClick={() => { handleUserSettings("feedBack") }}
                                                             disabled={isInValidUrlFeedBack || !feedBack}
                                                         >
-                                                            {isInValidUrlFeedBack ? "Invalid URL" : "Save"}
+                                                            {isInValidUrlFeedBack ? "Invalid" : "Save"}
                                                         </button>
                                                     )
                                                 }
@@ -792,7 +792,7 @@ const CustomNotifications = () => {
                                                             style={{ fontSize: "15px", fontWeight: "500" }}
                                                             disabled={isInValidUrlHireTeam || !hireTeam}
                                                         >
-                                                            {isInValidUrlHireTeam ? "Invalid URL" : "Save"}
+                                                            {isInValidUrlHireTeam ? "Invalid" : "Save"}
                                                         </button>
                                                     )
                                                 }
@@ -967,7 +967,7 @@ const CustomNotifications = () => {
                                                             style={{ fontSize: "15px", fontWeight: "500" }}
                                                             disabled={isInValidUrlBillingAndSupport || !billingAndSupport}
                                                         >
-                                                            {isInValidUrlBillingAndSupport ? "Invalid URL" : "Save"}
+                                                            {isInValidUrlBillingAndSupport ? "Invalid" : "Save"}
                                                         </button>
                                                     )
                                                 }
