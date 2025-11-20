@@ -17,6 +17,9 @@ import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import CloseBtn from '../globalExtras/CloseBtn';
+import ProgressBar from "@/components/onboarding/ProgressBar";
+import LoaderAnimation from '../animations/LoaderAnimation';
+
 
 //code for add card
 let stripePublickKey =
@@ -25,7 +28,7 @@ let stripePublickKey =
         : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
+function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgressBar = true }) {
 
     const router = useRouter();
     const duration = [
@@ -74,6 +77,9 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
     // Current user plan state
     const [currentUserPlan, setCurrentUserPlan] = useState(null);
+    
+    // Redirecting loader state
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
         getPlans();
@@ -301,12 +307,15 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
     //subscribe plan
     const handleSubscribePlan = async (planId = null) => {
 
+        // setAddPaymentPopUp(true);
+// return
         console.log('trying to subscribe')
         // code for show plan add card popup
         const D = localStorage.getItem("User");
         let isPaymentMethodAdded = false
         if (D) {
             const userData = JSON.parse(D);
+            console.log("userData", userData);
             if (userData.user.cards.length > 0) {
                 console.log("Cards are available");
                 isPaymentMethodAdded = true
@@ -344,8 +353,14 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                         localStorage.removeItem("subPlan");
                         // router.push("/agency/dashboard");
                         if (isFrom === "addPlan") {
+                            console.log("call handleCloseModal");
                             handleCloseModal(response.data.message);
+                        } else if(isFrom === "page") {
+                            console.log("call router.push to dashboard");
+                            setIsRedirecting(true);
+                            router.push("/agency/dashboard");
                         } else {
+                            console.log("call router.push to verify");
                             router.push("/agency/verify");
                         }
 
@@ -397,7 +412,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
     return (
         <div
             // style={backgroundImage}
-            className={`flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-6 max-h-[100%]" : "w-[90%] h-[90%]"}`}
+            className={`flex flex-col items-center ${isFrom === "addPlan" || isFrom === "page" ? "w-[100%] px-6 max-h-[100%]" : "w-[90%] h-[90%]"}`}
         >
 
             <div
@@ -414,6 +429,19 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                     hide={() => { setErrorMsg(null) }}
                     type={snackMsgType}
                 />
+
+                {
+                    !hideProgressBar && (
+                        <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
+                            style={{ backgroundColor: '' }}>
+                            <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+
+                            <div className={`w-[100%]`}>
+                                <ProgressBar value={100} />
+                            </div>
+                        </div>
+                    )
+                }
 
                 <div className='flex flex-row w-full items-end justify-between'>
 
@@ -903,6 +931,12 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                         </div>
                     </Box>
                 </Modal>
+
+                {/* Redirecting Loader Overlay */}
+                {isRedirecting && (
+                   
+                    <LoaderAnimation isOpen={isRedirecting} title="Redirecting to dashboard..." />
+                )}
 
                 {/* 
                 <div className="w-full mt-2 flex flex-row items-center justify-center">

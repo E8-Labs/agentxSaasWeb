@@ -207,13 +207,17 @@ const ConnectStripe = ({ fullScreen = false }) => {
                                                         >
                                                             Add Stripe
                                                         </button>
-                                                        <button
-                                                            className='text-gray-600 py-2 px-4 rounded-md w-full h-[40px] border border-gray-300 hover:bg-gray-50 transition-colors'
-                                                            style={styles.btnText}
-                                                            onClick={handleSkip}
-                                                        >
-                                                            Skip for now
-                                                        </button>
+                                                        {
+                                                            fullScreen ? (
+                                                                <button
+                                                                    className='text-gray-600 py-2 px-4 rounded-md w-full h-[40px] border border-gray-300 hover:bg-gray-50 transition-colors'
+                                                                    style={styles.btnText}
+                                                                    onClick={handleSkip}
+                                                                >
+                                                                    Skip for now
+                                                                </button>
+                                                            ) : null
+                                                        }
                                                     </div>
                                             }
                                         </div>

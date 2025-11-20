@@ -1,14 +1,19 @@
 import Integrations from '@/components/agency/integrations/Integrations';
 import ConnectStripe from '@/components/agency/stripe/ConnectStripe';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { useUser } from '@/hooks/redux-hooks';
 import getProfileDetails from '@/components/apis/GetProfile';
 
-function AgencyIntegrations({ selectedAgency }) {
+function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
 
-    const [currentTab, setCurrentTab] = useState(1);
+    const [currentTab, setCurrentTab] = useState(initialTab);
+
+    // Sync tab state when initialTab prop changes
+    useEffect(() => {
+        setCurrentTab(initialTab);
+    }, [initialTab]);
 
     const {user:reduxUser, setUser:setReduxUser} = useUser();
 

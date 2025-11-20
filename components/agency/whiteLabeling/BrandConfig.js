@@ -175,6 +175,28 @@ const BrandConfig = () => {
     setSecondaryColor(color);
   };
 
+  // Check if there are any unsaved changes
+  const hasChanges = () => {
+    // Check if colors have changed
+    const colorsChanged = 
+      primaryColor !== originalValues.primaryColor || 
+      secondaryColor !== originalValues.secondaryColor;
+    
+    // Check if logo has changed (new file selected or preview differs from original)
+    const logoChanged = logoFile !== null || 
+      (logoPreview !== originalValues.logoUrl && logoPreview !== null && originalValues.logoUrl !== null) ||
+      (logoPreview !== null && originalValues.logoUrl === null) ||
+      (logoPreview === null && originalValues.logoUrl !== null);
+    
+    // Check if favicon has changed (new file selected or preview differs from original)
+    const faviconChanged = faviconFile !== null ||
+      (faviconPreview !== originalValues.faviconUrl && faviconPreview !== null && originalValues.faviconUrl !== null) ||
+      (faviconPreview !== null && originalValues.faviconUrl === null) ||
+      (faviconPreview === null && originalValues.faviconUrl !== null);
+    
+    return colorsChanged || logoChanged || faviconChanged;
+  };
+
   //reset all the values to original
   const handleReset = () => {
     setPrimaryColor(originalValues.primaryColor);
@@ -439,18 +461,20 @@ const BrandConfig = () => {
 
           {/* Save Buttons */}
           <div className="self-stretch inline-flex justify-between items-center mt-4">
-            <div
-              className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
-              onClick={handleReset}
-            >
-              <div className="text-slate-900 text-base font-normal leading-relaxed">Reset</div>
-            </div>
+            {hasChanges() && (
+              <div
+                className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={handleReset}
+              >
+                <div className="text-slate-900 text-base font-normal leading-relaxed">Reset</div>
+              </div>
+            )}
             <div 
               className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
                 loading 
                   ? "bg-purple-400 cursor-not-allowed" 
                   : "bg-purple-700 hover:bg-purple-800"
-              }`}
+              } ${!hasChanges() ? 'ml-auto' : ''}`}
               onClick={loading ? undefined : handleSave}
             >
               <div className="text-white text-base font-normal leading-relaxed">

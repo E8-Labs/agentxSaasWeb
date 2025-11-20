@@ -190,7 +190,7 @@ function AgencyBasicInfo({
 
       const result = await uploadeImage(file);
       if (result) {
-        showSuccess("Profile image uploaded successfully");
+        showSuccess("Profile image uploaded");
       }
     } catch (error) {
       // console.error("Error uploading image:", error);
@@ -212,7 +212,7 @@ function AgencyBasicInfo({
         setSelectedImage(imageUrl);
         const result = await uploadeImage(file);
         if (result) {
-          showSuccess("Profile image uploaded successfully");
+          showSuccess("Profile image uploaded");
         }
       } catch (error) {
         // console.error("Error uploading image:", error);

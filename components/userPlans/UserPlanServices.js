@@ -119,36 +119,30 @@ export const getUserPlans = async (from, selectedUser) => {
         } else {
             if (UserLocalData?.userRole === "AgencySubAccount") {
                 path = Apis.getSubAccountPlans;
-            }
-            if (from === "SubAccount") {
-                path = Apis.getSubAccountPlans;
-            } else if (from === "agency" || from === "Agency") {
+            } else if (UserLocalData?.userRole === "Agency") {
                 path = Apis.getPlansForAgency;
-            }
+            } else if (from === "SubAccount") {
+                    path = Apis.getSubAccountPlans;
+                } else if (from === "agency" || from === "Agency") {
+                    path = Apis.getPlansForAgency;
+                }
         }
 
         console.log('path of get plans', path);
         console.log("Api path for user details view", path);
 
-        // If selectedUser is provided (agency/admin calling for specific user), use POST with userId in body
-        // Otherwise use GET request
-        let response;
+
         if (selectedUser) {
-            response = await axios.post(path, {
-                userId: selectedUser.id
-            }, {
-                headers: {
-                    "Authorization": 'Bearer ' + token,
-                    "Content-Type": 'application/json'
-                }
-            });
-        } else {
-            response = await axios.get(path, {
-                headers: {
-                    "Authorization": 'Bearer ' + token
-                }
-            });
+            path = `${path}?userId=${selectedUser.id}`;
         }
+        let response;
+
+        response = await axios.get(path, {
+            headers: {
+                "Authorization": 'Bearer ' + token
+            }
+        });
+
 
         if (response) {
             console.log('user plans are', response.data);
@@ -199,12 +193,12 @@ export const initiateCancellation = async (userId) => {
     try {
         let token = AuthToken()
         let path = Apis.initiateCancelation
-        
+
         const requestBody = {};
         if (userId) {
             requestBody.userId = userId;
         }
-        
+
         const response = await axios.post(path, requestBody, {
             headers: {
                 "Authorization": 'Bearer ' + token,
@@ -405,7 +399,7 @@ export const checkReferralCode = async (code, planId = null) => {
         const requestBody = {
             referralCode: code
         };
-        
+
         if (planId) {
             requestBody.planId = planId;
         }

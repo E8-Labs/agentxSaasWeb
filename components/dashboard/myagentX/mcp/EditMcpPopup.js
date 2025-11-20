@@ -48,7 +48,7 @@ export default function EditMcpPopup({ open, handleClose,
             }
         } catch (err) {
             if (value) {
-                setMcpUrlError("Invalid URL format");
+                setMcpUrlError("Invalid format");
             } else {
                 setMcpUrlError("");
             }

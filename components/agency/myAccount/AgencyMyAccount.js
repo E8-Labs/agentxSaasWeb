@@ -19,7 +19,7 @@ import AgencyInviteAgentX from "./AgencyInviteAgentX";
 import AgencyBarServices from "./AgencyBarServices";
 import AgencyBasicInfo from "./AgencyBasicInfo";
 import AgencyPlansPayments from "./AgencyPlansPayments";
-import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
+import { agencyCancellationAndRefundUrl, agencyPrivacyPolicyUrl, agencyTermsAndConditionUrl } from "@/constants/Constants";
 import BillingHistory from "@/components/myAccount/BillingHistory";
 import AgencyPhoneNumbers from "./AgencyPhoneNumbers";
 
@@ -158,19 +158,19 @@ function AgencyMyAccount({
                   //   setSelectedManu(index + 1);
                   if (item.id === 5) {
                     window.open(
-                      termsAndConditionUrl,
+                      agencyTermsAndConditionUrl,
                       "_blank"
                     );
                     return
                   } else if (item.id === 6) {
                     window.open(
-                      "/privacy-policy",
+                      agencyPrivacyPolicyUrl,
                       "_blank"
                     );
                     return
                   } else if (item.id === 7) {
                     window.open(
-                      CancellationAndRefundUrl,
+                      agencyCancellationAndRefundUrl,
                       "_blank"
                     );
                     return

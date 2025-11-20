@@ -667,7 +667,7 @@ function UserPlans({
 
                                             <div
                                                 //  className='text-[14px] font-normal text-black/50 '
-                                                className={`text-center mt-1 ${(isDisabled || isCurrentUserPlan) && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}
+                                                className={`text-center mt-1 ${(isDisabled && !isCurrentUserPlan) && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}
                                             >
                                                 {item.details || item.description || item.planDescription}
                                             </div>

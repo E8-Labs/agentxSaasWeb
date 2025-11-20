@@ -555,7 +555,8 @@ export default function AddMonthlyPlan({
     let trialValid = true
 
     if(allowTrial){
-      trialValid = trialValidForDays > 0;
+      const trialDays = Number(trialValidForDays);
+      trialValid = trialDays > 0 && trialDays <= 14;
     }
 
     return requiredFieldsFilled && trialValid && !minCostErr;

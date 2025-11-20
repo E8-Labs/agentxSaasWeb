@@ -414,11 +414,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   return (
     <div style={{ height: "100%", backgroundColor: "" }}>
  
-      <div className="mt-5" style={styles.headingStyle}>
+      {/* <div className="mt-5" style={styles.headingStyle}>
         Call Summary
-      </div>
+      </div> */}
 
-      <textarea placeholder="Call Summary"
+      {/* <textarea placeholder="Call Summary"
         className="w-full rounded-lg p-2 outline-none focus:ring-0"
         style={{
           fontSize: 15,
@@ -432,7 +432,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         readOnly
         value={"Learom ipsom dolor"}
 
-      />
+      /> */}
 
 
 

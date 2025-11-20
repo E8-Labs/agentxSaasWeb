@@ -135,10 +135,19 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [params]);
 
   useEffect(() => {
-    if (enterPressed && checkPhoneResponse === false) {
-      handleVerifyPopup();
-      setEnterPressed(false); // reset it
+    const handleEnterPress = async () => {
+      if (enterPressed) {
+        if (checkPhoneResponse === false) {
+          handleVerifyPopup();
+
+        } else {
+          await checkPhoneNumber(userPhoneNumber);
+
+        }
+        setEnterPressed(false);
+      }
     }
+    handleEnterPress();
   }, [enterPressed, checkPhoneResponse]);
 
 
@@ -154,7 +163,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       if (localData) {
         try {
           let d = JSON.parse(localData);
-          
+
           // Check if token exists before making API call
           if (!d.token) {
             // No token, clear localStorage and show login form
@@ -162,19 +171,19 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             setIsCheckingAuth(false);
             return;
           }
-          
+
           // Verify the user data is still valid by calling the profile API
           // Add timeout to prevent hanging
           const profileResponse = await Promise.race([
             getProfileDetails(),
-            new Promise((_, reject) => 
+            new Promise((_, reject) =>
               setTimeout(() => reject(new Error("Profile check timeout")), 5000)
             )
           ]).catch(error => {
             console.error("Error or timeout checking authentication:", error);
             return null;
           });
-          
+
           // If profile API fails (returns null or 404), user is not authenticated
           if (!profileResponse || profileResponse?.data?.status !== true) {
             // Clear invalid localStorage data
@@ -223,7 +232,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           }
 
           console.log("✅ Authentication successful, redirecting to:", redirectPath);
-          
+
           // Use window.location.href for hard redirect to ensure navigation happens
           // This will completely reload the page and clear the loading state
           window.location.href = redirectPath;
@@ -380,28 +389,28 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       `+${phoneNumber}`,
       "US"
     );
-    
+
     // Try to parse as CA
     const parsedCa = parsePhoneNumberFromString(
       `+${phoneNumber}`,
       "CA"
     );
-    
+
     // Try to parse as MX
     const parsedMx = parsePhoneNumberFromString(
       `+${phoneNumber}`,
       "MX"
     );
-    
+
     // Try to parse without country code (auto-detect)
     const parsedAuto = parsePhoneNumberFromString(
       `+${phoneNumber}`
     );
 
     const isValid = (parsedUs && parsedUs.isValid() && (parsedUs.country === 'US' || parsedUs.country === 'CA' || parsedUs.country === 'MX')) ||
-                    (parsedCa && parsedCa.isValid() && (parsedCa.country === 'US' || parsedCa.country === 'CA' || parsedCa.country === 'MX')) ||
-                    (parsedMx && parsedMx.isValid() && (parsedMx.country === 'US' || parsedMx.country === 'CA' || parsedMx.country === 'MX')) ||
-                    (parsedAuto && parsedAuto.isValid() && (parsedAuto.country === 'US' || parsedAuto.country === 'CA' || parsedAuto.country === 'MX'));
+      (parsedCa && parsedCa.isValid() && (parsedCa.country === 'US' || parsedCa.country === 'CA' || parsedCa.country === 'MX')) ||
+      (parsedMx && parsedMx.isValid() && (parsedMx.country === 'US' || parsedMx.country === 'CA' || parsedMx.country === 'MX')) ||
+      (parsedAuto && parsedAuto.isValid() && (parsedAuto.country === 'US' || parsedAuto.country === 'CA' || parsedAuto.country === 'MX'));
 
     if (!isValid) {
       setErrorMessage("Invalid");
@@ -428,6 +437,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
+
+    let retryAttempts = 0;
     //console.log;
     try {
       setShowVerifyPopup(true);
@@ -448,16 +459,15 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
     } catch (error) {
       // console.error("Error occured", error);
-      setSnackMessage("Login failed");
-      setMsgType(SnackbarTypes.Error);
+      retryAttempts++;
+      if (retryAttempts < 3) {
+        await handleVerifyPopup();
+      } else {
+        setErrorMessage(error.response?.data?.message || "Login failed");
+      }
     } finally {
       setSendcodeLoader(false);
     }
-    setTimeout(() => {
-      if (verifyInputRef.current[0]) {
-        verifyInputRef.current[0].focus();
-      }
-    }, 100); // Adjust the delay as needed, 0 should be enough
   };
 
   //code to login
@@ -678,6 +688,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   //code to check number
   const checkPhoneNumber = async (value) => {
+    let retryAttempts = 0;
+
     try {
       setPhoneNumberLoader(true);
       const ApiPath = Apis.CheckPhone;
@@ -705,6 +717,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         }
       }
     } catch (error) {
+      retryAttempts++;
+      console.log("retryAttempts", retryAttempts);
+      if (retryAttempts < 3) {
+        await checkPhoneNumber(value);
+      } else {
+        setErrorMessage(error.response?.data?.message || "User not found");
+      }
       // console.error("Error occured in check phone api is :", error);
     } finally {
       setPhoneNumberLoader(false);
@@ -884,11 +903,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               style={{ height: "142px", width: "152px", resize: "contain" }}
             />
           </div>
-          
+
           {/* Shooting Star Progress Bar */}
           <div className="w-full relative" style={{ height: '2px' }}>
             <div className="absolute inset-0 bg-gray-200 rounded-full" />
-            <div 
+            <div
               className="absolute left-0 top-0 rounded-full transition-all duration-300 ease-out"
               style={{
                 width: `${authProgressValue}%`,
@@ -911,7 +930,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               }}
             >
               {/* Bright, thick head at the end */}
-              <div 
+              <div
                 className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full"
                 style={{
                   width: '12px',
@@ -980,10 +999,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 alt="avtr"
               />
               {agencyBranding?.logoUrl ? (
-                <Image 
-                  src={agencyBranding.logoUrl} 
-                  height={69} 
-                  width={69} 
+                <Image
+                  src={agencyBranding.logoUrl}
+                  height={69}
+                  width={69}
                   alt="agency logo"
                   style={{ objectFit: "contain", maxHeight: "69px", maxWidth: "69px" }}
                 />
@@ -1012,7 +1031,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     }
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && userPhoneNumber && !errorMessage) {
+                      if (e.key === "Enter" && userPhoneNumber) {
                         setEnterPressed(true);
                       }
                       // setShowVerifyPopup(true)
@@ -1050,12 +1069,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <div className="flex flex-row justify-center">
                     <CircularProgress size={15} />
                   </div>
-                ) : ( errorMessage ? (
+                ) : (errorMessage ? (
                   <div className="text-center" style={styles.errmsg}>
                     {errorMessage}
                   </div>
                 ) : (
-                  
+
                   <button
                     className="text-black bg-transparent border border-[#000000] rounded-full"
                     style={{ fontSize: 16, fontWeight: "600" }}
@@ -1069,7 +1088,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   >
                     <ArrowRight size={20} weight="bold" />
                   </button>
-                ))}  
+                ))}
               </div>
             </div>
 

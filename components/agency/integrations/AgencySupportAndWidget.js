@@ -458,7 +458,7 @@ const AgencySupportAndWidget = () => {
                               onClick={() => { handleUserSettings("suportWebCalendar") }}
                               disabled={isInValidUrlSuportWebCalendar || !suportWebCalendar}
                             >
-                              {isInValidUrlSuportWebCalendar ? "Invalid URL" : "Save"}
+                              {isInValidUrlSuportWebCalendar ? "Invalid" : "Save"}
                             </button>
                           )
                         }
@@ -564,7 +564,7 @@ const AgencySupportAndWidget = () => {
                                 setSky(value);
                                 setTimeout(() => {
                                   if (value && !validUrl) {
-                                    setShowSnackMessage("Invalid URL");
+                                    setShowSnackMessage("Invalid");
                                     setShowSnackType(SnackbarTypes.Error);
                                   }
                                 }, 1000);
@@ -726,7 +726,7 @@ const AgencySupportAndWidget = () => {
                               onClick={() => { handleUserSettings("feedBack") }}
                               disabled={isInValidUrlFeedBack || !feedBack}
                             >
-                              {isInValidUrlFeedBack ? "Invalid URL" : "Save"}
+                              {isInValidUrlFeedBack ? "Invalid" : "Save"}
                             </button>
                           )
                         }
@@ -874,7 +874,7 @@ const AgencySupportAndWidget = () => {
                               style={{ fontSize: "15px", fontWeight: "500" }}
                               disabled={isInValidUrlHireTeam || !hireTeam}
                             >
-                              {isInValidUrlHireTeam ? "Invalid URL" : "Save"}
+                              {isInValidUrlHireTeam ? "Invalid" : "Save"}
                             </button>
                           )
                         }
@@ -1022,7 +1022,7 @@ const AgencySupportAndWidget = () => {
                               style={{ fontSize: "15px", fontWeight: "500" }}
                               disabled={isInValidUrlBillingAndSupport || !billingAndSupport}
                             >
-                              {isInValidUrlBillingAndSupport ? "Invalid URL" : "Save"}
+                              {isInValidUrlBillingAndSupport ? "Invalid" : "Save"}
                             </button>
                           )
                         }
@@ -1188,7 +1188,7 @@ const AgencySupportAndWidget = () => {
                               style={{ fontSize: "15px", fontWeight: "500" }}
                               disabled={isInValidUrlResourceHub || !resourceHub}
                             >
-                              {isInValidUrlResourceHub ? "Invalid URL" : "Save"}
+                              {isInValidUrlResourceHub ? "Invalid" : "Save"}
                             </button>
                           )
                         }

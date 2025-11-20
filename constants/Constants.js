@@ -258,9 +258,15 @@ export const callStatusColors = {
 
 
 export const termsAndConditionUrl = "https://www.myagentx.com/terms-and-condition";
-
 export const privacyPollicyUrl ="https://www.assignx.ai/privacy-policy"// "https://www.myagentx.com/privacy-policy";
 export const CancellationAndRefundUrl ="https://www.assignx.ai/cancellation-return-policy" //"https://www.google.com/url?q=https://www.myagentx.com/cancellation-return-policy&sa=D&source=docs&ust=1751402335347404&usg=AOvVaw2aDueiwwhLkomUAiT_eTPT";
+
+
+export const agencyTermsAndConditionUrl = "https://www.assignx.ai/agency-terms";
+export const agencyPrivacyPolicyUrl = "https://www.assignx.ai/agency-policy";
+export const agencyCancellationAndRefundUrl = "https://www.assignx.ai/agency-refunds";
+
+
 export const next30Days = moment().add(30, "days").format("MM/DD/YYYY");
 
 

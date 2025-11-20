@@ -296,7 +296,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             </div>
             <div className="w-full flex flex-row justify-center">
               <div
-                className="mt-8 w-6/12 gap-4 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="mt-8 w-6/12 gap-2 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: "none" }}
               >
                 {voices.map((item, index) => (

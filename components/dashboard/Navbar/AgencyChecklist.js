@@ -2,12 +2,9 @@ import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp } from '@phosphor-ic
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
-import { Box, CircularProgress, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
 import ClaimNumber from '../myagentX/ClaimNumber';
-import Link from 'next/link';
-import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService';
 
 const AgencyChecklist = ({ userDetails }) => {
 
@@ -15,7 +12,6 @@ const AgencyChecklist = ({ userDetails }) => {
 
     // console.log("User data recieved to check list on agency side is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(false);
-    const [loader, setLoader] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
 
@@ -55,9 +51,9 @@ const AgencyChecklist = ({ userDetails }) => {
 
             setCheckList([
                 { id: 1, label: 'Add Stripe', status: LD?.canAcceptPaymentsAgencyccount, route: "/agency/dashboard/integration" },
-                { id: 2, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
-                { id: 3, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
-                { id: 4, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },
+                { id: 2, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration?tab=2" },
+                { id: 3, label: 'Add Monthly Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
+                { id: 4, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans?tab=xbar" },
                 { id: 5, label: 'Add Subaccount', status: T?.subaccountAdded, route: "/agency/dashboard/subAccounts" },
                 // { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
                 // { id: 6, label: 'Claim a number', status: false, route: "" }
@@ -91,6 +87,7 @@ const AgencyChecklist = ({ userDetails }) => {
     return (
         <div className='w-full'>
             {
+
                 progressValue < 100 && (
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
                         <button
@@ -125,13 +122,9 @@ const AgencyChecklist = ({ userDetails }) => {
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full border-none outline-none'
                                                 onClick={async () => {
-                                                    if (item.label === "Add Stripe") {
-                                                        await getStripeLink(setLoader);
-                                                    } else {
-                                                        window.location.href = item.route
-                                                    }
+                                                    window.location.href = item.route
                                                 }}
-                                                disabled={item.status === true}
+                                            disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
                                                     {item.status === true ?
@@ -163,13 +156,7 @@ const AgencyChecklist = ({ userDetails }) => {
                                                         {item.label}
                                                     </div>
                                                 </div>
-                                                {
-                                                    item.label === "Add Stripe" && loader ? (
-                                                        <CircularProgress size={15} />
-                                                    ) : (
-                                                        <CaretRight size={20} />
-                                                    )
-                                                }
+                                                <CaretRight size={20} />
                                             </button>
                                         ))
                                     }

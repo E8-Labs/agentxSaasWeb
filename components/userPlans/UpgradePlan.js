@@ -535,7 +535,7 @@ function UpgradePlanContent({
                     } else {
                         setCurrentSelectedPlan(currentPlans[0]);
                         setSelectedPlanIndex(0);
-                        setTogglePlan(currentPlans[0].id);
+                        setTogglePlan(currentPlans[0]?.id);
                         console.log("no matching plan found");
                     }
                 }, 100);
@@ -1792,7 +1792,7 @@ function UpgradePlanContent({
                                                                                 : `$${promoCodeDetails.discountValue} off`
                                                                             }
                                                                             {promoCodeDetails.discountDurationMonths 
-                                                                                ? ` for ${promoCodeDetails.discountDurationMonths} months`
+                                                                                ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
                                                                                 : ''
                                                                             }
                                                                         </div>

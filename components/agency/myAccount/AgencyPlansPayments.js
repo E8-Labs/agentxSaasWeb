@@ -617,6 +617,7 @@ function AgencyPlansPayments({
                     getProfile()
                     setSuccessSnack("Account canceled");
                     await getProfileDetails();
+                    window.location.href = "/agency/plan";
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }

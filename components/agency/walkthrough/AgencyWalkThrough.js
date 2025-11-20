@@ -155,10 +155,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                                 <span
                                     className="text-purple cursor-pointer hover:underline"
                                     onClick={()=>{
-                                        const skoolIndex = checklist.findIndex(item => item.id === 4);
-                                        if (skoolIndex !== -1) {
-                                            setCurrentStep(skoolIndex);
-                                        }
+                                       window.open(skoolItem?.route, "_blank");
                                     }}
                                 >
                                     Join us on Skool for more tutorials

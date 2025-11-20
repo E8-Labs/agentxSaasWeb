@@ -5,9 +5,15 @@ import AgencyPlans from "@/components/plan/AgencyPlans";
 import { PersistanceKeys } from "@/constants/Constants";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 function Page() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get step from URL, default to 1
+  const stepFromUrl = parseInt(searchParams.get("step") || "1", 10);
+  const [currentIndex, setCurrentIndex] = useState(stepFromUrl);
 
   useEffect(() => {
     const D = localStorage.getItem("User");
@@ -34,12 +40,22 @@ function Page() {
     }
   }, []);
 
+// Update URL when currentIndex changes
+  useEffect(() => {
+    const currentStep = searchParams.get("step");
+    if (currentStep !== currentIndex.toString()) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("step", currentIndex.toString());
+      router.replace(`/agency/onboarding?${params.toString()}`, { scroll: false });
+    }
+  }, [currentIndex, router, searchParams]);
+
   useEffect(() => {
     const userData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
     if (userData) {
       const D = JSON.parse(userData);
       if (D) {
-        setCurrentIndex(1);
+        setCurrentIndex(2);
       }
     }
   }, []);
@@ -55,11 +71,11 @@ function Page() {
         {/* /assets/agentX.png */}
 
         <div className="w-[100%]">
-          <ProgressBar value={currentIndex > 0 ? 100 : 50} />
+          <ProgressBar value={currentIndex > 1 ? 100 : 50} />
         </div>
       </div>
 
-      {currentIndex > 0 ? (
+      {currentIndex > 1 ? (
         <AgencyPlans />
       ) : (
         <AgencySignUp handleContinue={handleContinue} />
