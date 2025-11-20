@@ -111,21 +111,21 @@ const AgencyAddCard = ({
         setPromoCodeDetails(null);
         referralRequestSeqRef.current += 1;
         const currentSeq = referralRequestSeqRef.current;
-        
+
         const timer = setTimeout(async () => {
             try {
                 // Include planId if a plan is selected for better discount calculation
                 const planId = selectedPlan?.id || null;
 
                 const resp = await checkReferralCode(inviteCode.trim(), planId);
-                
+
                 // Check if this request is still current
                 if (currentSeq !== referralRequestSeqRef.current) return;
-                
+
                 if (resp && resp.status) {
                     setReferralStatus("valid");
                     setReferralMessage(resp.message || "Code applied");
-                    
+
                     // Store promo code details if it's a discount promo
                     if (resp.data?.codeType === 'promo' && resp.data?.promoType === 'discount') {
                         setPromoCodeDetails(resp.data);
@@ -196,7 +196,7 @@ const AgencyAddCard = ({
         },
     };
 
-    
+
 
     //function to add card
     const handleAddCard = async (e) => {
@@ -431,7 +431,7 @@ const AgencyAddCard = ({
         const monthlyPrice = plan.discountPrice || plan.discountedPrice || plan.originalPrice || 0;
         const billingCycle = plan.billingCycle || plan.duration || 'monthly';
         const billingMonths = GetMonthCountFronBillingCycle(billingCycle);
-        
+
         const discountType = promoDetails.discountType; // 'percentage' or 'flat_amount'
         const discountValue = promoDetails.discountValue;
         const discountDurationMonths = promoDetails.discountDurationMonths || 0;
@@ -441,13 +441,13 @@ const AgencyAddCard = ({
             // One-time discount - apply to the billing cycle
             let discountAmount = 0;
             const totalPrice = monthlyPrice * billingMonths;
-            
+
             if (discountType === 'percentage') {
                 discountAmount = (totalPrice * discountValue) / 100;
             } else if (discountType === 'flat_amount') {
                 discountAmount = Math.min(discountValue, totalPrice);
             }
-            
+
             return {
                 originalPrice: totalPrice,
                 discountAmount: discountAmount,
@@ -532,11 +532,11 @@ const AgencyAddCard = ({
                             }}
                         />
                     </div>
-                    <div className="mb-10 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
-                        <div// className="mt-8"
-                        >
-                            <div className="mb-12">
-                                <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>                            </div>
+                    <div className="flex flex-col justify-start -mt-[22vh]" style={{ width: '75%', marginLeft: '-100px' }}>
+                        <div className="flex w-full flex-col items-start">
+                            <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
+                        </div>
+                        <div className="flex w-full flex-col items-start mt-4">
                             <div
                                 style={{
                                     fontWeight: "400",
@@ -547,11 +547,12 @@ const AgencyAddCard = ({
                             >
                                 Card Number
                             </div>
+
                             <div
                                 className="mt-1 px-3 py-1 border relative flex items-center"
                                 style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                             >
-                                <div className="flex-1">
+                                <div className="flex-1 w-[20vw]">
                                     <CardNumberElement
                                         options={elementOptions}
                                         autoFocus={true}
@@ -699,11 +700,7 @@ const AgencyAddCard = ({
                                 }}
                                 placeholder="Enter Promo or Referral code"
                             />
-                            <style jsx>{`
-          input::placeholder {
-            color: #00000050; /* Set placeholder text color to red */
-          }
-        `}</style>
+                            <style jsx>{`input::placeholder {color: #00000050; /* Set placeholder text color to red */}`}</style>
                         </div>
                         {inviteCode ? (
                             <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
@@ -720,84 +717,6 @@ const AgencyAddCard = ({
                                 )}
                             </div>
                         ) : null}
-
-                        {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
-
-                        {/*
-                        <div className="mt-4 w-full flex flex-row items-center gap-4">
-                            <button
-                                className="outline-none border-none"
-                                onClick={() => { handleToggleTermsClick() }}>
-                                {agreeTerms ? (
-                                    <div
-                                        className="bg-purple flex flex-row items-center justify-center rounded"
-                                        style={{ height: "24px", width: "24px" }}
-                                    >
-                                        <Image
-                                            src={"/assets/whiteTick.png"}
-                                            height={8}
-                                            width={10}
-                                            alt="*"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                        style={{ height: "24px", width: "24px" }}
-                                    ></div>
-                                )}
-                            </button>
-                            <div
-                                className="flex flex-row items-center gap-2"
-                                style={{
-                                    fontWeight: "500",
-                                    fontSize: 15
-                                }}>
-                                <div>
-                                    I agree to
-                                </div>
-                                <a
-                                    href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                                    style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
-                                    target="_blank" // Opens in a new tab (optional)
-                                    rel="noopener noreferrer" // Security for external links
-                                >
-                                    Terms & Conditions
-                                </a>
-                            </div>
-                        </div>
-                    */}
-
-                        {/*
-                        <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
-                            {addCardLoader ? (
-                                <div className="flex flex-row justify-center items-center mt-8 w-full">
-                                    <CircularProgress size={30} />
-                                </div>
-                            ) : (
-                                <div className="flex flex-row justify-end items-center mt-8 w-full">
-                                    {CardAdded && CardExpiry && CVC && agreeTerms ? (
-                                        <button
-                                            onClick={handleAddCard}
-                                            className="w-full h-[50px] rounded-xl px-8 text-white py-3"
-                                            style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    ) : (
-                                        <button
-                                            disabled={true}
-                                            className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
-                                            style={{ fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                            <p className="text-[#15151580]">{textBelowContinue}</p>
-                        </div>
-                    */}
                     </div>
                 </div>
                 <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg" style={{ backgroundColor: 'transparent' }}>
@@ -806,7 +725,7 @@ const AgencyAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan?.title}
+                                    {selectedPlan?.title || "No Plan Selected"}
                                 </div>
                                 {/*
                                     <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.duration} subscription</div>
@@ -830,25 +749,25 @@ const AgencyAddCard = ({
 
                             return (
                                 <>
-                                    {discountCalculation && (
+                                    {promoCodeDetails && (
                                         <div className="flex flex-row items-start justify-between w-full mt-4">
                                             <div>
                                                 <div style={{ fontWeight: "600", fontSize: 15, color: "#7902DF" }}>
                                                     Promo Code Applied
                                                 </div>
                                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "4px" }}>
-                                                    {promoCodeDetails.discountType === 'percentage'
-                                                        ? `${promoCodeDetails.discountValue}% off`
-                                                        : `$${promoCodeDetails.discountValue} off`
+                                                    {promoCodeDetails?.discountType === 'percentage'
+                                                        ? `${promoCodeDetails?.discountValue}% off`
+                                                        : `$${promoCodeDetails?.discountValue} off`
                                                     }
-                                                    {promoCodeDetails.discountDurationMonths
-                                                        ? ` for ${promoCodeDetails.discountDurationMonths} month${promoCodeDetails.discountDurationMonths > 1 ? 's' : ''}`
+                                                    {promoCodeDetails?.discountDurationMonths
+                                                        ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
                                                         : ''
                                                     }
                                                 </div>
                                             </div>
                                             <div style={{ fontWeight: "600", fontSize: 15, color: "#7902DF" }}>
-                                                -${formatFractional2(discountCalculation.discountAmount)}
+                                                -${formatFractional2(discountCalculation?.discountAmount)}
                                             </div>
                                         </div>
                                     )}
@@ -856,7 +775,7 @@ const AgencyAddCard = ({
                                     <div className="flex flex-row items-start justify-between w-full mt-6">
                                         <div>
                                             <div className='capitalize' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                                                {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || "No Plan Selected"}`}
                                             </div>
                                             <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
                                                 Next Charge Date {getNextChargeDate(selectedPlan)}
@@ -894,6 +813,13 @@ const AgencyAddCard = ({
                             );
                         })()}
 
+                        {
+
+                            !inviteCode && !promoCodeDetails && (
+                                <div className="w-full h-10 mt-6"></div>
+                            )
+                        }
+
                         <div className="mt-6 h-[1px] w-full bg-[#00000035]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
@@ -901,15 +827,15 @@ const AgencyAddCard = ({
                                 <div style={{ fontWeight: "600", fontSize: 22, }}>
                                     {(() => {
                                         if (!selectedPlan) return "$0";
-                                        
-                                        const discountCalculation = promoCodeDetails 
+
+                                        const discountCalculation = promoCodeDetails
                                             ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
                                             : null;
-                                        
+
                                         if (discountCalculation) {
                                             return `$${formatFractional2(discountCalculation.finalPrice)}`;
                                         }
-                                        
+
                                         const billingMonths = GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration);
                                         const monthlyPrice = selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice || 0;
                                         return `$${formatFractional2(billingMonths * monthlyPrice)}`;
@@ -918,6 +844,8 @@ const AgencyAddCard = ({
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>
                         </div>
+
+
                         <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
                             {addCardLoader ? (
                                 <div className="flex flex-row justify-center items-center mt-8 w-full">

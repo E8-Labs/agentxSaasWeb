@@ -10,6 +10,7 @@ import {
   Modal,
   Snackbar,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
@@ -25,6 +26,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { getMonthlyPlan, getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import AdminGetProfileDetails from "@/components/admin/AdminGetProfileDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -37,7 +39,8 @@ function SubAccountBarServices({
 }) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
-
+  const [userDetails, setUserDetails] = useState(null);
+  const [selectedUserDetails, setSelectedUserDetails] = useState(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   //array of plans
@@ -145,7 +148,19 @@ function SubAccountBarServices({
           },
         });
       } else {
-        response = await getProfileDetails();
+
+        if (selectedUser) {
+
+          response = await AdminGetProfileDetails(selectedUser.id);
+          if (response) {
+            setSelectedUserDetails(response?.data?.data);
+          }
+        } else {
+          response = await getProfileDetails();
+          setUserDetails(response?.data?.data);
+          setSelectedUserDetails(response?.data?.data);
+
+        }
       }
       if (response) {
         console.log("Respone for setting xbar plan", response)
@@ -343,6 +358,22 @@ function SubAccountBarServices({
     return planType;
   };
 
+
+
+  const handleSpeakToAGenius = () => {
+    if (selectedUser?.userRole !== "AgencySubAccount") {
+      let url = PersistanceKeys.GlobalConsultationUrl;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
+    } else {
+      let url = selectedUserDetails?.userSettings?.hireTeamUrl;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
+    }
+  }
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -440,18 +471,21 @@ function SubAccountBarServices({
             </p>
             <div className="flex flex-row justify-between">
               <div></div>
-              <button
-                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
-                onClick={(e) => {
-                  //console.log;
-                  let url = PersistanceKeys.GlobalConsultationUrl;
-                  if (typeof window !== "undefined") {
-                    window.open(url, "_blank");
-                  }
-                }}
-              >
-                Speak to a Genius
-              </button>
+              <Tooltip title={`${!selectedUserDetails?.userSettings?.hireTeamTitle && "Unavailable"}`}
+                placement="top"
+                arrow
+                componentsProps={{
+                  tooltip: { sx: { backgroundColor: "#ffffff", color: "#333", fontSize: "14px", padding: "10px 15px", borderRadius: "8px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" }, }, arrow: { sx: { color: "#ffffff" } },
+                }}>
+                <button
+                  className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                  onClick={(e) => {
+                    handleSpeakToAGenius();
+                  }}
+                >
+                  Speak to a Genius
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>

@@ -27,6 +27,7 @@ import {
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
 import getProfileDetails from "../apis/GetProfile";
+import ShootingStarLoading from "../animations/ShootingStarLoading";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginComponent = ({ length = 6, onComplete }) => {
@@ -95,20 +96,20 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // This ensures we get updated branding even if cookies are stale
       const fetchFromAPI = async () => {
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL ||
             (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
               ? "https://apimyagentx.com/agentx/"
               : "https://apimyagentx.com/agentxtest/");
-          
+
           const lookupResponse = await fetch(`${baseUrl}api/agency/lookup-by-domain`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               customDomain: window.location.hostname,
-              subdomain: window.location.hostname.includes('.assignx.ai') 
-                ? window.location.hostname.split('.')[0] 
+              subdomain: window.location.hostname.includes('.assignx.ai')
+                ? window.location.hostname.split('.')[0]
                 : null
             }),
           });
@@ -140,7 +141,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
           setAgencyBranding(brandingData);
           console.log('✅ [LoginComponent] Using branding from cookie');
-          
+
           // Still fetch from API in background to ensure we have latest data
           // This handles the case where branding was just updated
           fetchFromAPI();
@@ -157,7 +158,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           const brandingData = JSON.parse(storedBranding);
           setAgencyBranding(brandingData);
           console.log('✅ [LoginComponent] Using branding from localStorage');
-          
+
           // Still fetch from API in background
           fetchFromAPI();
           return;
@@ -965,66 +966,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [isCheckingAuth]);
 
   // Show loading screen while checking authentication
-  if (isCheckingAuth) {
+  if (isCheckingAuth || loginLoader) {
     return (
-      <div className="flex flex-col w-full h-[100svh] items-center justify-center bg-white">
-        <div className="flex flex-col items-center w-full max-w-md px-8">
-          {/* Orb Image */}
-          <div className="mb-16 bg-white rounded-md p-4">
-            <Image
-              src="/agentXOrb.gif"
-              height={142}
-              width={152}
-              alt="Loading"
-              style={{ height: "142px", width: "152px", resize: "contain" }}
-            />
-          </div>
-
-          {/* Shooting Star Progress Bar */}
-          <div className="w-full relative" style={{ height: '2px' }}>
-            <div className="absolute inset-0 bg-gray-200 rounded-full" />
-            <div
-              className="absolute left-0 top-0 rounded-full transition-all duration-300 ease-out"
-              style={{
-                width: `${authProgressValue}%`,
-                height: '2px',
-                background: `linear-gradient(90deg, 
-                  rgba(121, 2, 223, 0.2) 0%,
-                  rgba(121, 2, 223, 0.4) 15%,
-                  rgba(121, 2, 223, 0.6) 35%,
-                  rgba(121, 2, 223, 0.75) 55%,
-                  rgba(121, 2, 223, 0.9) 75%,
-                  rgba(121, 2, 223, 1) 90%,
-                  rgba(121, 2, 223, 1) 100%
-                )`,
-                boxShadow: `
-                  0 0 3px rgba(121, 2, 223, 0.6),
-                  0 0 6px rgba(121, 2, 223, 0.7),
-                  0 0 10px rgba(121, 2, 223, 0.8)
-                `,
-                transition: 'width 0.2s ease-out',
-              }}
-            >
-              {/* Bright, thick head at the end */}
-              <div
-                className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full"
-                style={{
-                  width: '12px',
-                  height: '4px',
-                  background: 'rgba(121, 2, 223, 1)',
-                  boxShadow: `
-                    0 0 6px rgba(121, 2, 223, 1),
-                    0 0 12px rgba(121, 2, 223, 0.9),
-                    0 0 20px rgba(121, 2, 223, 0.7),
-                    0 0 30px rgba(121, 2, 223, 0.5),
-                    inset 0 0 4px rgba(255, 255, 255, 0.3)
-                  `,
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <ShootingStarLoading open={isCheckingAuth || loginLoader} />
     );
   }
 
@@ -1412,22 +1356,15 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   </button>
                 )}
               </div>
-              {loginLoader ? (
-                <div className="flex fex-row items-center justify-center mt-8">
-                  <LoaderAnimation
-                    loaderModal={loginLoader}
-                    title={loaderTitle}
-                  />
-                </div>
-              ) : (
-                <button
-                  className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                  style={{ height: "50px" }}
-                  onClick={handleVerifyCode}
-                >
-                  Continue
-                </button>
-              )}
+
+              <button
+                className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                style={{ height: "50px" }}
+                onClick={handleVerifyCode}
+              >
+                Continue
+              </button>
+
             </div>
           </div>
         </Box>
