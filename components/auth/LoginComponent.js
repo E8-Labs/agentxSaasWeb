@@ -78,7 +78,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     setRedirect(redirect);
   }, []);
 
-  // Get agency branding from cookie/localStorage (set by middleware)
+  // Get agency branding from cookie/localStorage (set by middleware) or fetch from API
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -90,30 +90,73 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       return null;
     };
 
-    // Try to get branding from cookie first (set by middleware)
-    const brandingCookie = getCookie('agencyBranding');
-    if (brandingCookie) {
-      try {
-        const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
-        // Store in localStorage for persistence
-        localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
-        setAgencyBranding(brandingData);
-        return;
-      } catch (error) {
-        console.log('Error parsing agencyBranding cookie:', error);
+    const fetchBranding = async () => {
+      // Try to get branding from cookie first (set by middleware)
+      const brandingCookie = getCookie('agencyBranding');
+      if (brandingCookie) {
+        try {
+          const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
+          // Store in localStorage for persistence
+          localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
+          setAgencyBranding(brandingData);
+          return;
+        } catch (error) {
+          console.log('Error parsing agencyBranding cookie:', error);
+        }
       }
-    }
 
-    // Fallback to localStorage if cookie not found
-    const storedBranding = localStorage.getItem('agencyBranding');
-    if (storedBranding) {
-      try {
-        const brandingData = JSON.parse(storedBranding);
-        setAgencyBranding(brandingData);
-      } catch (error) {
-        console.log('Error parsing agencyBranding from localStorage:', error);
+      // Fallback to localStorage if cookie not found
+      const storedBranding = localStorage.getItem('agencyBranding');
+      if (storedBranding) {
+        try {
+          const brandingData = JSON.parse(storedBranding);
+          setAgencyBranding(brandingData);
+          return;
+        } catch (error) {
+          console.log('Error parsing agencyBranding from localStorage:', error);
+        }
       }
-    }
+
+      // If no branding found in cookie/localStorage, try to fetch from API
+      // Get agencyId from cookie
+      const agencyIdCookie = getCookie('agencyId');
+      if (agencyIdCookie) {
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 
+            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+              ? "https://apimyagentx.com/agentx/"
+              : "https://apimyagentx.com/agentxtest/");
+          
+          const lookupResponse = await fetch(`${baseUrl}api/agency/lookup-by-domain`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              customDomain: window.location.hostname,
+              subdomain: window.location.hostname.includes('.assignx.ai') 
+                ? window.location.hostname.split('.')[0] 
+                : null
+            }),
+          });
+
+          if (lookupResponse.ok) {
+            const lookupData = await lookupResponse.json();
+            if (lookupData.status && lookupData.data?.branding) {
+              const brandingData = lookupData.data.branding;
+              // Store in both cookie and localStorage
+              document.cookie = `agencyBranding=${encodeURIComponent(JSON.stringify(brandingData))}; path=/; max-age=${60 * 60 * 24}`;
+              localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
+              setAgencyBranding(brandingData);
+            }
+          }
+        } catch (error) {
+          console.log('Error fetching branding from API:', error);
+        }
+      }
+    };
+
+    fetchBranding();
   }, []);
 
   useEffect(() => {
@@ -998,15 +1041,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 width={260}
                 alt="avtr"
               />
-              {agencyBranding?.logoUrl ? (
-                <Image
-                  src={agencyBranding.logoUrl}
-                  height={69}
-                  width={69}
-                  alt="agency logo"
-                  style={{ objectFit: "contain", maxHeight: "69px", maxWidth: "69px" }}
-                />
-              ) : (
+              {/* Hide orb gif if agency has logo (for subaccounts) */}
+              {!agencyBranding?.logoUrl && (
                 <Image src={"/agentXOrb.gif"} height={69} width={69} alt="gif" />
               )}
             </div>

@@ -4,12 +4,13 @@ import axios from "axios";
 import WhiteLAbelTooltTip from "./WhiteLAbelTooltTip";
 import UploadImageButton from "./UploadImageButton";
 import LabelingHeader from "./LabelingHeader";
+import LogoCropper from "./LogoCropper";
 import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const BrandConfig = () => {
   //tool tip
-  const Logo1Tip = "Logo should be maximum 512kb for better rendering";
+  const Logo1Tip = "Recommended upload: 600 × 200 px (max 2MB). Final display: Max 120px width × 32px height. Logo will be cropped to fit.";
   const FaviconTip = "Image should be maximum 512kb and should be square";
 
   const [logoPreview, setLogoPreview] = useState(null);
@@ -20,6 +21,10 @@ const BrandConfig = () => {
   // File states for uploads
   const [logoFile, setLogoFile] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
+  
+  // Cropper state
+  const [showCropper, setShowCropper] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
   
   // Loading and error states
   const [loading, setLoading] = useState(false);
@@ -111,11 +116,18 @@ const BrandConfig = () => {
 
   //logo image selector
   const handleLogoUpload = (file) => {
-    // Validate file size (512kb = 524288 bytes)
-    if (file.size > 524288) {
+    console.log('🖼️ [BrandConfig] Logo upload triggered', file);
+    
+    if (!file) {
+      console.log('❌ [BrandConfig] No file provided');
+      return;
+    }
+
+    // Validate file size (2MB = 2097152 bytes for upload, will be cropped/resized)
+    if (file.size > 2097152) {
       setShowSnackMessage({
         type: SnackbarTypes.Error,
-        message: "Logo file size must be less than 512kb",
+        message: "Logo file size must be less than 2MB",
         isVisible: true
       });
       return;
@@ -131,10 +143,37 @@ const BrandConfig = () => {
       return;
     }
 
-    setLogoFile(file);
+    // Read file and show cropper immediately
     const reader = new FileReader();
-    reader.onloadend = () => setLogoPreview(reader.result);
+    reader.onload = (e) => {
+      console.log('✅ [BrandConfig] File read successfully, opening cropper');
+      const imageDataUrl = e.target.result;
+      
+      // Set both states together - React will batch the updates
+      setImageToCrop(imageDataUrl);
+      // Use setTimeout to ensure state is set before opening modal
+      setTimeout(() => {
+        setShowCropper(true);
+        console.log('🖼️ [BrandConfig] Cropper opened');
+      }, 0);
+    };
+    reader.onerror = () => {
+      console.error('❌ [BrandConfig] File read error');
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: "Failed to read file. Please try again.",
+        isVisible: true
+      });
+    };
     reader.readAsDataURL(file);
+  };
+
+  // Handle cropped logo
+  const handleCropComplete = (croppedFile, croppedUrl) => {
+    setLogoFile(croppedFile);
+    setLogoPreview(croppedUrl);
+    setShowCropper(false);
+    setImageToCrop(null);
   };
 
   //favicon image selector
@@ -363,6 +402,22 @@ const BrandConfig = () => {
         message={showSnackMessage.message}
         type={showSnackMessage.type}
       />
+
+      {/* Logo Cropper Modal - Only render when image is available */}
+      {imageToCrop && (
+        <LogoCropper
+          open={showCropper}
+          onClose={() => {
+            console.log('🚪 [BrandConfig] Closing cropper');
+            setShowCropper(false);
+            // Clear image after modal closes to prevent flicker
+            setTimeout(() => setImageToCrop(null), 300);
+          }}
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          aspectRatio={3} // 3:1 horizontal aspect ratio (as per requirements)
+        />
+      )}
       
       {/* Banner Section */}
       <LabelingHeader
