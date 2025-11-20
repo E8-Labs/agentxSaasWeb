@@ -22,16 +22,16 @@ function BasicInfo() {
   const emailRef = useRef(null);
   const farmRef = useRef(null);
   const serviceAreaRef = useRef(null);
-  const brokerAgeRef = useState(null)
-  const companyRef = useState(null)
-  const websiteRef = useState(null)
-  const companyAffiliationRef = useState(null)
-  const transactionRef = useState(null)
-  const installationVolumeRef = useState(null)
-  const projectSizeRef = useState(null)
-  const clientsPerMonthRef = useState(null)
-  const casesPerMonthRef = useState(null)
-  const teritorryRef = useState(null)
+  const brokerAgeRef = useRef(null)
+  const companyRef = useRef(null)
+  const websiteRef = useRef(null)
+  const companyAffiliationRef = useRef(null)
+  const transactionRef = useRef(null)
+  const installationVolumeRef = useRef(null)
+  const projectSizeRef = useRef(null)
+  const clientsPerMonthRef = useRef(null)
+  const casesPerMonthRef = useRef(null)
+  const teritorryRef = useRef(null)
 
 
   const [focusedName, setFocusedName] = useState(false);

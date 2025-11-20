@@ -11,7 +11,6 @@ import {
 import axios from "axios";
 import JSZip from "jszip";
 import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
-import { User } from "lucide-react";
 
 import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
 import Apis from "@/components/apis/Apis";
@@ -146,6 +145,27 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   };
 
   async function addKnowledgebaseEntry() {
+    // Get current user to check role
+    const localData = localStorage.getItem("User");
+    let currentUser = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      currentUser = UserDetails.user;
+    }
+
+    // Check if user is admin or agency
+    const isAdmin = currentUser?.userType === "admin";
+    const isAgency = currentUser?.userRole === "Agency";
+
+    // Get target userId (from user prop or agent.userId)
+    const targetUserId = user?.id || agent?.userId;
+
+    // If admin or agency, userId is required
+    if ((isAdmin || isAgency) && !targetUserId) {
+      console.error("userId is required when adding knowledge base as admin or agency");
+      return;
+    }
+
     const formData = new FormData();
     const kbs = [];
   
@@ -195,7 +215,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       formData.append("media", selectedDocument); // Attach only if a document is present
     }
   
-    // Don’t proceed if no KBs are filled
+    // Don't proceed if no KBs are filled
     if (kbs.length === 0) {
       //console.log;
       return;
@@ -205,6 +225,13 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     //console.log
   
     formData.append("kbs",finalKbs ); // One list inside another
+
+    // Add userId if admin/agency (required for subaccount operations)
+    // Regular users don't need to send userId - backend uses their authenticated ID
+    if ((isAdmin || isAgency) && targetUserId) {
+      formData.append("userId", targetUserId);
+    }
+
   
     setLoading(true);
     try {
@@ -231,6 +258,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       //console.log;
     } catch (error) {
       setLoading(false);
+      console.log('error', error)
       console.error("Error submitting KB:", error.response?.data || error.message);
     }
   }

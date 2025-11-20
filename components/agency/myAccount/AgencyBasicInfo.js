@@ -24,6 +24,7 @@ function AgencyBasicInfo({
   const [focusedName, setFocusedName] = useState(false);
 
   const [focusedEmail, setFocusedEmail] = useState(false);
+  const [focusedWebsite, setFocusedWebsite] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,10 +33,12 @@ function AgencyBasicInfo({
 
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isEmailChanged, setIsEmailChanged] = useState(false);
+  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState(false);
 
   const [loading, setloading] = useState(false);
 
   const [loading5, setloading5] = useState(false);
+  const [loading10, setLoading10] = useState(false);
   const [loading13, setLoading13] = useState(false);
 
   // Email validation and checking states
@@ -435,6 +438,25 @@ function AgencyBasicInfo({
     }
   };
 
+  const handleWebsiteChange = async () => {
+    try {
+      setLoading10(true);
+      let data = {
+        website: websiteUrl,
+      };
+      if (selectedAgency) {
+        data.userId = selectedAgency.id;
+      }
+      await UpdateProfile(data);
+      setIsWebsiteUrlChanged(false);
+      setLoading10(false);
+      showSuccess("Account Updated");
+    } catch (e) {
+      setLoading10(false);
+      // //console.log;
+    }
+  };
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
@@ -732,7 +754,7 @@ function AgencyBasicInfo({
             setCompany(event.target.value)
           }}
           type="text"
-          placeholder="Email"
+          placeholder="Company"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>
@@ -750,24 +772,36 @@ function AgencyBasicInfo({
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid`,
+          border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"}`,
           transition: "border-color 0.3s ease",
-          border: `1px solid ${"#00000010"}`,
         }}
       >
         <input
-          // readOnly
           className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
+          onFocus={() => setFocusedWebsite(true)}
+          onBlur={() => setFocusedWebsite(false)}
           value={websiteUrl}
           onChange={(event) => {
-            setWebsiteUrl(event.target.value)
+            setWebsiteUrl(event.target.value);
+            setIsWebsiteUrlChanged(true);
           }}
           type="text"
           placeholder="Website"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
+        {isWebsiteUrlChanged &&
+          (loading10 ? (
+            <CircularProgress size={20} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleWebsiteChange();
+              }}
+              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+            >
+              Save
+            </button>
+          ))}
       </div>
 
       <div

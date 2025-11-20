@@ -916,7 +916,9 @@ function SubAccountBasicInfo() {
       await UpdateProfile(data);
       setIsWebsiteUrlChanged(false);
       setLoading10(false);
+      showSuccess("Account Updated");
     } catch (e) {
+      setLoading10(false);
       // //console.log;
     }
   };
