@@ -103,6 +103,7 @@ const ActionsTab = ({
                             setShowUpgradeModal={setShowUpgradeModal}
                             showTools={true}
                             selectedUser={selectedUser}
+                            selectedActionTab={selectedActionTab}
                         />
                     )
                 ) : selectedActionTab === 3 ? (
