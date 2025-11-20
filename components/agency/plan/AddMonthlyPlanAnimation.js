@@ -70,10 +70,10 @@ export default function AddMonthlyPlanAnimation({
         console.log("Status of edit plans is", isEditPlan)
         if (isEditPlan && selectedPlan) {
             console.log("Plan to edit is", selectedPlan);
-            const featuresList = selectedPlan?.features;
-            const filterCustomFeatures = featuresList?.filter(feature => feature?.isCustom === true);
+            const featuresList = Array.isArray(selectedPlan?.features) ? selectedPlan.features : [];
+            const filterCustomFeatures = Array.isArray(featuresList) ? featuresList.filter(feature => feature?.isCustom === true) : [];
             console.log("Custom features filtered from plan to edit are", filterCustomFeatures);
-            const customFeatures = filterCustomFeatures?.map(feature => feature?.text);
+            const customFeatures = Array.isArray(filterCustomFeatures) ? filterCustomFeatures.map(feature => feature?.text) : [];
             console.log("Custom features filtered are P_2", customFeatures);
             const object = {
                 maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
