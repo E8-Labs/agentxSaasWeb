@@ -185,6 +185,7 @@ export async function middleware(request) {
     pathname.startsWith("/onboarding/") || // allows /onboarding/[uuid]
     pathname.startsWith("/agency/onboarding") ||
     pathname.startsWith("/agency/verify") ||
+    (pathname.startsWith("/agency/") && (pathname.includes("/privacy") || pathname.includes("/terms"))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
     pathname.startsWith("/recordings/")
   ) {
     const publicResponse = NextResponse.next();

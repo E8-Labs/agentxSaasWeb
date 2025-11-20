@@ -22,12 +22,15 @@ import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
 import SubAccountPlansAndPayments from "./SubAccountPlansAndPayments";
 import BillingHistory from "@/components/myAccount/BillingHistory";
+import SubAccountTerms from "./SubAccountTerms";
+import SubAccountPrivacy from "./SubAccountPrivacy";
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(2);
+  // tabSelected now stores menu item ID instead of index
+  const [tabSelected, setTabSelected] = useState(2); // Default to ID 2 (Plans & Payment)
   const [initialLoader, setInitialLoader] = useState(true);
   const [navBar, setNavBar] = useState([]);
 
@@ -82,21 +85,21 @@ function SubAccountMyAccount() {
     // },
     {
       id: 7,
-      heading: "Twilio Trust Hub",
-      subHeading: "Caller ID & compliance for trusted calls",
-      icon: "/svgIcons/twilioHub.svg",
-    },
-    {
-      id: 8,
       heading: "Terms & Conditions",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 9,
+      id: 8,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 9,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
     },
     {
       id: 10,
@@ -163,9 +166,18 @@ function SubAccountMyAccount() {
     },
   ];
 
-  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
   const [selectedUserData, setSelectedUSerData] = useState(null);
+
+  // Function to update URL parameters with menu ID
+  const setParamsInSearchBar = (menuId = 2) => {
+    // Create a new URLSearchParams object to modify
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", menuId.toString()); // Set or update the 'tab' parameter with menu ID
+
+    // Push the updated URL
+    router.push(`/dashboard/myAccount?${params.toString()}`);
+  };
 
   //load the local storage data
   useEffect(() => {
@@ -189,88 +201,86 @@ function SubAccountMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 2;
-    // //console.log;
     const userData = localStorage.getItem("User");
     if (userData) {
       const d = JSON.parse(userData);
       setSelectedUSerData(d.user);
     }
-    setTabSelected(number);
-    if (!tab) {
+    
+    // Find menu item by ID from URL param, validate it exists in current navBar
+    if (tab) {
+      const tabId = Number(tab);
+      // Check if this ID exists in the current navBar (will be set after navBar is populated)
+      // We'll validate this in a separate effect that runs after navBar is set
+      setTabSelected(tabId);
+    } else {
+      // Default to ID 2 (Plans & Payment)
+      setTabSelected(2);
       setParamsInSearchBar(2);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const setParamsInSearchBar = (index = 1) => {
-    // Create a new URLSearchParams object to modify
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", index); // Set or update the 'tab' parameter
-
-    // Push the updated URL
-    router.push(`/dashboard/myAccount?${params.toString()}`);
-
-    // //console.log;
-  };
+  
+  // Validate tabSelected exists in navBar after navBar is set
+  useEffect(() => {
+    if (navBar.length > 0 && tabSelected) {
+      const menuItemExists = navBar.find(item => item.id === tabSelected);
+      if (!menuItemExists) {
+        // If selected tab doesn't exist in current navBar, default to ID 2
+        const defaultId = 2;
+        setTabSelected(defaultId);
+        setParamsInSearchBar(defaultId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navBar, tabSelected]);
 
   const renderComponent = () => {
-    // setTabSelected(selectedMenuId);
-
+    // Switch on menu item ID instead of index
     switch (tabSelected) {
-      case 1:
+      case 1: // Basic Information
         return <SubAccountBasicInfo />;
-      case 2:
+      case 2: // Plans & Payment
         return <SubAccountPlansAndPayments
           // selectedUser={selectedUserData}
         />;
-      case 3:
+      case 3: // Billing
         return <BillingHistory
           selectedUser={selectedUserData}
         />;
-      case 4:
+      case 4: // Bar Services
         return <SubAccountBarServices
           selectedUser={selectedUserData} />;
-      case 5:
-
+      case 5: // My Phone Numbers
         return <SubAccountMyPhoneNumber />;
-      // <SubAccountBarServices
-      //   selectedUser={selectedUserData} />;
-      case 6:
+      case 6: // Invite Agents (if enabled)
         return <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />;
-      // case 6:
-      //   return <SubAccountInviteAgentX />;
-      case 7:
+      case 7: // Terms & Conditions
+        return <SubAccountTerms />;
+      case 8: // Privacy Policy
+        return <SubAccountPrivacy />;
+      case 9: // Twilio Trust Hub
         return <TwilioTrustHub />;
+      // ID 10 is external link (Cancellation & Refund) handled in handleTabSelect
       default:
         return <div>Please select an option.</div>;
     }
   };
 
-  const handleTabSelect = (item, index) => {
-
-    if (item.heading === "Terms & Condition") {
-      window.open(
-        termsAndConditionUrl,
-        "_blank"
-      );
-      return
-    } else if (item.heading === "Privacy Policy") {
-      window.open(
-        "/privacy-policy",
-        "_blank"
-      );
-      return
-    } else if (item.heading === "Cancellation & Refund") {
+  const handleTabSelect = async (item) => {
+    // Handle external links (these don't render components)
+    if (item.heading === "Cancellation & Refund") {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
       );
-      return
+      return;
     }
-    console.log("Index is", index);
+    
+    // For regular menu items (including Terms & Conditions and Privacy Policy), 
+    // set the selected tab using menu ID to display in the right panel
     setTabSelected(item.id);
     setParamsInSearchBar(item.id);
-
   }
 
   return (
@@ -307,15 +317,14 @@ function SubAccountMyAccount() {
                       fontWeight: "normal", // Optional: Adjust the font weight
                     }}
                     onClick={() => {
-                      //   setSelectedManu(index + 1);
-                      handleTabSelect(item, index)
+                      handleTabSelect(item)
                     }}
                   >
                     <div
                       className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                       style={{
                         backgroundColor:
-                          index === tabSelected - 1 ? "#402FFF10" : "transparent",
+                          item.id === tabSelected ? "#402FFF10" : "transparent",
                       }}
                     >
                       <Image src={item.icon} height={24} width={24} alt="icon" />

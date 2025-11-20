@@ -364,6 +364,9 @@ const Apis = {
   removeCustomDomain: `${BasePath}api/agency/branding/domain`,
   getBrandingAuditLogs: `${BasePath}api/agency/branding/audit`,
   lookupAgencyByDomain: `${BasePath}api/agency/lookup-by-domain`,
+  updateAgencyTermsPrivacy: `${BasePath}api/agency/branding/terms-privacy`,
+  getAgencyTermsByUUID: `${BasePath}api/agency/getTermsByUUID`,
+  getAgencyPrivacyByUUID: `${BasePath}api/agency/getPrivacyByUUID`,
 
   // Agency Global Phone Number APIs
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,
