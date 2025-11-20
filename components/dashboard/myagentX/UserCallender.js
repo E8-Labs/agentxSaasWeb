@@ -618,7 +618,7 @@ const UserCalender = ({
                   </button>
                 }
               </div>
-              {selectedAgent?.calendar || allCalendars.length > 0 ? (
+              {allCalendars.length > 0 ? (
                 <div className="w-full flex flex-col w-full items-center mt-4">
                   <div className="w-full">
                     {calenderLoader ? (
