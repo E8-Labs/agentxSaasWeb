@@ -18,6 +18,7 @@ const ActionsTab = ({
     setShowAddScoringModal,
     setShowDrawerSelectedAgent,
     setShowSnackMsg,
+    selectedUser,
 }) => {
 
     const { user: reduxUser } = useUser();
@@ -80,6 +81,7 @@ const ActionsTab = ({
                             updateVariableData={updateVariableData}
                             setShowUpgradeModal={setShowUpgradeModal}
                             showTools={false}
+                            selectedUser={selectedUser}
                         />
                     )
                 ) : selectedActionTab === 2 ? (
@@ -100,6 +102,7 @@ const ActionsTab = ({
                             updateVariableData={updateVariableData}
                             setShowUpgradeModal={setShowUpgradeModal}
                             showTools={true}
+                            selectedUser={selectedUser}
                         />
                     )
                 ) : selectedActionTab === 3 ? (

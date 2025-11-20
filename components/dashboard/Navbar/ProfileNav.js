@@ -406,10 +406,13 @@ const ProfileNav = () => {
         "LocalData.user.profile_status",
         LocalData.user.profile_status
       );
-      if (LocalData.user.profile_status === "paused") {
+      if (LocalData.user.profile_status !== "active") {
         setErrorSnack("Your account has been frozen.");
-        logout("Profile status paused/frozen");
-        router.push("/");
+        setShowErrorSnack(true);
+        // Show snackbar briefly before logout
+        setTimeout(() => {
+          logout("Profile status is not active");
+        }, 2000);
         return;
       }
       // checkTrialDays(LocalData.user);
@@ -760,6 +763,18 @@ const ProfileNav = () => {
         "🔍 [getProfile] Available seconds:",
         Data?.totalSecondsAvailable
       );
+
+      // Check profile_status from API response
+      if (Data?.profile_status && Data.profile_status !== "active") {
+        console.log('❌ [getProfile] Profile status is not active:', Data.profile_status);
+        setErrorSnack("Your account has been frozen.");
+        setShowErrorSnack(true);
+        // Show snackbar briefly before logout
+        setTimeout(() => {
+          logout("Profile status is not active");
+        }, 2000);
+        return;
+      }
 
       if (response) {
         console.log('✅ [getProfile] Response exists, processing...');

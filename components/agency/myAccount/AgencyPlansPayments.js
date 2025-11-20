@@ -1606,63 +1606,61 @@ function AgencyPlansPayments({
             </div>
 
 
-            {userLocalData?.plan && (
-                <div className="w-full flex flex-row items-center justify-center">
-                    {subscribePlanLoader ? (
-                        <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
-                            <CircularProgress size={25} />
-                        </div>
-                    ) : (
-                        <button
-                            className="rounded-xl w-9/12 mt-8"
-                            // disabled={togglePlan === currentPlan}
-                            style={{
-                                height: "50px",
-                                fontSize: 16,
-                                fontWeight: "700",
-                                flexShrink: 0,
-                                backgroundColor:
-                                    togglePlan === currentPlan ? "transparent" : "#7902DF",
-                                color: togglePlan === currentPlan ? "#000000" : "#ffffff",
-                                border: togglePlan === currentPlan ? "1px solid #00000080" : "none",
-                            }}
-                            onClick={() => {
-                                const title = planTitleTag();
-                                if (title === "Select a Plan") { return }
-                                
-                                // Ensure selectedPlan is set from togglePlan
-                                if (!selectedPlan && togglePlan) {
-                                    const plansList = getCurrentPlans();
-                                    const plan = plansList.find(p => p.id === togglePlan);
-                                    if (plan) {
-                                        setSelectedPlan(plan);
-                                    }
+            <div className="w-full flex flex-row items-center justify-center">
+                {subscribePlanLoader ? (
+                    <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
+                        <CircularProgress size={25} />
+                    </div>
+                ) : (
+                    <button
+                        className="rounded-xl w-9/12 mt-8"
+                        // disabled={togglePlan === currentPlan}
+                        style={{
+                            height: "50px",
+                            fontSize: 16,
+                            fontWeight: "700",
+                            flexShrink: 0,
+                            backgroundColor:
+                                togglePlan === currentPlan ? "transparent" : "#7902DF",
+                            color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                            border: togglePlan === currentPlan ? "1px solid #00000080" : "none",
+                        }}
+                        onClick={() => {
+                            const title = planTitleTag();
+                            if (title === "Select a Plan") { return }
+                            
+                            // Ensure selectedPlan is set from togglePlan
+                            if (!selectedPlan && togglePlan) {
+                                const plansList = getCurrentPlans();
+                                const plan = plansList.find(p => p.id === togglePlan);
+                                if (plan) {
+                                    setSelectedPlan(plan);
                                 }
-                                
-                                if (title === "Cancel Subscription") {
-                                    handleCancelPlanClick()
-                                } else if (title === "Downgrade") {
-                                    console.log("Currently selected plan is", selectedPlan?.capabilities?.maxSubAccounts);
-                                    console.log("Current sub accounts count:", currentSubAccounts?.length);
-                                    // Check if downgrade would exceed sub-account limits
-                                    if (selectedPlan?.capabilities?.maxSubAccounts !== undefined && 
-                                        selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
-                                        setShowDowngradePlanWarning(true)
-                                    } else {
-                                        setShowDowngradePlanPopup(true)
-                                    }
+                            }
+                            
+                            if (title === "Cancel Subscription") {
+                                handleCancelPlanClick()
+                            } else if (title === "Downgrade") {
+                                console.log("Currently selected plan is", selectedPlan?.capabilities?.maxSubAccounts);
+                                console.log("Current sub accounts count:", currentSubAccounts?.length);
+                                // Check if downgrade would exceed sub-account limits
+                                if (selectedPlan?.capabilities?.maxSubAccounts !== undefined && 
+                                    selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
+                                    setShowDowngradePlanWarning(true)
                                 } else {
-                                    // handleSubscribePlan()
-                                    setShowUpgradeModal(true);
+                                    setShowDowngradePlanPopup(true)
                                 }
-                            }}
-                        >
-                            {planTitleTag()}
-                        </button>
-                    )}
+                            } else {
+                                // handleSubscribePlan()
+                                setShowUpgradeModal(true);
+                            }
+                        }}
+                    >
+                        {planTitleTag()}
+                    </button>
+                )}
 
-                </div>
-            )}
+            </div>
 
             {/* Upgrade plans modal */}
             <Elements stripe={stripePromise}>

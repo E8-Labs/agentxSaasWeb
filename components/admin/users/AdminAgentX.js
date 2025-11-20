@@ -4448,6 +4448,7 @@ const [featureTitle, setFeatureTitle] = useState("");
                       showDrawerSelectedAgent={showDrawerSelectedAgent}
                       setShowAddScoringModal={setShowAddScoringModal}
                       setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                      selectedUser={selectedUser}
                     />
 
                     {/* Calendar Section 

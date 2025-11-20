@@ -171,7 +171,7 @@ function MyAccount() {
       return
     } else if (item.id === 9) {
       window.open(
-        "/privacy-policy",
+        privacyPollicyUrl,
         "_blank"
       );
       return

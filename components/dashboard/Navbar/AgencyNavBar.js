@@ -245,6 +245,19 @@ const AgencyNavBar = () => {
 
         // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
+        
+        // Check profile_status from API response
+        if (agencyProfileData?.profile_status && agencyProfileData.profile_status !== "active") {
+          console.log('❌ [getUserProfile] Profile status is not active:', agencyProfileData.profile_status);
+          setErrorSnack("Your account has been frozen.");
+          setShowErrorSnack(true);
+          // Show snackbar briefly before logout
+          setTimeout(() => {
+            logout("Profile status is not active");
+          }, 2000);
+          return;
+        }
+        
         if (agencyProfileData.consecutivePaymentFailures == 1 || agencyProfileData.consecutivePaymentFailures == 2) {
           setShowPaymentFailedPopup(true);
         } else if (agencyProfileData.consecutivePaymentFailures >= 3) {
@@ -265,10 +278,13 @@ const AgencyNavBar = () => {
         console.log("No profile detail found yet");
       }
       console.log('LocalData.user.profile_status', LocalData.user.profile_status)
-      if (LocalData.user.profile_status === "paused") {
+      if (LocalData.user.profile_status !== "active") {
         setErrorSnack("Your account has been frozen.")
-        logout()
-        router.push("/");
+        setShowErrorSnack(true);
+        // Show snackbar briefly before logout
+        setTimeout(() => {
+          logout("Profile status is not active");
+        }, 2000);
         return
       }
       if (LocalData.user.plan == null) {

@@ -8,6 +8,8 @@ import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationC
 import TutorialConfig from './TutorialConfig';
 import SupportWidgetConfig from './SupportWidgetConfig';
 import UPSell from '../integrations/UPSell';
+import PrivacyConfig from './PrivacyConfig';
+import TermsConfig from './TermsConfig';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 import Image from 'next/image';
 import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning';
@@ -99,7 +101,7 @@ const WhiteLabel = () => {
         const tabParam = searchParams.get('tab');
         if (tabParam) {
             const tabNumber = parseInt(tabParam, 10);
-            if (tabNumber >= 1 && tabNumber <= 7) {
+            if (tabNumber >= 1 && tabNumber <= 9) {
                 setSelectedWhiteLabelTabs(tabNumber);
             }
         }
@@ -120,13 +122,15 @@ const WhiteLabel = () => {
     };
 
     const WhiteLabelTabs = [
-        { id: 1, title: "Brand", comingSoon: true },
+        { id: 1, title: "Brand", comingSoon: false}, //process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? true : false },
         { id: 2, title: "Domain", comingSoon: process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? true : false },
         { id: 3, title: "Email Config", comingSoon: false },
         { id: 4, title: "Notification Config", comingSoon: false },
         { id: 5, title: "Tutorial Videos", comingSoon: false  },
         { id: 6, title: "Support widget", comingSoon: false },
         { id: 7, title: "Upsell", comingSoon: false  },
+        { id: 8, title: "Privacy Policy", comingSoon: false },
+        { id: 9, title: "Terms & Conditions", comingSoon: false },
     ];
 
     return (
@@ -203,6 +207,16 @@ const WhiteLabel = () => {
                     {selectedWhiteLabelTabs === 7 && (
                         <div className="w-full h-full">
                             <UPSell />
+                        </div>
+                    )}
+                    {selectedWhiteLabelTabs === 8 && (
+                        <div className="w-full h-full">
+                            <PrivacyConfig />
+                        </div>
+                    )}
+                    {selectedWhiteLabelTabs === 9 && (
+                        <div className="w-full h-full">
+                            <TermsConfig />
                         </div>
                     )}
                 </div>

@@ -13,6 +13,20 @@ export const AddCalendarApi = async (calendarValues
 
         let userAuthToken = AuthToken();
 
+        // Get current user to check role
+        const localData = localStorage.getItem("User");
+        const currentUser = localData ? JSON.parse(localData).user : null;
+        const isAdmin = currentUser?.userType === "admin";
+        const isAgency = currentUser?.userRole === "Agency";
+
+        // If admin or agency, userId is required
+        if ((isAdmin || isAgency) && !calendarValues?.userId) {
+            return {
+                status: false,
+                message: "userId is required when adding calendar as admin or agency"
+            };
+        }
+
         // //console.log;
         const ApiPath = Apis.addCalender;
         // //console.log;
@@ -30,6 +44,10 @@ export const AddCalendarApi = async (calendarValues
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
             formData.append("eventId", calendarValues?.eventId);
+            // Append userId if admin/agency
+            if ((isAdmin || isAgency) && calendarValues?.userId) {
+                formData.append("userId", calendarValues.userId);
+            }
         } else if (calendarValues?.isFromAddGHLCal) {
             console.log("GHL calendar passed is", calendarValues);
             const getCookiesReponse = await axios.get("/api/getCookies");
@@ -40,12 +58,20 @@ export const AddCalendarApi = async (calendarValues
             formData.append("locationId", calendarValues?.ghlCalendar?.locationId);
             formData.append("title", calendarValues?.title);
             formData.append("timeZone", calendarValues?.timeZone);
+            // Append userId if admin/agency
+            if ((isAdmin || isAgency) && calendarValues?.userId) {
+                formData.append("userId", calendarValues.userId);
+            }
         } else {
             formData.append("title", calendarValues?.calenderTitle);
             formData.append("timeZone", calendarValues?.selectTimeZone);
             formData.append("apiKey", calendarValues?.calenderApiKey);
             formData.append("eventId", calendarValues?.eventId);
             formData.append("calendarType", "cal_dot_com");
+            // Append userId if admin/agency
+            if ((isAdmin || isAgency) && calendarValues?.userId) {
+                formData.append("userId", calendarValues.userId);
+            }
         }
 
         for (let [key, value] of formData.entries()) {

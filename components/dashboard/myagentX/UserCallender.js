@@ -278,9 +278,26 @@ const UserCalender = ({
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
+      let currentUser = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
+        currentUser = UserDetails.user;
+      }
+
+      // Check if user is admin or agency
+      const isAdmin = currentUser?.userType === "admin";
+      const isAgency = currentUser?.userRole === "Agency";
+
+      // If admin or agency, userId is required
+      if ((isAdmin || isAgency) && !selectedUser?.id && !calendar?.userId) {
+        setIsVisible(true);
+        setMessage("userId is required when adding calendar as admin or agency");
+        setType(SnackbarTypes.Error);
+        setAddCalenderLoader(false);
+        setGoogleCalenderLoader(false);
+        setGHLCalenderLoader(false);
+        return;
       }
 
       let currentAgentDetails = null;
@@ -317,7 +334,10 @@ const UserCalender = ({
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
         formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
-        if (selectedUser) {
+        // Append userId if admin/agency (required) or if selectedUser exists
+        if ((isAdmin || isAgency) && (selectedUser?.id || calendar?.userId)) {
+          formData.append("userId", calendar?.userId || selectedUser?.id);
+        } else if (selectedUser) {
           formData.append("userId", selectedUser?.id);
         }
       } else if (calendar?.isFromAddGHLCal) {
@@ -339,7 +359,10 @@ const UserCalender = ({
         // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
 
-        if (selectedUser) {
+        // Append userId if admin/agency (required) or if selectedUser exists
+        if ((isAdmin || isAgency) && (selectedUser?.id || calendar?.userId)) {
+          formData.append("userId", calendar?.userId || selectedUser?.id);
+        } else if (selectedUser) {
           formData.append("userId", selectedUser?.id);
         }
         if (selectedAgent) {
@@ -357,7 +380,10 @@ const UserCalender = ({
         formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
 
-        if (selectedUser) {
+        // Append userId if admin/agency (required) or if selectedUser exists
+        if ((isAdmin || isAgency) && (selectedUser?.id || calendar?.userId)) {
+          formData.append("userId", calendar?.userId || selectedUser?.id);
+        } else if (selectedUser) {
           formData.append("userId", selectedUser?.id);
         }
         if (selectedAgent) {

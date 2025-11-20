@@ -1,0 +1,229 @@
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import RichTextEditor from "@/components/common/RichTextEditor";
+import LabelingHeader from "./LabelingHeader";
+import Apis from "@/components/apis/Apis";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { DEFAULT_TERMS_TEXT } from "@/constants/agencyTermsPrivacy";
+
+const TermsConfig = () => {
+  const [termsText, setTermsText] = useState("");
+  const [originalText, setOriginalText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [showSnackMessage, setShowSnackMessage] = useState({
+    type: SnackbarTypes.Error,
+    message: "",
+    isVisible: false
+  });
+  const richTextEditorRef = useRef(null);
+
+  // Fetch terms text on mount
+  useEffect(() => {
+    fetchTermsText();
+  }, []);
+
+  const fetchTermsText = async () => {
+    try {
+      setFetching(true);
+      const localData = localStorage.getItem("User");
+      let authToken = null;
+      
+      if (localData) {
+        const userData = JSON.parse(localData);
+        authToken = userData.token;
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: "Authentication required",
+          isVisible: true
+        });
+        setFetching(false);
+        return;
+      }
+
+      const response = await axios.get(Apis.getAgencyBranding, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response?.data?.status === true && response?.data?.data) {
+        const branding = response.data.data.branding || {};
+        const customTermsText = branding.termsText;
+        
+        if (customTermsText) {
+          // Use custom text if exists
+          setTermsText(customTermsText);
+          setOriginalText(customTermsText);
+        } else {
+          // Use default text from constants
+          setTermsText(DEFAULT_TERMS_TEXT);
+          setOriginalText(DEFAULT_TERMS_TEXT);
+        }
+      } else {
+        // No branding data, use default text from constants
+        setTermsText(DEFAULT_TERMS_TEXT);
+        setOriginalText(DEFAULT_TERMS_TEXT);
+      }
+    } catch (error) {
+      console.error("Error fetching terms text:", error);
+      // On error, use default text from constants
+      setTermsText(DEFAULT_TERMS_TEXT);
+      setOriginalText(DEFAULT_TERMS_TEXT);
+      if (error.response?.status !== 404) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: error.response?.data?.message || "Failed to fetch terms & conditions",
+          isVisible: true
+        });
+      }
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // Check if there are any unsaved changes
+  const hasChanges = () => {
+    return termsText !== originalText;
+  };
+
+  // Reset to original text
+  const handleReset = () => {
+    setTermsText(originalText);
+  };
+
+  // Save terms text
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const localData = localStorage.getItem("User");
+      let authToken = null;
+      
+      if (localData) {
+        const userData = JSON.parse(localData);
+        authToken = userData.token;
+      }
+
+      if (!authToken) {
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: "Authentication required",
+          isVisible: true
+        });
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.put(
+        Apis.updateAgencyTermsPrivacy,
+        {
+          termsText: termsText,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response?.data?.status === true) {
+        setOriginalText(termsText);
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: "Terms & conditions saved successfully",
+          isVisible: true
+        });
+      } else {
+        throw new Error(response?.data?.message || "Failed to save terms & conditions");
+      }
+    } catch (error) {
+      console.error("Error saving terms & conditions:", error);
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: error.response?.data?.message || error.message || "Failed to save terms & conditions",
+        isVisible: true
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
+    return (
+      <div className="w-full flex flex-row justify-center pt-8">
+        <div className="text-gray-500">Loading terms & conditions...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <AgentSelectSnackMessage
+        isVisible={showSnackMessage.isVisible}
+        hide={() => {
+          setShowSnackMessage({ type: SnackbarTypes.Error, message: "", isVisible: false });
+        }}
+        message={showSnackMessage.message}
+        type={showSnackMessage.type}
+      />
+      
+      {/* Header Section */}
+      <LabelingHeader
+        img={"/agencyIcons/copied.png"}
+        title={"Terms & Conditions"}
+        description={"Customize your terms & conditions text for your subaccounts. This will be displayed on your agency's terms page."}
+      />
+
+      {/* Terms Editor Card */}
+      <div className="w-full flex flex-row justify-center pt-8">
+        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
+          <div className="self-stretch">
+            <div className="text-black text-base font-normal leading-normal mb-2">
+              Terms & Conditions Content
+            </div>
+            <RichTextEditor
+              ref={richTextEditorRef}
+              value={termsText}
+              onChange={(html) => {
+                setTermsText(html);
+              }}
+              placeholder="Enter terms & conditions text..."
+            />
+          </div>
+
+          {/* Save Buttons */}
+          <div className="self-stretch inline-flex justify-between items-center mt-4">
+            {hasChanges() && (
+              <div
+                className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={handleReset}
+              >
+                <div className="text-slate-900 text-base font-normal leading-relaxed">Reset</div>
+              </div>
+            )}
+            <div 
+              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
+                loading 
+                  ? "bg-purple-400 cursor-not-allowed" 
+                  : "bg-purple-700 hover:bg-purple-800"
+              } ${!hasChanges() ? 'ml-auto' : ''}`}
+              onClick={loading ? undefined : handleSave}
+            >
+              <div className="text-white text-base font-normal leading-relaxed">
+                {loading ? "Saving..." : "Save Changes"}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TermsConfig;
+
