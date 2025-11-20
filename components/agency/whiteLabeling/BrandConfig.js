@@ -410,18 +410,6 @@ const BrandConfig = () => {
           localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding));
           window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: updatedBranding }));
         }
-
-        // Update cookie
-        const cookieValue = encodeURIComponent(JSON.stringify(updatedBranding));
-        document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`;
-        
-        // Update localStorage
-        localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding));
-
-        // Dispatch custom event to notify other components (like LoginComponent)
-        window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: updatedBranding }));
-
-        console.log('✅ [BrandConfig] Updated cookie and localStorage with new branding');
       }
 
     } catch (error) {
