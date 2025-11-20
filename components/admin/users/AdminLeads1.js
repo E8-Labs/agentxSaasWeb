@@ -1014,7 +1014,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <VideoCard
                   duration={(() => {
                     const tutorial = getTutorialByType(HowToVideoTypes.LeadsAndContacts);
-                    return tutorial?.description || "11 min 27 sec";
+                    return tutorial?.description || "11:27";
                   })()}
                   horizontal={false}
                   playVideo={() => {

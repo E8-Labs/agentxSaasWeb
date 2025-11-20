@@ -458,7 +458,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 <VideoCard
                   duration={(() => {
                     const tutorial = getTutorialByType(HowToVideoTypes.AgentConfiguration);
-                    return tutorial?.description || "1 min 38 sec";
+                    return tutorial?.description || "1:38";
                   })()}
                   horizontal={false}
                   playVideo={() => {

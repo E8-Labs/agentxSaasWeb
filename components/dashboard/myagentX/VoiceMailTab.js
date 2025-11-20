@@ -120,6 +120,9 @@ function VoiceMailTab({
           agentId: agent.id,
 
         }
+        if(selectedUser){
+          apidata.userId = selectedUser.id
+        }
         let response = await axios.post(Apis.setVoicemaeil, apidata, {
           headers: {
             "Authorization": "Bearer " + u.token

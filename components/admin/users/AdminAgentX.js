@@ -4468,7 +4468,7 @@ const [featureTitle, setFeatureTitle] = useState("");
                     activeTab={activeTab}
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
-
+  
                   />*/}
                   </div>
               ) : activeTab === "Pipeline" ? (
@@ -5085,7 +5085,7 @@ const [featureTitle, setFeatureTitle] = useState("");
                         <VideoCard
                           duration={(() => {
                             const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
-                            return tutorial?.description || "13 min 56 sec";
+                            return tutorial?.description || "13:56";
                           })()}
                           width="80"
                           height="100"

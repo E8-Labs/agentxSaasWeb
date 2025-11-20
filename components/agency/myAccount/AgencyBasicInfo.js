@@ -25,6 +25,7 @@ function AgencyBasicInfo({
 
   const [focusedEmail, setFocusedEmail] = useState(false);
   const [focusedWebsite, setFocusedWebsite] = useState(false);
+  const [focusedCompany, setFocusedCompany] = useState(false);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,12 +35,14 @@ function AgencyBasicInfo({
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isEmailChanged, setIsEmailChanged] = useState(false);
   const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState(false);
+  const [isCompanyChanged, setIsCompanyChanged] = useState(false);
 
   const [loading, setloading] = useState(false);
 
   const [loading5, setloading5] = useState(false);
   const [loading10, setLoading10] = useState(false);
   const [loading13, setLoading13] = useState(false);
+  const [loading14, setLoading14] = useState(false);
 
   // Email validation and checking states
   const [originalEmail, setOriginalEmail] = useState("");
@@ -457,6 +460,25 @@ function AgencyBasicInfo({
     }
   };
 
+  const handleCompanySave = async () => {
+    try {
+      setLoading14(true);
+      let data = {
+        company: company,
+      };
+      if (selectedAgency) {
+        data.userId = selectedAgency.id;
+      }
+      await UpdateProfile(data);
+      setIsCompanyChanged(false);
+      setLoading14(false);
+      showSuccess("Account Updated");
+    } catch (e) {
+      setLoading14(false);
+      // //console.log;
+    }
+  };
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
@@ -739,24 +761,36 @@ function AgencyBasicInfo({
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid `,
+          border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"}`,
           transition: "border-color 0.3s ease",
-          border: `1px solid ${"#00000010"}`,
         }}
       >
         <input
-          // readOnly
           className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
+          onFocus={() => setFocusedCompany(true)}
+          onBlur={() => setFocusedCompany(false)}
           value={company}
           onChange={(event) => {
-            setCompany(event.target.value)
+            setCompany(event.target.value);
+            setIsCompanyChanged(true);
           }}
           type="text"
           placeholder="Company"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
+        {isCompanyChanged &&
+          (loading14 ? (
+            <CircularProgress size={20} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleCompanySave();
+              }}
+              style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}
+            >
+              Save
+            </button>
+          ))}
       </div>
 
       <div

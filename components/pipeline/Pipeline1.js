@@ -703,7 +703,7 @@ const Pipeline1 = ({ handleContinue }) => {
             <VideoCard
               duration={(() => {
                 const tutorial = getTutorialByType(HowToVideoTypes.CRMIntegration);
-                return tutorial?.description || "8 min 17 sec";
+                return tutorial?.description || "8:17";
               })()}
               horizontal={false}
               playVideo={() => {

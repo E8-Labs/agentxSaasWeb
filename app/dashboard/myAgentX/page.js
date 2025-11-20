@@ -5959,7 +5959,7 @@ function Page() {
                     <div className="w-full">
                       <div className="w-5/12">
                         <VideoCard
-                          duration={"13 min 56 sec"}
+                          duration={"13:56"}
                           width="60"
                           height="40"
                           horizontal={false}

@@ -13,6 +13,7 @@ function LeadScoring({
     activeTab,
     setUserDetails,
     setShowDrawerSelectedAgent,
+    selectedUser,
 }) {
 
 
@@ -38,6 +39,7 @@ function LeadScoring({
                 agentId: showDrawerSelectedAgent?.id,
                 setTemplates: setTemplates,
                 setTemplatesLoading: setTemplatesLoading,
+                userId: selectedUser?.id,
             });
 
             // Also fetch agent's current scoring template
@@ -65,8 +67,12 @@ function LeadScoring({
 
         try {
             const token = AuthToken();
+            let path = `${Apis.getAgentScoring}/${showDrawerSelectedAgent.id}`
+            if(selectedUser){
+                path = path + "?userId=" + selectedUser.id;
+            }
             const response = await axios.get(
-                `${Apis.getAgentScoring}/${showDrawerSelectedAgent.id}`,
+                path,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -124,12 +130,21 @@ function LeadScoring({
 
         try {
             const token = AuthToken();
-            const path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}/copy-template`;
+            let path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}/copy-template`;
+            if(selectedUser){
+                path = path + "?userId=" + selectedUser.id;
+            }
 
-            const response = await axios.post(path, {
+            let body = {
                 agentId: showDrawerSelectedAgent?.id,
-                templateId: template.id,
-            }, {
+                templateId: template.id
+            }
+
+            if(selectedUser){
+                body.userId = selectedUser.id;
+            }
+
+            const response = await axios.post(path,body, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
@@ -148,6 +163,7 @@ function LeadScoring({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
+                        userId: selectedUser?.id,
                     });
                 } else {
                     showSnackbar('Error', response.data.message || 'Failed to apply template', SnackbarTypes.Error);
@@ -288,6 +304,7 @@ function LeadScoring({
 
             {/* Add Scoring Modal */}
             <AddScoringModal
+                selectedUser={selectedUser}
                 open={showAddScoringModal}
                 onClose={() => {
                     setShowAddScoringModal(false);
@@ -323,6 +340,7 @@ function LeadScoring({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
+                        userId: selectedUser?.id,
                     });
                     fetchAgentScoring();
                     // Reset editing state

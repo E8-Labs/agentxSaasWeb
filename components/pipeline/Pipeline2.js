@@ -776,7 +776,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             <VideoCard
               duration={(() => {
                 const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
-                return tutorial?.description || "13 min 56 sec";
+                return tutorial?.description || "13:56";
               })()}
               horizontal={false}
               playVideo={() => {

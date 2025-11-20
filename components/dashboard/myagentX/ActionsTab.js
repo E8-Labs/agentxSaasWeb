@@ -119,6 +119,7 @@ const ActionsTab = ({
                             setShowAddScoringModal={setShowAddScoringModal}
                             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                             setUserDetails={setUserDetails}
+                            selectedUser = {selectedUser}
                         />
                     )
                 ) : null
