@@ -372,6 +372,58 @@ const BrandConfig = () => {
       // Refresh data to get latest from server
       await fetchBrandingData();
 
+      // Update cookie and localStorage with new branding so login page shows it immediately
+      if (typeof window !== 'undefined') {
+        // Fetch fresh branding data to get all fields including companyName
+        try {
+          const freshResponse = await axios.get(Apis.getAgencyBranding, {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (freshResponse?.data?.status === true && freshResponse?.data?.data?.branding) {
+            const freshBranding = freshResponse.data.data.branding;
+            
+            // Update cookie and localStorage with complete branding data
+            const cookieValue = encodeURIComponent(JSON.stringify(freshBranding));
+            document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`;
+            localStorage.setItem('agencyBranding', JSON.stringify(freshBranding));
+
+            // Dispatch custom event to notify other components (like LoginComponent)
+            window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: freshBranding }));
+
+            console.log('✅ [BrandConfig] Updated cookie and localStorage with fresh branding data');
+          }
+        } catch (error) {
+          console.error('Error fetching fresh branding for cookie update:', error);
+          // Fallback: update with what we have
+          const updatedBranding = {
+            logoUrl: logoUrl || originalValues.logoUrl,
+            faviconUrl: faviconUrl || originalValues.faviconUrl,
+            primaryColor: primaryColor,
+            secondaryColor: secondaryColor,
+          };
+          const cookieValue = encodeURIComponent(JSON.stringify(updatedBranding));
+          document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`;
+          localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding));
+          window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: updatedBranding }));
+        }
+
+        // Update cookie
+        const cookieValue = encodeURIComponent(JSON.stringify(updatedBranding));
+        document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`;
+        
+        // Update localStorage
+        localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding));
+
+        // Dispatch custom event to notify other components (like LoginComponent)
+        window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: updatedBranding }));
+
+        console.log('✅ [BrandConfig] Updated cookie and localStorage with new branding');
+      }
+
     } catch (error) {
       console.error("Error saving branding:", error);
       setShowSnackMessage({

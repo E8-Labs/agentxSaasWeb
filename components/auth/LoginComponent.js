@@ -91,36 +91,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     };
 
     const fetchBranding = async () => {
-      // Try to get branding from cookie first (set by middleware)
-      const brandingCookie = getCookie('agencyBranding');
-      if (brandingCookie) {
-        try {
-          const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
-          // Store in localStorage for persistence
-          localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
-          setAgencyBranding(brandingData);
-          return;
-        } catch (error) {
-          console.log('Error parsing agencyBranding cookie:', error);
-        }
-      }
-
-      // Fallback to localStorage if cookie not found
-      const storedBranding = localStorage.getItem('agencyBranding');
-      if (storedBranding) {
-        try {
-          const brandingData = JSON.parse(storedBranding);
-          setAgencyBranding(brandingData);
-          return;
-        } catch (error) {
-          console.log('Error parsing agencyBranding from localStorage:', error);
-        }
-      }
-
-      // If no branding found in cookie/localStorage, try to fetch from API
-      // Get agencyId from cookie
-      const agencyIdCookie = getCookie('agencyId');
-      if (agencyIdCookie) {
+      // Always fetch fresh branding from API on first load to ensure we have the latest data
+      // This ensures we get updated branding even if cookies are stale
+      const fetchFromAPI = async () => {
         try {
           const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 
             (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -148,15 +121,75 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               document.cookie = `agencyBranding=${encodeURIComponent(JSON.stringify(brandingData))}; path=/; max-age=${60 * 60 * 24}`;
               localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
               setAgencyBranding(brandingData);
+              console.log('✅ [LoginComponent] Fetched fresh branding from API:', brandingData);
+              return true;
             }
           }
         } catch (error) {
           console.log('Error fetching branding from API:', error);
         }
+        return false;
+      };
+
+      // Try cookie first for immediate display (if available)
+      const brandingCookie = getCookie('agencyBranding');
+      if (brandingCookie) {
+        try {
+          const brandingData = JSON.parse(decodeURIComponent(brandingCookie));
+          // Store in localStorage for persistence
+          localStorage.setItem('agencyBranding', JSON.stringify(brandingData));
+          setAgencyBranding(brandingData);
+          console.log('✅ [LoginComponent] Using branding from cookie');
+          
+          // Still fetch from API in background to ensure we have latest data
+          // This handles the case where branding was just updated
+          fetchFromAPI();
+          return;
+        } catch (error) {
+          console.log('Error parsing agencyBranding cookie:', error);
+        }
       }
+
+      // Fallback to localStorage if cookie not found
+      const storedBranding = localStorage.getItem('agencyBranding');
+      if (storedBranding) {
+        try {
+          const brandingData = JSON.parse(storedBranding);
+          setAgencyBranding(brandingData);
+          console.log('✅ [LoginComponent] Using branding from localStorage');
+          
+          // Still fetch from API in background
+          fetchFromAPI();
+          return;
+        } catch (error) {
+          console.log('Error parsing agencyBranding from localStorage:', error);
+        }
+      }
+
+      // If no branding found, fetch from API
+      await fetchFromAPI();
     };
 
     fetchBranding();
+
+    // Listen for branding updates from other components (e.g., BrandConfig)
+    const handleBrandingUpdate = (event) => {
+      console.log('🔄 [LoginComponent] Branding updated event received', event.detail);
+      const updatedBranding = event.detail;
+      // Update cookie and localStorage
+      if (updatedBranding) {
+        const cookieValue = encodeURIComponent(JSON.stringify(updatedBranding));
+        document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`;
+        localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding));
+        setAgencyBranding(updatedBranding);
+      }
+    };
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate);
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate);
+    };
   }, []);
 
   useEffect(() => {
