@@ -382,6 +382,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
                             router.push("/agency/dashboard");
                         } else {
                             console.log("call router.push to verify");
+                            setIsRedirecting(true);
                             router.push("/agency/verify");
                         }
 
