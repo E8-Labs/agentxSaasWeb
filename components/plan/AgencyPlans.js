@@ -81,6 +81,10 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
     // Redirecting loader state
     const [isRedirecting, setIsRedirecting] = useState(false);
 
+    // Subscription payment failure tracking
+    const [subscriptionPaymentFailed, setSubscriptionPaymentFailed] = useState(false);
+    const [failedPlanId, setFailedPlanId] = useState(null);
+
     useEffect(() => {
         getPlans();
         getCurrentUserPlan();
@@ -210,8 +214,12 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
         console.log("Card added details are here", data);
         if (data) {
             const userProfile = await getProfileDetails();
+            // Clear failure state when card is successfully added
+            setSubscriptionPaymentFailed(false);
+            setFailedPlanId(null);
         }
         setAddPaymentPopUp(false);
+        // Retry subscription after card is added
         handleSubscribePlan()
     };
 
@@ -306,6 +314,15 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
     //code to subscribeplan handleSubscribePlan
     //subscribe plan
     const handleSubscribePlan = async (planId = null) => {
+        // Determine the actual plan ID to use
+        const actualPlanId = planId?.id || planId || togglePlan;
+
+        // Check if there was a previous payment failure for this plan
+        if (subscriptionPaymentFailed && failedPlanId === actualPlanId) {
+            console.log('🧪 Previous payment failure detected for this plan - showing add card modal immediately');
+            setAddPaymentPopUp(true);
+            return;
+        }
 
         // setAddPaymentPopUp(true);
 // return
@@ -329,11 +346,11 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
 
         if (isPaymentMethodAdded) {
             try {
-                setSubPlanLoader(planId ? planId.id : togglePlan);
+                setSubPlanLoader(actualPlanId);
                 const Token = AuthToken();
                 const ApiPath = Apis.subAgencyAndSubAccountPlans;
                 const formData = new FormData();
-                formData.append("planId", planId ? planId.id : togglePlan);
+                formData.append("planId", actualPlanId);
                 for (let [key, value] of formData.entries()) {
                     console.log(`${key} = ${value}`);
                 }
@@ -348,6 +365,10 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
                     console.log("Response of subscribe subaccount plan is", response.data);
                     setSubPlanLoader(null);
                     if (response.data.status === true) {
+                        // Clear failure state on successful subscription
+                        setSubscriptionPaymentFailed(false);
+                        setFailedPlanId(null);
+                        
                         setErrorMsg(response.data.message);
                         setSnackMsgType(SnackbarTypes.Success);
                         localStorage.removeItem("subPlan");
@@ -365,10 +386,25 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
                         }
 
                     } else if (response.data.status === false) {
-                        setErrorMsg(response.data.message);
-                        setSnackMsgType(SnackbarTypes.Error);
-                        if (response.data.message === "No payment method added") {
+                        // Check if this is a subscription payment failure (not renewal)
+                        const isSubscriptionFailure = response.data.cardFailed === true && 
+                                                       response.data.isSubscription === true;
+                        
+                        if (isSubscriptionFailure) {
+                            console.log('💳 Subscription payment failure detected - will show add card modal on retry');
+                            setSubscriptionPaymentFailed(true);
+                            setFailedPlanId(actualPlanId);
+                            setErrorMsg(response.data.message || 'Card payment failed. Please add a new payment method and try again.');
+                            setSnackMsgType(SnackbarTypes.Error);
+                            // Show add card modal immediately
                             setAddPaymentPopUp(true);
+                        } else {
+                            // Regular error (not a subscription payment failure)
+                            setErrorMsg(response.data.message);
+                            setSnackMsgType(SnackbarTypes.Error);
+                            if (response.data.message === "No payment method added") {
+                                setAddPaymentPopUp(true);
+                            }
                         }
                     }
                 }
@@ -917,6 +953,9 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false, hideProgr
                                         onClick={() => {
                                             setAddPaymentPopUp(false);
                                             setIsContinueMonthly(false);
+                                            // Clear failure state when user manually closes modal
+                                            setSubscriptionPaymentFailed(false);
+                                            setFailedPlanId(null);
                                         }}
                                     />
                                 </div>

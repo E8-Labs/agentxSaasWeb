@@ -88,8 +88,38 @@ function UserPlans({
     const [routedFrom, setRoutedFrom] = useState(isFrom)
 
     const [showRoutingLoader, setShowRoutingLoader] = useState(false);
+    const [shouldAutoSubscribe, setShouldAutoSubscribe] = useState(false);
 
-
+    // Helper function to check if user has payment methods
+    const hasPaymentMethod = () => {
+        try {
+            // First check localStorage (primary source)
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const userData = JSON.parse(localData);
+                const cards = userData?.data?.user?.cards;
+                console.log("🔍 [hasPaymentMethod] Checking localStorage cards:", cards);
+                if (Array.isArray(cards) && cards.length > 0) {
+                    console.log("✅ [hasPaymentMethod] Found payment method in localStorage");
+                    return true;
+                }
+            }
+            // Fallback to Redux user data (check both reduxUser.cards and reduxUser.user.cards)
+            if (reduxUser?.cards && Array.isArray(reduxUser.cards) && reduxUser.cards.length > 0) {
+                console.log("✅ [hasPaymentMethod] Found payment method in reduxUser.cards");
+                return true;
+            }
+            if (reduxUser?.user?.cards && Array.isArray(reduxUser.user.cards) && reduxUser.user.cards.length > 0) {
+                console.log("✅ [hasPaymentMethod] Found payment method in reduxUser.user.cards");
+                return true;
+            }
+            console.log("❌ [hasPaymentMethod] No payment method found");
+            return false;
+        } catch (error) {
+            console.error("Error checking payment methods:", error);
+            return false;
+        }
+    };
 
     useEffect(() => {
         console.log("reduxUser", reduxUser)
@@ -127,6 +157,17 @@ function UserPlans({
     const handleClose = async (data) => {
         console.log("Card added details are here", data);
         if (data) {
+            // Refresh user data to get updated cards
+            await refreshUserData();
+            
+            // If we should auto-subscribe after adding card, do it now
+            if (shouldAutoSubscribe && selectedPlan) {
+                setAddPaymentPopUp(false);
+                setShouldAutoSubscribe(false);
+                await handleSubscribePlan();
+                return;
+            }
+            
             // const userProfile = await getProfileDetails();
             if (isFrom == "Agency" || routedFrom == "Agency") {
                 router.push("/agency/dashboard")
@@ -141,6 +182,7 @@ function UserPlans({
                 }
             }
             setAddPaymentPopUp(false);
+            setShouldAutoSubscribe(false);
             // handleSubscribePlan()
         }
     };
@@ -435,22 +477,43 @@ function UserPlans({
         setShowYearlyPlanModal(false);
 
         // Check if the yearly plan is free before showing payment popup
-        if (selectedPlan && selectedPlan.discountedPrice === 0) {
+        const isFreePlan = selectedPlan && (selectedPlan.discountedPrice === 0 || selectedPlan.discountedPrice === null);
+        const hasPM = hasPaymentMethod();
+
+        if (isFreePlan) {
             // Free yearly plan - subscribe directly
             await handleSubscribePlan();
         } else {
-            // Paid yearly plan - show payment popup
-            setAddPaymentPopUp(true);
+            // Paid yearly plan - check for payment method
+            if (hasPM) {
+                // User has PM - subscribe directly
+                await handleSubscribePlan();
+            } else {
+                // User doesn't have PM - show payment modal and set auto-subscribe flag
+                setShouldAutoSubscribe(true);
+                setAddPaymentPopUp(true);
+            }
         }
     };
 
     const handleContinueMonthly = async () => {
         // Proceed with monthly plan
+        const isFreePlan = selectedMonthlyPlan.discountedPrice === 0 || selectedMonthlyPlan.discountedPrice === null;
+        const hasPM = hasPaymentMethod();
 
-        if (selectedMonthlyPlan.discountedPrice === 0) {
+        if (isFreePlan) {
+            // Free monthly plan - subscribe directly
             await handleSubscribePlan()
         } else {
-            setAddPaymentPopUp(true);
+            // Paid monthly plan - check for payment method
+            if (hasPM) {
+                // User has PM - subscribe directly
+                await handleSubscribePlan();
+            } else {
+                // User doesn't have PM - show payment modal and set auto-subscribe flag
+                setShouldAutoSubscribe(true);
+                setAddPaymentPopUp(true);
+            }
         }
 
         setShowYearlyPlanModal(false);
@@ -687,13 +750,10 @@ function UserPlans({
                                                             console.log("isFrom in user plans", isFrom)
                                                             if (reduxUser?.consecutivePaymentFailures >= 3) {
                                                                 setTimeout(() => {
+                                                                    setShouldAutoSubscribe(true);
                                                                     setAddPaymentPopUp(true)
                                                                 }, 300)
                                                                 return;
-                                                            }
-                                                            if(reduxUser?.userRole === "Agency") {
-                                                               handleSubscribePlan()
-                                                               return;
                                                             }
 
                                                             // If opened from billing modal, callback with selected plan
@@ -702,18 +762,70 @@ function UserPlans({
                                                                 return;
                                                             }
 
-                                                            if(reduxUser.userRole === "AgentX"){
+                                                            // Check if plan is free
+                                                            const isFreePlan = item.discountedPrice === 0 || item.discountedPrice === null;
+                                                            
+                                                            // Check if user has payment method
+                                                            const hasPM = hasPaymentMethod();
+                                                            console.log("🔍 [Subscribe Click] Plan:", item.name, "Price:", item.discountedPrice, "isFreePlan:", isFreePlan, "hasPM:", hasPM, "userRole:", reduxUser?.userRole || reduxUser?.user?.userRole);
+
+                                                            // Handle Agency users
+                                                            if(reduxUser?.userRole === "Agency" || reduxUser?.user?.userRole === "Agency") {
+                                                                if (isFreePlan) {
+                                                                    // Free plan - subscribe directly
+                                                                    handleSubscribePlan()
+                                                                } else {
+                                                                    // Paid plan - check for payment method
+                                                                    if (hasPM) {
+                                                                        // User has PM - subscribe directly
+                                                                        handleSubscribePlan()
+                                                                    } else {
+                                                                        // User doesn't have PM - show payment modal and set auto-subscribe flag
+                                                                        setShouldAutoSubscribe(true);
+                                                                        setAddPaymentPopUp(true);
+                                                                    }
+                                                                }
+                                                                return;
+                                                            }
+
+                                                            // Handle AgentX users
+                                                            if(reduxUser?.userRole === "AgentX" || reduxUser?.user?.userRole === "AgentX"){
                                                                 if (selectedDuration.id === 1 || selectedDuration.id === 2) {
                                                                     // Monthly plan selected - show yearly plan modal
                                                                     setSelectedMonthlyPlan(item);
                                                                     setShowYearlyPlanModal(true);
+                                                                } else {
+                                                                    // Yearly plan selected - check for payment method
+                                                                    if (isFreePlan) {
+                                                                        // Free plan - subscribe directly
+                                                                        handleSubscribePlan()
+                                                                    } else {
+                                                                        // Paid plan - check for payment method
+                                                                        if (hasPM) {
+                                                                            // User has PM - subscribe directly
+                                                                            handleSubscribePlan()
+                                                                        } else {
+                                                                            // User doesn't have PM - show payment modal and set auto-subscribe flag
+                                                                            setShouldAutoSubscribe(true);
+                                                                            setAddPaymentPopUp(true);
+                                                                        }
+                                                                    }
                                                                 }
                                                             } else {
-                                                                if (item.discountedPrice > 0) {
-                                                                    // Quarterly or Yearly plan - proceed directly
-                                                                    setAddPaymentPopUp(true)
-                                                                } else {
+                                                                // Handle other user roles
+                                                                if (isFreePlan) {
+                                                                    // Free plan - subscribe directly
                                                                     handleSubscribePlan()
+                                                                } else {
+                                                                    // Paid plan - check for payment method
+                                                                    if (hasPM) {
+                                                                        // User has PM - subscribe directly
+                                                                        handleSubscribePlan()
+                                                                    } else {
+                                                                        // User doesn't have PM - show payment modal and set auto-subscribe flag
+                                                                        setShouldAutoSubscribe(true);
+                                                                        setAddPaymentPopUp(true);
+                                                                    }
                                                                 }
                                                             }
                                                         }}
@@ -860,6 +972,7 @@ function UserPlans({
                             <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
                                 <button onClick={() => {
                                     setAddPaymentPopUp(false);
+                                    setShouldAutoSubscribe(false);
                                     // setIsContinueMonthly(false);
                                 }}>
                                     <Image
