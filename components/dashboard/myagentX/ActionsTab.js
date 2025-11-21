@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import UserCalender from './UserCallender'
 import LeadScoring from './leadScoring/LeadScoring'
 import { useUser } from '@/hooks/redux-hooks';
@@ -25,6 +25,37 @@ const ActionsTab = ({
 
     const [selectedActionTab, setSelectedActionTab] = useState(1);
 
+    // Check if user has access to Tools
+    const hasToolsAccess = useMemo(() => {
+        // Check agency capabilities first (for subaccounts)
+        // If undefined/null/false, no access
+        if (reduxUser?.agencyCapabilities?.allowToolsAndActions !== true) {
+            return false;
+        }
+        // Check plan capabilities (for regular users)
+        // If undefined/null/false, no access
+        if (reduxUser?.planCapabilities?.allowToolsAndActions !== true) {
+            return false;
+        }
+        return true;
+    }, [reduxUser]);
+
+    // Check if user has access to Lead Scoring
+    const hasLeadScoringAccess = useMemo(() => {
+        // Check agency capabilities first (for subaccounts)
+        // If undefined/null/false, no access
+        if (reduxUser?.agencyCapabilities?.allowLeadScoring !== true) {
+            return false;
+        }
+        // Check plan capabilities (for regular users)
+        // If undefined/null/false, no access
+        if (reduxUser?.planCapabilities?.allowLeadScoring !== true) {
+            return false;
+        }
+        return true;
+    }, [reduxUser]);
+
+    // Always show all tabs
     const actionsTab = [
         {
             id: 1,
@@ -38,7 +69,7 @@ const ActionsTab = ({
             id: 3,
             title: "Lead Scoring"
         },
-    ]
+    ];
 
     return (
         <div>
@@ -86,13 +117,18 @@ const ActionsTab = ({
                         />
                     )
                 ) : selectedActionTab === 2 ? (
-                    reduxUser?.userRole === "AgencySubAccount" && reduxUser?.agencyCapabilities?.allowToolsAndActions === false ? (
+                    // Tools Tab
+                    !hasToolsAccess ? (
+                        // UpgardView automatically handles both cases:
+                        // - If agencyCapabilities.allowToolsAndActions === false → Shows "Request Feature" button
+                        // - If planCapabilities.allowToolsAndActions === false → Shows "Upgrade Plan" button
                         <UpgardView
                             setShowSnackMsg={setShowSnackMsg}
                             title={"Unlock Actions"}
                             subTitle={"Upgrade to enable tools and actions for your agents."}
                         />
                     ) : (
+                        // User has access - show tools
                         <UserCalender
                             calendarDetails={calendarDetails}
                             setUserDetails={setUserDetails}
@@ -107,20 +143,25 @@ const ActionsTab = ({
                         />
                     )
                 ) : selectedActionTab === 3 ? (
-                    reduxUser?.userRole === "AgencySubAccount" && reduxUser?.agencyCapabilities?.allowLeadScoring === false ? (
+                    // Lead Scoring Tab
+                    !hasLeadScoringAccess ? (
+                        // UpgardView automatically handles both cases:
+                        // - If agencyCapabilities.allowLeadScoring === false → Shows "Request Feature" button
+                        // - If planCapabilities.allowLeadScoring === false → Shows "Upgrade Plan" button
                         <UpgardView
                             setShowSnackMsg={setShowSnackMsg}
                             title={"Unlock Lead Scoring"}
                             subTitle={"Upgrade to enable lead scoring for your agents."}
                         />
                     ) : (
+                        // User has access - show lead scoring
                         <LeadScoring
                             activeTab={activeTab}
                             showDrawerSelectedAgent={showDrawerSelectedAgent}
                             setShowAddScoringModal={setShowAddScoringModal}
                             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                             setUserDetails={setUserDetails}
-                            selectedUser = {selectedUser}
+                            selectedUser={selectedUser}
                         />
                     )
                 ) : null

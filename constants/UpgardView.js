@@ -47,6 +47,8 @@ function UpgardView({
                 setShowUnlockPremiumFeaturesBtn(true);
             } else if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
                 setShowUnlockPremiumFeaturesBtn(true);
+            } else if (reduxUser?.agencyCapabilities?.allowLeadScoring === false) {
+                setShowUnlockPremiumFeaturesBtn(true);
             } else
                 if (title === "Enable Live Transfer") {
                     if (!Data?.allowLiveCallTransfer) {
@@ -62,6 +64,10 @@ function UpgardView({
                     }
                 } else if (title === "Unlock Voicemail" || title === "Enable Voicemail") {
                     if (!Data?.allowVoicemail) {
+                        setShowUnlockPremiumFeaturesBtn(true);
+                    }
+                } else if (title === "Unlock Lead Scoring") {
+                    if (!Data?.allowLeadScoring) {
                         setShowUnlockPremiumFeaturesBtn(true);
                     }
                 }

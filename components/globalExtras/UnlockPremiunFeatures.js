@@ -62,6 +62,10 @@ const UnlockPremiunFeatures = ({
                 if (!Data?.allowCalendarIntegration) {
                     setFeatureTitleValue("CalendarIntegration");
                 }
+            } else if (title === "Unlock Lead Scoring") {
+                if (!Data?.allowLeadScoring) {
+                    setFeatureTitleValue("LeadScoring");
+                }
             } else {
                 setFeatureTitleValue(title);
             }

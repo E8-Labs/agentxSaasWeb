@@ -54,13 +54,13 @@ const DashboardSlider = ({
       image2: "/otherAssets/supportBlue.jpg",
       url: PersistanceKeys.SupportWebinarUrl,
     },
-    {
-      id: 3,
-      label: "Ask Sky for Help",
-      image: "/otherAssets/askSkyBlack.jpg",
-      image2: "/otherAssets/askSkyBlue.jpg",
-      url: PersistanceKeys.SupportWebinarUrl,
-    },
+    // {
+    //   id: 3,
+    //   label: "Ask Sky for Help",
+    //   image: "/otherAssets/askSkyBlack.jpg",
+    //   image2: "/otherAssets/askSkyBlue.jpg",
+    //   url: PersistanceKeys.SupportWebinarUrl,
+    // },
     // {
     //   id: 4,
     //   label: "Chat Sky for Help",
