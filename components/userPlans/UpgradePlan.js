@@ -730,7 +730,7 @@ function UpgradePlanContent({
         const currentPlanId = Number(currentUserPlan.planId);
         
         // Only log when there's a potential match to reduce noise
-        if (itemPlanId === currentPlanId) {
+        if (itemPlanId === currentPlanId && currentUserPlan.status !== "cancelled") {
             console.log("✅ isPlanCurrent: plan IDs match - THIS IS THE CURRENT PLAN", { 
                 itemPlanId, 
                 currentPlanId,

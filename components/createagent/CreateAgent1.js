@@ -801,7 +801,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <VideoCard
               duration={(() => {
                 const tutorial = getTutorialByType(HowToVideoTypes.GettingStarted);
-                return tutorial?.description || "1 min 47 sec";
+                return tutorial?.description || "1:47";
               })()}
               horizontal={false}
               playVideo={() => {

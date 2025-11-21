@@ -595,7 +595,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             }}
           >
             <VideoCard
-              duration={"1 min 52 sec"}
+              duration={"1:52"}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);

@@ -1,13 +1,38 @@
 import Image from "next/image";
 
+/**
+ * Formats duration string to mm:ss format
+ * Handles formats like:
+ * - "16 min 30 sec" -> "16:30"
+ * - "1 min 38 sec" -> "1:38"
+ * - "2 mins" -> "2:00"
+ * - "2 mins 5 sec" -> "2:05"
+ */
+const formatDuration = (duration) => {
+  if (!duration || typeof duration !== "string") {
+    return duration || "0:00";
+  }
+
+  // Extract minutes and seconds using regex
+  const minMatch = duration.match(/(\d+)\s*(?:min|mins|minute|minutes)/i);
+  const secMatch = duration.match(/(\d+)\s*(?:sec|secs|second|seconds)/i);
+
+  const minutes = minMatch ? parseInt(minMatch[1], 10) : 0;
+  const seconds = secMatch ? parseInt(secMatch[1], 10) : 0;
+
+  // Format as mm:ss
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
 const VideoCard = ({
   playVideo,
   horizontal = true,
   title,
   duration = "2 mins",
   width = "80",
-  height = "150",
+  height = "180",
 }) => {
+  const formattedDuration = formatDuration(duration);
   return (
     <div
       className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"

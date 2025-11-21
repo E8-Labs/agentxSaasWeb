@@ -727,7 +727,7 @@ function MCPView({
                 <div className="flex flex-col w-full flex-col items-center justify-center">
                     <div className="w-6/12">
                         <VideoCard
-                            duration="1 min 47 sec"
+                            duration="1:47"
                             horizontal={false}
                             playVideo={() => {
                                 setIntroVideoModal2(true);

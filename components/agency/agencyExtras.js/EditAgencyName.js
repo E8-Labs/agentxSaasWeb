@@ -25,11 +25,11 @@ const EditAgencyName = ({
     useEffect(() => {
         fetchData();
 
-    }, []);
+    }, [reduxUser?.company]); // Watch for changes in reduxUser.company
 
     const fetchData = async () => {
         setUserData(reduxUser);
-        setAgencyName(reduxUser?.company);
+        setAgencyName(reduxUser?.company || "");
     }
 
 
@@ -43,6 +43,17 @@ const EditAgencyName = ({
             // return
             const response = await UpdateProfile(data);
             console.log("Response of update api is", response);
+            
+            // Update Redux store with updated user data from API response
+            if (response) {
+                const localData = JSON.parse(localStorage.getItem("User") || '{}');
+                const updatedUserData = {
+                    token: localData.token,
+                    user: response // response is the updated user object from UpdateProfile
+                };
+                setReduxUser(updatedUserData);
+            }
+            
             setSnackMsg("Agency Name Updated");
             setloading(false);
             setShowEditModal(false);
@@ -68,26 +79,22 @@ const EditAgencyName = ({
             />
             <div className='flex w-full flex-row justify-start items-center gap-2'>
                 <div className='sm:text-lg lg:text-2xl lg:font-bold truncate overflow-hidden whitespace-nowrap'>
-                    {agencyName}
+                    {agencyName || "Agency Name"}
                 </div>
-                {
-                    agencyName && (
-                        <button
-                            type="button"
-                            className='border-none outline-none'
-                            onClick={() => {
-                                setShowEditModal(true);
-                            }}
-                        >
-                            <Image
-                                src="/otherAssets/editIcon.png"
-                                alt="*"
-                                height={20}
-                                width={20}
-                            />
-                        </button>
-                    )
-                }
+                <button
+                    type="button"
+                    className='border-none outline-none'
+                    onClick={() => {
+                        setShowEditModal(true);
+                    }}
+                >
+                    <Image
+                        src="/otherAssets/editIcon.png"
+                        alt="*"
+                        height={20}
+                        width={20}
+                    />
+                </button>
             </div>
             {
                 setShowEditModal && (

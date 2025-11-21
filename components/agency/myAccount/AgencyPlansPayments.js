@@ -1010,6 +1010,11 @@ function AgencyPlansPayments({
 
         if (!togglePlan) return "Select a Plan";
         
+        // If agency has no plan at all, show "Subscribe" when a plan is selected
+        if (!userLocalData?.plan || !currentPlan) {
+            return "Subscribe";
+        }
+        
         // Check user's plan status from userLocalData (not currentPlanDetails which is from DB)
         // currentPlanDetails comes from database plan list and doesn't have status field
         if (userLocalData?.plan?.status === "cancelled") {

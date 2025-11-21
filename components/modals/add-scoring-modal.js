@@ -186,6 +186,7 @@ const AddScoringModal = ({
   agentId,
   selectedAgent,
   loading = false,
+  selectedUser,
   ...props
 }) => {
   const [formData, setFormData] = useState({
@@ -225,10 +226,11 @@ const AddScoringModal = ({
         setTemplates: setTemplates,
         setTemplatesLoading: setTemplatesLoading,
         // Don't auto-select in modal - let user choose from dropdown
-        setSelectedTemplate: null
+        setSelectedTemplate: null,
+        userId: selectedUser?.id,
       });
     }
-  }, [open, agentId]);
+  }, [open, agentId, selectedUser]);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -526,6 +528,10 @@ const AddScoringModal = ({
       }
       if (editingTemplate) {
         submissionData.templateId = editingTemplate.id
+      }
+
+      if(selectedUser){
+        submissionData.userId = selectedUser.id
       }
 
       console.log('Submission data:', submissionData);

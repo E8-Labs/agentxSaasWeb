@@ -82,6 +82,7 @@ const ActionsTab = ({
                             setShowUpgradeModal={setShowUpgradeModal}
                             showTools={false}
                             selectedUser={selectedUser}
+                            selectedActionTab={selectedActionTab}
                         />
                     )
                 ) : selectedActionTab === 2 ? (
@@ -120,6 +121,7 @@ const ActionsTab = ({
                             setShowAddScoringModal={setShowAddScoringModal}
                             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                             setUserDetails={setUserDetails}
+                            selectedUser = {selectedUser}
                         />
                     )
                 ) : null

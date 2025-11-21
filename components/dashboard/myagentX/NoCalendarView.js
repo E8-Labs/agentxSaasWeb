@@ -58,7 +58,7 @@ export default function NoCalendarView({
 
         <div className="w-6/12">
           <VideoCard
-            duration="1 min 47 sec"
+            duration="1:47"
             horizontal={false}
             playVideo={() => {
               setIntroVideoModal(true);

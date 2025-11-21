@@ -10,6 +10,7 @@ import {
   Modal,
   Snackbar,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
@@ -74,7 +75,7 @@ function AdminXbarServices({ selectedUser }) {
     useState(false);
 
   const [role, setRole] = useState("")
-
+  const [selectedUserDetails, setSelectedUserDetails] = useState(null);
   useEffect(() => {
     let screenWidth = 1000;
     if (typeof window !== "undefined") {
@@ -153,6 +154,7 @@ function AdminXbarServices({ selectedUser }) {
       if (response) {
         console.log("Response of get profile apis is",response)
         setRole(response?.userRole)
+        setSelectedUserDetails(response?.data?.data); 
         let togglePlan = response?.supportPlan;
         // let togglePlan = plan?.type;
         let planType = null;
@@ -354,6 +356,20 @@ function AdminXbarServices({ selectedUser }) {
     return planType;
   };
 
+  const handleSpeakToAGenius = () => {
+    console.log("Selected user details are", selectedUserDetails)
+    if(role !== "Agency"){
+      let url = PersistanceKeys.GlobalConsultationUrl;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
+    } else {
+      let url = selectedUserDetails?.userSettings?.hireTeamUrl;
+      if (typeof window !== "undefined") {
+        window.open(url, "_blank");
+      }
+    }
+  }
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -451,18 +467,24 @@ function AdminXbarServices({ selectedUser }) {
             </p>
             <div className="flex flex-row justify-between">
               <div></div>
-              <button
-                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
-                onClick={(e) => {
-                  //console.log;
-                  let url = PersistanceKeys.GlobalConsultationUrl;
-                  if (typeof window !== "undefined") {
-                    window.open(url, "_blank");
-                  }
-                }}
-              >
-                Speak to a Genius
-              </button>
+
+
+             <Tooltip title={`${!selectedUserDetails?.userSettings?.hireTeamTitle && "Unavailable"}`}
+                  placement="top"
+                 arrow
+                  componentsProps={{
+                       tooltip: { sx: { backgroundColor: "#ffffff", color: "#333", fontSize: "14px", padding: "10px 15px", borderRadius: "8px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" }, }, arrow: { sx: { color: "#ffffff" } }, }}>
+                  <button
+                    className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                    onClick={(e) => {
+                      handleSpeakToAGenius();
+                    }}
+                  >
+                    Speak to a Genius
+                  </button>
+                </Tooltip>
+
+
             </div>
           </div>
         </div>

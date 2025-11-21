@@ -8,9 +8,11 @@ export const fetchTemplates = async ({
     agentId,
     setTemplates,
     setTemplatesLoading,
+    userId,
 }) => {
   if (!agentId) return;
 
+  console.log('userId in fetch templates', userId);
   setTemplatesLoading(true);
   try {
     let AuthToken = null;
@@ -22,10 +24,16 @@ export const fetchTemplates = async ({
 
     console.log('Fetching templates for agentId:', agentId);
     console.log('Auth token:', AuthToken);
-    console.log('API URL:', Apis.getScoringTemplates);
+
+    let path =   Apis.getScoringTemplates
+
+    if(userId){
+      path = path + "?userId=" + userId;
+    }
+    console.log('API URL:', path);
 
     const response = await axios.get(
-      Apis.getScoringTemplates,
+    path,
       {
         headers: {
           'Authorization': `Bearer ${AuthToken}`,

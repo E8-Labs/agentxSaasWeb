@@ -264,6 +264,15 @@ const AgencyNavBar = () => {
           router.push("/plan");
           // setShowPaymentFailedPopup(false)
         }
+        
+        // Update Redux store with fresh profile data
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const updatedUserData = {
+          token: localData.token,
+          user: agencyProfileData
+        };
+        setReduxUser(updatedUserData);
+        
         setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
           const d = {

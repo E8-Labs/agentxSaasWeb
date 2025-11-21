@@ -232,12 +232,20 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             member?.phone?.trim() === ""
         );
 
+        // Check for email errors
+        const hasEmailError = validEmail === "Invalid" || (emailCheckResponse && emailCheckResponse.status === false);
+        
+        // Check for phone errors
+        const hasPhoneError = errorMessage === "Invalid" || (checkPhoneResponse && checkPhoneResponse.status === false);
+
         if (
             subAccountName?.trim() === "" ||
             userEmail?.trim() === "" ||
             userPhoneNumber?.trim() === "" ||
             selectedUserType?.trim() === "" ||
-            fullName?.trim() === ""
+            fullName?.trim() === "" ||
+            hasEmailError ||
+            hasPhoneError
             // hasEmptyTeamMember
         ) {
             console.log("Cannot continue");
@@ -245,7 +253,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
         } else {
             setShouldContinue(false);
         }
-    }, [subAccountName, userEmail, userPhoneNumber, selectedUserType, fullName]);
+    }, [subAccountName, userEmail, userPhoneNumber, selectedUserType, fullName, validEmail, emailCheckResponse, errorMessage, checkPhoneResponse]);
 
 
 
