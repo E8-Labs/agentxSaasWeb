@@ -1,10 +1,27 @@
-import React, { useRef, useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useMemo, forwardRef, useImperativeHandle, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import DOMPurify from 'dompurify';
 import 'react-quill-new/dist/quill.snow.css';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+
+// Normalize HTML content to ensure proper block structure
+const normalizeContent = (html) => {
+  if (!html || typeof html !== 'string') return '';
+  
+  // Trim whitespace but preserve structure
+  let normalized = html.trim();
+  
+  // If content starts with a heading, add a leading paragraph to allow editing before it
+  // This paragraph will be invisible/hidden but allows cursor positioning
+  if (normalized.match(/^<h[2-4]/)) {
+    // Add a zero-width paragraph at the start that can be edited
+    normalized = '<p><br></p>' + normalized;
+  }
+  
+  return normalized;
+};
 
 const RichTextEditor = forwardRef(({
   value,
@@ -17,15 +34,44 @@ const RichTextEditor = forwardRef(({
   // Quill modules configuration
   const modules = useMemo(() => ({
     toolbar: [
+      [{ 'header': [2, 3, false] }],
       ['bold', 'italic', 'underline'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       ['link'],
       ['clean'] // remove formatting
-    ]
+    ],
+    keyboard: {
+      bindings: {
+        // Custom handler for space key at document start
+        'space-at-start': {
+          key: ' ',
+          handler: function(range, context) {
+            // If at the very beginning of the document
+            if (range.index === 0) {
+              const editor = this.quill;
+              const delta = editor.getContents();
+              
+              // Check if first block is a heading
+              if (delta.ops && delta.ops.length > 0) {
+                const firstOp = delta.ops[0];
+                if (firstOp.attributes && firstOp.attributes.header) {
+                  // Insert space at the beginning of the heading
+                  editor.insertText(0, ' ', 'user');
+                  editor.setSelection(1, 'user');
+                  return false; // Prevent default behavior
+                }
+              }
+            }
+            return true; // Allow default behavior
+          }
+        }
+      }
+    }
   }), []);
 
   // Quill formats configuration
   const formats = [
+    'header',
     'bold', 'italic', 'underline',
     'list', 'bullet',
     'link'
@@ -33,19 +79,19 @@ const RichTextEditor = forwardRef(({
 
   // Handle content change with sanitization
   const handleChange = (content) => {
-    // Only call onChange if content actually changed
-    if (content === value) return;
-
     // Sanitize HTML to prevent XSS
-    const sanitized = DOMPurify.sanitize(content, {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span'],
+    let sanitized = DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4'],
       ALLOWED_ATTR: ['href', 'target', 'rel']
     });
 
-    // Only call onChange if sanitized content is different from current value
-    if (sanitized !== value) {
-      onChange(sanitized);
-    }
+    // Remove the leading empty paragraph we added for editing if it's still empty
+    // This keeps the saved content clean
+    sanitized = sanitized.replace(/^<p><br><\/p>\s*/, '');
+
+    // Always call onChange to ensure ReactQuill state stays in sync
+    // The parent component should handle deduplication if needed
+    onChange(sanitized);
   };
 
   // Insert variable at cursor position
@@ -64,6 +110,84 @@ const RichTextEditor = forwardRef(({
     insertVariable
   }));
 
+  // Set up keyboard handler to prevent cursor jumping when adding space in headings
+  useEffect(() => {
+    if (!quillRef.current) return;
+
+    const editor = quillRef.current.getEditor();
+    const editorElement = editor.root;
+
+    const handleKeyDown = (e) => {
+      // Only handle space key
+      if (e.key !== ' ' && e.keyCode !== 32) return;
+
+      const selection = editor.getSelection();
+      if (!selection || selection.length > 0) return;
+
+      try {
+        // Get the current line/block where the cursor is
+        const [line, offset] = editor.getLine(selection.index);
+        if (!line || !line.domNode) return;
+
+        const isHeading = ['H2', 'H3', 'H4'].includes(line.domNode.tagName);
+        
+        // If we're in a heading block
+        if (isHeading) {
+          // Check if we're at the end of the heading content
+          const lineLength = line.length;
+          const isAtEndOfHeading = offset === lineLength;
+          
+          // If at the end of heading and pressing space, prevent creating new block
+          if (isAtEndOfHeading) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            // Insert space at the end of the heading
+            editor.insertText(selection.index, ' ');
+            // Keep cursor after the space
+            requestAnimationFrame(() => {
+              editor.setSelection(selection.index + 1);
+            });
+            return false;
+          }
+        }
+
+        // Also handle case when cursor is at the very beginning (index 0)
+        if (selection.index === 0) {
+          // Check DOM directly to see if first element is a heading
+          const firstChild = editorElement.firstElementChild;
+          if (firstChild && ['H2', 'H3', 'H4'].includes(firstChild.tagName)) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            // Insert space at the beginning of the heading
+            editor.insertText(0, ' ');
+            requestAnimationFrame(() => {
+              editor.setSelection(1);
+            });
+            return false;
+          }
+        }
+      } catch (err) {
+        // If there's an error, allow default behavior
+        console.debug('Error in keyboard handler:', err);
+      }
+    };
+
+    editorElement.addEventListener('keydown', handleKeyDown, true);
+    
+    return () => {
+      editorElement.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [value]);
+
+  // Normalize value when it changes
+  const normalizedValue = useMemo(() => {
+    return normalizeContent(value || '');
+  }, [value]);
+
   return (
     <div className="rich-text-editor-container">
       {/* Rich Text Editor */}
@@ -71,7 +195,7 @@ const RichTextEditor = forwardRef(({
         <ReactQuill
           ref={quillRef}
           theme="snow"
-          value={value || ''}
+          value={normalizedValue}
           onChange={handleChange}
           modules={modules}
           formats={formats}
@@ -107,6 +231,42 @@ const RichTextEditor = forwardRef(({
           min-height: 200px;
           max-height: 400px;
           overflow-y: auto;
+        }
+
+        /* Prevent auto-capitalization and line jumping in headings */
+        .quill-editor-wrapper .ql-editor h2,
+        .quill-editor-wrapper .ql-editor h3,
+        .quill-editor-wrapper .ql-editor h4 {
+          text-transform: none;
+          font-weight: bold;
+        }
+
+        /* Ensure proper cursor behavior in all blocks */
+        .quill-editor-wrapper .ql-editor * {
+          text-transform: none;
+        }
+
+        /* Hide leading empty paragraph that allows editing before headings */
+        .quill-editor-wrapper .ql-editor > p:first-child:empty,
+        .quill-editor-wrapper .ql-editor > p:first-child:only-child:has(br:only-child) {
+          min-height: 0 !important;
+          height: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          line-height: 0 !important;
+          overflow: hidden !important;
+          visibility: hidden !important;
+        }
+        
+        /* Fallback for browsers that don't support :has() */
+        .quill-editor-wrapper .ql-editor > p:first-child {
+          min-height: 0;
+        }
+        
+        .quill-editor-wrapper .ql-editor > p:first-child + h2,
+        .quill-editor-wrapper .ql-editor > p:first-child + h3,
+        .quill-editor-wrapper .ql-editor > p:first-child + h4 {
+          margin-top: 0;
         }
 
         .quill-editor-wrapper .ql-editor.ql-blank::before {

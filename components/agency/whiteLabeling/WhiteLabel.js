@@ -243,7 +243,7 @@ const WhiteLabel = () => {
                         </div>
                         <button
                             className="flex flex-row items-center justify-center gap-2 bg-purple-100/50 rounded-lg px-4 py-2 hover:bg-purple-100/70 transition-colors flex-shrink-0"
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!reduxUser?.twilio?.twilAuthToken) {
                                     setShowSnackMessage({ type: SnackbarTypes.Error, message: "Connect your Twilio first", isVisible: true });
                                     return;
@@ -254,7 +254,7 @@ const WhiteLabel = () => {
                                     setShowCopyLinkWarning(true);
                                     upgradeProfile();
                                 } else {
-                                    copyAgencyOnboardingLink({ setLinkCopied })
+                                    await copyAgencyOnboardingLink({ setLinkCopied, reduxUser })
                                 }
                             }}
                         >
@@ -275,8 +275,8 @@ const WhiteLabel = () => {
                         handleClose={() => {
                             setShowCopyLinkWarning(false);
                         }}
-                        handleCopyLink={() => {
-                            copyAgencyOnboardingLink({ setLinkCopied });
+                        handleCopyLink={async () => {
+                            await copyAgencyOnboardingLink({ setLinkCopied, reduxUser });
                             setTimeout(() => {
                                 setShowCopyLinkWarning(false);
                             }, 500);

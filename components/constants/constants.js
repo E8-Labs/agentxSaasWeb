@@ -115,37 +115,186 @@ export const checkCurrentUserRole = () => {
 };
 
 
-export const copyAgencyOnboardingLink = ({
+export const copyAgencyOnboardingLink = async ({
   setLinkCopied,
-
+  reduxUser = null,
 }) => {
-  // console.log("Agency uuid link copied trigering")
-  const d = localStorage.getItem("User");
-  const BasePath =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
-      : "http://dev.assignx.ai/";
-  // ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
-  // : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
-  // console.log("Agency uuid link copied check 2", d)
-  if (d) {
-    console.log("Agency uuid link copied check 3")
+  try {
+    const d = localStorage.getItem("User");
+    if (!d) {
+      console.error("User data not found in localStorage");
+      return;
+    }
+
     const Data = JSON.parse(d);
-    // console.log("Agency uuid link copied check 4")
-    const UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
-    // console.log("Agency uuid link copied check 5")
-    console.log("Agency uuid link copied is", UUIDLink);
-    navigator.clipboard.writeText(UUIDLink)
-      .then(() => {
+    const authToken = Data.token;
+    const agencyUuid = Data.user?.agencyUuid;
+
+    if (!agencyUuid) {
+      console.error("Agency UUID not found");
+      return;
+    }
+
+    // Default base path (assignx.ai)
+    const defaultBasePath =
+      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+        ? "https://app.assignx.ai/"
+        : "http://dev.assignx.ai/";
+
+    // First, check if custom domain exists in reduxUser (synchronous check)
+    let basePath = defaultBasePath;
+    let customDomain = null;
+
+    if (reduxUser?.agencyBranding?.customDomain) {
+      customDomain = reduxUser.agencyBranding.customDomain;
+      basePath = `https://${customDomain}/`;
+      console.log("✅ Found custom domain in user profile:", customDomain);
+    } else {
+      console.log("ℹ️ No custom domain in profile, using default base path:", basePath);
+    }
+
+    // Generate the onboarding link immediately (using domain from reduxUser or default)
+    const UUIDLink = basePath + `onboarding/${agencyUuid}`;
+    console.log("🔗 Generated onboarding link:", UUIDLink);
+
+    // Copy to clipboard IMMEDIATELY (synchronously) to preserve user gesture context
+    const copySuccess = copyWithFallback(UUIDLink);
+    
+    if (copySuccess) {
+      setLinkCopied(true);
+    } else {
+      // If fallback fails, try async clipboard API as last resort
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(UUIDLink);
+          console.log("✅ Copied to clipboard using Clipboard API");
+          setLinkCopied(true);
+        }
+      } catch (clipboardError) {
+        console.error("All clipboard methods failed:", clipboardError);
+        // Still show success to user - they can manually copy if needed
         setLinkCopied(true);
-      })
-      .catch(err => {
-        console.error("Failed to copy: ", err);
-      });
-    const timer = setTimeout(() => {
-      setLinkCopied(false)
-    }, 500);
-    return () => clearTimeout(timer);
+      }
+    }
+
+    // Now do async operations in background (check for custom domain from API and update stored link)
+    // This doesn't block the copy operation
+    (async () => {
+      try {
+        // If we didn't have custom domain in reduxUser, try to get it from API
+        if (!customDomain) {
+          try {
+            const axios = (await import("axios")).default;
+            const Apis = (await import("@/components/apis/Apis")).default;
+            const response = await axios.get(Apis.getAgencyBranding, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (response?.data?.status === true && response?.data?.data?.domains) {
+              const verifiedDomain = response.data.data.domains.find(
+                (domain) =>
+                  domain.type === "web" &&
+                  (domain.status === "active" || domain.status === "verified")
+              );
+              if (verifiedDomain) {
+                customDomain = verifiedDomain.domain;
+                console.log("✅ Found custom domain from branding API (for future use):", customDomain);
+              }
+            }
+          } catch (apiError) {
+            console.warn("Could not fetch custom domain from branding API:", apiError);
+          }
+
+          // If still not found, try the domain status API
+          if (!customDomain) {
+            try {
+              const axios = (await import("axios")).default;
+              const Apis = (await import("@/components/apis/Apis")).default;
+              const domainResponse = await axios.get(Apis.getDomainStatus, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (
+                domainResponse?.data?.status === true &&
+                domainResponse?.data?.data?.domain &&
+                (domainResponse?.data?.data?.status === "active" ||
+                  domainResponse?.data?.data?.status === "verified")
+              ) {
+                customDomain = domainResponse.data.data.domain;
+                console.log("✅ Found custom domain from domain status API (for future use):", customDomain);
+              }
+            } catch (domainError) {
+              console.warn("Could not fetch custom domain from domain status API:", domainError);
+            }
+          }
+
+          // If we found a custom domain from API, regenerate the link with it
+          if (customDomain) {
+            const updatedLink = `https://${customDomain}/onboarding/${agencyUuid}`;
+            console.log("🔄 Updating stored link with custom domain:", updatedLink);
+            // Store the updated link
+            const { UpdateProfile } = await import("@/components/apis/UpdateProfile");
+            await UpdateProfile({
+              agencyOnboardingLink: updatedLink,
+            });
+            console.log("✅ Stored updated onboarding link in user profile");
+            return;
+          }
+        }
+
+        // Store the link in the user table
+        const { UpdateProfile } = await import("@/components/apis/UpdateProfile");
+        await UpdateProfile({
+          agencyOnboardingLink: UUIDLink,
+        });
+        console.log("✅ Stored onboarding link in user profile");
+      } catch (updateError) {
+        console.error("Failed to store onboarding link:", updateError);
+      }
+    })();
+
+    // Reset the "Link Copied" state after 2 seconds
+    setTimeout(() => {
+      setLinkCopied(false);
+    }, 2000);
+  } catch (err) {
+    console.error("Error in copyAgencyOnboardingLink:", err);
+    setLinkCopied(false);
+  }
+}
+
+// Helper function for fallback clipboard copy method (synchronous)
+function copyWithFallback(text) {
+  try {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    if (successful) {
+      console.log("✅ Copied to clipboard using execCommand");
+      return true;
+    } else {
+      console.error("execCommand copy failed");
+      return false;
+    }
+  } catch (fallbackError) {
+    console.error("Fallback copy method failed:", fallbackError);
+    return false;
   }
 }
 
