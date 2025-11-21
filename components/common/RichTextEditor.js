@@ -117,69 +117,106 @@ const RichTextEditor = forwardRef(({
     const editor = quillRef.current.getEditor();
     const editorElement = editor.root;
 
+    const handleBeforeInput = (e) => {
+      // Only handle space input
+      if (e.data !== ' ') return;
+
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      const range = selection.getRangeAt(0);
+      const container = range.startContainer;
+      
+      // Check if we're inside a heading element
+      let headingElement = container.nodeType === Node.TEXT_NODE 
+        ? container.parentElement 
+        : container;
+      
+      // Traverse up to find heading element
+      while (headingElement && headingElement !== editorElement) {
+        if (headingElement.tagName && ['H2', 'H3', 'H4'].includes(headingElement.tagName)) {
+          // Check if cursor is at the end of the heading text
+          const isAtEnd = range.startOffset === (container.nodeType === Node.TEXT_NODE 
+            ? container.textContent.length 
+            : headingElement.textContent.length);
+          
+          if (isAtEnd) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            // Get Quill selection
+            const quillSelection = editor.getSelection();
+            if (quillSelection) {
+              // Insert space at current position
+              editor.insertText(quillSelection.index, ' ');
+              // Keep cursor after the space
+              setTimeout(() => {
+                editor.setSelection(quillSelection.index + 1);
+              }, 0);
+            }
+            return false;
+          }
+          break;
+        }
+        headingElement = headingElement.parentElement;
+      }
+    };
+
     const handleKeyDown = (e) => {
       // Only handle space key
       if (e.key !== ' ' && e.keyCode !== 32) return;
 
-      const selection = editor.getSelection();
-      if (!selection || selection.length > 0) return;
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
 
-      try {
-        // Get the current line/block where the cursor is
-        const [line, offset] = editor.getLine(selection.index);
-        if (!line || !line.domNode) return;
-
-        const isHeading = ['H2', 'H3', 'H4'].includes(line.domNode.tagName);
-        
-        // If we're in a heading block
-        if (isHeading) {
-          // Check if we're at the end of the heading content
-          const lineLength = line.length;
-          const isAtEndOfHeading = offset === lineLength;
+      const range = selection.getRangeAt(0);
+      const container = range.startContainer;
+      
+      // Check if we're inside a heading element
+      let headingElement = container.nodeType === Node.TEXT_NODE 
+        ? container.parentElement 
+        : container;
+      
+      // Traverse up to find heading element
+      while (headingElement && headingElement !== editorElement) {
+        if (headingElement.tagName && ['H2', 'H3', 'H4'].includes(headingElement.tagName)) {
+          // Check if cursor is at the end of the heading text
+          const textLength = container.nodeType === Node.TEXT_NODE 
+            ? container.textContent.length 
+            : headingElement.textContent.length;
+          const isAtEnd = range.startOffset >= textLength;
           
-          // If at the end of heading and pressing space, prevent creating new block
-          if (isAtEndOfHeading) {
+          if (isAtEnd) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            // Insert space at the end of the heading
-            editor.insertText(selection.index, ' ');
-            // Keep cursor after the space
-            requestAnimationFrame(() => {
-              editor.setSelection(selection.index + 1);
-            });
+            // Get Quill selection
+            const quillSelection = editor.getSelection();
+            if (quillSelection) {
+              // Insert space at current position
+              editor.insertText(quillSelection.index, ' ');
+              // Keep cursor after the space
+              setTimeout(() => {
+                editor.setSelection(quillSelection.index + 1);
+              }, 0);
+            }
             return false;
           }
+          break;
         }
-
-        // Also handle case when cursor is at the very beginning (index 0)
-        if (selection.index === 0) {
-          // Check DOM directly to see if first element is a heading
-          const firstChild = editorElement.firstElementChild;
-          if (firstChild && ['H2', 'H3', 'H4'].includes(firstChild.tagName)) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            // Insert space at the beginning of the heading
-            editor.insertText(0, ' ');
-            requestAnimationFrame(() => {
-              editor.setSelection(1);
-            });
-            return false;
-          }
-        }
-      } catch (err) {
-        // If there's an error, allow default behavior
-        console.debug('Error in keyboard handler:', err);
+        headingElement = headingElement.parentElement;
       }
     };
 
-    editorElement.addEventListener('keydown', handleKeyDown, true);
+    // Use both beforeinput (modern) and keydown (fallback)
+    editorElement.addEventListener('beforeinput', handleBeforeInput, { capture: true, passive: false });
+    editorElement.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
     
     return () => {
-      editorElement.removeEventListener('keydown', handleKeyDown, true);
+      editorElement.removeEventListener('beforeinput', handleBeforeInput, { capture: true });
+      editorElement.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [value]);
 

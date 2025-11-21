@@ -35,6 +35,7 @@ export default function AddXBarPlan({
 
   const [snackBannerMsg, setSnackBannerMsg] = useState(null);
   const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
+  const [profitMarginErr, setProfitMarginErr] = useState(false);
 
   //plan passed is
   const [planPassed, setPlanPassed] = useState(null);
@@ -76,6 +77,25 @@ export default function AddXBarPlan({
     }
   }, [minutes, originalPrice]);
 
+  // Check profit margin
+  useEffect(() => {
+    if (!originalPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      setProfitMarginErr(false);
+      return;
+    }
+    const margin = ((Number(originalPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+    if (margin < 10) {
+      setProfitMarginErr(true);
+      setSnackBannerMsg(`Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
+      setSnackBannerMsgType(SnackbarTypes.Error);
+    } else {
+      setProfitMarginErr(false);
+      if (snackBannerMsg && snackBannerMsg.includes("Profit margin")) {
+        setSnackBannerMsg(null);
+      }
+    }
+  }, [originalPrice, agencyPlanCost, snackBannerMsg]);
+
   //profit text color
   const getClr = () => {
     const percentage =
@@ -110,6 +130,16 @@ export default function AddXBarPlan({
   //code to add plan
   const handleAddPlanClick = async () => {
     try {
+      // Validate profit margin before creating plan
+      if (originalPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+        const margin = ((Number(originalPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+        if (margin < 10) {
+          setSnackMsg(`Cannot create plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
+          setSnackMsgType(SnackbarTypes.Error);
+          return;
+        }
+      }
+
       setAddPlanLoader(true);
       console.log("Working");
 
@@ -176,6 +206,16 @@ export default function AddXBarPlan({
   //code to update plan
   const handleUpdatePlanClick = async () => {
     try {
+      // Validate profit margin before updating plan
+      if (originalPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+        const margin = ((Number(originalPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+        if (margin < 10) {
+          setSnackMsg(`Cannot update plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
+          setSnackMsgType(SnackbarTypes.Error);
+          return;
+        }
+      }
+
       setAddPlanLoader(true);
       console.log("Working and the passed plan item is", planPassed);
 
@@ -241,8 +281,21 @@ export default function AddXBarPlan({
     }
   };
 
+  // Calculate profit margin percentage
+  const calculateProfitMargin = () => {
+    if (!originalPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      return null;
+    }
+    const margin = ((Number(originalPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+    return margin;
+  }
+
   const shouldContinue = () => {
-    if (!title || !planDescription || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minCostErr) {
+    // Check profit margin
+    const margin = calculateProfitMargin();
+    const marginValid = margin === null || margin >= 10;
+
+    if (!title || !planDescription || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minCostErr || profitMarginErr || !marginValid) {
       return true
       // || !tag|| minutes === "0"
     } else {

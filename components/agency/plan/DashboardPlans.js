@@ -115,7 +115,7 @@ function DashboardPlans({
                 }
             }
         }
-    }, [])
+    }, [selectedAgency])
 
     //auto get the data
     useEffect(() => {

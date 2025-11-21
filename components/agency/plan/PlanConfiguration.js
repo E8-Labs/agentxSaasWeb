@@ -501,6 +501,16 @@ export default function PlanConfiguration({
     //code to create plan
     const handleCreatePlan = async () => {
         try {
+            // Validate profit margin before creating plan
+            if (basicsData?.discountedPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+                const margin = ((Number(basicsData.discountedPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+                if (margin < 10) {
+                    setSnackMsg(`Cannot create plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
+                    setSnackMsgType(SnackbarTypes.Error);
+                    return;
+                }
+            }
+
             setCreatePlanLoader(true);
 
             console.log("Working");
@@ -553,6 +563,16 @@ export default function PlanConfiguration({
 
     const handleUpdatePlan = async () => {
         try {
+            // Validate profit margin before updating plan
+            if (basicsData?.discountedPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+                const margin = ((Number(basicsData.discountedPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+                if (margin < 10) {
+                    setSnackMsg(`Cannot update plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
+                    setSnackMsgType(SnackbarTypes.Error);
+                    return;
+                }
+            }
+
             setCreatePlanLoader(true);
 
             console.log("Working");

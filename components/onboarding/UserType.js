@@ -340,7 +340,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   return (
                     <div key={index} className="flex w-6/12 md:w-4/12 p-2">
                       <button
-                        className="w-full outline-none rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
+                        className="w-full outline-none rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90 overflow-hidden"
                         onClick={(e) => {
                           handleUserType(item);
                         }}
@@ -354,7 +354,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         }}
                       >
                         <div
-                          className="h-[100px] sm:h-[110px] md:h-[130px] lg:h-[150px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
+                          className="h-[100px] sm:h-[110px] md:h-[130px] lg:h-[150px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center overflow-hidden"
                           style={{ backgroundColor: "#FAF9FF" }}
                         >
                           <img
