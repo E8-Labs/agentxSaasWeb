@@ -288,6 +288,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         >
           {phoneNumbers.map((number) => {
             const isGlobal = number.isAgencyGlobalNumber;
+            const isSubaccountNumber = number.subaccountNumber;
             const isLoading = actionLoading === `set-${number.id}`;
 
             return (
@@ -334,9 +335,21 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                   </div> */}
                 </div>
 
-                {/* Right Section - Action Button */}
+                {/* Right Section - Action Button or Subaccount Info */}
                 <div className="flex-shrink-0">
-                  {!isGlobal && (
+                  {isSubaccountNumber ? (
+                    <div
+                      className="text-sm py-2 px-4 text-center rounded"
+                      style={{
+                        color: "#666",
+                        fontWeight: "500",
+                        minWidth: "180px",
+                        backgroundColor: "#f5f5f5",
+                      }}
+                    >
+                      {number.subaccountName || "Subaccount"}
+                    </div>
+                  ) : !isGlobal ? (
                     <Button
                       variant="contained"
                       onClick={() => handleSetGlobalNumber(number.id)}
@@ -354,7 +367,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                         "Set Global Number"
                       )}
                     </Button>
-                  )}
+                  ) : null}
 
                   {/* {isGlobal && (
                     <div
