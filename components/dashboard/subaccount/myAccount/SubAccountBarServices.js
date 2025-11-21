@@ -362,7 +362,7 @@ function SubAccountBarServices({
 
   const handleSpeakToAGenius = () => {
     if (selectedUser?.userRole !== "AgencySubAccount") {
-      let url = PersistanceKeys.GlobalConsultationUrl;
+      let url = PersistanceKeys.HireTeamUrl;
       if (typeof window !== "undefined") {
         window.open(url, "_blank");
       }

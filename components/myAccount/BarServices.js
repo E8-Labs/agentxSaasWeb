@@ -431,7 +431,8 @@ function BarServices() {
                 className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
                 onClick={(e) => {
                   //console.log;
-                  let url = PersistanceKeys.GlobalConsultationUrl;
+                  let url = PersistanceKeys.HireTeamUrl;
+                  console.log('Hire Team url ', url)
                   if (typeof window !== "undefined") {
                     window.open(url, "_blank");
                   }
