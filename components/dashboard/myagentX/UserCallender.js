@@ -218,49 +218,6 @@ const UserCalender = ({
     }
   };
 
-  useEffect(() => {
-    if (selectedActionTab === 1) {
-      getCalenders();
-    }
-  }, [selectedActionTab]);
-
-  const getCalenders = async () => {
-    try {
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-
-        AuthToken = UserDetails.token;
-      }
-
-      //// //console.log;
-
-      let ApiPath = Apis.getCalenders;
-      if (selectedUser) {
-        ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
-      }
-      console.log("Getting calendars for ", ApiPath);
-      //// //console.log;
-
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        console.log("Calendars from api are", response.data.data);
-        setAllCalendars(response.data.data);
-      }
-    } catch (error) {
-      //// console.error("Error occured in the api is ", error);
-    } finally {
-      //// //console.log;
-    }
-  };
-
   function isEnabled() {
     if (calendarSelected) {
       // //console.log;
