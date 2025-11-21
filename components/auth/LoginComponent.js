@@ -764,9 +764,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   };
 
   //code to check number
-  const checkPhoneNumber = async (value) => {
-    let retryAttempts = 0;
-
+  const checkPhoneNumber = async (value, retryAttempts = 0) => {
     try {
       setPhoneNumberLoader(true);
       const ApiPath = Apis.CheckPhone;
@@ -797,7 +795,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       retryAttempts++;
       console.log("retryAttempts", retryAttempts);
       if (retryAttempts < 3) {
-        await checkPhoneNumber(value);
+        await checkPhoneNumber(value, retryAttempts);
       } else {
         setErrorMessage(error.response?.data?.message || "User not found");
       }
