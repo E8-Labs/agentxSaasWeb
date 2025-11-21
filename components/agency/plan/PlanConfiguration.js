@@ -231,7 +231,7 @@ export default function PlanConfiguration({
                 if (item.label === "Multilingual") {
                     displayText = "Multilingual Compatible";
                 } else if (item.label === "Twilio") {
-                    displayText = "Local Phone Number";
+                    displayText = "Twilio Trust Hub";
                 }
                 return {
                     id: item.stateKey,

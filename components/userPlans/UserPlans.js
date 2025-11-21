@@ -851,7 +851,6 @@ function UserPlans({
                                                 )
                                             )}
                                             
-
                                         </div>
 
                                         {/* Features container - scrollable */}
