@@ -15,12 +15,14 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import moment from "moment";
+import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
 
 function AgencyPhoneNumbers({ selectedAgency }) {
   const [phoneNumbers, setPhoneNumbers] = useState([]);
   const [globalNumber, setGlobalNumber] = useState(null);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null); // Track which action is loading
+  const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [snackMsg, setSnackMsg] = useState({
     type: SnackbarTypes.Success,
     message: "",
@@ -210,20 +212,38 @@ function AgencyPhoneNumbers({ selectedAgency }) {
     return phone;
   };
 
+  const handleCloseClaimPopup = () => {
+    setShowClaimPopup(false);
+  };
+
   return (
     <div className="w-full p-8" style={{ maxWidth: "1200px", margin: "0 auto" }}>
       {/* Header */}
-      <div className="mb-6">
-        <div
-          className="text-2xl font-semibold mb-2"
-          style={{ color: "#000" }}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <div
+            className="text-2xl font-semibold mb-2"
+            style={{ color: "#000" }}
+          >
+            Phone Numbers List
+          </div>
+          <div className="text-sm" style={{ color: "#666" }}>
+            Manage your agency global phone numbers. The global number will be
+            visible to all subaccounts.
+          </div>
+        </div>
+        <Button
+          variant="contained"
+          onClick={() => setShowClaimPopup(true)}
+          style={{
+            backgroundColor: "#7902DF",
+            color: "#fff",
+            textTransform: "none",
+            minWidth: "150px",
+          }}
         >
-          Phone Numbers List
-        </div>
-        <div className="text-sm" style={{ color: "#666" }}>
-          Manage your agency global phone numbers. The global number will be
-          visible to all subaccounts.
-        </div>
+          Get Global Number
+        </Button>
       </div>
 
       {/* Global Number Info Banner */}
@@ -389,6 +409,24 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         snackMsg={snackMsg}
         setSnackMsg={setSnackMsg}
       />
+
+      {/* Claim Number Modal */}
+      {showClaimPopup && (
+        <ClaimNumber
+          showClaimPopup={showClaimPopup}
+          handleCloseClaimPopup={handleCloseClaimPopup}
+          setOpenCalimNumDropDown={() => {}}
+          setSelectNumber={() => {}}
+          setPreviousNumber={() => {}}
+          previousNumber={[]}
+          AssignNumber={async (phoneNumber) => {
+            // After purchase, refresh the phone numbers list
+            await fetchPhoneNumbers();
+            setShowClaimPopup(false);
+          }}
+          selectedUSer={selectedAgency}
+        />
+      )}
     </div>
   );
 }
