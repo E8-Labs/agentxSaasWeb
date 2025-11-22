@@ -306,6 +306,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           {phoneNumbers.map((number) => {
             const isGlobal = number.isAgencyGlobalNumber
             const isSubaccountNumber = number.subaccountNumber
+            const isDisabled = number.disabled === true
             const isLoading = actionLoading === `set-${number.id}`
 
             return (
@@ -313,8 +314,9 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 key={number.id}
                 className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
-                  borderColor: isGlobal ? '#7902DF' : '#e0e0e0',
-                  backgroundColor: isGlobal ? '#7902DF10' : '#fff',
+                  borderColor: isGlobal ? '#7902DF' : isDisabled ? '#d0d0d0' : '#e0e0e0',
+                  backgroundColor: isGlobal ? '#7902DF10' : isDisabled ? '#f9f9f9' : '#fff',
+                  opacity: isDisabled ? 0.7 : 1,
                 }}
               >
                 {/* Left Section - Phone Number Info */}
@@ -328,9 +330,17 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                         Global Number
                       </div>
                     )}
+                    {isDisabled && (
+                      <div
+                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                        style={{ backgroundColor: '#999', color: '#fff' }}
+                      >
+                        Disabled
+                      </div>
+                    )}
                     <div
                       className="text-xl font-semibold"
-                      style={{ color: '#000' }}
+                      style={{ color: isDisabled ? '#999' : '#000' }}
                     >
                       {formatPhoneNumber(number.phone)}
                     </div>
@@ -365,6 +375,18 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       }}
                     >
                       {number.subaccountName || 'Subaccount'}
+                    </div>
+                  ) : isDisabled ? (
+                    <div
+                      className="text-sm py-2 px-4 text-center rounded"
+                      style={{
+                        color: '#999',
+                        fontWeight: '500',
+                        minWidth: '180px',
+                        backgroundColor: '#f5f5f5',
+                      }}
+                    >
+                      Disabled
                     </div>
                   ) : !isGlobal ? (
                     <Button
