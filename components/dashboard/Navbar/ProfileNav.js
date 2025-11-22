@@ -1,7 +1,5 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+'use client'
+
 import {
   Alert,
   Box,
@@ -11,10 +9,37 @@ import {
   Modal,
   Snackbar,
   Typography,
-} from "@mui/material";
-import getProfileDetails from "@/components/apis/GetProfile";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import { initializeApp } from 'firebase/app'
+import moment from 'moment'
+import Image from 'next/image'
+import { usePathname, useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import SupportFile from '@/components/agency/plan/SupportFile'
+import DashboardSlider from '@/components/animations/DashboardSlider'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import { UpdateProfile } from '@/components/apis/UpdateProfile'
+import CallPausedPopup from '@/components/callPausedPoupup/CallPausedPopup'
+import { checkCurrentUserRole } from '@/components/constants/constants'
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
+import { requestToken } from '@/components/firbase'
+import { SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import { HowtoVideos, PersistanceKeys, userType } from '@/constants/Constants'
+import UpgradeModal from '@/constants/UpgradeModal'
+import { useUser } from '@/hooks/redux-hooks'
+import PlansService from '@/utilities/PlansService'
+import socketService from '@/utilities/SocketService'
+import { logout } from '@/utilities/UserUtility'
+import { GetFormattedDateString } from '@/utilities/utility'
+
 // const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
 //   ssr: false,
 // });
@@ -23,103 +48,76 @@ import axios from "axios";
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
-import { requestToken } from "@/components/firbase";
-import { initializeApp } from "firebase/app";
-import { UpdateProfile } from "@/components/apis/UpdateProfile";
-
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
-import { logout } from "@/utilities/UserUtility";
-import CheckList from "./CheckList";
-import socketService from "@/utilities/SocketService";
-import { uploadBatchSequence } from "../leads/extras/UploadBatch";
-import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
-import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { checkCurrentUserRole } from "@/components/constants/constants";
-import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
-import DashboardSlider from "@/components/animations/DashboardSlider";
-import PlansService from "@/utilities/PlansService";
-import UpgradeModal from "@/constants/UpgradeModal";
-import SupportFile from "@/components/agency/plan/SupportFile";
-import UpgradePlan from "@/components/userPlans/UpgradePlan";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { useUser } from "@/hooks/redux-hooks";
-import moment from "moment";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+} from '../leads/AgentSelectSnackMessage'
+import { LeadProgressBanner } from '../leads/extras/LeadProgressBanner'
+import { uploadBatchSequence } from '../leads/extras/UploadBatch'
+import CheckList from './CheckList'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 // Plans will now be loaded dynamically from API
 //banner
 const ProfileNav = () => {
   // const [user, setUser] = useState(null)
 
-  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
 
-  const [plans, setPlans] = useState([]);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [plans, setPlans] = useState([])
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const [showPlansPopup, setShowPlansPopup] = useState(false);
-  const [userDetails, setUserDetails] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [showPlansPopup, setShowPlansPopup] = useState(false)
+  const [userDetails, setUserDetails] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
-  const [togglePlan, setTogglePlan] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [togglePlan, setTogglePlan] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [showsuccessSnack, setShowSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
-  const [showerrorSnack, setShowErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [showsuccessSnack, setShowSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
+  const [showerrorSnack, setShowErrorSnack] = useState(null)
 
-  const [userType, setUserType] = useState("");
-
+  const [userType, setUserType] = useState('')
 
   // Add state for batch upload persistence and progress
-  const [uploading, setUploading] = useState(false);
-  const [currentBatch, setCurrentBatch] = useState(0);
-  const [totalBatches, setTotalBatches] = useState(0);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [userLeads, setUserLeads] = useState("loading");
+  const [uploading, setUploading] = useState(false)
+  const [currentBatch, setCurrentBatch] = useState(0)
+  const [totalBatches, setTotalBatches] = useState(0)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [userLeads, setUserLeads] = useState('loading')
 
-  const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
-  const [walkthroughWatched, setWalkthroughWatched] = useState(false);
-  const [updateProfileLoader, setUpdateProfileLoader] = useState(false);
+  const [showCallPausedPopup, setShowCallPausedPopup] = useState(false)
+  const [walkthroughWatched, setWalkthroughWatched] = useState(false)
+  const [updateProfileLoader, setUpdateProfileLoader] = useState(false)
 
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
   const [showUpgradePlanBar, setShowUpgradePlanBar] = useState(false)
   const [showPlanPausedBar, setShowPlanPausedBar] = useState(false)
   const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
   const [showAssignBanner, setShowAssignBanner] = useState(false)
-  const [bannerProgress, setBannerProgress] = useState(0);
-  const [isLeadUploading, setIsLeadUploading] = useState(false);
+  const [bannerProgress, setBannerProgress] = useState(0)
+  const [isLeadUploading, setIsLeadUploading] = useState(false)
 
-  const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
-  const [showUpgradePlanModal2, setShowUpgradePlanModal2] = useState(false);
-  const [showLowMinsModal, setShowLowMinsModal] = useState(false);
-  const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
-  const [loading, setLoading] = useState(false);
-  const [localUser, setLocalUser] = useState(null);
-  
-
-
+  const [showHelpModal, setShowHelpModal] = useState(false)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showUpgradePlanModal2, setShowUpgradePlanModal2] = useState(false)
+  const [showLowMinsModal, setShowLowMinsModal] = useState(false)
+  const [socketStatus, setSocketStatus] = useState('disconnected') // 'disconnected', 'connecting', 'connected'
+  const [loading, setLoading] = useState(false)
+  const [localUser, setLocalUser] = useState(null)
 
   useEffect(() => {
-    console.log("Search url is", pathname);
+    console.log('Search url is', pathname)
     if (pathname === '/dashboard') {
-      setShowHelpModal(true);
+      setShowHelpModal(true)
     } else {
-      setShowHelpModal(false);
+      setShowHelpModal(false)
     }
   }, [pathname])
 
@@ -132,17 +130,17 @@ const ProfileNav = () => {
   useEffect(() => {
     if (walkthroughWatched) {
       // UpdateProfile({});
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const u = JSON.parse(localData);
-        const watched = u?.user?.walkthroughWatched;
-        if (u?.user?.plan && (watched === false || watched === "false")) {
-          updateWalkthroughWatched();
+        const u = JSON.parse(localData)
+        const watched = u?.user?.walkthroughWatched
+        if (u?.user?.plan && (watched === false || watched === 'false')) {
+          updateWalkthroughWatched()
         }
       }
       // updateWalkthroughWatched();
     }
-  }, [walkthroughWatched]);
+  }, [walkthroughWatched])
 
   // useEffect(() => {
   //   let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
@@ -152,32 +150,32 @@ const ProfileNav = () => {
   // }, []);
 
   useEffect(() => {
-    const local = localStorage.getItem("User");
+    const local = localStorage.getItem('User')
     if (local) {
-      const parsed = JSON.parse(local);
-      setLocalUser(parsed.user);
+      const parsed = JSON.parse(local)
+      setLocalUser(parsed.user)
     }
     const testNot = async () => {
       try {
-        const localData = localStorage.getItem("User");
-        let AuthToken = null;
+        const localData = localStorage.getItem('User')
+        let AuthToken = null
         if (localData) {
-          const D = JSON.parse(localData);
-          AuthToken = D.token;
+          const D = JSON.parse(localData)
+          AuthToken = D.token
         }
 
-        const ApiPath = Apis.getAiNot;
+        const ApiPath = Apis.getAiNot
 
         const response = axios.post(
           ApiPath,
           {},
           {
             headers: {
-              Authorization: "Bearer " + AuthToken,
-              "Content-Type": "application/json",
+              Authorization: 'Bearer ' + AuthToken,
+              'Content-Type': 'application/json',
             },
-          }
-        );
+          },
+        )
 
         // if (response) {
         //  // //console.log;
@@ -185,15 +183,14 @@ const ProfileNav = () => {
       } catch (error) {
         // console.error("Error occured in test not is"), error;
       }
-    };
-    testNot();
-  }, []);
-
+    }
+    testNot()
+  }, [])
 
   //conde for continue lead uploading on route change
 
   useEffect(() => {
-    const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState);
+    const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState)
     if (savedUpload) {
       const {
         data,
@@ -202,16 +199,16 @@ const ProfileNav = () => {
         columnMappings,
         tagsValue,
         enrich,
-      } = JSON.parse(savedUpload);
+      } = JSON.parse(savedUpload)
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
-      console.log("uploading in background after route change")
+      console.log('uploading in background after route change')
 
       uploadBatchSequence({
         data,
@@ -229,42 +226,38 @@ const ProfileNav = () => {
         //   console.log(`Uploading batch ${batch}/${total}`);
         // },
         onComplete: () => {
-          console.log("Background lead upload complete.");
+          console.log('Background lead upload complete.')
         },
-      });
+      })
     }
-  }, []);
-
-
-
-
+  }, [])
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     // checkCurrentUserRole();
-    let windowWidth = 1000;
-    if (typeof window !== "undefined") {
-      windowWidth = window.innerWidth;
+    let windowWidth = 1000
+    if (typeof window !== 'undefined') {
+      windowWidth = window.innerWidth
     }
     if (windowWidth < 640) {
-      router.push("/createagent/desktop");
+      router.push('/createagent/desktop')
     } else {
-      return;
+      return
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     const handleHidePlanBar = (event) => {
-      console.log("hidePlanBar event received:", event.detail.update); // true
-      getProfile();
-    };
+      console.log('hidePlanBar event received:', event.detail.update) // true
+      getProfile()
+    }
 
-    window.addEventListener("hidePlanBar", handleHidePlanBar);
+    window.addEventListener('hidePlanBar', handleHidePlanBar)
 
     return () => {
-      window.removeEventListener("hidePlanBar", handleHidePlanBar); // Clean up
-    };
-  }, []);
+      window.removeEventListener('hidePlanBar', handleHidePlanBar) // Clean up
+    }
+  }, [])
   //intro video
   // const getShowWalkThrough = () => {
   //   console.log("Trigered check for walkthrough")
@@ -300,65 +293,74 @@ const ProfileNav = () => {
   // }
 
   const getShowWalkThrough = () => {
-    console.log("rigered the intro video")
-    const localData = localStorage.getItem("User");
+    console.log('rigered the intro video')
+    const localData = localStorage.getItem('User')
     if (localData) {
-      const UserDetails = JSON.parse(localData);
-      const watched = UserDetails?.user?.walkthroughWatched;
+      const UserDetails = JSON.parse(localData)
+      const watched = UserDetails?.user?.walkthroughWatched
 
-      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
-        console.log("✅ should show intro video");
-        setWalkthroughWatched(true);
+      if (
+        UserDetails?.user?.plan &&
+        (watched === false || watched === 'false')
+      ) {
+        console.log('✅ should show intro video')
+        setWalkthroughWatched(true)
       } else {
         // 👇 Prevent flipping it back off if it’s already been set
         // console.log("⛔ should not show intro video");
         // Do not set it to false here — allow modal to control it via onClose
       }
     }
-  };
-
+  }
 
   const updateWalkthroughWatched = async () => {
     try {
-      setUpdateProfileLoader(true);
+      setUpdateProfileLoader(true)
       const apidata = {
-        walkthroughWatched: true
+        walkthroughWatched: true,
       }
-      const response = await UpdateProfile(apidata);
+      const response = await UpdateProfile(apidata)
       if (response) {
-        setUpdateProfileLoader(false);
+        setUpdateProfileLoader(false)
         window.dispatchEvent(
-          new CustomEvent("UpdateCheckList", { detail: { update: true } })
-        );
-        console.log("Update api resopnse after walkthrough true", response)
+          new CustomEvent('UpdateCheckList', { detail: { update: true } }),
+        )
+        console.log('Update api resopnse after walkthrough true', response)
       }
       // console.log("Response of update profile api is", response)
     } catch (error) {
-      setUpdateProfileLoader(false);
-      console.log("Error occured in update catch api is", error)
+      setUpdateProfileLoader(false)
+      console.log('Error occured in update catch api is', error)
     }
   }
 
   // Function to load plans dynamically
   const loadPlans = async (includeTrial = false) => {
     try {
-      const context = 'default';
-      const cacheKey = includeTrial ? 'plans_with_trial_profile_nav' : 'plans_without_trial_profile_nav';
+      const context = 'default'
+      const cacheKey = includeTrial
+        ? 'plans_with_trial_profile_nav'
+        : 'plans_without_trial_profile_nav'
 
       const plansData = await PlansService.getCachedPlans(
         cacheKey,
         'regular',
         includeTrial ? 'onboarding' : context,
-        includeTrial
-      );
+        includeTrial,
+      )
 
-      setPlans(plansData);
+      setPlans(plansData)
     } catch (error) {
-      console.error('Error loading plans in ProfileNav:', error);
+      console.error('Error loading plans in ProfileNav:', error)
       // Set fallback plans if API fails
-      setPlans(PlansService.getFallbackPlans(includeTrial ? 'onboarding' : 'default', includeTrial));
+      setPlans(
+        PlansService.getFallbackPlans(
+          includeTrial ? 'onboarding' : 'default',
+          includeTrial,
+        ),
+      )
     }
-  };
+  }
 
   //trial days counter
   // const checkTrialDays = (userData) => {
@@ -377,212 +379,214 @@ const ProfileNav = () => {
   const checkTrialDays = (userData) => {
     if (userData?.isTrial) {
       // nextChargeDate is the trial END date (when the trial expires)
-      const trialEnd = moment(userData?.nextChargeDate || new Date());
-      const today = moment().startOf('day'); // Start of day for accurate day counting
-      const trialEndStartOfDay = trialEnd.startOf('day');
-      
+      const trialEnd = moment(userData?.nextChargeDate || new Date())
+      const today = moment().startOf('day') // Start of day for accurate day counting
+      const trialEndStartOfDay = trialEnd.startOf('day')
+
       // Calculate days remaining: trialEnd - today
       // This gives positive number when trial hasn't ended yet
-      let daysLeft = trialEndStartOfDay.diff(today, "days");
+      let daysLeft = trialEndStartOfDay.diff(today, 'days')
 
       // Ensure daysLeft is never negative (trial already ended)
-      daysLeft = Math.max(daysLeft, 0);
+      daysLeft = Math.max(daysLeft, 0)
 
-      console.log(`Trial ends at: ${trialEnd.format("MMMM DD")}`);
-      console.log(`Trial days Today: ${today.format("MMMM DD")}`);
-      console.log(`Trial days Days left: ${daysLeft}`);
+      console.log(`Trial ends at: ${trialEnd.format('MMMM DD')}`)
+      console.log(`Trial days Today: ${today.format('MMMM DD')}`)
+      console.log(`Trial days Days left: ${daysLeft}`)
 
-      return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+      return `${daysLeft} Day${daysLeft !== 1 ? 's' : ''} Left`
     }
-  };
+  }
 
   const getUserProfile = async () => {
-    await getProfile();
-    const data = localStorage.getItem("User");
-    getShowWalkThrough();
+    await getProfile()
+    const data = localStorage.getItem('User')
+    getShowWalkThrough()
     if (data) {
-      const LocalData = JSON.parse(data);
+      const LocalData = JSON.parse(data)
       console.log(
-        "LocalData.user.profile_status",
-        LocalData.user.profile_status
-      );
-      if (LocalData.user.profile_status !== "active") {
-        setErrorSnack("Your account has been frozen.");
-        setShowErrorSnack(true);
+        'LocalData.user.profile_status',
+        LocalData.user.profile_status,
+      )
+      if (LocalData.user.profile_status !== 'active') {
+        setErrorSnack('Your account has been frozen.')
+        setShowErrorSnack(true)
         // Show snackbar briefly before logout
         setTimeout(() => {
-          logout("Profile status is not active");
-        }, 2000);
-        return;
+          logout('Profile status is not active')
+        }, 2000)
+        return
       }
       // checkTrialDays(LocalData.user);
-      setUserDetails(LocalData);
+      setUserDetails(LocalData)
       // Update Redux store
-      setReduxUser(LocalData);
+      setReduxUser(LocalData)
       if (LocalData.user.plan == null) {
         // user haven't subscribed to any plan - load plans with trial
-        await loadPlans(true);
+        await loadPlans(true)
       } else {
         // user has a plan - load regular plans
-        await loadPlans(false);
+        await loadPlans(false)
       }
 
       if (LocalData.user.needsChargeConfirmation) {
-        setShowCallPausedPopup(true);
+        setShowCallPausedPopup(true)
       }
 
       console.log('LocalData', LocalData.user.needsChargeConfirmation)
-
-
-    };
+    }
   }
 
   useEffect(() => {
-    getUserProfile();
+    getUserProfile()
 
     // Initialize socket connection after getting user profile
     const initializeSocket = () => {
-      const userData = localStorage.getItem("User");
+      const userData = localStorage.getItem('User')
       if (userData) {
-        console.log('🔌 Initializing socket connection...');
-        setSocketStatus('connecting');
-        socketService.connect();
+        console.log('🔌 Initializing socket connection...')
+        setSocketStatus('connecting')
+        socketService.connect()
 
         // Monitor socket status
         const checkStatus = () => {
-          const status = socketService.getConnectionStatus();
-          setSocketStatus(status);
-        };
+          const status = socketService.getConnectionStatus()
+          setSocketStatus(status)
+        }
 
         // Check status every 2 seconds
-        const statusInterval = setInterval(checkStatus, 2000);
+        const statusInterval = setInterval(checkStatus, 2000)
 
         // Cleanup interval on unmount
-        return () => clearInterval(statusInterval);
+        return () => clearInterval(statusInterval)
       }
-    };
+    }
 
     // Small delay to ensure localStorage is ready
-    const cleanup = setTimeout(initializeSocket, 1000);
+    const cleanup = setTimeout(initializeSocket, 1000)
 
     // Cleanup socket on unmount
     return () => {
-      socketService.disconnect();
-    };
-  }, []);
+      socketService.disconnect()
+    }
+  }, [])
 
   useEffect(() => {
     const handleUpdateProfile = (event) => {
       // //console.log;
-      getUserProfile(); // Refresh the profile data
-      console.log("Navbar called getprofile api 1");
-    };
+      getUserProfile() // Refresh the profile data
+      console.log('Navbar called getprofile api 1')
+    }
 
-    window.addEventListener("UpdateProfile", handleUpdateProfile);
+    window.addEventListener('UpdateProfile', handleUpdateProfile)
 
     return () => {
-      window.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
-    };
-  }, []);
-
+      window.removeEventListener('UpdateProfile', handleUpdateProfile) // Clean up
+    }
+  }, [])
 
   const simulateProgress = () => {
-    let progress = 0;
-    setBannerProgress(progress);
+    let progress = 0
+    setBannerProgress(progress)
 
     const interval = setInterval(() => {
-      progress += 5;
+      progress += 5
 
       if (progress >= 90) {
-        clearInterval(interval); // stop auto increment at 90%
-        setBannerProgress(90);
+        clearInterval(interval) // stop auto increment at 90%
+        setBannerProgress(90)
       } else {
-        setBannerProgress(progress);
+        setBannerProgress(progress)
       }
-    }, 1000); // every 1 second
-  };
+    }, 1000) // every 1 second
+  }
 
   useEffect(() => {
     const handleOpenBanner = (event) => {
       setShowAssignBanner(true)
       simulateProgress()
-    };
+    }
 
-    window.addEventListener(PersistanceKeys.AssigningLeads, handleOpenBanner);
+    window.addEventListener(PersistanceKeys.AssigningLeads, handleOpenBanner)
 
     return () => {
-      window.removeEventListener(PersistanceKeys.AssigningLeads, handleOpenBanner); // Clean up
-    };
-  }, []);
-
+      window.removeEventListener(
+        PersistanceKeys.AssigningLeads,
+        handleOpenBanner,
+      ) // Clean up
+    }
+  }, [])
 
   useEffect(() => {
     const handleCloseBanner = (event) => {
       setShowAssignBanner(false)
       setBannerProgress(100)
-    };
+    }
 
-    window.addEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner);
+    window.addEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner)
 
     return () => {
-      window.removeEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner); // Clean up
-    };
-  }, []);
+      window.removeEventListener(
+        PersistanceKeys.LeadsAssigned,
+        handleCloseBanner,
+      ) // Clean up
+    }
+  }, [])
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
-      const profileResponse = await getProfileDetails();
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...')
+      const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
-        const freshUserData = profileResponse.data.data;
-        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const freshUserData = profileResponse.data.data
+        const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade')
 
         // Update Redux with fresh data
         const updatedUserData = {
           token: localData.token,
-          user: freshUserData
-        };
+          user: freshUserData,
+        }
 
-        setReduxUser(updatedUserData);
-        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        setReduxUser(updatedUserData)
+        localStorage.setItem('User', JSON.stringify(updatedUserData))
 
-        return true;
+        return true
       }
-      return false;
+      return false
     } catch (error) {
-      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
-      return false;
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error)
+      return false
     }
-  };
+  }
   // Event listener for lead upload status
   useEffect(() => {
     const handleLeadUploadStart = (event) => {
-      console.log("Lead upload started - hiding dashboard slider");
-      setIsLeadUploading(true);
-    };
+      console.log('Lead upload started - hiding dashboard slider')
+      setIsLeadUploading(true)
+    }
 
     const handleLeadUploadComplete = (event) => {
-      console.log("Lead upload completed - showing dashboard slider");
-      setIsLeadUploading(false);
-    };
+      console.log('Lead upload completed - showing dashboard slider')
+      setIsLeadUploading(false)
+    }
 
-    window.addEventListener("leadUploadStart", handleLeadUploadStart);
-    window.addEventListener("leadUploadComplete", handleLeadUploadComplete);
+    window.addEventListener('leadUploadStart', handleLeadUploadStart)
+    window.addEventListener('leadUploadComplete', handleLeadUploadComplete)
 
     return () => {
-      window.removeEventListener("leadUploadStart", handleLeadUploadStart);
-      window.removeEventListener("leadUploadComplete", handleLeadUploadComplete);
-    };
-  }, []);
+      window.removeEventListener('leadUploadStart', handleLeadUploadStart)
+      window.removeEventListener('leadUploadComplete', handleLeadUploadComplete)
+    }
+  }, [])
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
+        .register('/firebase-messaging-sw.js')
         .then((registration) => {
           // console.log(
           //   "Service Worker registered with scope:",
@@ -592,9 +596,9 @@ const ProfileNav = () => {
         })
         .catch((error) => {
           // console.error("Service Worker registration failed:", error);
-        });
+        })
     }
-  }, []);
+  }, [])
 
   //function to get the notification permissione
   const requestNotificationPermission = () => {
@@ -603,30 +607,30 @@ const ProfileNav = () => {
     // //console.log;
     Notification.requestPermission()
       .then((permission) => {
-        if (permission === "granted") {
+        if (permission === 'granted') {
           // //console.log;
           requestToken((FCMToken) => {
             if (FCMToken) {
               // //console.log;
               let apidata = {
                 fcm_token: FCMToken,
-              };
+              }
               let SavedLocation = localStorage.getItem(
-                PersistanceKeys.LocalStorageCompleteLocation
-              );
+                PersistanceKeys.LocalStorageCompleteLocation,
+              )
               if (SavedLocation) {
-                let parsedLocation = JSON.parse(SavedLocation);
-                apidata.lat = parsedLocation.latitude;
-                apidata.lang = parsedLocation.longitude;
+                let parsedLocation = JSON.parse(SavedLocation)
+                apidata.lat = parsedLocation.latitude
+                apidata.lang = parsedLocation.longitude
               }
               //console.log;
               // UpdateProfile()
             } else {
-              alert("FCM token not generated!!!");
+              alert('FCM token not generated!!!')
             }
-          });
+          })
         } else {
-          router.push("/tristan.ai");
+          router.push('/tristan.ai')
         }
       })
       .catch((error) => {
@@ -634,58 +638,58 @@ const ProfileNav = () => {
       })
       .finally(() => {
         // setShowNotificationLoader(false);
-      });
-  };
+      })
+  }
 
   const links = [
     {
       id: 1,
-      name: "Dashboard",
-      href: "/dashboard",
-      selected: "/svgIcons/selectdDashboardIcon.svg",
-      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      name: 'Dashboard',
+      href: '/dashboard',
+      selected: '/svgIcons/selectdDashboardIcon.svg',
+      uneselected: '/svgIcons/unSelectedDashboardIcon.svg',
     },
     {
       id: 2,
-      name: "Agents",
-      href: "/dashboard/myAgentX",
-      selected: "/svgIcons/selectedAgentXIcon.svg",
-      uneselected: "/svgIcons/agentXIcon.svg",
+      name: 'Agents',
+      href: '/dashboard/myAgentX',
+      selected: '/svgIcons/selectedAgentXIcon.svg',
+      uneselected: '/svgIcons/agentXIcon.svg',
     },
     {
       id: 3,
-      name: "Leads",
-      href: "/dashboard/leads",
-      selected: "/svgIcons/selectedLeadsIcon.svg",
-      uneselected: "/svgIcons/unSelectedLeadsIcon.svg",
+      name: 'Leads',
+      href: '/dashboard/leads',
+      selected: '/svgIcons/selectedLeadsIcon.svg',
+      uneselected: '/svgIcons/unSelectedLeadsIcon.svg',
     },
     {
       id: 4,
-      name: "Pipeline",
-      href: "/dashboard/pipeline",
-      selected: "/svgIcons/selectedPiplineIcon.svg",
-      uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
+      name: 'Pipeline',
+      href: '/dashboard/pipeline',
+      selected: '/svgIcons/selectedPiplineIcon.svg',
+      uneselected: '/svgIcons/unSelectedPipelineIcon.svg',
     },
     {
       id: 5,
-      name: "Activity",//"Call Log",
-      href: "/dashboard/callLog",
-      selected: "/otherAssets/selectedActivityLog.png",
-      uneselected: "/otherAssets/activityLog.png",
+      name: 'Activity', //"Call Log",
+      href: '/dashboard/callLog',
+      selected: '/otherAssets/selectedActivityLog.png',
+      uneselected: '/otherAssets/activityLog.png',
     },
     {
       id: 6,
-      name: "Integration",
-      href: "/dashboard/integration",
-      selected: "/svgIcons/selectedIntegration.svg",
-      uneselected: "/svgIcons/unSelectedIntegrationIcon.svg",
+      name: 'Integration',
+      href: '/dashboard/integration',
+      selected: '/svgIcons/selectedIntegration.svg',
+      uneselected: '/svgIcons/unSelectedIntegrationIcon.svg',
     },
     {
       id: 7,
-      name: "Team",
-      href: "/dashboard/team",
-      selected: "/svgIcons/selectedTeam.svg",
-      uneselected: "/svgIcons/unSelectedTeamIcon.svg",
+      name: 'Team',
+      href: '/dashboard/team',
+      selected: '/svgIcons/selectedTeam.svg',
+      uneselected: '/svgIcons/unSelectedTeamIcon.svg',
     },
     // {
     //   id: 8,
@@ -694,100 +698,102 @@ const ProfileNav = () => {
     //   selected: '/assets/selectedTeamIcon.png',
     //   uneselected: '/assets/unSelectedTeamIcon.png'
     // },
-  ];
+  ]
 
   const adminLinks = [
     {
       id: 1,
-      name: "Users",
-      href: "/admin/",
-      selected: "/svgIcons/selectdDashboardIcon.svg",
-      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      name: 'Users',
+      href: '/admin/',
+      selected: '/svgIcons/selectdDashboardIcon.svg',
+      uneselected: '/svgIcons/unSelectedDashboardIcon.svg',
     },
-  ];
+  ]
 
   const agencyLinks = [
     {
       id: 1,
-      name: "Dashboard",
-      href: "/dashboard",
-      selected: "/svgIcons/selectdDashboardIcon.svg",
-      uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      name: 'Dashboard',
+      href: '/dashboard',
+      selected: '/svgIcons/selectdDashboardIcon.svg',
+      uneselected: '/svgIcons/unSelectedDashboardIcon.svg',
     },
     {
       id: 1,
-      name: "Sub Account",
-      href: "/dashboard",
-      selected: "/svgIcons/selectedSubAccountIcon.svg",
-      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
+      name: 'Sub Account',
+      href: '/dashboard',
+      selected: '/svgIcons/selectedSubAccountIcon.svg',
+      uneselected: '/svgIcons/unSelectedSubAccountIcon.svg',
     },
     {
       id: 1,
-      name: "Plans",
-      href: "/dashboard",
-      selected: "/svgIcons/selectPlansIcon.svg",
-      uneselected: "/svgIcons/unSelectePlansIcon.svg",
+      name: 'Plans',
+      href: '/dashboard',
+      selected: '/svgIcons/selectPlansIcon.svg',
+      uneselected: '/svgIcons/unSelectePlansIcon.svg',
     },
-  ];
+  ]
 
   //function to getprofile
   const getProfile = async () => {
     console.log('🔍 [getProfile] Starting getProfile function')
 
     try {
-      let response = await getProfileDetails();
-      console.log('🔍 [getProfile] API response received:', response);
-      getShowWalkThrough();
+      let response = await getProfileDetails()
+      console.log('🔍 [getProfile] API response received:', response)
+      getShowWalkThrough()
 
       if (response?.status == 404) {
-        console.log('❌ [getProfile] 404 status - user not found');
+        console.log('❌ [getProfile] 404 status - user not found')
         // logout();
         // router.push("/");
-        return;
+        return
       }
 
       // //console.log;
 
-      const userlocalData = localStorage.getItem("User");
-      console.log('🔍 [getProfile] Local storage data exists:', !!userlocalData);
+      const userlocalData = localStorage.getItem('User')
+      console.log('🔍 [getProfile] Local storage data exists:', !!userlocalData)
       if (userlocalData) {
         // setUserDetails(response.data.data);
         //removed this bcz i am getting data from localstorage and api data is creating issues here
         // setUserDetails(userlocalData);
       }
 
-      let Data = response?.data?.data;
-      console.log('🔍 [getProfile] Extracted data from response:', Data);
+      let Data = response?.data?.data
+      console.log('🔍 [getProfile] Extracted data from response:', Data)
 
       console.log(
-        "🔍 [getProfile] Available seconds:",
-        Data?.totalSecondsAvailable
-      );
+        '🔍 [getProfile] Available seconds:',
+        Data?.totalSecondsAvailable,
+      )
 
       // Check profile_status from API response
-      if (Data?.profile_status && Data.profile_status !== "active") {
-        console.log('❌ [getProfile] Profile status is not active:', Data.profile_status);
-        setErrorSnack("Your account has been frozen.");
-        setShowErrorSnack(true);
+      if (Data?.profile_status && Data.profile_status !== 'active') {
+        console.log(
+          '❌ [getProfile] Profile status is not active:',
+          Data.profile_status,
+        )
+        setErrorSnack('Your account has been frozen.')
+        setShowErrorSnack(true)
         // Show snackbar briefly before logout
         setTimeout(() => {
-          logout("Profile status is not active");
-        }, 2000);
-        return;
+          logout('Profile status is not active')
+        }, 2000)
+        return
       }
 
       if (response) {
-        console.log('✅ [getProfile] Response exists, processing...');
+        console.log('✅ [getProfile] Response exists, processing...')
         if (response?.data) {
-          console.log("🔍 [getProfile] Response data exists:", response);
-          setUserType(response?.data?.data.userType);
-          let userPlan = response?.data?.data?.plan;
-          const user = response?.data?.data;
-          const isBalanceLow = user.totalSecondsAvailable < 120;
-          setReduxUser(user);
+          console.log('🔍 [getProfile] Response data exists:', response)
+          setUserType(response?.data?.data.userType)
+          let userPlan = response?.data?.data?.plan
+          const user = response?.data?.data
+          const isBalanceLow = user.totalSecondsAvailable < 120
+          setReduxUser(user)
 
-
-          console.log("🔍 [getProfile] User details:", {
+          console.log('🔍 [getProfile] User details:', {
             userType: response?.data?.data.userType,
             userPlan: userPlan,
             userRole: Data?.userRole,
@@ -796,117 +802,136 @@ const ProfileNav = () => {
             cardsLength: Data?.cards?.length,
             needsChargeConfirmation: Data?.needsChargeConfirmation,
             callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
-            paymentFailed: Data?.paymentFailed
-          });
+            paymentFailed: Data?.paymentFailed,
+          })
 
-          if (response?.data?.data.userType != "admin") {
-            console.log('🔍 [getProfile] User is not an admin, checking plan...', { userPlan, userRole: Data?.userRole })
+          if (response?.data?.data.userType != 'admin') {
+            console.log(
+              '🔍 [getProfile] User is not an admin, checking plan...',
+              { userPlan, userRole: Data?.userRole },
+            )
 
-            if (!userPlan && Data?.userRole !== "AgencySubAccount") {
-              console.log('❌ [getProfile] No user plan found, redirecting to /plan');
-              router.push("/plan")
+            if (!userPlan && Data?.userRole !== 'AgencySubAccount') {
+              console.log(
+                '❌ [getProfile] No user plan found, redirecting to /plan',
+              )
+              router.push('/plan')
               return
             }
-            console.log('✅ [getProfile] User has a plan, continuing...');
-
+            console.log('✅ [getProfile] User has a plan, continuing...')
           }
           if (
-            Data?.userRole === "AgencySubAccount" &&
-            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active" ))
-              // ||
-              // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
+            Data?.userRole === 'AgencySubAccount' &&
+            (Data?.plan == null ||
+              (Data?.plan && Data?.plan?.status !== 'active'))
+            // ||
+            // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
-            console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
-              userRole: Data?.userRole,
-              plan: Data?.plan,
-              planStatus: Data?.plan?.status,
-              isBalanceLow: isBalanceLow
-            });
+            console.log(
+              '🔍 [getProfile] AgencySubAccount condition triggered',
+              {
+                userRole: Data?.userRole,
+                plan: Data?.plan,
+                planStatus: Data?.plan?.status,
+                isBalanceLow: isBalanceLow,
+              },
+            )
 
-            const fromDashboard = { fromDashboard: true };
-            localStorage.setItem(
-              "fromDashboard",
-              JSON.stringify(fromDashboard)
-            );
-            router.push("/subaccountInvite/subscribeSubAccountPlan");
-          } else if (Data?.userRole !== "AgencySubAccount") {
-            console.log("🔍 [getProfile] Non-AgencySubAccount user, checking conditions...", {
-              userRole: Data?.userRole,
-              cardsLength: Data?.cards?.length,
-              needsChargeConfirmation: Data?.needsChargeConfirmation,
-              callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
-              paymentFailed: Data?.paymentFailed,
-              isBalanceLow: isBalanceLow
-            });
+            const fromDashboard = { fromDashboard: true }
+            localStorage.setItem('fromDashboard', JSON.stringify(fromDashboard))
+            router.push('/subaccountInvite/subscribeSubAccountPlan')
+          } else if (Data?.userRole !== 'AgencySubAccount') {
+            console.log(
+              '🔍 [getProfile] Non-AgencySubAccount user, checking conditions...',
+              {
+                userRole: Data?.userRole,
+                cardsLength: Data?.cards?.length,
+                needsChargeConfirmation: Data?.needsChargeConfirmation,
+                callsPausedUntilSubscription:
+                  Data?.callsPausedUntilSubscription,
+                paymentFailed: Data?.paymentFailed,
+                isBalanceLow: isBalanceLow,
+              },
+            )
 
             if (
-              (Data.cards.length === 0) &&
+              Data.cards.length === 0 &&
               Data.plan.price !== 0 &&
-              (Data.needsChargeConfirmation === false) &&
-              (!Data.callsPausedUntilSubscription)
+              Data.needsChargeConfirmation === false &&
+              !Data.callsPausedUntilSubscription
             ) {
-              console.log("🔍 [getProfile] First time user condition - no cards, showing upgrade modal");
+              console.log(
+                '🔍 [getProfile] First time user condition - no cards, showing upgrade modal',
+              )
 
               // if user comes first time then show plans popup
               // setShowPlansPopup(true);
               // setShowUpgradePlanModal(true)
-
-            } else if (Data?.plan?.status === "paused") {
-              console.log("🔍 [getProfile] Plan paused condition - showing plan paused bar");
+            } else if (Data?.plan?.status === 'paused') {
+              console.log(
+                '🔍 [getProfile] Plan paused condition - showing plan paused bar',
+              )
               setShowPlanPausedBar(true)
             } else if (
-
-              (Data?.paymentFailed === true)
-              && (Data.needsChargeConfirmation === false) &&
-              (!Data.callsPausedUntilSubscription)
+              Data?.paymentFailed === true &&
+              Data.needsChargeConfirmation === false &&
+              !Data.callsPausedUntilSubscription
             ) {
-              console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
+              console.log(
+                '🔍 [getProfile] Payment failed condition - showing failed payment bar',
+              )
               setShowFailedPaymentBar(true)
-            } else if (isBalanceLow && (Data?.plan?.price === 0 || Data?.smartRefill === false)) {
-              console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
+            } else if (
+              isBalanceLow &&
+              (Data?.plan?.price === 0 || Data?.smartRefill === false)
+            ) {
+              console.log(
+                '🔍 [getProfile] Low balance condition - showing upgrade plan bar',
+              )
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
             } else {
-              console.log('🔍 [getProfile] No specific condition met - hiding all modals/bars')
-              setShowPlansPopup(false);
+              console.log(
+                '🔍 [getProfile] No specific condition met - hiding all modals/bars',
+              )
+              setShowPlansPopup(false)
               setShowUpgradePlanModal(false)
 
               setShowUpgradePlanBar(false)
               setShowFailedPaymentBar(false)
             }
-
           } else {
-            console.log('🔍 [getProfile] Admin user or other condition - hiding all modals/bars')
-            setShowPlansPopup(false);
+            console.log(
+              '🔍 [getProfile] Admin user or other condition - hiding all modals/bars',
+            )
+            setShowPlansPopup(false)
             setShowUpgradePlanModal(false)
 
             setShowUpgradePlanBar(false)
             setShowFailedPaymentBar(false)
           }
 
-          let plan = response?.data?.data?.plan;
-          let togglePlan = plan?.type;
-          let planType = togglePlan;
+          let plan = response?.data?.data?.plan
+          let togglePlan = plan?.type
+          let planType = togglePlan
 
-
-          console.log('🔍 [getProfile] Final planType set to:', planType);
-          setTogglePlan(planType);
+          console.log('🔍 [getProfile] Final planType set to:', planType)
+          setTogglePlan(planType)
         } else {
-          console.log('❌ [getProfile] No response.data found');
+          console.log('❌ [getProfile] No response.data found')
         }
       } else {
-        console.log('❌ [getProfile] No response received - logging out user');
-        logout("API failure/no response from getProfile");
-        router.push("/");
+        console.log('❌ [getProfile] No response received - logging out user')
+        logout('API failure/no response from getProfile')
+        router.push('/')
       }
-
     } catch (error) {
-      console.error("❌ [getProfile] Error occurred:", error);
+      console.error('❌ [getProfile] Error occurred:', error)
     }
-  };
+  }
 
   const handleOnClick = (e, href) => {
-    localStorage.removeItem("openBilling");
+    localStorage.removeItem('openBilling')
 
     // if (!userDetails.user.plan) {
     //   getProfile();
@@ -914,50 +939,50 @@ const ProfileNav = () => {
 
     // e.preventDefault();
     // router.push(href);
-  };
+  }
 
   //function to subsscribe plan
 
   //function to select plan
   const handleTogglePlanClick = (item) => {
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
-  };
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setSubscribePlanLoader(true);
+      setSubscribePlanLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      const ApiPath = Apis.getCardsList
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           if (response.data.data.length === 0) {
-            setAddPaymentPopup(true);
+            setAddPaymentPopup(true)
           }
         }
       }
@@ -967,7 +992,7 @@ const ProfileNav = () => {
       // //console.log;
       // setGetCardLoader(false);
     }
-  };
+  }
 
   const handleSubscribePlan = async () => {
     try {
@@ -979,30 +1004,30 @@ const ProfileNav = () => {
       //   return;
       // }
       // return;
-      let planType = null;
+      let planType = null
 
       //// //console.log;
 
       if (togglePlan === 1) {
-        planType = "Plan30";
+        planType = 'Plan30'
       } else if (togglePlan === 2) {
-        planType = "Plan120";
+        planType = 'Plan120'
       } else if (togglePlan === 3) {
-        planType = "Plan360";
+        planType = 'Plan360'
       } else if (togglePlan === 4) {
-        planType = "Plan720";
+        planType = 'Plan720'
       }
 
       // //console.log;
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
       }
       // if (localDetails.user.cards.length == 0) {
       //   setAddPaymentPopup(true);
@@ -1014,189 +1039,193 @@ const ProfileNav = () => {
       const ApiData = {
         plan: planType,
         payNow: true,
-      };
+      }
 
       // //console.log;
 
-      const ApiPath = Apis.subscribePlan;
+      const ApiPath = Apis.subscribePlan
       // //console.log;
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          localDetails.user.plan = response.data.data;
+          localDetails.user.plan = response.data.data
           // //console.log;
           // getProfile();
-          localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack(response.data.message);
-          setShowSuccessSnack(true);
-          setShowPlansPopup(false);
-          console.log("Should triger the intro video")
-          getShowWalkThrough();
-          getProfile();
+          localStorage.setItem('User', JSON.stringify(localDetails))
+          setSuccessSnack(response.data.message)
+          setShowSuccessSnack(true)
+          setShowPlansPopup(false)
+          console.log('Should triger the intro video')
+          getShowWalkThrough()
+          getProfile()
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
-          setShowErrorSnack(true);
+          setErrorSnack(response.data.message)
+          setShowErrorSnack(true)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
 
   const handleClose = async (data) => {
     // //console.log;
     if (data.status === true) {
-      let newCard = data.data;
-      setAddPaymentPopup(false);
-      await getProfile();
+      let newCard = data.data
+      setAddPaymentPopup(false)
+      await getProfile()
       // setCards([newCard, ...cards]);
       setSubscribePlanLoader(false)
     }
-  };
+  }
 
   const styles = {
     paymentModal: {
       // height: "auto",
-      bgcolor: "transparent",
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
+      mx: 'auto',
       // my: "50vh",
       // transform: "translateY(-50%)",
       borderRadius: 2,
-      border: "none",
-      outline: "none",
-      height: "100svh",
+      border: 'none',
+      outline: 'none',
+      height: '100svh',
     },
     cardStyles: {
-      fontSize: "14",
-      fontWeight: "500",
-      border: "1px solid #00000020",
+      fontSize: '14',
+      fontWeight: '500',
+      border: '1px solid #00000020',
     },
     pricingBox: {
-      position: "relative",
+      position: 'relative',
       // padding: '10px',
-      borderRadius: "10px",
+      borderRadius: '10px',
       // backgroundColor: '#f9f9ff',
-      display: "inline-block",
-      width: "100%",
+      display: 'inline-block',
+      width: '100%',
     },
     triangleLabel: {
-      position: "absolute",
-      top: "0",
-      right: "0",
-      width: "0",
-      height: "0",
-      borderTop: "50px solid #7902DF", // Increased height again for more padding
-      borderLeft: "50px solid transparent",
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
     },
     labelText: {
-      position: "absolute",
-      top: "10px", // Adjusted to keep the text centered within the larger triangle
-      right: "5px",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "bold",
-      transform: "rotate(45deg)",
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
     },
     content: {
-      textAlign: "left",
-      paddingTop: "10px",
+      textAlign: 'left',
+      paddingTop: '10px',
     },
     originalPrice: {
-      textDecoration: "line-through",
-      color: "#7902DF65",
+      textDecoration: 'line-through',
+      color: '#7902DF65',
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     discountedPrice: {
-      color: "#000000",
-      fontWeight: "bold",
+      color: '#000000',
+      fontWeight: 'bold',
       fontSize: 18,
-      marginLeft: "10px",
-      whiteSpace: "nowrap",
+      marginLeft: '10px',
+      whiteSpace: 'nowrap',
     },
-  };
+  }
 
   const showLinks = () => {
-    if (userType && userType == "admin") {
-      return adminLinks;
+    if (userType && userType == 'admin') {
+      return adminLinks
     } else {
-      return links;
+      return links
     }
-  };
+  }
 
   const handleSmartRefill = async () => {
-    setLoading(true);
-    let response = await SmartRefillApi();
+    setLoading(true)
+    let response = await SmartRefillApi()
     if (response.data.status === true) {
-      setLoading(false);
-      setShowUpgradePlanBar(false);
-      setShowFailedPaymentBar(false);
-      setShowPlanPausedBar(false);
-      setShowSuccessSnack(true);
-      setSuccessSnack(response.data.message);
-      await refreshUserData();
+      setLoading(false)
+      setShowUpgradePlanBar(false)
+      setShowFailedPaymentBar(false)
+      setShowPlanPausedBar(false)
+      setShowSuccessSnack(true)
+      setSuccessSnack(response.data.message)
+      await refreshUserData()
     } else {
-      setLoading(false);
-      setShowErrorSnack(true);
-      setErrorSnack(response.data.message);
+      setLoading(false)
+      setShowErrorSnack(true)
+      setErrorSnack(response.data.message)
     }
   }
 
   const resumeAccount = async () => {
-    setLoading(true);
+    setLoading(true)
 
     try {
-      const user = localStorage.getItem("User");
+      const user = localStorage.getItem('User')
       if (user) {
-        const userData = JSON.parse(user);
-        let token = userData.token;
-        console.log("token is", token);
+        const userData = JSON.parse(user)
+        let token = userData.token
+        console.log('token is', token)
 
-        const response = await axios.post(Apis.resumeSubscription,{}, {
-          headers: {
-            Authorization: "Bearer " + token,
-            "Content-Type": "application/json",
+        const response = await axios.post(
+          Apis.resumeSubscription,
+          {},
+          {
+            headers: {
+              Authorization: 'Bearer ' + token,
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        )
         if (response.data.status === true) {
-          setShowSuccessSnack(true);
-          setSuccessSnack(response.data.message);
-          await getProfile();
-          setShowPlanPausedBar(false);
-          
+          setShowSuccessSnack(true)
+          setSuccessSnack(response.data.message)
+          await getProfile()
+          setShowPlanPausedBar(false)
+
           // Dispatch event to notify other components that subscription has been resumed
           window.dispatchEvent(
-            new CustomEvent("subscriptionResumed", { detail: { update: true } })
-          );
+            new CustomEvent('subscriptionResumed', {
+              detail: { update: true },
+            }),
+          )
         } else {
-          setShowErrorSnack(true);
-          setErrorSnack(response.data.message);
+          setShowErrorSnack(true)
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+      console.error('Error occured in api is:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-
   }
 
   const SnackBarForUpgradePlan = (Data) => {
     return (
-
       <div
         style={{
           position: 'fixed',
@@ -1207,88 +1236,108 @@ const ProfileNav = () => {
         }}
         className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
       >
-        <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
-          height={24} width={24} alt="*"
+        <Image
+          src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
+          height={24}
+          width={24}
+          alt="*"
         />
-        {
-          showPlanPausedBar ? (
-            <div style={{ fontSize: 13, fontWeight: '700', }}>
-              {`Your account is paused. Click here to`} <span
-                className="text-purple underline cursor-pointer"
-                onClick={() => {
-                  resumeAccount()
-                }}
-              > {loading ? <CircularProgress size={20} /> : "Resume"}
-              </span>
-            </div>
-
-          ) : (
-            <>
-              {
-
-                showUpgradePlanBar && reduxUser?.plan?.price === 0 ? (
-                  <div className="flex flex-col">
-                    <div style={{ fontSize: 13, fontWeight: '700', }}>
-                      {`You're out of Free AI Credits.`}<span className="text-purple underline cursor-pointer" onClick={() => {
-                        setShowUpgradePlanModal2(true)
-                      }}>
-                        Upgrade
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                      Please upgrade or wait until your renewal date.
-                    </div>
-                  </div>
-                ) : (
-                  showUpgradePlanBar ? (
-                    <div style={{ fontSize: 13, fontWeight: '700', }}>
-                      {reduxUser?.plan?.price === 0 ? "You're out of Free AI Credits." :
-                        `Action Needed! Your AI agents are paused. You don't have enough credits.`}
-                      {reduxUser?.smartRefill === false && (<span
-                        className="text-purple underline cursor-pointer"
-                        onClick={() => {
-                          handleSmartRefill();
-                        }}
-                      >
-                      {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
-                      </span>)}  <span
-                        className="text-purple underline cursor-pointer"
-                        onClick={() => {
-                          setShowUpgradePlanModal2(true)
-                        }}
-                      > Upgrade
-                      </span>
-                    </div>
-
-                  ) : (
-                    <div>
-
-                      <div style={{ fontSize: 15, fontWeight: '700', }}>
-                        {`Your subscription payment could not be processed.`}
-                        <span
-                          className="text-purple underline cursor-pointer"
-                          onClick={() => {
-                            setShowUpgradePlanModal2(true)
-                          }}
-                        > Upgrade
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                        {"Please update your payment method to continue"}
-                      </div>
-
-
-                    </div>
-                  )
-                )
-              }
-
-            </>
-          )
-        }
-
+        {showPlanPausedBar ? (
+          <div style={{ fontSize: 13, fontWeight: '700' }}>
+            {`Your account is paused. Click here to`}{' '}
+            <span
+              className="text-purple underline cursor-pointer"
+              onClick={() => {
+                resumeAccount()
+              }}
+            >
+              {' '}
+              {loading ? <CircularProgress size={20} /> : 'Resume'}
+            </span>
+          </div>
+        ) : (
+          <>
+            {showUpgradePlanBar && reduxUser?.plan?.price === 0 ? (
+              <div className="flex flex-col">
+                <div style={{ fontSize: 13, fontWeight: '700' }}>
+                  {`You're out of Free AI Credits.`}
+                  <span
+                    className="text-purple underline cursor-pointer"
+                    onClick={() => {
+                      setShowUpgradePlanModal2(true)
+                    }}
+                  >
+                    Upgrade
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#00000080',
+                  }}
+                >
+                  Please upgrade or wait until your renewal date.
+                </div>
+              </div>
+            ) : showUpgradePlanBar ? (
+              <div style={{ fontSize: 13, fontWeight: '700' }}>
+                {reduxUser?.plan?.price === 0
+                  ? "You're out of Free AI Credits."
+                  : `Action Needed! Your AI agents are paused. You don't have enough credits.`}
+                {reduxUser?.smartRefill === false && (
+                  <span
+                    className="text-purple underline cursor-pointer"
+                    onClick={() => {
+                      handleSmartRefill()
+                    }}
+                  >
+                    {loading ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      ' Turn on Smart Refill '
+                    )}{' '}
+                    <span className="text-black"> or </span>
+                  </span>
+                )}{' '}
+                <span
+                  className="text-purple underline cursor-pointer"
+                  onClick={() => {
+                    setShowUpgradePlanModal2(true)
+                  }}
+                >
+                  {' '}
+                  Upgrade
+                </span>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: '700' }}>
+                  {`Your subscription payment could not be processed.`}
+                  <span
+                    className="text-purple underline cursor-pointer"
+                    onClick={() => {
+                      setShowUpgradePlanModal2(true)
+                    }}
+                  >
+                    {' '}
+                    Upgrade
+                  </span>
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#00000080',
+                  }}
+                >
+                  {'Please update your payment method to continue'}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
     )
   }
 
@@ -1314,7 +1363,7 @@ const ProfileNav = () => {
         onClose={() => setWalkthroughWatched(false)}
         videoTitle="Welcome to AssignX"
         videoDescription="This short video will show you where everything is. Enjoy!"
-        videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
+        videoUrl={HowtoVideos.WalkthroughWatched} //WalkthroughWatched
         showLoader={updateProfileLoader}
       />
 
@@ -1323,14 +1372,17 @@ const ProfileNav = () => {
           className="w-full pt-5 flex flex-col items-center"
           style={{
             // height: "90vh",
-            overflow: "auto",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
+            overflow: 'auto',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
           }}
         >
           <div className="w-full flex flex-col gap-2">
             {/* Show agency branding for subaccount users, otherwise show assignX */}
-            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
+            {reduxUser &&
+            (reduxUser?.userRole === 'AgencySubAccount' ||
+              reduxUser?.userRole === 'Invitee') &&
+            reduxUser?.agencyBranding ? (
               <>
                 {/* If logo exists, show only logo */}
                 {reduxUser.agencyBranding.logoUrl ? (
@@ -1341,13 +1393,16 @@ const ProfileNav = () => {
                       height={40}
                       width={140}
                       objectFit="contain"
-                      style={{ maxHeight: "40px", marginLeft: "-8px" }}
+                      style={{ maxHeight: '40px', marginLeft: '-8px' }}
                     />
                   </div>
                 ) : (
                   /* If no logo, show only agency name */
                   reduxUser.agencyBranding.companyName && (
-                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                    <div
+                      className="w-full text-left pl-6"
+                      style={{ marginLeft: '-8px' }}
+                    >
                       <div className="text-lg font-bold text-black truncate">
                         {reduxUser.agencyBranding.companyName}
                       </div>
@@ -1359,12 +1414,12 @@ const ProfileNav = () => {
               /* Default assignX logo for regular users */
               <div className="w-full flex justify-start pl-6">
                 <Image
-                  src={"/assets/assignX.png"}
+                  src={'/assets/assignX.png'}
                   alt="profile"
                   height={33}
                   width={140}
                   objectFit="contain"
-                  style={{ marginLeft: "-8px" }}
+                  style={{ marginLeft: '-8px' }}
                 />
               </div>
             )}
@@ -1375,15 +1430,15 @@ const ProfileNav = () => {
               <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
                 <Link
                   sx={{
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    "&:hover": {
-                      textDecoration: "none"
-                    }
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'none',
+                    },
                   }}
                   href={item.href}
                   underline="none"
-                // onClick={(e) => handleOnClick(e, item.href)}
+                  // onClick={(e) => handleOnClick(e, item.href)}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -1401,12 +1456,12 @@ const ProfileNav = () => {
                     />
                     <div
                       className={
-                        pathname === item.href ? "text-purple" : "text-black"
+                        pathname === item.href ? 'text-purple' : 'text-black'
                       }
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
+                        paddingLeft: item.name === 'Activity' ? '5px' : '0px',
                       }}
                     >
                       {item.name}
@@ -1426,26 +1481,33 @@ const ProfileNav = () => {
         {/* Lower body */}
         <div className="w-full">
           {/* Code for Check list menu bar */}
-          <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
+          <div>
+            {userDetails && (
+              <CheckList
+                userDetails={userDetails}
+                setWalkthroughWatched={setWalkthroughWatched}
+              />
+            )}
+          </div>
 
           <div
             className="w-full flex flex-row items-start justify-start pt-2"
             style={{
-              borderTop: "1px solid #00000010",
+              borderTop: '1px solid #00000010',
             }}
           >
             <Link
-              href={"/dashboard/myAccount"}
+              href={'/dashboard/myAccount'}
               className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
               style={{
-                textOverflow: "ellipsis",
-                textDecoration: "none",
+                textOverflow: 'ellipsis',
+                textDecoration: 'none',
               }}
               sx={{
-                textDecoration: "none",
-                "&:hover": {
-                  textDecoration: "none"
-                }
+                textDecoration: 'none',
+                '&:hover': {
+                  textDecoration: 'none',
+                },
               }}
               underline="none"
             >
@@ -1454,10 +1516,10 @@ const ProfileNav = () => {
                   src={userDetails?.user?.thumb_profile_image}
                   alt="*"
                   style={{
-                    objectFit: "fill",
-                    height: "34px",
-                    width: "34px",
-                    borderRadius: "50%",
+                    objectFit: 'fill',
+                    height: '34px',
+                    width: '34px',
+                    borderRadius: '50%',
                   }}
                 />
               ) : (
@@ -1472,29 +1534,31 @@ const ProfileNav = () => {
                     className="truncate"
                     style={{
                       fontSize: 15,
-                      fontWeight: "500",
-                      color: "",
+                      fontWeight: '500',
+                      color: '',
                       // width: "100px",
-                      color: "black",
+                      color: 'black',
                     }}
                   >
                     {/*userDetails?.user?.name?.split(" ")[0]*/}
                     {(() => {
-                      const name = reduxUser?.name?.split(" ")[0] || "";
-                      return name.length > 10 ? `${name.slice(0, 7)}...` : name;
+                      const name = reduxUser?.name?.split(' ')[0] || ''
+                      return name.length > 10 ? `${name.slice(0, 7)}...` : name
                     })()}
                   </div>
                   <div className="text-xs font-medium text-purple">
-                    {checkTrialDays(reduxUser) ? `${checkTrialDays(reduxUser)}` : ""}
+                    {checkTrialDays(reduxUser)
+                      ? `${checkTrialDays(reduxUser)}`
+                      : ''}
                   </div>
                 </div>
                 <div
                   className="truncate w-[120px]"
                   style={{
                     fontSize: 15,
-                    fontWeight: "500",
-                    color: "#15151560",
-                    textOverflow: "ellipsis",
+                    fontWeight: '500',
+                    color: '#15151560',
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {reduxUser?.email}
@@ -1502,24 +1566,19 @@ const ProfileNav = () => {
               </div>
 
               {/* Socket Connection Status Indicator */}
-
             </Link>
 
-
-            {
-              !showAssignBanner && !isLeadUploading && (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    bottom: 0
-                  }}>
-                  <DashboardSlider
-                    needHelp={showHelpModal} />
-                </div>
-              )
-            }
-
+            {!showAssignBanner && !isLeadUploading && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  bottom: 0,
+                }}
+              >
+                <DashboardSlider needHelp={showHelpModal} />
+              </div>
+            )}
 
             <LeadProgressBanner
               title="Assigning Leads"
@@ -1529,14 +1588,9 @@ const ProfileNav = () => {
           </div>
         </div>
 
-        {
-          (showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
-            <SnackBarForUpgradePlan Data={reduxUser}
-            />
-          )
-        }
-
-
+        {(showUpgradePlanBar || showFailedPaymentBar || showPlanPausedBar) && (
+          <SnackBarForUpgradePlan Data={reduxUser} />
+        )}
       </div>
 
       <CallPausedPopup
@@ -1549,12 +1603,12 @@ const ProfileNav = () => {
         {/* Subscribe Plan modal */}
 
         <Modal
-          open={false}  //showPlansPopup
+          open={false} //showPlansPopup
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
             },
           }}
         >
@@ -1562,22 +1616,25 @@ const ProfileNav = () => {
             className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
             sx={{
               ...styles.paymentModal,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh", // Full viewport height
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh', // Full viewport height
             }}
           >
-            <SupportFile upgardeAction={() => {
-              setShowPlansPopup(false);
-              setShowUpgradePlanModal(true);
-            }} cancelAction={() => {
-              setShowPlansPopup(false)
-            }}
+            <SupportFile
+              upgardeAction={() => {
+                setShowPlansPopup(false)
+                setShowUpgradePlanModal(true)
+              }}
+              cancelAction={() => {
+                setShowPlansPopup(false)
+              }}
               metadata={{
-                renewal: reduxUser?.nextChargeDate || ''
-              }} />
+                renewal: reduxUser?.nextChargeDate || '',
+              }}
+            />
             {/* <div
               className="flex flex-row justify-center w-full"
               style={{
@@ -1811,11 +1868,11 @@ const ProfileNav = () => {
           open={showUpgradePlanModal}
           handleClose={() => setShowUpgradePlanModal(false)}
           title={"You've Hit Your AI credits Limit"}
-          subTitle={"Upgrade to get more call time and keep your converstaions going"}
+          subTitle={
+            'Upgrade to get more call time and keep your converstaions going'
+          }
           buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
         />
-
-
 
         {/* Add Payment Modal */}
         <Modal
@@ -1825,7 +1882,7 @@ const ProfileNav = () => {
           BackdropProps={{
             timeout: 100,
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
               // //backdropFilter: "blur(20px)",
             },
           }}
@@ -1838,23 +1895,23 @@ const ProfileNav = () => {
               <div
                 className="sm:w-7/12 w-full"
                 style={{
-                  backgroundColor: "#ffffff",
+                  backgroundColor: '#ffffff',
                   padding: 20,
-                  borderRadius: "13px",
+                  borderRadius: '13px',
                 }}
               >
                 <div className="flex flex-row justify-between items-center">
                   <div
                     style={{
                       fontSize: 22,
-                      fontWeight: "600",
+                      fontWeight: '600',
                     }}
                   >
                     Payment Details
                   </div>
                   <button onClick={() => setAddPaymentPopup(false)}>
                     <Image
-                      src={"/assets/crossIcon.png"}
+                      src={'/assets/crossIcon.png'}
                       height={40}
                       width={40}
                       alt="*"
@@ -1868,7 +1925,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
@@ -1880,7 +1937,7 @@ const ProfileNav = () => {
         <Elements stripe={stripePromise}>
           <UpgradePlan
             setSelectedPlan={() => {
-              console.log("setSelectedPlan is called")
+              console.log('setSelectedPlan is called')
             }}
             currentFullPlan={reduxUser?.plan}
             open={showUpgradePlanModal2}
@@ -1894,15 +1951,13 @@ const ProfileNav = () => {
               }
             }}
             setShowSnackMsg={() => {
-              console.log("setShowSnackMsg is called")
+              console.log('setShowSnackMsg is called')
             }}
           />
         </Elements>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ProfileNav;
-
-
+export default ProfileNav

@@ -1,434 +1,431 @@
-"use client";
+'use client'
 
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { TextField, Button, Box, CircularProgress } from "@mui/material";
-import { useRouter } from "next/navigation";
-import AdminGetProfileDetails from "../../AdminGetProfileDetails";
-import { UpdateProfile } from "@/components/apis/UpdateProfile";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import { UserTypes } from "@/constants/UserTypes";
+import { Box, Button, CircularProgress, TextField } from '@mui/material'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import { UpdateProfile } from '@/components/apis/UpdateProfile'
+import { UserTypes } from '@/constants/UserTypes'
+
+import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 
 function AdminBasicInfo({ selectedUser }) {
-  const router = useRouter();
-  const [focusedName, setFocusedName] = useState(false);
-  const [focusedFarm, setFocusedFarm] = useState(false);
-  const [focusedBrokerage, setFocusedBrokerage] = useState(false);
-  const [focusedCompany, setFocusedCompany] = useState(false);
-  const [focusedTransaction, setFocusedTransaction] = useState(false);
+  const router = useRouter()
+  const [focusedName, setFocusedName] = useState(false)
+  const [focusedFarm, setFocusedFarm] = useState(false)
+  const [focusedBrokerage, setFocusedBrokerage] = useState(false)
+  const [focusedCompany, setFocusedCompany] = useState(false)
+  const [focusedTransaction, setFocusedTransaction] = useState(false)
   const [focusedInstallationVolume, setFocusedInstallationVolume] =
-    useState(false);
-  const [focusedEmail, setFocusedEmail] = useState(false);
-  const [focusedServiceArea, setFocusedServiceArea] = useState(false);
-  const [focusedProjectSize, setFocusedProjectSize] = useState(false);
-  const [focusedClientsPerMonth, setFocusedClientsPerMonth] = useState(false);
-  const [focusedCasesPerMonth, setFocusedCasesPerMonth] = useState(false);
-  const [focusedWebsite, setFocusedWebSite] = useState(false);
+    useState(false)
+  const [focusedEmail, setFocusedEmail] = useState(false)
+  const [focusedServiceArea, setFocusedServiceArea] = useState(false)
+  const [focusedProjectSize, setFocusedProjectSize] = useState(false)
+  const [focusedClientsPerMonth, setFocusedClientsPerMonth] = useState(false)
+  const [focusedCasesPerMonth, setFocusedCasesPerMonth] = useState(false)
+  const [focusedWebsite, setFocusedWebSite] = useState(false)
 
   //my variable
-  const [serviceId, setServiceId] = useState([]);
-  const [servicesData, setServicesData] = useState([]);
-  const [focusedTerritory, setFocusedTerritory] = useState(false);
+  const [serviceId, setServiceId] = useState([])
+  const [servicesData, setServicesData] = useState([])
+  const [focusedTerritory, setFocusedTerritory] = useState(false)
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [farm, setFarm] = useState("");
-  const [transaction, setTransaction] = useState("");
-  const [brokerAge, setBrokerAge] = useState("");
-  const [phone, setPhone] = useState("");
-  const [serviceArea, setServiceArea] = useState("");
-  const [teritorry, setTeritorry] = useState("");
-  const [company, setCompany] = useState("");
-  const [installationVolume, setInstallationVolume] = useState("");
-  const [projectSize, setProjectSize] = useState("");
-  const [clientType, setClientType] = useState("");
-  const [consoltation, setconsaltation] = useState("");
-  const [clientType2, setClientType2] = useState("");
-  const [collectionStratigy, setcollectionStratigy] = useState("");
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [companyAffiliation, setCompanyAffiliation] = useState("");
-  const [clientsPerMonth, setClientsPerMonth] = useState("");
-  const [CasesPerMonth, setCasessPerMonth] = useState("");
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [farm, setFarm] = useState('')
+  const [transaction, setTransaction] = useState('')
+  const [brokerAge, setBrokerAge] = useState('')
+  const [phone, setPhone] = useState('')
+  const [serviceArea, setServiceArea] = useState('')
+  const [teritorry, setTeritorry] = useState('')
+  const [company, setCompany] = useState('')
+  const [installationVolume, setInstallationVolume] = useState('')
+  const [projectSize, setProjectSize] = useState('')
+  const [clientType, setClientType] = useState('')
+  const [consoltation, setconsaltation] = useState('')
+  const [clientType2, setClientType2] = useState('')
+  const [collectionStratigy, setcollectionStratigy] = useState('')
+  const [websiteUrl, setWebsiteUrl] = useState('')
+  const [companyAffiliation, setCompanyAffiliation] = useState('')
+  const [clientsPerMonth, setClientsPerMonth] = useState('')
+  const [CasesPerMonth, setCasessPerMonth] = useState('')
 
-  const [isNameChanged, setIsNameChanged] = useState(false);
-  const [isTransactionChanged, setIsTransactionChange] = useState("");
-  const [isFarmChanged, setIsFarmChanged] = useState(false);
-  const [isBrokerageChanged, setIsBrokerageChanged] = useState(false);
-  const [isServiceAreaChanged, setIsServiceAreaChanged] = useState(false);
-  const [isTeritorryChanged, setIsTeritorryChanged] = useState("");
-  const [isCompanyChanged, setIsCompanyChanged] = useState("");
+  const [isNameChanged, setIsNameChanged] = useState(false)
+  const [isTransactionChanged, setIsTransactionChange] = useState('')
+  const [isFarmChanged, setIsFarmChanged] = useState(false)
+  const [isBrokerageChanged, setIsBrokerageChanged] = useState(false)
+  const [isServiceAreaChanged, setIsServiceAreaChanged] = useState(false)
+  const [isTeritorryChanged, setIsTeritorryChanged] = useState('')
+  const [isCompanyChanged, setIsCompanyChanged] = useState('')
   const [isCompanyAffiliationChanged, setIsCompanyAffiliationChanged] =
-    useState("");
+    useState('')
   const [isInstallationVolumechanged, setIsInstallationVolumeChanged] =
-    useState("");
-  const [isProjectSizeChanged, setIsprojectSizeChanged] = useState("");
-  const [isClientsPerMonthChanged, setIsClientsPerMonthChanged] = useState("");
-  const [iscasesPerMonthChanged, setIcasesPerMonthChanged] = useState("");
-  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState("");
+    useState('')
+  const [isProjectSizeChanged, setIsprojectSizeChanged] = useState('')
+  const [isClientsPerMonthChanged, setIsClientsPerMonthChanged] = useState('')
+  const [iscasesPerMonthChanged, setIcasesPerMonthChanged] = useState('')
+  const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState('')
 
-  const [agentServices, setAgentServices] = useState([]);
-  const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([]);
-  const [agentIndustries, setAgentIndustries] = useState([]);
-  const [selectedIndustries, setSelectedIndustries] = useState([]);
+  const [agentServices, setAgentServices] = useState([])
+  const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([])
+  const [agentIndustries, setAgentIndustries] = useState([])
+  const [selectedIndustries, setSelectedIndustries] = useState([])
 
-  const [loading, setloading] = useState(false);
-  const [loading2, setloading2] = useState(false);
-  const [loading3, setloading3] = useState(false);
-  const [loading4, setloading4] = useState(false);
-  const [loading5, setloading5] = useState(false);
-  const [loading6, setloading6] = useState(false);
-  const [loading7, setloading7] = useState(false);
-  const [loading8, setloading8] = useState(false);
-  const [loading9, setloading9] = useState(false);
-  const [loading10, setLoading10] = useState(false);
-  const [loading11, setLoading11] = useState(false);
-  const [loading12, setLoading12] = useState(false);
+  const [loading, setloading] = useState(false)
+  const [loading2, setloading2] = useState(false)
+  const [loading3, setloading3] = useState(false)
+  const [loading4, setloading4] = useState(false)
+  const [loading5, setloading5] = useState(false)
+  const [loading6, setloading6] = useState(false)
+  const [loading7, setloading7] = useState(false)
+  const [loading8, setloading8] = useState(false)
+  const [loading9, setloading9] = useState(false)
+  const [loading10, setLoading10] = useState(false)
+  const [loading11, setLoading11] = useState(false)
+  const [loading12, setLoading12] = useState(false)
 
-  const [srviceLoader, setServiceLoader] = useState(false);
-  const [areaLoading, setAreaLoading] = useState(false);
+  const [srviceLoader, setServiceLoader] = useState(false)
+  const [areaLoading, setAreaLoading] = useState(false)
 
-  const [selected, setSelected] = useState([]);
-  const [selectedArea, setSelectedArea] = useState([]);
+  const [selected, setSelected] = useState([])
+  const [selectedArea, setSelectedArea] = useState([])
 
   //code for image select and drag and drop
-  const [selectedImage, setSelectedImage] = useState("");
-  const [dragging, setDragging] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('')
+  const [dragging, setDragging] = useState(false)
 
   const [originalSelectedIndustries, setOriginalSelectedIndustries] = useState(
-    []
-  ); // To track initial state
-  const [originalSelectedArea, setOriginalSelectedArea] = useState([]); // To track initial state
-  const [originalSelectedService, setOriginalSelectedService] = useState([]); // To track initial state
+    [],
+  ) // To track initial state
+  const [originalSelectedArea, setOriginalSelectedArea] = useState([]) // To track initial state
+  const [originalSelectedService, setOriginalSelectedService] = useState([]) // To track initial state
 
   //user details
-  const [UserDetails, setUserDetails] = useState(null);
+  const [UserDetails, setUserDetails] = useState(null)
 
-  const [userRole, setUserRole] = useState("");
-  const [userType, setUserType] = useState("");
+  const [userRole, setUserRole] = useState('')
+  const [userType, setUserType] = useState('')
 
   const primaryClientTypes = [
     {
       id: 1,
-      title: "Residential clients",
-      value: "residential",
+      title: 'Residential clients',
+      value: 'residential',
     },
     {
       id: 2,
-      title: "Commercial clients",
-      value: "commercial",
+      title: 'Commercial clients',
+      value: 'commercial',
     },
     {
       id: 3,
-      title: "Both",
-      value: "both",
+      title: 'Both',
+      value: 'both',
     },
-  ];
+  ]
 
   const primaryClientTypes3 = [
     {
       id: 1,
-      title: "Soft Collections",
+      title: 'Soft Collections',
     },
     {
       id: 2,
-      title: "Hard Collections",
+      title: 'Hard Collections',
     },
     {
       id: 3,
-      title: "Hybrid Approach",
+      title: 'Hybrid Approach',
     },
     // {
     //   id: 100,
     //   title: "All",
     // },
-  ];
+  ]
   const primaryClientTypes4 = [
     {
       id: 1,
-      title: "First-Time Homebuyers",
+      title: 'First-Time Homebuyers',
     },
     {
       id: 2,
-      title: "Investors & Property Developers",
+      title: 'Investors & Property Developers',
     },
     {
       id: 3,
-      title: "Veterans & Active Military",
+      title: 'Veterans & Active Military',
     },
     {
       id: 3,
-      title: "Luxury Homebuyers",
+      title: 'Luxury Homebuyers',
     },
     {
       id: 5,
-      title: "Self-Employed & Entrepreneurs",
+      title: 'Self-Employed & Entrepreneurs',
     },
     {
       id: 6,
-      title: "Other (type here)",
+      title: 'Other (type here)',
     },
-  ];
+  ]
 
   //array for the primary client types
   const primaryClientTypes2 = [
     {
       id: 1,
-      title: "Individuals (B2)",
+      title: 'Individuals (B2)',
     },
     {
       id: 2,
-      title: "Businesses & Corporations (B2B)",
+      title: 'Businesses & Corporations (B2B)',
     },
     {
       id: 3,
-      title: "Government & Public Sector",
+      title: 'Government & Public Sector',
     },
-  ];
+  ]
 
   const ConsultationFormat = [
     {
       id: 1,
-      title: "In-Person Consultations",
+      title: 'In-Person Consultations',
     },
     {
       id: 2,
-      title: "Virtual Consultations",
+      title: 'Virtual Consultations',
     },
     {
       id: 3,
-      title: "Virtual Consultationsr",
+      title: 'Virtual Consultationsr',
     },
-  ];
+  ]
 
   //fetching the data
   useEffect(() => {
     // //console.log;
-    getProfile();
-  }, [selectedUser]);
+    getProfile()
+  }, [selectedUser])
 
   //function to fetch the profile data
   const getProfile = async () => {
     try {
-      let LocalData = await AdminGetProfileDetails(selectedUser.id);
-      console.log("Local data for selected user", LocalData);
+      let LocalData = await AdminGetProfileDetails(selectedUser.id)
+      console.log('Local data for selected user', LocalData)
       if (LocalData) {
-        const userData = LocalData;
-        await getAgentDefaultData(userData);
-        console.log("image is ", LocalData)
+        const userData = LocalData
+        await getAgentDefaultData(userData)
+        console.log('image is ', LocalData)
 
-        setUserRole(userData?.userRole);
-        setUserType(userData?.userType);
-        setUserDetails(userData.user);
-        setName(userData?.name);
-        setSelectedImage(LocalData?.thumb_profile_image);
-        setEmail(userData?.email);
-        setFarm(userData?.farm);
-        setTransaction(userData?.averageTransactionPerYear);
-        setBrokerAge(userData?.brokerage);
-        setPhone(userData?.phone);
+        setUserRole(userData?.userRole)
+        setUserType(userData?.userType)
+        setUserDetails(userData.user)
+        setName(userData?.name)
+        setSelectedImage(LocalData?.thumb_profile_image)
+        setEmail(userData?.email)
+        setFarm(userData?.farm)
+        setTransaction(userData?.averageTransactionPerYear)
+        setBrokerAge(userData?.brokerage)
+        setPhone(userData?.phone)
 
-        setServiceArea(userData?.areaOfService);
-        setClientType(userData?.primaryClientType);
-        setClientType2(userData?.clientType);
+        setServiceArea(userData?.areaOfService)
+        setClientType(userData?.primaryClientType)
+        setClientType2(userData?.clientType)
 
-        setCompany(userData?.company);
-        setTeritorry(userData?.territory);
-        setWebsiteUrl(userData?.website);
-        setCompanyAffiliation(userData?.firmOrCompanyAffiliation);
-        setClientsPerMonth(userData?.averageMonthlyClients);
-        setCasessPerMonth(userData?.caseVolume);
+        setCompany(userData?.company)
+        setTeritorry(userData?.territory)
+        setWebsiteUrl(userData?.website)
+        setCompanyAffiliation(userData?.firmOrCompanyAffiliation)
+        setClientsPerMonth(userData?.averageMonthlyClients)
+        setCasessPerMonth(userData?.caseVolume)
 
-        setInstallationVolume(userData?.projectsPerYear || "");
-        setProjectSize(userData?.projectSizeKw || "");
+        setInstallationVolume(userData?.projectsPerYear || '')
+        setProjectSize(userData?.projectSizeKw || '')
 
         // //console.log;
         // //console.log;
 
         // Initialize arrays to hold services and areas of focus
-        const industriesArray = [];
-        const servicesArray = [];
-        const focusAreasArray = [];
+        const industriesArray = []
+        const servicesArray = []
+        const focusAreasArray = []
 
         // Pre-populate selected services and areas based on the user profile
         userData?.services?.forEach((item) => {
-          servicesArray.push(item.id); // Add the full object or only IDs as needed
-        });
+          servicesArray.push(item.id) // Add the full object or only IDs as needed
+        })
         userData?.userIndustry?.forEach((item) => {
-          industriesArray.push(item.id); // Add the full object or only IDs as needed
-        });
+          industriesArray.push(item.id) // Add the full object or only IDs as needed
+        })
 
         userData?.focusAreas?.forEach((item) => {
-          focusAreasArray.push(item.id); // Add the full object or only IDs as needed
-        });
+          focusAreasArray.push(item.id) // Add the full object or only IDs as needed
+        })
 
         // Set default selected areas and services
         // setSelected(servicesArray); // Default select services
 
-        setSelectedIndustries(industriesArray);
-        setOriginalSelectedIndustries(industriesArray);
+        setSelectedIndustries(industriesArray)
+        setOriginalSelectedIndustries(industriesArray)
 
-        setSelectedArea(focusAreasArray);
-        setOriginalSelectedArea(focusAreasArray); // Save the initial state
+        setSelectedArea(focusAreasArray)
+        setOriginalSelectedArea(focusAreasArray) // Save the initial state
 
         //console.log;
-        setServiceId(servicesArray);
-        setOriginalSelectedService(servicesArray);
+        setServiceId(servicesArray)
+        setOriginalSelectedService(servicesArray)
       } else {
         //console.log;
       }
     } catch (error) {
-      console.error("Error occured in api is error", error);
+      console.error('Error occured in api is error', error)
     }
-  };
+  }
 
   const getAgentDefaultData = async (userData) => {
     try {
-      setServiceLoader(true);
-      let data = localStorage.getItem("User");
+      setServiceLoader(true)
+      let data = localStorage.getItem('User')
       if (data) {
-        let d = JSON.parse(data);
-        let AgentTypeTitle = userData.userType;
+        let d = JSON.parse(data)
+        let AgentTypeTitle = userData.userType
         //console.log;
 
-        const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
+        const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`
         // //console.log;
         const response = await axios.get(ApiPath, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        });
+        })
 
         if (response) {
-          console.log("Default agent data", response.data.data);
-          setAgentServices(response.data.data.agentServices);
-          setAgentAreasOfFocus(response.data.data.areaOfFocus);
-          setAgentIndustries(response.data.data.userIndustry);
+          console.log('Default agent data', response.data.data)
+          setAgentServices(response.data.data.agentServices)
+          setAgentAreasOfFocus(response.data.data.areaOfFocus)
+          setAgentIndustries(response.data.data.userIndustry)
         } else {
-          alert(response.data.message);
+          alert(response.data.message)
         }
       }
     } catch (error) {
-      setServiceLoader(false);
+      setServiceLoader(false)
       // console.error("ERror occured in default data api is :----", error);
     } finally {
-      setServiceLoader(false);
+      setServiceLoader(false)
     }
-  };
+  }
 
   const choseClientType = () => {
     if (userType === UserTypes.LoanOfficerAgent) {
-      return primaryClientTypes4;
+      return primaryClientTypes4
     } else {
-      return primaryClientTypes2;
+      return primaryClientTypes2
     }
-  };
+  }
 
   const handleDrop = async (event) => {
-    event.preventDefault();
-    setDragging(false);
-    const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+    event.preventDefault()
+    setDragging(false)
+    const file = event.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) {
+      const imageUrl = URL.createObjectURL(file)
+      setSelectedImage(imageUrl)
     }
-  };
+  }
 
   const handleDragOver = (event) => {
-    event.preventDefault();
-    setDragging(true);
-  };
+    event.preventDefault()
+    setDragging(true)
+  }
 
   const handleDragLeave = () => {
-    setDragging(false);
-  };
+    setDragging(false)
+  }
 
   const handleImageChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    const file = event.target.files[0]
+    if (!file) return
 
     try {
+      const imageUrl = URL.createObjectURL(file) // Generate preview URL
 
-      const imageUrl = URL.createObjectURL(file); // Generate preview URL
+      setSelectedImage(imageUrl) // Set the preview image
 
-      setSelectedImage(imageUrl); // Set the preview image
-
-      await uploadeImage(file);
+      await uploadeImage(file)
     } catch (error) {
       // console.error("Error uploading image:", error);
     } finally {
-
     }
-  };
+  }
 
   const uploadeImage = async (imageUrl) => {
-    setloading5(true);
+    setloading5(true)
     try {
-      const data = localStorage.getItem("User");
+      const data = localStorage.getItem('User')
       if (data) {
-        let u = JSON.parse(data);
-        const apidata = new FormData();
+        let u = JSON.parse(data)
+        const apidata = new FormData()
 
-        apidata.append("media", imageUrl);
-        apidata.append("userId", selectedUser.id);
+        apidata.append('media', imageUrl)
+        apidata.append('userId', selectedUser.id)
         // //console.log;
         for (let pair of apidata.entries()) {
           console.log(pair) // Debug FormData contents
         }
-        let path = Apis.updateProfileApi;
+        let path = Apis.updateProfileApi
 
         // //console.log;
         // //console.log;
         // return
         const response = await axios.post(path, apidata, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
           if (response.data.status === true) {
-            console.log("imageUploaded", response.data.data)
-            u.user = response.data.data;
+            console.log('imageUploaded', response.data.data)
+            u.user = response.data.data
 
             //// //console.log
-            localStorage.setItem("User", JSON.stringify(u));
+            localStorage.setItem('User', JSON.stringify(u))
             // //console.log;
             window.dispatchEvent(
-              new CustomEvent("UpdateProfile", { detail: { update: true } })
-            );
-            return response.data.data;
+              new CustomEvent('UpdateProfile', { detail: { update: true } }),
+            )
+            return response.data.data
           }
         }
       }
     } catch (e) {
-      console.log("error in upload image:", e);
+      console.log('error in upload image:', e)
+    } finally {
+      setloading5(false)
     }
-    finally {
-      setloading5(false);
-    }
-  };
-
-
+  }
 
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
       style={{
-        paddingBottom: "50px",
-        height: "100%",
-        overflow: "auto",
-        scrollbarWidth: "none",
+        paddingBottom: '50px',
+        height: '100%',
+        overflow: 'auto',
+        scrollbarWidth: 'none',
       }}
     >
       <div className="w-full flex flex-row items-center justify-between">
         <div>
-          <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+          <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
             Basic Information
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: "500", color: "#00000090" }}>
-            {"Account > Basic Information"}
+          <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
+            {'Account > Basic Information'}
           </div>
         </div>
       </div>
@@ -436,8 +433,8 @@ function AdminBasicInfo({ selectedUser }) {
       <button
         className="mt-8"
         onClick={() => {
-          if (typeof document !== "undefined") {
-            document.getElementById("fileInput").click();
+          if (typeof document !== 'undefined') {
+            document.getElementById('fileInput').click()
           }
         }}
         onDrop={handleDrop}
@@ -456,7 +453,7 @@ function AdminBasicInfo({ selectedUser }) {
             }
           >
             {selectedImage ? (
-              <div style={{ marginTop: "20px" }}>
+              <div style={{ marginTop: '20px' }}>
                 <Image
                   src={selectedImage}
                   height={74}
@@ -465,15 +462,15 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     width: 74,
                     height: 74,
-                    borderRadius: "50%",
-                    objectFit: "cover",
+                    borderRadius: '50%',
+                    objectFit: 'cover',
                   }}
                   alt="profileImage"
                 />
               </div>
             ) : (
               <Image
-                src={"/agentXOrb.gif"}
+                src={'/agentXOrb.gif'}
                 height={74}
                 width={74}
                 alt="profileImage"
@@ -488,16 +485,16 @@ function AdminBasicInfo({ selectedUser }) {
         type="file"
         accept="image/*"
         id="fileInput"
-        style={{ display: "none" }}
+        style={{ display: 'none' }}
         onChange={handleImageChange}
       />
 
       <div
         style={{
           fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
+          fontWeight: '700',
+          color: '#000',
+          marginTop: '4vh',
         }}
       >
         Full Name
@@ -506,8 +503,8 @@ function AdminBasicInfo({ selectedUser }) {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
         style={{
-          border: `1px solid ${focusedName ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
+          border: `1px solid ${focusedName ? '#8a2be2' : '#00000010'}`,
+          transition: 'border-color 0.3s ease',
         }}
       >
         <input
@@ -516,21 +513,21 @@ function AdminBasicInfo({ selectedUser }) {
           onBlur={() => setFocusedName(false)}
           value={name}
           onChange={(event) => {
-            setName(event.target.value);
-            setIsNameChanged(true);
+            setName(event.target.value)
+            setIsNameChanged(true)
           }}
           type="text"
           placeholder="Name"
-          style={{ border: "0px solid #7902DF", outline: "none" }}
+          style={{ border: '0px solid #7902DF', outline: 'none' }}
         />
       </div>
 
       <div
         style={{
           fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
+          fontWeight: '700',
+          color: '#000',
+          marginTop: '4vh',
         }}
       >
         Email address
@@ -538,8 +535,8 @@ function AdminBasicInfo({ selectedUser }) {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid ${focusedEmail ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
+          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
+          transition: 'border-color 0.3s ease',
         }}
       >
         <input
@@ -549,11 +546,11 @@ function AdminBasicInfo({ selectedUser }) {
           // onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
-            setEmail(event.target.value);
+            setEmail(event.target.value)
           }}
           type="text"
           placeholder="Email"
-          style={{ border: "0px solid #000000", outline: "none" }}
+          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {/* {
  email.length > 0 && (
@@ -565,9 +562,9 @@ function AdminBasicInfo({ selectedUser }) {
       <div
         style={{
           fontSize: 16,
-          fontWeight: "700",
-          color: "#000",
-          marginTop: "4vh",
+          fontWeight: '700',
+          color: '#000',
+          marginTop: '4vh',
         }}
       >
         Phone number
@@ -575,8 +572,8 @@ function AdminBasicInfo({ selectedUser }) {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid ${focusedEmail ? "#8a2be2" : "#00000010"}`,
-          transition: "border-color 0.3s ease",
+          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
+          transition: 'border-color 0.3s ease',
         }}
       >
         <input
@@ -590,22 +587,22 @@ function AdminBasicInfo({ selectedUser }) {
           }}
           type="text"
           placeholder="Phone"
-          style={{ border: "0px solid #000000", outline: "none" }}
+          style={{ border: '0px solid #000000', outline: 'none' }}
         />
       </div>
 
-      {userRole && userRole != "Invitee" && userRole != "AgencySubAccount" && (
+      {userRole && userRole != 'Invitee' && userRole != 'AgencySubAccount' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-            (userType && userType === UserTypes.InsuranceAgent) ||
-            (userType && userType === UserTypes.RealEstateAgent) ? (
+          (userType && userType === UserTypes.InsuranceAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Farm
@@ -614,8 +611,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedFarm ? "#8a2be2" : "#00000010"}`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${focusedFarm ? '#8a2be2' : '#00000010'}`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -624,12 +621,12 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedFarm(false)}
                   value={farm}
                   onChange={(event) => {
-                    setFarm(event.target.value);
-                    setIsFarmChanged(true);
+                    setFarm(event.target.value)
+                    setIsFarmChanged(true)
                   }}
                   type="text"
                   placeholder="Farm"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -643,9 +640,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Area of service
@@ -654,9 +651,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedServiceArea ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -665,95 +663,99 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedServiceArea(false)}
                   value={serviceArea}
                   onChange={(event) => {
-                    setServiceArea(event.target.value);
-                    setIsServiceAreaChanged(true);
+                    setServiceArea(event.target.value)
+                    setIsServiceAreaChanged(true)
                   }}
                   type="text"
                   placeholder="Farm"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
-          ) : (
-            (userType && userType === UserTypes.General) ||
-              (userType && userType === UserTypes.Reception) ?
-              (
-                <>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "700",
-                      color: "#000",
-                      marginTop: "4vh",
-                    }}
-                  >
-                    Teritorry
-                  </div>
-
-                  <div
-                    className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                    style={{
-                      border: `1px solid ${focusedTerritory ? "#8a2be2" : "#00000010"
-                        }`,
-                      transition: "border-color 0.3s ease",
-                    }}
-                  >
-                    <input
-                      ref={teritorryRef}
-                      className="w-11/12 outline-none focus:ring-0"
-                      onFocus={() => setFocusedTerritory(true)}
-                      onBlur={() => setFocusedTerritory(false)}
-                      value={teritorry}
-                      onChange={(event) => {
-                        setTeritorry(event.target.value);
-                        setIsTeritorryChanged(true);
-                      }}
-                      type="text"
-                      placeholder="Teritorry"
-                      style={{ border: "0px solid #000000", outline: "none" }}
-                    />
-                    {isTeritorryChanged ?
-                      (loading14 ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            handleTeritorrySave();
-                          }}
-                          style={{
-                            color: " #8a2be2",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      )) : (
-                        <button
-                          onClick={() => {
-                            teritorryRef.current?.focus();
-                          }}
-                        >
-                          <Image src={'/svgIcons/editIcon.svg'}
-                            width={24} height={24} alt="*"
-                          />
-                        </button>
-                      )}
-                  </div>
-                </>
-              ) : ""
-          )}
-
-          {(userType && userType === UserTypes.RealEstateAgent) ||
-            (userType && userType === UserTypes.InsuranceAgent) ||
-            (userType && userType === UserTypes.RealEstateAgent) ? (
+          ) : (userType && userType === UserTypes.General) ||
+            (userType && userType === UserTypes.Reception) ? (
             <>
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
+                }}
+              >
+                Teritorry
+              </div>
+
+              <div
+                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
+                style={{
+                  border: `1px solid ${
+                    focusedTerritory ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
+                }}
+              >
+                <input
+                  ref={teritorryRef}
+                  className="w-11/12 outline-none focus:ring-0"
+                  onFocus={() => setFocusedTerritory(true)}
+                  onBlur={() => setFocusedTerritory(false)}
+                  value={teritorry}
+                  onChange={(event) => {
+                    setTeritorry(event.target.value)
+                    setIsTeritorryChanged(true)
+                  }}
+                  type="text"
+                  placeholder="Teritorry"
+                  style={{ border: '0px solid #000000', outline: 'none' }}
+                />
+                {isTeritorryChanged ? (
+                  loading14 ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleTeritorrySave()
+                      }}
+                      style={{
+                        color: ' #8a2be2',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                      }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      teritorryRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            ''
+          )}
+
+          {(userType && userType === UserTypes.RealEstateAgent) ||
+          (userType && userType === UserTypes.InsuranceAgent) ||
+          (userType && userType === UserTypes.RealEstateAgent) ? (
+            <>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Brokerage
@@ -762,9 +764,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedBrokerage ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -773,12 +776,12 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedBrokerage(false)}
                   value={brokerAge}
                   onChange={(event) => {
-                    setBrokerAge(event.target.value);
-                    setIsBrokerageChanged(true);
+                    setBrokerAge(event.target.value)
+                    setIsBrokerageChanged(true)
                   }}
                   type="text"
                   placeholder="Brokerage"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -792,9 +795,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Company
@@ -803,9 +806,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedCompany ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -814,12 +818,12 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedCompany(false)}
                   value={company}
                   onChange={(event) => {
-                    setCompany(event.target.value);
-                    setIsCompanyChanged(true);
+                    setCompany(event.target.value)
+                    setIsCompanyChanged(true)
                   }}
                   type="text"
                   placeholder="Company"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -828,9 +832,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Website URL
@@ -839,9 +843,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedWebsite ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -850,12 +855,12 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedWebSite(false)}
                   value={websiteUrl}
                   onChange={(event) => {
-                    setWebsiteUrl(event.target.value);
-                    setIsWebsiteUrlChanged(true);
+                    setWebsiteUrl(event.target.value)
+                    setIsWebsiteUrlChanged(true)
                   }}
                   type="text"
                   placeholder="Brokerage"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -866,9 +871,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Company Affiliation
@@ -877,9 +882,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedCompany ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -888,17 +894,17 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedCompanyAffiliation(false)}
                   value={companyAffiliation}
                   onChange={(event) => {
-                    setCompanyAffiliation(event.target.value);
-                    setIsCompanyAffiliationChanged(true);
+                    setCompanyAffiliation(event.target.value)
+                    setIsCompanyAffiliationChanged(true)
                   }}
                   type="text"
                   placeholder="Company"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
 
           {userType && userType === UserTypes.RealEstateAgent ? (
@@ -906,9 +912,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 How many homes did you sell last year
@@ -917,9 +923,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedTransaction ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -932,12 +939,12 @@ function AdminBasicInfo({ selectedUser }) {
                   value={transaction}
                   onChange={(e) => {
                     // Only keep digits in state
-                    const onlyNums = e.target.value.replace(/\D/g, "");
-                    setTransaction(onlyNums);
-                    setIsTransactionChange(true);
+                    const onlyNums = e.target.value.replace(/\D/g, '')
+                    setTransaction(onlyNums)
+                    setIsTransactionChange(true)
                   }}
                   placeholder="Value"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -946,9 +953,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Installation Volume per Year
@@ -957,9 +964,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedInstallationVolume ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -969,40 +977,41 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedInstallationVolume(false)}
                   value={installationVolume}
                   onChange={(event) => {
-                    setInstallationVolume(event.target.value);
-                    setIsInstallationVolumeChanged(true);
+                    setInstallationVolume(event.target.value)
+                    setIsInstallationVolumeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-            (userType && userType === UserTypes.DebtCollectorAgent) ? (
+          (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 {userType === UserTypes.DebtCollectorAgent
-                  ? " Balance Size of Debts "
-                  : "Average Project Size (kw)"}
+                  ? ' Balance Size of Debts '
+                  : 'Average Project Size (kw)'}
               </div>
 
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedProjectSize ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -1012,11 +1021,11 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedProjectSize(false)}
                   value={projectSize}
                   onChange={(event) => {
-                    setProjectSize(event.target.value);
-                    setIsprojectSizeChanged(true);
+                    setProjectSize(event.target.value)
+                    setIsprojectSizeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -1025,9 +1034,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Clients per month
@@ -1036,9 +1045,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -1048,11 +1058,11 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedClientsPerMonth(false)}
                   value={clientsPerMonth}
                   onChange={(event) => {
-                    setClientsPerMonth(event.target.value);
-                    setIsClientsPerMonthChanged(true);
+                    setClientsPerMonth(event.target.value)
+                    setIsClientsPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
@@ -1061,9 +1071,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Cases per month
@@ -1072,9 +1082,10 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                    }`,
-                  transition: "border-color 0.3s ease",
+                  border: `1px solid ${
+                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
+                  }`,
+                  transition: 'border-color 0.3s ease',
                 }}
               >
                 <input
@@ -1084,25 +1095,25 @@ function AdminBasicInfo({ selectedUser }) {
                   onBlur={() => setFocusedCasesPerMonth(false)}
                   value={CasesPerMonth}
                   onChange={(event) => {
-                    setCasessPerMonth(event.target.value);
-                    iscasesPerMonthChanged(true);
+                    setCasessPerMonth(event.target.value)
+                    iscasesPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: "0px solid #000000", outline: "none" }}
+                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
           {userType && userType === UserTypes.SolarRep ? (
             <>
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Primary Client Type
@@ -1110,7 +1121,7 @@ function AdminBasicInfo({ selectedUser }) {
 
               <div
                 className="flex flex-row items-center gap-4"
-                style={{ marginTop: "8px" }}
+                style={{ marginTop: '8px' }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
@@ -1119,22 +1130,22 @@ function AdminBasicInfo({ selectedUser }) {
                         className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                         style={{
                           fontSize: 15,
-                          fontWeight: "500",
-                          borderRadius: "7px",
-                          borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          fontWeight: '500',
+                          borderRadius: '7px',
+                          borderRadius: '30px',
+                          paddingInline: index === 2 && '40px',
                           border:
                             clientType === item.value
-                              ? "2px solid #7902DF"
-                              : "",
+                              ? '2px solid #7902DF'
+                              : '',
                           backgroundColor:
-                            clientType === item.value ? "#402FFF20" : "",
+                            clientType === item.value ? '#402FFF20' : '',
                         }}
                       >
                         {item.title}
                       </button>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </>
@@ -1143,9 +1154,9 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  color: "#000",
-                  marginTop: "4vh",
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: '4vh',
                 }}
               >
                 Typical Collection Strategy
@@ -1153,7 +1164,7 @@ function AdminBasicInfo({ selectedUser }) {
 
               <div
                 className="flex flex-row items-center gap-4"
-                style={{ marginTop: "8px" }}
+                style={{ marginTop: '8px' }}
               >
                 {primaryClientTypes3.map((item, index) => {
                   return (
@@ -1162,32 +1173,32 @@ function AdminBasicInfo({ selectedUser }) {
                         className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                         style={{
                           fontSize: 15,
-                          fontWeight: "500",
-                          borderRadius: "7px",
-                          borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          fontWeight: '500',
+                          borderRadius: '7px',
+                          borderRadius: '30px',
+                          paddingInline: index === 2 && '40px',
                           border:
                             collectionStratigy === item.value
-                              ? "2px solid #7902DF"
-                              : "",
+                              ? '2px solid #7902DF'
+                              : '',
                           backgroundColor:
                             collectionStratigy === item.value
-                              ? "#402FFF20"
-                              : "",
+                              ? '#402FFF20'
+                              : '',
                         }}
                       >
                         {item.title}
                       </button>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-            (userType && userType === UserTypes.LoanOfficerAgent) ? (
+          (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
@@ -1195,7 +1206,7 @@ function AdminBasicInfo({ selectedUser }) {
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px", flexWrap: "wrap" }}
+                style={{ marginTop: '8px', flexWrap: 'wrap' }}
               >
                 {choseClientType().map((item, index) => {
                   return (
@@ -1204,25 +1215,25 @@ function AdminBasicInfo({ selectedUser }) {
                         className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                         style={{
                           ...styles.inputStyle,
-                          borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          borderRadius: '30px',
+                          paddingInline: index === 2 && '40px',
                           border:
                             clientType2 === item.title
-                              ? "2px solid #7902DF"
-                              : "",
+                              ? '2px solid #7902DF'
+                              : '',
                           backgroundColor:
-                            clientType2 === item.title ? "#402FFF20" : "",
+                            clientType2 === item.title ? '#402FFF20' : '',
                         }}
                       >
                         {item.title}
                       </button>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
           {userType && userType === UserTypes.LawAgent ? (
             <>
@@ -1232,7 +1243,7 @@ function AdminBasicInfo({ selectedUser }) {
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-2"
-                style={{ marginTop: "8px" }}
+                style={{ marginTop: '8px' }}
               >
                 {ConsultationFormat.map((item, index) => {
                   return (
@@ -1241,39 +1252,39 @@ function AdminBasicInfo({ selectedUser }) {
                         className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                         style={{
                           ...styles.inputStyle,
-                          borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          borderRadius: '30px',
+                          paddingInline: index === 2 && '40px',
                           border:
                             consoltation === item.title
-                              ? "2px solid #7902DF"
-                              : "",
+                              ? '2px solid #7902DF'
+                              : '',
                           backgroundColor:
-                            consoltation === item.title ? "#402FFF20" : "",
+                            consoltation === item.title ? '#402FFF20' : '',
                         }}
                       >
                         {item.title}
                       </button>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </>
           ) : (
-            ""
+            ''
           )}
         </>
       )}
 
-      {userRole && userRole != "Invitee" && (
+      {userRole && userRole != 'Invitee' && (
         <>
           <div className="w-full flex flex-row items-center justify-between">
             <div
               style={{
                 fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                marginTop: "4vh",
-                marginBottom: "2vh",
+                fontWeight: '700',
+                color: '#000',
+                marginTop: '4vh',
+                marginBottom: '2vh',
               }}
             >
               What would you like to assign to your AI
@@ -1286,7 +1297,7 @@ function AdminBasicInfo({ selectedUser }) {
                 .log
                 // `${item.id} included in array `,
                 // serviceId.includes(item.id)
-                ();
+                ()
               return (
                 <div
                   key={index}
@@ -1294,34 +1305,34 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: serviceId.includes(item.id)
-                      ? "#7902DF"
-                      : "#00000008",
+                      ? '#7902DF'
+                      : '#00000008',
                     backgroundColor: serviceId.includes(item.id)
-                      ? "#7902DF05"
-                      : "transparent",
-                    cursor: "pointer",
+                      ? '#7902DF05'
+                      : 'transparent',
+                    cursor: 'pointer',
                   }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                  <div style={{ fontSize: 15, fontWeight: '700' }}>
                     {item.title}
                   </div>
 
-                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                  <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
                   <Image
                     src={
                       serviceId.includes(item.id)
-                        ? "/otherAssets/selectedTickBtn.png"
-                        : "/otherAssets/unselectedTickBtn.png"
+                        ? '/otherAssets/selectedTickBtn.png'
+                        : '/otherAssets/unselectedTickBtn.png'
                     }
                     height={24}
                     width={24}
                     alt="icon"
-                    style={{ alignSelf: "flex-end" }}
+                    style={{ alignSelf: 'flex-end' }}
                   />
                 </div>
-              );
+              )
             })}
           </div>
 
@@ -1329,15 +1340,15 @@ function AdminBasicInfo({ selectedUser }) {
             <div
               style={{
                 fontSize: 16,
-                fontWeight: "700",
-                color: "#000",
-                marginTop: "4vh",
-                marginBottom: "2vh",
+                fontWeight: '700',
+                color: '#000',
+                marginTop: '4vh',
+                marginBottom: '2vh',
               }}
             >
               {agentAreasOfFocus.length > 0
-                ? "What area of real estate do you focus on?"
-                : "What industries do you specialize in?"}
+                ? 'What area of real estate do you focus on?'
+                : 'What industries do you specialize in?'}
             </div>
           </div>
 
@@ -1350,31 +1361,31 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedArea.includes(item.id)
-                      ? "#7902DF"
-                      : "#00000008",
+                      ? '#7902DF'
+                      : '#00000008',
                     backgroundColor: selectedArea.includes(item.id)
-                      ? "#7902DF05"
-                      : "transparent",
-                    cursor: "pointer",
+                      ? '#7902DF05'
+                      : 'transparent',
+                    cursor: 'pointer',
                   }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                  <div style={{ fontSize: 15, fontWeight: '700' }}>
                     {item.title}
                   </div>
 
-                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                  <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
                   <Image
                     src={
                       selectedArea.includes(item.id)
-                        ? "/otherAssets/selectedTickBtn.png"
-                        : "/otherAssets/unselectedTickBtn.png"
+                        ? '/otherAssets/selectedTickBtn.png'
+                        : '/otherAssets/unselectedTickBtn.png'
                     }
                     height={24}
                     width={24}
                     alt="icon"
-                    style={{ alignSelf: "flex-end" }}
+                    style={{ alignSelf: 'flex-end' }}
                   />
                 </div>
               ))}
@@ -1389,31 +1400,31 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedIndustries.includes(item.id)
-                      ? "#7902DF"
-                      : "#00000008",
+                      ? '#7902DF'
+                      : '#00000008',
                     backgroundColor: selectedIndustries.includes(item.id)
-                      ? "#7902DF05"
-                      : "transparent",
-                    cursor: "pointer",
+                      ? '#7902DF05'
+                      : 'transparent',
+                    cursor: 'pointer',
                   }}
                 >
-                  <div style={{ fontSize: 15, fontWeight: "700" }}>
+                  <div style={{ fontSize: 15, fontWeight: '700' }}>
                     {item.title}
                   </div>
 
-                  <div style={{ fontSize: 14, fontWeight: "500" }}>
+                  <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
                   <Image
                     src={
                       selectedIndustries.includes(item.id)
-                        ? "/otherAssets/selectedTickBtn.png"
-                        : "/otherAssets/unselectedTickBtn.png"
+                        ? '/otherAssets/selectedTickBtn.png'
+                        : '/otherAssets/unselectedTickBtn.png'
                     }
                     height={24}
                     width={24}
                     alt="icon"
-                    style={{ alignSelf: "flex-end" }}
+                    style={{ alignSelf: 'flex-end' }}
                   />
                 </div>
               ))}
@@ -1422,14 +1433,14 @@ function AdminBasicInfo({ selectedUser }) {
         </>
       )}
     </div>
-  );
+  )
 }
 
-export default AdminBasicInfo;
+export default AdminBasicInfo
 
 const styles = {
   headingStyle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
-};
+}

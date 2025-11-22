@@ -1,40 +1,47 @@
-import Apis from "@/components/apis/Apis";
-import { PersistanceKeys } from "@/constants/Constants";
-import { CircularProgress } from "@mui/material";
-import { ArrowUpRight, CaretDown, CaretUp } from "@phosphor-icons/react";
-import axios from "axios";
-import { EditIcon, Router } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { CircularProgress } from '@mui/material'
+import { ArrowUpRight, CaretDown, CaretUp } from '@phosphor-icons/react'
+import axios from 'axios'
+import { color } from 'framer-motion'
+import { EditIcon, Router } from 'lucide-react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
-import { color } from "framer-motion";
-import { UpdateCadenceConfirmationPopup } from "./UpdateCadenceConfirmationPopup";
+} from '../leads/AgentSelectSnackMessage'
+import { UpdateCadenceConfirmationPopup } from './UpdateCadenceConfirmationPopup'
 
-const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser }) => {
-  const [message, setMessage] = useState(null);
-  const router = useRouter();
-  const [expandedStages, setExpandedStages] = useState([]);
+const PipelineAndStage = ({
+  selectedAgent,
+  UserPipeline,
+  mainAgent,
+  selectedUser,
+}) => {
+  const [message, setMessage] = useState(null)
+  const router = useRouter()
+  const [expandedStages, setExpandedStages] = useState([])
   const [StagesList, setStagesList] = useState([
-    { id: 1, title: "s1", description: "Testing the stage1" },
-    { id: 2, title: "s2", description: "Testing the stage2" },
-    { id: 3, title: "s3", description: "Testing the stage3" },
-  ]);
+    { id: 1, title: 's1', description: 'Testing the stage1' },
+    { id: 2, title: 's2', description: 'Testing the stage2' },
+    { id: 3, title: 's3', description: 'Testing the stage3' },
+  ])
 
-  const [agentCadence, setAgentCadence] = useState([]);
+  const [agentCadence, setAgentCadence] = useState([])
 
-  const [initialLoader, setInitialLoader] = useState(false);
+  const [initialLoader, setInitialLoader] = useState(false)
 
-  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
 
   useEffect(() => {
-    if (selectedAgent.agentType !== "inbound") {
+    if (selectedAgent.agentType !== 'inbound') {
       console.log('mainAgent', mainAgent)
-      handleGetCadence();
+      handleGetCadence()
     }
-  }, []);
+  }, [])
 
   //code for togeling stages seleciton
   const toggleStageDetails = (stage) => {
@@ -46,89 +53,85 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
     setExpandedStages((prevIds) => {
       if (prevIds.includes(stage.cadence.id)) {
         // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== stage.cadence.id);
+        return prevIds.filter((prevId) => prevId !== stage.cadence.id)
       } else {
         // Select the item if it's not already selected
-        return [...prevIds, stage.cadence.id];
+        return [...prevIds, stage.cadence.id]
       }
-    });
-  };
+    })
+  }
 
   //funciton to call get cadence api
   const handleGetCadence = async () => {
     try {
-      setInitialLoader(true);
+      setInitialLoader(true)
 
-      let userDetails = null;
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let userDetails = null
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
 
-      const agentDataLocal = localStorage.getItem("agentDetails");
+      const agentDataLocal = localStorage.getItem('agentDetails')
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        userDetails = Data;
+        const Data = JSON.parse(localData)
+        userDetails = Data
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       const ApiData = {
         mainAgentId: selectedAgent.mainAgentId,
-      };
+      }
 
-      const formData = new FormData();
-      formData.append("mainAgentId", selectedAgent.mainAgentId);
+      const formData = new FormData()
+      formData.append('mainAgentId', selectedAgent.mainAgentId)
 
-      const ApiPath = Apis.getAgentCadence;
+      const ApiPath = Apis.getAgentCadence
 
       // //console.log;
       // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log(
-          "Response of get agent cadence api is:",
-          response.data
-        );
-        setAgentCadence(response.data.data);
+        console.log('Response of get agent cadence api is:', response.data)
+        setAgentCadence(response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in get cadence api is:", error);
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
-
+  }
 
   const decideTextToShowForCadenceType = (cadence) => {
-    if (cadence.communicationType === "call") {
-      return "then Make Call"
-    } else if (cadence.communicationType === "email") {
-      return "then Send Email"
-    } else if (cadence.communicationType === "sms") {
-      return "then Send SMS"
+    if (cadence.communicationType === 'call') {
+      return 'then Make Call'
+    } else if (cadence.communicationType === 'email') {
+      return 'then Send Email'
+    } else if (cadence.communicationType === 'sms') {
+      return 'then Send SMS'
     }
   }
 
   const styles = {
     paragraph: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 15,
     },
     paragraph2: {
-      fontWeight: "400",
+      fontWeight: '400',
       fontSize: 14,
-      color: "#00000080",
+      color: '#00000080',
     },
-  };
+  }
 
   return (
     <div>
@@ -143,7 +146,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
           <p
             style={{
               ...styles.paragraph,
-              color: "#00000080",
+              color: '#00000080',
             }}
           >
             Assigned Pipeline
@@ -151,40 +154,40 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
         </div>
         <div style={styles.paragraph}>
-          {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : "-"}
+          {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
         </div>
       </div>
 
       {/* {selectedAgent?.agentType !== "inbound" && ( */}
       <div className="w-full">
         <div className="flex flex-row justify-between items-center mt-4">
-          <div className="" style={{ fontWeight: "700", fontSize: 16.8 }}>
+          <div className="" style={{ fontWeight: '700', fontSize: 16.8 }}>
             Stages
           </div>
 
           <button
             className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-purple text-white px-4"
             style={{
-              fontWeight: "500",
+              fontWeight: '500',
               fontSize: 15,
             }}
             onClick={() => {
-              console.log("mainAgent details passed are", mainAgent);
+              console.log('mainAgent details passed are', mainAgent)
               // return;
               localStorage.setItem(
                 PersistanceKeys.LocalSavedAgentDetails,
-                JSON.stringify(mainAgent)
-              );
+                JSON.stringify(mainAgent),
+              )
               localStorage.setItem(
                 PersistanceKeys.selectedUser,
-                JSON.stringify(selectedUser)
-              );
+                JSON.stringify(selectedUser),
+              )
               if (agentCadence.length === 0) {
                 // router.push("/pipeline/update");
-                window.location.href = "/pipeline/update";
-                return;
+                window.location.href = '/pipeline/update'
+                return
               }
-              setShowConfirmationPopup(true);
+              setShowConfirmationPopup(true)
               // if ((mainAgent.currentOngoingCadence || 0) > 0) {
               //   setMessage({
               //     message:
@@ -206,25 +209,24 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
           showConfirmationPopuup={showConfirmationPopup}
           setShowConfirmationPopup={setShowConfirmationPopup}
           onContinue={() => {
-            localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
-            setShowConfirmationPopup(false);
-            console.log("selectedAgent.id", selectedAgent.id);
-            console.log(
-              "selectedAgent.mainAgentId",
-              selectedAgent.mainAgentId
-            );
+            localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
+            setShowConfirmationPopup(false)
+            console.log('selectedAgent.id', selectedAgent.id)
+            console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
             if (selectedUser) {
               let u = {
                 subAccountData: selectedUser,
                 isFrom: from,
               }
 
-              localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(u));
+              localStorage.setItem(
+                PersistanceKeys.isFromAdminOrAgency,
+                JSON.stringify(u),
+              )
             }
             // router.push("/pipeline/update");
-            window.location.href = "/pipeline/update";
-          }
-          }
+            window.location.href = '/pipeline/update'
+          }}
         />
         {initialLoader ? (
           <div className="w-full flex flex-row items-center justify-center">
@@ -236,8 +238,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
               <div key={index} className="mt-4">
                 <div
                   style={{
-                    border: "1px solid #00000020",
-                    borderRadius: "8px",
+                    border: '1px solid #00000020',
+                    borderRadius: '8px',
                     padding: 15,
                   }}
                 >
@@ -245,7 +247,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                     onClick={() => toggleStageDetails(stage)}
                     className="w-full flex flex-row items-center justify-between"
                   >
-                    <div>{stage?.cadence?.stage?.stageTitle || "-"}</div>
+                    <div>{stage?.cadence?.stage?.stageTitle || '-'}</div>
                     <div>
                       <div>
                         {expandedStages.includes(stage?.cadence?.id) ? (
@@ -259,8 +261,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                   {expandedStages.includes(stage?.cadence?.id) && (
                     <div
                       style={{
-                        border: "1px solid #00000020",
-                        borderRadius: "5px",
+                        border: '1px solid #00000020',
+                        borderRadius: '5px',
                         padding: 10,
                         marginTop: 15,
                       }}
@@ -287,15 +289,15 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                               <div>Wait</div>
                               <div
                                 className="flex flex-row items-center w-[240px]"
-                                style={{ color: "#00000070" }}
+                                style={{ color: '#00000070' }}
                               >
                                 <div
                                   className="text-center"
                                   style={{
-                                    width: "33%",
-                                    border: "1px solid #00000020",
-                                    borderTopLeftRadius: "7px",
-                                    borderBottomLeftRadius: "7px",
+                                    width: '33%',
+                                    border: '1px solid #00000020',
+                                    borderTopLeftRadius: '7px',
+                                    borderBottomLeftRadius: '7px',
                                     padding: 5,
                                   }}
                                 >
@@ -304,9 +306,9 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                                 <div
                                   className="text-center"
                                   style={{
-                                    width: "33%",
-                                    borderBottom: "1px solid #00000020",
-                                    borderTop: "1px solid #00000020",
+                                    width: '33%',
+                                    borderBottom: '1px solid #00000020',
+                                    borderTop: '1px solid #00000020',
                                     padding: 5,
                                   }}
                                 >
@@ -315,20 +317,22 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                                 <div
                                   className="text-center"
                                   style={{
-                                    width: "33%",
-                                    border: "1px solid #00000020",
-                                    borderTopRightRadius: "7px",
-                                    borderBottomRightRadius: "7px",
+                                    width: '33%',
+                                    border: '1px solid #00000020',
+                                    borderTopRightRadius: '7px',
+                                    borderBottomRightRadius: '7px',
                                     padding: 5,
                                   }}
                                 >
                                   {item.waitTimeMinutes}
                                 </div>
                               </div>
-                              <div>, {decideTextToShowForCadenceType(item)}</div>
+                              <div>
+                                , {decideTextToShowForCadenceType(item)}
+                              </div>
                             </div>
                           </div>
-                        );
+                        )
                       })}
 
                       <div className="flex flex-row items-center gap-2 mt-4">
@@ -336,17 +340,17 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                         <div
                           className="py-1 text-center px-2 flex flex-col justify-center"
                           style={{
-                            width: "fit-centent",
-                            backgroundColor: "#15151520",
-                            fontWeight: "500",
+                            width: 'fit-centent',
+                            backgroundColor: '#15151520',
+                            fontWeight: '500',
                             fontSize: 15,
-                            height: "33px",
-                            borderRadius: "7px",
-                            border: "1px solid #00000010",
+                            height: '33px',
+                            borderRadius: '7px',
+                            border: '1px solid #00000010',
                           }}
                         >
                           {stage?.cadence?.moveToStage?.stageTitle ||
-                            "No stage selected"}
+                            'No stage selected'}
                         </div>
                       </div>
                     </div>
@@ -359,7 +363,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
       </div>
       {/* )} */}
     </div>
-  );
-};
+  )
+}
 
-export default PipelineAndStage;
+export default PipelineAndStage

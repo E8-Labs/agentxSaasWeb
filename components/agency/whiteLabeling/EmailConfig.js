@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import { FormControl, Select, MenuItem, Button, CircularProgress } from '@mui/material'
-import LabelingHeader from './LabelingHeader'
+import {
+  Button,
+  CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+} from '@mui/material'
 import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+
 import Apis from '../../apis/Apis'
-import { AuthToken } from '../plan/AuthDetails'
-import { connectGmailAccount, deleteAccount } from '../../pipeline/TempleteServices'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../../dashboard/leads/AgentSelectSnackMessage'
 import { Scopes } from '../../dashboard/myagentX/Scopes'
-import AgentSelectSnackMessage, { SnackbarTypes } from '../../dashboard/leads/AgentSelectSnackMessage'
+import {
+  connectGmailAccount,
+  deleteAccount,
+} from '../../pipeline/TempleteServices'
+import { AuthToken } from '../plan/AuthDetails'
+import LabelingHeader from './LabelingHeader'
 
 const EmailConfig = () => {
   // Mail account state
@@ -106,14 +118,17 @@ const EmailConfig = () => {
 
             if (response && response.data && response.data.status == true) {
               setShowSnack({
-                message: response.data.message || 'Gmail account connected successfully',
+                message:
+                  response.data.message ||
+                  'Gmail account connected successfully',
                 type: SnackbarTypes.Success,
               })
               // Refresh mail account data
               await fetchAgencyMailAccount()
             } else {
               setShowSnack({
-                message: response?.data?.message || 'Failed to connect Google account',
+                message:
+                  response?.data?.message || 'Failed to connect Google account',
                 type: SnackbarTypes.Error,
               })
             }
@@ -139,7 +154,7 @@ const EmailConfig = () => {
     try {
       setLoading(true)
       const response = await deleteAccount(mailAccount)
-      
+
       if (response && response.data && response.data.status) {
         setShowSnack({
           message: 'Gmail account disconnected successfully',
@@ -169,7 +184,9 @@ const EmailConfig = () => {
       <LabelingHeader
         img={'/agencyIcons/email.png'}
         title={'Configure your email'}
-        description={'Connect your Gmail account to send billing emails to subaccounts.'}
+        description={
+          'Connect your Gmail account to send billing emails to subaccounts.'
+        }
       />
 
       {/* Gmail Account Connection */}
@@ -215,15 +232,17 @@ const EmailConfig = () => {
                   </div>
                 </div>
                 <div className="mt-3 text-[#00000060]" style={styles.small}>
-                  Billing emails to subaccounts will be sent from this Gmail account.
+                  Billing emails to subaccounts will be sent from this Gmail
+                  account.
                 </div>
               </div>
             ) : (
               <div className="w-full">
                 <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
                   <div className="text-start mb-4" style={styles.small}>
-                    No Gmail account connected. Connect your Gmail account to send billing
-                    emails to subaccounts from your own email address.
+                    No Gmail account connected. Connect your Gmail account to
+                    send billing emails to subaccounts from your own email
+                    address.
                   </div>
                   <button
                     onClick={handleGoogleAuth}

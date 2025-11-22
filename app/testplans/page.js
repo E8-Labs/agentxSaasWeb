@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Check, Zap, ArrowDown } from 'lucide-react';
+import { ArrowDown, Check, Zap } from 'lucide-react'
+import { useState } from 'react'
 
 export default function TestPlansPage() {
-  const [billingCycle, setBillingCycle] = useState('monthly');
+  const [billingCycle, setBillingCycle] = useState('monthly')
 
   const plans = [
     {
@@ -26,9 +26,9 @@ export default function TestPlansPage() {
         'Lead Enrichment (Perplexity)',
         'API Access',
         '10,000+ Integrations',
-        'AI Academy'
+        'AI Academy',
       ],
-      highlightedFeature: '1 AI Agent'
+      highlightedFeature: '1 AI Agent',
     },
     {
       name: 'Starter',
@@ -50,9 +50,9 @@ export default function TestPlansPage() {
         'Calendar (GHL, Cal, Google)',
         'RAG Knowledge Base',
         'Embed, Browser, Webhook Access',
-        'Support Tickets'
+        'Support Tickets',
       ],
-      highlightedFeature: '3 AI Agents'
+      highlightedFeature: '3 AI Agents',
     },
     {
       name: 'Growth',
@@ -71,10 +71,10 @@ export default function TestPlansPage() {
         'Priority Support Tickets',
         'Lead Source (Coming soon)',
         'AI Powered iMessage (Coming soon)',
-        'AI Powered Emails (Coming soon)'
+        'AI Powered Emails (Coming soon)',
       ],
       highlightedFeature: '6 AI Agents',
-      popular: true
+      popular: true,
     },
     {
       name: 'Scale',
@@ -87,12 +87,12 @@ export default function TestPlansPage() {
         'Unlimited Contacts',
         '800 AI Credits',
         'Unlimited Seats',
-        'Success Manager'
+        'Success Manager',
       ],
       highlightedFeature: 'Unlimited Agents',
-      bestValue: true
-    }
-  ];
+      bestValue: true,
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-white">
@@ -113,7 +113,8 @@ export default function TestPlansPage() {
               Grow Your Business
             </h2>
             <p className="text-lg text-gray-700">
-              AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉
+              AI Agents from just $1.50 per day — gets more done than coffee.
+              Cheaper too. 😉
             </p>
           </div>
 
@@ -187,10 +188,14 @@ export default function TestPlansPage() {
               <div className="text-center mb-6">
                 <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                 <div className="text-4xl font-bold mb-1">{plan.price}</div>
-                <div className={`text-sm ${plan.bestValue ? 'text-purple-100' : 'text-gray-600'}`}>
+                <div
+                  className={`text-sm ${plan.bestValue ? 'text-purple-100' : 'text-gray-600'}`}
+                >
                   {plan.billing}
                 </div>
-                <p className={`text-sm mt-2 ${plan.bestValue ? 'text-purple-100' : 'text-gray-600'}`}>
+                <p
+                  className={`text-sm mt-2 ${plan.bestValue ? 'text-purple-100' : 'text-gray-600'}`}
+                >
                   {plan.description}
                 </p>
               </div>
@@ -206,31 +211,32 @@ export default function TestPlansPage() {
               </button>
 
               <div className="space-y-3">
-                {Array.isArray(plan.features) && plan.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="flex items-start gap-3">
-                    <Check
-                      className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
-                        plan.bestValue ? 'text-white' : 'text-green-500'
-                      }`}
-                    />
-                    <span
-                      className={`text-sm ${
-                        feature === plan.highlightedFeature
-                          ? 'bg-yellow-200 text-black px-2 py-1 rounded font-medium'
-                          : plan.bestValue
-                          ? 'text-white'
-                          : 'text-gray-700'
-                      }`}
-                    >
-                      {feature}
-                    </span>
-                  </div>
-                ))}
+                {Array.isArray(plan.features) &&
+                  plan.features.map((feature, featureIndex) => (
+                    <div key={featureIndex} className="flex items-start gap-3">
+                      <Check
+                        className={`w-5 h-5 mt-0.5 flex-shrink-0 ${
+                          plan.bestValue ? 'text-white' : 'text-green-500'
+                        }`}
+                      />
+                      <span
+                        className={`text-sm ${
+                          feature === plan.highlightedFeature
+                            ? 'bg-yellow-200 text-black px-2 py-1 rounded font-medium'
+                            : plan.bestValue
+                              ? 'text-white'
+                              : 'text-gray-700'
+                        }`}
+                      >
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </div>
           ))}
         </div>
       </div>
     </div>
-  );
+  )
 }

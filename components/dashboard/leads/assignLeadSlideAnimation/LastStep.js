@@ -1,22 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { Box, CircularProgress, Modal, Switch, TextField, Tooltip } from '@mui/material';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../AgentSelectSnackMessage';
-import { CalendarDots, CaretLeft } from '@phosphor-icons/react';
+import {
+  Box,
+  CircularProgress,
+  Modal,
+  Switch,
+  TextField,
+  Tooltip,
+} from '@mui/material'
 // import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import dayjs from "dayjs"; // Import Day.js
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import { getAgentImage } from "@/utilities/agentUtilities";
-import DncConfirmationPopup from "../DncConfirmationPopup";
-import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
-import { userLocalData } from '@/components/agency/plan/AuthDetails';
-import UpgradeModal from '@/constants/UpgradeModal';
-import { getUserLocalData } from '@/components/constants/constants';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+// Import Day.js
+import utc from 'dayjs/plugin/utc'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import { userLocalData } from '@/components/agency/plan/AuthDetails'
+import { getUserLocalData } from '@/components/constants/constants'
+import {
+  RemoveSmartRefillApi,
+  SmartRefillApi,
+} from '@/components/onboarding/extras/SmartRefillapi'
+import UpgradeModal from '@/constants/UpgradeModal'
+import { getAgentImage } from '@/utilities/agentUtilities'
+
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../AgentSelectSnackMessage'
+import DncConfirmationPopup from '../DncConfirmationPopup'
 
 const LastStep = ({
   selectedLead,
@@ -28,42 +43,41 @@ const LastStep = ({
   handleBack,
   handleContinue,
   loader,
-  lastStepData
+  lastStepData,
 }) => {
-
-  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   //snack messages
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [errTitle, setErrTitle] = useState(null);
-  const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [errTitle, setErrTitle] = useState(null)
+  const SelectAgentErrorTimeout = 4000 //change this to change the duration of the snack timer
 
-  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
-  const [isDncChecked, setIsDncChecked] = useState(false);
-  const [showDncConfirmationPopup, setShowDncConfirmationPopup] = useState(false);
-  //leads to send  
-  const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
-  const [customLeadsToSend, setCustomLeadsToSend] = useState("");
-  const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState("");
-  //select call  
-  const [selectedFromDate, setSelectedFromDate] = useState(null);
-  const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [selectedDateTime, setSelectedDateTime] = useState(null);
-  const [CallNow, setCallNow] = useState("");
-  const [CallLater, setCallLater] = useState(false);
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false)
+  const [isDncChecked, setIsDncChecked] = useState(false)
+  const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
+    useState(false)
+  //leads to send
+  const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState('')
+  const [customLeadsToSend, setCustomLeadsToSend] = useState('')
+  const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState('')
+  //select call
+  const [selectedFromDate, setSelectedFromDate] = useState(null)
+  const [showFromDatePicker, setShowFromDatePicker] = useState(false)
+  const [selectedDateTime, setSelectedDateTime] = useState(null)
+  const [CallNow, setCallNow] = useState('')
+  const [CallLater, setCallLater] = useState(false)
   const [isRefill, setIsRefill] = useState(false)
-  const [showRefillToogle, setShwRefillToogle] = useState(false);
+  const [showRefillToogle, setShwRefillToogle] = useState(false)
 
-  const [userLocalDetails, setUserLocalDetails] = useState(null);
+  const [userLocalDetails, setUserLocalDetails] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   useEffect(() => {
     const localData = getUserLocalData()
-    setUserLocalDetails(localData.user);
-
-  }, []);
+    setUserLocalDetails(localData.user)
+  }, [])
 
   useEffect(() => {
     if (lastStepData) {
@@ -73,46 +87,44 @@ const LastStep = ({
         cutomLeads,
         isCallNow,
         DncChecked,
-        callL
-      } = lastStepData;
+        callL,
+      } = lastStepData
 
       // Safely convert to Dayjs
-      const parsedDate = selectedDate ? dayjs(selectedDate) : null;
+      const parsedDate = selectedDate ? dayjs(selectedDate) : null
       if (parsedDate) {
-        console.log("Date passed is", parsedDate);
+        console.log('Date passed is', parsedDate)
         let D = parsedDate?.format()
       }
       // setSelectedDateTime(parsedDate);
-      handleDateChange(selectedDate);
-      setHasUserSelectedDate(!!selectedDate);
+      handleDateChange(selectedDate)
+      setHasUserSelectedDate(!!selectedDate)
 
-      setNoOfLeadsToSend(numberOfLeads);
-      setCustomLeadsToSend(cutomLeads);
-      setCallNow(isCallNow);
-      setIsDncChecked(DncChecked);
-      setCallLater(callL);
+      setNoOfLeadsToSend(numberOfLeads)
+      setCustomLeadsToSend(cutomLeads)
+      setCallNow(isCallNow)
+      setIsDncChecked(DncChecked)
+      setCallLater(callL)
 
-      if (cutomLeads) setisFocustedCustomLeads(true);
-      else if (numberOfLeads) setNoOfLeadsToSend(totalLeads);
+      if (cutomLeads) setisFocustedCustomLeads(true)
+      else if (numberOfLeads) setNoOfLeadsToSend(totalLeads)
     }
-  }, [lastStepData]);
-
+  }, [lastStepData])
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage(null);
-        setErrTitle(null);
-      }, SelectAgentErrorTimeout);
+        setErrorMessage(null)
+        setErrTitle(null)
+      }, SelectAgentErrorTimeout)
     }
-  }, [errorMessage]);
-
+  }, [errorMessage])
 
   useEffect(() => {
-    const d = localStorage.getItem("User");
+    const d = localStorage.getItem('User')
     if (d) {
-      const Data = JSON.parse(d);
-      console.log("Smart refill is", Data.user.smartRefill);
+      const Data = JSON.parse(d)
+      console.log('Smart refill is', Data.user.smartRefill)
       let show = Data?.user?.smartRefill
       console.log('show', show)
 
@@ -120,42 +132,40 @@ const LastStep = ({
         setShwRefillToogle(true)
       }
     }
-  }, []);
+  }, [])
 
   //counts leads selected
   function getLeadSelectedCount() {
     if (selectedAll) {
-      return totalLeads - leadIs.length;
+      return totalLeads - leadIs.length
     } else {
-      return leadIs.length;
+      return leadIs.length
     }
   }
   useEffect(() => {
-    console.log("Selected DateTime Updated:", selectedDateTime?.format());
-  }, [selectedDateTime]);
-
+    console.log('Selected DateTime Updated:', selectedDateTime?.format())
+  }, [selectedDateTime])
 
   //date selection
   const handleDateChange = (date) => {
-    if (!date || !dayjs(date).isValid()) return;
-    console.log("Date value is", date);
-    console.log("Date value after daysjs is", dayjs(date));
-    let timer = null;
+    if (!date || !dayjs(date).isValid()) return
+    console.log('Date value is', date)
+    console.log('Date value after daysjs is', dayjs(date))
+    let timer = null
     if (dayjs(date).isBefore(dayjs())) {
       // timer = setTimeout(() => {
       // }, 300);
-      setInvalidTimeMessage("Can't schedule a call in the past");
-      setIsDisabled(true);
-      return;
+      setInvalidTimeMessage("Can't schedule a call in the past")
+      setIsDisabled(true)
+      return
     } else {
       // if (timer) clearTimeout(timer);
-      setInvalidTimeMessage(null);
-      setIsDisabled(false);
-      setSelectedDateTime(dayjs(date));
-      setHasUserSelectedDate(true);
+      setInvalidTimeMessage(null)
+      setIsDisabled(false)
+      setSelectedDateTime(dayjs(date))
+      setHasUserSelectedDate(true)
     }
-  };
-
+  }
 
   //go bak
   const handleMoveBack = () => {
@@ -165,27 +175,27 @@ const LastStep = ({
       selectedDate: selectedDateTime,
       DncChecked: isDncChecked,
       isCallNow: CallNow,
-      callL: CallLater
+      callL: CallLater,
     }
-    handleBack(lastStepData);
+    handleBack(lastStepData)
   }
 
   //function to update profile
   const handleUpdateProfile = async () => {
     try {
       // setUserDataLoader(true);
-      const response = await SmartRefillApi();
+      const response = await SmartRefillApi()
       if (response) {
         // setUserDataLoader(false);
-        console.log("Response of update profile api is", response);
+        console.log('Response of update profile api is', response)
         if (response.data.status === true) {
-          setIsRefill(true);
+          setIsRefill(true)
         } else if (response.data.status === false) {
           // setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+      console.error('Error occured in api is', error)
       // setUserDataLoader(false);
     }
   }
@@ -194,52 +204,52 @@ const LastStep = ({
   const handleRemoveSmartRefill = async () => {
     try {
       // setUserDataLoader(true);
-      const response = await RemoveSmartRefillApi();
+      const response = await RemoveSmartRefillApi()
       if (response) {
         // setUserDataLoader(false);
-        console.log("Response of remove smart refill api is", response);
+        console.log('Response of remove smart refill api is', response)
         if (response.data.status === true) {
           // setSuccessSnack(response.data.message);
-          setIsRefill(false);
+          setIsRefill(false)
         } else if (response.data.status === false) {
           // setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+      console.error('Error occured in api is', error)
       // setUserDataLoader(false);
     }
   }
 
   const styles = {
     heading: {
-      fontWeight: "600",
+      fontWeight: '600',
       fontSize: 17,
     },
     paragraph: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 12,
     },
     paragraph2: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 12,
     },
     title: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 15,
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div>
@@ -250,8 +260,8 @@ const LastStep = ({
           isVisible={errorMessage}
           hide={() => {
             //   setIsSnackVisible(false);
-            setErrorMessage(null);
-            setErrTitle(null);
+            setErrorMessage(null)
+            setErrTitle(null)
           }}
           type=""
         />
@@ -260,7 +270,7 @@ const LastStep = ({
           message={invalidTimeMessage}
           isVisible={invalidTimeMessage}
           hide={() => {
-            setInvalidTimeMessage(null);
+            setInvalidTimeMessage(null)
           }}
         />
 
@@ -269,7 +279,7 @@ const LastStep = ({
           message={showSuccessSnack}
           isVisible={showSuccessSnack === null ? false : true}
           hide={() => {
-            setShowSuccessSnack(null);
+            setShowSuccessSnack(null)
           }}
           type={SnackbarTypes.Success}
         />
@@ -278,20 +288,22 @@ const LastStep = ({
           <DncConfirmationPopup
             open={showDncConfirmationPopup}
             onClose={() => {
-              setShowDncConfirmationPopup(false);
-              setIsDncChecked(false);
+              setShowDncConfirmationPopup(false)
+              setIsDncChecked(false)
               //
             }}
             onCancel={() => {
-              setShowDncConfirmationPopup(false);
+              setShowDncConfirmationPopup(false)
               //Unset the dncToggle
-              setIsDncChecked(false);
+              setIsDncChecked(false)
             }}
             onConfirm={() => {
-              setShowSuccessSnack("DNC Enabled");
-              setShowDncConfirmationPopup(false);
+              setShowSuccessSnack('DNC Enabled')
+              setShowDncConfirmationPopup(false)
             }}
-            leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
+            leadsCount={
+              selectedAll ? totalLeads - leadIs.length : leadIs.length
+            }
             // creditCost={creditCost}
           />
         )}
@@ -299,38 +311,32 @@ const LastStep = ({
         <div
           className="w-full"
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: '#ffffff',
             padding: 20,
-            borderRadius: "13px",
+            borderRadius: '13px',
           }}
         >
           <div className="flex flex-row justify-between">
             <button
               className="flex flex-row items-center justify-center gap-2 bg-[#15151515] h-[34px] w-[92px] rounded-2xl pe-2"
-              onClick={handleMoveBack}>
+              onClick={handleMoveBack}
+            >
               <CaretLeft size={20} weight="bold" />
-              <span style={styles.title}>
-                Back
-              </span>
+              <span style={styles.title}>Back</span>
             </button>
             <button
               onClick={() => {
-                handleMoveBack();
+                handleMoveBack()
               }}
             >
-              <Image
-                src={"/assets/cross.png"}
-                height={14}
-                width={14}
-                alt="*"
-              />
+              <Image src={'/assets/cross.png'} height={14} width={14} alt="*" />
             </button>
           </div>
 
           <div className="flex flex-row items-center justify-between mt-6">
             <div
               style={{
-                fontWeight: "700",
+                fontWeight: '700',
                 fontSize: 24,
               }}
             >
@@ -339,7 +345,7 @@ const LastStep = ({
             <div className="flex flex-col items-start">
               <div
                 className="text-purple"
-                style={{ fontSize: 12, fontWeight: "600" }}
+                style={{ fontSize: 12, fontWeight: '600' }}
               >
                 {getLeadSelectedCount()} Contacts Selected
               </div>
@@ -351,17 +357,17 @@ const LastStep = ({
                   componentsProps={{
                     tooltip: {
                       sx: {
-                        backgroundColor: "#ffffff", // Ensure white background
-                        color: "#333", // Dark text color
-                        fontSize: "14px",
-                        padding: "10px 15px",
-                        borderRadius: "8px",
-                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        backgroundColor: '#ffffff', // Ensure white background
+                        color: '#333', // Dark text color
+                        fontSize: '14px',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                       },
                     },
                     arrow: {
                       sx: {
-                        color: "#ffffff", // Match tooltip background
+                        color: '#ffffff', // Match tooltip background
                       },
                     },
                   }}
@@ -369,9 +375,9 @@ const LastStep = ({
                   <div
                     style={{
                       fontSize: 12,
-                      fontWeight: "600",
-                      color: "#000000",
-                      cursor: "pointer",
+                      fontWeight: '600',
+                      color: '#000000',
+                      cursor: 'pointer',
                     }}
                   >
                     Check DNC List
@@ -383,22 +389,24 @@ const LastStep = ({
                   // color="#7902DF"
                   // exclusive
                   onChange={(event) => {
-                    if (userLocalDetails?.planCapabilities.maxDNCChecks >= userLocalDetails.currentUsage.maxDNCChecks) {
-                      setIsDncChecked(event.target.checked);
+                    if (
+                      userLocalDetails?.planCapabilities.maxDNCChecks >=
+                      userLocalDetails.currentUsage.maxDNCChecks
+                    ) {
+                      setIsDncChecked(event.target.checked)
                       if (event.target.checked) {
-                        setShowDncConfirmationPopup(true);
+                        setShowDncConfirmationPopup(true)
                       } else {
                         setShowUpgradeModal(true)
                       }
                     }
                   }}
                   sx={{
-                    "& .MuiSwitch-switchBase.Mui-checked": {
-                      color: "#7902DF",
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#7902DF',
                     },
-                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                    {
-                      backgroundColor: "#7902DF",
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#7902DF',
                     },
                     margin: 0,
                   }}
@@ -413,45 +421,46 @@ const LastStep = ({
 
           <div className="flex flex-row items-center gap-8 mt-4">
             <div
-              className='w-1/2 h-[50px] rounded-2xl p-4 flex flex-row items-center'
+              className="w-1/2 h-[50px] rounded-2xl p-4 flex flex-row items-center"
               style={{
-                border: `${isFocustedCustomLeads
-                  ? "2px solid #7902Df"
-                  : "1px solid #00000040"
-                  }`,
+                border: `${
+                  isFocustedCustomLeads
+                    ? '2px solid #7902Df'
+                    : '1px solid #00000040'
+                }`,
               }}
             >
               <input
                 className="w-full rounded-2xl outline-none focus:ring-0 border-none"
                 value={customLeadsToSend}
                 onFocus={() => {
-                  setNoOfLeadsToSend("");
-                  setisFocustedCustomLeads(true);
+                  setNoOfLeadsToSend('')
+                  setisFocustedCustomLeads(true)
                 }}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  if (!/[0-9]/.test(value) && value !== "") return;
-                  setCustomLeadsToSend(e.target.value);
+                  let value = e.target.value
+                  if (!/[0-9]/.test(value) && value !== '') return
+                  setCustomLeadsToSend(e.target.value)
                   if (NoOfLeadsToSend) {
-                    setNoOfLeadsToSend("");
+                    setNoOfLeadsToSend('')
                   }
                 }}
                 placeholder="Ex: 100"
-                style={{ fontSize: 15, fontWeight: "500" }}
+                style={{ fontSize: 15, fontWeight: '500' }}
               />
             </div>
             <button
               className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
               style={{
                 border: NoOfLeadsToSend
-                  ? "2px solid #7902DF"
-                  : "1px solid #00000040",
-                height: "50px",
+                  ? '2px solid #7902DF'
+                  : '1px solid #00000040',
+                height: '50px',
               }}
               onClick={() => {
-                setNoOfLeadsToSend(totalLeads);
-                setCustomLeadsToSend("");
-                setisFocustedCustomLeads(false);
+                setNoOfLeadsToSend(totalLeads)
+                setCustomLeadsToSend('')
+                setisFocustedCustomLeads(false)
               }}
             >
               All {getLeadSelectedCount()}
@@ -466,19 +475,17 @@ const LastStep = ({
             <button
               className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
               style={{
-                border: CallNow
-                  ? "2px solid #7902DF"
-                  : "1px solid #00000040",
-                height: "119px",
+                border: CallNow ? '2px solid #7902DF' : '1px solid #00000040',
+                height: '119px',
               }}
               onClick={() => {
-                setHasUserSelectedDate(false);
-                const currentDateTime = new Date();
-                const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
+                setHasUserSelectedDate(false)
+                const currentDateTime = new Date()
+                const currentHour = currentDateTime.getHours() // Get the current hour (0-23)
                 // if (currentHour >= 5 && currentHour < 19) {
                 //   //console.log;
-                setCallNow(currentDateTime);
-                setCallLater(false);
+                setCallNow(currentDateTime)
+                setCallLater(false)
                 // } else {
                 //   //console.log;
                 //   setInvalidTimeMessage(
@@ -489,14 +496,14 @@ const LastStep = ({
                 //   "Current data is:",
                 //   currentDateTime.toLocaleString()
                 // );
-                setSelectedDateTime(null);
-                setHasUserSelectedDate(false);
-                setIsDisabled(false);
+                setSelectedDateTime(null)
+                setHasUserSelectedDate(false)
+                setIsDisabled(false)
                 // handleDateTimerDifference();
               }}
             >
               <Image
-                src={"/assets/callBtn.png"}
+                src={'/assets/callBtn.png'}
                 height={24}
                 width={24}
                 alt="*"
@@ -508,17 +515,17 @@ const LastStep = ({
                 className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
                 style={{
                   border: CallLater
-                    ? "2px solid #7902DF"
-                    : "1px solid #00000040",
-                  height: "119px",
+                    ? '2px solid #7902DF'
+                    : '1px solid #00000040',
+                  height: '119px',
                 }}
                 onClick={() => {
-                  setShowFromDatePicker(!showFromDatePicker);
-                  setCallNow("");
-                  setCallLater(true);
-                  setSelectedDateTime(dayjs());
-                  setHasUserSelectedDate(true);
-                  setIsDisabled(false);
+                  setShowFromDatePicker(!showFromDatePicker)
+                  setCallNow('')
+                  setCallLater(true)
+                  setSelectedDateTime(dayjs())
+                  setHasUserSelectedDate(true)
+                  setIsDisabled(false)
                 }}
               >
                 <CalendarDots size={32} weight="bold" />
@@ -546,7 +553,7 @@ const LastStep = ({
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     // //backdropFilter: "blur(5px)",
                   },
                 }}
@@ -559,9 +566,9 @@ const LastStep = ({
                     <div
                       className="w-full flex flex-row justify-center"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div>
@@ -584,55 +591,54 @@ const LastStep = ({
                               //   value={value}
                               sx={{
                                 // Date Picker (Large Screen)
-                                "& .MuiPickersDay-root.Mui-selected": {
-                                  backgroundColor: "#7902DF !important", // Purple background for selected date
-                                  color: "white !important",
+                                '& .MuiPickersDay-root.Mui-selected': {
+                                  backgroundColor: '#7902DF !important', // Purple background for selected date
+                                  color: 'white !important',
                                 },
-                                "& .MuiPickersDay-root:hover": {
-                                  backgroundColor: "#a352df !important", // Lighter purple on hover
+                                '& .MuiPickersDay-root:hover': {
+                                  backgroundColor: '#a352df !important', // Lighter purple on hover
                                 },
-                                "& .Mui-selected": {
-                                  backgroundColor: "#7902DF !important",
-                                  color: "#fff !important",
+                                '& .Mui-selected': {
+                                  backgroundColor: '#7902DF !important',
+                                  color: '#fff !important',
                                 },
 
                                 // Time Picker (Large Screen)
-                                "& .MuiClock-pin": {
-                                  backgroundColor: "#7902DF !important", // Change clock pin color
+                                '& .MuiClock-pin': {
+                                  backgroundColor: '#7902DF !important', // Change clock pin color
                                 },
-                                "& .MuiClockPointer-root": {
-                                  backgroundColor: "#7902DF !important", // Change clock pointer color
+                                '& .MuiClockPointer-root': {
+                                  backgroundColor: '#7902DF !important', // Change clock pointer color
                                 },
-                                "& .MuiClockPointer-thumb": {
-                                  borderColor: "#7902DF !important", // Change pointer thumb color
+                                '& .MuiClockPointer-thumb': {
+                                  borderColor: '#7902DF !important', // Change pointer thumb color
                                 },
-                                "& .MuiPickersToolbar-root": {
-                                  backgroundColor: "#7902DF !important", // Toolbar background purple
+                                '& .MuiPickersToolbar-root': {
+                                  backgroundColor: '#7902DF !important', // Toolbar background purple
                                 },
-                                "& .MuiTypography-root": {
-                                  color: "#7902DF !important", // Header text color
+                                '& .MuiTypography-root': {
+                                  color: '#7902DF !important', // Header text color
                                 },
 
                                 // Time Selection List (Large Screen)
-                                "& .MuiPickersTimeClock-root .Mui-selected":
-                                {
-                                  backgroundColor: "#7902DF !important", // Purple selected time
-                                  color: "white !important",
+                                '& .MuiPickersTimeClock-root .Mui-selected': {
+                                  backgroundColor: '#7902DF !important', // Purple selected time
+                                  color: 'white !important',
                                 },
-                                "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                {
-                                  backgroundColor: "#a352df !important", // Lighter purple on hover
-                                },
+                                '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
+                                  {
+                                    backgroundColor: '#a352df !important', // Lighter purple on hover
+                                  },
 
                                 // Time Picker List (Dropdown List)
-                                "& .MuiTimeClock-root .Mui-selected": {
-                                  backgroundColor: "#7902DF !important",
-                                  color: "white !important",
+                                '& .MuiTimeClock-root .Mui-selected': {
+                                  backgroundColor: '#7902DF !important',
+                                  color: 'white !important',
                                 },
-                                "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                {
-                                  backgroundColor: "#a352df !important",
-                                },
+                                '& .MuiTimeClock-root .MuiButtonBase-root:hover':
+                                  {
+                                    backgroundColor: '#a352df !important',
+                                  },
                               }}
                               onChange={handleDateChange}
                               renderInput={(params) => (
@@ -641,17 +647,23 @@ const LastStep = ({
                                   fullWidth
                                   size="small"
                                   sx={{
-                                    "& .MuiOutlinedInput-root": {
-                                      borderRadius: "10px",
-                                      "& fieldset": {
-                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
-                                        borderWidth: "2px",
+                                    '& .MuiOutlinedInput-root': {
+                                      borderRadius: '10px',
+                                      '& fieldset': {
+                                        borderColor: hasUserSelectedDate
+                                          ? '#7902df'
+                                          : '#00000050',
+                                        borderWidth: '2px',
                                       },
-                                      "&:hover fieldset": {
-                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                      '&:hover fieldset': {
+                                        borderColor: hasUserSelectedDate
+                                          ? '#7902df'
+                                          : '#00000050',
                                       },
-                                      "&.Mui-focused fieldset": {
-                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                      '&.Mui-focused fieldset': {
+                                        borderColor: hasUserSelectedDate
+                                          ? '#7902df'
+                                          : '#00000050',
                                       },
                                     },
                                   }}
@@ -664,7 +676,7 @@ const LastStep = ({
                           <button
                             className="w-7/12 h-[50px] bg-purple rounded-xl text-white font-bold"
                             onClick={() => {
-                              setShowFromDatePicker(false);
+                              setShowFromDatePicker(false)
                             }}
                           >
                             Select & close
@@ -683,9 +695,9 @@ const LastStep = ({
               <div
                 className="mt-4"
                 style={{
-                  fontWeight: "500",
+                  fontWeight: '500',
                   fontsize: 12,
-                  color: "#00000050",
+                  color: '#00000050',
                 }}
               >
                 Select date & time
@@ -701,81 +713,81 @@ const LastStep = ({
                     onChange={handleDateChange}
                     slotProps={{
                       textField: {
-                        variant: "outlined",
+                        variant: 'outlined',
                         error: isDisabled,
                         sx: {
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: "10px",
-                            "& fieldset": {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '10px',
+                            '& fieldset': {
                               borderColor: hasUserSelectedDate
-                                ? "#7902df"
-                                : "#00000050", // Purple if selected, red otherwise
-                              borderWidth: "2px",
+                                ? '#7902df'
+                                : '#00000050', // Purple if selected, red otherwise
+                              borderWidth: '2px',
                             },
-                            "&:hover fieldset": {
+                            '&:hover fieldset': {
                               borderColor: hasUserSelectedDate
-                                ? "#7902df"
-                                : "#00000050",
+                                ? '#7902df'
+                                : '#00000050',
                             },
-                            "&.Mui-focused fieldset": {
+                            '&.Mui-focused fieldset': {
                               borderColor: hasUserSelectedDate
-                                ? "#7902df"
-                                : "#00000050",
+                                ? '#7902df'
+                                : '#00000050',
                             },
                           },
                         },
                       },
                     }}
                     sx={{
-                      "& .MuiPickersDay-root.Mui-selected": {
-                        backgroundColor: "#7902DF !important", // Change selected date color to purple
-                        color: "white !important",
+                      '& .MuiPickersDay-root.Mui-selected': {
+                        backgroundColor: '#7902DF !important', // Change selected date color to purple
+                        color: 'white !important',
                       },
-                      "& .MuiPickersDay-root:hover": {
-                        backgroundColor: "#a352df !important", // Lighter purple on hover
+                      '& .MuiPickersDay-root:hover': {
+                        backgroundColor: '#a352df !important', // Lighter purple on hover
                       },
-                      "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                      {
-                        color: "#333 !important", // Default color for unselected dates
+                      '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
+                        {
+                          color: '#333 !important', // Default color for unselected dates
+                        },
+                      '& .Mui-selected': {
+                        backgroundColor: '#7902DF !important',
+                        color: '#fff !important',
                       },
-                      "& .Mui-selected": {
-                        backgroundColor: "#7902DF !important",
-                        color: "#fff !important",
+                      '& .MuiClock-pin': {
+                        backgroundColor: '#7902DF !important', // Change clock pin color
                       },
-                      "& .MuiClock-pin": {
-                        backgroundColor: "#7902DF !important", // Change clock pin color
+                      '& .MuiClockPointer-root': {
+                        backgroundColor: '#7902DF !important', // Change clock pointer color
                       },
-                      "& .MuiClockPointer-root": {
-                        backgroundColor: "#7902DF !important", // Change clock pointer color
-                      },
-                      "& .MuiClockPointer-thumb": {
-                        borderColor: "#7902DF !important", // Change pointer thumb color
+                      '& .MuiClockPointer-thumb': {
+                        borderColor: '#7902DF !important', // Change pointer thumb color
                       },
                     }}
                     renderInput={(params) => (
                       <input
                         {...params.inputProps}
                         style={{
-                          border: "none", // Disable border
-                          outline: "none",
-                          padding: "8px",
-                          backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
+                          border: 'none', // Disable border
+                          outline: 'none',
+                          padding: '8px',
+                          backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
                         }}
                         onFocus={(e) => {
-                          e.target.style.border = "none"; // Ensure no border on focus
-                          e.target.style.outline = "none"; // Ensure no outline on focus
+                          e.target.style.border = 'none' // Ensure no border on focus
+                          e.target.style.outline = 'none' // Ensure no outline on focus
                         }}
                         onBlur={(e) => {
-                          e.target.style.border = "none"; // Reset border on blur
-                          e.target.style.outline = "none"; // Reset outline on blur
+                          e.target.style.border = 'none' // Reset border on blur
+                          e.target.style.outline = 'none' // Reset outline on blur
                         }}
                         onMouseEnter={(e) => {
-                          e.target.style.border = "none"; // Remove border on hover
-                          e.target.style.outline = "none"; // Remove outline on hover
+                          e.target.style.border = 'none' // Remove border on hover
+                          e.target.style.outline = 'none' // Remove outline on hover
                         }}
                         onMouseLeave={(e) => {
-                          e.target.style.border = "none"; // Reset border on hover out
-                          e.target.style.outline = "none"; // Reset outline on hover out
+                          e.target.style.border = 'none' // Reset border on hover out
+                          e.target.style.outline = 'none' // Reset outline on hover out
                         }}
                       />
                     )}
@@ -785,51 +797,49 @@ const LastStep = ({
             </div>
           )}
 
-          {
-            showRefillToogle && (
-              <div className='flex flex-col items-center w-full p-3 rounded-xl w-full mt-3'
-                style={{ backgroundColor: '#D9D9D930' }}
-              >
+          {showRefillToogle && (
+            <div
+              className="flex flex-col items-center w-full p-3 rounded-xl w-full mt-3"
+              style={{ backgroundColor: '#D9D9D930' }}
+            >
+              <div className="flex flex-row items-center justify-between w-full">
                 <div
-                  className='flex flex-row items-center justify-between w-full'
+                  style={{ fontsize: 16, fontWeight: '600', color: 'black' }}
                 >
-                  <div style={{ fontsize: 16, fontWeight: '600', color: 'black' }}>
-                    {`Turn on smart refill`}
-                  </div>
-
-                  <Switch
-                    checked={isRefill}
-                    // color="#7902DF"
-                    // exclusive
-
-                    onChange={() => {
-                      setIsRefill(!isRefill);
-                      if (isRefill === true) {
-                        handleRemoveSmartRefill();
-                      } else if (isRefill === false) {
-                        handleUpdateProfile();
-                      }
-                    }}
-                    sx={{
-                      "& .MuiSwitch-switchBase.Mui-checked": {
-                        color: "#7902DF",
-                      },
-                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                      {
-                        backgroundColor: "#7902DF",
-                      },
-                      margin: 0,
-                    }}
-                  />
+                  {`Turn on smart refill`}
                 </div>
 
-                <div style={{ fontsize: 14, fontWeight: '500', color: 'black' }}>
-                  Avoid interruption when you are making calls and always make sure your AI has credits to work with
-                </div>
+                <Switch
+                  checked={isRefill}
+                  // color="#7902DF"
+                  // exclusive
+
+                  onChange={() => {
+                    setIsRefill(!isRefill)
+                    if (isRefill === true) {
+                      handleRemoveSmartRefill()
+                    } else if (isRefill === false) {
+                      handleUpdateProfile()
+                    }
+                  }}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: '#7902DF',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#7902DF',
+                    },
+                    margin: 0,
+                  }}
+                />
               </div>
-            )
-          }
 
+              <div style={{ fontsize: 14, fontWeight: '500', color: 'black' }}>
+                Avoid interruption when you are making calls and always make
+                sure your AI has credits to work with
+              </div>
+            </div>
+          )}
 
           {loader ? (
             <div className="mt-4 w-full flex flex-row items-center justify-center">
@@ -838,12 +848,15 @@ const LastStep = ({
           ) : (
             <div className="w-full">
               {(NoOfLeadsToSend || customLeadsToSend) &&
-                (CallNow ||
-                  (CallLater && selectedDateTime && hasUserSelectedDate && !isDisabled)) ? (
+              (CallNow ||
+                (CallLater &&
+                  selectedDateTime &&
+                  hasUserSelectedDate &&
+                  !isDisabled)) ? (
                 <button
                   className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                   onClick={() => {
-                    const localData = localStorage.getItem("User");
+                    const localData = localStorage.getItem('User')
                     // if (localData) {
                     //   const UserDetails = JSON.parse(localData);
                     //   console.log(UserDetails.user.smartRefill);
@@ -860,9 +873,9 @@ const LastStep = ({
                       selectedDate: selectedDateTime,
                       DncChecked: isDncChecked,
                       isCallNow: CallNow,
-                      callL: CallLater
+                      callL: CallLater,
                     }
-                    handleContinue(lastStepData);
+                    handleContinue(lastStepData)
                     //triger assign lead api here
                     // handleAssignLead();
                     // handleAssigLead()
@@ -884,10 +897,9 @@ const LastStep = ({
                 handleClose={() => {
                   setShowUpgradeModal(false)
                 }}
-
                 title={"You've Hit Your DNC Limit"}
-                subTitle={"Upgrade to add more DNC lists"}
-                buttonTitle={"No Thanks"}
+                subTitle={'Upgrade to add more DNC lists'}
+                buttonTitle={'No Thanks'}
               />
             </div>
           )}

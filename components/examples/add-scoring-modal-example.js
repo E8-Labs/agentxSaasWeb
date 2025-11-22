@@ -1,23 +1,25 @@
-"use client";
-import React, { useState } from "react";
-import AddScoringModal from "../modals/add-scoring-modal";
-import { Button } from "../ui/button";
+'use client'
+
+import React, { useState } from 'react'
+
+import AddScoringModal from '../modals/add-scoring-modal'
+import { Button } from '../ui/button'
 
 const AddScoringModalExample = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+    setIsModalOpen(false)
+  }
 
   const handleSubmit = (formData) => {
-    console.log("Scoring data submitted:", formData);
+    console.log('Scoring data submitted:', formData)
     // Handle scoring submission logic here
-  };
+  }
 
   return (
     <div className="p-8">
@@ -41,7 +43,7 @@ const AddScoringModalExample = () => {
         onSubmit={handleSubmit}
       />
     </div>
-  );
-};
+  )
+}
 
-export default AddScoringModalExample;
+export default AddScoringModalExample

@@ -1,110 +1,110 @@
-import React, { useState } from "react";
-import Image from "next/image";
-import Apis from "../apis/Apis";
-import axios from "axios";
+import { CircularProgress } from '@mui/material'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useState } from 'react'
+
+import Apis from '../apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { CircularProgress } from "@mui/material";
+} from '../dashboard/leads/AgentSelectSnackMessage'
 
 function SendFeedback() {
-  const [feedbackTitle, setFeedbackTitle] = useState("");
-  const [feedbackDescription, setFeedbackDescription] = useState("");
+  const [feedbackTitle, setFeedbackTitle] = useState('')
+  const [feedbackDescription, setFeedbackDescription] = useState('')
 
   //feedback extra variables
-  const [snackMsg, setSnackMsg] = useState(null);
-  const [errType, setErrType] = useState(null);
-  const [feedBackLoader, setFeedBackLoader] = useState(false);
+  const [snackMsg, setSnackMsg] = useState(null)
+  const [errType, setErrType] = useState(null)
+  const [feedBackLoader, setFeedBackLoader] = useState(false)
 
   //function to handle send feed back
   const handleSendFeedBack = async () => {
     try {
-      setFeedBackLoader(true);
-      const localdata = localStorage.getItem("User");
-      let AuthToken = null;
+      setFeedBackLoader(true)
+      const localdata = localStorage.getItem('User')
+      let AuthToken = null
       if (localdata) {
-        const D = JSON.parse(localdata);
-        AuthToken = D.token;
+        const D = JSON.parse(localdata)
+        AuthToken = D.token
       }
 
       const ApiData = {
         title: feedbackTitle,
         feedback: feedbackDescription,
-      };
+      }
 
       // //console.log;
 
-      const ApiPath = Apis.sendFeedbback;
+      const ApiPath = Apis.sendFeedbback
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setFeedbackTitle("");
-          setFeedbackDescription("");
-          setSnackMsg("Feedback submitted");
-          setErrType(SnackbarTypes.Success);
+          setFeedbackTitle('')
+          setFeedbackDescription('')
+          setSnackMsg('Feedback submitted')
+          setErrType(SnackbarTypes.Success)
         } else if (response.data.status === false) {
-          setSnackMsg(response.data.message);
-          setErrType(SnackbarTypes.Error);
+          setSnackMsg(response.data.message)
+          setErrType(SnackbarTypes.Error)
         }
       }
     } catch (error) {
       // console.error("Error occuredd in api is", error);
-      setFeedBackLoader(false);
+      setFeedBackLoader(false)
     } finally {
-      setFeedBackLoader(false);
+      setFeedBackLoader(false)
       // //console.log;
     }
-  };
+  }
 
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
       style={{
-        paddingBottom: "50px",
-        height: "100%",
-        overflow: "auto",
-        scrollbarWidth: "none",
+        paddingBottom: '50px',
+        height: '100%',
+        overflow: 'auto',
+        scrollbarWidth: 'none',
       }}
     >
       <AgentSelectSnackMessage
         isVisible={snackMsg == null ? false : true}
         hide={() => {
-          setSnackMsg(null);
+          setSnackMsg(null)
         }}
         message={snackMsg}
         type={errType}
       />
 
-      <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+      <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Send Feedback
       </div>
 
-      <div style={{ fontSize: 12, fontWeight: "500", color: "#00000090" }}>
-        {"Account > Send Feedback"}
+      <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
+        {'Account > Send Feedback'}
       </div>
 
       <div className="w-full flex justify-center items-cetner flex-col mt-4">
         <div
-          style={{ alignSelf: "center" }}
+          style={{ alignSelf: 'center' }}
           className="flex flex-col items-center w-full p-2 bg-transparent"
         >
-
           <iframe
             src="https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK"
             width="100%"
             height="600px"
             frameBorder="0"
-            allowFullScreen>
-          </iframe>
+            allowFullScreen
+          ></iframe>
 
           {/*<div
             className="sm:w-full w-full p-4"
@@ -188,31 +188,31 @@ function SendFeedback() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default SendFeedback;
+export default SendFeedback
 
 const styles = {
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   inputStyle: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
     marginTop: 10,
-    border: "1px solid #00000010",
+    border: '1px solid #00000010',
   },
-};
+}

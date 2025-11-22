@@ -1,15 +1,17 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
-import { Alert, CircularProgress, Fade, Modal, Snackbar } from "@mui/material";
-import { Box, style } from "@mui/system";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import AgentSelectSnackMessage from "../dashboard/leads/AgentSelectSnackMessage";
+import { Alert, CircularProgress, Fade, Modal, Snackbar } from '@mui/material'
+import { Box, style } from '@mui/system'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+
+import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 
 const AddBuyerKyc = ({
   handleAddBuyerKycData,
@@ -21,108 +23,108 @@ const AddBuyerKyc = ({
   BuyerUrgencyData,
   mainAgentId,
   hideTitle,
-  selectedUser
+  selectedUser,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
   //console.log
 
-  const [shouldSave, setShouldSave] = useState(false);
+  const [shouldSave, setShouldSave] = useState(false)
 
-  const [toggleClick, setToggleClick] = useState(1);
-  const [addKYCQuestion, setAddKYCQuestion] = useState(false);
+  const [toggleClick, setToggleClick] = useState(1)
+  const [addKYCQuestion, setAddKYCQuestion] = useState(false)
   const [inputs, setInputs] = useState([
-    { id: 1, value: "" },
-    { id: 2, value: "" },
-    { id: 3, value: "" },
-  ]);
-  const [newQuestion, setNewQuestion] = useState("");
-  const [buyerKycLoader, setBuyerKycLoader] = useState(false);
+    { id: 1, value: '' },
+    { id: 2, value: '' },
+    { id: 3, value: '' },
+  ])
+  const [newQuestion, setNewQuestion] = useState('')
+  const [buyerKycLoader, setBuyerKycLoader] = useState(false)
   //code for need kyc
-  const [selectedNeedKYC, setSelectedNeedKYC] = useState([]);
-  const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([]);
+  const [selectedNeedKYC, setSelectedNeedKYC] = useState([])
+  const [oldSelectedNeedKYC, setOldSelectedNeedKYC] = useState([])
   //code for motivation KYC
-  const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([]);
-  const [oldSelectedMotivationKyc, setOldSelectedMotivationKYC] = useState([]);
+  const [selectedMotivationKyc, setSelectedMotivationKYC] = useState([])
+  const [oldSelectedMotivationKyc, setOldSelectedMotivationKYC] = useState([])
   //code for need kyc
-  const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([]);
-  const [oldSelectedUrgencyKyc, setOldSelectedUrgencyKyc] = useState([]);
+  const [selectedUrgencyKyc, setSelectedUrgencyKyc] = useState([])
+  const [oldSelectedUrgencyKyc, setOldSelectedUrgencyKyc] = useState([])
 
   //err msg when same question
-  const [showErrorSnack, setShowErrorSnack] = useState(null);
+  const [showErrorSnack, setShowErrorSnack] = useState(null)
 
   //needKYCQuestions
   const [needKYCQuestions, setNeedKYCQuestions] = useState([
     {
       id: 1,
-      question: "What area are you looking in?",
-      category: "need",
-      type: "buyer",
+      question: 'What area are you looking in?',
+      category: 'need',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 2,
       question:
-        "What type of home are you looking for? Single family, townhouse, condo, apartment, etc",
-      category: "need",
-      type: "buyer",
+        'What type of home are you looking for? Single family, townhouse, condo, apartment, etc',
+      category: 'need',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 3,
-      question: "Are you a first time home buyer?",
-      category: "need",
-      type: "buyer",
+      question: 'Are you a first time home buyer?',
+      category: 'need',
+      type: 'buyer',
       sampleAnswers: [],
     },
-  ]);
+  ])
 
   const [motivationKycQuestions, setMotivationKycQuestions] = useState([
     {
       id: 1,
-      question: "Why is now the right time?",
-      category: "motivation",
-      type: "buyer",
+      question: 'Why is now the right time?',
+      category: 'motivation',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 2,
-      question: "Are you looking to downsize or upsize?",
-      category: "motivation",
-      type: "buyer",
+      question: 'Are you looking to downsize or upsize?',
+      category: 'motivation',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 3,
-      question: "Are you relocating for work?",
-      category: "motivation",
-      type: "buyer",
+      question: 'Are you relocating for work?',
+      category: 'motivation',
+      type: 'buyer',
       sampleAnswers: [],
     },
-  ]);
+  ])
 
   const [urgencyKycQuestions, setUrgencyKycQuestions] = useState([
     {
       id: 1,
-      question: "When do you expect to move into your new place?",
-      category: "urgency",
-      type: "buyer",
+      question: 'When do you expect to move into your new place?',
+      category: 'urgency',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 2,
-      question: "When do you plan on buying a home?",
-      category: "urgency",
-      type: "buyer",
+      question: 'When do you plan on buying a home?',
+      category: 'urgency',
+      type: 'buyer',
       sampleAnswers: [],
     },
     {
       id: 3,
-      question: "When do you plan to move into your new home?",
-      category: "urgency",
-      type: "buyer",
+      question: 'When do you plan to move into your new home?',
+      category: 'urgency',
+      type: 'buyer',
       sampleAnswers: [],
     },
-  ]);
+  ])
 
   //check for the save and continue btn
   useEffect(() => {
@@ -133,14 +135,14 @@ const AddBuyerKyc = ({
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
       // //console.log;
-      setShouldSave(true);
+      setShouldSave(true)
     } else if (
       oldSelectedNeedKYC.length === selectedNeedKYC.length ||
       selectedMotivationKyc.length !== oldSelectedMotivationKyc.length ||
       selectedUrgencyKyc.length !== oldSelectedUrgencyKyc.length
     ) {
       // //console.log;
-      setShouldSave(false);
+      setShouldSave(false)
     }
   }, [
     oldSelectedNeedKYC,
@@ -149,18 +151,18 @@ const AddBuyerKyc = ({
     oldSelectedMotivationKyc,
     selectedUrgencyKyc,
     oldSelectedUrgencyKyc,
-  ]);
+  ])
 
   useEffect(() => {
     // if (OpenSellerNeeds) {
     //     setToggleClick(1);
     // } else
     if (OpenBuyerMotivation) {
-      setToggleClick(2);
+      setToggleClick(2)
     } else if (OpenBuyerUrgency) {
-      setToggleClick(3);
+      setToggleClick(3)
     } else {
-      setToggleClick(1);
+      setToggleClick(1)
     }
 
     if (BuyerNeedData.length > 0) {
@@ -169,34 +171,34 @@ const AddBuyerKyc = ({
         ...prevNeedKycs.filter(
           (existing) =>
             !BuyerNeedData.some(
-              (newData) => existing.question === newData.question
-            )
+              (newData) => existing.question === newData.question,
+            ),
         ),
         ...BuyerNeedData,
-      ]);
+      ])
 
       // Remove matching items from SelectedNeedKYC and add the new items
       setSelectedNeedKYC((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
-            !BuyerNeedData.some((newData) => selectedItem.id === newData.id)
+            !BuyerNeedData.some((newData) => selectedItem.id === newData.id),
         ),
         ...BuyerNeedData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
 
       setOldSelectedNeedKYC((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
-            !BuyerNeedData.some((newData) => selectedItem.id === newData.id)
+            !BuyerNeedData.some((newData) => selectedItem.id === newData.id),
         ),
         ...BuyerNeedData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
     }
     if (BuyerMotivationData.length > 0) {
       // //console.log;
@@ -204,38 +206,38 @@ const AddBuyerKyc = ({
         ...prevNeedKycs.filter(
           (existing) =>
             !BuyerMotivationData.some(
-              (newData) => existing.question === newData.question
-            )
+              (newData) => existing.question === newData.question,
+            ),
         ),
         ...BuyerMotivationData,
-      ]);
+      ])
 
       // Remove matching items from SelectedNeedKYC and add the new items
       setSelectedMotivationKYC((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
             !BuyerMotivationData.some(
-              (newData) => selectedItem.id === newData.id
-            )
+              (newData) => selectedItem.id === newData.id,
+            ),
         ),
         ...BuyerMotivationData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
 
       setOldSelectedMotivationKYC((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
             !BuyerMotivationData.some(
-              (newData) => selectedItem.id === newData.id
-            )
+              (newData) => selectedItem.id === newData.id,
+            ),
         ),
         ...BuyerMotivationData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
     }
     if (BuyerUrgencyData.length > 0) {
       // //console.log;
@@ -243,36 +245,36 @@ const AddBuyerKyc = ({
         ...prevNeedKycs.filter(
           (existing) =>
             !BuyerUrgencyData.some(
-              (newData) => existing.question === newData.question
-            )
+              (newData) => existing.question === newData.question,
+            ),
         ),
         ...BuyerUrgencyData,
-      ]);
+      ])
 
       // Remove matching items from SelectedNeedKYC and add the new items
       setSelectedUrgencyKyc((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
-            !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id)
+            !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id),
         ),
         ...BuyerUrgencyData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
 
       setOldSelectedUrgencyKyc((prevSelected) => [
         ...prevSelected.filter(
           (selectedItem) =>
-            !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id)
+            !BuyerUrgencyData.some((newData) => selectedItem.id === newData.id),
         ),
         ...BuyerUrgencyData.map((item) => ({
           id: item.id,
           question: item.question,
         })),
-      ]);
+      ])
     }
-  }, []);
+  }, [])
 
   //code to add kycQuestion in array
   // const handleAddKycQuestion = () => {
@@ -294,15 +296,15 @@ const AddBuyerKyc = ({
   //     setInputs([{ id: 1, value: '' }]); // Reset the inputs
   // };
   const handleAddKycQuestion = () => {
-    const sampleAnswers = inputs.map((input) => input.value);
+    const sampleAnswers = inputs.map((input) => input.value)
     let newKYCQuestion = {
       id: needKYCQuestions.length + 1,
       question: newQuestion,
       sampleAnswers: sampleAnswers,
-    };
+    }
 
     if (toggleClick === 1) {
-      newKYCQuestion.id = needKYCQuestions.length + 1;
+      newKYCQuestion.id = needKYCQuestions.length + 1
       //   Add to the "Needs" questions and auto-select the new question
       // setNeedKYCQuestions(prevQuestions => {
       //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "need" }];
@@ -314,28 +316,28 @@ const AddBuyerKyc = ({
         needKYCQuestions.some(
           (item) =>
             item.question.toLowerCase() ===
-            newKYCQuestion.question.toLowerCase()
+            newKYCQuestion.question.toLowerCase(),
         )
       ) {
-        setShowErrorSnack("Question already exists!!!");
+        setShowErrorSnack('Question already exists!!!')
         // //console.log;
-        return;
+        return
       } else {
         //// //console.log;
         setNeedKYCQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
-            { ...newKYCQuestion, type: "buyer", category: "need" },
-          ];
+            { ...newKYCQuestion, type: 'buyer', category: 'need' },
+          ]
           setSelectedNeedKYC((prevSelected) => [
             ...prevSelected,
             { id: newKYCQuestion.id, question: newKYCQuestion.question },
-          ]);
-          return updatedQuestions;
-        });
+          ])
+          return updatedQuestions
+        })
       }
     } else if (toggleClick === 2) {
-      newKYCQuestion.id = motivationKycQuestions.length + 1;
+      newKYCQuestion.id = motivationKycQuestions.length + 1
       // setMotivationKycQuestions(prevQuestions => {
       //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "motivation" }];
       //     setSelectedMotivationKYC(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
@@ -346,26 +348,26 @@ const AddBuyerKyc = ({
         motivationKycQuestions.some(
           (item) =>
             item.question.toLowerCase() ===
-            newKYCQuestion.question.toLowerCase()
+            newKYCQuestion.question.toLowerCase(),
         )
       ) {
-        setShowErrorSnack("Question already exists!!!");
-        return;
+        setShowErrorSnack('Question already exists!!!')
+        return
       } else {
         setMotivationKycQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
-            { ...newKYCQuestion, type: "buyer", category: "motivation" },
-          ];
+            { ...newKYCQuestion, type: 'buyer', category: 'motivation' },
+          ]
           setSelectedMotivationKYC((prevSelected) => [
             ...prevSelected,
             { id: newKYCQuestion.id, question: newKYCQuestion.question },
-          ]);
-          return updatedQuestions;
-        });
+          ])
+          return updatedQuestions
+        })
       }
     } else if (toggleClick === 3) {
-      newKYCQuestion.id = urgencyKycQuestions.length + 1;
+      newKYCQuestion.id = urgencyKycQuestions.length + 1
       // setUrgencyKycQuestions(prevQuestions => {
       //     const updatedQuestions = [...prevQuestions, { ...newKYCQuestion, type: "buyer", category: "urgency" }];
       //     setSelectedUrgencyKyc(prevSelected => [...prevSelected, { id: newKYCQuestion.id, question: newKYCQuestion.question }]);
@@ -376,35 +378,35 @@ const AddBuyerKyc = ({
         urgencyKycQuestions.some(
           (item) =>
             item.question.toLowerCase() ===
-            newKYCQuestion.question.toLowerCase()
+            newKYCQuestion.question.toLowerCase(),
         )
       ) {
-        setShowErrorSnack("Question already exists!!!");
+        setShowErrorSnack('Question already exists!!!')
         // //console.log;
-        return;
+        return
       } else {
         setUrgencyKycQuestions((prevQuestions) => {
           const updatedQuestions = [
             ...prevQuestions,
-            { ...newKYCQuestion, type: "buyer", category: "urgency" },
-          ];
+            { ...newKYCQuestion, type: 'buyer', category: 'urgency' },
+          ]
           setSelectedUrgencyKyc((prevSelected) => [
             ...prevSelected,
             { id: newKYCQuestion.id, question: newKYCQuestion.question },
-          ]);
-          return updatedQuestions;
-        });
+          ])
+          return updatedQuestions
+        })
       }
     }
 
-    setAddKYCQuestion(false);
-    setNewQuestion(""); // Reset the new question field
+    setAddKYCQuestion(false)
+    setNewQuestion('') // Reset the new question field
     setInputs([
-      { id: 1, value: "" },
-      { id: 2, value: "" },
-      { id: 3, value: "" },
-    ]); // Reset the inputs
-  };
+      { id: 1, value: '' },
+      { id: 2, value: '' },
+      { id: 3, value: '' },
+    ]) // Reset the inputs
+  }
 
   // Handle change in input field
   // const handleInputChange = (id, value) => {
@@ -416,32 +418,32 @@ const AddBuyerKyc = ({
   const handleInputChange = (id, value) => {
     // Allow only letters, numbers, and spaces
     // const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
-    const sanitizedValue = value.replace(/[{}\[\]<>]/g, '');
+    const sanitizedValue = value.replace(/[{}\[\]<>]/g, '')
 
     setInputs(
       inputs.map((input) =>
-        input.id === id ? { ...input, value: sanitizedValue } : input
-      )
-    );
-  };
+        input.id === id ? { ...input, value: sanitizedValue } : input,
+      ),
+    )
+  }
 
   // Handle deletion of input field
   const handleDelete = (id) => {
-    setInputs(inputs.filter((input) => input.id !== id));
-  };
+    setInputs(inputs.filter((input) => input.id !== id))
+  }
 
   // Handle adding a new input field
   const handleAddInput = () => {
-    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
-    setInputs([...inputs, { id: newId, value: "" }]);
-  };
+    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1
+    setInputs([...inputs, { id: newId, value: '' }])
+  }
 
   // const handleToggleClick = (id) => {
   //     setToggleClick(prevId => (prevId === id ? null : id))
   // }
   const handleToggleClick = (id) => {
-    setToggleClick((prevId) => (prevId === id ? id : id));
-  };
+    setToggleClick((prevId) => (prevId === id ? id : id))
+  }
 
   //code to select question
   const handleSelectNeedKYC = (item) => {
@@ -449,59 +451,61 @@ const AddBuyerKyc = ({
       (prevSelected) =>
         prevSelected.some((selectedItem) => selectedItem.id === item.id)
           ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-          : [...prevSelected, { id: item.id, question: item.question }] // Select
-    );
-  };
+          : [...prevSelected, { id: item.id, question: item.question }], // Select
+    )
+  }
 
   const handleSelectMotivationKYC = (item) => {
     setSelectedMotivationKYC(
       (prevSelected) =>
         prevSelected.some((selectedItem) => selectedItem.id === item.id)
           ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-          : [...prevSelected, { id: item.id, question: item.question }] // Select
-    );
-  };
+          : [...prevSelected, { id: item.id, question: item.question }], // Select
+    )
+  }
 
   const handleUrgencyKYC = (item) => {
     setSelectedUrgencyKyc(
       (prevSelected) =>
         prevSelected.some((selectedItem) => selectedItem.id === item.id)
           ? prevSelected.filter((selectedItem) => selectedItem.id !== item.id) // Deselect
-          : [...prevSelected, { id: item.id, question: item.question }] // Select
-    );
-  };
+          : [...prevSelected, { id: item.id, question: item.question }], // Select
+    )
+  }
 
   const handleAddKyc = () => {
-    setAddKYCQuestion(true);
-  };
+    setAddKYCQuestion(true)
+  }
 
   //close add kyc question modal
   const handleClose = () => {
     setInputs([
-      { id: 1, value: "" },
-      { id: 2, value: "" },
-      { id: 3, value: "" },
-    ]);
-    setAddKYCQuestion(false);
-    setNewQuestion("");
-  };
+      { id: 1, value: '' },
+      { id: 2, value: '' },
+      { id: 3, value: '' },
+    ])
+    setAddKYCQuestion(false)
+    setNewQuestion('')
+  }
 
   const handleAddNewKyc = async () => {
     // Get only the selected questions
     const selectedNeedQuestions = needKYCQuestions.filter((question) =>
-      selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id)
-    );
+      selectedNeedKYC.some((selectedItem) => selectedItem.id === question.id),
+    )
 
     const selectedMotivationQuestions = motivationKycQuestions.filter(
       (question) =>
         selectedMotivationKyc.some(
-          (selectedItem) => selectedItem.id === question.id
-        )
-    );
+          (selectedItem) => selectedItem.id === question.id,
+        ),
+    )
 
     const selectedUrgencyQuestions = urgencyKycQuestions.filter((question) =>
-      selectedUrgencyKyc.some((selectedItem) => selectedItem.id === question.id)
-    );
+      selectedUrgencyKyc.some(
+        (selectedItem) => selectedItem.id === question.id,
+      ),
+    )
 
     // //console.log;
     //// //console.log;
@@ -511,36 +515,36 @@ const AddBuyerKyc = ({
     // handleContinue();
 
     //code for buyer kyc api
-    setBuyerKycLoader(true);
+    setBuyerKycLoader(true)
 
     try {
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
-      const agentDetails = localStorage.getItem("agentDetails");
-      let MyAgentData = null;
-      let UserDetails;
+      let AuthToken = null
+      const LocalData = localStorage.getItem('User')
+      const agentDetails = localStorage.getItem('agentDetails')
+      let MyAgentData = null
+      let UserDetails
       if (LocalData) {
-        UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+        UserDetails = JSON.parse(LocalData)
+        AuthToken = UserDetails.token
       }
 
-      let AgentId = null;
+      let AgentId = null
 
       if (agentDetails) {
         // //console.log;
-        const agentData = JSON.parse(agentDetails);
+        const agentData = JSON.parse(agentDetails)
         // //console.log;
-        MyAgentData = agentData;
+        MyAgentData = agentData
       }
 
       if (mainAgentId) {
-        AgentId = mainAgentId;
+        AgentId = mainAgentId
       } else {
-        AgentId = MyAgentData.id;
+        AgentId = MyAgentData.id
       }
 
-      const ApiPath = Apis.updateKYC;
-      let ApiData = [];
+      const ApiPath = Apis.updateKYC
+      let ApiData = []
 
       // if (selectedNeedQuestions.length > 0) {
       //     //// //console.log;
@@ -587,7 +591,7 @@ const AddBuyerKyc = ({
         ...selectedMotivationQuestions,
         ...selectedNeedQuestions,
         ...selectedUrgencyQuestions,
-      ];
+      ]
 
       // let updatedKycs = [
       //   ...selectedMotivationQuestions.map((item) => ({
@@ -617,80 +621,80 @@ const AddBuyerKyc = ({
           type: item.type,
           examples: item?.sampleAnswers?.filter((answer) => answer),
         })),
-        type: "buyer",
+        type: 'buyer',
         mainAgentId: AgentId,
-      };
-      if (UserDetails.user.userType === "admin") {
+      }
+      if (UserDetails.user.userType === 'admin') {
         data.userId = selectedUser.id
       }
       //console.log;
       // return;
-      ApiData = data;
+      ApiData = data
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // router.push("/pipeline")
-          handleCloseSellerKyc();
-          handleAddBuyerKycData(response.data.data);
+          handleCloseSellerKyc()
+          handleAddBuyerKycData(response.data.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is :--", error);
     } finally {
-      setBuyerKycLoader(false);
+      setBuyerKycLoader(false)
     }
-  };
+  }
 
   const KYCQuestionType = [
     {
       id: 1,
-      title: "Needs",
+      title: 'Needs',
     },
     {
       id: 2,
-      title: "Motivation",
+      title: 'Motivation',
     },
     {
       id: 3,
-      title: "Urgency",
+      title: 'Urgency',
     },
-  ];
+  ]
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     AddNewKYCQuestionModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <AgentSelectSnackMessage
@@ -701,7 +705,7 @@ const AddBuyerKyc = ({
         message={showErrorSnack}
       />
       <div className="rounded-lg w-10/12 h-[100%] flex flex-col">
-        <div className="h-[90%] py-4" style={{ scrollbarWidth: "none" }}>
+        <div className="h-[90%] py-4" style={{ scrollbarWidth: 'none' }}>
           {/* header */}
           {/* <Header /> */}
           {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
@@ -709,7 +713,7 @@ const AddBuyerKyc = ({
           <div className="flex flex-col items-center px-4 w-full">
             <div
               className="mt-6 w-11/12 md:text-3xl text-lg font-[600]"
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               What would you like to ask buyers?
             </div>
@@ -728,10 +732,10 @@ const AddBuyerKyc = ({
                   key={item.id}
                   style={{
                     ...styles.inputStyle,
-                    color: item.id === toggleClick ? "#7902DF" : "",
+                    color: item.id === toggleClick ? '#7902DF' : '',
                   }}
                   onClick={(e) => {
-                    handleToggleClick(item.id);
+                    handleToggleClick(item.id)
                   }}
                 >
                   {item.title}
@@ -741,72 +745,72 @@ const AddBuyerKyc = ({
             <div>
               {toggleClick === 1 ? (
                 <Image
-                  src={"/assets/needKYC.png"}
+                  src={'/assets/needKYC.png'}
                   height={5}
                   width={303}
                   alt="*"
                 />
               ) : toggleClick === 2 ? (
                 <Image
-                  src={"/assets/motivationKyc.png"}
+                  src={'/assets/motivationKyc.png'}
                   height={5}
                   width={303}
                   alt="*"
                 />
               ) : toggleClick === 3 ? (
                 <Image
-                  src={"/assets/urgencyKyc.png"}
+                  src={'/assets/urgencyKyc.png'}
                   height={8}
                   width={310}
                   alt="*"
                 />
               ) : (
-                ""
+                ''
               )}
             </div>
 
             {toggleClick === 1 ? (
               <div
                 className="mt-8 w-[90%] max-h-[37vh] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 {needKYCQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
                     style={{
                       border: selectedNeedKYC.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "2px solid #7902DF"
-                        : "",
+                        ? '2px solid #7902DF'
+                        : '',
                       backgroundColor: selectedNeedKYC.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "#402FFF15"
-                        : "",
+                        ? '#402FFF15'
+                        : '',
                     }}
                     key={index}
                     onClick={() => handleSelectNeedKYC(item)}
                   >
-                    <div style={{ width: "90%" }} className="text-start">
+                    <div style={{ width: '90%' }} className="text-start">
                       {item.question}
                     </div>
                     <div
                       className="outline-none border-none"
-                      style={{ width: "10%" }}
+                      style={{ width: '10%' }}
                     >
                       {selectedNeedKYC.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       ) ? (
                         <Image
-                          src={"/assets/charmTick.png"}
+                          src={'/assets/charmTick.png'}
                           height={35}
                           width={35}
                           alt="*"
                         />
                       ) : (
                         <Image
-                          src={"/assets/charmUnMark.png"}
+                          src={'/assets/charmUnMark.png'}
                           height={35}
                           width={35}
                           alt="*"
@@ -819,7 +823,7 @@ const AddBuyerKyc = ({
             ) : toggleClick === 2 ? (
               <div
                 className="mt-8 w-[90%] max-h-[37vh] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 {motivationKycQuestions.map((item, index) => (
                   <button
@@ -828,36 +832,36 @@ const AddBuyerKyc = ({
                     onClick={() => handleSelectMotivationKYC(item)}
                     style={{
                       border: selectedMotivationKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "2px solid #7902DF"
-                        : "",
+                        ? '2px solid #7902DF'
+                        : '',
                       backgroundColor: selectedMotivationKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "#402FFF15"
-                        : "",
+                        ? '#402FFF15'
+                        : '',
                     }}
                   >
-                    <div style={{ width: "90%" }} className="text-start">
+                    <div style={{ width: '90%' }} className="text-start">
                       {item.question}
                     </div>
                     <div
                       className="outline-none border-none"
-                      style={{ width: "10%" }}
+                      style={{ width: '10%' }}
                     >
                       {selectedMotivationKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       ) ? (
                         <Image
-                          src={"/assets/charmTick.png"}
+                          src={'/assets/charmTick.png'}
                           height={35}
                           width={35}
                           alt="*"
                         />
                       ) : (
                         <Image
-                          src={"/assets/charmUnMark.png"}
+                          src={'/assets/charmUnMark.png'}
                           height={35}
                           width={35}
                           alt="*"
@@ -870,7 +874,7 @@ const AddBuyerKyc = ({
             ) : toggleClick === 3 ? (
               <div
                 className="mt-8 w-[90%] max-h-[37vh] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 {urgencyKycQuestions.map((item, index) => (
                   <button
@@ -879,36 +883,36 @@ const AddBuyerKyc = ({
                     onClick={() => handleUrgencyKYC(item)}
                     style={{
                       border: selectedUrgencyKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "2px solid #7902DF"
-                        : "",
+                        ? '2px solid #7902DF'
+                        : '',
                       backgroundColor: selectedUrgencyKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? "#402FFF15"
-                        : "",
+                        ? '#402FFF15'
+                        : '',
                     }}
                   >
-                    <div style={{ width: "90%" }} className="text-start">
+                    <div style={{ width: '90%' }} className="text-start">
                       {item.question}
                     </div>
                     <div
                       className="outline-none border-none"
-                      style={{ width: "10%" }}
+                      style={{ width: '10%' }}
                     >
                       {selectedUrgencyKyc.some(
-                        (selectedItem) => selectedItem.id === item.id
+                        (selectedItem) => selectedItem.id === item.id,
                       ) ? (
                         <Image
-                          src={"/assets/charmTick.png"}
+                          src={'/assets/charmTick.png'}
                           height={35}
                           width={35}
                           alt="*"
                         />
                       ) : (
                         <Image
-                          src={"/assets/charmUnMark.png"}
+                          src={'/assets/charmUnMark.png'}
                           height={35}
                           width={35}
                           alt="*"
@@ -919,7 +923,7 @@ const AddBuyerKyc = ({
                 ))}
               </div>
             ) : (
-              ""
+              ''
             )}
 
             {/* <div className='mt-8 w-10/12 md:w-6/12 max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
@@ -939,7 +943,7 @@ const AddBuyerKyc = ({
 
             <button
               className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple"
-              style={{ fontWeight: "700", fontSize: 15 }}
+              style={{ fontWeight: '700', fontSize: 15 }}
               onClick={handleAddKyc}
             >
               Add Question
@@ -952,7 +956,7 @@ const AddBuyerKyc = ({
               BackdropProps={{
                 timeout: 1000,
                 sx: {
-                  backgroundColor: "#00000030",
+                  backgroundColor: '#00000030',
                   // //backdropFilter: "blur(20px)",
                 },
               }}
@@ -965,15 +969,15 @@ const AddBuyerKyc = ({
                   <div
                     className="w-full"
                     style={{
-                      backgroundColor: "#ffffff",
+                      backgroundColor: '#ffffff',
                       padding: 20,
-                      borderRadius: "13px",
+                      borderRadius: '13px',
                     }}
                   >
                     <div className="flex flex-row justify-end">
                       <button onClick={handleClose}>
                         <Image
-                          src={"/assets/crossIcon.png"}
+                          src={'/assets/crossIcon.png'}
                           height={40}
                           width={40}
                           alt="*"
@@ -982,13 +986,13 @@ const AddBuyerKyc = ({
                     </div>
                     <div
                       className="text-center mt-2"
-                      style={{ fontWeight: "700", fontSize: 24 }}
+                      style={{ fontWeight: '700', fontSize: 24 }}
                     >
                       New Question
                     </div>
                     <div
                       className="text-[#00000060] mx-2"
-                      style={{ fontWeight: "600", fontSize: 13 }}
+                      style={{ fontWeight: '600', fontSize: 13 }}
                     >
                       {`What’s the question? `}
                     </div>
@@ -996,17 +1000,17 @@ const AddBuyerKyc = ({
                       <input
                         className="border outline-none w-full p-2 rounded-lg px-3 mx-2 focus:outline-none focus:ring-0"
                         style={{
-                          borderColor: "#00000020",
-                          fontWeight: "500",
+                          borderColor: '#00000020',
+                          fontWeight: '500',
                           fontSize: 15,
                         }}
                         placeholder="Ex: What's your name?"
                         value={newQuestion}
                         // onChange={(e) => setNewQuestion(e.target.value)}
                         onChange={(e) => {
-                          const input = e.target.value;
-                          const filtered = input.replace(/[{}\[\]<>]/g, ''); // Remove only {}, [], <>
-                          setNewQuestion(filtered);
+                          const input = e.target.value
+                          const filtered = input.replace(/[{}\[\]<>]/g, '') // Remove only {}, [], <>
+                          setNewQuestion(filtered)
                           // setNewQuestion(e.target.value);
                         }}
                       />
@@ -1055,11 +1059,11 @@ const AddBuyerKyc = ({
                     <div className="w-full h-[80px]">
                       {
                         // inputs.filter((input) => input.value.trim()).length ===
-                        // 3 && 
+                        // 3 &&
                         newQuestion ? (
                           <button
                             className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: "50px" }}
+                            style={{ ...styles.headingStyle, height: '50px' }}
                             onClick={handleAddKycQuestion}
                           >
                             Add Question
@@ -1068,12 +1072,13 @@ const AddBuyerKyc = ({
                           <button
                             disabled={true}
                             className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2"
-                            style={{ ...styles.headingStyle, height: "50px" }}
+                            style={{ ...styles.headingStyle, height: '50px' }}
                             onClick={handleAddKycQuestion}
                           >
                             Add Question
                           </button>
-                        )}
+                        )
+                      }
                     </div>
 
                     {/* Can be use full to add shadow */}
@@ -1117,7 +1122,7 @@ const AddBuyerKyc = ({
                 </div> */}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddBuyerKyc;
+export default AddBuyerKyc

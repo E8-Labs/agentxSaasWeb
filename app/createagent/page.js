@@ -1,114 +1,115 @@
-"use client";
+'use client'
 
-import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan.js";
-import ErrorBoundary from "@/components/ErrorBoundary.js";
-import BackgroundVideo from "@/components/general/BackgroundVideo.js";
-import { PersistanceKeys } from "@/constants/Constants.js";
-import { User } from "lucide-react";
-import dynamic from "next/dynamic.js";
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation"
+import { User } from 'lucide-react'
+import dynamic from 'next/dynamic.js'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 
+import ErrorBoundary from '@/components/ErrorBoundary.js'
+import SubAccountPlan from '@/components/agency/subaccount/SubAccountPlan.js'
+import BackgroundVideo from '@/components/general/BackgroundVideo.js'
+import { PersistanceKeys } from '@/constants/Constants.js'
 
-const CreateAgent1 = dynamic(() =>
-  import("../../components/createagent/CreateAgent1.js")
-);
-const CreateAgent2 = dynamic(() =>
-  import("../../components/createagent/CreateAgent1.js")
-);
-const CreatAgent3 = dynamic(() =>
-  import("../../components/createagent/CreatAgent3.js")
-);
-const UserPlans = dynamic(() =>
-  import("../../components/userPlans/UserPlans.js")
-);
-const CreateAgent4 = dynamic(() =>
-  import("../../components/createagent/CreateAgent4.js")
-);
-const CreateAgentVoice = dynamic(() =>
-  import("../../components/createagent/CreateAgentVoice.js")
-);
+const CreateAgent1 = dynamic(
+  () => import('../../components/createagent/CreateAgent1.js'),
+)
+const CreateAgent2 = dynamic(
+  () => import('../../components/createagent/CreateAgent1.js'),
+)
+const CreatAgent3 = dynamic(
+  () => import('../../components/createagent/CreatAgent3.js'),
+)
+const UserPlans = dynamic(
+  () => import('../../components/userPlans/UserPlans.js'),
+)
+const CreateAgent4 = dynamic(
+  () => import('../../components/createagent/CreateAgent4.js'),
+)
+const CreateAgentVoice = dynamic(
+  () => import('../../components/createagent/CreateAgentVoice.js'),
+)
 
-const BuildAgentName = dynamic(() =>
-  import("../../components/createagent/mobileCreateAgent/BuildAgentName.js")
-);
-const BuildAgentObjective = dynamic(() =>
-  import(
-    "../../components/createagent/mobileCreateAgent/BuildAgentObjective.js"
-  )
-);
-const BuildAgentTask = dynamic(() =>
-  import("../../components/createagent/mobileCreateAgent/BuildAgentTask.js")
-);
+const BuildAgentName = dynamic(
+  () =>
+    import('../../components/createagent/mobileCreateAgent/BuildAgentName.js'),
+)
+const BuildAgentObjective = dynamic(
+  () =>
+    import(
+      '../../components/createagent/mobileCreateAgent/BuildAgentObjective.js'
+    ),
+)
+const BuildAgentTask = dynamic(
+  () =>
+    import('../../components/createagent/mobileCreateAgent/BuildAgentTask.js'),
+)
 
 function EmptyPage() {
-  return <div></div>;
+  return <div></div>
 }
 
 const Page = () => {
   // //console.log;
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const stepFromUrl = parseInt(searchParams.get("step") || "1", 10);
-  const [index, setIndex] = useState(stepFromUrl);
+  const stepFromUrl = parseInt(searchParams.get('step') || '1', 10)
+  const [index, setIndex] = useState(stepFromUrl)
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
   const [components, setComponents] = useState([
     EmptyPage,
     // CreateAgent1,
     // CreatAgent3,
     // CreateAgent4,
     // CreateAgentVoice,
-  ]);
+  ])
 
-  const [windowSize, setWindowSize] = useState(null);
+  const [windowSize, setWindowSize] = useState(null)
   const [subAccount, setSubaccount] = useState(null)
 
-  let CurrentComp = components[index - 1] || EmptyPage;
+  let CurrentComp = components[index - 1] || EmptyPage
   useEffect(() => {
-    const currentStep = searchParams.get("step");
+    const currentStep = searchParams.get('step')
     if (currentStep !== index.toString()) {
-      router.replace(`?step=${index}`);
+      router.replace(`?step=${index}`)
     }
-  }, [index, router, searchParams]);
+  }, [index, router, searchParams])
 
   // console.log("Rendering step:", index, components[index]);
 
-
-
   useEffect(() => {
-    let size = null;
-    if (typeof window !== "undefined") {
-      size = window.innerWidth;
-      setWindowSize(size);
+    let size = null
+    if (typeof window !== 'undefined') {
+      size = window.innerWidth
+      setWindowSize(size)
     } else {
       // //console.log;
     }
-    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (user) {
-      let parsed = JSON.parse(user);
-      setUser(parsed);
+      let parsed = JSON.parse(user)
+      setUser(parsed)
     }
     // //console.log;
-  }, []);
+  }, [])
 
   useEffect(() => {
     // //console.log;
-    const localData = localStorage.getItem("User");
+    const localData = localStorage.getItem('User')
 
     if (localData) {
-      const Data = JSON.parse(localData);
+      const Data = JSON.parse(localData)
       // //console.log;
       // //console.log;
 
-      let d = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-      let fromAdmin = ""
+      let d = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      let fromAdmin = ''
       if (d) {
-        fromAdmin = JSON.parse(d);
+        fromAdmin = JSON.parse(d)
       }
-      console.log("data form admin is", fromAdmin)
+      console.log('data form admin is', fromAdmin)
       if (!fromAdmin) {
         if (Data.user.plan) {
           if (windowSize < 640) {
@@ -121,7 +122,7 @@ const Page = () => {
               // CreatAgent3,
               // CreateAgent4,
               // CreateAgentVoice,
-            ]);
+            ])
           } else {
             setComponents([
               CreateAgent1,
@@ -129,7 +130,7 @@ const Page = () => {
               // UserPlans,
               CreateAgent4,
               CreateAgentVoice,
-            ]);
+            ])
             // setIndex(1)
           }
         } else {
@@ -142,9 +143,8 @@ const Page = () => {
                 SubAccountPlan,
                 // CreateAgent4,
                 // CreateAgentVoice,
-              ]);
+              ])
             } else {
-
               setComponents([
                 BuildAgentName,
                 BuildAgentTask,
@@ -152,7 +152,7 @@ const Page = () => {
                 UserPlans,
                 // CreateAgent4,
                 // CreateAgentVoice,
-              ]);
+              ])
             }
             // setIndex(3)
           } else {
@@ -163,16 +163,15 @@ const Page = () => {
                 CreateAgent4,
                 CreateAgentVoice,
                 // setIndex(3)
-              ]);
-            }
-            else {
+              ])
+            } else {
               setComponents([
                 CreateAgent1,
                 UserPlans,
                 CreateAgent4,
                 CreateAgentVoice,
                 // setIndex(3)
-              ]);
+              ])
             }
           }
         }
@@ -182,13 +181,11 @@ const Page = () => {
           // CreatAgent3,
           CreateAgent4,
           CreateAgentVoice,
-        ]);
+        ])
         console.log('This is admin')
       }
     }
-
-  }, [windowSize]);
-
+  }, [windowSize])
 
   useEffect(() => {
     checkIsFromOnboarding()
@@ -203,17 +200,16 @@ const Page = () => {
   }
 
   // Function to proceed to the next step
-  const handleContinue = () => setIndex((prev) => prev + 1);
-  const handleBack = () => setIndex((prev) => Math.max(prev - 1, 0));
-  const handleSkipAddPayment = () => setIndex((prev) => prev + 2);
-
+  const handleContinue = () => setIndex((prev) => prev + 1)
+  const handleBack = () => setIndex((prev) => Math.max(prev - 1, 0))
+  const handleSkipAddPayment = () => setIndex((prev) => prev + 2)
 
   //function to get the agent Details
   const [AgentDetails, setAgentDetails] = useState({
-    name: "",
-    agentRole: "",
-    agentType: "",
-  });
+    name: '',
+    agentRole: '',
+    agentType: '',
+  })
 
   const getAgentDetails = (agentName, agentRole, agentType) => {
     // //console.log;
@@ -224,18 +220,18 @@ const Page = () => {
       name: agentName,
       agentRole: agentRole,
       agentType: agentType,
-    });
-  };
+    })
+  }
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: "100%",
-    height: "100svh",
-    overflow: "hidden",
-  };
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: '100%',
+    height: '100svh',
+    overflow: 'hidden',
+  }
 
   return (
     <ErrorBoundary>
@@ -247,12 +243,12 @@ const Page = () => {
           {windowSize > 640 && (
             <div
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 0,
                 left: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
                 zIndex: -1, // Ensure the video stays behind content
               }}
             >
@@ -271,7 +267,7 @@ const Page = () => {
         </div>
       </Suspense>
     </ErrorBoundary>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

@@ -323,47 +323,46 @@
 //list of USA ad canada ime zones
 
 const timeZones = [
-    "America/Adak",             // Alaska/Hawaii Time Zone (Aleutian Islands, Alaska)
-    "America/Anchorage",        // Alaska Time Zone
-    "America/Boise",            // Mountain Time Zone
-    "America/Chicago",          // Central Time Zone
-    "America/Denver",           // Mountain Time Zone
-    "America/Detroit",          // Eastern Time Zone
-    "America/Edmonton",         // Mountain Time Zone (Canada)
-    "America/Fort_Nelson",      // Mountain Time Zone (Canada)
-    "America/Glace_Bay",        // Atlantic Time Zone (Canada)
-    "America/Goose_Bay",        // Atlantic Time Zone (Canada)
-    "America/Halifax",          // Atlantic Time Zone (Canada)
-    "America/Inuvik",           // Mountain Time Zone (Canada)
-    "America/Iqaluit",          // Eastern Time Zone (Canada)
-    "America/Juneau",           // Alaska Time Zone
-    "America/Los_Angeles",      // Pacific Time Zone
-    "America/Mazatlan",         // Mountain Time Zone (US/Mexico border regions)
-    "America/Moncton",          // Atlantic Time Zone (Canada)
-    "America/New_York",         // Eastern Time Zone
-    "America/Nome",             // Alaska Time Zone
-    "America/Pangnirtung",      // Eastern Time Zone (Canada)
-    "America/Phoenix",          // Mountain Standard Time (no DST in Arizona)
-    "America/Rainy_River",      // Central Time Zone (Canada)
-    "America/Rankin_Inlet",     // Central Time Zone (Canada)
-    "America/Regina",           // Central Standard Time (no DST in Saskatchewan)
-    "America/Resolute",         // Central Time Zone (Canada)
-    "America/Sitka",            // Alaska Time Zone
-    "America/St_Johns",         // Newfoundland Time Zone (Canada)
-    "America/Thunder_Bay",      // Eastern Time Zone (Canada)
-    "America/Toronto",          // Eastern Time Zone (Canada)
-    "America/Vancouver",        // Pacific Time Zone (Canada)
-    "America/Whitehorse",       // Yukon Time Zone (Canada)
-    "America/Winnipeg",         // Central Time Zone (Canada)
-    "America/Yellowknife"       // Mountain Time Zone (Canada)
-];
-
-export default timeZones;
-
-export const timeDuration = [
-    "15 minutes",
-    "30 minutes",
-    "45 minutes",
-    "60 minutes"
+  'America/Adak', // Alaska/Hawaii Time Zone (Aleutian Islands, Alaska)
+  'America/Anchorage', // Alaska Time Zone
+  'America/Boise', // Mountain Time Zone
+  'America/Chicago', // Central Time Zone
+  'America/Denver', // Mountain Time Zone
+  'America/Detroit', // Eastern Time Zone
+  'America/Edmonton', // Mountain Time Zone (Canada)
+  'America/Fort_Nelson', // Mountain Time Zone (Canada)
+  'America/Glace_Bay', // Atlantic Time Zone (Canada)
+  'America/Goose_Bay', // Atlantic Time Zone (Canada)
+  'America/Halifax', // Atlantic Time Zone (Canada)
+  'America/Inuvik', // Mountain Time Zone (Canada)
+  'America/Iqaluit', // Eastern Time Zone (Canada)
+  'America/Juneau', // Alaska Time Zone
+  'America/Los_Angeles', // Pacific Time Zone
+  'America/Mazatlan', // Mountain Time Zone (US/Mexico border regions)
+  'America/Moncton', // Atlantic Time Zone (Canada)
+  'America/New_York', // Eastern Time Zone
+  'America/Nome', // Alaska Time Zone
+  'America/Pangnirtung', // Eastern Time Zone (Canada)
+  'America/Phoenix', // Mountain Standard Time (no DST in Arizona)
+  'America/Rainy_River', // Central Time Zone (Canada)
+  'America/Rankin_Inlet', // Central Time Zone (Canada)
+  'America/Regina', // Central Standard Time (no DST in Saskatchewan)
+  'America/Resolute', // Central Time Zone (Canada)
+  'America/Sitka', // Alaska Time Zone
+  'America/St_Johns', // Newfoundland Time Zone (Canada)
+  'America/Thunder_Bay', // Eastern Time Zone (Canada)
+  'America/Toronto', // Eastern Time Zone (Canada)
+  'America/Vancouver', // Pacific Time Zone (Canada)
+  'America/Whitehorse', // Yukon Time Zone (Canada)
+  'America/Winnipeg', // Central Time Zone (Canada)
+  'America/Yellowknife', // Mountain Time Zone (Canada)
 ]
 
+export default timeZones
+
+export const timeDuration = [
+  '15 minutes',
+  '30 minutes',
+  '45 minutes',
+  '60 minutes',
+]

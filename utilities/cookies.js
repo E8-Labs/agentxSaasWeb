@@ -28,7 +28,7 @@
 // // }
 
 export function setCookie(user, document, expiryDate = null) {
-  if (typeof document === "undefined") return;
+  if (typeof document === 'undefined') return
 
   const cookieValue = encodeURIComponent(
     JSON.stringify({
@@ -36,12 +36,12 @@ export function setCookie(user, document, expiryDate = null) {
       userRole: user.userRole,
       userType: user.userType,
       agencyTeammember: user.agencyTeamMember,
-    })
-  );
+    }),
+  )
 
   const expires = expiryDate
     ? expiryDate.toUTCString()
-    : "Fri, 31 Dec 9999 23:59:59 GMT";
+    : 'Fri, 31 Dec 9999 23:59:59 GMT'
 
-  document.cookie = `User=${cookieValue}; path=/; expires=${expires}`;
+  document.cookie = `User=${cookieValue}; path=/; expires=${expires}`
 }

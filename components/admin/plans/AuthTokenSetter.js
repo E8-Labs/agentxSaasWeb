@@ -1,44 +1,46 @@
-"use client";
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlanApiService } from "@/utilities/PlanApiService";
+'use client'
+
+import React, { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { PlanApiService } from '@/utilities/PlanApiService'
 
 const AuthTokenSetter = () => {
-  const [token, setToken] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   const handleSetToken = () => {
     if (token.trim()) {
       // Get existing User data or create new object
-      const existingUser = localStorage.getItem("User");
-      const userData = existingUser ? JSON.parse(existingUser) : {};
-      
+      const existingUser = localStorage.getItem('User')
+      const userData = existingUser ? JSON.parse(existingUser) : {}
+
       // Update the token in the User object
-      userData.token = token.trim();
-      localStorage.setItem("User", JSON.stringify(userData));
-      
-      setIsAuthenticated(true);
+      userData.token = token.trim()
+      localStorage.setItem('User', JSON.stringify(userData))
+
+      setIsAuthenticated(true)
       // Reload the page to refresh API calls
-      window.location.reload();
+      window.location.reload()
     }
-  };
+  }
 
   const handleClearToken = () => {
     // Get existing User data
-    const existingUser = localStorage.getItem("User");
+    const existingUser = localStorage.getItem('User')
     if (existingUser) {
-      const userData = JSON.parse(existingUser);
-      delete userData.token;
-      localStorage.setItem("User", JSON.stringify(userData));
+      const userData = JSON.parse(existingUser)
+      delete userData.token
+      localStorage.setItem('User', JSON.stringify(userData))
     }
-    
-    setToken("");
-    setIsAuthenticated(false);
-    window.location.reload();
-  };
+
+    setToken('')
+    setIsAuthenticated(false)
+    window.location.reload()
+  }
 
   return (
     <Card className="mb-6">
@@ -67,12 +69,13 @@ const AuthTokenSetter = () => {
         </div>
         {isAuthenticated && (
           <div className="text-sm text-green-600">
-            ✅ Token set successfully! API calls will now include authentication.
+            ✅ Token set successfully! API calls will now include
+            authentication.
           </div>
         )}
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default AuthTokenSetter;
+export default AuthTokenSetter

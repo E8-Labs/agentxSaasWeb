@@ -1,18 +1,15 @@
-'use client';
-import { useState } from "react";
-import Lottie from "lottie-react";
-import Image from "next/image";
+'use client'
 
-export default function DuplicateButton({
-    handleDuplicate,
-    loading = false,
-}) {
+import Lottie from 'lottie-react'
+import Image from 'next/image'
+import { useState } from 'react'
 
+export default function DuplicateButton({ handleDuplicate, loading = false }) {
   return (
     <button className="relative w-[24px] h-[24px]" onClick={handleDuplicate}>
       {loading ? (
         <Lottie
-          animationData={require("../../public/assets/animation/duplicateAnimation.json")}
+          animationData={require('../../public/assets/animation/duplicateAnimation.json')}
           loop
           style={{ width: 18, height: 18 }}
         />
@@ -25,5 +22,5 @@ export default function DuplicateButton({
         />
       )}
     </button>
-  );
+  )
 }

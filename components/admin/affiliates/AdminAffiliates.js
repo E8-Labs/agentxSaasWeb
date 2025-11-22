@@ -1,102 +1,106 @@
-"use client";
-import { Button, CircularProgress, colors, Fab } from "@mui/material";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { Modal, Box, Drawer } from "@mui/material";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
+'use client'
+
+import 'react-phone-input-2/lib/style.css'
+
+import { Button, CircularProgress, Fab, colors } from '@mui/material'
+import { Box, Drawer, Modal } from '@mui/material'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import axios from 'axios'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import {
   checkPhoneNumber,
   getLocalLocation,
-} from "@/components/onboarding/services/apisServices/ApiService";
-import { formatPhoneNumber } from "@/utilities/agentUtilities";
-import { isValidUrl, PersistanceKeys } from "@/constants/Constants";
-import { logout } from "@/utilities/UserUtility";
-import { useRouter } from "next/navigation";
+} from '@/components/onboarding/services/apisServices/ApiService'
+import { PersistanceKeys, isValidUrl } from '@/constants/Constants'
+import { logout } from '@/utilities/UserUtility'
+import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import {
   GetFormattedDateString,
   GetFormattedTimeString,
-} from "@/utilities/utility";
-import { AffiliatesFilterModal } from "./AffiliatesFilterModal";
-import AffiliateDetailsDrawer from "./AffiliateDetailsDrawer";
+} from '@/utilities/utility'
+
+import AffiliateDetailsDrawer from './AffiliateDetailsDrawer'
+import { AffiliatesFilterModal } from './AffiliatesFilterModal'
 
 function AdminAffiliates({ selectedUser }) {
-  const timerRef = useRef(null);
-  const router = useRouter();
+  const timerRef = useRef(null)
+  const router = useRouter()
 
-  const [openAffiliatePopup, setOpenAffiliatePopup] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [officeHourUrl, setOfficeHourUrl] = useState("");
-  const [uniqueUrl, SetUniqueUrl] = useState("");
+  const [openAffiliatePopup, setOpenAffiliatePopup] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [officeHourUrl, setOfficeHourUrl] = useState('')
+  const [uniqueUrl, SetUniqueUrl] = useState('')
 
-  const [showError, setShowError] = useState(false);
+  const [showError, setShowError] = useState(false)
 
-  const [affiliatsList, setAffiliatesList] = useState([]);
+  const [affiliatsList, setAffiliatesList] = useState([])
 
-  const [getAffeliatesLoader, setGetAffiliatesLoader] = useState(false);
-  const [addAffiliateLoader, setAddAffiliateLoader] = useState(false);
+  const [getAffeliatesLoader, setGetAffiliatesLoader] = useState(false)
+  const [addAffiliateLoader, setAddAffiliateLoader] = useState(false)
 
-  const [validEmail, setValidEmail] = useState("");
+  const [validEmail, setValidEmail] = useState('')
 
-  const [showSnak, setShowSnak] = useState(false);
-  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
+  const [showSnak, setShowSnak] = useState(false)
+  const [snackTitle, setSnackTitle] = useState('Team invite sent successfully')
 
   //variables for phone number err messages and checking
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [countryCode, setCountryCode] = useState(""); // Default country
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [countryCode, setCountryCode] = useState('') // Default country
 
-  const [urlError, setUrlError] = useState("");
-  const [urlError2, setUrlError2] = useState("");
-  const [search, setSearch] = useState("");
-  const [filteredAffiliates, setFilteredAffiliates] = useState([]);
+  const [urlError, setUrlError] = useState('')
+  const [urlError2, setUrlError2] = useState('')
+  const [search, setSearch] = useState('')
+  const [filteredAffiliates, setFilteredAffiliates] = useState([])
 
-  const [showFilterModal, setShowFilterModal] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [filters, setFilters] = useState({})
 
-  const [showUsersModal, setShowUsersModal] = useState(false);
-  const [selectedAffiliate, setSelectedAffiliate] = useState("");
-  const [affilateUsers, setAffiliateUsers] = useState([]);
-  const [affilateUsersLoader, setAffiliateUsersLoader] = useState([]);
+  const [showUsersModal, setShowUsersModal] = useState(false)
+  const [selectedAffiliate, setSelectedAffiliate] = useState('')
+  const [affilateUsers, setAffiliateUsers] = useState([])
+  const [affilateUsersLoader, setAffiliateUsersLoader] = useState([])
 
-  const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false);
+  const [showAffiliateDrawer, setShowAffiliateDrawer] = useState(false)
 
-  useEffect(() => { });
+  useEffect(() => {})
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      let loc = getLocalLocation();
-      setCountryCode(loc);
-      getAffiliates();
+    if (typeof window !== 'undefined') {
+      let loc = getLocalLocation()
+      setCountryCode(loc)
+      getAffiliates()
     }
-  }, [selectedUser]);
+  }, [selectedUser])
 
   useEffect(() => {
     let timer = setTimeout(() => {
       //console.log);
       if (officeHourUrl) {
         if (isValidUrl(officeHourUrl)) {
-          setUrlError("");
+          setUrlError('')
           //console.log;
         } else {
-          setUrlError("Invalid");
+          setUrlError('Invalid')
         }
       }
-    }, 300);
+    }, 300)
 
-    return () => clearTimeout(timer);
-  }, [officeHourUrl]);
+    return () => clearTimeout(timer)
+  }, [officeHourUrl])
 
   useEffect(() => {
     let timer = setTimeout(() => {
@@ -104,87 +108,81 @@ function AdminAffiliates({ selectedUser }) {
       if (uniqueUrl) {
         checkUniqueUrl(uniqueUrl)
       }
-    }, 300);
+    }, 300)
 
-    return () => clearTimeout(timer);
-  }, [uniqueUrl]);
+    return () => clearTimeout(timer)
+  }, [uniqueUrl])
 
   const checkUniqueUrl = async (url) => {
     try {
       // setAffiliateUsersLoader(true);
-      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser)
 
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.chechAffiliateUniqueUrl;
+        let path = Apis.chechAffiliateUniqueUrl
         console.log('path', path)
 
         let apidata = {
-          uniqueUrl: url
+          uniqueUrl: url,
         }
 
         const response = await axios.post(path, apidata, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response.data) {
-          setAffiliateUsersLoader(false);
+          setAffiliateUsersLoader(false)
 
           if (response.data.status === true) {
-            console.log(
-              "",
-              response.data.message
-            );
+            console.log('', response.data.message)
           } else {
-            console.log(
-              "api messsage is",
-              response.data.message
-            );
+            console.log('api messsage is', response.data.message)
 
             setUrlError2(response.data.message)
           }
         }
       }
     } catch (e) {
-      setAffiliateUsersLoader(false);
+      setAffiliateUsersLoader(false)
 
       //console.log;
     }
   }
 
   useEffect(() => {
-    getUsersForAffiliate();
-  }, [selectedAffiliate]);
+    getUsersForAffiliate()
+  }, [selectedAffiliate])
 
   const getUsersForAffiliate = async (offset = 0) => {
     //console.log;
     try {
-      setAffiliateUsersLoader(true);
-      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      setAffiliateUsersLoader(true)
+      let data = localStorage.getItem(PersistanceKeys.LocalStorageUser)
 
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = `${Apis.getUsersForAffiliate}?offset=${offset}&campaigneeId=${selectedAffiliate?.id}`;
+        let path = `${Apis.getUsersForAffiliate}?offset=${offset}&campaigneeId=${selectedAffiliate?.id}`
 
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response.data) {
-          setAffiliateUsersLoader(false);
+          setAffiliateUsersLoader(false)
 
           if (response.data.status === true) {
             // console.log(
             //   "users for selected affiliate are ",
             //   response.data.data
             // );
-            setAffiliateUsers(response.data.data);
+            setAffiliateUsers(response.data.data)
           } else {
             // console.log(
             //   "users for selected affiliate api messsage is",
@@ -194,11 +192,11 @@ function AdminAffiliates({ selectedUser }) {
         }
       }
     } catch (e) {
-      setAffiliateUsersLoader(false);
+      setAffiliateUsersLoader(false)
 
       //console.log;
     }
-  };
+  }
 
   //   useEffect(() => {
   //     let timer = setTimeout(() => {
@@ -223,61 +221,63 @@ function AdminAffiliates({ selectedUser }) {
 
     if (affiliat) {
       let localAffiliate = JSON.parse(affiliat)
-      setAffiliatesList(localAffiliate);
-      setFilteredAffiliates(localAffiliate);
+      setAffiliatesList(localAffiliate)
+      setFilteredAffiliates(localAffiliate)
       // return
     }
     try {
-      setGetAffiliatesLoader(true);
-      const data = localStorage.getItem("User");
+      setGetAffiliatesLoader(true)
+      const data = localStorage.getItem('User')
 
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.getAffiliate + "?offset=" + offset;
+        let path = Apis.getAffiliate + '?offset=' + offset
         //console.log;
         if (filter) {
           if (filter.users) {
-            path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`;
+            path = `${path}&minUsers=${filter.users[0]}&maxUsers=${filter.users[1]}`
           }
           if (filter.revenue) {
-            path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`;
+            path = `${path}&minRevenue=${filter.revenue[0]}&maxRevenue=${filter.revenue[1]}`
           }
           if (filter.xBar) {
-            path = `${path}&minxBar=${filter.revenue[0]}&maxxBar=${filter.revenue[1]}`;
+            path = `${path}&minxBar=${filter.revenue[0]}&maxxBar=${filter.revenue[1]}`
           }
         }
-        console.log("get affiliates path is", path);
+        console.log('get affiliates path is', path)
 
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          setGetAffiliatesLoader(false);
-          console.log("response is", response.data);
+          setGetAffiliatesLoader(false)
+          console.log('response is', response.data)
 
           if (response.data.status === true) {
-            setAffiliatesList(response.data.data);
-            setFilteredAffiliates(response.data.data);
+            setAffiliatesList(response.data.data)
+            setFilteredAffiliates(response.data.data)
 
-            localStorage.setItem(PersistanceKeys.LocalAffiliates, JSON.stringify(response.data.data))
+            localStorage.setItem(
+              PersistanceKeys.LocalAffiliates,
+              JSON.stringify(response.data.data),
+            )
           } else {
             //console.log;
           }
         }
       }
     } catch (e) {
-      setGetAffiliatesLoader(false);
+      setGetAffiliatesLoader(false)
 
       //console.log;
+    } finally {
+      setGetAffiliatesLoader(false)
     }
-    finally {
-      setGetAffiliatesLoader(false);
-    }
-  };
+  }
 
   //funcion to invitem tem member
   const addAffiliate = async (item) => {
@@ -290,16 +290,16 @@ function AdminAffiliates({ selectedUser }) {
       !item.officeHoursUrl ||
       !item.uniqueUrl
     ) {
-      setShowError(true);
-      return;
+      setShowError(true)
+      return
     }
     try {
-      const data = localStorage.getItem("User");
-      setAddAffiliateLoader(true);
+      const data = localStorage.getItem('User')
+      setAddAffiliateLoader(true)
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.addAffiliate;
+        let path = Apis.addAffiliate
 
         let apidata = {
           name: item.name,
@@ -307,44 +307,44 @@ function AdminAffiliates({ selectedUser }) {
           phone: item.phone,
           officeHoursUrl: item.officeHoursUrl,
           uniqueUrl: item.uniqueUrl,
-        };
+        }
 
         //console.log;
 
         const response = await axios.post(path, apidata, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          setAddAffiliateLoader(false);
+          setAddAffiliateLoader(false)
           if (response.data.status === true) {
             //console.log;
-            let newMember = response.data.data;
+            let newMember = response.data.data
             // //console.log;
             // //console.log;
             setAffiliatesList((prev) => {
               // //console.log;
               // //console.log;
               const isAlreadyPresent = prev.some(
-                (member) => member.id === newMember.id
-              ); // Check by unique ID
+                (member) => member.id === newMember.id,
+              ) // Check by unique ID
               // //console.log;
               if (isAlreadyPresent) {
                 // //console.log;
-                return prev;
+                return prev
               }
-              return [...prev, newMember];
-            });
-            setSnackTitle("Affiliate added successfully");
-            setShowSnak(true);
-            setOpenAffiliatePopup(false);
-            setName("");
-            setEmail("");
-            setPhone("");
-            SetUniqueUrl("");
-            setOfficeHourUrl("");
+              return [...prev, newMember]
+            })
+            setSnackTitle('Affiliate added successfully')
+            setShowSnak(true)
+            setOpenAffiliatePopup(false)
+            setName('')
+            setEmail('')
+            setPhone('')
+            SetUniqueUrl('')
+            setOfficeHourUrl('')
             // getMyteam()
           } else {
             //console.log;
@@ -352,45 +352,45 @@ function AdminAffiliates({ selectedUser }) {
         }
       }
     } catch (e) {
-      setAddAffiliateLoader(false);
+      setAddAffiliateLoader(false)
       //console.log;
     }
-  };
+  }
 
   //email validation function
   const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
     // Check if email contains consecutive dots, which are invalid
     if (/\.\./.test(email)) {
-      return false;
+      return false
     }
 
     // Check the general pattern for a valid email
-    return emailPattern.test(email);
-  };
+    return emailPattern.test(email)
+  }
 
   //phone input change
   const handlePhoneNumberChange = (phone) => {
-    setPhone(phone);
-    setErrorMessage(null);
-    validatePhoneNumber(phone);
-    setCheckPhoneResponse(null);
+    setPhone(phone)
+    setErrorMessage(null)
+    validatePhoneNumber(phone)
+    setCheckPhoneResponse(null)
 
     if (!phone) {
-      setErrorMessage(null);
-      setCheckPhoneResponse(null);
+      setErrorMessage(null)
+      setCheckPhoneResponse(null)
     }
-  };
+  }
 
   //number validation
   const validatePhoneNumber = async (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`)
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     }
     // else {
     //     setErrorMessage("");
@@ -420,53 +420,53 @@ function AdminAffiliates({ selectedUser }) {
     //     // setCheckPhoneResponse(null);
     //     // //console.log;
     // }
-  };
+  }
 
   const handleSearch = (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    setSearch(searchTerm);
+    const searchTerm = e.target.value.toLowerCase()
+    setSearch(searchTerm)
 
     if (!searchTerm) {
-      setFilteredAffiliates(affiliatsList); // Reset to original data
-      return;
+      setFilteredAffiliates(affiliatsList) // Reset to original data
+      return
     }
 
     const filtered = affiliatsList.filter((item) => {
-      const name = item.name.toLowerCase();
-      const email = item.email?.toLowerCase() || "";
-      const phone = item.phone || "";
+      const name = item.name.toLowerCase()
+      const email = item.email?.toLowerCase() || ''
+      const phone = item.phone || ''
 
       return (
         name.includes(searchTerm) ||
         email.includes(searchTerm) ||
         phone.includes(searchTerm)
-      );
-    });
+      )
+    })
 
-    setFilteredAffiliates(filtered);
-  };
+    setFilteredAffiliates(filtered)
+  }
 
   const mockAffiliate = {
-    name: "Carol Perez",
-    email: "shakia.chidubem@gmail.com",
-    phone: "(945) 952-9271",
-    url: "myagentx.com/carolperez_ai",
-    createdAt: "Jan 1 2025",
+    name: 'Carol Perez',
+    email: 'shakia.chidubem@gmail.com',
+    phone: '(945) 952-9271',
+    url: 'myagentx.com/carolperez_ai',
+    createdAt: 'Jan 1 2025',
     totalUsers: 24,
-    revenue: "1,527.73",
-    xbarAmount: "1,527.73",
-    topClient: { name: "Maria Hall", amount: "4,513.80" },
+    revenue: '1,527.73',
+    xbarAmount: '1,527.73',
+    topClient: { name: 'Maria Hall', amount: '4,513.80' },
     payouts: [
-      { date: "7 May 2010", amount: "1,527.73", paidAmount: "152" },
-      { date: "27 September 2011", amount: "5,440.01", paidAmount: "544" },
-      { date: "5 November 2023", amount: "6,597.00", paid: true },
-      { date: "14 April 2006", amount: "9,983.57", paid: true },
-      { date: "10 February 2008", amount: "4,588.92", paid: true },
-      { date: "22 October 2022", amount: "6,011.04", paid: true },
-      { date: "21 May 2007", amount: "7,414.90", paid: true },
-      { date: "1 January 2021", amount: "3,265.50", paid: true },
+      { date: '7 May 2010', amount: '1,527.73', paidAmount: '152' },
+      { date: '27 September 2011', amount: '5,440.01', paidAmount: '544' },
+      { date: '5 November 2023', amount: '6,597.00', paid: true },
+      { date: '14 April 2006', amount: '9,983.57', paid: true },
+      { date: '10 February 2008', amount: '4,588.92', paid: true },
+      { date: '22 October 2022', amount: '6,011.04', paid: true },
+      { date: '21 May 2007', amount: '7,414.90', paid: true },
+      { date: '1 January 2021', amount: '3,265.50', paid: true },
     ],
-  };
+  }
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -483,15 +483,15 @@ function AdminAffiliates({ selectedUser }) {
           filters={filters}
           showFilterModal={showFilterModal}
           onDismissCallback={() => {
-            setShowFilterModal(false);
+            setShowFilterModal(false)
           }}
           updateFilters={(filter) => {
             //console.log;
             // let f = { ...filters, filter }
-            setFilters(filter);
+            setFilters(filter)
             if (filter?.finalUpdate === true) {
-              getAffiliates(0, filter);
-              setShowFilterModal(false);
+              getAffiliates(0, filter)
+              setShowFilterModal(false)
             }
           }}
         />
@@ -499,10 +499,10 @@ function AdminAffiliates({ selectedUser }) {
 
       <div
         className="flex w-full justify-center overflow-hidden pb-50"
-        style={{ scrollbarWidth: "none" }}
+        style={{ scrollbarWidth: 'none' }}
       >
         <div className="w-11/12 flex flex-col items-start">
-          <div style={{ fontSize: 24, fontWeight: "600" }}>LeaderBoard</div>
+          <div style={{ fontSize: 24, fontWeight: '600' }}>LeaderBoard</div>
           <div className="w-full flex flex-row items-center justify-between">
             <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
               <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
@@ -515,7 +515,7 @@ function AdminAffiliates({ selectedUser }) {
                 />
                 <button className="outline-none border-none">
                   <Image
-                    src={"/assets/searchIcon.png"}
+                    src={'/assets/searchIcon.png'}
                     height={24}
                     width={24}
                     alt="*"
@@ -526,11 +526,11 @@ function AdminAffiliates({ selectedUser }) {
                 className="outline-none flex-shrink-0"
                 onClick={() => {
                   //console.log;
-                  setShowFilterModal(true);
+                  setShowFilterModal(true)
                 }}
               >
                 <Image
-                  src={"/assets/filterIcon.png"}
+                  src={'/assets/filterIcon.png'}
                   height={16}
                   width={16}
                   alt="*"
@@ -540,10 +540,10 @@ function AdminAffiliates({ selectedUser }) {
             <button
               className="rounded-lg text-white bg-purple p-3"
               style={{
-                fontWeight: "500",
-                fontSize: "16",
-                height: "50px",
-                width: "173px",
+                fontWeight: '500',
+                fontSize: '16',
+                height: '50px',
+                width: '173px',
               }}
               onClick={() => setOpenAffiliatePopup(true)}
             >
@@ -607,12 +607,12 @@ function AdminAffiliates({ selectedUser }) {
           ) : affiliatsList.length > 0 ? (
             <div
               className="flex flex-col h-[70vh] w-full"
-              style={{ overflow: "auto", scrollbarWidth: "none" }}
+              style={{ overflow: 'auto', scrollbarWidth: 'none' }}
             >
               {filteredAffiliates.map((item, index) => (
                 <div
                   key={item.id}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: 'pointer' }}
                   className="w-full flex flex-row items-center gap-2 h-[60px] hover:bg-[#402FFF05]"
                 >
                   <div className="w-1/12 h-full border-r-2 border-[#15151510] pl-4">
@@ -633,7 +633,7 @@ function AdminAffiliates({ selectedUser }) {
                         className="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
                         style={{ cursor: 'pointer' }}
                       >
-                        {item.totalUsers ? item?.totalUsers : "-"}
+                        {item.totalUsers ? item?.totalUsers : '-'}
                       </button>
                     </div>
                   </div>
@@ -642,30 +642,30 @@ function AdminAffiliates({ selectedUser }) {
                       {item.topSpender
                         ? `${item.topSpender?.user?.name}
                         ($${item.topSpender?.totalSpent.toFixed(2)})`
-                        : ""}
+                        : ''}
                     </div>
                   </div>
                   <div className="w-2/12  h-full border-r-2 border-[#15151510]">
                     <div style={styles.text2}>
-                      {item.Revenue ? `$${item.Revenue.toFixed(2)}` : "-"}
+                      {item.Revenue ? `$${item.Revenue.toFixed(2)}` : '-'}
                     </div>
                   </div>
                   <div className="w-2/12 pl-4">
                     <div style={styles.text2}>
                       {item.xbarTotalRevenue?.totalSpent
                         ? `$${item.xbarTotalRevenue?.totalSpent.toFixed(2)}`
-                        : "-"}
+                        : '-'}
                     </div>
                   </div>
 
                   <button
                     className="w-1/12 pl-4"
                     onClick={() => {
-                      setShowAffiliateDrawer(true);
-                      setSelectedAffiliate(item);
+                      setShowAffiliateDrawer(true)
+                      setSelectedAffiliate(item)
                     }}
                   >
-                    <div style={{ textDecorationLine: "underline" }}>
+                    <div style={{ textDecorationLine: 'underline' }}>
                       More Info
                     </div>
                   </button>
@@ -674,7 +674,7 @@ function AdminAffiliates({ selectedUser }) {
             </div>
           ) : (
             <div className="h-[68vh] w-full flex flex-col items-center justify-center">
-              <div style={{ fontSize: 15, fontWeight: "500" }}>
+              <div style={{ fontSize: 15, fontWeight: '500' }}>
                 No affiliates found
               </div>
             </div>
@@ -687,7 +687,7 @@ function AdminAffiliates({ selectedUser }) {
       <AffiliateDetailsDrawer
         open={showAffiliateDrawer}
         onClose={() => {
-          setShowAffiliateDrawer(false);
+          setShowAffiliateDrawer(false)
         }}
         affiliate={selectedAffiliate}
       />
@@ -701,43 +701,42 @@ function AdminAffiliates({ selectedUser }) {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row items-center justify-center w-full h-[80vh]">
             <div
               className="sm:w-10/12 w-full h-[100%] overflow-none mt-[10vh]"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row items-center justify-between">
                 <div
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 17,
                   }}
                 >
                   {selectedAffiliate?.name}
-
                 </div>
                 <button
                   onClick={() => {
-                    setShowUsersModal(false);
+                    setShowUsersModal(false)
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -748,91 +747,138 @@ function AdminAffiliates({ selectedUser }) {
                 // className="max-h-[92%] overflow-auto"
                 style={{
                   // borderWidth:1,
-                  scrollbarWidth: "none",
+                  scrollbarWidth: 'none',
                 }}
               >
                 <div className="w-full flex flex-row">
                   <div className="w-3/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Name</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Name
+                    </div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Email</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Email
+                    </div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Contact Number</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Contact Number
+                    </div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Unique Url</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Unique Url
+                    </div>
                   </div>
 
                   <div className="w-1/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Revenue</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Revenue
+                    </div>
                   </div>
 
                   <div className="w-2/12">
-                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Date</div>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: 'black',
+                        fontWeight: '500',
+                      }}
+                    >
+                      Date
+                    </div>
                   </div>
                 </div>
 
                 <div
                   className="h-[60svh] overflow-auto pb-[100px] mt-2"
                   id="scrollableDiv1"
-                  style={{ scrollbarWidth: "none" }}
+                  style={{ scrollbarWidth: 'none' }}
                 >
                   {affilateUsersLoader ? (
                     <div className="flex flex-row items-center justify-center h-full">
                       <CircularProgress size={35} />
                     </div>
-                  ) : (
-                    affilateUsers.length > 0 ? (
-                      affilateUsers.map((item, index) => (
-                        <div
-                          key={item.id}
-                          style={{ cursor: "pointer" }}
-                          className="w-full flex flex-row items-center mt-5 hover:bg-[#402FFF05]"
-                        >
-                          <div className="w-3/12 flex flex-row gap-2 items-center">
-                            <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                              {item.name.slice(0, 1).toUpperCase()}
-                            </div>
-                            <div style={styles.text2}>{item.name}</div>
+                  ) : affilateUsers.length > 0 ? (
+                    affilateUsers.map((item, index) => (
+                      <div
+                        key={item.id}
+                        style={{ cursor: 'pointer' }}
+                        className="w-full flex flex-row items-center mt-5 hover:bg-[#402FFF05]"
+                      >
+                        <div className="w-3/12 flex flex-row gap-2 items-center">
+                          <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                            {item.name.slice(0, 1).toUpperCase()}
                           </div>
-                          <div className="w-2/12">
-                            <div style={styles.text2}>{item.email}</div>
-                          </div>
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {item.phone ? (
-                                <div>{formatPhoneNumber(item?.phone)}</div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
-                          </div>
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {item.uniqueUrl ? item.uniqueUrl : "-"}
-                            </div>
-                          </div>
-
-                          <div className="w-1/12">
-                            <div style={styles.text2}>
-                              {item.totalSpent ? `$${item.totalSpent.toFixed(2)}` : "-"}
-                            </div>
-                          </div>
-
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {GetFormattedDateString(item.createdAt)}
-                            </div>
+                          <div style={styles.text2}>{item.name}</div>
+                        </div>
+                        <div className="w-2/12">
+                          <div style={styles.text2}>{item.email}</div>
+                        </div>
+                        <div className="w-2/12">
+                          <div style={styles.text2}>
+                            {item.phone ? (
+                              <div>{formatPhoneNumber(item?.phone)}</div>
+                            ) : (
+                              '-'
+                            )}
                           </div>
                         </div>
-                      ))) : (
-                      <div>
-                        No user found
+                        <div className="w-2/12">
+                          <div style={styles.text2}>
+                            {item.uniqueUrl ? item.uniqueUrl : '-'}
+                          </div>
+                        </div>
+
+                        <div className="w-1/12">
+                          <div style={styles.text2}>
+                            {item.totalSpent
+                              ? `$${item.totalSpent.toFixed(2)}`
+                              : '-'}
+                          </div>
+                        </div>
+
+                        <div className="w-2/12">
+                          <div style={styles.text2}>
+                            {GetFormattedDateString(item.createdAt)}
+                          </div>
+                        </div>
                       </div>
                     ))
-                  }
+                  ) : (
+                    <div>No user found</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -848,7 +894,7 @@ function AdminAffiliates({ selectedUser }) {
         BackdropProps={{
           timeout: 500,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // backdropFilter: "blur(20px)",
           },
         }}
@@ -857,32 +903,32 @@ function AdminAffiliates({ selectedUser }) {
           <AgentSelectSnackMessage
             isVisible={showError}
             hide={() => setShowError(false)}
-            message={"Enter all credentials"}
+            message={'Enter all credentials'}
           />
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-full w-full p-8"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
 
-                Radius: "13px",
+                Radius: '13px',
               }}
             >
               <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-3">
                   <div
-                    style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
+                    style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
                   >
                     Add Affiliate
                   </div>
                 </div>
                 <button
                   onClick={() => {
-                    setOpenAffiliatePopup(false);
+                    setOpenAffiliatePopup(false)
                   }}
                 >
                   <Image
-                    src={"/otherAssets/crossIcon.png"}
+                    src={'/otherAssets/crossIcon.png'}
                     height={24}
                     width={24}
                     alt="*"
@@ -899,8 +945,8 @@ function AdminAffiliates({ selectedUser }) {
                 style={styles.inputStyle}
                 value={name}
                 onChange={(e) => {
-                  setName(e.target.value);
-                  setShowError(false);
+                  setName(e.target.value)
+                  setShowError(false)
                 }}
               />
 
@@ -908,7 +954,7 @@ function AdminAffiliates({ selectedUser }) {
                 Email Address
               </div>
               <div className="text-end">
-                <div style={{ ...styles.errmsg, color: "red" }}>
+                <div style={{ ...styles.errmsg, color: 'red' }}>
                   {validEmail}
                 </div>
               </div>
@@ -918,21 +964,21 @@ function AdminAffiliates({ selectedUser }) {
                 style={styles.inputStyle}
                 value={email}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  setEmail(value);
-                  setShowError(false);
+                  let value = e.target.value
+                  setEmail(value)
+                  setShowError(false)
 
                   if (!value) {
                     // //console.log;
-                    setValidEmail("");
-                    return;
+                    setValidEmail('')
+                    return
                   }
 
                   if (!validateEmail(value)) {
                     // //console.log;
-                    setValidEmail("Invalid");
+                    setValidEmail('Invalid')
                   } else {
-                    setValidEmail("");
+                    setValidEmail('')
                   }
                 }}
               />
@@ -948,7 +994,7 @@ function AdminAffiliates({ selectedUser }) {
                       className={`text-end text-red`}
                       style={{
                         ...styles.errmsg,
-                        color: "red",
+                        color: 'red',
                       }}
                     >
                       {errorMessage}
@@ -965,37 +1011,37 @@ function AdminAffiliates({ selectedUser }) {
                       value={phone}
                       onChange={handlePhoneNumberChange}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                      placeholder={"Type here"}
+                      placeholder={'Type here'}
                       // disabled={loading}
                       style={{
-                        borderRadius: "7px",
-                        outline: "none", // Ensure no outline on wrapper
-                        boxShadow: "none", // Remove any shadow
+                        borderRadius: '7px',
+                        outline: 'none', // Ensure no outline on wrapper
+                        boxShadow: 'none', // Remove any shadow
                       }}
                       inputStyle={{
-                        width: "100%",
-                        borderWidth: "0px",
-                        backgroundColor: "transparent",
-                        paddingLeft: "60px",
-                        paddingTop: "12px",
-                        paddingBottom: "12px",
+                        width: '100%',
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '60px',
+                        paddingTop: '12px',
+                        paddingBottom: '12px',
                         fontSize: 15,
-                        fontWeight: "500",
-                        height: "50px",
-                        outline: "none", // Remove outline on input
-                        boxShadow: "none", // Remove shadow as well
+                        fontWeight: '500',
+                        height: '50px',
+                        outline: 'none', // Remove outline on input
+                        boxShadow: 'none', // Remove shadow as well
                       }}
                       buttonStyle={{
-                        border: "none",
-                        backgroundColor: "transparent",
-                        outline: "none", // Ensure no outline on button
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        outline: 'none', // Ensure no outline on button
                       }}
                       dropdownStyle={{
-                        maxHeight: "150px",
-                        overflowY: "auto",
+                        maxHeight: '150px',
+                        overflowY: 'auto',
                       }}
                       countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -1006,7 +1052,7 @@ function AdminAffiliates({ selectedUser }) {
                   Office Hours Url
                 </div>
                 {urlError && (
-                  <div style={{ ...styles.errmsg, color: "red" }}>
+                  <div style={{ ...styles.errmsg, color: 'red' }}>
                     {urlError}
                   </div>
                 )}
@@ -1017,8 +1063,8 @@ function AdminAffiliates({ selectedUser }) {
                 style={styles.inputStyle}
                 value={officeHourUrl}
                 onChange={(e) => {
-                  setOfficeHourUrl(e.target.value);
-                  setUrlError("");
+                  setOfficeHourUrl(e.target.value)
+                  setUrlError('')
                 }}
               />
               <div className="w-full flex flex-row items-center justify-between">
@@ -1026,7 +1072,7 @@ function AdminAffiliates({ selectedUser }) {
                   Unique Url
                 </div>
                 {urlError2 && (
-                  <div style={{ ...styles.errmsg, color: "red" }}>
+                  <div style={{ ...styles.errmsg, color: 'red' }}>
                     {urlError2}
                   </div>
                 )}
@@ -1037,8 +1083,8 @@ function AdminAffiliates({ selectedUser }) {
                 style={styles.inputStyle}
                 value={uniqueUrl}
                 onChange={(e) => {
-                  SetUniqueUrl(e.target.value);
-                  setUrlError2("");
+                  SetUniqueUrl(e.target.value)
+                  setUrlError2('')
                 }}
               />
 
@@ -1052,16 +1098,16 @@ function AdminAffiliates({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                        !email ||
-                        !phone ||
-                        //   emailCheckResponse?.status !== true ||
-                        //   checkPhoneResponse?.status !== true ||
-                        !!urlError ||
-                        !!urlError2 ||
-                        !uniqueUrl ||
-                        !officeHourUrl
-                        ? "#00000020"
-                        : "",
+                      !email ||
+                      !phone ||
+                      //   emailCheckResponse?.status !== true ||
+                      //   checkPhoneResponse?.status !== true ||
+                      !!urlError ||
+                      !!urlError2 ||
+                      !uniqueUrl ||
+                      !officeHourUrl
+                        ? '#00000020'
+                        : '',
                   }}
                   className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
                   onClick={() => {
@@ -1071,8 +1117,8 @@ function AdminAffiliates({ selectedUser }) {
                       phone: phone,
                       uniqueUrl: uniqueUrl,
                       officeHoursUrl: officeHourUrl,
-                    };
-                    addAffiliate(data);
+                    }
+                    addAffiliate(data)
                   }}
                   disabled={
                     !name ||
@@ -1089,13 +1135,13 @@ function AdminAffiliates({ selectedUser }) {
                   <div
                     style={{
                       fontSize: 16,
-                      fontWeight: "500",
+                      fontWeight: '500',
                       color:
                         !name || !email || !phone
                           ? // emailCheckResponse?.status !== true ||
-                          // checkPhoneResponse?.status !== true
-                          "#000000"
-                          : "#ffffff",
+                            // checkPhoneResponse?.status !== true
+                            '#000000'
+                          : '#ffffff',
                     }}
                   >
                     Add Affiliate
@@ -1110,66 +1156,66 @@ function AdminAffiliates({ selectedUser }) {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default AdminAffiliates;
+export default AdminAffiliates
 
 const styles = {
   itemText: {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#000",
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#000',
   },
   deleteText: {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#FF4D4F", // Red color for delete
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#FF4D4F', // Red color for delete
   },
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
 
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 12,
-    fontWeight: "400",
-    color: "#00000050",
+    fontWeight: '400',
+    color: '#00000050',
   },
   inputStyle: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
     marginTop: 10,
-    border: "1px solid #00000010",
-    height: "50px",
+    border: '1px solid #00000010',
+    height: '50px',
   },
   errmsg: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   text: {
     fontSize: 16,
-    color: "#fff",
-    fontWeight: "600",
+    color: '#fff',
+    fontWeight: '600',
   },
   image: {
     height: 16,
     width: 16,
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    color: '#000000',
+    fontWeight: '500',
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
-};
+}

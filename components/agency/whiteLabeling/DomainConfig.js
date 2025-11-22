@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
 import axios from 'axios'
-import LabelingHeader from './LabelingHeader'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+
 import Apis from '@/components/apis/Apis'
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+
+import LabelingHeader from './LabelingHeader'
 
 const DomainConfig = () => {
   const [subdomain, setSubdomain] = useState(null)
@@ -157,7 +161,7 @@ const DomainConfig = () => {
 
       if (response?.data?.status === true) {
         const responseData = response.data.data || {}
-        
+
         // If DNS records are provided in the response, set them immediately
         if (responseData.dnsRecords && responseData.dnsRecords.length > 0) {
           setDomainStatus({
@@ -168,7 +172,8 @@ const DomainConfig = () => {
           })
           setShowSnackMessage({
             type: SnackbarTypes.Success,
-            message: 'Domain added successfully. Please add the DNS records below.',
+            message:
+              'Domain added successfully. Please add the DNS records below.',
             isVisible: true,
           })
         } else {
@@ -178,7 +183,7 @@ const DomainConfig = () => {
             isVisible: true,
           })
         }
-        
+
         // Refresh domain status to get latest DNS records
         await fetchDomainStatus()
       }
@@ -426,53 +431,55 @@ const DomainConfig = () => {
             </div>
 
             {/* DNS Records Table */}
-            {domainStatus && domainStatus.dnsRecords && domainStatus.dnsRecords.length > 0 && (
-              <div className="mt-4">
-                <div className="text-sm font-medium mb-2">DNS Records</div>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse border border-gray-200">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
-                          Type
-                        </th>
-                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
-                          Host
-                        </th>
-                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
-                          Value
-                        </th>
-                        <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
-                          TTL
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {domainStatus.dnsRecords.map((record, index) => (
-                        <tr key={index}>
-                          <td className="border border-gray-200 px-3 py-2 text-sm">
-                            {record.type}
-                          </td>
-                          <td className="border border-gray-200 px-3 py-2 text-sm">
-                            {record.host}
-                          </td>
-                          <td className="border border-gray-200 px-3 py-2 text-sm break-all">
-                            {record.value}
-                          </td>
-                          <td className="border border-gray-200 px-3 py-2 text-sm">
-                            {record.ttl || '600/auto'}
-                          </td>
+            {domainStatus &&
+              domainStatus.dnsRecords &&
+              domainStatus.dnsRecords.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-sm font-medium mb-2">DNS Records</div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse border border-gray-200">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                            Type
+                          </th>
+                          <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                            Host
+                          </th>
+                          <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                            Value
+                          </th>
+                          <th className="border border-gray-200 px-3 py-2 text-left text-sm font-medium">
+                            TTL
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {domainStatus.dnsRecords.map((record, index) => (
+                          <tr key={index}>
+                            <td className="border border-gray-200 px-3 py-2 text-sm">
+                              {record.type}
+                            </td>
+                            <td className="border border-gray-200 px-3 py-2 text-sm">
+                              {record.host}
+                            </td>
+                            <td className="border border-gray-200 px-3 py-2 text-sm break-all">
+                              {record.value}
+                            </td>
+                            <td className="border border-gray-200 px-3 py-2 text-sm">
+                              {record.ttl || '600/auto'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    After adding these records, it may take up to 48 hours for
+                    DNS changes to propagate globally
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  After adding these records, it may take up to 48 hours for DNS
-                  changes to propagate globally
-                </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Verify Domain Section */}
@@ -533,51 +540,64 @@ const DomainConfig = () => {
                       <div className="text-xs text-yellow-700">
                         {domainStatus.warning}
                       </div>
-                      {(!domainStatus.dnsRecords || domainStatus.dnsRecords.length === 0) && (
+                      {(!domainStatus.dnsRecords ||
+                        domainStatus.dnsRecords.length === 0) && (
                         <div className="text-xs text-yellow-600 mt-2">
-                          If DNS records are not shown above, please contact support for assistance with domain configuration.
+                          If DNS records are not shown above, please contact
+                          support for assistance with domain configuration.
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {/* Show DNS records even if verified but DNS records exist (for configuration) */}
-              {domainStatus.dnsRecords && domainStatus.dnsRecords.length > 0 && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <div className="text-sm font-medium text-blue-900 mb-2">
-                    {domainStatus.status === 'verified' 
-                      ? 'DNS Records (for reference)' 
-                      : 'DNS Records Required'}
+              {domainStatus.dnsRecords &&
+                domainStatus.dnsRecords.length > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="text-sm font-medium text-blue-900 mb-2">
+                      {domainStatus.status === 'verified'
+                        ? 'DNS Records (for reference)'
+                        : 'DNS Records Required'}
+                    </div>
+                    <div className="text-xs text-blue-700 mb-2">
+                      {domainStatus.status === 'verified'
+                        ? 'Your domain is verified. If you experience any issues, please contact support.'
+                        : 'Please add these DNS records to your domain provider to complete verification.'}
+                    </div>
                   </div>
-                  <div className="text-xs text-blue-700 mb-2">
-                    {domainStatus.status === 'verified'
-                      ? 'Your domain is verified. If you experience any issues, please contact support.'
-                      : 'Please add these DNS records to your domain provider to complete verification.'}
-                  </div>
-                </div>
-              )}
-              
+                )}
+
               {/* Show message when DNS records are missing but domain is verified */}
-              {domainStatus.needsDnsConfiguration && (!domainStatus.dnsRecords || domainStatus.dnsRecords.length === 0) && (
-                <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
-                  <div className="text-sm font-medium text-orange-900 mb-2">
-                    DNS Records Not Available
+              {domainStatus.needsDnsConfiguration &&
+                (!domainStatus.dnsRecords ||
+                  domainStatus.dnsRecords.length === 0) && (
+                  <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                    <div className="text-sm font-medium text-orange-900 mb-2">
+                      DNS Records Not Available
+                    </div>
+                    <div className="text-xs text-orange-700 mb-2">
+                      Your domain is marked as verified, but DNS records are not
+                      available. This usually means:
+                    </div>
+                    <ul className="text-xs text-orange-700 list-disc list-inside mb-2 space-y-1">
+                      <li>
+                        DNS records need to be configured at your domain
+                        provider
+                      </li>
+                      <li>The domain configuration may need to be updated</li>
+                      <li>
+                        Please contact support if you need assistance with DNS
+                        configuration
+                      </li>
+                    </ul>
+                    <div className="text-xs text-orange-600">
+                      After adding DNS records, click &quot;Verify Domain&quot;
+                      to check the status.
+                    </div>
                   </div>
-                  <div className="text-xs text-orange-700 mb-2">
-                    Your domain is marked as verified, but DNS records are not available. This usually means:
-                  </div>
-                  <ul className="text-xs text-orange-700 list-disc list-inside mb-2 space-y-1">
-                    <li>DNS records need to be configured at your domain provider</li>
-                    <li>The domain configuration may need to be updated</li>
-                    <li>Please contact support if you need assistance with DNS configuration</li>
-                  </ul>
-                  <div className="text-xs text-orange-600">
-                    After adding DNS records, click &quot;Verify Domain&quot; to check the status.
-                  </div>
-                </div>
-              )}
+                )}
             </div>
           )}
         </div>

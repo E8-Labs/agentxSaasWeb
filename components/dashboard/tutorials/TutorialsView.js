@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import TutorialViewCard from '@/components/agency/whiteLabeling/TutorialViewCard';
-import VideoPlayerModal from '@/components/agency/whiteLabeling/VideoPlayerModal';
-import { getTutorialVideos } from '@/utils/tutorialVideos';
+
+import TutorialViewCard from '@/components/agency/whiteLabeling/TutorialViewCard'
+import VideoPlayerModal from '@/components/agency/whiteLabeling/VideoPlayerModal'
+import { getTutorialVideos } from '@/utils/tutorialVideos'
 
 const TutorialsView = () => {
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [selectedTutorial, setSelectedTutorial] = useState(null);
-  const [tutorials, setTutorials] = useState([]);
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedTutorial, setSelectedTutorial] = useState(null)
+  const [tutorials, setTutorials] = useState([])
 
   useEffect(() => {
-    const videos = getTutorialVideos();
-    setTutorials(videos);
-  }, []);
+    const videos = getTutorialVideos()
+    setTutorials(videos)
+  }, [])
 
   const handlePlayVideo = (tutorial) => {
-    setSelectedTutorial(tutorial);
-    setShowVideoModal(true);
-  };
+    setSelectedTutorial(tutorial)
+    setShowVideoModal(true)
+  }
 
   // Dummy function for edit (not used in read-only view)
   const handleEditClick = () => {
     // No-op for read-only view
-  };
+  }
 
   return (
     <div className="w-full flex flex-col items-center pt-8">
@@ -29,7 +30,9 @@ const TutorialsView = () => {
         {/* Header */}
         <div className="w-full mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Tutorial Videos</h2>
-          <p className="text-gray-600 mt-2">Watch these tutorials to learn how to use the platform</p>
+          <p className="text-gray-600 mt-2">
+            Watch these tutorials to learn how to use the platform
+          </p>
         </div>
 
         {/* Tutorial Videos */}
@@ -41,7 +44,9 @@ const TutorialsView = () => {
                 onEditClick={handleEditClick}
                 onPlayVideo={handlePlayVideo}
                 isEnabled={tutorial.enabled}
-                thumbnailSrc={tutorial.thumbnailSrc || "/assets/youtubeplay.png"}
+                thumbnailSrc={
+                  tutorial.thumbnailSrc || '/assets/youtubeplay.png'
+                }
                 readOnly={true}
               />
             </div>
@@ -53,16 +58,15 @@ const TutorialsView = () => {
       <VideoPlayerModal
         open={showVideoModal}
         onClose={() => {
-          setShowVideoModal(false);
-          setSelectedTutorial(null);
+          setShowVideoModal(false)
+          setSelectedTutorial(null)
         }}
         videoTitle={selectedTutorial?.title}
         videoUrl={selectedTutorial?.videoUrl}
         videoDescription={selectedTutorial?.description}
       />
     </div>
-  );
-};
+  )
+}
 
-export default TutorialsView;
-
+export default TutorialsView

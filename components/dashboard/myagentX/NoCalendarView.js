@@ -1,15 +1,15 @@
-import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import VideoCard from "@/components/createagent/VideoCard";
-import {HowtoVideos, HowToVideoTypes } from "@/constants/Constants";
-import React, { useState } from "react";
-import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
+import React, { useState } from 'react'
 
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import VideoCard from '@/components/createagent/VideoCard'
+import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 export default function NoCalendarView({
   addCalendarAction,
   showVideo = false,
 }) {
-  const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [introVideoModal, setIntroVideoModal] = useState(false)
   return (
     <div>
       <div className="flex flex-col items-center justify-center h-[20] mb-4">
@@ -36,7 +36,7 @@ export default function NoCalendarView({
         <button
           className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
           onClick={() => {
-            addCalendarAction();
+            addCalendarAction()
           }}
         >
           <svg
@@ -57,20 +57,22 @@ export default function NoCalendarView({
         </button>
       </div>
       <div className="flex flex-col w-full flex-col items-center justify-center">
-
         <div className="w-6/12">
           <VideoCard
-          duration={(() => {
-            const tutorial = getTutorialByType(HowToVideoTypes.Calendar);
-            return tutorial?.description || "1:47";
-          })()}
-          width="80"
-          height="100"
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal(true);
-          }}
-          title={getTutorialByType(HowToVideoTypes.Calendar)?.title || "Learn how to add Calendar"}
+            duration={(() => {
+              const tutorial = getTutorialByType(HowToVideoTypes.Calendar)
+              return tutorial?.description || '1:47'
+            })()}
+            width="80"
+            height="100"
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true)
+            }}
+            title={
+              getTutorialByType(HowToVideoTypes.Calendar)?.title ||
+              'Learn how to add Calendar'
+            }
 
             // duration={}
             // horizontal={false}
@@ -80,14 +82,20 @@ export default function NoCalendarView({
             // title="Learn how to add Calendar"
           />
           {/* Intro modal */}
-             <IntroVideoModal
+          <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle={getTutorialByType(HowToVideoTypes.Calendar)?.title || "Learn how to add Calendar"}
-            videoUrl={getVideoUrlByType(HowToVideoTypes.Calendar) || HowtoVideos.Calendar}
+            videoTitle={
+              getTutorialByType(HowToVideoTypes.Calendar)?.title ||
+              'Learn how to add Calendar'
+            }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.Calendar) ||
+              HowtoVideos.Calendar
+            }
           />
         </div>
       </div>
     </div>
-  );
+  )
 }

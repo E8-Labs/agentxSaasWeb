@@ -1,42 +1,43 @@
-import Apis from "@/components/apis/Apis";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+
+import Apis from '@/components/apis/Apis'
 
 export const config = {
   api: {
     bodyParser: false, // Required for multipart form-data
   },
-};
+}
 
 export async function POST(req) {
   try {
     //console.log;
 
     // Extract token from request headers
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       //console.log;
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(' ')[1]
 
     // ✅ Use `request.formData()` to handle FormData in App Router
-    const formData = await req.formData();
+    const formData = await req.formData()
 
     // Extract fields
-    const type = formData.get("type");
-    const documentName = formData.get("documentName");
-    const title = formData.get("title");
-    const originalContent = formData.get("originalContent");
-    const media = formData.get("media"); // This will be a File object
+    const type = formData.get('type')
+    const documentName = formData.get('documentName')
+    const title = formData.get('title')
+    const originalContent = formData.get('originalContent')
+    const media = formData.get('media') // This will be a File object
 
-    const formDataApi = new FormData();
-    formDataApi.append("type", type);
-    formDataApi.append("title", title);
-    formDataApi.append("documentName", documentName);
-    formDataApi.append("originalContent", originalContent);
+    const formDataApi = new FormData()
+    formDataApi.append('type', type)
+    formDataApi.append('title', title)
+    formDataApi.append('documentName', documentName)
+    formDataApi.append('originalContent', originalContent)
     if (media) {
       //console.log;
-      formDataApi.append("media", media);
+      formDataApi.append('media', media)
     }
 
     //console.log;
@@ -45,13 +46,13 @@ export async function POST(req) {
     if (!type) {
       //console.log;
       return NextResponse.json(
-        { message: "Missing required parameters", status: false },
-        { status: 400 }
-      );
+        { message: 'Missing required parameters', status: false },
+        { status: 400 },
+      )
     }
 
     // If there is a file, handle it
-    let uploadedFilePath = null;
+    let uploadedFilePath = null
     // if (media && media instanceof File) {
     //   const arrayBuffer = await media.arrayBuffer();
     //   const buffer = Buffer.from(arrayBuffer);
@@ -64,23 +65,23 @@ export async function POST(req) {
 
     // ✅ Forward data to external API (if needed)
     const externalApiResponse = await fetch(Apis.AddKnowledgebase, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         // "Content-Type": "application/json",
       },
       body: formDataApi,
-    });
+    })
 
-    const externalData = await externalApiResponse.json();
+    const externalData = await externalApiResponse.json()
     //console.log;
 
-    return NextResponse.json({ message: "Success", data: externalData });
+    return NextResponse.json({ message: 'Success', data: externalData })
   } catch (error) {
-    console.error("❌ Internal Server Error:", error);
+    console.error('❌ Internal Server Error:', error)
     return NextResponse.json(
-      { message: "Internal Server Error", error: error.message },
-      { status: 500 }
-    );
+      { message: 'Internal Server Error', error: error.message },
+      { status: 500 },
+    )
   }
 }

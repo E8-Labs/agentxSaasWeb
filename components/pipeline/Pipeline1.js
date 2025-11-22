@@ -1,10 +1,3 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
 import {
   Alert,
   Box,
@@ -15,113 +8,125 @@ import {
   Modal,
   Select,
   Snackbar,
-} from "@mui/material";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import { CaretDown, Minus, YoutubeLogo } from "@phosphor-icons/react";
-import PipelineStages from "./PipelineStages";
-import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
+} from '@mui/material'
+import { CaretDown, Minus, YoutubeLogo } from '@phosphor-icons/react'
+import axios from 'axios'
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import {
+  HowToVideoTypes,
+  HowtoVideos,
+  PersistanceKeys,
+} from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+
+import Apis from '../apis/Apis'
+import IntroVideoModal from '../createagent/IntroVideoModal'
+import VideoCard from '../createagent/VideoCard'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import IntroVideoModal from "../createagent/IntroVideoModal";
-import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
-import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import PipelineStages from './PipelineStages'
 
 const Pipeline1 = ({ handleContinue }) => {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [shouldContinue, setShouldContinue] = useState(true);
-  const [toggleClick, setToggleClick] = useState(false);
-  const [selectedPipelineItem, setSelectedPipelineItem] = useState(null);
-  const [selectPipleLine, setSelectPipleLine] = useState("");
-  const [introVideoModal, setIntroVideoModal] = useState(false);
-  const [selectedPipelineStages, setSelectedPipelineStages] = useState([]);
-  const [oldStages, setOldStages] = useState([]);
-  const [pipelinesDetails, setPipelinesDetails] = useState([]);
-  const [assignedLeads, setAssignedLeads] = useState({});
-  const [rowsByIndex, setRowsByIndex] = useState({});
-  const [createPipelineLoader, setPipelineLoader] = useState(false);
+  const [shouldContinue, setShouldContinue] = useState(true)
+  const [toggleClick, setToggleClick] = useState(false)
+  const [selectedPipelineItem, setSelectedPipelineItem] = useState(null)
+  const [selectPipleLine, setSelectPipleLine] = useState('')
+  const [introVideoModal, setIntroVideoModal] = useState(false)
+  const [selectedPipelineStages, setSelectedPipelineStages] = useState([])
+  const [oldStages, setOldStages] = useState([])
+  const [pipelinesDetails, setPipelinesDetails] = useState([])
+  const [assignedLeads, setAssignedLeads] = useState({})
+  const [rowsByIndex, setRowsByIndex] = useState({})
+  const [createPipelineLoader, setPipelineLoader] = useState(false)
 
-  const [nextStage, setNextStage] = useState({});
-  const [selectedNextStage, setSelectedNextStage] = useState({});
+  const [nextStage, setNextStage] = useState({})
+  const [selectedNextStage, setSelectedNextStage] = useState({})
 
-  const [showRearrangeErr, setShowRearrangeErr] = useState(null);
+  const [showRearrangeErr, setShowRearrangeErr] = useState(null)
 
   // const [nextStage, setNextStage] = useState([]);
   // const [selectedNextStage, setSelectedNextStage] = useState([]);
 
-  const [reorderSuccessBarMessage, setReorderSuccessBarMessage] =
-    useState(null);
-  const [isVisibleSnack, setIsVisibleSnack] = useState(false);
-  const [snackType, setSnackType] = useState(null);
+  const [reorderSuccessBarMessage, setReorderSuccessBarMessage] = useState(null)
+  const [isVisibleSnack, setIsVisibleSnack] = useState(false)
+  const [snackType, setSnackType] = useState(null)
 
   useEffect(() => {
     // //console.log;
-  }, [reorderSuccessBarMessage]);
+  }, [reorderSuccessBarMessage])
 
-  const [reorderLoader, setReorderLoader] = useState(false);
+  const [reorderLoader, setReorderLoader] = useState(false)
   //code for new Lead calls
   // const [rows, setRows] = useState([]);
   // const [assignedNewLEad, setAssignedNewLead] = useState(false);
   useEffect(() => {
-    const localAgentData = localStorage.getItem("agentDetails");
-    if (localAgentData && localAgentData != "undefined") {
-      const Data = JSON.parse(localAgentData);
-      if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
-        return;
+    const localAgentData = localStorage.getItem('agentDetails')
+    if (localAgentData && localAgentData != 'undefined') {
+      const Data = JSON.parse(localAgentData)
+      if (Data.agents.length === 1 && Data.agents[0].agentType == 'inbound') {
+        return
       } else {
         // //console.log;
       }
     }
-    const localCadences = localStorage.getItem("AddCadenceDetails");
-    if (localCadences && localCadences != "null") {
-      const localCadenceDetails = JSON.parse(localCadences);
+    const localCadences = localStorage.getItem('AddCadenceDetails')
+    if (localCadences && localCadences != 'null') {
+      const localCadenceDetails = JSON.parse(localCadences)
       // //console.log;
 
       // Set the selected pipeline item
-      const storedPipelineItem = localCadenceDetails.pipelineID;
-      const storedCadenceDetails = localCadenceDetails.cadenceDetails;
+      const storedPipelineItem = localCadenceDetails.pipelineID
+      const storedCadenceDetails = localCadenceDetails.cadenceDetails
 
       // Fetch pipelines to ensure we have the list
       // getPipelines().then(() => {
       const selectedPipeline = pipelinesDetails.find(
-        (pipeline) => pipeline.id === storedPipelineItem
-      );
+        (pipeline) => pipeline.id === storedPipelineItem,
+      )
 
       if (selectedPipeline) {
         // //console.log;
-        setSelectedPipelineItem(selectedPipeline);
-        setSelectedPipelineStages(selectedPipeline.stages);
+        setSelectedPipelineItem(selectedPipeline)
+        setSelectedPipelineStages(selectedPipeline.stages)
 
         // Restore assigned leads and rows by index
-        const restoredAssignedLeads = {};
-        const restoredRowsByIndex = {};
-        const restoredNextStage = {};
+        const restoredAssignedLeads = {}
+        const restoredRowsByIndex = {}
+        const restoredNextStage = {}
 
         storedCadenceDetails?.forEach((cadence) => {
           const stageIndex = selectedPipeline.stages.findIndex(
-            (stage) => stage.id === cadence.stage
-          );
+            (stage) => stage.id === cadence.stage,
+          )
 
           if (stageIndex !== -1) {
-            restoredAssignedLeads[stageIndex] = true;
-            restoredRowsByIndex[stageIndex] = cadence.calls || [];
+            restoredAssignedLeads[stageIndex] = true
+            restoredRowsByIndex[stageIndex] = cadence.calls || []
             if (cadence.moveToStage) {
               const nextStage = selectedPipeline.stages.find(
-                (stage) => stage.id === cadence.moveToStage
-              );
+                (stage) => stage.id === cadence.moveToStage,
+              )
               if (nextStage) {
-                restoredNextStage[stageIndex] = nextStage;
+                restoredNextStage[stageIndex] = nextStage
               }
             }
           }
-        });
+        })
 
-        setAssignedLeads(restoredAssignedLeads);
-        setRowsByIndex(restoredRowsByIndex);
-        setSelectedNextStage(restoredNextStage);
+        setAssignedLeads(restoredAssignedLeads)
+        setRowsByIndex(restoredRowsByIndex)
+        setSelectedNextStage(restoredNextStage)
       } else {
         // //console.log;
       }
@@ -129,7 +134,7 @@ const Pipeline1 = ({ handleContinue }) => {
     } else {
       // getPipelines();
     }
-  }, [pipelinesDetails]);
+  }, [pipelinesDetails])
 
   //// //console.log;
 
@@ -139,27 +144,27 @@ const Pipeline1 = ({ handleContinue }) => {
     //     const localCadenceDetails = JSON.parse(localCadences);
     //    // //console.log;
     // }
-    getPipelines();
-  }, []);
+    getPipelines()
+  }, [])
 
   useEffect(() => {
     if (selectedPipelineItem && rowsByIndex) {
       // //console.log;
-      setShouldContinue(false);
-      return;
+      setShouldContinue(false)
+      return
     } else if (!selectedPipelineItem || !rowsByIndex) {
       // //console.log;
-      setShouldContinue(true);
+      setShouldContinue(true)
     }
 
     //// //console.log;
-  }, [selectedPipelineItem, selectedPipelineStages]);
+  }, [selectedPipelineItem, selectedPipelineStages])
 
   //code to raorder the stages list
 
   useEffect(() => {
-    let previousStages = oldStages.map((item) => item.id);
-    let updatedStages = selectedPipelineStages.map((item) => item.id);
+    let previousStages = oldStages.map((item) => item.id)
+    let updatedStages = selectedPipelineStages.map((item) => item.id)
 
     // //console.log;
     // //console.log;
@@ -167,7 +172,7 @@ const Pipeline1 = ({ handleContinue }) => {
     // Compare arrays
     const areArraysEqual =
       previousStages.length === updatedStages.length &&
-      previousStages.every((item, index) => item === updatedStages[index]);
+      previousStages.every((item, index) => item === updatedStages[index])
 
     if (areArraysEqual) {
       // //console.log;
@@ -175,7 +180,7 @@ const Pipeline1 = ({ handleContinue }) => {
       // //console.log;
       // handleReorder();
     }
-  }, [selectedPipelineStages]);
+  }, [selectedPipelineStages])
 
   //code to get pipelines
   const getPipelines = async () => {
@@ -183,67 +188,71 @@ const Pipeline1 = ({ handleContinue }) => {
       //TODO: @Arslan @Hamza tell me why do we have two different keys to store a user's data on localstorage from admin?
       // Getting pipelines is different and getting a2p number is using diff key. Why is that?
       // I have consolidated the logic here  and on the @PipelineStages.js file. Let's discuss it and consolidate into one.
-      console.log("Trigered getpipelines")
-      let selectedUserLocalData = localStorage.getItem("selectedUser")
-      if(!selectedUserLocalData){
-        selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      console.log('Trigered getpipelines')
+      let selectedUserLocalData = localStorage.getItem('selectedUser')
+      if (!selectedUserLocalData) {
+        selectedUserLocalData = localStorage.getItem(
+          PersistanceKeys.isFromAdminOrAgency,
+        )
       }
       // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-      let selectedUser = null;
-      console.log("Selected user local data is", selectedUserLocalData);
-      if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
-        selectedUser = JSON.parse(selectedUserLocalData);
-        console.log("Selected user details are", selectedUser);
+      let selectedUser = null
+      console.log('Selected user local data is', selectedUserLocalData)
+      if (
+        selectedUserLocalData !== 'undefined' &&
+        selectedUserLocalData !== null
+      ) {
+        selectedUser = JSON.parse(selectedUserLocalData)
+        console.log('Selected user details are', selectedUser)
       }
-      let ApiPath = Apis.getPipelines + "?liteResource=true"
+      let ApiPath = Apis.getPipelines + '?liteResource=true'
 
       if (selectedUser) {
         //TODO: @Arslan @Hamza tell me why are we using selectedUser?.subAccountData?.id instead of selectedUser?.id here
         // I am commenting it for now.
         // ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        if(selectedUser?.subAccountData?.id){
-          ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
-        }else{
-          ApiPath = ApiPath + "&userId=" + selectedUser?.id;
+        if (selectedUser?.subAccountData?.id) {
+          ApiPath = ApiPath + '&userId=' + selectedUser?.subAccountData?.id
+        } else {
+          ApiPath = ApiPath + '&userId=' + selectedUser?.id
         }
-        
       }
 
-      console.log("ApiPath is", ApiPath);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      console.log('ApiPath is', ApiPath)
+      let AuthToken = null
+      const LocalData = localStorage.getItem('User')
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(LocalData)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("Response is of get pipelines", response.data.data);
-        setPipelinesDetails(response.data.data);
-        setSelectPipleLine(response.data.data[0].title);
-        setSelectedPipelineItem(response.data.data[0]);
-        setSelectedPipelineStages(response.data.data[0].stages);
-        setOldStages(response.data.data[0].stages);
+        console.log('Response is of get pipelines', response.data.data)
+        setPipelinesDetails(response.data.data)
+        setSelectPipleLine(response.data.data[0].title)
+        setSelectedPipelineItem(response.data.data[0])
+        setSelectedPipelineStages(response.data.data[0].stages)
+        setOldStages(response.data.data[0].stages)
         localStorage.setItem(
-          "pipelinesData",
-          JSON.stringify(response.data.data)
-        );
+          'pipelinesData',
+          JSON.stringify(response.data.data),
+        )
       }
     } catch (error) {
-      console.log("Error occured in get pipelies api is :", error);
+      console.log('Error occured in get pipelies api is :', error)
     } finally {
       // //console.log;
     }
-  };
+  }
 
   //function for new lead
   // const addRow = () => {
@@ -271,44 +280,43 @@ const Pipeline1 = ({ handleContinue }) => {
   //code for selecting stages
 
   const assignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: true }));
+    setAssignedLeads((prev) => ({ ...prev, [index]: true }))
     setRowsByIndex((prev) => ({
       ...prev,
       [index]: [
         { id: index, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
       ],
-    }));
-  };
+    }))
+  }
 
   const handleUnAssignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: false }));
+    setAssignedLeads((prev) => ({ ...prev, [index]: false }))
     setRowsByIndex((prev) => {
-      const updatedRows = { ...prev };
-      delete updatedRows[index];
-      return updatedRows;
-    });
-  };
+      const updatedRows = { ...prev }
+      delete updatedRows[index]
+      return updatedRows
+    })
+  }
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-
     setRowsByIndex((prev) => ({
       ...prev,
       [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
-        row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row
+        row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row,
       ),
-    }));
-  };
+    }))
+  }
 
-  const addRow = (index, action = "call", templateData = null) => {
+  const addRow = (index, action = 'call', templateData = null) => {
     console.log('addRow called with:', {
       index,
       action,
-      templateData
-    });
-    
+      templateData,
+    })
+
     setRowsByIndex((prev) => {
-      const list = prev[index] ?? [];
-      const nextId = list.length ? list[list.length - 1].id + 1 : 1;
+      const list = prev[index] ?? []
+      const nextId = list.length ? list[list.length - 1].id + 1 : 1
 
       const newRow = {
         id: nextId,
@@ -317,108 +325,106 @@ const Pipeline1 = ({ handleContinue }) => {
         waitTimeMinutes: 0,
         action, // "call" | "sms" | "email"
         communicationType: action, // Set communicationType to match action
-      };
+      }
 
-      console.log('Base newRow before template data:', newRow);
+      console.log('Base newRow before template data:', newRow)
 
       // Add template information for email and SMS actions
       if (templateData) {
-        console.log('Adding template data for action:', action);
-        console.log('templateData received:', templateData);
-        
+        console.log('Adding template data for action:', action)
+        console.log('templateData received:', templateData)
+
         // Add all template data to the row
-        Object.keys(templateData).forEach(key => {
+        Object.keys(templateData).forEach((key) => {
           if (templateData[key] !== undefined) {
-            newRow[key] = templateData[key];
-            console.log(`Setting newRow.${key} = ${templateData[key]}`);
+            newRow[key] = templateData[key]
+            console.log(`Setting newRow.${key} = ${templateData[key]}`)
           }
-        });
-        
-        console.log('newRow after adding template data:', newRow);
+        })
+
+        console.log('newRow after adding template data:', newRow)
       } else {
-        console.log('No template data provided');
+        console.log('No template data provided')
       }
 
-      console.log('Final newRow:', newRow);
+      console.log('Final newRow:', newRow)
 
       return {
         ...prev,
-        [index]: [
-          ...list,
-          newRow,
-        ],
-      };
-    });
-  };
+        [index]: [...list, newRow],
+      }
+    })
+  }
 
   const removeRow = (leadIndex, rowId) => {
     setRowsByIndex((prev) => ({
       ...prev,
       [leadIndex]: (prev[leadIndex] ?? []).filter((row) => row.id !== rowId),
-    }));
-  };
+    }))
+  }
 
   const updateRow = (leadIndex, rowId, updatedData) => {
-    console.log(`Updating row ${rowId} in stage ${leadIndex} with data:`, updatedData);
-    
+    console.log(
+      `Updating row ${rowId} in stage ${leadIndex} with data:`,
+      updatedData,
+    )
+
     setRowsByIndex((prev) => {
       const updatedRows = {
         ...prev,
         [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
           if (row.id === rowId) {
-            const updatedRow = { ...row, ...updatedData };
-            console.log('Updated row result:', updatedRow);
-            return updatedRow;
+            const updatedRow = { ...row, ...updatedData }
+            console.log('Updated row result:', updatedRow)
+            return updatedRow
           }
-          return row;
+          return row
         }),
-      };
-      
-      console.log('Updated rowsByIndex state:', updatedRows);
-      return updatedRows;
-    });
-  };
+      }
+
+      console.log('Updated rowsByIndex state:', updatedRows)
+      return updatedRows
+    })
+  }
 
   const printAssignedLeadsData = async () => {
-    console.log("print clicked", assignedLeads);
+    console.log('print clicked', assignedLeads)
     // return
-    setPipelineLoader(true);
+    setPipelineLoader(true)
 
     const allData = Object.keys(assignedLeads)
       .map((index) => {
         if (assignedLeads[index]) {
-          const lead = selectedPipelineStages[index]; // Get the lead information
-          const nextStage = selectedNextStage[index]; // Get the "then move to" selected stage for this index
+          const lead = selectedPipelineStages[index] // Get the lead information
+          const nextStage = selectedNextStage[index] // Get the "then move to" selected stage for this index
           return {
-            stage: lead?.id || "Unknown ID", // Pipeline ID
+            stage: lead?.id || 'Unknown ID', // Pipeline ID
             calls: rowsByIndex[index] || [], // Associated rows
             moveToStage: nextStage?.id,
             // ? { id: nextStage.id, title: nextStage.stageTitle }
             // : { id: "None", title: "None" }, // Handle if no selection
-          };
+          }
         }
-        return null; // Ignore unassigned leads
+        return null // Ignore unassigned leads
       })
-      .filter((item) => item !== null); // Filter out null values
+      .filter((item) => item !== null) // Filter out null values
 
-    console.log("All Data ", allData);
-    
-  
-    
-    const pipelineID = selectedPipelineItem.id;
-    const cadence = allData;
+    console.log('All Data ', allData)
 
-    let cadenceData = null;
+    const pipelineID = selectedPipelineItem.id
+    const cadence = allData
+
+    let cadenceData = null
 
     //getting local agent data then sending the cadence accordingly
-    const agentDetails = localStorage.getItem("agentDetails");
+    const agentDetails = localStorage.getItem('agentDetails')
     // console.log("Agent Details ", agentDetails);
     if (agentDetails) {
-      const agentData = JSON.parse(agentDetails);
+      const agentData = JSON.parse(agentDetails)
       // //console.log;
       if (
         agentData.agents.length === 1 &&
-        agentData.agents[0].agentType === "inbound"
+        agentData.agents[0].agentType === 'inbound'
       ) {
         cadenceData = {
           pipelineID: selectedPipelineItem?.id,
@@ -431,32 +437,29 @@ const Pipeline1 = ({ handleContinue }) => {
                   waitTimeDays: 3650,
                   waitTimeHours: 0,
                   waitTimeMinutes: 0,
-                  communicationType : "call"
+                  communicationType: 'call',
                 },
               ],
             },
           ],
-        };
+        }
       } else {
         // //console.log;
         cadenceData = {
           pipelineID: selectedPipelineItem.id,
           cadenceDetails: cadence,
-        };
+        }
       }
     }
 
     // //console.log;
 
-    console.log(
-      "Cadence data storing on local storage is :",
-      cadence
-    );
+    console.log('Cadence data storing on local storage is :', cadence)
 
     if (cadenceData) {
-      localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
+      localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
     }
-    handleContinue();
+    handleContinue()
 
     // try {
     //    // //console.log;
@@ -514,39 +517,39 @@ const Pipeline1 = ({ handleContinue }) => {
     //    // //console.log;
     //     setPipelineLoader(false);
     // }
-  };
+  }
 
   const handleToggleClick = (id) => {
-    setToggleClick((prevId) => (prevId === id ? null : id));
-  };
+    setToggleClick((prevId) => (prevId === id ? null : id))
+  }
 
   const handleSelectPipleLine = (event) => {
-    const selectedValue = event.target.value;
-    setSelectPipleLine(selectedValue);
+    const selectedValue = event.target.value
+    setSelectPipleLine(selectedValue)
 
     // Find the selected item from the pipelinesDetails array
     const selectedItem = pipelinesDetails.find(
-      (item) => item.title === selectedValue
-    );
+      (item) => item.title === selectedValue,
+    )
     // //console.log;
-    setSelectedPipelineItem(selectedItem);
-    setSelectedPipelineStages(selectedItem.stages);
-    setOldStages(selectedItem.stages);
-  };
+    setSelectedPipelineItem(selectedItem)
+    setSelectedPipelineStages(selectedItem.stages)
+    setOldStages(selectedItem.stages)
+  }
 
   const handleSelectNextChange = (index, event) => {
-    const selectedValue = event.target.value;
+    const selectedValue = event.target.value
 
     // Update the next stage for the specific index
     setNextStage((prev) => ({
       ...prev,
       [index]: selectedValue,
-    }));
+    }))
 
     // Find the selected item for the specific index
     const selectedItem = selectedPipelineStages.find(
-      (item) => item.stageTitle === selectedValue
-    );
+      (item) => item.stageTitle === selectedValue,
+    )
 
     // //console.log;
 
@@ -554,114 +557,114 @@ const Pipeline1 = ({ handleContinue }) => {
     setSelectedNextStage((prev) => ({
       ...prev,
       [index]: selectedItem,
-    }));
-  };
+    }))
+  }
 
   //code to rearrange stages list
   const handleReorder = async () => {
     try {
-      setReorderLoader(true);
+      setReorderLoader(true)
       const updateStages = selectedPipelineStages.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
-      }));
+      }))
 
       // //console.log;
 
-      const ApiPath = Apis.reorderStages;
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      const ApiPath = Apis.reorderStages
+      let AuthToken = null
+      const LocalData = localStorage.getItem('User')
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(LocalData)
+        AuthToken = UserDetails.token
       }
       //// //console.log;
       const ApiData = {
         pipelineId: selectedPipelineItem.id,
         reorderedStages: updateStages,
-      };
+      }
 
       //// //console.log;
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          let type = SnackbarTypes.Success;
-          setSnackType("Success");
-          setReorderSuccessBarMessage(response.data.message);
+          let type = SnackbarTypes.Success
+          setSnackType('Success')
+          setReorderSuccessBarMessage(response.data.message)
         } else if (response.data.status === false) {
-          let type = SnackbarTypes.Error;
-          setSnackType("Error");
-          setReorderSuccessBarMessage(response.data.message);
+          let type = SnackbarTypes.Error
+          setSnackType('Error')
+          setReorderSuccessBarMessage(response.data.message)
         }
-        setIsVisibleSnack(true);
+        setIsVisibleSnack(true)
       }
     } catch (error) {
       // console.error("Error occured in rearrange order api is:", error);
     } finally {
       // //console.log;
-      setReorderLoader(false);
+      setReorderLoader(false)
     }
-  };
+  }
 
   function onNewStageCreated(pipeline) {
-    let pipelines = [];
+    let pipelines = []
 
     for (let p of pipelinesDetails) {
       if (p.id == pipeline.id) {
-        pipelines.push(pipeline);
+        pipelines.push(pipeline)
       } else {
-        pipelines.push(p);
+        pipelines.push(p)
       }
     }
-    setSelectedPipelineItem(pipeline);
-    setSelectedPipelineStages(pipeline.stages);
-    setPipelinesDetails(pipelines);
+    setSelectedPipelineItem(pipeline)
+    setSelectedPipelineStages(pipeline.stages)
+    setPipelinesDetails(pipelines)
   }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#00000070",
+      fontWeight: '500',
+      color: '#00000070',
     },
     AddNewKYCQuestionModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
     labelStyle: {
-      backgroundColor: "white",
-      fontWeight: "400",
+      backgroundColor: 'white',
+      fontWeight: '400',
       fontSize: 10,
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       {/* <AgentSelectSnackMessage isVisible={reorderSuccessBar == null || reorderSuccessBar == false ? false : true} hide={() => setReorderSuccessBar(null)} message={reorderSuccessBar} time={SnackbarTypes.Success} /> */}
@@ -685,45 +688,56 @@ const Pipeline1 = ({ handleContinue }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle={getTutorialByType(HowToVideoTypes.CRMIntegration)?.title || "Learn about pipeline and stages"}
-            videoUrl={getVideoUrlByType(HowToVideoTypes.CRMIntegration) || HowtoVideos.Pipeline}
+            videoTitle={
+              getTutorialByType(HowToVideoTypes.CRMIntegration)?.title ||
+              'Learn about pipeline and stages'
+            }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.CRMIntegration) ||
+              HowtoVideos.Pipeline
+            }
           />
 
           <div
             className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
             style={{
-              position: "absolute",
+              position: 'absolute',
               // left: "18%",
               // translate: "-50%",
               // left: "14%",
-              top: "20%",
+              top: '20%',
               // backgroundColor: "red"
             }}
           >
             <VideoCard
               duration={(() => {
-                const tutorial = getTutorialByType(HowToVideoTypes.CRMIntegration);
-                return tutorial?.description || "8:17";
+                const tutorial = getTutorialByType(
+                  HowToVideoTypes.CRMIntegration,
+                )
+                return tutorial?.description || '8:17'
               })()}
               horizontal={false}
               playVideo={() => {
-                setIntroVideoModal(true);
+                setIntroVideoModal(true)
               }}
-              title={getTutorialByType(HowToVideoTypes.CRMIntegration)?.title || "Learn about pipeline and stages"}
+              title={
+                getTutorialByType(HowToVideoTypes.CRMIntegration)?.title ||
+                'Learn about pipeline and stages'
+              }
             />
           </div>
 
           <div className="flex flex-col items-center justify-center px-4 w-full">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               Pipeline and Stages
             </div>
 
             <div
               className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               {pipelinesDetails.length > 1 && (
                 <div>
@@ -737,18 +751,18 @@ const Pipeline1 = ({ handleContinue }) => {
                           value={selectPipleLine}
                           onChange={handleSelectPipleLine}
                           renderValue={(selected) => {
-                            if (selected === "") {
-                              return <div>Select Pipeline</div>;
+                            if (selected === '') {
+                              return <div>Select Pipeline</div>
                             }
-                            return selected;
+                            return selected
                           }}
                           sx={{
                             ...styles.dropdownMenu,
-                            backgroundColor: "#FFFFFF",
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none",
+                            backgroundColor: '#FFFFFF',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
                             },
-                            color: "#000000",
+                            color: '#000000',
                           }}
                         >
                           {/* <MenuItem value="">
@@ -783,7 +797,7 @@ const Pipeline1 = ({ handleContinue }) => {
               <PipelineStages
                 stages={selectedPipelineStages}
                 onUpdateOrder={(stages) => {
-                  setSelectedPipelineStages(stages);
+                  setSelectedPipelineStages(stages)
                 }}
                 assignedLeads={assignedLeads}
                 handleUnAssignNewStage={handleUnAssignNewStage}
@@ -811,7 +825,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 BackdropProps={{
                   timeout: 100,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     // //backdropFilter: "blur(20px)",
                   },
                 }}
@@ -853,7 +867,7 @@ const Pipeline1 = ({ handleContinue }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Pipeline1;
+export default Pipeline1

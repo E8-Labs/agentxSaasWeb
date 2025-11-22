@@ -1,10 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { combineReducers } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit'
+import { combineReducers } from '@reduxjs/toolkit'
+import { persistReducer, persistStore } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 
-// Import slices 
-import userSlice from './slices/userSlice';
+// Import slices
+import userSlice from './slices/userSlice'
 
 // Persist configuration
 const persistConfig = {
@@ -14,15 +14,15 @@ const persistConfig = {
   whitelist: ['user'],
   // Transform to maintain compatibility with existing localStorage structure
   transforms: [],
-};
+}
 
 // Root reducer combining all slices
 const rootReducer = combineReducers({
   user: userSlice,
-});
+})
 
 // Persisted reducer
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 // Configure store
 export const store = configureStore({
@@ -34,9 +34,9 @@ export const store = configureStore({
       },
     }),
   devTools: process.env.NODE_ENV !== 'production',
-});
+})
 
-export const persistor = persistStore(store);
+export const persistor = persistStore(store)
 
 // TypeScript types would go in a separate .d.ts file or .ts file
 // For JavaScript projects, these exports are not needed

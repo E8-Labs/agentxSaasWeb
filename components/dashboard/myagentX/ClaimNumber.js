@@ -1,16 +1,18 @@
-import Apis from "@/components/apis/Apis";
-import PurchaseNumberSuccess from "@/components/createagent/PurchaseNumberSuccess";
-import { Box, CircularProgress, Modal } from "@mui/material";
-import axios from "axios";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import { getUserLocalData } from '@/components/constants/constants'
+import PurchaseNumberSuccess from '@/components/createagent/PurchaseNumberSuccess'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../leads/AgentSelectSnackMessage";
-import { getUserLocalData } from "@/components/constants/constants";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
+} from '../leads/AgentSelectSnackMessage'
 
 const ClaimNumber = ({
   showClaimPopup,
@@ -22,86 +24,83 @@ const ClaimNumber = ({
   AssignNumber,
   selectedUSer,
 }) => {
-
-
   let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-  const stripePromise = loadStripe(stripePublickKey);
-  const timerRef = useRef(null);
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+  const stripePromise = loadStripe(stripePublickKey)
+  const timerRef = useRef(null)
 
-  const [findNumber, setFindNumber] = useState("");
-  const [findeNumberLoader, setFindeNumberLoader] = useState(false);
-  const [foundeNumbers, setFoundeNumbers] = useState([]);
-  const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
-  const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
-  const [purchaseLoader, setPurchaseLoader] = useState(false);
+  const [findNumber, setFindNumber] = useState('')
+  const [findeNumberLoader, setFindeNumberLoader] = useState(false)
+  const [foundeNumbers, setFoundeNumbers] = useState([])
+  const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null)
+  const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null)
+  const [purchaseLoader, setPurchaseLoader] = useState(false)
   const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] =
-    useState(false);
-  const [openPurchaseErrSnack, setOpenPurchaseErrSnack] = useState("");
-  const [isSnackVisible, setIsSnackVisible] = useState(false);
-  const [errorType, setErrorType] = useState(null);
+    useState(false)
+  const [openPurchaseErrSnack, setOpenPurchaseErrSnack] = useState('')
+  const [isSnackVisible, setIsSnackVisible] = useState(false)
+  const [errorType, setErrorType] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
-  const [cardData, getcardData] = useState("");
-
+  const [cardData, getcardData] = useState('')
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
     // //console.log;
-    localStorage.setItem("numberPurchased", JSON.stringify(item));
-    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
-    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
-  };
+    localStorage.setItem('numberPurchased', JSON.stringify(item))
+    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item))
+    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index))
+  }
 
   const handleClose = (data) => {
-    console.log("data of add card", data)
+    console.log('data of add card', data)
     if (data) {
-      setShowAddCard(false);
+      setShowAddCard(false)
       handlePurchaseNumber()
       // setCards([newCard, ...cards]);
     }
-  };
+  }
 
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
     console.log('purchase number')
     // return
     try {
-      setPurchaseLoader(true);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
-      const agentDetails = localStorage.getItem("agentDetails");
-      let MyAgentData = null;
+      setPurchaseLoader(true)
+      let AuthToken = null
+      const LocalData = localStorage.getItem('User')
+      const agentDetails = localStorage.getItem('agentDetails')
+      let MyAgentData = null
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(LocalData)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
 
       if (agentDetails) {
         // //console.log;
-        const agentData = JSON.parse(agentDetails);
+        const agentData = JSON.parse(agentDetails)
         // //console.log;
-        MyAgentData = agentData;
+        MyAgentData = agentData
       }
 
-      const ApiPath = Apis.purchaseNumber;
+      const ApiPath = Apis.purchaseNumber
       // //console.log;
       //// //console.log;
-      const formData = new FormData();
-      formData.append("phoneNumber", selectedPurchasedNumber.phoneNumber);
+      const formData = new FormData()
+      formData.append('phoneNumber', selectedPurchasedNumber.phoneNumber)
       if (MyAgentData) {
-        formData.append("mainAgentId", MyAgentData?.id);
+        formData.append('mainAgentId', MyAgentData?.id)
       }
 
       if (selectedUSer) {
-        formData.append("userId", selectedUSer?.id);
+        formData.append('userId', selectedUSer?.id)
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} === ${value}`);
+        console.log(`${key} === ${value}`)
       }
 
       //for testing
@@ -119,73 +118,73 @@ const ClaimNumber = ({
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "multipart/form-data",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'multipart/form-data',
           // "Content-Type": "application/json"
         },
-      });
+      })
 
-      console.log("Response of purchase number is", response)
+      console.log('Response of purchase number is', response)
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          console.log("Response of purchase number is true")
-          setOpenPurchaseSuccessModal(true);
-          console.log("Previous number is", previousNumber)
-          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+          console.log('Response of purchase number is true')
+          setOpenPurchaseSuccessModal(true)
+          console.log('Previous number is', previousNumber)
+          setPreviousNumber([...previousNumber, selectedPurchasedNumber])
           if (setSelectNumber) {
-            setSelectNumber(selectedPurchasedNumber.phoneNumber);
+            setSelectNumber(selectedPurchasedNumber.phoneNumber)
           }
 
-          UserDetails.user.checkList.checkList.numberClaimed = true;
-          localStorage.setItem("User", JSON.stringify(D));
+          UserDetails.user.checkList.checkList.numberClaimed = true
+          localStorage.setItem('User', JSON.stringify(D))
 
           window.dispatchEvent(
-            new CustomEvent("UpdateCheckList", { detail: { update: true } })
-          );
+            new CustomEvent('UpdateCheckList', { detail: { update: true } }),
+          )
           localStorage.setItem(
-            "purchasedNumberDetails",
-            JSON.stringify(response.data.data)
-          );
+            'purchasedNumberDetails',
+            JSON.stringify(response.data.data),
+          )
         } else if (response.data.status === false) {
-          setOpenPurchaseErrSnack(response.data.message);
-          setIsSnackVisible(true);
-          setErrorType(SnackbarTypes.Error);
+          setOpenPurchaseErrSnack(response.data.message)
+          setIsSnackVisible(true)
+          setErrorType(SnackbarTypes.Error)
         }
       }
     } catch (error) {
       // console.error("Error occured in purchase number api is: --", error);
     } finally {
-      setPurchaseLoader(false);
+      setPurchaseLoader(false)
     }
-  };
+  }
 
   //test code for checking update check list
   const handleTestClose = () => {
-    const localData = localStorage.getItem("User");
+    const localData = localStorage.getItem('User')
     if (localData) {
-      let D = JSON.parse(localData);
-      D.user.checkList.checkList.numberClaimed = true;
-      localStorage.setItem("User", JSON.stringify(D));
+      let D = JSON.parse(localData)
+      D.user.checkList.checkList.numberClaimed = true
+      localStorage.setItem('User', JSON.stringify(D))
     }
     window.dispatchEvent(
-      new CustomEvent("UpdateCheckList", { detail: { update: true } })
-    );
-    handleCloseClaimPopup();
+      new CustomEvent('UpdateCheckList', { detail: { update: true } }),
+    )
+    handleCloseClaimPopup()
   }
 
   //function to fine numbers api
-  const requestCounter = useRef(0);
+  const requestCounter = useRef(0)
   const handleFindeNumbers = async (number) => {
-    const currentRequest = ++requestCounter.current;
+    const currentRequest = ++requestCounter.current
     try {
-      setFindeNumberLoader(true);
-      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`;
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      setFindeNumberLoader(true)
+      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
+      let AuthToken = null
+      const LocalData = localStorage.getItem('User')
       if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(LocalData)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
@@ -193,19 +192,19 @@ const ClaimNumber = ({
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         // Only update state if this request is still the latest one
         if (currentRequest === requestCounter.current) {
           if (response?.data?.status) {
-            setFoundeNumbers(response.data.data);
+            setFoundeNumbers(response.data.data)
           } else {
-            setFoundeNumbers([]);
+            setFoundeNumbers([])
           }
         }
       }
@@ -213,35 +212,35 @@ const ClaimNumber = ({
       // console.error("Error occured in finde number api is :---", error);
     } finally {
       if (requestCounter.current === currentRequest) {
-        setFindeNumberLoader(false);
+        setFindeNumberLoader(false)
       }
     }
-  };
+  }
 
   const styles = {
     paymentModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-50%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
     claimPopup: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div>
@@ -251,7 +250,7 @@ const ClaimNumber = ({
         BackdropProps={{
           timeout: 1000,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -261,11 +260,11 @@ const ClaimNumber = ({
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[84vh] flex flex-col justify-between"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
-                overflow: "auto",
-                scrollbarWidth: "none",
+                borderRadius: '13px',
+                overflow: 'auto',
+                scrollbarWidth: 'none',
               }}
             >
               <div className=" h-[88%] overflow-hidden">
@@ -275,16 +274,16 @@ const ClaimNumber = ({
                     type={errorType}
                     isVisible={isSnackVisible}
                     hide={() => {
-                      setIsSnackVisible(false);
-                      setOpenPurchaseErrSnack("");
-                      setErrorType(null);
+                      setIsSnackVisible(false)
+                      setOpenPurchaseErrSnack('')
+                      setErrorType(null)
                     }}
                   />
                 )}
                 <div className="flex flex-row justify-end">
                   <button onClick={handleCloseClaimPopup}>
                     <Image
-                      src={"/assets/crossIcon.png"}
+                      src={'/assets/crossIcon.png'}
                       height={40}
                       width={40}
                       alt="*"
@@ -294,8 +293,8 @@ const ClaimNumber = ({
                 <div
                   style={{
                     fontSize: 24,
-                    fontWeight: "700",
-                    textAlign: "center",
+                    fontWeight: '700',
+                    textAlign: 'center',
                   }}
                 >
                   {`Let's claim your phone number`}
@@ -304,8 +303,8 @@ const ClaimNumber = ({
                   className="mt-2"
                   style={{
                     fontSize: 15,
-                    fontWeight: "700",
-                    textAlign: "center",
+                    fontWeight: '700',
+                    textAlign: 'center',
                   }}
                 >
                   Enter the 3 digit area code you would like to use
@@ -314,8 +313,8 @@ const ClaimNumber = ({
                   className="mt-4"
                   style={{
                     fontSize: 13,
-                    fontWeight: "500",
-                    color: "#15151550",
+                    fontWeight: '500',
+                    color: '#15151550',
                   }}
                 >
                   Number
@@ -328,22 +327,22 @@ const ClaimNumber = ({
                     value={findNumber}
                     maxLength={3}
                     onChange={(e) => {
-                      setFindeNumberLoader(true);
+                      setFindeNumberLoader(true)
                       if (timerRef.current) {
-                        clearTimeout(timerRef.current);
+                        clearTimeout(timerRef.current)
                       }
 
-                      const value = e.target.value;
-                      setFindNumber(value.replace(/[^0-9]/g, ""));
+                      const value = e.target.value
+                      setFindNumber(value.replace(/[^0-9]/g, ''))
                       // setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
                       // handleFindeNumbers(value)
                       if (value) {
                         timerRef.current = setTimeout(() => {
-                          handleFindeNumbers(value);
-                        }, 500);
+                          handleFindeNumbers(value)
+                        }, 500)
                       } else {
                         // //console.log;
-                        return;
+                        return
                       }
                     }}
                   />
@@ -358,7 +357,7 @@ const ClaimNumber = ({
                     ) : (
                       <div
                         className="mt-6 max-h-[40vh] overflow-auto"
-                        style={{ scrollbarWidth: "none" }}
+                        style={{ scrollbarWidth: 'none' }}
                       >
                         {foundeNumbers.length > 0 ? (
                           <div className="w-full pb-12 ">
@@ -369,18 +368,18 @@ const ClaimNumber = ({
                                 style={{
                                   border:
                                     index === selectedPurchasedIndex
-                                      ? "2px solid #7902DF"
-                                      : "1px solid #00000020",
+                                      ? '2px solid #7902DF'
+                                      : '1px solid #00000020',
                                   backgroundColor:
                                     index === selectedPurchasedIndex
-                                      ? "#402FFF05"
-                                      : "",
+                                      ? '#402FFF05'
+                                      : '',
                                 }}
                               >
                                 <button
                                   className="flex flex-row items-start justify-between outline-none"
                                   onClick={(e) => {
-                                    handlePurchaseNumberClick(item, index);
+                                    handlePurchaseNumberClick(item, index)
                                   }}
                                 >
                                   <div>
@@ -401,14 +400,14 @@ const ClaimNumber = ({
                                     <div>
                                       {index == selectedPurchasedIndex ? (
                                         <Image
-                                          src={"/assets/charmTick.png"}
+                                          src={'/assets/charmTick.png'}
                                           height={35}
                                           width={35}
                                           alt="*"
                                         />
                                       ) : (
                                         <Image
-                                          src={"/assets/charmUnMark.png"}
+                                          src={'/assets/charmUnMark.png'}
                                           height={35}
                                           width={35}
                                           alt="*"
@@ -451,8 +450,7 @@ const ClaimNumber = ({
                               if (userData) {
                                 if (userData.user?.cards?.length === 0) {
                                   setShowAddCard(true)
-                                } else
-                                  handlePurchaseNumber()
+                                } else handlePurchaseNumber()
                               }
                             }}
                           >
@@ -477,7 +475,7 @@ const ClaimNumber = ({
         BackdropProps={{
           timeout: 1000,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -487,9 +485,9 @@ const ClaimNumber = ({
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div>
@@ -501,10 +499,10 @@ const ClaimNumber = ({
                 <PurchaseNumberSuccess
                   selectedNumber={selectedPurchasedNumber}
                   handleContinue={() => {
-                    setOpenPurchaseSuccessModal(false);
-                    handleCloseClaimPopup();
+                    setOpenPurchaseSuccessModal(false)
+                    handleCloseClaimPopup()
                     if (AssignNumber) {
-                      AssignNumber(selectedPurchasedNumber.phoneNumber);
+                      AssignNumber(selectedPurchasedNumber.phoneNumber)
                     }
                   }}
                 />
@@ -522,7 +520,7 @@ const ClaimNumber = ({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -532,23 +530,23 @@ const ClaimNumber = ({
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setShowAddCard(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -561,19 +559,18 @@ const ClaimNumber = ({
                   // stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
+                  togglePlan={''}
                   // fromAdmin={true}
                   selectedUser={selectedUSer}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
           </div>
         </Box>
       </Modal>
+    </div>
+  )
+}
 
-    </div >
-  );
-};
-
-export default ClaimNumber;
+export default ClaimNumber

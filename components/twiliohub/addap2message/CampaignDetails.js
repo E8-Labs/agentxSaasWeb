@@ -1,46 +1,48 @@
-import { Box, FormControl, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, MenuItem, Select } from '@mui/material'
+import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { businessTypesArray } from '../twilioExtras/TwilioHubConstants';
-import SampleMessageComponent from './SampleMessageComponent';
-import Image from 'next/image';
 
-const CampaignDetails = ({
-  handleContinue,
-  handleClose
-}) => {
+import { businessTypesArray } from '../twilioExtras/TwilioHubConstants'
+import SampleMessageComponent from './SampleMessageComponent'
 
-  const selectRef = useRef(null);
+const CampaignDetails = ({ handleContinue, handleClose }) => {
+  const selectRef = useRef(null)
 
-  const [campaignUserCase, setCampaignUserCase] = useState("");
-  const [openBusinessTypeDropwDown, setOpenBusinessTypeDropwDown] = useState(false);
+  const [campaignUserCase, setCampaignUserCase] = useState('')
+  const [openBusinessTypeDropwDown, setOpenBusinessTypeDropwDown] =
+    useState(false)
 
   //
-  const [useCase, setUseCase] = useState("");
+  const [useCase, setUseCase] = useState('')
   //sample messages
-  const [sampleMessage1, setSampleMessage1] = useState("");
-  const [sampleMessage2, setSampleMessage2] = useState("");
+  const [sampleMessage1, setSampleMessage1] = useState('')
+  const [sampleMessage2, setSampleMessage2] = useState('')
   //messages metadata flags
-  const [messagesMetadataFlags, setMessagesMetadataFlags] = useState([]);
+  const [messagesMetadataFlags, setMessagesMetadataFlags] = useState([])
   //disable btn state
-  const [isDisabled, setIsDisabled] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(true)
 
   //check for disable btn state
   useEffect(() => {
-    if (sampleMessage1.length < 20 || sampleMessage2.length < 20 || !campaignUserCase || !useCase) {
-      setIsDisabled(true);
+    if (
+      sampleMessage1.length < 20 ||
+      sampleMessage2.length < 20 ||
+      !campaignUserCase ||
+      !useCase
+    ) {
+      setIsDisabled(true)
     } else {
-      setIsDisabled(false);
+      setIsDisabled(false)
     }
   }, [sampleMessage1, sampleMessage2, campaignUserCase, useCase])
-
 
   const toggleOption = (value) => {
     setMessagesMetadataFlags((prev) =>
       prev.includes(value)
         ? prev.filter((item) => item !== value)
-        : [...prev, value]
-    );
-  };
+        : [...prev, value],
+    )
+  }
 
   const options = [
     {
@@ -52,14 +54,16 @@ const CampaignDetails = ({
       value: 'includesPhoneNumber',
     },
     {
-      label: 'The messages include age gated content as defined by Carrier and CTA guidelines',
+      label:
+        'The messages include age gated content as defined by Carrier and CTA guidelines',
       value: 'includesAgeGatedContent',
     },
     {
-      label: 'The messages include content related to direct lending or other loan arrangement.',
+      label:
+        'The messages include content related to direct lending or other loan arrangement.',
       value: 'includesLoanContent',
     },
-  ];
+  ]
 
   //examples arrays
 
@@ -67,15 +71,15 @@ const CampaignDetails = ({
   const userCaseExamples = [
     {
       id: 1,
-      text: "This campaign sends appointment information - confirmation & reminder messages to customers once they have booked an appointment with company_name on website and opted-in to receive promotional and notification SMS from company_name."
+      text: 'This campaign sends appointment information - confirmation & reminder messages to customers once they have booked an appointment with company_name on website and opted-in to receive promotional and notification SMS from company_name.',
     },
     {
       id: 2,
-      text: "The campaign will be used to reach out to customers who signed up for the updates via SMS."
+      text: 'The campaign will be used to reach out to customers who signed up for the updates via SMS.',
     },
     {
       id: 3,
-      text: "This campaign will be used by company_name to reach out to clients who have opted in to receive messages."
+      text: 'This campaign will be used by company_name to reach out to clients who have opted in to receive messages.',
     },
   ]
 
@@ -83,53 +87,49 @@ const CampaignDetails = ({
   const sampleMessage1Examples = [
     {
       id: 1,
-      text: "Hi John! This is Jane from company_name. Our appointment for July 20 11:00 AM is confirmed. Please reach out to +1(213) 725-2867 in case you need to reschedule. Reply STOP to unsubscribe."
+      text: 'Hi John! This is Jane from company_name. Our appointment for July 20 11:00 AM is confirmed. Please reach out to +1(213) 725-2867 in case you need to reschedule. Reply STOP to unsubscribe.',
     },
     {
       id: 2,
-      text: "Hello, this is Adam from LC Phone. I am following up with you about our meeting yesterday, would you have time to discuss this today? Reply STOP to cancel."
-    }
+      text: 'Hello, this is Adam from LC Phone. I am following up with you about our meeting yesterday, would you have time to discuss this today? Reply STOP to cancel.',
+    },
   ]
 
   // sample message 2 examples
   const sampleMessage2Examples = [
     {
       id: 1,
-      text: "Hey Brian! This is Jane from company_name. I see that you weren't able to make it for our appointment. Would you like to reschedule? - https://www.mycompany.com/book. Reply STOP to unsubscribe."
+      text: "Hey Brian! This is Jane from company_name. I see that you weren't able to make it for our appointment. Would you like to reschedule? - https://www.mycompany.com/book. Reply STOP to unsubscribe.",
     },
     {
       id: 2,
-      text: "Hello, this is Dr. Lea. We are confirming your appointment tomorrow at 9 am. Reply STOP to cancel."
-    }
+      text: 'Hello, this is Dr. Lea. We are confirming your appointment tomorrow at 9 am. Reply STOP to cancel.',
+    },
   ]
 
   //styles
   const styles = {
     normalTxt: {
-      fontWeight: "500",
-      fontSize: 15
+      fontWeight: '500',
+      fontSize: 15,
     },
     size13: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 13,
     },
     semiBold: {
-      fontWeight: "600",
+      fontWeight: '600',
       fontSize: 22,
-    }
+    },
   }
 
   return (
-    <div className='h-[100%] flex flex-col items-center justify-between'>
-      <div className='w-10/12 overflow-auto h-[85%]'>
+    <div className="h-[100%] flex flex-col items-center justify-between">
+      <div className="w-10/12 overflow-auto h-[85%]">
         <div>
-          <div style={styles.semiBold}>
-            Campaign Details
-          </div>
-          <div
-            className='mt-4'
-            style={styles.normalTxt}>
-            Campaign Use case<span className='text-red'>*</span>
+          <div style={styles.semiBold}>Campaign Details</div>
+          <div className="mt-4" style={styles.normalTxt}>
+            Campaign Use case<span className="text-red">*</span>
           </div>
 
           <div className="border rounded-lg mt-2">
@@ -145,55 +145,53 @@ const CampaignDetails = ({
                   value={campaignUserCase}
                   // onChange={handleselectBusinessType}
                   onChange={(e) => {
-                    let value = e.target.value;
-                    console.log("Value for business type is", value);
-                    setCampaignUserCase(value);
-                    setOpenBusinessTypeDropwDown(false);
+                    let value = e.target.value
+                    console.log('Value for business type is', value)
+                    setCampaignUserCase(value)
+                    setOpenBusinessTypeDropwDown(false)
                   }}
                   renderValue={(selected) => {
-                    if (selected === "") {
-                      return <div>Business Type</div>;
+                    if (selected === '') {
+                      return <div>Business Type</div>
                     }
-                    return selected;
+                    return selected
                   }}
                   sx={{
                     ...styles.normalTxt,
-                    backgroundColor: "#FFFFFF",
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      border: "none",
+                    backgroundColor: '#FFFFFF',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none',
                     },
                   }}
                   MenuProps={{
                     PaperProps: {
                       style: {
-                        maxHeight: "30vh", // Limit dropdown height
-                        overflow: "auto", // Enable scrolling in dropdown
-                        scrollbarWidth: "none",
+                        maxHeight: '30vh', // Limit dropdown height
+                        overflow: 'auto', // Enable scrolling in dropdown
+                        scrollbarWidth: 'none',
                       },
                     },
                   }}
                 >
                   <MenuItem value="">None</MenuItem>
-                  {
-                    businessTypesArray.map((item) => {
-                      return (
-                        <MenuItem
-                          key={item.id}
-                          style={styles.normalTxt}
-                          value={item.title}
-                          className='w-full'
-                        >
-                          {item.title}
-                        </MenuItem>
-                      )
-                    })
-                  }
+                  {businessTypesArray.map((item) => {
+                    return (
+                      <MenuItem
+                        key={item.id}
+                        style={styles.normalTxt}
+                        value={item.title}
+                        className="w-full"
+                      >
+                        {item.title}
+                      </MenuItem>
+                    )
+                  })}
                 </Select>
               </FormControl>
             </Box>
           </div>
 
-          <div className='mt-4'>
+          <div className="mt-4">
             <SampleMessageComponent
               title="Use case"
               subTitle="Please explain in detail"
@@ -208,7 +206,7 @@ const CampaignDetails = ({
             />
           </div>
 
-          <div className='mt-4'>
+          <div className="mt-4">
             <SampleMessageComponent
               title="Sample Message #1"
               subTitle="Must include lead name, your name, business name & opt-out language"
@@ -221,7 +219,7 @@ const CampaignDetails = ({
             />
           </div>
 
-          <div className='mt-4'>
+          <div className="mt-4">
             <SampleMessageComponent
               title="Sample Message #2"
               subTitle="Must include lead name, your name, business name & opt-out language"
@@ -246,10 +244,10 @@ const CampaignDetails = ({
                     {messagesMetadataFlags.includes(option.value) ? (
                       <div
                         className="bg-purple flex flex-row items-center justify-center rounded"
-                        style={{ height: "24px", width: "24px" }}
+                        style={{ height: '24px', width: '24px' }}
                       >
                         <Image
-                          src={"/assets/whiteTick.png"}
+                          src={'/assets/whiteTick.png'}
                           height={8}
                           width={10}
                           alt="*"
@@ -258,7 +256,7 @@ const CampaignDetails = ({
                     ) : (
                       <div
                         className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                        style={{ height: "24px", width: "24px" }}
+                        style={{ height: '24px', width: '24px' }}
                       ></div>
                     )}
                   </div>
@@ -269,14 +267,13 @@ const CampaignDetails = ({
               </button>
             ))}
           </div>
-
         </div>
       </div>
-      <div className='w-full flex flex-row items-center gap-4 justify-end'>
+      <div className="w-full flex flex-row items-center gap-4 justify-end">
         <button
           onClick={handleContinue}
-          className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} h-[50px] rounded-lg`}
-        // disabled={isDisabled}
+          className={`w-[176px] ${isDisabled ? 'bg-btngray text-black' : 'bg-purple text-white'} h-[50px] rounded-lg`}
+          // disabled={isDisabled}
         >
           Continue
         </button>

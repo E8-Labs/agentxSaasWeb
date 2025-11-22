@@ -1,17 +1,17 @@
-"use client";
-import React, { Suspense, useEffect, useState } from "react";
+'use client'
 
-import MyAccount from "@/components/myAccount/MyAccount";
-import SubAccountMyAccount from "@/components/dashboard/subaccount/myAccount/SubAccountMyAccount";
-import AgencyMyAccount from "@/components/agency/myAccount/AgencyMyAccount";
+import React, { Suspense, useEffect, useState } from 'react'
+
+import AgencyMyAccount from '@/components/agency/myAccount/AgencyMyAccount'
+import SubAccountMyAccount from '@/components/dashboard/subaccount/myAccount/SubAccountMyAccount'
+import MyAccount from '@/components/myAccount/MyAccount'
 
 function Page() {
-
-    return (
-        <Suspense>
-            <AgencyMyAccount />
-        </Suspense>
-    );
+  return (
+    <Suspense>
+      <AgencyMyAccount />
+    </Suspense>
+  )
 }
 
-export default Page;
+export default Page

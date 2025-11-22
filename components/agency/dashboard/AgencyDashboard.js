@@ -1,9 +1,22 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react'
+import { useEffect } from 'react'
+import {
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
+import { copyAgencyOnboardingLink } from '@/components/constants/constants'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Table,
   TableBody,
@@ -11,54 +24,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PersistanceKeys } from '@/constants/Constants'
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useState } from "react";
-import { useEffect } from "react";
-import { PersistanceKeys } from "@/constants/Constants";
-import AgencyActivity from "./AgencyActivity";
-import AgencyRevenueDashboard from "./revenue/AgencyRevenueDashboard";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import { copyAgencyOnboardingLink } from "@/components/constants/constants";
+import AgencyActivity from './AgencyActivity'
+import AgencyRevenueDashboard from './revenue/AgencyRevenueDashboard'
 
-export default function AgencyDashboard({
-  selectedAgency
-}) {
-  const [user, setUser] = useState(null);
-  const [linkCopied, setLinkCopied] = useState(false);
-
+export default function AgencyDashboard({ selectedAgency }) {
+  const [user, setUser] = useState(null)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   useEffect(() => {
-    console.log('check 1',)
-    let userData = localStorage.getItem("User");
+    console.log('check 1')
+    let userData = localStorage.getItem('User')
     if (userData) {
-      let user = JSON.parse(userData);
+      let user = JSON.parse(userData)
       console.log('userdata', user)
 
-      setUser(user);
+      setUser(user)
     } else {
-      console.log("no data found")
+      console.log('no data found')
     }
-  }, []);
+  }, [])
 
   return (
     <div className="flex w-full items-center flex-row justify-start">
       <div className="py-6 w-full">
         <div
           className="px-10 flex flex-row items-cetner justify-between w-full"
-          style={{ fontSize: 24, fontWeight: "600" }}
+          style={{ fontSize: 24, fontWeight: '600' }}
         >
           Analytics
-
           <div className="flex flex-row items-center gap-2">
             <NotficationsDrawer />
           </div>
@@ -66,9 +63,13 @@ export default function AgencyDashboard({
         {/* Tabs for navigation */}
         <Tabs defaultValue="user-activity" className="mb-6 w-full">
           <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
-            <TabsTrigger value="user-activity" className="outline-none">User Activity</TabsTrigger>
+            <TabsTrigger value="user-activity" className="outline-none">
+              User Activity
+            </TabsTrigger>
             {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
-            <TabsTrigger value="revenue" className="outline-none">Revenue</TabsTrigger>
+            <TabsTrigger value="revenue" className="outline-none">
+              Revenue
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="user-activity">
@@ -82,8 +83,7 @@ export default function AgencyDashboard({
             <AgencyRevenueDashboard selectedAgency={selectedAgency} />
           </TabsContent>
         </Tabs>
-
       </div>
     </div>
-  );
+  )
 }

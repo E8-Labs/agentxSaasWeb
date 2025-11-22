@@ -1,12 +1,14 @@
 Validate that the component/page at `$ARGUMENTS` matches its Figma design perfectly.
 
 Parse arguments to extract:
+
 - Implementation location (route path or component name)
 - Figma URL (if provided, otherwise prompt for it)
 
 Follow these steps:
 
 ## SETUP
+
 1. Parse `$ARGUMENTS` to identify:
    - Implementation path (e.g., `/dashboard`, `components/Header.tsx`)
    - Figma URL (if included)
@@ -15,6 +17,7 @@ Follow these steps:
 4. Confirm implementation exists and loads without errors
 
 ## EXTRACT FIGMA SPECIFICATIONS
+
 1. Use Figma MCP server to extract from the Figma URL:
    - Frame dimensions (width, height)
    - Colors used in the design
@@ -32,31 +35,35 @@ Follow these steps:
    ```
 
 ## CAPTURE IMPLEMENTATION SCREENSHOTS
+
 Using Playwright MCP, capture the implementation:
 
 1. **Set viewport to match Figma frame**:
+
    ```javascript
    await page.setViewportSize({
      width: [figmaWidth],
-     height: [figmaHeight]
-   });
-   await page.goto('http://localhost:3000/[route]');
+     height: [figmaHeight],
+   })
+   await page.goto('http://localhost:3000/[route]')
    ```
 
 2. **Capture default state**:
+
    ```javascript
    await page.screenshot({
      path: 'validation/implementation-default.png',
-     fullPage: true
-   });
+     fullPage: true,
+   })
    ```
 
 3. **Capture dark mode**:
+
    ```javascript
-   await page.emulateMedia({ colorScheme: 'dark' });
+   await page.emulateMedia({ colorScheme: 'dark' })
    await page.screenshot({
-     path: 'validation/implementation-dark.png'
-   });
+     path: 'validation/implementation-dark.png',
+   })
    ```
 
 4. **Capture interactive states**:
@@ -66,39 +73,42 @@ Using Playwright MCP, capture the implementation:
    - Open states for dropdowns/modals
 
 5. **Capture responsive versions**:
+
    ```javascript
    const breakpoints = [
      { name: 'mobile', width: 375, height: 812 },
      { name: 'tablet', width: 768, height: 1024 },
-     { name: 'desktop', width: 1440, height: 900 }
-   ];
+     { name: 'desktop', width: 1440, height: 900 },
+   ]
 
    for (const bp of breakpoints) {
-     await page.setViewportSize(bp);
+     await page.setViewportSize(bp)
      await page.screenshot({
-       path: `validation/implementation-${bp.name}.png`
-     });
+       path: `validation/implementation-${bp.name}.png`,
+     })
    }
    ```
 
 ## STRUCTURAL VALIDATION
+
 Analyze the DOM structure and component hierarchy:
 
 1. **Extract DOM structure from implementation**:
+
    ```javascript
    const structure = await page.evaluate(() => {
      function getStructure(element, depth = 0) {
-       const children = Array.from(element.children);
+       const children = Array.from(element.children)
        return {
          tag: element.tagName,
          className: element.className,
          childCount: children.length,
          textContent: element.textContent?.substring(0, 50),
-         children: children.map(child => getStructure(child, depth + 1))
-       };
+         children: children.map((child) => getStructure(child, depth + 1)),
+       }
      }
-     return getStructure(document.querySelector('[data-testid="main"]'));
-   });
+     return getStructure(document.querySelector('[data-testid="main"]'))
+   })
    ```
 
 2. **Compare component hierarchy**:
@@ -108,11 +118,12 @@ Analyze the DOM structure and component hierarchy:
    - Validate layout direction (row vs column)
 
 3. **Validate relative positioning**:
+
    ```javascript
    const positions = await page.evaluate(() => {
-     const elements = document.querySelectorAll('[data-testid]');
-     return Array.from(elements).map(el => {
-       const rect = el.getBoundingClientRect();
+     const elements = document.querySelectorAll('[data-testid]')
+     return Array.from(elements).map((el) => {
+       const rect = el.getBoundingClientRect()
        return {
          id: el.dataset.testid,
          top: rect.top,
@@ -120,10 +131,10 @@ Analyze the DOM structure and component hierarchy:
          width: rect.width,
          height: rect.height,
          // Check relative positions
-         parent: el.parentElement?.dataset?.testid
-       };
-     });
-   });
+         parent: el.parentElement?.dataset?.testid,
+       }
+     })
+   })
    ```
 
 4. **Visual difference detection**:
@@ -135,9 +146,11 @@ Analyze the DOM structure and component hierarchy:
      - [ ] Do flex directions match (row vs column)?
 
 ## AI-POWERED VISUAL COMPARISON
+
 **IMPORTANT**: Use the captured screenshots for visual comparison:
 
 1. **Analyze both screenshots** (Figma export and implementation):
+
    ```
    Compare the overall composition:
    - Card arrangements and groupings
@@ -147,20 +160,24 @@ Analyze the DOM structure and component hierarchy:
    ```
 
 2. **Document structural differences**:
+
    ```markdown
    ## Structural Differences Found
 
    ### Card Layout
+
    - Figma: Banner image inside Usage card
    - Implementation: Banner as separate element
    - Action: Nest banner within Usage card container
 
    ### Component Positioning
+
    - Figma: Mins Balance at bottom of Usage card
    - Implementation: Mins Balance in separate card on right
    - Action: Move Mins Balance into Usage card
 
    ### Layout Direction
+
    - Figma: Vertical stacked layout
    - Implementation: Horizontal layout with sidebar
    - Action: Change to flex-col from flex-row
@@ -168,6 +185,7 @@ Analyze the DOM structure and component hierarchy:
 
 3. **Generate fixing instructions**:
    For each structural difference, provide specific code changes:
+
    ```tsx
    // ❌ Current structure
    <div className="flex flex-row">
@@ -184,6 +202,7 @@ Analyze the DOM structure and component hierarchy:
    ```
 
 ## ANALYZE IMPLEMENTATION CODE
+
 1. Locate the implementation file(s)
 2. Scan for style violations:
    ```bash
@@ -198,12 +217,13 @@ Analyze the DOM structure and component hierarchy:
    - Document any custom spacing found
 
 ## MEASURE ACTUAL VALUES
+
 Using Playwright MCP, measure implemented values:
 
 ```javascript
 const measurements = await page.evaluate(() => {
-  const element = document.querySelector('[data-testid="main"]');
-  const styles = window.getComputedStyle(element);
+  const element = document.querySelector('[data-testid="main"]')
+  const styles = window.getComputedStyle(element)
 
   return {
     // Dimensions
@@ -222,14 +242,15 @@ const measurements = await page.evaluate(() => {
     // Spacing
     padding: styles.padding,
     margin: styles.margin,
-    gap: styles.gap
-  };
-});
+    gap: styles.gap,
+  }
+})
 ```
 
 ## COMPARE DESIGN VS IMPLEMENTATION
 
 ### Visual Comparison
+
 1. Open Figma design and implementation screenshots side-by-side
 2. Check each element:
    - [ ] Layout structure matches
@@ -238,28 +259,33 @@ const measurements = await page.evaluate(() => {
    - [ ] Visual hierarchy preserved
 
 ### Quantitative Comparison
+
 Create comparison table:
+
 ```markdown
-| Property | Figma | Implementation | Match | Notes |
-|----------|-------|----------------|-------|-------|
-| Width | 1440px | 1440px | ✅ | |
-| Primary Color | #3B82F6 | --brand-primary | ✅ | Semantic variable |
-| Font Size | 16px | text-base (16px) | ✅ | |
-| Padding | 24px | p-6 (24px) | ✅ | |
-| Custom Shadow | 0 4px 6px... | shadow-md | ⚠️ | Rounded to Tailwind |
+| Property      | Figma        | Implementation   | Match | Notes               |
+| ------------- | ------------ | ---------------- | ----- | ------------------- |
+| Width         | 1440px       | 1440px           | ✅    |                     |
+| Primary Color | #3B82F6      | --brand-primary  | ✅    | Semantic variable   |
+| Font Size     | 16px         | text-base (16px) | ✅    |                     |
+| Padding       | 24px         | p-6 (24px)       | ✅    |                     |
+| Custom Shadow | 0 4px 6px... | shadow-md        | ⚠️    | Rounded to Tailwind |
 ```
 
 ### Color Mapping Verification
+
 Verify all colors map to semantic variables:
+
 ```markdown
-| Figma Color | Used For | Implementation | Variable Name |
-|-------------|----------|----------------|---------------|
-| #3B82F6 | Buttons | bg-brand-primary | --brand-primary |
-| #F3F4F6 | Background | bg-surface | --surface |
-| #111827 | Text | text-foreground | --foreground |
+| Figma Color | Used For   | Implementation   | Variable Name   |
+| ----------- | ---------- | ---------------- | --------------- |
+| #3B82F6     | Buttons    | bg-brand-primary | --brand-primary |
+| #F3F4F6     | Background | bg-surface       | --surface       |
+| #111827     | Text       | text-foreground  | --foreground    |
 ```
 
 ## VALIDATE RESPONSIVE BEHAVIOR
+
 1. Compare responsive screenshots against Figma breakpoints (if defined)
 2. Verify layout adjustments:
    - [ ] Mobile: Stacked layout
@@ -268,7 +294,9 @@ Verify all colors map to semantic variables:
 3. Check that all breakpoints use Tailwind prefixes (sm:, md:, lg:)
 
 ## VALIDATE INTERACTIONS
+
 Test all interactive elements:
+
 1. **Buttons**:
    - Hover state matches Figma
    - Active state implemented
@@ -287,12 +315,14 @@ Test all interactive elements:
 # Figma Design Validation Report
 
 ## Summary
+
 - **Figma URL**: [link]
 - **Implementation**: [path/route]
 - **Date Validated**: [date]
 - **Overall Match**: [percentage]%
 
 ## Visual Fidelity ✅/❌
+
 - Layout Structure: ✅
 - Colors (via semantic variables): ✅
 - Typography (Tailwind scale): ✅
@@ -300,17 +330,20 @@ Test all interactive elements:
 - Interactive States: ✅
 
 ## Code Compliance
+
 - No arbitrary values: ✅
 - Semantic colors only: ✅
 - Tailwind spacing only: ✅
 - Responsive prefixes used: ✅
 
 ## Deviations from Design
+
 1. Shadow: Rounded to `shadow-md` (closest Tailwind match)
 2. Font size 15px: Mapped to `text-sm` (14px)
    - Reason: No 15px in Tailwind scale
 
 ## Screenshots
+
 - Default: `validation/implementation-default.png`
 - Dark Mode: `validation/implementation-dark.png`
 - Mobile: `validation/implementation-mobile.png`
@@ -318,6 +351,7 @@ Test all interactive elements:
 - Desktop: `validation/implementation-desktop.png`
 
 ## Recommendations
+
 1. [Any fixes needed]
 2. [Improvements suggested]
 
@@ -325,9 +359,10 @@ Test all interactive elements:
 ```
 
 ## GENERATE FIX PLAN
-If validation is less than 100%, **ALWAYS create an actionable fix plan in `plan/retries/<some_file_name>.md`:
 
-```markdown
+If validation is less than 100%, \*\*ALWAYS create an actionable fix plan in `plan/retries/<some_file_name>.md`:
+
+````markdown
 # Figma Implementation Fix Plan
 
 Generated: [date]
@@ -337,81 +372,109 @@ Implementation: [path]
 ## CRITICAL STRUCTURAL FIXES
 
 ### Issue 1: Card Separation Error
+
 **Problem**: Usage card contents are split into multiple components
 **Current Structure**:
+
 ```jsx
 <Card>Usage Stats</Card>
 <Card>Mins Balance</Card>  // ❌ Should be inside Usage card
 ```
+````
+
 **Required Fix**:
+
 ```jsx
 <Card data-testid="usage-card">
   <div>Usage Stats</div>
   <Image src="/banner.jpg" />
-  <div>Mins Balance</div>  // ✅ Inside same card
+  <div>Mins Balance</div> // ✅ Inside same card
 </Card>
 ```
+
 **Action Steps**:
+
 1. Open `apps/web/components/UsageCard.tsx`
 2. Move Mins Balance div inside the Card component
 3. Remove separate Card wrapper from Mins Balance
 4. Update data-structure attributes
 
 ### Issue 2: Layout Direction Error
+
 **Problem**: Using horizontal layout instead of vertical
 **Current Code**:
+
 ```jsx
 <div className="flex flex-row gap-4">
 ```
+
 **Required Fix**:
+
 ```jsx
 <div className="flex flex-col gap-4">
 ```
+
 **Action Steps**:
+
 1. Change flex-row to flex-col in main container
 2. Adjust child element widths from w-1/2 to w-full
 
 ## STYLE FIXES
 
 ### Issue 3: Arbitrary Values Found
+
 **Location**: `apps/web/components/Header.tsx:34`
 **Current Code**:
+
 ```jsx
 <div className="w-[123px] p-[18px]">
 ```
+
 **Required Fix**:
+
 ```jsx
 <div className="w-32 p-5">  // Rounded to nearest Tailwind values
 ```
 
 ### Issue 4: Hardcoded Colors
+
 **Location**: `apps/web/components/Button.tsx:12`
 **Current Code**:
+
 ```jsx
 <button className="bg-[#3B82F6] text-white">
 ```
+
 **Required Fix**:
+
 1. Add to `packages/ui/src/styles/globals.css`:
+
 ```css
 :root {
-  --button-primary: #3B82F6;
+  --button-primary: #3b82f6;
 }
 .dark {
-  --button-primary: #60A5FA;
+  --button-primary: #60a5fa;
 }
 ```
+
 2. Update component:
+
 ```jsx
 <button className="bg-button-primary text-white">
 ```
 
 ### Issue 5: Non-Standard Spacing
+
 **Location**: `apps/web/app/dashboard/page.tsx:45`
 **Current Code**:
+
 ```jsx
 <div className="p-[15px] m-[23px]">
 ```
+
 **Required Fix**:
+
 ```jsx
 <div className="p-4 m-6">  // 15px→16px, 23px→24px
 ```
@@ -419,8 +482,10 @@ Implementation: [path]
 ## COMPONENT HIERARCHY FIXES
 
 ### Issue 6: Missing Nesting
+
 **Problem**: Elements not properly nested per Figma
 **Fix Required**:
+
 ```jsx
 // Move these elements inside their parent container:
 - Banner image → Inside Usage Card
@@ -431,7 +496,9 @@ Implementation: [path]
 ## RESPONSIVE FIXES
 
 ### Issue 7: Missing Mobile Breakpoints
+
 **Add responsive classes**:
+
 ```jsx
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 ```
@@ -439,18 +506,21 @@ Implementation: [path]
 ## IMPLEMENTATION CHECKLIST
 
 ### Immediate Actions (Blocking)
+
 - [ ] Fix card separation - merge split components
 - [ ] Correct layout directions (flex-row → flex-col)
 - [ ] Remove ALL arbitrary Tailwind values
 - [ ] Convert hardcoded colors to semantic variables
 
 ### Secondary Actions (Non-blocking)
+
 - [ ] Add missing responsive breakpoints
 - [ ] Update data-testid attributes
 - [ ] Add data-structure markers
 - [ ] Optimize image formats
 
 ### Testing After Fixes
+
 - [ ] Run `npm run dev` and verify visually
 - [ ] Re-run Playwright validation
 - [ ] Test dark mode
@@ -480,25 +550,31 @@ npm run build
 ## ESTIMATED TIME: 30-45 minutes
 
 ---
+
 **Note**: Fix structural issues FIRST, then style issues. Test after each major change.
-```
+
+````
 
 ## SAVE FIX PLAN
 1. Create directory if it doesn't exist:
    ```bash
    mkdir -p plan/retries
-   ```
+````
+
 2. Save the fix plan to `planning/retries/figma-implementation-fixes.md`
 3. Also save a quick summary to `planning/retries/quick-fixes.md`:
-   ```markdown
+
+   ````markdown
    # Quick Fix Summary
 
    ## TOP PRIORITY (Fix First)
+
    1. Merge separated card components
    2. Fix layout directions
    3. Remove arbitrary values
 
    ## Run these commands:
+
    ```bash
    # Open the main file with issues
    code components/ui/UsageCard.tsx
@@ -506,13 +582,20 @@ npm run build
    # After fixes, validate
    npm run dev
    ```
+   ````
+
+   ```
+
    ```
 
 ## PROVIDE FIXES IF NEEDED
+
 After generating the fix plan, either:
 
 ### Option A: Auto-fix Simple Issues
+
 For straightforward fixes, directly modify the files:
+
 ```bash
 # Example: Fix arbitrary values
 sed -i 's/w-\[123px\]/w-32/g' components/ui/*.jsx
@@ -520,7 +603,9 @@ sed -i 's/p-\[18px\]/p-5/g' components/ui/*.jsx
 ```
 
 ### Option B: Interactive Fix Process
+
 Prompt for each fix:
+
 ```
 Found: Card separation issue in UsageCard.jsx
 Should I:
@@ -532,7 +617,9 @@ Choose option (1/2/3):
 ```
 
 ---
+
 Output:
+
 1. Validation report saved as `validation-report.md`
 2. **Actionable fix plan saved as `plan/retries/figma-implementation-fixes.md`**
 3. Quick fix summary saved as `plan/retries/quick-fixes.md`

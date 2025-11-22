@@ -1,271 +1,274 @@
-import React, { useState, useRef, useEffect } from "react";
+import { Close, InsertDriveFile, Link, TextFields } from '@mui/icons-material'
 import {
-  Modal,
   Box,
-  Typography,
   Button,
-  TextField,
-  IconButton,
   CircularProgress,
-} from "@mui/material";
-import axios from "axios";
-import JSZip from "jszip";
-import { Close, InsertDriveFile, Link, TextFields } from "@mui/icons-material";
+  IconButton,
+  Modal,
+  TextField,
+  Typography,
+} from '@mui/material'
+import axios from 'axios'
+import JSZip from 'jszip'
+import React, { useEffect, useRef, useState } from 'react'
 
-import { isValidUrl, isValidYoutubeUrl } from "@/constants/Constants";
-import Apis from "@/components/apis/Apis";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { isValidUrl, isValidYoutubeUrl } from '@/constants/Constants'
 
 const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
-  const [selectedType, setSelectedType] = useState("Text"); // Url, Document
+  const [selectedType, setSelectedType] = useState('Text') // Url, Document
 
-  const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState("");
-  const [docTitle, setDocTitle] = useState("");
-  const [text, setText] = useState("");
-  const [url, setUrl] = useState("");
-  const [youtube, setYoutube] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [title, setTitle] = useState('')
+  const [docTitle, setDocTitle] = useState('')
+  const [text, setText] = useState('')
+  const [url, setUrl] = useState('')
+  const [youtube, setYoutube] = useState('')
 
-  const [isUrlValid, setIsUrlValid] = useState(-1); // -1 no text,  0 = invalid, 1 valid
+  const [isUrlValid, setIsUrlValid] = useState(-1) // -1 no text,  0 = invalid, 1 valid
 
-  const [fileName, setFileName] = useState("");
-  const [selectedDocument, setSelectedDocument] = useState(null);
-  const [selectedFileName, setSelectedFileName] = useState("");
-  const fileInputRef = useRef(null);
+  const [fileName, setFileName] = useState('')
+  const [selectedDocument, setSelectedDocument] = useState(null)
+  const [selectedFileName, setSelectedFileName] = useState('')
+  const fileInputRef = useRef(null)
 
   const handleTypeSelect = (type) => {
-    setSelectedType(type);
-  };
+    setSelectedType(type)
+  }
 
   //General App Logic Functions
 
   //code to select document
 
-  useEffect(()=>{
+  useEffect(() => {
     //console.log
     //console.log
     //console.log
-  },[selectedDocument,selectedDocument,docTitle])
+  }, [selectedDocument, selectedDocument, docTitle])
 
   const handleFileChange = async (event) => {
-    const file = event.target.files[0];
+    const file = event.target.files[0]
     //console.log;
     if (file) {
-      setFileName(file.name);
-      setSelectedFileName(file.name);
+      setFileName(file.name)
+      setSelectedFileName(file.name)
       // setSelectedDocument(file);
       // compressDocument(file);
       try {
         // Compress the selected document
-        const compressedFile = await compressDocument(file);
+        const compressedFile = await compressDocument(file)
 
         // Set the compressed document
-        setSelectedDocument(compressedFile);
+        setSelectedDocument(compressedFile)
 
         //console.log;
         //console.log;
       } catch (error) {
-        console.error("Error compressing the document:", error);
+        console.error('Error compressing the document:', error)
       }
     } else {
       //console.log;
     }
-  };
+  }
 
   const handleDrop = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
     // setIsDragging(false);
 
-    const file = event.dataTransfer.files[0];
+    const file = event.dataTransfer.files[0]
     if (file) {
-      setFileName(file.name);
-      setSelectedFileName(file.name);
+      setFileName(file.name)
+      setSelectedFileName(file.name)
       // setSelectedDocument(file);
       // compressDocument(file);
       try {
         // Compress the selected document
-        const compressedFile = await compressDocument(file);
+        const compressedFile = await compressDocument(file)
 
         // Set the compressed document
-        setSelectedDocument(compressedFile);
+        setSelectedDocument(compressedFile)
 
         //console.log;
         //console.log;
       } catch (error) {
-        console.error("Error compressing the document:", error);
+        console.error('Error compressing the document:', error)
       }
     }
-  };
+  }
   const handleDragOver = (event) => {
-    event.preventDefault();
+    event.preventDefault()
     // setIsDragging(true);
-  };
+  }
 
   const handleDragLeave = () => {
     // setIsDragging(false);
-  };
+  }
 
   const handleButtonClick = (event) => {
-    event.preventDefault(); // Prevent unintended behavior
+    event.preventDefault() // Prevent unintended behavior
     if (fileInputRef.current) {
-      fileInputRef.current.click(); // Programmatically open file dialog
+      fileInputRef.current.click() // Programmatically open file dialog
     }
-  };
+  }
 
   const handleDeselect = () => {
-    setFileName("");
+    setFileName('')
     if (fileInputRef && fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ''
     }
-  };
+  }
 
   //code to compress document
   const compressDocument = async (file) => {
-    return file;
+    return file
     // setSelectedDocument(file);
-    const zip = new JSZip();
-    zip.file(file.name, file);
+    const zip = new JSZip()
+    zip.file(file.name, file)
 
     try {
-      const compressedBlob = await zip.generateAsync({ type: "blob" });
+      const compressedBlob = await zip.generateAsync({ type: 'blob' })
 
       return new File(
         [compressedBlob],
-        file.name.replace(/\.[^/.]+$/, ".zip"),
+        file.name.replace(/\.[^/.]+$/, '.zip'),
         {
-          type: "application/zip",
-        }
-      );
+          type: 'application/zip',
+        },
+      )
     } catch (error) {
-      console.error("Compression error:", error);
-      return null;
+      console.error('Compression error:', error)
+      return null
     }
-  };
+  }
 
   async function addKnowledgebaseEntry() {
     // Get current user to check role
-    const localData = localStorage.getItem("User");
-    let currentUser = null;
+    const localData = localStorage.getItem('User')
+    let currentUser = null
     if (localData) {
-      const UserDetails = JSON.parse(localData);
-      currentUser = UserDetails.user;
+      const UserDetails = JSON.parse(localData)
+      currentUser = UserDetails.user
     }
 
     // Check if user is admin or agency
-    const isAdmin = currentUser?.userType === "admin";
-    const isAgency = currentUser?.userRole === "Agency";
+    const isAdmin = currentUser?.userType === 'admin'
+    const isAgency = currentUser?.userRole === 'Agency'
 
     // Get target userId (from user prop or agent.userId)
-    const targetUserId = user?.id || agent?.userId;
+    const targetUserId = user?.id || agent?.userId
 
     // If admin or agency, userId is required
     if ((isAdmin || isAgency) && !targetUserId) {
-      console.error("userId is required when adding knowledge base as admin or agency");
-      return;
+      console.error(
+        'userId is required when adding knowledge base as admin or agency',
+      )
+      return
     }
 
-    const formData = new FormData();
-    const kbs = [];
-  
+    const formData = new FormData()
+    const kbs = []
+
     // Text KB
     if (text.trim() && title.trim()) {
       kbs.push({
         agentId: agent.id,
         mainAgentId: agent.mainAgentId,
-        title:title,
-        type: "Text",
+        title: title,
+        type: 'Text',
         originalContent: text,
-      });
+      })
     }
-  
+
     // URL KB
     if (url.trim() && isValidUrl(url)) {
       kbs.push({
         agentId: agent.id,
         mainAgentId: agent.mainAgentId,
-        title: "Link", // or allow a title field for URLs
-        type: "Url",
+        title: 'Link', // or allow a title field for URLs
+        type: 'Url',
         originalContent: url,
-      });
+      })
     }
-  
+
     // YouTube KB
     if (youtube.trim() && isValidYoutubeUrl(youtube)) {
       kbs.push({
         agentId: agent.id,
         mainAgentId: agent.mainAgentId,
-        title: "Youtube Video",
-        type: "Youtube",
+        title: 'Youtube Video',
+        type: 'Youtube',
         originalContent: youtube,
-      });
+      })
     }
-  
+
     // Document KB
     if (selectedDocument && selectedFileName && docTitle.trim()) {
       kbs.push({
         agentId: agent.id,
         mainAgentId: agent.mainAgentId,
         title: docTitle,
-        type: "Document",
+        type: 'Document',
         documentName: selectedFileName,
-      });
-  
-      formData.append("media", selectedDocument); // Attach only if a document is present
+      })
+
+      formData.append('media', selectedDocument) // Attach only if a document is present
     }
-  
+
     // Don't proceed if no KBs are filled
     if (kbs.length === 0) {
       //console.log;
-      return;
+      return
     }
 
-    let finalKbs  = JSON.stringify(kbs)
+    let finalKbs = JSON.stringify(kbs)
     //console.log
-  
-    formData.append("kbs",finalKbs ); // One list inside another
+
+    formData.append('kbs', finalKbs) // One list inside another
 
     // Add userId if admin/agency (required for subaccount operations)
     // Regular users don't need to send userId - backend uses their authenticated ID
     if ((isAdmin || isAgency) && targetUserId) {
-      formData.append("userId", targetUserId);
+      formData.append('userId', targetUserId)
     }
 
-  
-    setLoading(true);
+    setLoading(true)
     try {
-      let token = AuthToken();
+      let token = AuthToken()
       const response = await axios.post(Apis.AddKnowledgebase, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-  
-      setLoading(false);
-      onClose();
-  
+      })
+
+      setLoading(false)
+      onClose()
+
       // Reset fields
-      setTitle("");
-      setText("");
-      setUrl("");
-      setYoutube("");
-      setDocTitle("");
-      setSelectedDocument(null);
-      setSelectedFileName("");
-      setFileName("");
-  
+      setTitle('')
+      setText('')
+      setUrl('')
+      setYoutube('')
+      setDocTitle('')
+      setSelectedDocument(null)
+      setSelectedFileName('')
+      setFileName('')
+
       //console.log;
     } catch (error) {
-      setLoading(false);
+      setLoading(false)
       console.log('error', error)
-      console.error("Error submitting KB:", error.response?.data || error.message);
+      console.error(
+        'Error submitting KB:',
+        error.response?.data || error.message,
+      )
     }
   }
-  
 
   function handleSubmit(event) {
-    event.preventDefault();
+    event.preventDefault()
     // const type = selectedType;
     // const title = title;
     // const originalContent = event.target.originalContent.value;
@@ -274,10 +277,10 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
     addKnowledgebaseEntry()
       .then((data) => {
         if (data) {
-          onClose();
+          onClose()
         }
       })
-      .catch((err) => console.error("Failed:", err));
+      .catch((err) => console.error('Failed:', err))
   }
 
   //Api Calls
@@ -285,14 +288,14 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
   //UI Related Functions
 
   function GetUiForOption() {
-    if (selectedType == "Text") {
-      return GetUiForText();
-    } else if (selectedType == "Url") {
-      return GetUiForUrl();
-    } else if (selectedType == "Youtube") {
-      return GetUiForYoutube();
+    if (selectedType == 'Text') {
+      return GetUiForText()
+    } else if (selectedType == 'Url') {
+      return GetUiForUrl()
+    } else if (selectedType == 'Youtube') {
+      return GetUiForYoutube()
     }
-    return GetUiForDocument();
+    return GetUiForDocument()
   }
 
   function GetUiForText() {
@@ -303,53 +306,53 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           value={title}
           // value = {showRenameAgentPopup?.name}
           onChange={(e) => {
-            setTitle(e.target.value);
+            setTitle(e.target.value)
           }}
-          placeholder={"Title"}
+          placeholder={'Title'}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-          style={{ border: "1px solid #00000020" }}
+          style={{ border: '1px solid #00000020' }}
         />
         <textarea
           value={text}
           // value = {showRenameAgentPopup?.name}
           onChange={(e) => {
-            setText(e.target.value);
+            setText(e.target.value)
           }}
-          placeholder={"Type here"}
+          placeholder={'Type here'}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[15vh]"
-          style={{ border: "1px solid #00000020", resize: "none" }}
+          style={{ border: '1px solid #00000020', resize: 'none' }}
         />
       </div>
-    );
+    )
     // }
   }
 
   function canShowContinue() {
-    if (selectedType == "Text") {
+    if (selectedType == 'Text') {
       if (title.length > 0 && text.length > 0) {
-        return true;
+        return true
       }
-      return false;
+      return false
     }
-    if (selectedType == "Document") {
+    if (selectedType == 'Document') {
       console.log('selectedType', title)
       console.log('selectedDocument', selectedDocument)
-      if (docTitle.length > 0 && selectedDocument) return true;
-      return false;
+      if (docTitle.length > 0 && selectedDocument) return true
+      return false
     }
-    if (selectedType == "Url") {
+    if (selectedType == 'Url') {
       if (isUrlValid == 1) {
-        return true;
+        return true
       }
-      return false;
+      return false
     }
-    if (selectedType == "Youtube") {
+    if (selectedType == 'Youtube') {
       if (isUrlValid == 1) {
-        return true;
+        return true
       }
-      return false;
+      return false
     }
-    return false;
+    return false
   }
 
   // import { useState } from "react";
@@ -364,27 +367,25 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         <input
           value={url}
           onChange={(e) => {
-            const inputValue = e.target.value.trim();
-            setUrl(inputValue);
+            const inputValue = e.target.value.trim()
+            setUrl(inputValue)
 
-            if (inputValue === "") {
-              setIsUrlValid(-1);
+            if (inputValue === '') {
+              setIsUrlValid(-1)
             } else {
-              const isValid = isValidUrl(inputValue);
+              const isValid = isValidUrl(inputValue)
               //console.log;
-              setIsUrlValid(isValid ? 1 : 0);
+              setIsUrlValid(isValid ? 1 : 0)
             }
           }}
           placeholder="Enter URL"
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-          style={{ border: "1px solid #00000020" }}
+          style={{ border: '1px solid #00000020' }}
         />
 
-        {isUrlValid === 0 && (
-          <div className="text-red text-sm">Invalid</div>
-        )}
+        {isUrlValid === 0 && <div className="text-red text-sm">Invalid</div>}
       </div>
-    );
+    )
   }
 
   function GetUiForYoutube() {
@@ -397,28 +398,25 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         <input
           value={youtube}
           onChange={(e) => {
-            const inputValue = e.target.value.trim();
-            setYoutube(inputValue);
+            const inputValue = e.target.value.trim()
+            setYoutube(inputValue)
 
-            if (inputValue === "") {
-              setIsUrlValid(-1);
+            if (inputValue === '') {
+              setIsUrlValid(-1)
             } else {
-              const isValid = isValidYoutubeUrl(inputValue);
+              const isValid = isValidYoutubeUrl(inputValue)
               //console.log;
-              setIsUrlValid(isValid ? 1 : 0);
+              setIsUrlValid(isValid ? 1 : 0)
             }
-
           }}
           placeholder="Enter URL"
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-          style={{ border: "1px solid #00000020" }}
+          style={{ border: '1px solid #00000020' }}
         />
 
-        {isUrlValid === 0 && (
-          <div className="text-red text-sm">Invalid</div>
-        )}
+        {isUrlValid === 0 && <div className="text-red text-sm">Invalid</div>}
       </div>
-    );
+    )
   }
 
   function GetUiForDocument() {
@@ -428,11 +426,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           value={docTitle}
           // value = {showRenameAgentPopup?.name}
           onChange={(e) => {
-            setDocTitle(e.target.value);
+            setDocTitle(e.target.value)
           }}
-          placeholder={"Title"}
+          placeholder={'Title'}
           className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-          style={{ border: "1px solid #00000020" }}
+          style={{ border: '1px solid #00000020' }}
         />
         <div className="flex flex-row items-center gap-6">
           <input
@@ -449,13 +447,13 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               style={{
                 // backgroundColor: "#EDEDED80",
                 fontSize: 13,
-                fontFamily: "inter",
+                fontFamily: 'inter',
                 // marginTop: 40,
-                border: "1px dashed #7902DF",
-                borderRadius: "10px",
+                border: '1px dashed #7902DF',
+                borderRadius: '10px',
                 // borderColor: '#7902DF',
-                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
-                backgroundColor: "#FBFCFF",
+                boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+                backgroundColor: '#FBFCFF',
               }}
             >
               <span>{fileName}</span>
@@ -467,14 +465,14 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <div
               className="flex flex-row w-full justify-center rounded items-center"
               style={{
-                height: "100px",
+                height: '100px',
                 // border: "2px dashed #0000001006",
                 // backgroundColor: "#EDEDED80",
-                border: "1px dashed #7902DF",
-                borderRadius: "10px",
+                border: '1px dashed #7902DF',
+                borderRadius: '10px',
                 // borderColor: '#7902DF',
-                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
-                backgroundColor: "#FBFCFF",
+                boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+                backgroundColor: '#FBFCFF',
               }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -483,7 +481,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               <button
                 onClick={handleButtonClick}
                 className="px-4 py-2 h-full"
-                style={{ fontWeight: "500", fontSize: 16, fontFamily: "inter" }}
+                style={{ fontWeight: '500', fontSize: 16, fontFamily: 'inter' }}
               >
                 Drop file or <br /> <span className="text-purple"> Browse</span>
               </button>
@@ -491,7 +489,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           )}
         </div>
       </div>
-    );
+    )
   }
 
   function GetButtonUI() {
@@ -499,7 +497,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return (
         <button
           className={`w-full rounded-lg font-medium h-[50px] ${
-            canShowContinue() ? "bg-purple text-white" : "bg-btngray text-black"
+            canShowContinue() ? 'bg-purple text-white' : 'bg-btngray text-black'
           } `}
           // variant="contained"
           // fullWidth
@@ -512,44 +510,44 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
           // }}
           onClick={(e) => {
             // e.preventDefault()
-            handleSubmit(e);
+            handleSubmit(e)
           }}
         >
           Add
         </button>
-      );
+      )
     } else {
-      return <CircularProgress />;
+      return <CircularProgress />
     }
   }
 
   return (
     <Modal open={open} onClose={onClose}>
       <Box
-        className={"lg:w-[500px] w-[500px]"}
+        className={'lg:w-[500px] w-[500px]'}
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          height: "60vh",
-          transform: "translate(-50%, -50%)",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          height: '60vh',
+          transform: 'translate(-50%, -50%)',
           //   width: 400,
-          bgcolor: "background.paper",
+          bgcolor: 'background.paper',
           borderRadius: 2,
           boxShadow: 24,
           p: 3,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           gap: 1,
         }}
       >
         <div className="flex flex-col h-full">
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
               mb: 2,
             }}
           >
@@ -557,20 +555,20 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               Knowledge Base
             </Typography>
             <CloseBtn
-            onClick={() => {
-              setTitle("");
-              setUrl("");
-              setSelectedDocument(null);
-              setSelectedFileName("");
-              setFileName("");
-              if (fileInputRef && fileInputRef.current) {
-                fileInputRef.current.value = "";
-              }
-              // setSelectedType("Text");
-              setText("");
-              setDocTitle("")
-              onClose();
-            }}
+              onClick={() => {
+                setTitle('')
+                setUrl('')
+                setSelectedDocument(null)
+                setSelectedFileName('')
+                setFileName('')
+                if (fileInputRef && fileInputRef.current) {
+                  fileInputRef.current.value = ''
+                }
+                // setSelectedType("Text");
+                setText('')
+                setDocTitle('')
+                onClose()
+              }}
             />
           </Box>
 
@@ -578,15 +576,15 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             Select Type
           </Typography>
 
-          <Box sx={{ display: "flex", gap: 2, mb: 2, overflowX: "auto" }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, overflowX: 'auto' }}>
             <Button
               variant="outlined"
               startIcon={<InsertDriveFile />}
-              onClick={() => handleTypeSelect("Document")}
+              onClick={() => handleTypeSelect('Document')}
               sx={{
-                borderColor: selectedType === "Document" ? "#7902DF" : "#ccc",
-                color: selectedType === "Document" ? "#7902DF" : "black",
-                borderWidth: selectedType === "Document" ? 2 : 1,
+                borderColor: selectedType === 'Document' ? '#7902DF' : '#ccc',
+                color: selectedType === 'Document' ? '#7902DF' : 'black',
+                borderWidth: selectedType === 'Document' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
                 paddingY: 1,
@@ -599,11 +597,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <Button
               variant="outlined"
               startIcon={<TextFields />}
-              onClick={() => handleTypeSelect("Text")}
+              onClick={() => handleTypeSelect('Text')}
               sx={{
-                borderColor: selectedType === "Text" ? "#7902DF" : "#ccc",
-                color: selectedType === "Text" ? "#7902DF" : "black",
-                borderWidth: selectedType === "Text" ? 2 : 1,
+                borderColor: selectedType === 'Text' ? '#7902DF' : '#ccc',
+                color: selectedType === 'Text' ? '#7902DF' : 'black',
+                borderWidth: selectedType === 'Text' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
                 paddingY: 1,
@@ -616,11 +614,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <Button
               variant="outlined"
               startIcon={<Link />}
-              onClick={() => handleTypeSelect("Url")}
+              onClick={() => handleTypeSelect('Url')}
               sx={{
-                borderColor: selectedType === "Url" ? "#7902DF" : "#ccc",
-                color: selectedType === "Url" ? "#7902DF" : "black",
-                borderWidth: selectedType === "Url" ? 2 : 1,
+                borderColor: selectedType === 'Url' ? '#7902DF' : '#ccc',
+                color: selectedType === 'Url' ? '#7902DF' : 'black',
+                borderWidth: selectedType === 'Url' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
                 paddingY: 1,
@@ -633,11 +631,11 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
             <Button
               variant="outlined"
               startIcon={<Link />}
-              onClick={() => handleTypeSelect("Youtube")}
+              onClick={() => handleTypeSelect('Youtube')}
               sx={{
-                borderColor: selectedType === "Youtube" ? "#7902DF" : "#ccc",
-                color: selectedType === "Youtube" ? "#7902DF" : "black",
-                borderWidth: selectedType === "Youtube" ? 2 : 1,
+                borderColor: selectedType === 'Youtube' ? '#7902DF' : '#ccc',
+                color: selectedType === 'Youtube' ? '#7902DF' : 'black',
+                borderWidth: selectedType === 'Youtube' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
                 paddingY: 1,
@@ -654,7 +652,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         {GetButtonUI()}
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
-export default AddKnowledgeBaseModal;
+export default AddKnowledgeBaseModal

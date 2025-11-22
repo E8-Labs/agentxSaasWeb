@@ -1,10 +1,3 @@
-import React, { useEffect, useState } from "react";
-import Header from "../onboarding/Header";
-import Footer from "../onboarding/Footer";
-import ProgressBar from "../onboarding/ProgressBar";
-import { borderColor, Box } from "@mui/system";
-import Apis from "../apis/Apis";
-import axios from "axios";
 import {
   CircularProgress,
   FormControl,
@@ -12,55 +5,64 @@ import {
   MenuItem,
   Modal,
   Select,
-} from "@mui/material";
-import Image from "next/image";
-import timeZones from "@/utilities/Timezones";
-import VideoCard from "../createagent/VideoCard";
-import IntroVideoModal from "../createagent/IntroVideoModal";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+} from '@mui/material'
+import { Box, borderColor } from '@mui/system'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import timeZones from '@/utilities/Timezones'
+
+import Apis from '../apis/Apis'
+import IntroVideoModal from '../createagent/IntroVideoModal'
+import VideoCard from '../createagent/VideoCard'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import Footer from '../onboarding/Footer'
+import Header from '../onboarding/Header'
+import ProgressBar from '../onboarding/ProgressBar'
 
 const AddCalender = ({ handleContinue }) => {
-  const [calenderLoader, setAddCalenderLoader] = useState(false);
-  const [shouldContinue, setshouldContinue] = useState(true);
+  const [calenderLoader, setAddCalenderLoader] = useState(false)
+  const [shouldContinue, setshouldContinue] = useState(true)
 
   const [snackMessage, setSnackMessage] = useState({
     type: SnackbarTypes.Success,
-    message: "Calendar added successfully!",
+    message: 'Calendar added successfully!',
     isVisible: false,
-  });
+  })
 
-  const [videoPlace, setVideoPlace] = useState(null);
+  const [videoPlace, setVideoPlace] = useState(null)
 
-  const [calenderTitle, setCalenderTitle] = useState("");
-  const [calenderApiKey, setCalenderApiKey] = useState("");
-  const [eventId, setEventId] = useState("");
+  const [calenderTitle, setCalenderTitle] = useState('')
+  const [calenderApiKey, setCalenderApiKey] = useState('')
+  const [eventId, setEventId] = useState('')
 
-  const [selectCalender, setSelectCalender] = useState("");
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [previousCalenders, setPreviousCalenders] = useState([]);
-  const [showAddNewCalender, setShowAddNewCalender] = useState(false);
-  const [introVideoModal, setIntroVideoModal] = useState(false);
-  const [calendarSelected, setCalendarSelected] = useState(null);
+  const [selectCalender, setSelectCalender] = useState('')
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [previousCalenders, setPreviousCalenders] = useState([])
+  const [showAddNewCalender, setShowAddNewCalender] = useState(false)
+  const [introVideoModal, setIntroVideoModal] = useState(false)
+  const [calendarSelected, setCalendarSelected] = useState(null)
 
-  const [showSnack, setShowSnak] = useState(false);
+  const [showSnack, setShowSnak] = useState(false)
 
   //code for the IANA time zone lists
 
-  const [selectTimeZone, setSelectTimeZone] = useState("");
+  const [selectTimeZone, setSelectTimeZone] = useState('')
 
   useEffect(() => {
     getAgentDetails()
-    let screenwidth = window.innerWidth;
+    let screenwidth = window.innerWidth
     if (screenwidth < 640) {
-      setVideoPlace(false);
+      setVideoPlace(false)
     } else {
-      setVideoPlace(true);
+      setVideoPlace(true)
     }
-    getCalenders();
-  }, []);
+    getCalenders()
+  }, [])
 
   // useEffect(() => {
   // if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
@@ -73,22 +75,21 @@ const AddCalender = ({ handleContinue }) => {
   function isEnabled() {
     if (calendarSelected) {
       // //console.log;
-      return true;
+      return true
     }
     if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
       // //console.log;
-      return true;
+      return true
     } else {
       // //console.log;
-      return false;
+      return false
     }
   }
-
 
   const getAgentDetails = async () => {
     //console.log
     try {
-      const data = localStorage.getItem("User")
+      const data = localStorage.getItem('User')
 
       if (data) {
         let u = JSON.parse(data)
@@ -100,14 +101,14 @@ const AddCalender = ({ handleContinue }) => {
           let agent = JSON.parse(ag)
 
           //console.log
-          let apiPath = Apis.getAgentDetails + "?mainAgentId=" + agent?.id
+          let apiPath = Apis.getAgentDetails + '?mainAgentId=' + agent?.id
 
           //console.log
 
           const response = await axios.get(apiPath, {
             headers: {
-              "Authorization": "Bearer " + u.token
-            }
+              Authorization: 'Bearer ' + u.token,
+            },
           })
           //console.log
 
@@ -116,8 +117,8 @@ const AddCalender = ({ handleContinue }) => {
             if (response.data.status === true) {
               localStorage.setItem(
                 PersistanceKeys.LocalSavedAgentDetails,
-                JSON.stringify(response.data.data)
-              );
+                JSON.stringify(response.data.data),
+              )
             }
           }
         }
@@ -129,111 +130,110 @@ const AddCalender = ({ handleContinue }) => {
 
   //code for the dropdown selection
   const handleChange = (event) => {
-    const selectedTitle = event.target.value;
-    setSelectCalender(selectedTitle);
+    const selectedTitle = event.target.value
+    setSelectCalender(selectedTitle)
 
-    const selected = previousCalenders.find(cal => cal.title === selectedTitle);
-    setCalendarSelected(selected || null);
-  };
-
-
-
+    const selected = previousCalenders.find(
+      (cal) => cal.title === selectedTitle,
+    )
+    setCalendarSelected(selected || null)
+  }
 
   const getCalenders = async () => {
     try {
-      setInitialLoader(true);
+      setInitialLoader(true)
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
 
-      const ApiPath = Apis.getCalenders;
+      const ApiPath = Apis.getCalenders
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        setPreviousCalenders(response.data.data);
+        setPreviousCalenders(response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in the api is ", error);
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   //code for calender api
   const handleAddCalender = async () => {
     try {
-      setAddCalenderLoader(true);
+      setAddCalenderLoader(true)
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
-      let currentAgentDetails = null;
+      let currentAgentDetails = null
 
-      const agentDetails = localStorage.getItem("agentDetails");
+      const agentDetails = localStorage.getItem('agentDetails')
       if (agentDetails) {
-        const agentData = JSON.parse(agentDetails);
+        const agentData = JSON.parse(agentDetails)
         // //console.log;
-        currentAgentDetails = agentData;
+        currentAgentDetails = agentData
       }
 
       // //console.log;
-      const ApiPath = Apis.addCalender;
+      const ApiPath = Apis.addCalender
       // //console.log;
 
-      const formData = new FormData();
+      const formData = new FormData()
 
       formData.append(
-        "apiKey",
-        calendarSelected ? calendarSelected.apiKey : calenderApiKey
-      );
+        'apiKey',
+        calendarSelected ? calendarSelected.apiKey : calenderApiKey,
+      )
       formData.append(
-        "title",
-        calendarSelected ? calendarSelected.title : calenderTitle
-      );
-      formData.append("mainAgentId", currentAgentDetails.id);
+        'title',
+        calendarSelected ? calendarSelected.title : calenderTitle,
+      )
+      formData.append('mainAgentId', currentAgentDetails.id)
       // if (selectTimeZone) {
       formData.append(
-        "timeZone",
-        calendarSelected ? calendarSelected.timeZone : selectTimeZone
-      );
+        'timeZone',
+        calendarSelected ? calendarSelected.timeZone : selectTimeZone,
+      )
       // }
 
       // if (eventId) {
       formData.append(
-        "eventId",
-        calendarSelected ? calendarSelected.eventId : eventId
-      );
+        'eventId',
+        calendarSelected ? calendarSelected.eventId : eventId,
+      )
       // }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
-      console.log("Key updated");
+      console.log('Key updated')
 
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
         },
-      });
+      })
       //console.log;
       if (response) {
         // //console.log;
@@ -241,17 +241,17 @@ const AddCalender = ({ handleContinue }) => {
         if (response.data.status === true) {
           // setShowSnak(true);
           setSnackMessage({
-            message: "Calendar added successfully!",
+            message: 'Calendar added successfully!',
             type: SnackbarTypes.Success,
             isVisible: true,
-          });
-          handleContinue();
+          })
+          handleContinue()
         } else {
           setSnackMessage({
             message: response.data.message,
             type: SnackbarTypes.Error,
             isVisible: true,
-          });
+          })
         }
       }
     } catch (error) {
@@ -259,40 +259,40 @@ const AddCalender = ({ handleContinue }) => {
         message: error.message,
         type: SnackbarTypes.Error,
         isVisible: true,
-      });
-      console.error("Error occured in api is:", error);
+      })
+      console.error('Error occured in api is:', error)
     } finally {
-      setAddCalenderLoader(false);
+      setAddCalenderLoader(false)
     }
-  };
+  }
 
   //code to select the time zone
   const handleChangeTimeZone = (event) => {
-    setSelectTimeZone(event.target.value);
-  };
+    setSelectTimeZone(event.target.value)
+  }
 
   const styles = {
     inputStyles: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 15,
-      borderColor: "#00000020",
+      borderColor: '#00000020',
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
       <AgentSelectSnackMessage
@@ -301,10 +301,10 @@ const AddCalender = ({ handleContinue }) => {
         isVisible={snackMessage.isVisible}
         hide={() => {
           setSnackMessage({
-            message: "",
+            message: '',
             isVisible: false,
             type: SnackbarTypes.Success,
-          });
+          })
         }}
       />
       <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col">
@@ -321,11 +321,11 @@ const AddCalender = ({ handleContinue }) => {
             <div
               className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
               style={{
-                position: "absolute",
+                position: 'absolute',
                 // left: "18%",
                 // translate: "-50%",
                 // left: "14%",
-                top: "20%",
+                top: '20%',
                 // backgroundColor: "red"
               }}
             >
@@ -341,20 +341,20 @@ const AddCalender = ({ handleContinue }) => {
 
             <div>
               <div
-                style={{ fontWeight: "700", fontSize: 38, textAlign: "center" }}
-              // onClick={() => { handleAddCalender() }}
+                style={{ fontWeight: '700', fontSize: 38, textAlign: 'center' }}
+                // onClick={() => { handleAddCalender() }}
               >
                 Add a Calendar
               </div>
               <div
                 style={{
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginTop: 4,
-                  color: "#151515",
-                  fontWeight: "500",
+                  color: '#151515',
+                  fontWeight: '500',
                 }}
               >
-                By adding a calendar, your agent will use this to book <br />{" "}
+                By adding a calendar, your agent will use this to book <br />{' '}
                 meetings based on your availability.
               </div>
             </div>
@@ -372,31 +372,31 @@ const AddCalender = ({ handleContinue }) => {
                       displayEmpty // Enables placeholder
                       renderValue={(selected) => {
                         if (!selected) {
-                          return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                          return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
                         }
-                        return selected;
+                        return selected
                       }}
                       sx={{
-                        border: "1px solid #00000020", // Default border
-                        "&:hover": {
-                          border: "1px solid #00000020", // Same border on hover
+                        border: '1px solid #00000020', // Default border
+                        '&:hover': {
+                          border: '1px solid #00000020', // Same border on hover
                         },
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none", // Remove the default outline
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none', // Remove the default outline
                         },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                          border: "none", // Remove outline on focus
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: 'none', // Remove outline on focus
                         },
-                        "&.MuiSelect-select": {
+                        '&.MuiSelect-select': {
                           py: 0, // Optional padding adjustments
                         },
                       }}
                       MenuProps={{
                         PaperProps: {
                           style: {
-                            maxHeight: "30vh", // Limit dropdown height
-                            overflow: "auto", // Enable scrolling in dropdown
-                            scrollbarWidth: "none",
+                            maxHeight: '30vh', // Limit dropdown height
+                            overflow: 'auto', // Enable scrolling in dropdown
+                            scrollbarWidth: 'none',
                             // borderRadius: "10px"
                           },
                         },
@@ -415,11 +415,11 @@ const AddCalender = ({ handleContinue }) => {
                             sx={{
                               backgroundColor:
                                 selectCalender === item.title
-                                  ? "#7902DF10"
-                                  : "transparent", // Set background for selected item
+                                  ? '#7902DF10'
+                                  : 'transparent', // Set background for selected item
                               // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
-                              "&.Mui-selected": {
-                                backgroundColor: "#7902DF10", // Override background for selected item
+                              '&.Mui-selected': {
+                                backgroundColor: '#7902DF10', // Override background for selected item
                                 // color: 'white', // Change text color for selected item
                               },
                             }}
@@ -438,16 +438,16 @@ const AddCalender = ({ handleContinue }) => {
                             {item.title}
                             {/* </button> */}
                           </MenuItem>
-                        );
+                        )
                       })}
                       <MenuItem className="w-full" value="Custom Calender">
                         <button
                           className="text-purple underline w-full text-start"
                           onClick={(e) => {
-                            e.stopPropagation(); // prevent triggering Select's onChange
-                            setSelectCalender(""); // clear selection
-                            setCalendarSelected(null);
-                            setShowAddNewCalender(true);
+                            e.stopPropagation() // prevent triggering Select's onChange
+                            setSelectCalender('') // clear selection
+                            setCalendarSelected(null)
+                            setShowAddNewCalender(true)
                           }}
                         >
                           Add New Calender
@@ -459,15 +459,19 @@ const AddCalender = ({ handleContinue }) => {
               ) : (
                 <div className="flex flex-col w-6/12 items-center justify-center mt-5 gap-3">
                   <Image
-                    src={"svgIcons/noCalenderIcon.svg"}
+                    src={'svgIcons/noCalenderIcon.svg'}
                     height={100}
                     width={113}
                     alt="No Calender"
-                    style={{ borderWidth: 0, alignSelf: 'center', marginRight: "2vw" }}
+                    style={{
+                      borderWidth: 0,
+                      alignSelf: 'center',
+                      marginRight: '2vw',
+                    }}
                   />
 
                   <div
-                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                    style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                   >
                     No Calendar added
                   </div>
@@ -506,36 +510,36 @@ const AddCalender = ({ handleContinue }) => {
 
         <Modal
           open={showAddNewCalender}
-        // onClose={() => {
-        // setShowAddNewCalender(false);
-        // }}
+          // onClose={() => {
+          // setShowAddNewCalender(false);
+          // }}
         >
           <Box
             className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
             sx={{
               ...styles.modalsStyle,
-              backgroundColor: "white",
-              paddingInline: "25px",
-              paddingTop: "25px",
-              paddingBottom: "30px",
+              backgroundColor: 'white',
+              paddingInline: '25px',
+              paddingTop: '25px',
+              paddingBottom: '30px',
             }}
           >
-            <div style={{ width: "100%" }}>
-              <div className="" style={{ scrollbarWidth: "none" }}>
+            <div style={{ width: '100%' }}>
+              <div className="" style={{ scrollbarWidth: 'none' }}>
                 <div className="w-full">
                   <div className="w-full flex flex-row justify-end">
                     <button
                       className="outline-none"
                       onClick={() => {
-                        setShowAddNewCalender(false);
-                        setCalenderTitle("");
-                        setCalenderApiKey("");
-                        setEventId("");
-                        setSelectTimeZone("");
+                        setShowAddNewCalender(false)
+                        setCalenderTitle('')
+                        setCalenderApiKey('')
+                        setEventId('')
+                        setSelectTimeZone('')
                       }}
                     >
                       <Image
-                        src={"/assets/blackBgCross.png"}
+                        src={'/assets/blackBgCross.png'}
                         height={20}
                         width={20}
                         alt="*"
@@ -546,9 +550,9 @@ const AddCalender = ({ handleContinue }) => {
                   <div
                     className="mt-4"
                     style={{
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: 16.8,
-                      textAlign: "start",
+                      textAlign: 'start',
                     }}
                   >
                     Calender title
@@ -560,17 +564,17 @@ const AddCalender = ({ handleContinue }) => {
                       style={styles.inputStyles}
                       value={calenderTitle}
                       onChange={(e) => {
-                        let value = e.target.value;
-                        setCalenderTitle(value);
+                        let value = e.target.value
+                        setCalenderTitle(value)
                       }}
                     />
                   </div>
                   <div
                     className="mt-4"
                     style={{
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: 16.8,
-                      textAlign: "start",
+                      textAlign: 'start',
                     }}
                   >
                     Api key
@@ -582,17 +586,17 @@ const AddCalender = ({ handleContinue }) => {
                       style={styles.inputStyles}
                       value={calenderApiKey}
                       onChange={(e) => {
-                        let value = e.target.value;
-                        setCalenderApiKey(value);
+                        let value = e.target.value
+                        setCalenderApiKey(value)
                       }}
                     />
                   </div>
                   <div
                     className="mt-4"
                     style={{
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: 16.8,
-                      textAlign: "start",
+                      textAlign: 'start',
                     }}
                   >
                     Event id
@@ -604,8 +608,8 @@ const AddCalender = ({ handleContinue }) => {
                       style={styles.inputStyles}
                       value={eventId}
                       onChange={(e) => {
-                        let value = e.target.value;
-                        setEventId(value);
+                        let value = e.target.value
+                        setEventId(value)
                       }}
                     />
                   </div>
@@ -613,9 +617,9 @@ const AddCalender = ({ handleContinue }) => {
                   <div
                     className="mt-4"
                     style={{
-                      fontWeight: "600",
+                      fontWeight: '600',
                       fontSize: 16.8,
-                      textAlign: "start",
+                      textAlign: 'start',
                     }}
                   >
                     Select timezone
@@ -630,33 +634,33 @@ const AddCalender = ({ handleContinue }) => {
                         displayEmpty // Enables placeholder
                         renderValue={(selected) => {
                           if (!selected) {
-                            return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                            return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
                           }
-                          return selected;
+                          return selected
                         }}
                         sx={{
-                          height: "48px",
-                          borderRadius: "13px",
-                          border: "1px solid #00000020", // Default border
-                          "&:hover": {
-                            border: "1px solid #00000020", // Same border on hover
+                          height: '48px',
+                          borderRadius: '13px',
+                          border: '1px solid #00000020', // Default border
+                          '&:hover': {
+                            border: '1px solid #00000020', // Same border on hover
                           },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove the default outline
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove the default outline
                           },
-                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Remove outline on focus
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Remove outline on focus
                           },
-                          "&.MuiSelect-select": {
+                          '&.MuiSelect-select': {
                             py: 0, // Optional padding adjustments
                           },
                         }}
                         MenuProps={{
                           PaperProps: {
                             style: {
-                              maxHeight: "30vh", // Limit dropdown height
-                              overflow: "auto", // Enable scrolling in dropdown
-                              scrollbarWidth: "none",
+                              maxHeight: '30vh', // Limit dropdown height
+                              overflow: 'auto', // Enable scrolling in dropdown
+                              scrollbarWidth: 'none',
                               // borderRadius: "10px"
                             },
                           },
@@ -677,7 +681,7 @@ const AddCalender = ({ handleContinue }) => {
                                 {item}
                               </button>
                             </MenuItem>
-                          );
+                          )
                         })}
                       </Select>
                     </FormControl>
@@ -693,12 +697,12 @@ const AddCalender = ({ handleContinue }) => {
                         disabled={!isEnabled()}
                         className="h-[50px] w-full text-white rounded-xl"
                         style={{
-                          fontWeight: "600",
+                          fontWeight: '600',
                           fontSize: 16,
                           backgroundColor: !isEnabled()
-                            ? "#00000020"
-                            : "#7902DF",
-                          color: !isEnabled() ? "#000000" : "",
+                            ? '#00000020'
+                            : '#7902DF',
+                          color: !isEnabled() ? '#000000' : '',
                         }}
                         onClick={handleAddCalender}
                       >
@@ -713,7 +717,7 @@ const AddCalender = ({ handleContinue }) => {
         </Modal>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddCalender;
+export default AddCalender

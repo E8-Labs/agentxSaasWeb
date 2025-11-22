@@ -1,62 +1,64 @@
-import { NextResponse } from "next/server";
-import { serialize } from "cookie";
-import Apis from "@/components/apis/Apis";
+import { serialize } from 'cookie'
+import { NextResponse } from 'next/server'
+
+import Apis from '@/components/apis/Apis'
 
 export async function POST(req) {
   try {
-    const { phone, verificationCode, timeZone } = await req.json();
-    const phoneNumber = phone;
+    const { phone, verificationCode, timeZone } = await req.json()
+    const phoneNumber = phone
     // Validate input
     if (!phoneNumber || !verificationCode) {
       return NextResponse.json(
         {
-          error: "Missing credentials",
-          message: "Missing credentials",
+          error: 'Missing credentials',
+          message: 'Missing credentials',
           status: false,
-          data: null,k
+          data: null,
+          k,
         },
-        { status: 400 }
-      );
+        { status: 400 },
+      )
     }
 
     // Call backend authentication API
     const response = await fetch(Apis.LogIn, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         phone: phoneNumber,
         verificationCode: verificationCode,
         timeZone: timeZone,
       }),
-      headers: { "Content-Type": "application/json" },
-    });
+      headers: { 'Content-Type': 'application/json' },
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (!response.ok) {
-      return NextResponse.json(data);
+      return NextResponse.json(data)
     }
 
     // Securely store JWT token in a httpOnly cookie
-    const tokenCookie = serialize("auth_token", data.token, {
+    const tokenCookie = serialize('auth_token', data.token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
       maxAge: 60 * 60 * 24 * 7, // 1 week
-      path: "/",
-    });
+      path: '/',
+    })
 
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: { "Set-Cookie": tokenCookie },
-    });
+      headers: { 'Set-Cookie': tokenCookie },
+    })
   } catch (error) {
     return NextResponse.json(
       {
-        message: "Internal Server Error",
-        error: "Internal Server Error",
+        message: 'Internal Server Error',
+        error: 'Internal Server Error',
         status: false,
       },
-      { status: 500 }
-    );
+      { status: 500 },
+    )
   }
 }

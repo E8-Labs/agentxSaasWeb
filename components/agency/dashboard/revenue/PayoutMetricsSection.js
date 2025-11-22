@@ -1,8 +1,9 @@
-"use client";
+'use client'
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import React from 'react'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 /**
  * PayoutMetricsSection - Displays 4 payout-related metric cards
@@ -17,14 +18,14 @@ import { cn } from "@/lib/utils";
  */
 function PayoutMetricsSection({ metrics = {} }) {
   const {
-    nextPayoutDate = "March 12",
-    nextPayoutTime = "12:04PM",
-    lifetimePayouts = "$9,302.12",
-    avgTransactionValue = "$9,302.12",
-    clv = "$0",
-    refundsCount = "12",
-    refundsAmount = "$40,902",
-  } = metrics;
+    nextPayoutDate = 'March 12',
+    nextPayoutTime = '12:04PM',
+    lifetimePayouts = '$9,302.12',
+    avgTransactionValue = '$9,302.12',
+    clv = '$0',
+    refundsCount = '12',
+    refundsAmount = '$40,902',
+  } = metrics
 
   const MetricCard = ({ icon, label, value, iconComponent }) => (
     <Card className="bg-white rounded-lg border-2 border-white shadow-sm">
@@ -36,10 +37,10 @@ function PayoutMetricsSection({ metrics = {} }) {
               {iconComponent}
             </div>
           )}
-          
+
           {/* Label */}
           <div className="text-sm font-medium text-gray-600">{label}</div>
-          
+
           {/* Value - can be string or React element */}
           <div className="text-2xl font-bold text-gray-900">
             {typeof value === 'string' ? value : value}
@@ -47,7 +48,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 
   // Icon components
   const CalendarIcon = () => (
@@ -88,7 +89,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 
   const HourglassIcon = () => (
     <svg
@@ -114,7 +115,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 
   const ChartIcon = () => (
     <svg
@@ -147,7 +148,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 
   const RefreshIcon = () => (
     <svg
@@ -173,7 +174,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 
   return (
     <div className="w-full grid grid-cols-5 gap-4">
@@ -219,8 +220,7 @@ function PayoutMetricsSection({ metrics = {} }) {
         iconComponent={<RefreshIcon />}
       />
     </div>
-  );
+  )
 }
 
-export default PayoutMetricsSection;
-
+export default PayoutMetricsSection

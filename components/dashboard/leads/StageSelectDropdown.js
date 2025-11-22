@@ -1,5 +1,5 @@
-import React from "react";
-import { FormControl, Select, MenuItem } from "@mui/material";
+import { FormControl, MenuItem, Select } from '@mui/material'
+import React from 'react'
 
 const SelectStageDropdown = ({
   selectedStage,
@@ -7,7 +7,7 @@ const SelectStageDropdown = ({
   stagesList,
   updateLeadStage,
 }) => {
- // //console.log;
+  // //console.log;
   return (
     <FormControl size="fit-content">
       <Select
@@ -17,37 +17,37 @@ const SelectStageDropdown = ({
         renderValue={(selected) => {
           if (!selected) {
             return (
-              <div style={{ color: "#aaa" }}>
-                {stagesList?.length > 0 ? "Select" : "No Stage"}
+              <div style={{ color: '#aaa' }}>
+                {stagesList?.length > 0 ? 'Select' : 'No Stage'}
               </div>
-            );
+            )
           }
-          return selected;
+          return selected
         }}
         sx={{
-          border: "none",
-          "&:hover": { border: "none" },
-          "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
-          "& .MuiSelect-select": {
-            padding: "0 24px 0 8px",
+          border: 'none',
+          '&:hover': { border: 'none' },
+          '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+          '& .MuiSelect-select': {
+            padding: '0 24px 0 8px',
             lineHeight: 1,
-            minHeight: "unset",
-            display: "flex",
-            alignItems: "center",
+            minHeight: 'unset',
+            display: 'flex',
+            alignItems: 'center',
           },
-          "& .MuiSelect-icon": {
-            right: "4px",
-            top: "50%",
-            transform: "translateY(-50%)",
+          '& .MuiSelect-icon': {
+            right: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
           },
         }}
         MenuProps={{
           PaperProps: {
             style: {
-              maxHeight: "90vh",
-              overflow: "auto",
-              scrollbarWidth: "none",
+              maxHeight: '90vh',
+              overflow: 'auto',
+              scrollbarWidth: 'none',
             },
           },
         }}
@@ -77,7 +77,7 @@ const SelectStageDropdown = ({
         )}
       </Select>
     </FormControl>
-  );
-};
+  )
+}
 
-export default SelectStageDropdown;
+export default SelectStageDropdown

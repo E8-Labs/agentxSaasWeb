@@ -1,139 +1,130 @@
-import React, { useState } from "react";
-import Image from "next/image";
-import AdminUsers from "@/components/admin/users/AdminUsers";
-import Dashboard from "@/components/admin/dashboard/dashboard";
-import BackgroundVideo from "@/components/general/BackgroundVideo";
-import AdminAffiliates from "@/components/admin/affiliates/AdminAffiliates";
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useState } from 'react'
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { logout } from "@/utilities/UserUtility";
-import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
-import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
-import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
-import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
-import AdminAgencyDetails from "./agency/AdminAgencyDetails";
-import AdminTransactions from "./agency/AdminTransactions";
-import AdminActiveCalls from "./activeCalls/AdminActiveCalls";
-import AdminPaymentCharges from "./paymentCharges/AdminPaymentCharges";
-import AgencyPlans from "./plans/AgencyPlans";
-import AgentXPlans from "./plans/AgentXPlans";
-import AdminCronJobs from "./cronJobs/AdminCronJobs";
-import AdminPromoCodes from "./promoCodes/AdminPromoCodes";
+import AdminDashboardCallLogs from '@/components/admin/CallLogs/AdminDashboardCallLogs'
+import AdminAffiliates from '@/components/admin/affiliates/AdminAffiliates'
+import Dashboard from '@/components/admin/dashboard/dashboard'
+import AdminPaymentsNeedingRefund from '@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund'
+import AdminUpcomingCharges from '@/components/admin/upcomingCharges/AdminUpcomingCharges'
+import AdminUsers from '@/components/admin/users/AdminUsers'
+import PhoneVerificationCodesList from '@/components/admin/verificationCodesList/PhoneVerificationCodesList'
+import BackgroundVideo from '@/components/general/BackgroundVideo'
+import { logout } from '@/utilities/UserUtility'
+
+import AdminActiveCalls from './activeCalls/AdminActiveCalls'
+import AdminAgencyDetails from './agency/AdminAgencyDetails'
+import AdminTransactions from './agency/AdminTransactions'
+import AdminCronJobs from './cronJobs/AdminCronJobs'
+import AdminPaymentCharges from './paymentCharges/AdminPaymentCharges'
+import AgencyPlans from './plans/AgencyPlans'
+import AgentXPlans from './plans/AgentXPlans'
+import AdminPromoCodes from './promoCodes/AdminPromoCodes'
 
 function AdminContainer() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   const manuBar = [
     {
       id: 1,
-      name: "Dashboard",
+      name: 'Dashboard',
       value: 'dashboard',
-
     },
     {
       id: 2,
-      name: "Users",
+      name: 'Users',
       value: 'users',
     },
     {
       id: 3,
-      name: "Affiliates",
+      name: 'Affiliates',
       value: 'affiliates',
-
     },
     {
       id: 4,
-      name: "Call Logs",
+      name: 'Call Logs',
       value: 'call-logs',
-
     },
     {
       id: 5,
-      name: "Phone Verification Codes",
+      name: 'Phone Verification Codes',
       value: 'phone-verification-codes',
-
     },
     {
       id: 9,
-      name: "Agency",
+      name: 'Agency',
       value: 'agency',
-
     },
     {
       id: 6,
-      name: "Billing",
+      name: 'Billing',
       value: 'billing',
-
     },
     {
       id: 7,
-      name: "Plans",
+      name: 'Plans',
       value: 'plans',
-
     },
     {
       id: 8,
-      name: "Cron Jobs",
+      name: 'Cron Jobs',
       value: 'cron-jobs',
-
     },
     {
       id: 11,
-      name: "Promo Codes",
+      name: 'Promo Codes',
       value: 'promo-codes',
-
     },
     {
       id: 10,
-      name: "Logout",
+      name: 'Logout',
     },
-  ];
+  ]
 
-
-  const tabParam = searchParams.get("tab");
-  const defaultTab = manuBar.find((item) => item.value === tabParam) || manuBar[0];
-  const [selectedManu, setSelectedManu] = useState(defaultTab);
+  const tabParam = searchParams.get('tab')
+  const defaultTab =
+    manuBar.find((item) => item.value === tabParam) || manuBar[0]
+  const [selectedManu, setSelectedManu] = useState(defaultTab)
 
   // Agency submenu state
-  const [agencySubTab, setAgencySubTab] = useState('agencies');
+  const [agencySubTab, setAgencySubTab] = useState('agencies')
 
   const agencySubMenus = [
-    { id: 1, name: "Agencies", value: 'agencies' },
-    { id: 2, name: "Transactions", value: 'transactions' }
-  ];
+    { id: 1, name: 'Agencies', value: 'agencies' },
+    { id: 2, name: 'Transactions', value: 'transactions' },
+  ]
 
   // Billing submenu state
-  const [billingSubTab, setBillingSubTab] = useState('upcoming-charges');
+  const [billingSubTab, setBillingSubTab] = useState('upcoming-charges')
 
   const billingSubMenus = [
-    { id: 1, name: "Upcoming Charges", value: 'upcoming-charges' },
-    { id: 2, name: "Payment Charges", value: 'payment-charges' },
+    { id: 1, name: 'Upcoming Charges', value: 'upcoming-charges' },
+    { id: 2, name: 'Payment Charges', value: 'payment-charges' },
     // { id: 3, name: "Active Calls", value: 'active-calls' }
-  ];
+  ]
 
   // Plans submenu state
-  const [plansSubTab, setPlansSubTab] = useState('agentx-plans');
+  const [plansSubTab, setPlansSubTab] = useState('agentx-plans')
 
   const plansSubMenus = [
-    { id: 1, name: "AgentX Plans", value: 'agentx-plans' },
-    { id: 2, name: "Agency Plans", value: 'agency-plans' }
-  ];
+    { id: 1, name: 'AgentX Plans', value: 'agentx-plans' },
+    { id: 2, name: 'Agency Plans', value: 'agency-plans' },
+  ]
 
   return (
-
     <ErrorBoundary>
       <div className="w-full flex flex-col items-center h-[100svh] overflow-hidden ">
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            backgroundColor: "white",
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            backgroundColor: 'white',
             zIndex: -1, // Ensure the video stays behind content
           }}
         >
@@ -147,25 +138,26 @@ function AdminContainer() {
             <button
               key={item.id}
               onClick={() => {
-                if (item.name === "Logout") {
-                  logout();
+                if (item.name === 'Logout') {
+                  logout()
                   // router.replace("/");
                 } else {
-                  setSelectedManu(item);
-                  const newUrl = `?tab=${encodeURIComponent(item.value)}`;
-                  router.push(newUrl);
+                  setSelectedManu(item)
+                  const newUrl = `?tab=${encodeURIComponent(item.value)}`
+                  router.push(newUrl)
                 }
               }}
               className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${selectedManu.id == item.id &&
-                "border-b-[2px] border-purple"
-                }`}
+                      ${
+                        selectedManu.id == item.id &&
+                        'border-b-[2px] border-purple'
+                      }`}
             >
               <div
                 style={{
                   fontSize: 16,
                   fontWeight: 500,
-                  color: selectedManu.id == item.id ? "#7902df" : "#000",
+                  color: selectedManu.id == item.id ? '#7902df' : '#000',
                 }}
               >
                 {item.name}
@@ -175,22 +167,23 @@ function AdminContainer() {
         </div>
 
         {/* Agency Submenu */}
-        {selectedManu.name === "Agency" && (
+        {selectedManu.name === 'Agency' && (
           <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
             {agencySubMenus.map((subItem) => (
               <button
                 key={subItem.id}
                 onClick={() => setAgencySubTab(subItem.value)}
                 className={`flex flex-row items-center gap-3 p-2 items-center 
-                        ${agencySubTab === subItem.value &&
-                  "border-b-[2px] border-purple"
-                  }`}
+                        ${
+                          agencySubTab === subItem.value &&
+                          'border-b-[2px] border-purple'
+                        }`}
               >
                 <div
                   style={{
                     fontSize: 14,
                     fontWeight: 500,
-                    color: agencySubTab === subItem.value ? "#7902df" : "#666",
+                    color: agencySubTab === subItem.value ? '#7902df' : '#666',
                   }}
                 >
                   {subItem.name}
@@ -201,22 +194,23 @@ function AdminContainer() {
         )}
 
         {/* Billing Submenu */}
-        {selectedManu.name === "Billing" && (
+        {selectedManu.name === 'Billing' && (
           <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
             {billingSubMenus.map((subItem) => (
               <button
                 key={subItem.id}
                 onClick={() => setBillingSubTab(subItem.value)}
                 className={`flex flex-row items-center gap-3 p-2 items-center 
-                        ${billingSubTab === subItem.value &&
-                  "border-b-[2px] border-purple"
-                  }`}
+                        ${
+                          billingSubTab === subItem.value &&
+                          'border-b-[2px] border-purple'
+                        }`}
               >
                 <div
                   style={{
                     fontSize: 14,
                     fontWeight: 500,
-                    color: billingSubTab === subItem.value ? "#7902df" : "#666",
+                    color: billingSubTab === subItem.value ? '#7902df' : '#666',
                   }}
                 >
                   {subItem.name}
@@ -227,22 +221,23 @@ function AdminContainer() {
         )}
 
         {/* Plans Submenu */}
-        {selectedManu.name === "Plans" && (
+        {selectedManu.name === 'Plans' && (
           <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
             {plansSubMenus.map((subItem) => (
               <button
                 key={subItem.id}
                 onClick={() => setPlansSubTab(subItem.value)}
                 className={`flex flex-row items-center gap-3 p-2 items-center 
-                        ${plansSubTab === subItem.value &&
-                  "border-b-[2px] border-purple"
-                  }`}
+                        ${
+                          plansSubTab === subItem.value &&
+                          'border-b-[2px] border-purple'
+                        }`}
               >
                 <div
                   style={{
                     fontSize: 14,
                     fontWeight: 500,
-                    color: plansSubTab === subItem.value ? "#7902df" : "#666",
+                    color: plansSubTab === subItem.value ? '#7902df' : '#666',
                   }}
                 >
                   {subItem.name}
@@ -253,35 +248,35 @@ function AdminContainer() {
         )}
 
         <div className="w-full items-center h-full overflow-hidden flex-1">
-          {selectedManu.name === "Users" ? (
+          {selectedManu.name === 'Users' ? (
             <AdminUsers />
-          ) : selectedManu.name === "Affiliates" ? (
+          ) : selectedManu.name === 'Affiliates' ? (
             <AdminAffiliates />
-          ) : selectedManu.name === "Call Logs" ? (
+          ) : selectedManu.name === 'Call Logs' ? (
             <AdminDashboardCallLogs />
-          ) : selectedManu.name === "Phone Verification Codes" ? (
+          ) : selectedManu.name === 'Phone Verification Codes' ? (
             <PhoneVerificationCodesList />
-          ) : selectedManu.name === "Billing" ? (
+          ) : selectedManu.name === 'Billing' ? (
             billingSubTab === 'upcoming-charges' ? (
               <AdminUpcomingCharges />
             ) : (
-              < AdminPaymentCharges />
+              <AdminPaymentCharges />
             )
-          ) : selectedManu.name === "Agency" ? (
+          ) : selectedManu.name === 'Agency' ? (
             agencySubTab === 'agencies' ? (
               <AdminAgencyDetails />
             ) : (
               <AdminTransactions />
             )
-          ) : selectedManu.name === "Plans" ? (
+          ) : selectedManu.name === 'Plans' ? (
             plansSubTab === 'agentx-plans' ? (
               <AgentXPlans />
             ) : (
               <AgencyPlans />
             )
-          ) : selectedManu.name === "Cron Jobs" ? (
-            <AdminCronJobs isActive={selectedManu.name === "Cron Jobs"} />
-          ) : selectedManu.name === "Promo Codes" ? (
+          ) : selectedManu.name === 'Cron Jobs' ? (
+            <AdminCronJobs isActive={selectedManu.name === 'Cron Jobs'} />
+          ) : selectedManu.name === 'Promo Codes' ? (
             <AdminPromoCodes />
           ) : (
             <div>
@@ -291,7 +286,7 @@ function AdminContainer() {
         </div>
       </div>
     </ErrorBoundary>
-  );
+  )
 }
 
-export default AdminContainer;
+export default AdminContainer

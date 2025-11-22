@@ -1,9 +1,10 @@
-import React from 'react';
-import { Modal, Box } from '@mui/material';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import CloseBtn from '../globalExtras/CloseBtn';
+import { Box, Modal } from '@mui/material'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import React from 'react'
+
+import CloseBtn from '../globalExtras/CloseBtn'
 
 const MoreAgentsPopup = ({
   open,
@@ -11,18 +12,16 @@ const MoreAgentsPopup = ({
   onUpgrade,
   onAddAgent,
   costPerAdditionalAgent = 10,
-  from = ""
+  from = '',
 }) => {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleUpgrade = () => {
-    onUpgrade();
-    onClose();
-  };
+    onUpgrade()
+    onClose()
+  }
 
-  const handleAddAgent = () => {
-   
-  };
+  const handleAddAgent = () => {}
 
   return (
     <Modal
@@ -32,30 +31,28 @@ const MoreAgentsPopup = ({
       BackdropProps={{
         timeout: 100,
         sx: {
-          backgroundColor: "#00000020",
-          backdropFilter: "blur(15px)",
+          backgroundColor: '#00000020',
+          backdropFilter: 'blur(15px)',
         },
       }}
     >
       <Box
         className="flex justify-center items-center w-full h-full"
         sx={{
-          outline: "none",
+          outline: 'none',
         }}
       >
         <div
           className="bg-white rounded-2xl p-8 relative max-w-2xl w-full mx-4"
           style={{
-            boxShadow: "0px 20px 40px rgba(0, 0, 0, 0.1)",
+            boxShadow: '0px 20px 40px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div className="w-full flex flex-col items-center">
             <div className="flex flex-row items-center justify-between w-full">
               <div></div>
               {/* Close Button */}
-              <CloseBtn
-                onClick={onClose}
-              />
+              <CloseBtn onClick={onClose} />
             </div>
             {/* Avatars */}
 
@@ -65,7 +62,6 @@ const MoreAgentsPopup = ({
               width={300}
               alt="Axel"
             />
-
 
             {/* Title */}
             <h2 className="text-2xl font-bold text-center text-gray-900 mb-4 -mt-3">
@@ -77,7 +73,10 @@ const MoreAgentsPopup = ({
               <p>{`You've reached the maximum number of agents on your current plan.`}</p>
               <p>
                 You can upgrade your plan or add an agent for{' '}
-                <span className="font-semibold text-purple-600">${costPerAdditionalAgent}</span> per month.
+                <span className="font-semibold text-purple-600">
+                  ${costPerAdditionalAgent}
+                </span>{' '}
+                per month.
               </p>
             </div>
 
@@ -105,7 +104,7 @@ const MoreAgentsPopup = ({
         </div>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
-export default MoreAgentsPopup;
+export default MoreAgentsPopup

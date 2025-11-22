@@ -1,103 +1,115 @@
-import BrandedCallsHeader from "./BrandedCallsHeader";
-import { Box, FormControl, MenuItem, Select } from '@mui/material';
-import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
-import { businessTypesArray, bussinessRegionArea, callingRules, customerType, industriesTypeArray, registrationIdType } from '../twilioExtras/TwilioHubConstants';
+import { Box, FormControl, MenuItem, Select } from '@mui/material'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
 
+import {
+  businessTypesArray,
+  bussinessRegionArea,
+  callingRules,
+  customerType,
+  industriesTypeArray,
+  registrationIdType,
+} from '../twilioExtras/TwilioHubConstants'
+import BrandedCallsHeader from './BrandedCallsHeader'
 
-const BrandedCallsBasicInfo = ({
-    handleContinue,
-    basicDetails
-}) => {
+const BrandedCallsBasicInfo = ({ handleContinue, basicDetails }) => {
+  const selectRef = useRef(null)
 
-    const selectRef = useRef(null);
+  const [canContinue, setCanContinue] = useState(true)
 
-    const [canContinue, setCanContinue] = useState(true);
+  const [openCountry, setOpenCountry] = useState(false)
+  const [country, setCountry] = useState('')
 
-    const [openCountry, setOpenCountry] = useState(false);
-    const [country, setCountry] = useState("");
+  const [outboundVoiceService, setOutBoundVoiceService] = useState('')
+  const [complaintCalling, setComplaintCalling] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
 
-    const [outboundVoiceService, setOutBoundVoiceService] = useState("");
-    const [complaintCalling, setComplaintCalling] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-
-    useEffect(() => {
-        if (basicDetails) {
-            setOutBoundVoiceService(basicDetails.outboundVoiceService);
-            setComplaintCalling(basicDetails.complaintCalling);
-            setFirstName(basicDetails.firstName);
-            setLastName(basicDetails.lastName);
-            setEmail(basicDetails.email);
-            setPhone(basicDetails.phone);
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!outboundVoiceService ||
-            !complaintCalling ||
-            !firstName ||
-            !lastName ||
-            !email ||
-            !phone) {
-            setCanContinue(true);
-        } else {
-            setCanContinue(false);
-        }
-    }, [outboundVoiceService, complaintCalling, firstName, lastName, email, phone]);
-
-    //get selected and unselected radio img
-    //radios check images
-    const getRadioImg = (id) => {
-        if (outboundVoiceService.id === id) {
-            return "/twiliohubassets/RadioFocus.jpg"
-        } else {
-            return "/twiliohubassets/Radio.jpg"
-        }
+  useEffect(() => {
+    if (basicDetails) {
+      setOutBoundVoiceService(basicDetails.outboundVoiceService)
+      setComplaintCalling(basicDetails.complaintCalling)
+      setFirstName(basicDetails.firstName)
+      setLastName(basicDetails.lastName)
+      setEmail(basicDetails.email)
+      setPhone(basicDetails.phone)
     }
+  }, [])
 
-    //radios check images for complaint
-    const getRadioComplaintImg = (id) => {
-        if (complaintCalling.id === id) {
-            return "/twiliohubassets/RadioFocus.jpg"
-        } else {
-            return "/twiliohubassets/Radio.jpg"
-        }
+  useEffect(() => {
+    if (
+      !outboundVoiceService ||
+      !complaintCalling ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phone
+    ) {
+      setCanContinue(true)
+    } else {
+      setCanContinue(false)
     }
+  }, [
+    outboundVoiceService,
+    complaintCalling,
+    firstName,
+    lastName,
+    email,
+    phone,
+  ])
 
-    const ysNoArray = [
-        {
-            id: 0,
-            title: "Yes"
-        },
-        {
-            id: 1,
-            title: "No"
-        }
-    ]
-
-    const styles = {
-        boldFont: {
-            fontSize: 22,
-            fontWeight: "700"
-        },
-        regularFont: {
-            fontSize: 15,
-            fontWeight: "500"
-        },
-        semiBold: {
-            fontSize: 18,
-            fontWeight: "700"
-        }
+  //get selected and unselected radio img
+  //radios check images
+  const getRadioImg = (id) => {
+    if (outboundVoiceService.id === id) {
+      return '/twiliohubassets/RadioFocus.jpg'
+    } else {
+      return '/twiliohubassets/Radio.jpg'
     }
+  }
 
-    return (
-        <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-            <div className='w-full h-[90%] pb-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
-                <BrandedCallsHeader />
-                {/*<div
+  //radios check images for complaint
+  const getRadioComplaintImg = (id) => {
+    if (complaintCalling.id === id) {
+      return '/twiliohubassets/RadioFocus.jpg'
+    } else {
+      return '/twiliohubassets/Radio.jpg'
+    }
+  }
+
+  const ysNoArray = [
+    {
+      id: 0,
+      title: 'Yes',
+    },
+    {
+      id: 1,
+      title: 'No',
+    },
+  ]
+
+  const styles = {
+    boldFont: {
+      fontSize: 22,
+      fontWeight: '700',
+    },
+    regularFont: {
+      fontSize: 15,
+      fontWeight: '500',
+    },
+    semiBold: {
+      fontSize: 18,
+      fontWeight: '700',
+    },
+  }
+
+  return (
+    <div className="h-[100%] w-full flex flex-col items-center justify-between">
+      <div className="w-full h-[90%] pb-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+        <BrandedCallsHeader />
+        {/*<div
                     className='mt-6'
                     style={styles.regularFont}>
                     Select country*
@@ -163,169 +175,174 @@ const BrandedCallsBasicInfo = ({
                         </FormControl>
                     </Box>
                             </div>*/}
-                <div style={styles.semiBold} className="mt-4 pt-2 border-t-[2px] border-[#00000010]">
-                    Beta Program Qualifications
-                </div>
-                <div className="mt-2" style={styles.regularFont}>
-                    Has your account been using outbound voice services on Twilio for over 3 months in production capacity?
-                </div>
-                <div className="mt-4">
-                    {ysNoArray.map((item) => {
-                        return (
-                            <button
-                                key={item.id}
-                                className="border-none outline-none flex flex-row items-center gap-2 mb-2"
-                                onClick={() => { setOutBoundVoiceService(item) }}>
-                                <Image
-                                    alt="*"
-                                    src={getRadioImg(item.id)}
-                                    height={15
-                                    }
-                                    width={15}
-                                />
-                                <div>
-                                    {item.title}
-                                </div>
-                            </button>
-                        )
-                    })}
-                </div>
-                <div style={styles.regularFont} className="mt-2">
-                    Do you strictly follow best practice guidelines of compliant outbound calling, such as but not limited to:
-                </div>
-                <ul className="list-disc pl-6 mt-2 text-black space-y-1">
-                    {callingRules.map((rule) => (
-                        <li key={rule.id}>{rule.title}</li>
-                    ))}
-                </ul>
-                <div className="mt-4">
-                    {ysNoArray.map((item) => {
-                        return (
-                            <button
-                                key={item.id}
-                                className="border-none outline-none flex flex-row items-center gap-2 mb-2"
-                                onClick={() => { setComplaintCalling(item) }}>
-                                <Image
-                                    alt="*"
-                                    src={getRadioComplaintImg(item.id)}
-                                    height={15
-                                    }
-                                    width={15}
-                                />
-                                <div>
-                                    {item.title}
-                                </div>
-                            </button>
-                        )
-                    })}
-                </div>
-                <div style={styles.semiBold} className="mt-6"//pt-2 border-t-[2px] border-[#00000010]
-                >
-                    Brand Contact
-                </div>
-                <div className="w-full flex flex-row items-center justify-between mt-3">
-                    <div className="w-[90%]">
-                        <div
-                            // className='mt-4'
-                            style={styles.regularFont}>
-                            First Name
-                        </div>
-                        <div className='w-full mt-2'>
-                            <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
-                                style={styles.regularFont}
-                                placeholder='First Name'
-                                value={firstName}
-                                onChange={(e) => {
-                                    setFirstName(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className="w-[90%] ms-6">
-                        <div
-                            // className='mt-4'
-                            style={styles.regularFont}>
-                            Last Name
-                        </div>
-                        <div className='w-full mt-2'>
-                            <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
-                                style={styles.regularFont}
-                                placeholder='Last Name'
-                                value={lastName}
-                                onChange={(e) => {
-                                    setLastName(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div
-                    className='mt-4'
-                    style={styles.regularFont}>
-                    Email Address
-                </div>
-                <div className='w-full mt-2'>
-                    <input
-                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
-                        style={styles.regularFont}
-                        placeholder='Email Address'
-                        value={email}
-                        type="email"
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                        }}
-                    />
-                </div>
-                <div
-                    className='mt-4'
-                    style={styles.regularFont}>
-                    Phone Number
-                </div>
-                <div className='w-full mt-2'>
-                    <input
-                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
-                        style={styles.regularFont}
-                        placeholder='Phone Number'
-                        value={phone}
-                        type="phone"
-                        onChange={(e) => {
-                            setPhone(e.target.value);
-                        }}
-                    />
-                </div>
-            </div>
-            <div className='w-full max-h-[10%] flex flex-row items-center gap-2'>
-                <button
-                    className='outline-none border-none text-purple w-1/2'
-                    style={styles.regularFont}
-                // onClick={() => {
-                //     handleBack()
-                // }}
-                >
-                    Exit
-                </button>
-                <button
-                    className={`h-[50px] w-1/2 text-center rounded-lg ${canContinue ? "bg-[#00000040] text-black" : "text-white bg-purple"}`}
-                    // disabled={canContinue}
-                    onClick={() => {
-                        const data = {
-                            outboundVoiceService: outboundVoiceService,
-                            complaintCalling: complaintCalling,
-                            firstName: firstName,
-                            lastName: lastName,
-                            email: email,
-                            phone: phone,
-                        }
-                        handleContinue(data);
-                    }}
-                >
-                    Continue
-                </button>
-            </div>
+        <div
+          style={styles.semiBold}
+          className="mt-4 pt-2 border-t-[2px] border-[#00000010]"
+        >
+          Beta Program Qualifications
         </div>
-    );
-};
+        <div className="mt-2" style={styles.regularFont}>
+          Has your account been using outbound voice services on Twilio for over
+          3 months in production capacity?
+        </div>
+        <div className="mt-4">
+          {ysNoArray.map((item) => {
+            return (
+              <button
+                key={item.id}
+                className="border-none outline-none flex flex-row items-center gap-2 mb-2"
+                onClick={() => {
+                  setOutBoundVoiceService(item)
+                }}
+              >
+                <Image
+                  alt="*"
+                  src={getRadioImg(item.id)}
+                  height={15}
+                  width={15}
+                />
+                <div>{item.title}</div>
+              </button>
+            )
+          })}
+        </div>
+        <div style={styles.regularFont} className="mt-2">
+          Do you strictly follow best practice guidelines of compliant outbound
+          calling, such as but not limited to:
+        </div>
+        <ul className="list-disc pl-6 mt-2 text-black space-y-1">
+          {callingRules.map((rule) => (
+            <li key={rule.id}>{rule.title}</li>
+          ))}
+        </ul>
+        <div className="mt-4">
+          {ysNoArray.map((item) => {
+            return (
+              <button
+                key={item.id}
+                className="border-none outline-none flex flex-row items-center gap-2 mb-2"
+                onClick={() => {
+                  setComplaintCalling(item)
+                }}
+              >
+                <Image
+                  alt="*"
+                  src={getRadioComplaintImg(item.id)}
+                  height={15}
+                  width={15}
+                />
+                <div>{item.title}</div>
+              </button>
+            )
+          })}
+        </div>
+        <div
+          style={styles.semiBold}
+          className="mt-6" //pt-2 border-t-[2px] border-[#00000010]
+        >
+          Brand Contact
+        </div>
+        <div className="w-full flex flex-row items-center justify-between mt-3">
+          <div className="w-[90%]">
+            <div
+              // className='mt-4'
+              style={styles.regularFont}
+            >
+              First Name
+            </div>
+            <div className="w-full mt-2">
+              <input
+                className="border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border"
+                style={styles.regularFont}
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => {
+                  setFirstName(e.target.value)
+                }}
+              />
+            </div>
+          </div>
+          <div className="w-[90%] ms-6">
+            <div
+              // className='mt-4'
+              style={styles.regularFont}
+            >
+              Last Name
+            </div>
+            <div className="w-full mt-2">
+              <input
+                className="border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border"
+                style={styles.regularFont}
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => {
+                  setLastName(e.target.value)
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4" style={styles.regularFont}>
+          Email Address
+        </div>
+        <div className="w-full mt-2">
+          <input
+            className="border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border"
+            style={styles.regularFont}
+            placeholder="Email Address"
+            value={email}
+            type="email"
+            onChange={(e) => {
+              setEmail(e.target.value)
+            }}
+          />
+        </div>
+        <div className="mt-4" style={styles.regularFont}>
+          Phone Number
+        </div>
+        <div className="w-full mt-2">
+          <input
+            className="border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border"
+            style={styles.regularFont}
+            placeholder="Phone Number"
+            value={phone}
+            type="phone"
+            onChange={(e) => {
+              setPhone(e.target.value)
+            }}
+          />
+        </div>
+      </div>
+      <div className="w-full max-h-[10%] flex flex-row items-center gap-2">
+        <button
+          className="outline-none border-none text-purple w-1/2"
+          style={styles.regularFont}
+          // onClick={() => {
+          //     handleBack()
+          // }}
+        >
+          Exit
+        </button>
+        <button
+          className={`h-[50px] w-1/2 text-center rounded-lg ${canContinue ? 'bg-[#00000040] text-black' : 'text-white bg-purple'}`}
+          // disabled={canContinue}
+          onClick={() => {
+            const data = {
+              outboundVoiceService: outboundVoiceService,
+              complaintCalling: complaintCalling,
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              phone: phone,
+            }
+            handleContinue(data)
+          }}
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  )
+}
 
-export default BrandedCallsBasicInfo;
+export default BrandedCallsBasicInfo

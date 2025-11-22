@@ -1,48 +1,50 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import SelectedUserDetails from "@/components/admin/users/SelectedUserDetails";
-import AdminGetProfileDetails from "@/components/admin/AdminGetProfileDetails";
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
+import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
 
 export default function Page() {
-  const router = useRouter();
-  const [userId, setUserId] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isFromAgency, setIsFromAgency] = useState(false);
+  const router = useRouter()
+  const [userId, setUserId] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [isFromAgency, setIsFromAgency] = useState(false)
 
   // ✅ Manually get `userId` from the URL (avoids Suspense issue)
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("userId");
-      const isFromAgency = params.get("agencyUser");
-      setIsFromAgency(isFromAgency);
-      console.log("is agency user", isFromAgency);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const id = params.get('userId')
+      const isFromAgency = params.get('agencyUser')
+      setIsFromAgency(isFromAgency)
+      console.log('is agency user', isFromAgency)
       if (id) {
-        setUserId(id);
+        setUserId(id)
       }
     }
-  }, []);
+  }, [])
 
   // ✅ Fetch user details when `userId` is available
   useEffect(() => {
     if (userId) {
       //console.log;
-      fetchUserDetails(userId);
+      fetchUserDetails(userId)
     }
-  }, [userId]);
+  }, [userId])
 
   const fetchUserDetails = async (userId) => {
     try {
-      const data = await AdminGetProfileDetails(userId);
+      const data = await AdminGetProfileDetails(userId)
       if (data) {
-        setSelectedUser(data);
+        setSelectedUser(data)
         //console.log;
       }
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      console.error('Error fetching user details:', error)
     }
-  };
+  }
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-white">
@@ -51,20 +53,20 @@ export default function Page() {
           handleDel={() => {
             // Notify parent window to refresh
             if (window.opener) {
-              window.opener.location.reload();
+              window.opener.location.reload()
             }
 
             // Close the current tab
-            window.close();
+            window.close()
           }}
           selectedUser={selectedUser}
           agencyUser={isFromAgency}
-          hideViewDetails = {true}
-          from = "agency"
+          hideViewDetails={true}
+          from="agency"
         />
       ) : (
         <p>Loading...</p>
       )}
     </div>
-  );
+  )
 }

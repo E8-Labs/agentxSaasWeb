@@ -1,17 +1,22 @@
-import { Modal, Box, Switch, CircularProgress } from "@mui/material";
-import { useRef, useState } from "react";
-import { AuthToken } from "./AuthDetails";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+import { Box, CircularProgress, Modal, Switch } from '@mui/material'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRef, useState } from 'react'
+import { useEffect } from 'react'
+
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { useEffect } from "react";
-import Image from "next/image";
-import { formatDecimalValue, handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
-import SubDuration from "./SubDuration";
-import SideUI from "./SideUI";
-import { formatFractional2 } from "./AgencyUtilities";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+
+import {
+  formatDecimalValue,
+  handlePricePerMinInputValue,
+} from '../agencyServices/CheckAgencyData'
+import { formatFractional2 } from './AgencyUtilities'
+import { AuthToken } from './AuthDetails'
+import SideUI from './SideUI'
+import SubDuration from './SubDuration'
 
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
@@ -26,43 +31,44 @@ export default function AddMonthlyPlan({
   selectedAgency,
   handleContinue,
   basicsData,
-  configurationData
+  configurationData,
 }) {
-
   //auto scroll to bottom
-  const scrollContainerRef = useRef(null);
+  const scrollContainerRef = useRef(null)
 
-  const [allowTrial, setAllowTrial] = useState(false);
-  const [isDefault, setIsDefault] = useState(false);
-  const [showTrailWarning, setShowTrailWarning] = useState(false);
+  const [allowTrial, setAllowTrial] = useState(false)
+  const [isDefault, setIsDefault] = useState(false)
+  const [showTrailWarning, setShowTrailWarning] = useState(false)
 
   //for Hamza update the inout fields value storing
   //strike through is original price
   //price/min is discoounted orice
 
-  const [title, setTitle] = useState("");
-  const [tag, setTag] = useState("");
-  const [planDescription, setPlanDescription] = useState("");
-  const [planDuration, setPlanDuration] = useState("");
-  const [originalPrice, setOriginalPrice] = useState("");
-  const [discountedPrice, setDiscountedPrice] = useState("");
-  const [minutes, setMinutes] = useState("");
-  const [trialValidForDays, setTrialValidForDays] = useState("");
+  const [title, setTitle] = useState('')
+  const [tag, setTag] = useState('')
+  const [planDescription, setPlanDescription] = useState('')
+  const [planDuration, setPlanDuration] = useState('')
+  const [originalPrice, setOriginalPrice] = useState('')
+  const [discountedPrice, setDiscountedPrice] = useState('')
+  const [minutes, setMinutes] = useState('')
+  const [trialValidForDays, setTrialValidForDays] = useState('')
   // const [trialMinutes, setTrialMinutes] = useState("");
 
-  const [createPlanLoader, setCreatePlanLoader] = useState(false);
-  const [snackMsg, setSnackMsg] = useState(null);
-  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
-  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
-  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
-  const [minCostErr, setMinCostErr] = useState(false);
-  const [profitMarginErr, setProfitMarginErr] = useState(false);
+  const [createPlanLoader, setCreatePlanLoader] = useState(false)
+  const [snackMsg, setSnackMsg] = useState(null)
+  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error)
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null)
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(
+    SnackbarTypes.Error,
+  )
+  const [minCostErr, setMinCostErr] = useState(false)
+  const [profitMarginErr, setProfitMarginErr] = useState(false)
 
   //plan passed is
-  const [planPassed, setPlanPassed] = useState(null);
+  const [planPassed, setPlanPassed] = useState(null)
 
   //allowed features check mark list
-  const [allowedFeatures, setAllowedFeatures] = useState([]);
+  const [allowedFeatures, setAllowedFeatures] = useState([])
 
   //agency features
   const [features, setFeatures] = useState({
@@ -77,245 +83,271 @@ export default function AddMonthlyPlan({
     twilio: false,
     allowTrial: false,
     allowTeamSeats: false,
-  });
+  })
 
   //custom featurs
-  const [customFeatures, setCustomFeatures] = useState([]);
+  const [customFeatures, setCustomFeatures] = useState([])
 
   const resolveLanguageLabel = (languageValue, languageTitle) => {
-    if (typeof languageTitle === "string" && languageTitle.trim().length > 0) {
-      return languageTitle.trim();
+    if (typeof languageTitle === 'string' && languageTitle.trim().length > 0) {
+      return languageTitle.trim()
     }
 
-    if (typeof languageValue !== "string") {
-      return "";
+    if (typeof languageValue !== 'string') {
+      return ''
     }
 
-    const normalized = languageValue.trim().toLowerCase();
+    const normalized = languageValue.trim().toLowerCase()
 
-    if (normalized === "multilingual") {
-      return "Multilingual";
+    if (normalized === 'multilingual') {
+      return 'Multilingual'
     }
 
-    if (normalized === "english" || normalized === "english or spanish") {
-      return "English or Spanish";
+    if (normalized === 'english' || normalized === 'english or spanish') {
+      return 'English or Spanish'
     }
 
-    return languageValue;
-  };
+    return languageValue
+  }
 
   //features list
   const featuresList = [
     {
-      label: "Multilingual Compatible",
-      tooltip: "Allow the agents to switch between languages in the same conversation",
-      stateKey: "allowLanguageSelection",
+      label: 'Multilingual Compatible',
+      tooltip:
+        'Allow the agents to switch between languages in the same conversation',
+      stateKey: 'allowLanguageSelection',
     },
     {
-      label: "Tools & Actions",
-      tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
-      stateKey: "toolsActions",
+      label: 'Tools & Actions',
+      tooltip:
+        'Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.', // "Maximize revenue by selling seats per month to any org.",
+      stateKey: 'toolsActions',
     },
     {
-      label: "Calendars",
-      tooltip: "Sync calendars for bookings and scheduling.",
-      stateKey: "calendars",
+      label: 'Calendars',
+      tooltip: 'Sync calendars for bookings and scheduling.',
+      stateKey: 'calendars',
     },
     {
-      label: "Live Transfer",
-      tooltip: " Allow agents to make live transfers.", //"Enable live call transfers between agents.",
-      stateKey: "liveTransfer",
+      label: 'Live Transfer',
+      tooltip: ' Allow agents to make live transfers.', //"Enable live call transfers between agents.",
+      stateKey: 'liveTransfer',
     },
     {
-      label: "RAG Knowledge Base",
-      tooltip: "Allow users to train agents on their own custom data. Add Youtube videos, website links, documents and more.", //"Use knowledge base for better responses.",
-      stateKey: "ragKnowledgeBase",
+      label: 'RAG Knowledge Base',
+      tooltip:
+        'Allow users to train agents on their own custom data. Add Youtube videos, website links, documents and more.', //"Use knowledge base for better responses.",
+      stateKey: 'ragKnowledgeBase',
     },
     {
-      label: "Web Agents",
-      tooltip: "Bring AI Agents to browsers and websites using webhooks or embedding.", //"Embed the agent into sites, browsers, or trigger webhooks.",
-      stateKey: "embedBrowserWebhookAgent",
+      label: 'Web Agents',
+      tooltip:
+        'Bring AI Agents to browsers and websites using webhooks or embedding.', //"Embed the agent into sites, browsers, or trigger webhooks.",
+      stateKey: 'embedBrowserWebhookAgent',
     },
     {
-      label: "API Key",
-      tooltip: "",//Enable API access for integrations.
-      stateKey: "apiKey",
+      label: 'API Key',
+      tooltip: '', //Enable API access for integrations.
+      stateKey: 'apiKey',
     },
     {
-      label: "Voicemail",
-      tooltip: "Allow agents to leave voicemails",//Enable voicemail recording.
-      stateKey: "voicemail",
+      label: 'Voicemail',
+      tooltip: 'Allow agents to leave voicemails', //Enable voicemail recording.
+      stateKey: 'voicemail',
     },
     {
-      label: "Twilio",
-      tooltip: "Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.", //"Integrate with Twilio for calls & SMS.",
-      stateKey: "twilio",
+      label: 'Twilio',
+      tooltip:
+        'Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.', //"Integrate with Twilio for calls & SMS.",
+      stateKey: 'twilio',
     },
     {
       // label: "Allow Team Seats",
-      label: `${basicsData?.maxTeamMembers} Team Seat${basicsData?.maxTeamMembers > 1 ? "s" : ""}`,
-      tooltip: "Allow sub accounts to add and invite teams.",
-      stateKey: "allowTeamSeats",
+      label: `${basicsData?.maxTeamMembers} Team Seat${basicsData?.maxTeamMembers > 1 ? 's' : ''}`,
+      tooltip: 'Allow sub accounts to add and invite teams.',
+      stateKey: 'allowTeamSeats',
     },
     {
-      label: "Allow Trial",
-      tooltip: "",//Allow trial access for users.
-      stateKey: "allowTrial",
+      label: 'Allow Trial',
+      tooltip: '', //Allow trial access for users.
+      stateKey: 'allowTrial',
     },
-  ];
+  ]
 
   //reset form when opening for new plan (not edit)
   useEffect(() => {
     // Only reset if opening for a NEW plan (not editing)
     if (open && !isEditPlan && !selectedPlan) {
-      setTitle("")
-      setTag("")
-      setPlanDescription("")
-      setOriginalPrice("")
-      setDiscountedPrice("")
-      setMinutes("")
+      setTitle('')
+      setTag('')
+      setPlanDescription('')
+      setOriginalPrice('')
+      setDiscountedPrice('')
+      setMinutes('')
       setMinCostErr(false)
       setSnackMsg(null)
       setSnackMsgType(null)
       setAllowTrial(false)
       setIsDefault(false)
-      setTrialValidForDays("")
-      setCreatePlanLoader(false);
-      setPlanDuration("");
+      setTrialValidForDays('')
+      setCreatePlanLoader(false)
+      setPlanDuration('')
     }
     // If editing, don't reset - let the edit useEffect populate the fields
   }, [open, isEditPlan, selectedPlan])
 
   //set features data
   useEffect(() => {
-    setFeaturesData();
+    setFeaturesData()
   }, [selectedPlan, configurationData, open])
 
   //check marks list of allowed features
   useEffect(() => {
-
-    console.log("configuration data passed is 99", configurationData);
+    console.log('configuration data passed is 99', configurationData)
 
     // setFeaturesData();
 
     const coreFeatures = featuresList
-      .filter(item => item.stateKey !== "allowTrial") // exclude Allow Trial
-      .filter(item => features[item.stateKey])
-      .map(item => ({
+      .filter((item) => item.stateKey !== 'allowTrial') // exclude Allow Trial
+      .filter((item) => features[item.stateKey])
+      .map((item) => ({
         id: item.stateKey,
         text: item.label,
-      }));
+      }))
 
-    console.log("Yalla yalla habibi core features", coreFeatures)
+    console.log('Yalla yalla habibi core features', coreFeatures)
 
-    const extraFeatures = [];
+    const extraFeatures = []
 
     if (minutes) {
       extraFeatures.push({
-        id: "minutes",
+        id: 'minutes',
         text: `${minutes} AI Credits`,
-      });
+      })
     }
 
-    const languageLabel = resolveLanguageLabel(configurationData?.language, configurationData?.languageTitle);
+    const languageLabel = resolveLanguageLabel(
+      configurationData?.language,
+      configurationData?.languageTitle,
+    )
 
     if (languageLabel) {
       extraFeatures.push({
-        id: "language",
+        id: 'language',
         text: languageLabel,
-      });
+      })
     }
 
     if (configurationData?.maxAgents) {
       extraFeatures.push({
-        id: "agents",
-        text: `${configurationData?.maxAgents} AI Agent${configurationData?.maxAgents > 1 ? "s" : ""}`,
-      });
+        id: 'agents',
+        text: `${configurationData?.maxAgents} AI Agent${configurationData?.maxAgents > 1 ? 's' : ''}`,
+      })
     }
 
     if (configurationData?.maxLeads) {
       extraFeatures.push({
-        id: "contacts",
-        text: `${configurationData?.maxLeads} Contact${configurationData?.maxLeads > 1 ? "s" : ""}`,
-      });
+        id: 'contacts',
+        text: `${configurationData?.maxLeads} Contact${configurationData?.maxLeads > 1 ? 's' : ''}`,
+      })
     }
 
     const customFeaturesList = Array.isArray(customFeatures)
       ? customFeatures
-        .filter((feature) => feature?.trim?.() !== "")
-        .map((feature, index) => ({
-          id: `custom_${index}`,
-          text: feature,
-        }))
-      : [];
-
-
+          .filter((feature) => feature?.trim?.() !== '')
+          .map((feature, index) => ({
+            id: `custom_${index}`,
+            text: feature,
+          }))
+      : []
 
     // setAllowedFeatures([...extraFeatures]);
-    setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
-  }, [minutes, selectedPlan, configurationData, open, features, customFeatures]);
+    setAllowedFeatures([
+      ...extraFeatures,
+      ...coreFeatures,
+      ...customFeaturesList,
+    ])
+  }, [minutes, selectedPlan, configurationData, open, features, customFeatures])
 
   //check if is edit plan is true then store the predefault values
   // Priority: basicsData > selectedPlan (basicsData is set from selectedPlan in parent)
   useEffect(() => {
-    console.log("Edit plan useEffect - isEditPlan:", isEditPlan, "selectedPlan:", selectedPlan, "basicsData:", basicsData);
-    
+    console.log(
+      'Edit plan useEffect - isEditPlan:',
+      isEditPlan,
+      'selectedPlan:',
+      selectedPlan,
+      'basicsData:',
+      basicsData,
+    )
+
     // If we have basicsData, use it (it's already processed from selectedPlan)
     if (basicsData && Object.keys(basicsData).length > 0) {
-      console.log("Populating from basicsData:", basicsData);
-      setPlanPassed(selectedPlan);
-      setTitle(basicsData?.title || "");
-      setIsDefault(basicsData?.isDefault || false);
-      setTag(basicsData?.tag || "");
-      setPlanDescription(basicsData?.planDescription || "");
-      
-      const OriginalPrice = basicsData?.originalPrice;
+      console.log('Populating from basicsData:', basicsData)
+      setPlanPassed(selectedPlan)
+      setTitle(basicsData?.title || '')
+      setIsDefault(basicsData?.isDefault || false)
+      setTag(basicsData?.tag || '')
+      setPlanDescription(basicsData?.planDescription || '')
+
+      const OriginalPrice = basicsData?.originalPrice
       if (OriginalPrice !== undefined && OriginalPrice !== null) {
-        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : "");
+        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : '')
       } else {
-        setOriginalPrice("");
+        setOriginalPrice('')
       }
-      
-      const DiscountedPrice = basicsData?.discountedPrice;
-      if (DiscountedPrice !== undefined && DiscountedPrice !== null && DiscountedPrice > 0) {
-        setDiscountedPrice(formatFractional2(DiscountedPrice));
+
+      const DiscountedPrice = basicsData?.discountedPrice
+      if (
+        DiscountedPrice !== undefined &&
+        DiscountedPrice !== null &&
+        DiscountedPrice > 0
+      ) {
+        setDiscountedPrice(formatFractional2(DiscountedPrice))
       }
-      
+
       if (basicsData?.minutes !== undefined && basicsData?.minutes !== null) {
-        setMinutes(basicsData?.minutes);
+        setMinutes(basicsData?.minutes)
       }
-      
+
       if (basicsData?.planDuration) {
-        setPlanDuration(basicsData?.planDuration);
+        setPlanDuration(basicsData?.planDuration)
       }
-    } 
+    }
     // Fallback: if no basicsData but we have selectedPlan and isEditPlan, populate directly
     else if (selectedPlan && isEditPlan) {
-      console.log("Populating from selectedPlan (fallback):", selectedPlan);
-      setPlanPassed(selectedPlan);
-      setTitle(selectedPlan?.title || "");
-      setIsDefault(selectedPlan?.isDefault || false);
-      setTag(selectedPlan?.tag || "");
-      setPlanDescription(selectedPlan?.planDescription || "");
-      
-      const OriginalPrice = selectedPlan?.originalPrice;
+      console.log('Populating from selectedPlan (fallback):', selectedPlan)
+      setPlanPassed(selectedPlan)
+      setTitle(selectedPlan?.title || '')
+      setIsDefault(selectedPlan?.isDefault || false)
+      setTag(selectedPlan?.tag || '')
+      setPlanDescription(selectedPlan?.planDescription || '')
+
+      const OriginalPrice = selectedPlan?.originalPrice
       if (OriginalPrice !== undefined && OriginalPrice !== null) {
-        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : "");
+        setOriginalPrice(OriginalPrice > 0 ? OriginalPrice.toString() : '')
       } else {
-        setOriginalPrice("");
+        setOriginalPrice('')
       }
-      
+
       if (selectedPlan?.discountedPrice && selectedPlan?.minutes) {
-        const DiscountedPrice = selectedPlan.discountedPrice / selectedPlan.minutes;
-        setDiscountedPrice(formatFractional2(DiscountedPrice));
+        const DiscountedPrice =
+          selectedPlan.discountedPrice / selectedPlan.minutes
+        setDiscountedPrice(formatFractional2(DiscountedPrice))
       }
-      
-      if (selectedPlan?.minutes !== undefined && selectedPlan?.minutes !== null) {
-        setMinutes(selectedPlan?.minutes);
+
+      if (
+        selectedPlan?.minutes !== undefined &&
+        selectedPlan?.minutes !== null
+      ) {
+        setMinutes(selectedPlan?.minutes)
       }
-      
+
       if (selectedPlan?.duration || selectedPlan?.billingCycle) {
-        setPlanDuration(selectedPlan?.duration || selectedPlan?.billingCycle || "monthly");
+        setPlanDuration(
+          selectedPlan?.duration || selectedPlan?.billingCycle || 'monthly',
+        )
       }
     }
   }, [selectedPlan, isEditPlan, basicsData])
@@ -324,124 +356,153 @@ export default function AddMonthlyPlan({
   useEffect(() => {
     if (showTrailWarning) {
       const timer = setTimeout(() => {
-        setShowTrailWarning(false);
-      }, 3000);
+        setShowTrailWarning(false)
+      }, 3000)
 
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer)
     }
-  }, [showTrailWarning]);
+  }, [showTrailWarning])
 
   //auto check minCostError
   useEffect(() => {
     if (discountedPrice && minutes) {
-      const P = (discountedPrice * 100) / minutes;
-      console.log("Calculated price is", P);
+      const P = (discountedPrice * 100) / minutes
+      console.log('Calculated price is', P)
     }
-  }, [minutes, discountedPrice]);
+  }, [minutes, discountedPrice])
 
   // Check profit margin
   useEffect(() => {
     if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
-      setProfitMarginErr(false);
-      return;
+      setProfitMarginErr(false)
+      return
     }
-    const margin = ((Number(discountedPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
+    const margin =
+      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100
     if (margin < 10) {
-      setProfitMarginErr(true);
-      setSnackBannerMsg(`Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
-      setSnackBannerMsgType(SnackbarTypes.Error);
+      setProfitMarginErr(true)
+      setSnackBannerMsg(
+        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+      )
+      setSnackBannerMsgType(SnackbarTypes.Error)
     } else {
-      setProfitMarginErr(false);
-      if (snackBannerMsg && snackBannerMsg.includes("Profit margin")) {
-        setSnackBannerMsg(null);
+      setProfitMarginErr(false)
+      if (snackBannerMsg && snackBannerMsg.includes('Profit margin')) {
+        setSnackBannerMsg(null)
       }
     }
-  }, [discountedPrice, agencyPlanCost, minutes, snackBannerMsg]);
+  }, [discountedPrice, agencyPlanCost, minutes, snackBannerMsg])
 
   //check percentage calculation
   const checkCalulations = () => {
     if (originalPrice > 0) {
-      console.log("OP ===", originalPrice)//updated
-      console.log("DP ===", (discountedPrice * minutes))
-      const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
-      console.log("Percenage of addmonthly plan is", percentage)
+      console.log('OP ===', originalPrice) //updated
+      console.log('DP ===', discountedPrice * minutes)
+      const percentage =
+        ((originalPrice - discountedPrice * minutes) / originalPrice) * 100 //replace the op * min done
+      console.log('Percenage of addmonthly plan is', percentage)
     }
   }
 
   // Calculate profit margin percentage
   const calculateProfitMargin = () => {
     if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
-      return null;
+      return null
     }
-    const margin = ((Number(discountedPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100;
-    return margin;
+    const margin =
+      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100
+    return margin
   }
 
   //sets the addition data
   const setFeaturesData = () => {
-    console.log("Yalla yalla")
-    setCustomFeatures(configurationData?.customFeatures || []);
-    const dynamicFeatures = configurationData?.features;
+    console.log('Yalla yalla')
+    setCustomFeatures(configurationData?.customFeatures || [])
+    const dynamicFeatures = configurationData?.features
     setFeatures({
       allowLanguageSelection:
         dynamicFeatures?.allowLanguageSelection ??
         dynamicFeatures?.allowLanguageSwitch ??
-        (typeof configurationData?.language === "string"
-          ? configurationData.language.toLowerCase() === "multilingual"
+        (typeof configurationData?.language === 'string'
+          ? configurationData.language.toLowerCase() === 'multilingual'
           : false),
-      toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
-      calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
-      liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
-      ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase || dynamicFeatures?.allowRAGKnowledgeBase || false,
-      embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
+      toolsActions:
+        dynamicFeatures?.toolsActions ||
+        dynamicFeatures?.allowToolsAndActions ||
+        false,
+      calendars:
+        dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
+      liveTransfer:
+        dynamicFeatures?.liveTransfer ||
+        dynamicFeatures?.allowLiveTransfer ||
+        dynamicFeatures?.allowLiveCallTransfer ||
+        false,
+      ragKnowledgeBase:
+        dynamicFeatures?.ragKnowledgeBase ||
+        dynamicFeatures?.allowRAGKnowledgeBase ||
+        false,
+      embedBrowserWebhookAgent:
+        dynamicFeatures?.embedBrowserWebhookAgent ||
+        dynamicFeatures?.allowEmbedBrowserWebhookAgent ||
+        false,
       apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
-      voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
+      voicemail:
+        dynamicFeatures?.voicemail ||
+        dynamicFeatures?.allowVoicemailSettings ||
+        false,
       twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
-      allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
-      allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
-    });
+      allowTrial:
+        dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
+      allowTeamSeats:
+        dynamicFeatures?.allowTeamSeats ||
+        dynamicFeatures?.allowTeamCollaboration ||
+        false,
+    })
   }
 
   //profit text color
   const getClr = () => {
     const percentage =
-      ((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100;
+      ((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100
 
     if (percentage >= 0 && percentage <= 50) {
-      return "#FF4E4E";
+      return '#FF4E4E'
     } else if (percentage > 50 && percentage <= 75) {
-      return "orange";
+      return 'orange'
     } else if (percentage > 75 && percentage < 100) {
-      return "#CC5500";
+      return '#CC5500'
     } else if (percentage >= 100) {
-      return "#01CB76";
+      return '#01CB76'
     }
-  };
+  }
 
   //reset values after plan added
   const handleResetValues = () => {
-    setTitle("")
-    setTag("")
-    setPlanDescription("")
-    setOriginalPrice("")
-    setDiscountedPrice("")
-    setMinutes("")
+    setTitle('')
+    setTag('')
+    setPlanDescription('')
+    setOriginalPrice('')
+    setDiscountedPrice('')
+    setMinutes('')
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
     setAllowTrial(false)
     setIsDefault(false)
-    setTrialValidForDays("")
-    setCreatePlanLoader(false);
-    setPlanDuration("");
+    setTrialValidForDays('')
+    setCreatePlanLoader(false)
+    setPlanDuration('')
   }
-
 
   //handle allow trial change
   const handleAllowTrialChange = (e) => {
     // if (canAddPlan) {
-    setAllowTrial(e.target.checked);
-    setShowTrailWarning(false);
+    setAllowTrial(e.target.checked)
+    setShowTrailWarning(false)
 
     if (e.target.checked) {
       // Wait for the DOM to render trial inputs, then scroll
@@ -449,15 +510,15 @@ export default function AddMonthlyPlan({
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTo({
             top: scrollContainerRef.current.scrollHeight,
-            behavior: "smooth",
-          });
+            behavior: 'smooth',
+          })
         }
-      }, 100);
+      }, 100)
     }
     // } else {
     //   setShowTrailWarning(true);
     // }
-  };
+  }
 
   // Format numeric strings with two decimals without discarding whole number part
   // const formatFractional2 = (raw) => {
@@ -471,18 +532,21 @@ export default function AddMonthlyPlan({
   //   return num.toFixed(2);
   // };
 
-
   //handle next
   const handleNext = () => {
     // Validate profit margin before continuing
-    const margin = calculateProfitMargin();
+    const margin = calculateProfitMargin()
     if (margin !== null && margin < 10) {
-      setSnackMsg(`Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`);
-      setSnackMsgType(SnackbarTypes.Error);
-      return;
+      setSnackMsg(
+        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+      )
+      setSnackMsgType(SnackbarTypes.Error)
+      return
     }
 
-    console.log(`value of original price is${originalPrice} && is default value is ${Boolean(isDefault)}`)
+    console.log(
+      `value of original price is${originalPrice} && is default value is ${Boolean(isDefault)}`,
+    )
     const planData = {
       title: title,
       tag: tag,
@@ -491,126 +555,131 @@ export default function AddMonthlyPlan({
       originalPrice: originalPrice,
       discountedPrice: discountedPrice,
       minutes: minutes,
-      isDefault: isDefault
+      isDefault: isDefault,
     }
-    handleContinue(planData);
+    handleContinue(planData)
   }
 
   const styles = {
     labels: {
-      fontSize: "15px",
-      fontWeight: "500",
-      color: "#00000050",
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#00000050',
     },
     inputs: {
-      fontSize: "15px",
-      fontWeight: "500",
-      color: "#000000",
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#000000',
     },
     text: {
-      fontSize: "15px",
-      fontWeight: "500",
+      fontSize: '15px',
+      fontWeight: '500',
     },
     text2: {
-      textAlignLast: "left",
+      textAlignLast: 'left',
       fontSize: 15,
-      color: "#000000",
+      color: '#000000',
       fontWeight: 500,
-      whiteSpace: "nowrap", // Prevent text from wrapping
-      overflow: "hidden", // Hide overflow text
-      textOverflow: "ellipsis", // Add ellipsis for overflow text
+      whiteSpace: 'nowrap', // Prevent text from wrapping
+      overflow: 'hidden', // Hide overflow text
+      textOverflow: 'ellipsis', // Add ellipsis for overflow text
     },
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     gitTextStyle: {
       fontSize: 15,
-      fontWeight: "700",
+      fontWeight: '700',
     },
 
     //style for plans
     cardStyles: {
-      fontSize: "14",
-      fontWeight: "500",
-      border: "1px solid #00000020",
+      fontSize: '14',
+      fontWeight: '500',
+      border: '1px solid #00000020',
     },
     pricingBox: {
-      position: "relative",
+      position: 'relative',
       // padding: '10px',
-      borderBottomLeftRadius: "15px",
-      borderBottomRightRadius: "15px",
-      borderTopLeftRadius: allowTrial && trialValidForDays ? "0px" : "15px",
-      borderTopRightRadius: allowTrial && trialValidForDays ? "0px" : "15px",
+      borderBottomLeftRadius: '15px',
+      borderBottomRightRadius: '15px',
+      borderTopLeftRadius: allowTrial && trialValidForDays ? '0px' : '15px',
+      borderTopRightRadius: allowTrial && trialValidForDays ? '0px' : '15px',
       // backgroundColor: '#f9f9ff',
-      display: "inline-block",
-      width: "100%",
+      display: 'inline-block',
+      width: '100%',
     },
     triangleLabel: {
-      position: "absolute",
-      top: "0",
-      right: "0",
-      width: "0",
-      height: "0",
-      borderTop: "50px solid #7902DF", // Increased height again for more padding
-      borderLeft: "50px solid transparent",
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
     },
     labelText: {
-      position: "absolute",
-      top: "10px", // Adjusted to keep the text centered within the larger triangle
-      right: "5px",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "bold",
-      transform: "rotate(45deg)",
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
     },
     content: {
-      textAlign: "left",
-      paddingTop: "10px",
+      textAlign: 'left',
+      paddingTop: '10px',
     },
     originalPrice: {
       // textDecoration: "line-through",
-      color: "#7902DF",
+      color: '#7902DF',
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     discountedPrice: {
-      color: "#000000",
-      fontWeight: "700",
+      color: '#000000',
+      fontWeight: '700',
       fontSize: 22,
       // marginLeft: "10px",
     },
-  };
+  }
 
   const isFormValid = () => {
     const requiredFieldsFilled =
       title?.trim() &&
       planDescription?.trim() &&
       discountedPrice && //no need to replace here
-      minutes;
+      minutes
 
     let trialValid = true
 
-    if(allowTrial){
-      const trialDays = Number(trialValidForDays);
-      trialValid = trialDays > 0 && trialDays <= 14;
+    if (allowTrial) {
+      const trialDays = Number(trialValidForDays)
+      trialValid = trialDays > 0 && trialDays <= 14
     }
 
     // Check profit margin
-    const margin = calculateProfitMargin();
-    const marginValid = margin === null || margin >= 10;
+    const margin = calculateProfitMargin()
+    const marginValid = margin === null || margin >= 10
 
-    return requiredFieldsFilled && trialValid && !minCostErr && !profitMarginErr && marginValid;
-  };
-
+    return (
+      requiredFieldsFilled &&
+      trialValid &&
+      !minCostErr &&
+      !profitMarginErr &&
+      marginValid
+    )
+  }
 
   return (
     <Modal
       open={open}
-    // onClose={() => {
-    //   handleResetValues();
-    //   handleClose("");
-    // }}
+      // onClose={() => {
+      //   handleResetValues();
+      //   handleClose("");
+      // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-none rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -618,7 +687,7 @@ export default function AddMonthlyPlan({
           isVisible={snackMsg !== null}
           message={snackMsg}
           hide={() => {
-            setSnackMsg(null);
+            setSnackMsg(null)
           }}
           type={snackMsgType}
         />
@@ -635,7 +704,7 @@ export default function AddMonthlyPlan({
             <div className="absolute left-1/2 -translate-x-1/2 top-10">
               <Image
                 className="rounded-md"
-                src={"/agencyIcons/trialPlans.jpg"}
+                src={'/agencyIcons/trialPlans.jpg'}
                 height={40}
                 width={356}
                 alt="*"
@@ -647,25 +716,32 @@ export default function AddMonthlyPlan({
               ref={scrollContainerRef}
               className="overflow-y-auto w-full h-[90%] scrollbar-hide"
               style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
             >
-              <div className="mb-4 flex items-center justify-between" style={{ fontWeight: "600", fontSize: 18 }}>
-                <div>
-                  {isEditPlan ? "Edit Plan" : "New Plan"}
-                </div>
+              <div
+                className="mb-4 flex items-center justify-between"
+                style={{ fontWeight: '600', fontSize: 18 }}
+              >
+                <div>{isEditPlan ? 'Edit Plan' : 'New Plan'}</div>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium" style={{ fontSize: "15px", fontWeight: "500" }}>Default Plan</label>
+                  <label
+                    className="text-sm font-medium"
+                    style={{ fontSize: '15px', fontWeight: '500' }}
+                  >
+                    Default Plan
+                  </label>
                   <Switch
                     checked={isDefault}
                     sx={{
                       '& .MuiSwitch-switchBase.Mui-checked': {
                         color: 'white',
                       },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: '#7902DF',
-                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                        {
+                          backgroundColor: '#7902DF',
+                        },
                     }}
                     onChange={(e) => {
                       setIsDefault(e.target.checked)
@@ -679,9 +755,7 @@ export default function AddMonthlyPlan({
                 <div className="w-1/2">
                   <div className="w-full flex flex-row items-center justify-between pe-2">
                     <label style={styles.labels}>Plan Name</label>
-                    <div style={styles.labels}>
-                      {title?.length || 0}/12
-                    </div>
+                    <div style={styles.labels}>{title?.length || 0}/12</div>
                   </div>
                   <input
                     style={styles.inputs}
@@ -689,7 +763,7 @@ export default function AddMonthlyPlan({
                     placeholder="Type here"
                     value={title}
                     onChange={(e) => {
-                      setTitle(e.target.value);
+                      setTitle(e.target.value)
                     }}
                     maxLength={12}
                   />
@@ -704,7 +778,7 @@ export default function AddMonthlyPlan({
                     placeholder="Popular, best deals"
                     value={tag}
                     onChange={(e) => {
-                      setTag(e.target.value);
+                      setTag(e.target.value)
                     }}
                   />
                 </div>
@@ -724,7 +798,7 @@ export default function AddMonthlyPlan({
                 maxLength={30}
                 value={planDescription}
                 onChange={(e) => {
-                  setPlanDescription(e.target.value);
+                  setPlanDescription(e.target.value)
                 }}
               />
 
@@ -739,9 +813,12 @@ export default function AddMonthlyPlan({
                 <div className="w-6/12">
                   {/* Price */}
                   <label style={styles.labels}>
-                    {agencyPlanCost && (`Price per credit $${(agencyPlanCost).toFixed(2)}`)}
+                    {agencyPlanCost &&
+                      `Price per credit $${agencyPlanCost.toFixed(2)}`}
                   </label>
-                  <div className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                  <div
+                    className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                  >
                     <div className="" style={styles.inputs}>
                       $
                     </div>
@@ -755,24 +832,27 @@ export default function AddMonthlyPlan({
                       value={discountedPrice}
                       onChange={(e) => {
                         // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
-                        const value = e.target.value;
+                        const value = e.target.value
                         if (value && value < agencyPlanCost) {
-                          setSnackBannerMsg(`Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
-                          setSnackBannerMsgType(SnackbarTypes.Warning);
+                          setSnackBannerMsg(
+                            `Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`,
+                          )
+                          setSnackBannerMsgType(SnackbarTypes.Warning)
                         } else {
-                          setSnackBannerMsg(null);
+                          setSnackBannerMsg(null)
                         }
                         // setDiscountedPrice(UpdatedValue);
                         // const value = e.target.value;
                         // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '');
+                        const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid = sanitized.split('.')?.length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized;
-                        const UpdatedValue = handlePricePerMinInputValue(valid);
-                        setDiscountedPrice(UpdatedValue);
+                        const valid =
+                          sanitized.split('.')?.length > 2
+                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                            : sanitized
+                        const UpdatedValue = handlePricePerMinInputValue(valid)
+                        setDiscountedPrice(UpdatedValue)
                       }}
                     />
                   </div>
@@ -804,15 +884,16 @@ export default function AddMonthlyPlan({
                       placeholder="0.00"
                       value={minutes}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        const value = e.target.value
                         // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '');
+                        const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid = sanitized.split('.').length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized;
-                        setMinutes(valid);
+                        const valid =
+                          sanitized.split('.').length > 2
+                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                            : sanitized
+                        setMinutes(valid)
                       }}
                     />
                   </div>
@@ -820,9 +901,9 @@ export default function AddMonthlyPlan({
                 <div className="bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full">
                   <div
                     style={{
-                      fontWeight: "500",
+                      fontWeight: '500',
                       fontSize: 15,
-                      color: "#00000050",
+                      color: '#00000050',
                     }}
                   >
                     Margin Calculation
@@ -832,50 +913,80 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Credit</div>
-                    <div>${discountedPrice ? formatFractional2(discountedPrice) : "0.00"}/Credit</div>
-                    {
-                      discountedPrice && minutes && (
-                        <div>${formatDecimalValue(discountedPrice * minutes)}</div>
-                      )
-                    }
+                    <div>
+                      $
+                      {discountedPrice
+                        ? formatFractional2(discountedPrice)
+                        : '0.00'}
+                      /Credit
+                    </div>
+                    {discountedPrice && minutes && (
+                      <div>
+                        ${formatDecimalValue(discountedPrice * minutes)}
+                      </div>
+                    )}
                   </div>
                   <div
                     className="flex flex-row items-center justify-between mt-4"
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>{agencyPlanCost ? `$${formatFractional2(agencyPlanCost)}` : "$0.00"}/Credit</div>
-                    {
-                      (discountedPrice && minutes && agencyPlanCost) ? (
-                        <div>${formatDecimalValue(Number(agencyPlanCost) * Number(minutes))}</div>
-                      ) : null
-                    }
-                  </div>
-                  {(discountedPrice && minutes && agencyPlanCost) && ( // 
-                    <div className="w-full">
-                      <div
-                        className="flex flex-row items-center justify-between mt-4"
-                        style={{ ...styles.inputs, color: getClr() }}
-                      >
-                        <div>Your Profit</div>
-                        <div>
-                          ${formatFractional2(Number(discountedPrice) - Number(agencyPlanCost))}/Credit
-                        </div>
-                        <div>
-                          ${formatDecimalValue((Number(discountedPrice) - Number(agencyPlanCost)) * Number(minutes))}
-                        </div>
-                      </div>
-                      <div
-                        className="text-end w-full mt-2"
-                        style={{ color: getClr() }}
-                      >
-                        {formatDecimalValue(((Number(discountedPrice) - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100)}%
-                      </div>
+                    <div>
+                      {agencyPlanCost
+                        ? `$${formatFractional2(agencyPlanCost)}`
+                        : '$0.00'}
+                      /Credit
                     </div>
-                  )}
+                    {discountedPrice && minutes && agencyPlanCost ? (
+                      <div>
+                        $
+                        {formatDecimalValue(
+                          Number(agencyPlanCost) * Number(minutes),
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                  {discountedPrice &&
+                    minutes &&
+                    agencyPlanCost && ( //
+                      <div className="w-full">
+                        <div
+                          className="flex flex-row items-center justify-between mt-4"
+                          style={{ ...styles.inputs, color: getClr() }}
+                        >
+                          <div>Your Profit</div>
+                          <div>
+                            $
+                            {formatFractional2(
+                              Number(discountedPrice) - Number(agencyPlanCost),
+                            )}
+                            /Credit
+                          </div>
+                          <div>
+                            $
+                            {formatDecimalValue(
+                              (Number(discountedPrice) -
+                                Number(agencyPlanCost)) *
+                                Number(minutes),
+                            )}
+                          </div>
+                        </div>
+                        <div
+                          className="text-end w-full mt-2"
+                          style={{ color: getClr() }}
+                        >
+                          {formatDecimalValue(
+                            ((Number(discountedPrice) -
+                              Number(agencyPlanCost)) /
+                              Number(agencyPlanCost)) *
+                              100,
+                          )}
+                          %
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
-
 
               {/* Strikethrough Price */}
               <label style={styles.labels}>
@@ -888,33 +999,34 @@ export default function AddMonthlyPlan({
                 <input
                   style={styles.inputs}
                   type="text"
-                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice > 0 && "line-through" //replced
-                    }`}
+                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${
+                    originalPrice > 0 && 'line-through' //replced
+                  }`}
                   placeholder="0.00"
                   value={originalPrice} //replaced
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const value = e.target.value
                     // Allow only digits and one optional period
-                    const sanitized = value.replace(/[^0-9.]/g, '');
+                    const sanitized = value.replace(/[^0-9.]/g, '')
 
                     // Prevent multiple periods
-                    const valid = sanitized.split('.').length > 2
-                      ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                      : sanitized;
+                    const valid =
+                      sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized
                     // setOriginalPrice(valid);
-                    setOriginalPrice(valid);
+                    setOriginalPrice(valid)
                   }}
                 />
               </div>
-
             </div>
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
                 disabled={createPlanLoader}
                 onClick={() => {
-                  handleClose("");
-                  handleResetValues();
+                  handleClose('')
+                  handleResetValues()
                 }}
                 className="text-[#6b7280] font-semibold w-[12vw]"
               >
@@ -924,9 +1036,9 @@ export default function AddMonthlyPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${isFormValid() ? "bg-purple" : "bg-[#00000020]"} w-[12vw] ${isFormValid() ? "text-white" : "text-black"} font-semibold py-2 px-4 rounded-lg`}
+                  className={` ${isFormValid() ? 'bg-purple' : 'bg-[#00000020]'} w-[12vw] ${isFormValid() ? 'text-white' : 'text-black'} font-semibold py-2 px-4 rounded-lg`}
                   onClick={() => {
-                    handleNext();
+                    handleNext()
                     // if (isEditPlan) {
                     //   handleUpdatePlan();
                     // } else {
@@ -941,9 +1053,7 @@ export default function AddMonthlyPlan({
               )}
             </div>
           </div>
-          <div
-            className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg"
-          >
+          <div className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg">
             <SideUI
               tag={tag}
               discountedPrice={discountedPrice}
@@ -961,11 +1071,8 @@ export default function AddMonthlyPlan({
         </div>
       </Box>
     </Modal>
-  );
+  )
 }
-
-
-
 
 // <div
 //             className="w-6/12 h-full rounded-tr-xl rounded-br-xl"

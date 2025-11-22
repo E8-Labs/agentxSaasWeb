@@ -1,5 +1,1 @@
-export const monthly= [
-{
-
-}
-]
+export const monthly = [{}]

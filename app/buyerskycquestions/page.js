@@ -1,34 +1,36 @@
-"use client";
-import BackgroundVideo from "@/components/general/BackgroundVideo";
-import BuyerKycs from "@/components/kycQuestions/buyerKyc/BuyerKycs";
-import React, { useState } from "react";
+'use client'
+
+import React, { useState } from 'react'
+
+import BackgroundVideo from '@/components/general/BackgroundVideo'
+import BuyerKycs from '@/components/kycQuestions/buyerKyc/BuyerKycs'
 
 const Page = () => {
-  const [index, setIndex] = useState(0);
-  let components = [BuyerKycs];
+  const [index, setIndex] = useState(0)
+  let components = [BuyerKycs]
 
-  let CurrentComp = components[index];
+  let CurrentComp = components[index]
 
   // Function to proceed to the next step
   const handleContinue = () => {
     // //console.log;
-    setIndex(index + 1);
-  };
+    setIndex(index + 1)
+  }
 
   const handleBack = () => {
     // //console.log;
-    setIndex(index - 1);
-  };
+    setIndex(index - 1)
+  }
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: "100%",
-    height: "100svh",
-    overflow: "hidden",
-  };
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: '100%',
+    height: '100svh',
+    overflow: 'hidden',
+  }
 
   return (
     <div
@@ -37,12 +39,12 @@ const Page = () => {
     >
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
           zIndex: -1, // Ensure the video stays behind content
         }}
       >
@@ -50,7 +52,7 @@ const Page = () => {
       </div>
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

@@ -1,137 +1,140 @@
-"use client";
-import React, { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import moment from "moment";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+'use client'
+
+import './CalendarOverrides.css'
+import 'react-calendar/dist/Calendar.css'
+
 import {
   Box,
   CircularProgress,
-  duration,
   FormControl,
   InputLabel,
   MenuItem,
   Modal,
   Select,
-} from "@mui/material";
-import { CalendarDots } from "@phosphor-icons/react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import "./CalendarOverrides.css";
-import parsePhoneNumberFromString from "libphonenumber-js";
-import InfiniteScroll from "react-infinite-scroll-component";
-import LeadDetails from "@/components/dashboard/leads/extras/LeadDetails";
+  duration,
+} from '@mui/material'
+import { CalendarDots } from '@phosphor-icons/react'
+import axios from 'axios'
+import { time } from 'framer-motion'
+import parsePhoneNumberFromString from 'libphonenumber-js'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import Calendar from 'react-calendar'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import Apis from '@/components/apis/Apis'
+import { copyAgencyOnboardingLink } from '@/components/constants/constants'
+import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import { PersistanceKeys } from '@/constants/Constants'
 import {
-  convertUTCToTimezone,
   GetFormattedDateString,
   GetFormattedTimeString,
-} from "@/utilities/utility";
-import AdminCallDetails from "./AdminCallDetails";
-import { time } from "framer-motion";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
-import { PersistanceKeys } from "@/constants/Constants";
-import { copyAgencyOnboardingLink } from "@/components/constants/constants";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import AdminActiveCalls from "../activeCalls/AdminActiveCalls";
-import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
-import AdminCallAnalytics from "./AdminCallAnalytics";
+  convertUTCToTimezone,
+} from '@/utilities/utility'
+
+import AdminActiveCalls from '../activeCalls/AdminActiveCalls'
+import AdminCallAnalytics from './AdminCallAnalytics'
+import AdminCallDetails from './AdminCallDetails'
+import AdminDashboardActiveCall from './AdminDashboardActiveCall'
+import AdminDashboardScheduledCalls from './AdminDashboardScheduledCalls'
 
 function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
-  const LimitPerPage = 30;
+  const LimitPerPage = 30
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('')
 
-  const [activeTab, setActiveTab] = useState("All Activities");
+  const [activeTab, setActiveTab] = useState('All Activities')
 
-
-  const [callDetails, setCallDetails] = useState([]);
-  const [filteredCallDetails, setFilteredCallDetails] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
+  const [callDetails, setCallDetails] = useState([])
+  const [filteredCallDetails, setFilteredCallDetails] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
 
   //code for filter call log details
   //variabl for deltag
-  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false)
 
-  const [selectedFromDate, setSelectedFromDate] = useState(null);
-  const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState([]);
-  const [selectedToDate, setSelectedToDate] = useState(null);
-  const [showToDatePicker, setShowToDatePicker] = useState(false);
+  const [selectedFromDate, setSelectedFromDate] = useState(null)
+  const [showFromDatePicker, setShowFromDatePicker] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState([])
+  const [selectedToDate, setSelectedToDate] = useState(null)
+  const [showToDatePicker, setShowToDatePicker] = useState(false)
 
-  const [sheetsLoader, setSheetsLoader] = useState(false);
+  const [sheetsLoader, setSheetsLoader] = useState(false)
 
   //code for pipelines
 
   //code for details modal
-  const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [isLocalCallsAvailable, setIsLocalCallsAvailable] = useState(true)
 
   //code for pagination
-  const [offset, setOffset] = useState(5);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const requestVersion = useRef(0);
+  const [offset, setOffset] = useState(5)
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const requestVersion = useRef(0)
 
-  const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
+  const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
   // Store active tab when filter modal opens
-  const [activeTabWhenModalOpened, setActiveTabWhenModalOpened] = useState(null);
+  const [activeTabWhenModalOpened, setActiveTabWhenModalOpened] = useState(null)
 
   // Subaccount filter state
-  const [selectedSubaccount, setSelectedSubaccount] = useState(null);
-  const [subaccountList, setSubaccountList] = useState([]);
+  const [selectedSubaccount, setSelectedSubaccount] = useState(null)
+  const [subaccountList, setSubaccountList] = useState([])
 
-  const filterRef = useRef(null);
+  const filterRef = useRef(null)
 
   const statusList = [
     {
       id: 1,
-      status: "Voicemail",
+      status: 'Voicemail',
     },
     {
       id: 2,
-      status: "Booked",
+      status: 'Booked',
     },
     {
       id: 3,
-      status: "Hangup",
+      status: 'Hangup',
     },
     {
       id: 4,
-      status: "Hot Lead",
+      status: 'Hot Lead',
     },
     {
       id: 5,
-      status: "Agent Goodbye",
+      status: 'Agent Goodbye',
     },
     {
       id: 6,
-      status: "Human Goodbye",
+      status: 'Human Goodbye',
     },
     {
       id: 7,
-      status: "Busy",
+      status: 'Busy',
     },
     {
       id: 8,
-      status: "Failed",
+      status: 'Failed',
     },
     {
       id: 9,
-      status: "Not Interested",
+      status: 'Not Interested',
     },
     {
       id: 10,
-      status: "No answer",
+      status: 'No answer',
     },
-  ];
+  ]
 
   useEffect(() => {
-    console.log("Call logs list is", filteredCallDetails.length);
-  }, [filteredCallDetails]);
+    console.log('Call logs list is', filteredCallDetails.length)
+  }, [filteredCallDetails])
 
   // useEffect(() => {
   //   //console.log;
@@ -144,154 +147,177 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   //   // }
   // }, [selectedToDate, selectedFromDate]);
 
-
   // Function to fetch subaccounts list
   const getSubaccounts = async () => {
     try {
-      setInitialLoader(true);
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      setInitialLoader(true)
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
-      let ApiPath = Apis.getAgencySubAccount;
+      let ApiPath = Apis.getAgencySubAccount
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response && response.data && response.data.data) {
-        setSubaccountList(response.data.data);
-        setInitialLoader(false);
+        setSubaccountList(response.data.data)
+        setInitialLoader(false)
       }
     } catch (error) {
-      console.error("Error fetching subaccounts:", error);
+      console.error('Error fetching subaccounts:', error)
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   useEffect(() => {
     const getLocalCalls = () => {
       const call = localStorage.getItem(PersistanceKeys.LocalAllCalls)
       if (call) {
         setIsLocalCallsAvailable(true)
-        const C = JSON.parse(call);
-        setFilteredCallDetails(C);
-        setCallDetails(C);
-        setHasFetchedFromAPIOnce(true); // ← ADD THIS LINE
-        console.log("Get admin all calls from local are ", C.length);
+        const C = JSON.parse(call)
+        setFilteredCallDetails(C)
+        setCallDetails(C)
+        setHasFetchedFromAPIOnce(true) // ← ADD THIS LINE
+        console.log('Get admin all calls from local are ', C.length)
         if (C.length < LimitPerPage) {
-          setHasMore(false);
+          setHasMore(false)
         }
         getCallLogs(0)
-
-      }
-      else {
-        console.log("calls are not available in local storage")
+      } else {
+        console.log('calls are not available in local storage')
         setIsLocalCallsAvailable(false)
         getCallLogs(0)
       }
     }
     getLocalCalls()
     // Fetch subaccounts on component mount
-    getSubaccounts();
+    getSubaccounts()
   }, [])
 
   useEffect(() => {
     if (filterRef.current) {
-      clearTimeout(filterRef.current);
+      clearTimeout(filterRef.current)
     }
     filterRef.current = setTimeout(() => {
-      console.log("is local call ", isLocalCallsAvailable)
+      console.log('is local call ', isLocalCallsAvailable)
       if (!isLocalCallsAvailable || hasFetchedFromAPIOnce) {
-        setHasMore(true);
-        setCallDetails([]);
-        setFilteredCallDetails([]);
-        setInitialLoader(true);
-        getCallLogs(0);
+        setHasMore(true)
+        setCallDetails([])
+        setFilteredCallDetails([])
+        setInitialLoader(true)
+        getCallLogs(0)
       }
-
-    }, 400);
-  }, [searchValue]);
+    }, 400)
+  }, [searchValue])
 
   useEffect(() => {
     // getCallLogs()
-  }, []);
+  }, [])
 
   function getFilterTitle(filter) {
-    if (filter.key === "date") {
-      let values = filter.values;
+    if (filter.key === 'date') {
+      let values = filter.values
       if (values.length > 0) {
-        let string = moment(values[0]).format("MMM Do");
+        let string = moment(values[0]).format('MMM Do')
         if (values.length > 1) {
-          string += ` - ${moment(values[1]).format("MMM Do")}`;
+          string += ` - ${moment(values[1]).format('MMM Do')}`
         }
-        return string;
+        return string
       }
-      return "";
+      return ''
     }
 
-    if (filter.key === "status") {
-      return filter.values[0]; // Return status string directly
+    if (filter.key === 'status') {
+      return filter.values[0] // Return status string directly
     }
 
-    if (filter.key === "filterUserId") {
+    if (filter.key === 'filterUserId') {
       // Find subaccount name from the list
-      const subaccount = subaccountList.find(sub => sub.id === filter.values[0]);
-      return subaccount ? (subaccount.name || subaccount.email || "Subaccount") : "Subaccount";
+      const subaccount = subaccountList.find(
+        (sub) => sub.id === filter.values[0],
+      )
+      return subaccount
+        ? subaccount.name || subaccount.email || 'Subaccount'
+        : 'Subaccount'
     }
 
-    return "";
+    return ''
   }
 
   function GetFiltersFromSelection() {
-    let filters = [];
+    let filters = []
 
     // Date filter
     if (selectedFromDate && selectedToDate) {
       filters.push({
-        key: "date",
+        key: 'date',
         values: [selectedFromDate, selectedToDate],
-      });
+      })
     }
 
     // Status filters (Ensure each status is separate)
     selectedStatus.forEach((status) => {
       filters.push({
-        key: "status",
+        key: 'status',
         values: [status], // Pass each status individually
-      });
-    });
+      })
+    })
 
     // Subaccount filter
     if (selectedSubaccount) {
       filters.push({
-        key: "filterUserId",
+        key: 'filterUserId',
         values: [selectedSubaccount.id],
-      });
+      })
     }
 
-    return filters;
+    return filters
   }
 
   //code for getting call log details
   const getCallLogs = async (offset = null, filterOverrides = {}) => {
-    console.log("Getting call logs with offset:", offset, "filterOverrides:", filterOverrides);
+    console.log(
+      'Getting call logs with offset:',
+      offset,
+      'filterOverrides:',
+      filterOverrides,
+    )
 
     // Use override values if provided, otherwise use state values
-    const fromDate = filterOverrides.selectedFromDate !== undefined ? filterOverrides.selectedFromDate : selectedFromDate;
-    const toDate = filterOverrides.selectedToDate !== undefined ? filterOverrides.selectedToDate : selectedToDate;
-    const status = filterOverrides.selectedStatus !== undefined ? filterOverrides.selectedStatus : selectedStatus;
-    const subaccount = filterOverrides.selectedSubaccount !== undefined ? filterOverrides.selectedSubaccount : selectedSubaccount;
+    const fromDate =
+      filterOverrides.selectedFromDate !== undefined
+        ? filterOverrides.selectedFromDate
+        : selectedFromDate
+    const toDate =
+      filterOverrides.selectedToDate !== undefined
+        ? filterOverrides.selectedToDate
+        : selectedToDate
+    const status =
+      filterOverrides.selectedStatus !== undefined
+        ? filterOverrides.selectedStatus
+        : selectedStatus
+    const subaccount =
+      filterOverrides.selectedSubaccount !== undefined
+        ? filterOverrides.selectedSubaccount
+        : selectedSubaccount
 
     // First, try to load from cache if this is the initial load and no filters are applied
-    const hasFilters = fromDate || toDate || selectedAgency || subaccount || searchValue || status.length > 0;
+    const hasFilters =
+      fromDate ||
+      toDate ||
+      selectedAgency ||
+      subaccount ||
+      searchValue ||
+      status.length > 0
 
     // if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
     //   const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
@@ -311,166 +337,170 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
     // }
 
     try {
-      setLoading(true);
-      setInitialLoader(true);
+      setLoading(true)
+      setInitialLoader(true)
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
-      let startDate = "";
-      let endDate = "";
+      let startDate = ''
+      let endDate = ''
 
       if (fromDate && toDate) {
-        startDate = moment(fromDate).format("MM-DD-YYYY");
-        endDate = moment(toDate).format("MM-DD-YYYY");
+        startDate = moment(fromDate).format('MM-DD-YYYY')
+        endDate = moment(toDate).format('MM-DD-YYYY')
       }
 
-      let ApiPath = null;
+      let ApiPath = null
       if (offset == null) {
-        offset = filteredCallDetails.length;
+        offset = filteredCallDetails.length
       }
 
       if (fromDate && toDate) {
-        ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
+        ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`
       } else {
-        ApiPath = `${Apis.adminCallLogs}?offset=${offset}`;
+        ApiPath = `${Apis.adminCallLogs}?offset=${offset}`
       }
 
       if (selectedAgency) {
-        ApiPath = ApiPath + "&userId=" + selectedAgency.id
+        ApiPath = ApiPath + '&userId=' + selectedAgency.id
       }
       if (subaccount) {
-        ApiPath = ApiPath + "&filterUserId=" + subaccount.id
+        ApiPath = ApiPath + '&filterUserId=' + subaccount.id
       }
       if (searchValue && searchValue.length > 0) {
-        ApiPath = `${ApiPath}&name=${searchValue}`;
+        ApiPath = `${ApiPath}&name=${searchValue}`
       }
 
       if (status.length > 0) {
-        ApiPath += `&status=${status.join(",")}`;
+        ApiPath += `&status=${status.join(',')}`
       }
 
-      console.log("API Path:", ApiPath);
+      console.log('API Path:', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
-      setLoading(false);
+      })
+      setLoading(false)
 
       if (response) {
-        const data = response.data.data;
-        console.log("Fetched call logs from API:", data);
+        const data = response.data.data
+        console.log('Fetched call logs from API:', data)
 
         // If offset is 0, replace the calls completely, otherwise append
-        let calls;
+        let calls
         if (offset === 0) {
-          calls = data;
+          calls = data
         } else {
-          calls = [...callDetails, ...data];
+          calls = [...callDetails, ...data]
         }
 
-        console.log('Updated calls:', calls.length, 'total items');
-        setCallDetails(calls);
-        setFilteredCallDetails(calls);
-        setHasFetchedFromAPIOnce(true);
+        console.log('Updated calls:', calls.length, 'total items')
+        setCallDetails(calls)
+        setFilteredCallDetails(calls)
+        setHasFetchedFromAPIOnce(true)
 
         // Save to localStorage only if no filters are applied
         if (offset === 0 && !hasFilters) {
-          localStorage.setItem(PersistanceKeys.LocalAllCalls, JSON.stringify(calls));
-          console.log("Saved call logs to cache:", calls.length, "items");
+          localStorage.setItem(
+            PersistanceKeys.LocalAllCalls,
+            JSON.stringify(calls),
+          )
+          console.log('Saved call logs to cache:', calls.length, 'items')
         }
 
-        setIsLocalCallsAvailable(false);
+        setIsLocalCallsAvailable(false)
 
         if (data.length < LimitPerPage) {
-          setHasMore(false);
+          setHasMore(false)
         }
       }
     } catch (error) {
-      console.error("Error occurred in getting calls log API:", error);
+      console.error('Error occurred in getting calls log API:', error)
       // If API fails and we have cached data, keep showing cached data
       if (!hasFetchedFromAPIOnce && !hasFilters) {
-        const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
+        const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls)
         if (cachedData) {
           try {
-            const parsedCachedData = JSON.parse(cachedData);
-            setCallDetails(parsedCachedData);
-            setFilteredCallDetails(parsedCachedData);
-            setIsLocalCallsAvailable(true);
+            const parsedCachedData = JSON.parse(cachedData)
+            setCallDetails(parsedCachedData)
+            setFilteredCallDetails(parsedCachedData)
+            setIsLocalCallsAvailable(true)
           } catch (err) {
-            console.warn("Error parsing cached data after API failure", err);
+            console.warn('Error parsing cached data after API failure', err)
           }
         }
       }
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   //function to select date
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date); // Set the selected date
-    setShowFromDatePicker(false);
-  };
+    setSelectedFromDate(date) // Set the selected date
+    setShowFromDatePicker(false)
+  }
 
   const handleToDateChange = (date) => {
-    setSelectedToDate(date); // Set the selected date
-    setShowToDatePicker(false);
-  };
+    setSelectedToDate(date) // Set the selected date
+    setShowToDatePicker(false)
+  }
 
   //function to format phone number
   //code for formating the number
   const formatPhoneNumber = (rawNumber) => {
     const phoneNumber = parsePhoneNumberFromString(
-      rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
-    );
+      rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`,
+    )
     //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
-      : "Invalid phone number";
-  };
+      : 'Invalid phone number'
+  }
 
   return (
     <div className="w-full items-start">
       <div className="flex flex-row items-center justify-between w-full">
-        <div
-          className="pl-10 mt-5"
-          style={{ fontSize: 24, fontWeight: "600" }}
-        >
-          {"Activity"}
+        <div className="pl-10 mt-5" style={{ fontSize: 24, fontWeight: '600' }}>
+          {'Activity'}
         </div>
-        {
-          !selectedAgency && (
-            <div className="flex flex-row items-center gap-2">
-              <NotficationsDrawer />
-            </div>
-          )
-        }
+        {!selectedAgency && (
+          <div className="flex flex-row items-center gap-2">
+            <NotficationsDrawer />
+          </div>
+        )}
       </div>
-      <div className="w-full flex flex-row items-center justify-between overflow-x-auto"
-      style={{scrollbarWidth: "none"}}
+      <div
+        className="w-full flex flex-row items-center justify-between overflow-x-auto"
+        style={{ scrollbarWidth: 'none' }}
       >
         <div className="flex flex-row mt-10 gap-8 pb-2 mb-4 pl-10 flex-shrink-0">
-          {["All Activities", "Campaigns", "Analytics"].map((tab) => (//, "Scheduled"
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`${activeTab === tab
-                ? "text-purple border-b-2 border-purple outline-none"
-                : ""
+          {['All Activities', 'Campaigns', 'Analytics'].map(
+            (
+              tab, //, "Scheduled"
+            ) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`${
+                  activeTab === tab
+                    ? 'text-purple border-b-2 border-purple outline-none'
+                    : ''
                 }`}
-              style={{ fontSize: 15, fontWeight: "500" }}
-            >
-              {tab}
-            </button>
-          ))}
+                style={{ fontSize: 15, fontWeight: '500' }}
+              >
+                {tab}
+              </button>
+            ),
+          )}
         </div>
 
         <div className="flex px-10 flex-row items-center gap-3 mt-4">
@@ -482,13 +512,13 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
               className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
               value={searchValue}
               onChange={(e) => {
-                const value = e.target.value;
+                const value = e.target.value
                 // handleSearchChange(value);
-                setSearchValue(value);
+                setSearchValue(value)
               }}
             />
             <img
-              src={"/otherAssets/searchIcon.png"}
+              src={'/otherAssets/searchIcon.png'}
               alt="Search"
               width={20}
               height={20}
@@ -498,12 +528,12 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           <button
             className="flex-shrink-0"
             onClick={() => {
-              setActiveTabWhenModalOpened(activeTab);
-              setShowFilterModal(true);
+              setActiveTabWhenModalOpened(activeTab)
+              setShowFilterModal(true)
             }}
           >
             <Image
-              src={"/otherAssets/filterBtn.png"}
+              src={'/otherAssets/filterBtn.png'}
               height={36}
               width={36}
               alt="Search"
@@ -513,13 +543,13 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           {/* Show filters here in a row*/}
           <div
             className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
-            style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
+            style={{ scrollbarColor: '#00000000', scrollbarWidth: 'none' }}
           >
             {GetFiltersFromSelection().map((filter, index) => (
               <div className="flex-shrink-0" key={index}>
                 <div
                   className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                  style={{ fontWeight: "500", fontSize: 15 }}
+                  style={{ fontWeight: '500', fontSize: 15 }}
                 >
                   {getFilterTitle(filter)}
 
@@ -527,44 +557,46 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <button
                     className="outline-none"
                     onClick={() => {
-                      console.log("filter.key", filter.key);
+                      console.log('filter.key', filter.key)
 
                       // Calculate the updated filter values before updating state
-                      let updatedFromDate = selectedFromDate;
-                      let updatedToDate = selectedToDate;
-                      let updatedStatus = [...selectedStatus];
-                      let updatedSubaccount = selectedSubaccount;
+                      let updatedFromDate = selectedFromDate
+                      let updatedToDate = selectedToDate
+                      let updatedStatus = [...selectedStatus]
+                      let updatedSubaccount = selectedSubaccount
 
-                      if (filter.key === "date") {
-                        updatedFromDate = null;
-                        updatedToDate = null;
-                        setSelectedFromDate(null);
-                        setSelectedToDate(null);
-                      } else if (filter.key === "status") {
-                        updatedStatus = selectedStatus.filter((s) => s !== filter.values[0]);
-                        setSelectedStatus(updatedStatus);
-                      } else if (filter.key === "filterUserId") {
-                        updatedSubaccount = null;
-                        setSelectedSubaccount(null);
+                      if (filter.key === 'date') {
+                        updatedFromDate = null
+                        updatedToDate = null
+                        setSelectedFromDate(null)
+                        setSelectedToDate(null)
+                      } else if (filter.key === 'status') {
+                        updatedStatus = selectedStatus.filter(
+                          (s) => s !== filter.values[0],
+                        )
+                        setSelectedStatus(updatedStatus)
+                      } else if (filter.key === 'filterUserId') {
+                        updatedSubaccount = null
+                        setSelectedSubaccount(null)
                       }
 
                       // Refresh Call Logs after filter removal with updated filter values
                       setTimeout(() => {
-                        setCallDetails([]);
-                        setFilteredCallDetails([]);
-                        setHasMore(true);
+                        setCallDetails([])
+                        setFilteredCallDetails([])
+                        setHasMore(true)
                         // Pass updated filter values explicitly to ensure API path is reset correctly
                         getCallLogs(0, {
                           selectedFromDate: updatedFromDate,
                           selectedToDate: updatedToDate,
                           selectedStatus: updatedStatus,
-                          selectedSubaccount: updatedSubaccount
-                        });
-                      }, 100);
+                          selectedSubaccount: updatedSubaccount,
+                        })
+                      }, 100)
                     }}
                   >
                     <Image
-                      src={"/otherAssets/crossIcon.png"}
+                      src={'/otherAssets/crossIcon.png'}
                       height={20}
                       width={20}
                       alt="Remove Filter"
@@ -575,12 +607,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             ))}
           </div>
         </div>
-
       </div>
 
-
       <div className="w-full">
-        {activeTab === "Campaigns" ? (
+        {activeTab === 'Campaigns' ? (
           <AdminDashboardActiveCall
             isFromAgency={isFromAgency}
             selectedFromDate={selectedFromDate}
@@ -591,28 +621,29 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
               // This callback can be used to refresh if needed
             }}
           />
-        ) : activeTab === "Analytics" ? (
+        ) : activeTab === 'Analytics' ? (
           <AdminCallAnalytics
             selectedAgency={selectedAgency}
             isFromAgency={isFromAgency}
           />
-        ) : activeTab === "All Activities" ? (
+        ) : activeTab === 'All Activities' ? (
           <div className="w-full">
             <div
               className="h-[67vh] overflow-y-auto w-full"
               id="scrollableDiv1"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
-              <InfiniteScroll className="lg:flex hidden flex-col w-full"
+              <InfiniteScroll
+                className="lg:flex hidden flex-col w-full"
                 endMessage={
                   <p
                     style={{
-                      textAlign: "center",
-                      paddingTop: "10px",
-                      fontWeight: "400",
-                      fontFamily: "inter",
+                      textAlign: 'center',
+                      paddingTop: '10px',
+                      fontWeight: '400',
+                      fontFamily: 'inter',
                       fontSize: 16,
-                      color: "#00000060",
+                      color: '#00000060',
                     }}
                   >
                     {`You're all caught up`}
@@ -623,20 +654,20 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 next={() => {
                   //console.log;
                   if (!loading && hasMore) {
-                    getCallLogs(filteredCallDetails.length);
+                    getCallLogs(filteredCallDetails.length)
                   }
-
                 }} // Fetch more when scrolled
                 hasMore={hasMore} // Check if there's more data
                 loader={
-
                   <div className="w-full flex flex-row justify-center mt-8">
                     <CircularProgress size={35} />
                   </div>
                 }
-                style={{ overflow: "unset" }}
+                style={{ overflow: 'unset' }}
               >
-                {initialLoader && filteredCallDetails.length == 0 && !isLocalCallsAvailable ? (
+                {initialLoader &&
+                filteredCallDetails.length == 0 &&
+                !isLocalCallsAvailable ? (
                   <div
                     className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
                   >
@@ -645,14 +676,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 ) : (
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
-                      {
-                        !isFromAgency && (
-                          <div className="w-[200px] flex-shrink-0">
-                            <div style={styles.text}>Agency Name</div>
-                          </div>
-                        )
-                      }
-
+                      {!isFromAgency && (
+                        <div className="w-[200px] flex-shrink-0">
+                          <div style={styles.text}>Agency Name</div>
+                        </div>
+                      )}
 
                       <div className="w-[200px] flex-shrink-0">
                         <div style={styles.text}>Sub Account</div>
@@ -689,96 +717,101 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       </div>
                     </div>
 
-
-
                     {filteredCallDetails?.length > 0 ? (
                       <div>
                         {filteredCallDetails.map((item, index) => (
                           <div
                             key={index}
-                            style={{ cursor: "pointer" }}
+                            style={{ cursor: 'pointer' }}
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
-                            {
-                              !isFromAgency && (
-                                <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
-                                  <div style={styles.text2}>
-                                    {item.agency?.name || "-"}
-                                  </div>
+                            {!isFromAgency && (
+                              <div className="w-[200px] flex-shrink-0 pr-3 capitalize truncate">
+                                <div style={styles.text2}>
+                                  {item.agency?.name || '-'}
                                 </div>
-                              )
-                            }
-
+                              </div>
+                            )}
 
                             <div className="w-[200px] pr-3 flex-shrink-0 flex flex-row gap-2 truncate items-center">
-                              <div className="truncate w-full capitalize" style={styles.text2}>
-                                {
-                                  item.user?.name
-                                  || "-"}
+                              <div
+                                className="truncate w-full capitalize"
+                                style={styles.text2}
+                              >
+                                {item.user?.name || '-'}
                               </div>
                             </div>
                             <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
-                              <div style={styles.text2} className="truncate  w-full">
+                              <div
+                                style={styles.text2}
+                                className="truncate  w-full"
+                              >
                                 {item.agent?.name ? (
                                   <div>{item.agent.name}</div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
                             </div>
                             <div className="w-[200px] flex-shrink-0 pr-3 truncate">
                               <div style={styles.text2} className="truncate">
                                 {item.LeadModel?.phone ? (
-                                  <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
+                                  <div>
+                                    {formatPhoneNumber(item?.LeadModel?.phone)}
+                                  </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
                             </div>
 
                             <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item?.pipeline ? item?.pipeline?.title : "-"}
-                              </div>
-                            </div>
-
-
-                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
-                              <div style={styles.text2}>
-                                {item?.pipelineStages ? item?.pipelineStages?.stageTitle : "-"}
+                                {item?.pipeline ? item?.pipeline?.title : '-'}
                               </div>
                             </div>
 
                             <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item?.communicationType ? item?.communicationType : "-"}
+                                {item?.pipelineStages
+                                  ? item?.pipelineStages?.stageTitle
+                                  : '-'}
+                              </div>
+                            </div>
+
+                            <div className="w-[200px] pr-3 flex-shrink-0 capitalize truncate">
+                              <div style={styles.text2}>
+                                {item?.communicationType
+                                  ? item?.communicationType
+                                  : '-'}
                               </div>
                             </div>
 
                             <div className="w-[200px] flex-shrink-0 capitalize truncate">
                               <div style={styles.text2}>
-                                {item?.callOutcome ? item?.callOutcome : "-"}
+                                {item?.callOutcome ? item?.callOutcome : '-'}
                               </div>
                             </div>
 
                             <div className="w-[400px] flex-shrink-0 truncate ">
                               <div style={styles.text2}>
-                                {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
+                                {GetFormattedDateString(item?.createdAt)}{' '}
+                                {GetFormattedTimeString(item?.createdAt)}
                               </div>
                             </div>
 
                             <div className="w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                               <button
                                 onClick={() => {
-                                  setselectedLeadsDetails(item);
-                                  setShowDetailsModal(true);
+                                  setselectedLeadsDetails(item)
+                                  setShowDetailsModal(true)
                                 }}
                               >
                                 <div
                                   style={{
                                     fontSize: 12,
-                                    color: "#7902DF",
-                                    textDecorationLine: "underline",
+                                    color: '#7902DF',
+                                    textDecorationLine: 'underline',
                                   }}
                                 >
                                   Details
@@ -791,7 +824,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     ) : (
                       <div
                         className="text-center mt-4"
-                        style={{ fontWeight: "bold", fontSize: 20 }}
+                        style={{ fontWeight: 'bold', fontSize: 20 }}
                       >
                         No activities found
                       </div>
@@ -808,10 +841,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 setShowDetailsModal={setShowDetailsModal}
               />
             )}
-
           </div>
-
-        ) : "No Activities found"}
+        ) : (
+          'No Activities found'
+        )}
       </div>
 
       {/* Code for filter modal */}
@@ -821,7 +854,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           closeAfterTransition
           BackdropProps={{
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
               // //backdropFilter: "blur(5px)",
             },
           }}
@@ -830,9 +863,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             className="lg:w-4/12 sm:w-7/12 w-8/12 px-6 flex justify-center items-center"
             sx={{
               ...styles.modalsStyle,
-              scrollbarWidth: "none",
-              backgroundColor: "transparent",
-              height: "100svh",
+              scrollbarWidth: 'none',
+              backgroundColor: 'transparent',
+              height: '100svh',
             }}
           >
             <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
@@ -841,7 +874,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <div>Filter</div>
                   <CloseBtn
                     onClick={() => {
-                      setShowFilterModal(false);
+                      setShowFilterModal(false)
                     }}
                   />
                 </div>
@@ -851,9 +884,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     <div
                       className="h-full"
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 12,
-                        color: "#00000060",
+                        color: '#00000060',
                         marginTop: 10,
                       }}
                     >
@@ -861,16 +894,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     </div>
                     <div>
                       <button
-                        style={{ border: "1px solid #00000020" }}
+                        style={{ border: '1px solid #00000020' }}
                         className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
                         onClick={() => {
-                          setShowFromDatePicker(true);
+                          setShowFromDatePicker(true)
                         }}
                       >
                         <p>
                           {selectedFromDate
                             ? selectedFromDate.toDateString()
-                            : "Select Date"}
+                            : 'Select Date'}
                         </p>
                         <CalendarDots weight="regular" size={25} />
                       </button>
@@ -888,10 +921,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               value={selectedFromDate}
                               locale="en-US"
                               onClose={() => {
-                                setShowFromDatePicker(false);
+                                setShowFromDatePicker(false)
                               }}
                               tileClassName={({ date, view }) => {
-                                const today = new Date();
+                                const today = new Date()
 
                                 // Highlight the current date
                                 if (
@@ -899,10 +932,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                   date.getMonth() === today.getMonth() &&
                                   date.getFullYear() === today.getFullYear()
                                 ) {
-                                  return "current-date"; // Add a custom class for current date
+                                  return 'current-date' // Add a custom class for current date
                                 }
 
-                                return null; // Default for other dates
+                                return null // Default for other dates
                               }}
                             />
                           </div>
@@ -914,9 +947,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <div className="w-1/2 h-full">
                     <div
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 12,
-                        color: "#00000060",
+                        color: '#00000060',
                         marginTop: 10,
                       }}
                     >
@@ -924,16 +957,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     </div>
                     <div>
                       <button
-                        style={{ border: "1px solid #00000020" }}
+                        style={{ border: '1px solid #00000020' }}
                         className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
                         onClick={() => {
-                          setShowToDatePicker(true);
+                          setShowToDatePicker(true)
                         }}
                       >
                         <p>
                           {selectedToDate
                             ? selectedToDate.toDateString()
-                            : "Select Date"}
+                            : 'Select Date'}
                         </p>
                         <CalendarDots weight="regular" size={25} />
                       </button>
@@ -959,10 +992,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                               value={selectedToDate}
                               locale="en-US"
                               onClose={() => {
-                                setShowToDatePicker(false);
+                                setShowToDatePicker(false)
                               }}
                               tileClassName={({ date, view }) => {
-                                const today = new Date();
+                                const today = new Date()
 
                                 // Highlight the current date
                                 if (
@@ -970,10 +1003,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                   date.getMonth() === today.getMonth() &&
                                   date.getFullYear() === today.getFullYear()
                                 ) {
-                                  return "current-date"; // Add a custom class for current date
+                                  return 'current-date' // Add a custom class for current date
                                 }
 
-                                return null; // Default for other dates
+                                return null // Default for other dates
                               }}
                             />
                           </div>
@@ -984,56 +1017,59 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 </div>
 
                 {/* Subaccount Filter - Only show for All Activities tab */}
-                {activeTabWhenModalOpened === "All Activities" && (
+                {activeTabWhenModalOpened === 'All Activities' && (
                   <>
-                    {
-                      isFromAgency && (
-                        <div className="w-full">
-                          <div
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
+                    {isFromAgency && (
+                      <div className="w-full">
+                        <div
+                          style={{
+                            fontWeight: '500',
+                            fontSize: 12,
+                            color: '#00000060',
+                            marginTop: 10,
+                          }}
+                        >
+                          Sub Account
+                        </div>
+                        <FormControl fullWidth className="mt-2">
+                          <Select
+                            value={selectedSubaccount?.id || ''}
+                            onChange={(e) => {
+                              const subaccountId = e.target.value
+                              const subaccount = subaccountList.find(
+                                (sub) => sub.id === subaccountId,
+                              )
+                              setSelectedSubaccount(subaccount || null)
+                            }}
+                            displayEmpty
+                            sx={{
+                              borderRadius: '8px',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#00000020',
+                              },
                             }}
                           >
-                            Sub Account
-                          </div>
-                          <FormControl fullWidth className="mt-2">
-                            <Select
-                              value={selectedSubaccount?.id || ""}
-                              onChange={(e) => {
-                                const subaccountId = e.target.value;
-                                const subaccount = subaccountList.find(sub => sub.id === subaccountId);
-                                setSelectedSubaccount(subaccount || null);
-                              }}
-                              displayEmpty
-                              sx={{
-                                borderRadius: "8px",
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor: "#00000020",
-                                },
-                              }}
-                            >
-                              <MenuItem value="">
-                                Select Sub Account
+                            <MenuItem value="">Select Sub Account</MenuItem>
+                            {subaccountList.map((subaccount) => (
+                              <MenuItem
+                                key={subaccount.id}
+                                value={subaccount.id}
+                              >
+                                {subaccount.name ||
+                                  subaccount.email ||
+                                  `Sub Account ${subaccount.id}`}
                               </MenuItem>
-                              {subaccountList.map((subaccount) => (
-                                <MenuItem key={subaccount.id} value={subaccount.id}>
-                                  {subaccount.name || subaccount.email || `Sub Account ${subaccount.id}`}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </div>
-
-                      )}
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </div>
+                    )}
 
                     <div
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 12,
-                        color: "#00000060",
+                        color: '#00000060',
                         marginTop: 10,
                       }}
                     >
@@ -1047,22 +1083,24 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                           onClick={() => {
                             setSelectedStatus((prev) => {
                               if (prev.includes(item.status)) {
-                                return prev.filter((s) => s !== item.status);
+                                return prev.filter((s) => s !== item.status)
                               } else {
-                                return [...prev, item.status];
+                                return [...prev, item.status]
                               }
-                            });
+                            })
                           }}
                         >
                           <div
                             className="py-2 px-3 border rounded-full"
                             style={{
                               color: selectedStatus.includes(item.status)
-                                ? "#fff"
-                                : "",
-                              backgroundColor: selectedStatus.includes(item.status)
-                                ? "#7902df"
-                                : "",
+                                ? '#fff'
+                                : '',
+                              backgroundColor: selectedStatus.includes(
+                                item.status,
+                              )
+                                ? '#7902df'
+                                : '',
                             }}
                           >
                             {item.status}
@@ -1072,39 +1110,37 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     </div>
                   </>
                 )}
-
-
               </div>
 
               <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
                 <button
                   className="outline-none w-full"
-                  style={{ fontSize: 16.8, fontWeight: "600" }}
+                  style={{ fontSize: 16.8, fontWeight: '600' }}
                   onClick={() => {
-                    setSelectedFromDate(null);
-                    setSelectedToDate(null);
-                    setSelectedStatus([]);
-                    setSelectedSubaccount(null);
-                    setShowFilterModal(false);
+                    setSelectedFromDate(null)
+                    setSelectedToDate(null)
+                    setSelectedStatus([])
+                    setSelectedSubaccount(null)
+                    setShowFilterModal(false)
 
                     // Reset filters for the active tab when modal was opened
-                    if (activeTabWhenModalOpened === "Campaigns") {
+                    if (activeTabWhenModalOpened === 'Campaigns') {
                       // For Campaign Activities, filters are passed as props, so resetting them will trigger refresh
                       // Reset state
-                      setCallDetails([]);
-                      setFilteredCallDetails([]);
+                      setCallDetails([])
+                      setFilteredCallDetails([])
                     } else {
                       // For All Activities - pass empty filter values explicitly
-                      setCallDetails([]);
-                      setFilteredCallDetails([]);
-                      setHasMore(true);
+                      setCallDetails([])
+                      setFilteredCallDetails([])
+                      setHasMore(true)
                       // Pass empty filter values to ensure API path is reset correctly
                       getCallLogs(0, {
                         selectedFromDate: null,
                         selectedToDate: null,
                         selectedStatus: [],
-                        selectedSubaccount: null
-                      });
+                        selectedSubaccount: null,
+                      })
                     }
                   }}
                 >
@@ -1117,13 +1153,13 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
                     style={{
                       fontSize: 16.8,
-                      fontWeight: "600",
+                      fontWeight: '600',
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                          selectedStatus.length > 0 ||
-                          selectedSubaccount
-                          ? ""
-                          : "#00000050",
+                        selectedStatus.length > 0 ||
+                        selectedSubaccount
+                          ? ''
+                          : '#00000050',
                     }}
                     onClick={() => {
                       // //console.log;
@@ -1132,28 +1168,28 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         selectedStatus.length > 0 ||
                         selectedSubaccount
                       ) {
-                        localStorage.removeItem("callDetails");
-                        setInitialLoader(true);
-                        setShowFilterModal(false);
+                        localStorage.removeItem('callDetails')
+                        setInitialLoader(true)
+                        setShowFilterModal(false)
 
                         // Apply filter based on which tab was active when modal opened
-                        if (activeTabWhenModalOpened === "Campaigns") {
+                        if (activeTabWhenModalOpened === 'Campaigns') {
                           // For Campaign Activities, the filter will be applied via props passed to AdminDashboardActiveCall
                           // Trigger a refresh by resetting the component state
-                          setCallDetails([]);
-                          setFilteredCallDetails([]);
+                          setCallDetails([])
+                          setFilteredCallDetails([])
                         } else {
                           // For All Activities, call getCallLogs with current filter values
-                          setCallDetails([]);
-                          setFilteredCallDetails([]);
-                          setHasMore(true);
+                          setCallDetails([])
+                          setFilteredCallDetails([])
+                          setHasMore(true)
                           // Pass current filter values explicitly to ensure API uses correct filters
                           getCallLogs(0, {
                             selectedFromDate,
                             selectedToDate,
                             selectedStatus,
-                            selectedSubaccount
-                          });
+                            selectedSubaccount,
+                          })
                         }
                       } else {
                         // //console.log;
@@ -1168,40 +1204,37 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           </Box>
         </Modal>
       </div>
-
     </div>
-
-
-  );
+  )
 }
 
-export default AdminDashboardCallLogs;
+export default AdminDashboardCallLogs
 
 //styles
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "600",
+    color: '#00000090',
+    fontWeight: '600',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    color: '#000000',
+    fontWeight: '500',
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   modalsStyle: {
     // height: "auto",
-    bgcolor: "transparent",
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
+    mx: 'auto',
     // my: "50vh",
     // transform: "translateY(-55%)",
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

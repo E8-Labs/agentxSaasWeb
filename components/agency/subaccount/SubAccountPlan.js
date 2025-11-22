@@ -1,55 +1,58 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { Box, CircularProgress, LinearProgress, Modal } from "@mui/material";
-import { AuthToken } from "../plan/AuthDetails";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+'use client'
+
+import { Box, CircularProgress, LinearProgress, Modal } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import LoaderAnimation from '@/components/animations/LoaderAnimation'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import { useRouter } from "next/navigation";
-import getProfileDetails from "@/components/apis/GetProfile";
-import LoaderAnimation from "@/components/animations/LoaderAnimation";
-import { PersistanceKeys } from "@/constants/Constants";
-import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
-import UserPlans from "@/components/userPlans/UserPlans";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import UserPlans from '@/components/userPlans/UserPlans'
+import { PersistanceKeys } from '@/constants/Constants'
+
+import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
+import { AuthToken } from '../plan/AuthDetails'
 
 //code for add card
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [initialLoader, setInitialLoader] = useState(true);
-  const [togglePlan, setTogglePlan] = useState("");
-  const [userPlans, setUserPlans] = useState([]);
-  const [agreeTerms, setAgreeTerms] = useState(false);
-  const [subPlanLoader, setSubPlanLoader] = useState(false);
-  const [canSubPlan, setCanSubPlan] = useState(false);
-  const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
+  const [initialLoader, setInitialLoader] = useState(true)
+  const [togglePlan, setTogglePlan] = useState('')
+  const [userPlans, setUserPlans] = useState([])
+  const [agreeTerms, setAgreeTerms] = useState(false)
+  const [subPlanLoader, setSubPlanLoader] = useState(false)
+  const [canSubPlan, setCanSubPlan] = useState(false)
+  const [addPaymentPopUp, setAddPaymentPopUp] = useState(false)
 
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+  const [errorMsg, setErrorMsg] = useState(null)
+  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error)
 
-  const [planSubscribed, setPlanSubscribed] = useState(false);
+  const [planSubscribed, setPlanSubscribed] = useState(false)
 
-  const [subaccount, setSubaccount] = useState(null);
+  const [subaccount, setSubaccount] = useState(null)
 
-  const [disableContinue, setDisableContinue] = useState(false);
+  const [disableContinue, setDisableContinue] = useState(false)
 
   useEffect(() => {
-    getPlans();
+    getPlans()
     checkIsFromOnboarding()
-  }, []);
+  }, [])
 
   const checkIsFromOnboarding = () => {
     let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
@@ -62,208 +65,207 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   //check if user can sub plan
   useEffect(() => {
     if (togglePlan && agreeTerms === true) {
-      setCanSubPlan(true);
+      setCanSubPlan(true)
     } else {
-      setCanSubPlan(false);
+      setCanSubPlan(false)
     }
-  }, [togglePlan, agreeTerms]);
+  }, [togglePlan, agreeTerms])
 
   //select a plan
   const handleTogglePlanClick2 = (item) => {
-    setTogglePlan(item.id);
-  };
+    setTogglePlan(item.id)
+  }
 
   //toggle agree terms click
   const handleToggleTermsClick = () => {
-    setAgreeTerms(!agreeTerms);
-  };
+    setAgreeTerms(!agreeTerms)
+  }
 
   //close add card popup
   const handleCardAddedClose = async (data) => {
     try {
-      setDisableContinue(true);
-      await getProfileDetails();
-      console.log("Card added details are here", data);
+      setDisableContinue(true)
+      await getProfileDetails()
+      console.log('Card added details are here', data)
       if (data) {
-        console.log("try to close popup");
-        setAddPaymentPopUp(false);
+        console.log('try to close popup')
+        setAddPaymentPopUp(false)
         if (togglePlan) {
-          console.log("trying to suubscribe");
-          await subscribePlanClick();
+          console.log('trying to suubscribe')
+          await subscribePlanClick()
         }
       }
     } catch (err) {
-      console.log("Error occrued", err);
-      setDisableContinue(false);
+      console.log('Error occrued', err)
+      setDisableContinue(false)
     }
-  };
+  }
   //get plans apis
   const getPlans = async () => {
     try {
-      setInitialLoader(true);
-      const Token = AuthToken();
-      const ApiPath = Apis.getSubAccountPlans;
+      setInitialLoader(true)
+      const Token = AuthToken()
+      const ApiPath = Apis.getSubAccountPlans
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + Token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         console.log(
-          "Response of get plans api is 2",
-          response.data?.data?.monthlyPlans
-        );
-        setUserPlans(response.data?.data?.monthlyPlans);
-        setInitialLoader(false);
+          'Response of get plans api is 2',
+          response.data?.data?.monthlyPlans,
+        )
+        setUserPlans(response.data?.data?.monthlyPlans)
+        setInitialLoader(false)
       }
     } catch (error) {
-      setInitialLoader(false);
-      console.error("Error occured in getting plans", error);
+      setInitialLoader(false)
+      console.error('Error occured in getting plans', error)
     }
-  };
+  }
 
   const isCardsAvailable = () => {
-    let data = localStorage.getItem("User");
+    let data = localStorage.getItem('User')
     if (data) {
-      let u = JSON.parse(data);
+      let u = JSON.parse(data)
 
       // console.log('data', u.user.cards)
 
       if (u.user.cards.length > 0) {
-        return true;
+        return true
       }
-      return false;
+      return false
     }
-  };
+  }
 
   //subscribe plan
   const subscribePlanClick = async () => {
-    setDisableContinue(true);
+    setDisableContinue(true)
     // return
     if (isCardsAvailable() === false) {
-      setAddPaymentPopUp(true);
-      return;
+      setAddPaymentPopUp(true)
+      return
     }
 
     try {
-      setSubPlanLoader(true);
-      const Token = AuthToken();
-      const ApiPath = Apis.subAgencyAndSubAccountPlans;
-      const formData = new FormData();
-      formData.append("planId", togglePlan);
+      setSubPlanLoader(true)
+      const Token = AuthToken()
+      const ApiPath = Apis.subAgencyAndSubAccountPlans
+      const formData = new FormData()
+      formData.append('planId', togglePlan)
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + Token,
+          Authorization: 'Bearer ' + Token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of subscribe subaccount plan is", response.data);
-        setSubPlanLoader(false);
+        console.log('Response of subscribe subaccount plan is', response.data)
+        setSubPlanLoader(false)
         if (response.data.status === true) {
-          setErrorMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Success);
-          const D = localStorage.getItem("fromDashboard");
+          setErrorMsg(response.data.message)
+          setSnackMsgType(SnackbarTypes.Success)
+          const D = localStorage.getItem('fromDashboard')
           if (D) {
-            localStorage.removeItem("fromDashboard");
+            localStorage.removeItem('fromDashboard')
           }
           if (subaccount) {
             handleContinue()
           } else {
-            setPlanSubscribed(true);
-            router.push("/dashboard");
-
+            setPlanSubscribed(true)
+            router.push('/dashboard')
           }
         } else if (response.data.status === false) {
-          setErrorMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Error);
-          setDisableContinue(false);
-          if (response.data.message === "No payment method added") {
+          setErrorMsg(response.data.message)
+          setSnackMsgType(SnackbarTypes.Error)
+          setDisableContinue(false)
+          if (response.data.message === 'No payment method added') {
             // setAddPaymentPopUp(true);
           }
         }
       }
     } catch (error) {
-      console.error("Error occured in sub plan api is", error);
-      setSubPlanLoader(false);
-      setDisableContinue(false);
+      console.error('Error occured in sub plan api is', error)
+      setSubPlanLoader(false)
+      setDisableContinue(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
-      color: "#15151580",
+      fontWeight: '700',
+      color: '#15151580',
     },
     giftTextStyle: {
       fontSize: 14,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     cardStyles: {
-      fontSize: "14",
-      fontWeight: "500",
-      border: "1px solid #00000020",
+      fontSize: '14',
+      fontWeight: '500',
+      border: '1px solid #00000020',
     },
     pricingBox: {
-      position: "relative",
+      position: 'relative',
       // padding: '10px',
       // backgroundColor: '#f9f9ff',
-      display: "inline-block",
-      width: "100%",
+      display: 'inline-block',
+      width: '100%',
     },
     triangleLabel: {
-      position: "absolute",
-      top: "0",
-      right: "0",
-      width: "0",
-      height: "0",
-      borderTop: "50px solid #7902DF", // Increased height again for more padding
-      borderLeft: "50px solid transparent",
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
     },
     labelText: {
-      position: "absolute",
-      top: "10px", // Adjusted to keep the text centered within the larger triangle
-      right: "5px",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "bold",
-      transform: "rotate(45deg)",
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
     },
     content: {
-      textAlign: "left",
-      paddingTop: "10px",
+      textAlign: 'left',
+      paddingTop: '10px',
     },
     originalPrice: {
-      textDecoration: "line-through",
-      color: "#7902DF65",
+      textDecoration: 'line-through',
+      color: '#7902DF65',
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     discountedPrice: {
       // width: "100px",
-      color: "#000000",
-      fontWeight: "600",
+      color: '#000000',
+      fontWeight: '600',
       fontSize: 18,
-      marginLeft: "10px",
+      marginLeft: '10px',
     },
     paymentModal: {
       // height: "auto",
-      bgcolor: "transparent",
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div className="w-full flex flex-row justify-center bg-white h-full">
@@ -271,30 +273,33 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         isVisible={errorMsg !== null}
         message={errorMsg}
         hide={() => {
-          setErrorMsg(null);
+          setErrorMsg(null)
         }}
         type={snackMsgType}
       />
 
       {/* Progress bar */}
       <UserPlans
-        isFrom={"SubAccount"}
+        isFrom={'SubAccount'}
         handleContinue={() => {
-          // alert("This is working function") 
-          if (isFrom === "UpgradePlanForTeam") {
-            handleClose();
+          // alert("This is working function")
+          if (isFrom === 'UpgradePlanForTeam') {
+            handleClose()
           } else if (handleContinue && subaccount) {
             handleContinue()
           } else {
-            setPlanSubscribed(true);
-            router.push("/dashboard");
+            setPlanSubscribed(true)
+            router.push('/dashboard')
           }
         }}
         subPlanLoader={subPlanLoader}
-      // handleBack={handleBack}
+        // handleBack={handleBack}
       />
 
-      <LoaderAnimation isOpen={planSubscribed || subPlanLoader} title="Redirecting to dashboard..." />
+      <LoaderAnimation
+        isOpen={planSubscribed || subPlanLoader}
+        title="Redirecting to dashboard..."
+      />
 
       {/* Code for add card */}
       {/* Add Payment Modal */}
@@ -305,7 +310,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -318,23 +323,23 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopUp(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -347,8 +352,8 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
                   // stop={stop}
                   // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleCardAddedClose}
-                // togglePlan={togglePlan}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // togglePlan={togglePlan}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -356,22 +361,22 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default SubAccountPlan;
+export default SubAccountPlan
 
 function TermsText() {
   return (
     <div
       className="flex flex-row items-center gap-1"
-      style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+      style={{ color: '#151515', fontSize: 13, fontWeight: '600' }}
     >
-      <p style={{ color: "#15151580" }}>
-        I agree to{" "}
+      <p style={{ color: '#15151580' }}>
+        I agree to{' '}
         <a
           href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-          style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+          style={{ textDecoration: 'underline', color: 'black' }} // Underline and color styling
           target="_blank" // Opens in a new tab (optional)
           rel="noopener noreferrer" // Security for external links
         >
@@ -380,9 +385,10 @@ function TermsText() {
         .
       </p>
     </div>
-  );
+  )
 }
-{/*
+{
+  /*
   <div className="w-6/12">
               <div
                 // className="mt-4"
@@ -586,4 +592,5 @@ function TermsText() {
                 width={670}
               />
             </div>
-*/}
+*/
+}

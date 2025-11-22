@@ -1,21 +1,21 @@
 export const AgentLanguages = {
   English: {
-    title: "English",
-    value: "en-US",
-    flag: "/agencyIcons/us.jpg",
-    subLang: "",
+    title: 'English',
+    value: 'en-US',
+    flag: '/agencyIcons/us.jpg',
+    subLang: '',
   },
   Spanish: {
-    title: "Spanish",
-    value: "es",
-    flag: "/agencyIcons/spain.jpg",
-    subLang: "",
+    title: 'Spanish',
+    value: 'es',
+    flag: '/agencyIcons/spain.jpg',
+    subLang: '',
   },
   Bilingual: {
-    title: "Multilingual",
-    value: "multi",
-    flag: "/agencyIcons/belgium.jpg",
-    subLang: "(English + Spanish)",
+    title: 'Multilingual',
+    value: 'multi',
+    flag: '/agencyIcons/belgium.jpg',
+    subLang: '(English + Spanish)',
   },
   // French: {
   //   title: "French",
@@ -26,9 +26,9 @@ export const AgentLanguages = {
   //   value: "it",
   // },
   // Both: "Bilingual", //English + Spanish
-};
+}
 export const AgentLanguagesList = [
   AgentLanguages.English,
   AgentLanguages.Spanish,
   AgentLanguages.Bilingual,
-];
+]

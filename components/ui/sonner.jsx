@@ -1,13 +1,13 @@
-"use client"
+'use client'
 
 import {
   CheckCircle2,
   InfoIcon,
   Loader2Icon,
-  XCircle,
   TriangleAlertIcon,
-} from "lucide-react"
-import { Toaster as Sonner } from "sonner"
+  XCircle,
+} from 'lucide-react'
+import { Toaster as Sonner } from 'sonner'
 
 const Toaster = ({ ...props }) => {
   return (
@@ -23,10 +23,10 @@ const Toaster = ({ ...props }) => {
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       style={{
-        "--normal-bg": "hsl(var(--popover))",
-        "--normal-text": "hsl(var(--popover-foreground))",
-        "--normal-border": "hsl(var(--border))",
-        "--border-radius": "calc(var(--radius) - 2px)",
+        '--normal-bg': 'hsl(var(--popover))',
+        '--normal-text': 'hsl(var(--popover-foreground))',
+        '--normal-border': 'hsl(var(--border))',
+        '--border-radius': 'calc(var(--radius) - 2px)',
       }}
       {...props}
     />

@@ -1,8 +1,9 @@
-import React from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { UserTypes } from "@/constants/UserTypes";
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import React from 'react'
+
+import { UserTypes } from '@/constants/UserTypes'
 
 const Header = ({
   skipSellerKYC,
@@ -12,13 +13,13 @@ const Header = ({
   handleContinue,
   user,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
 
   function getSkipPageForSellerKyc() {
     if (user && user.user.userType != UserTypes.RealEstateAgent) {
-      return "/pipeline";
+      return '/pipeline'
     }
-    return "/buyerskycquestions";
+    return '/buyerskycquestions'
   }
 
   return (
@@ -28,7 +29,7 @@ const Header = ({
           <Image
             className="ms-6 hidden md:flex"
             src="/assets/assignX.png"
-            style={{ height: "29px", width: "122px", resize: "contain" }}
+            style={{ height: '29px', width: '122px', resize: 'contain' }}
             height={29}
             width={122}
             alt="*"
@@ -38,7 +39,7 @@ const Header = ({
           <Image
             className=""
             src="/agentXOrb.gif"
-            style={{ height: "69px", width: "75px", resize: "contain" }}
+            style={{ height: '69px', width: '75px', resize: 'contain' }}
             height={69}
             width={69}
             alt="*"
@@ -51,12 +52,12 @@ const Header = ({
               href={getSkipPageForSellerKyc()}
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={(e) => {
-                e.preventDefault();
-                router.push(getSkipPageForSellerKyc());
+                e.preventDefault()
+                router.push(getSkipPageForSellerKyc())
               }}
             >
               Skip
@@ -64,16 +65,16 @@ const Header = ({
           )}
           {buyerKYC && shouldContinue && (
             <Link
-              href={"/pipeline"}
+              href={'/pipeline'}
               className="underline h-full me-8"
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={(e) => {
-                e.preventDefault();
-                router.push("/pipeline");
+                e.preventDefault()
+                router.push('/pipeline')
               }}
             >
               Skip
@@ -84,8 +85,8 @@ const Header = ({
               className="underline h-full me-8"
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={handleContinue}
             >
@@ -95,7 +96,7 @@ const Header = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

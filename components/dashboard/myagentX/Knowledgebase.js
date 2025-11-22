@@ -1,70 +1,73 @@
-import { AddCircleRounded } from "@mui/icons-material";
-import React, { useEffect, useState } from "react";
-import Image from "next/image"; // Ensure Image is imported correctly
-import AddKnowledgeBaseModal from "./AddKnowledgebaseModal";
-import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
-import Apis from "@/components/apis/Apis";
-import { Plus } from "lucide-react";
-import axios from "axios";
-import UpgradeModal from "@/constants/UpgradeModal";
-import UpgardView from "@/constants/UpgardView";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
+import { AddCircleRounded } from '@mui/icons-material'
+import axios from 'axios'
+import { Plus } from 'lucide-react'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
 
-function Knowledgebase({ user, agent
-}) {
-  const [kb, setKb] = useState([]);
-  const [showKbPopup, setShowKbPopup] = useState(false);
-  const [kbDelLoader, setKbDelLoader] = useState(null);
-  const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
+import KnowledgeBaseList from '@/components/admin/dashboard/KnowledgebaseList'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import UpgardView from '@/constants/UpgardView'
+import UpgradeModal from '@/constants/UpgradeModal'
+
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../leads/AgentSelectSnackMessage'
+// Ensure Image is imported correctly
+import AddKnowledgeBaseModal from './AddKnowledgebaseModal'
+
+function Knowledgebase({ user, agent }) {
+  const [kb, setKb] = useState([])
+  const [showKbPopup, setShowKbPopup] = useState(false)
+  const [kbDelLoader, setKbDelLoader] = useState(null)
+  const [showAddNewCalendar, setShowAddNewCalendar] = useState(false) // Fixed missing state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
+    message: '',
+    isVisible: false,
   })
-
 
   // console.log('user in kb file', user)
 
   useEffect(() => {
-    GetKnowledgebase();
-  }, [showKbPopup]);
+    GetKnowledgebase()
+  }, [showKbPopup])
 
   //Api calls
 
   async function GetKnowledgebase() {
     try {
-      const token = AuthToken(); // Extract JWT token
+      const token = AuthToken() // Extract JWT token
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
-      let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`;
+      let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`
       // //console.log
 
       const response = await fetch(link, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        console.log("kb list is ", data.data);
-        setKb(data.data);
+        console.log('kb list is ', data.data)
+        setKb(data.data)
       } else {
-        console.error("Failed to fetch kb:", data.error);
+        console.error('Failed to fetch kb:', data.error)
       }
     } catch (error) {
-      console.error("Error fetching kb:", error);
+      console.error('Error fetching kb:', error)
     }
   }
 
   //all actions UI Related
   function addKnowledgebase() {
-    setShowKbPopup(true);
+    setShowKbPopup(true)
   }
 
   function GetNoKbView() {
@@ -72,16 +75,20 @@ function Knowledgebase({ user, agent
       return (
         <UpgardView
           setShowSnackMsg={setShowSnackMsg}
-          title={"Add Knowledge Base"}
-          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+          title={'Add Knowledge Base'}
+          subTitle={
+            'Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more.'
+          }
         />
       )
     } else if (user?.planCapabilities?.allowKnowledgeBases === false) {
       return (
         <UpgardView
           setShowSnackMsg={setShowSnackMsg}
-          title={"Add Knowledge Base"}
-          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+          title={'Add Knowledge Base'}
+          subTitle={
+            'Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more.'
+          }
         />
       )
     } else
@@ -89,7 +96,7 @@ function Knowledgebase({ user, agent
         <div className="flex flex-col items-center justify-center mt-5   p-8 ">
           <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
             <img
-              src={"/assets/nokb.png"}
+              src={'/assets/nokb.png'}
               className=" object-fill "
               style={{ height: 97, width: 130 }}
               alt="No Knowledgebase"
@@ -105,59 +112,61 @@ function Knowledgebase({ user, agent
             <button
               className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
               onClick={() => {
-                if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
+                if (
+                  user?.planCapabilities.maxKnowledgeBases >
+                  user?.currentUsage.maxKnowledgeBases
+                ) {
                   addKnowledgebase()
                 } else {
                   setShowUpgradeModal(true)
                 }
-
               }}
             >
               <Plus color="white"></Plus>
               <div
                 className="flex items-center justify-center  text-black text-white font-medium"
-              // Fixed typo
+                // Fixed typo
               >
                 Add New
               </div>
             </button>
           </div>
         </div>
-      );
+      )
   }
 
   async function handleDeleteKb(item) {
     //console.log
     try {
-      setKbDelLoader(item.id);
-      const token = AuthToken(); // Extract JWT token
-      setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
+      setKbDelLoader(item.id)
+      const token = AuthToken() // Extract JWT token
+      setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id))
 
-      let link = `${Apis.deleteKnowledgebase}`;
+      let link = `${Apis.deleteKnowledgebase}`
       //console.log
 
       let apidata = {
         kbId: item.id,
         agentId: agent.id,
-      };
+      }
       //console.log
 
       const response = await axios.post(link, apidata, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response.data) {
         //console.log;
       } else {
-        console.error("Failed to delete kb:", data.error);
+        console.error('Failed to delete kb:', data.error)
       }
     } catch (error) {
-      console.error("Error fetching kb:", error);
+      console.error('Error fetching kb:', error)
     } finally {
-      setKbDelLoader(null);
+      setKbDelLoader(null)
     }
   }
   function GetKbView() {
@@ -166,29 +175,29 @@ function Knowledgebase({ user, agent
         // agent={agent}
         kbList={kb}
         onDelete={(item) => {
-
-          if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
-            handleDeleteKb(item);
+          if (
+            user?.planCapabilities.maxKnowledgeBases >
+            user?.currentUsage.maxKnowledgeBases
+          ) {
+            handleDeleteKb(item)
           } else {
             setShowUpgradeModal(true)
           }
-        }
-        }
+        }}
         onAddKnowledge={() => {
-
-          setShowKbPopup(true);
+          setShowKbPopup(true)
         }}
         isLoading={kbDelLoader}
       />
-    );
+    )
   }
 
   function GetViewToRender() {
     if (kb.length === 0) {
       // Use strict equality (===)
-      return GetNoKbView();
+      return GetNoKbView()
     }
-    return GetKbView();
+    return GetKbView()
   }
 
   return (
@@ -197,7 +206,9 @@ function Knowledgebase({ user, agent
         message={showSnackMsg.message}
         type={showSnackMsg.type}
         isVisible={showSnackMsg.isVisible}
-        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        hide={() =>
+          setShowSnackMsg({ type: null, message: '', isVisible: false })
+        }
       />
       <AddKnowledgeBaseModal
         user={user}
@@ -212,13 +223,12 @@ function Knowledgebase({ user, agent
         handleClose={() => {
           setShowUpgradeModal(false)
         }}
-
         title={"You've Hit Your knowledgebase Limit"}
-        subTitle={"Upgrade to add more knowledgebase"}
-        buttonTitle={"No Thanks"}
+        subTitle={'Upgrade to add more knowledgebase'}
+        buttonTitle={'No Thanks'}
       />
     </div>
-  );
+  )
 }
 
-export default Knowledgebase;
+export default Knowledgebase

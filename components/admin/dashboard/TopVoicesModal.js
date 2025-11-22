@@ -1,20 +1,14 @@
-import React from "react";
-import {
-  Modal,
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  Grid,
-} from "@mui/material";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import CloseIcon from "@mui/icons-material/Close";
-import { FindVoice } from "@/components/createagent/Voices";
+import CloseIcon from '@mui/icons-material/Close'
+import { Box, Button, Grid, IconButton, Modal, Typography } from '@mui/material'
+import React from 'react'
+
+import { FindVoice } from '@/components/createagent/Voices'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Card } from '@/components/ui/card'
 
 // Function to get voice avatar & name
-const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || "";
-const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || "Unknown Voice";
+const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || ''
+const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || 'Unknown Voice'
 
 export default function TopVoicesModal({ open, onClose, topVoices }) {
   return (
@@ -22,34 +16,34 @@ export default function TopVoicesModal({ open, onClose, topVoices }) {
       open={open}
       onClose={onClose}
       BackdropProps={{
-        sx: { backgroundColor: "rgba(0, 0, 0, 0.05)" }, // 10% black opacity
+        sx: { backgroundColor: 'rgba(0, 0, 0, 0.05)' }, // 10% black opacity
       }}
     >
       <Box
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          bgcolor: "background.paper",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          bgcolor: 'background.paper',
           borderRadius: 2,
           boxShadow: 24,
           p: 3,
-          width: "500px",
-          height: "80vh",
-          maxWidth: "90%",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          overflow: "hidden",
-          boxShadow: "none",
+          width: '500px',
+          height: '80vh',
+          maxWidth: '90%',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          overflow: 'hidden',
+          boxShadow: 'none',
         }}
       >
         {/* Close Button */}
         <IconButton
           onClick={onClose}
-          sx={{ position: "absolute", top: 10, right: 10 }}
+          sx={{ position: 'absolute', top: 10, right: 10 }}
         >
           <CloseIcon />
         </IconButton>
@@ -63,12 +57,12 @@ export default function TopVoicesModal({ open, onClose, topVoices }) {
         <Box
           sx={{
             flex: 1,
-            overflowY: "auto",
-            width: "100%",
-            maxHeight: "65vh",
-            paddingRight: "10px",
-            justifyContent: "center",
-            alignItems: "center",
+            overflowY: 'auto',
+            width: '100%',
+            maxHeight: '65vh',
+            paddingRight: '10px',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           {/* 2-Column Grid Layout */}
@@ -89,30 +83,30 @@ export default function TopVoicesModal({ open, onClose, topVoices }) {
           variant="contained"
           sx={{
             mt: 2,
-            backgroundColor: "#7902DF",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: "10px",
-            width: "120px",
-            "&:hover": { backgroundColor: "#6901C3" },
+            backgroundColor: '#7902DF',
+            fontWeight: 'bold',
+            textTransform: 'none',
+            borderRadius: '10px',
+            width: '120px',
+            '&:hover': { backgroundColor: '#6901C3' },
           }}
         >
           Close
         </Button>
       </Box>
     </Modal>
-  );
+  )
 }
 
 function getBackgroundColor(index) {
-  if (index === 1) return "bg-purple-500/80";
-  if (index === 2) return "bg-pink-500/80";
-  return "bg-green-500/80";
+  if (index === 1) return 'bg-purple-500/80'
+  if (index === 2) return 'bg-pink-500/80'
+  return 'bg-green-500/80'
 }
 
 function VoiceCard({ voice, index }) {
-  const color = getBackgroundColor(index);
-  let foundVoice = FindVoice(voice.voiceId);
+  const color = getBackgroundColor(index)
+  let foundVoice = FindVoice(voice.voiceId)
   //console.log;
   //console.log;
   return (
@@ -140,5 +134,5 @@ function VoiceCard({ voice, index }) {
         {voice.count} users
       </p>
     </Card>
-  );
+  )
 }

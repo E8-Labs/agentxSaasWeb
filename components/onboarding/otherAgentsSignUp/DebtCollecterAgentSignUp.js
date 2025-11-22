@@ -1,15 +1,5 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+import 'react-phone-input-2/lib/style.css'
+
 import {
   Alert,
   Box,
@@ -17,14 +7,28 @@ import {
   Fade,
   Modal,
   Snackbar,
-} from "@mui/material";
-import SendVerificationCode from "../services/AuthVerification/AuthService";
-import SnackMessages from "../services/AuthVerification/SnackMessages";
-import { getLocalLocation } from "../services/apisServices/ApiService";
-import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
-import { PersistanceKeys } from "@/constants/Constants";
-import { setCookie } from "@/utilities/cookies";
-import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
+} from '@mui/material'
+import axios from 'axios'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import Apis from '@/components/apis/Apis'
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { PersistanceKeys } from '@/constants/Constants'
+import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
+import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
+import { setCookie } from '@/utilities/cookies'
+
+import SendVerificationCode from '../services/AuthVerification/AuthService'
+import SnackMessages from '../services/AuthVerification/SnackMessages'
+import { getLocalLocation } from '../services/apisServices/ApiService'
+
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const DebtCollerterAgentSignUp = ({
@@ -34,77 +38,77 @@ const DebtCollerterAgentSignUp = ({
   length = 6,
   onComplete,
 }) => {
-  const verifyInputRef = useRef([]);
-  const timerRef = useRef(null);
+  const verifyInputRef = useRef([])
+  const timerRef = useRef(null)
 
-  const [isVisible, setIsVisible] = useState(false);
-  let [response, setResponse] = useState({});
-  const [sendcodeLoader, setSendcodeLoader] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
+  let [response, setResponse] = useState({})
+  const [sendcodeLoader, setSendcodeLoader] = useState(false)
 
-  const router = useRouter();
-  const [userName, setUserName] = useState("");
-  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
-  const [registerLoader, setRegisterLoader] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
+  const router = useRouter()
+  const [userName, setUserName] = useState('')
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false)
+  const [registerLoader, setRegisterLoader] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   // const [emailErr, setEmailCheckResponse] = useState(false);
-  const [userFarm, setUserFarm] = useState("");
-  const [userBrokage, setUserBrokage] = useState("");
-  const [userTransaction, setUserTransaction] = useState("");
+  const [userFarm, setUserFarm] = useState('')
+  const [userBrokage, setUserBrokage] = useState('')
+  const [userTransaction, setUserTransaction] = useState('')
   //phone number input variable
-  const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [userData, setUserData] = useState(null);
+  const [userPhoneNumber, setUserPhoneNumber] = useState('')
+  const [countryCode, setCountryCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [userData, setUserData] = useState(null)
   const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] =
-    useState(false);
+    useState(false)
   //verify code input fields
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''))
   //check email availability
-  const [emailLoader, setEmailLoader] = useState(false);
-  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
-  const [validEmail, setValidEmail] = useState("");
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errMessage, setErrMessage] = useState(null);
+  const [emailLoader, setEmailLoader] = useState(false)
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null)
+  const [validEmail, setValidEmail] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errMessage, setErrMessage] = useState(null)
   //check phone number availability
-  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [locationLoader, setLocationLoader] = useState(false);
-  const [shouldContinue, setShouldContinue] = useState(true);
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [locationLoader, setLocationLoader] = useState(false)
+  const [shouldContinue, setShouldContinue] = useState(true)
 
   //code to select the client type
-  const [customerService, setCustomerService] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [installationVolume, setInstallationVolume] = useState("");
-  const [projectSize, setProjectSize] = useState("");
-  const [ClientType, setClientType] = useState(null);
+  const [customerService, setCustomerService] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [installationVolume, setInstallationVolume] = useState('')
+  const [projectSize, setProjectSize] = useState('')
+  const [ClientType, setClientType] = useState(null)
 
   //array for the primary client types
   const primaryClientTypes = [
     {
       id: 1,
-      title: "Soft Collections",
+      title: 'Soft Collections',
     },
     {
       id: 2,
-      title: "Hard Collections",
+      title: 'Hard Collections',
     },
     {
       id: 3,
-      title: "Hybrid Approach",
+      title: 'Hybrid Approach',
     },
     {
       id: 4,
-      title: "Other",
+      title: 'Other',
     },
-  ];
+  ]
 
   // Function to get the user's location and set the country code
 
   useEffect(() => {
-    let loc = getLocalLocation();
-    setCountryCode(loc);
-  }, []);
+    let loc = getLocalLocation()
+    setCountryCode(loc)
+  }, [])
 
   useEffect(() => {
     if (
@@ -119,7 +123,7 @@ const DebtCollerterAgentSignUp = ({
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
     ) {
-      setShouldContinue(false);
+      setShouldContinue(false)
     } else if (
       !userName ||
       !userEmail ||
@@ -136,7 +140,7 @@ const DebtCollerterAgentSignUp = ({
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
-      setShouldContinue(true);
+      setShouldContinue(true)
     }
   }, [
     userName,
@@ -149,38 +153,38 @@ const DebtCollerterAgentSignUp = ({
     installationVolume,
     projectSize,
     ClientType,
-  ]);
+  ])
 
   useEffect(() => {
-    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails)
     if (storedData) {
-      let data = JSON.parse(storedData);
-      setUserData(data);
+      let data = JSON.parse(storedData)
+      setUserData(data)
     }
-  }, []);
+  }, [])
 
   //code to focus the verify code input field
   useEffect(() => {
     if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus();
+      verifyInputRef.current[0].focus()
     }
-  }, [showVerifyPopup]);
+  }, [showVerifyPopup])
 
   // Handle phone number change and validation
   const handlePhoneNumberChange = (phone) => {
-    setUserPhoneNumber(phone);
-    validatePhoneNumber(phone);
+    setUserPhoneNumber(phone)
+    validatePhoneNumber(phone)
 
     if (!phone) {
-      setErrorMessage("");
+      setErrorMessage('')
     }
-  };
+  }
 
   ///function to select client type
   const handleSelectClientType = (item) => {
     // //console.log;
-    setClientType(item.title);
-  };
+    setClientType(item.title)
+  }
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -188,175 +192,179 @@ const DebtCollerterAgentSignUp = ({
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
+      countryCode?.toUpperCase(),
+    )
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       // setCheckPhoneResponse(null);
       // //console.log;
 
       timerRef.current = setTimeout(() => {
-        checkPhoneNumber(phoneNumber);
+        checkPhoneNumber(phoneNumber)
         // //console.log;
-      }, 300);
+      }, 300)
     }
-  };
+  }
 
   //email validation function
   const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
     // Check if email contains consecutive dots, which are invalid
     if (/\.\./.test(email)) {
-      return false;
+      return false
     }
 
     // Check the general pattern for a valid email
-    return emailPattern.test(email);
-  };
+    return emailPattern.test(email)
+  }
 
   //code for verify number popup
 
   const handleVerifyPopup = async () => {
     try {
-      setSendcodeLoader(true);
-      let response = await SendVerificationCode(userPhoneNumber, true);
-      setResponse(response);
-      setIsVisible(true);
+      setSendcodeLoader(true)
+      let response = await SendVerificationCode(userPhoneNumber, true)
+      setResponse(response)
+      setIsVisible(true)
       // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
-      setSendcodeLoader(false);
+      setSendcodeLoader(false)
     }
-    setShowVerifyPopup(true);
+    setShowVerifyPopup(true)
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
-        verifyInputRef.current[0].focus();
+        verifyInputRef.current[0].focus()
       }
-    }, 100); // Adjust the delay as needed, 0 should be enough
-  };
+    }, 100) // Adjust the delay as needed, 0 should be enough
+  }
 
   const handleClose = () => {
-    setShowVerifyPopup(false);
-  };
+    setShowVerifyPopup(false)
+  }
 
   //code for handling verify code changes
 
   const handleVerifyInputChange = (e, index) => {
-    const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+    const { value } = e.target
+    if (!/[0-9]/.test(value) && value !== '') return // Allow only numeric input
 
-    const newValues = [...VerifyCode];
-    newValues[index] = value;
-    setVerifyCode(newValues);
+    const newValues = [...VerifyCode]
+    newValues[index] = value
+    setVerifyCode(newValues)
 
     // Move focus to the next field if a number is entered
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1].focus();
+      verifyInputRef.current[index + 1].focus()
     }
 
     // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join("")); // Convert array to a single string here
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join('')) // Convert array to a single string here
     }
-  };
+  }
 
   const handleBackspace = (e, index) => {
-    if (e.key === "Backspace") {
-      if (VerifyCode[index] === "" && index > 0) {
-        verifyInputRef.current[index - 1].focus();
+    if (e.key === 'Backspace') {
+      if (VerifyCode[index] === '' && index > 0) {
+        verifyInputRef.current[index - 1].focus()
       }
-      const newValues = [...VerifyCode];
-      newValues[index] = "";
-      setVerifyCode(newValues);
+      const newValues = [...VerifyCode]
+      newValues[index] = ''
+      setVerifyCode(newValues)
     }
-  };
+  }
 
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    const pastedText = e.clipboardData.getData('text').slice(0, length)
     const newValues = pastedText
-      .split("")
-      .map((char) => (/[0-9]/.test(char) ? char : ""));
-    setVerifyCode(newValues);
+      .split('')
+      .map((char) => (/[0-9]/.test(char) ? char : ''))
+    setVerifyCode(newValues)
 
     // Set each input's value and move focus to the last filled input
     newValues.forEach((char, index) => {
-      verifyInputRef.current[index].value = char;
+      verifyInputRef.current[index].value = char
       if (index === newValues.length - 1) {
-        verifyInputRef.current[index].focus();
+        verifyInputRef.current[index].focus()
       }
-    });
+    })
 
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join(""));
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''))
     }
-  };
+  }
 
   //code for number verification
   const handleVerifyCode = () => {
     // //console.log);
-    setPhoneVerifiedSuccessSnack(true);
-    handleRegister();
-  };
+    setPhoneVerifiedSuccessSnack(true)
+    handleRegister()
+  }
 
   //code for registering user
   const handleRegister = async () => {
     try {
-      setRegisterLoader(true);
+      setRegisterLoader(true)
 
-      let agentTitle = userData.userTypeTitle;
+      let agentTitle = userData.userTypeTitle
 
-      let clienttype = null;
+      let clienttype = null
 
-      const formData = new FormData();
-      const ApiPath = Apis.register;
-      let campainee = GetCampaigneeNameIfAvailable(window);
+      const formData = new FormData()
+      const ApiPath = Apis.register
+      let campainee = GetCampaigneeNameIfAvailable(window)
       if (campainee) {
-        formData.append("campaignee", campainee);
+        formData.append('campaignee', campainee)
       }
 
       // Add agency UUID if present (for subaccount registration)
-      const agencyUuid = getAgencyUUIDForAPI();
+      const agencyUuid = getAgencyUUIDForAPI()
       if (agencyUuid) {
-        formData.append("agencyUuid", agencyUuid);
+        formData.append('agencyUuid', agencyUuid)
       }
 
       // Add hostname for auto-detecting agency from custom domain/subdomain
-      let hostname = null;
-      if (typeof window !== "undefined") {
-        hostname = window.location.hostname;
+      let hostname = null
+      if (typeof window !== 'undefined') {
+        hostname = window.location.hostname
         // Only send if not localhost/127.0.0.1
-        if (hostname && !hostname.includes('localhost') && !hostname.includes('127.0.0.1')) {
-          formData.append("hostname", hostname);
+        if (
+          hostname &&
+          !hostname.includes('localhost') &&
+          !hostname.includes('127.0.0.1')
+        ) {
+          formData.append('hostname', hostname)
         }
       }
       // const formData = new FormData();
-      formData.append("name", userName);
-      formData.append("email", userEmail);
-      formData.append("phone", userPhoneNumber);
-      formData.append("agentService", JSON.stringify(userData.serviceID));
-      formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", agentTitle);
-      formData.append("areaOfService", customerService);
-      formData.append("company", companyName);
-      formData.append("projectSizeKw", installationVolume);
-      formData.append("projectsPerYear", projectSize);
-      formData.append("collectionStrategies", ClientType);
-      formData.append("login", false);
-      formData.append("verificationCode", VerifyCode.join(""));
+      formData.append('name', userName)
+      formData.append('email', userEmail)
+      formData.append('phone', userPhoneNumber)
+      formData.append('agentService', JSON.stringify(userData.serviceID))
+      formData.append('areaOfFocus', JSON.stringify(userData.focusAreaId))
+      formData.append('userType', agentTitle)
+      formData.append('areaOfService', customerService)
+      formData.append('company', companyName)
+      formData.append('projectSizeKw', installationVolume)
+      formData.append('projectsPerYear', projectSize)
+      formData.append('collectionStrategies', ClientType)
+      formData.append('login', false)
+      formData.append('verificationCode', VerifyCode.join(''))
       formData.append(
-        "timeZone",
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      );
+        'timeZone',
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      )
 
       // //console.log;
       for (let [key, value] of formData.entries()) {
@@ -364,52 +372,67 @@ const DebtCollerterAgentSignUp = ({
       }
 
       // return
-      const response = await axios.post(ApiPath, formData);
+      const response = await axios.post(ApiPath, formData)
       if (response) {
-        setResponse(response.data);
-        setIsVisible(true);
+        setResponse(response.data)
+        setIsVisible(true)
         // //console.log;
         if (response.data.status === true) {
-          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
-          localStorage.setItem("User", JSON.stringify(response.data.data));
+          console.log(
+            '[DEBUG] Registration successful, starting affiliate tracking...',
+          )
+          localStorage.setItem('User', JSON.stringify(response.data.data))
 
-          if (typeof document !== "undefined") {
-            setCookie(response.data.data.user, document);
+          if (typeof document !== 'undefined') {
+            setCookie(response.data.data.user, document)
           }
 
           // Track signup for affiliate marketing
-          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
-          if (typeof window !== "undefined" && window.agentxTrackSignup) {
-            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
-            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          console.log(
+            '[DEBUG] Checking affiliate tracking function...',
+            typeof window.agentxTrackSignup,
+          )
+          if (typeof window !== 'undefined' && window.agentxTrackSignup) {
+            console.log(
+              '[DEBUG] Calling agentxTrackSignup with:',
+              userEmail,
+              userName,
+              response.data.data.user?.id,
+            )
+            window.agentxTrackSignup(
+              userEmail,
+              userName,
+              response.data.data.user?.id,
+            )
           } else {
-            console.log("[DEBUG] agentxTrackSignup not available");
+            console.log('[DEBUG] agentxTrackSignup not available')
           }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
-            clearAgencyUUID();
+            clearAgencyUUID()
           }
 
-          let screenWidth = 1000;
-          if (typeof window !== "undefined") {
-            screenWidth = window.innerWidth; // Get current screen width
+          let screenWidth = 1000
+          if (typeof window !== 'undefined') {
+            screenWidth = window.innerWidth // Get current screen width
           }
-          const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          const SM_SCREEN_SIZE = 640 // Tailwind's sm breakpoint is typically 640px
           let user = response.data.data.user
           // return
-          if (user.userRole === "AgencySubAccount") {
-            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
-              JSON.stringify(response.data.data)
+          if (user.userRole === 'AgencySubAccount') {
+            localStorage.setItem(
+              PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data),
             )
           }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
-            setCongratsPopup(true);
+            setCongratsPopup(true)
             // //console.log;
           } else {
             // //console.log;
-            handleContinue();
+            handleContinue()
             // setCongratsPopup(true);
           }
         }
@@ -417,111 +440,111 @@ const DebtCollerterAgentSignUp = ({
     } catch (error) {
       // console.error("Error occured in register api is: ", error);
     } finally {
-      setRegisterLoader(false);
+      setRegisterLoader(false)
     }
-  };
+  }
 
   //code to check email and phone
 
   const checkEmail = async (value) => {
     try {
-      setValidEmail("");
-      setEmailLoader(true);
+      setValidEmail('')
+      setEmailLoader(true)
 
-      const ApiPath = Apis.CheckEmail;
+      const ApiPath = Apis.CheckEmail
 
       const ApiData = {
         email: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         } else {
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check email api is :", error);
     } finally {
-      setEmailLoader(false);
+      setEmailLoader(false)
     }
-  };
+  }
 
   const checkPhoneNumber = async (value) => {
     try {
-      setPhoneNumberLoader(true);
-      const ApiPath = Apis.CheckPhone;
+      setPhoneNumberLoader(true)
+      const ApiPath = Apis.CheckPhone
 
       const ApiData = {
         phone: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         } else {
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check phone api is :", error);
     } finally {
-      setPhoneNumberLoader(false);
+      setPhoneNumberLoader(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     verifyPopup: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
@@ -534,26 +557,26 @@ const DebtCollerterAgentSignUp = ({
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               Your Contact Information
             </div>
             <div
               className="mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
               <input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
                 onChange={(e) => {
-                  const input = e.target.value;
+                  const input = e.target.value
                   const formattedName = input
-                    .split(" ")
+                    .split(' ')
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ");
+                    .join(' ')
 
                   // const words = input.split(' ');
                   // const formattedName =
@@ -561,7 +584,7 @@ const DebtCollerterAgentSignUp = ({
                   //     ? words[0].toLowerCase() + ' ' + words.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
                   //     : words[0].toLowerCase();
 
-                  setUserName(formattedName);
+                  setUserName(formattedName)
                 }}
               />
 
@@ -571,7 +594,7 @@ const DebtCollerterAgentSignUp = ({
                 </div>
                 <div>
                   {emailLoader ? (
-                    <p style={{ ...styles.errmsg, color: "black" }}>
+                    <p style={{ ...styles.errmsg, color: 'black' }}>
                       Checking ...
                     </p>
                   ) : (
@@ -582,8 +605,8 @@ const DebtCollerterAgentSignUp = ({
                             ...styles.errmsg,
                             color:
                               emailCheckResponse.status === true
-                                ? "green"
-                                : "red",
+                                ? 'green'
+                                : 'red',
                           }}
                         >
                           {emailCheckResponse.message
@@ -596,7 +619,7 @@ const DebtCollerterAgentSignUp = ({
                       )}
                     </div>
                   )}
-                  <div style={{ ...styles.errmsg, color: "red" }}>
+                  <div style={{ ...styles.errmsg, color: 'red' }}>
                     {validEmail}
                   </div>
                 </div>
@@ -605,11 +628,11 @@ const DebtCollerterAgentSignUp = ({
               <input
                 placeholder="Email address"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  setUserEmail(value);
+                  let value = e.target.value
+                  setUserEmail(value)
 
                   // if (value) {
                   //   const timer = setTimeout(() => {
@@ -622,31 +645,31 @@ const DebtCollerterAgentSignUp = ({
                   // }
 
                   if (timerRef.current) {
-                    clearTimeout(timerRef.current);
+                    clearTimeout(timerRef.current)
                   }
 
-                  setEmailCheckResponse(null);
+                  setEmailCheckResponse(null)
 
                   if (!value) {
                     // //console.log;
-                    setValidEmail("");
-                    return;
+                    setValidEmail('')
+                    return
                   }
 
                   if (!validateEmail(value)) {
                     // //console.log;
-                    setValidEmail("Invalid");
+                    setValidEmail('Invalid')
                   } else {
                     // //console.log;
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
-                        checkEmail(value);
-                      }, 300);
+                        checkEmail(value)
+                      }, 300)
                     } else {
                       // Reset the response if input is cleared
-                      setEmailCheckResponse(null);
-                      setValidEmail("");
+                      setEmailCheckResponse(null)
+                      setValidEmail('')
                     }
                   }
                 }}
@@ -661,7 +684,7 @@ const DebtCollerterAgentSignUp = ({
                   {locationLoader && (
                     <p
                       className="text-purple"
-                      style={{ ...styles.errmsg, height: "20px" }}
+                      style={{ ...styles.errmsg, height: '20px' }}
                     >
                       Getting location ...
                     </p>
@@ -670,8 +693,8 @@ const DebtCollerterAgentSignUp = ({
                     <p
                       style={{
                         ...styles.errmsg,
-                        color: errorMessage && "red",
-                        height: "20px",
+                        color: errorMessage && 'red',
+                        height: '20px',
                       }}
                     >
                       {errorMessage}
@@ -682,8 +705,8 @@ const DebtCollerterAgentSignUp = ({
                         <p
                           style={{
                             ...styles.errmsg,
-                            color: "black",
-                            height: "20px",
+                            color: 'black',
+                            height: '20px',
                           }}
                         >
                           Checking ...
@@ -696,9 +719,9 @@ const DebtCollerterAgentSignUp = ({
                                 ...styles.errmsg,
                                 color:
                                   checkPhoneResponse.status === true
-                                    ? "green"
-                                    : "red",
-                                height: "20px",
+                                    ? 'green'
+                                    : 'red',
+                                height: '20px',
                               }}
                             >
                               {checkPhoneResponse.message
@@ -716,11 +739,11 @@ const DebtCollerterAgentSignUp = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: "8px" }}>
+              <div style={{ marginTop: '8px' }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-                  country={"us"} // restrict to US only
-                  onlyCountries={["us", "mx"]}
+                  country={'us'} // restrict to US only
+                  onlyCountries={['us', 'mx']}
                   disableDropdown={true}
                   countryCodeEditable={false}
                   disableCountryCode={false}
@@ -728,31 +751,31 @@ const DebtCollerterAgentSignUp = ({
                   onChange={handlePhoneNumberChange}
                   placeholder={
                     locationLoader
-                      ? "Loading location ..."
-                      : "Enter Phone Number"
+                      ? 'Loading location ...'
+                      : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: "7px" }}
+                  style={{ borderRadius: '7px' }}
                   inputStyle={{
-                    width: "100%",
-                    borderWidth: "0px",
-                    backgroundColor: "transparent",
-                    paddingLeft: "60px",
-                    paddingTop: "20px",
-                    paddingBottom: "20px",
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
                   }}
                   buttonStyle={{
-                    border: "none",
-                    backgroundColor: "transparent",
+                    border: 'none',
+                    backgroundColor: 'transparent',
                     // display: 'flex',
                     // alignItems: 'center',
                     // justifyContent: 'center',
                   }}
                   dropdownStyle={{
-                    maxHeight: "150px",
-                    overflowY: "auto",
+                    maxHeight: '150px',
+                    overflowY: 'auto',
                   }}
-                  defaultMask={loading ? "Loading..." : undefined}
+                  defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -762,10 +785,10 @@ const DebtCollerterAgentSignUp = ({
               <input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
                 onChange={(e) => {
-                  setCustomerService(e.target.value);
+                  setCustomerService(e.target.value)
                 }}
               />
 
@@ -775,10 +798,10 @@ const DebtCollerterAgentSignUp = ({
               <input
                 placeholder="Name"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}
                 onChange={(e) => {
-                  setCompanyName(e.target.value);
+                  setCompanyName(e.target.value)
                 }}
               />
 
@@ -788,11 +811,11 @@ const DebtCollerterAgentSignUp = ({
               <input
                 placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={installationVolume}
                 type="number"
                 onChange={(e) => {
-                  setInstallationVolume(e.target.value);
+                  setInstallationVolume(e.target.value)
                 }}
               />
 
@@ -815,32 +838,32 @@ const DebtCollerterAgentSignUp = ({
 
               <div
                 className="flex w-full flex-wrap flex-row items-center gap-4 border"
-                style={{ marginTop: "8px" }}
+                style={{ marginTop: '8px' }}
               >
                 {primaryClientTypes.map((item, index) => {
                   return (
                     <div key={index} className="w-full">
                       <button
                         onClick={() => {
-                          handleSelectClientType(item);
+                          handleSelectClientType(item)
                         }}
                         className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                         style={{
                           ...styles.inputStyle,
-                          borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          borderRadius: '30px',
+                          paddingInline: index === 2 && '40px',
                           border:
                             ClientType === item.title
-                              ? "2px solid #7902DF"
-                              : "",
+                              ? '2px solid #7902DF'
+                              : '',
                           backgroundColor:
-                            ClientType === item.title ? "#7902DF20" : "",
+                            ClientType === item.title ? '#7902DF20' : '',
                         }}
                       >
                         {item.title}
                       </button>
                     </div>
-                  );
+                  )
                 })}
               </div>
 
@@ -851,7 +874,7 @@ const DebtCollerterAgentSignUp = ({
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     // //backdropFilter: "blur(20px)",
                   },
                 }}
@@ -864,15 +887,15 @@ const DebtCollerterAgentSignUp = ({
                     <div
                       className="sm:w-7/12 w-full"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
                           <Image
-                            src={"/assets/crossIcon.png"}
+                            src={'/assets/crossIcon.png'}
                             height={40}
                             width={40}
                             alt="*"
@@ -882,14 +905,14 @@ const DebtCollerterAgentSignUp = ({
                       <div
                         style={{
                           fontSize: 26,
-                          fontWeight: "700",
+                          fontWeight: '700',
                         }}
                       >
                         Verify phone number
                       </div>
                       <div
                         className="mt-8"
-                        style={{ ...styles.inputStyle, color: "#00000060" }}
+                        style={{ ...styles.inputStyle, color: '#00000060' }}
                       >
                         Enter code that was sent to number ending with *
                         {userPhoneNumber.slice(-4)}.
@@ -897,7 +920,7 @@ const DebtCollerterAgentSignUp = ({
                       {/* <VerificationCodeInput /> */}
                       <div
                         className="mt-8"
-                        style={{ display: "flex", gap: "8px" }}
+                        style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
                           <input
@@ -913,21 +936,21 @@ const DebtCollerterAgentSignUp = ({
                             onKeyUp={(e) => {
                               // Check if the Enter key is pressed and all inputs are filled
                               if (
-                                e.key === "Enter" &&
-                                VerifyCode.every((value) => value.trim() !== "")
+                                e.key === 'Enter' &&
+                                VerifyCode.every((value) => value.trim() !== '')
                               ) {
-                                handleVerifyCode();
+                                handleVerifyCode()
                               }
                             }}
                             onPaste={handlePaste}
                             placeholder="-"
                             style={{
-                              width: "40px",
-                              height: "40px",
-                              textAlign: "center",
-                              fontSize: "20px",
-                              border: "1px solid #ccc",
-                              borderRadius: "5px",
+                              width: '40px',
+                              height: '40px',
+                              textAlign: 'center',
+                              fontSize: '20px',
+                              border: '1px solid #ccc',
+                              borderRadius: '5px',
                             }}
                             className=" focus:outline-none focus:ring-0"
                           />
@@ -956,7 +979,7 @@ const DebtCollerterAgentSignUp = ({
                       ) : (
                         <button
                           className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                          style={{ height: "50px" }}
+                          style={{ height: '50px' }}
                           onClick={handleVerifyCode}
                         >
                           Continue
@@ -971,7 +994,7 @@ const DebtCollerterAgentSignUp = ({
                 message={response.message}
                 isVisible={isVisible}
                 setIsVisible={(visible) => {
-                  setIsVisible(visible);
+                  setIsVisible(visible)
                 }}
                 success={response.status}
               />
@@ -993,7 +1016,7 @@ const DebtCollerterAgentSignUp = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DebtCollerterAgentSignUp;
+export default DebtCollerterAgentSignUp

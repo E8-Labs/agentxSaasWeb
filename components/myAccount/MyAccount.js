@@ -1,65 +1,73 @@
-"use client";
-import React, { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
-import BasicInfo from "./BasicInfo";
-import MyPhoneNumber from "@/components/myAccount/MyPhoneNumber";
-import { Button, Drawer } from "@mui/material";
-import SendFeedback from "./SendFeedback";
-import InviteAgentX from "./InviteAgentX";
-import Support from "./Support";
-import Billing from "./Billing";
-import NotficationsDrawer from "../notofications/NotficationsDrawer";
-import { useRouter, useSearchParams } from "next/navigation";
-import BarServices from "./BarServices";
-import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
-import TwilioTrustHub from "./TwilioTrustHub";
-import NewBilling from "./NewBilling";
-import BillingHistory from "./BillingHistory";
-import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
-import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";    
-import { getUserLocalData } from "../constants/constants";
-function MyAccount() {
-  let searchParams = useSearchParams();
-  const router = useRouter();
+'use client'
 
-  const [tabSelected, setTabSelected] = useState(6);
+import { Button, Drawer } from '@mui/material'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { Suspense, useEffect, useState } from 'react'
+
+import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments'
+import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
+import {
+  CancellationAndRefundUrl,
+  privacyPollicyUrl,
+  termsAndConditionUrl,
+} from '@/constants/Constants'
+import { isSubaccountTeamMember } from '@/constants/teamTypes/TeamTypes'
+
+import { getUserLocalData } from '../constants/constants'
+import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import BarServices from './BarServices'
+import BasicInfo from './BasicInfo'
+import Billing from './Billing'
+import BillingHistory from './BillingHistory'
+import InviteAgentX from './InviteAgentX'
+import NewBilling from './NewBilling'
+import SendFeedback from './SendFeedback'
+import Support from './Support'
+import TwilioTrustHub from './TwilioTrustHub'
+
+function MyAccount() {
+  let searchParams = useSearchParams()
+  const router = useRouter()
+
+  const [tabSelected, setTabSelected] = useState(6)
 
   const manuBar = [
     {
       id: 1,
-      heading: "Basic Information",
-      subHeading: "Manage personal information ",
-      icon: "/otherAssets/profileCircle.png",
+      heading: 'Basic Information',
+      subHeading: 'Manage personal information ',
+      icon: '/otherAssets/profileCircle.png',
     },
     {
       id: 2,
-      heading: "Plans & Payment",
-      subHeading: "Manage your plans and payment method ",
-      icon: "/otherAssets/walletIcon.png",
+      heading: 'Plans & Payment',
+      subHeading: 'Manage your plans and payment method ',
+      icon: '/otherAssets/walletIcon.png',
     },
     {
       id: 3,
-      heading: "Billing",
-      subHeading: "Manage your billing transactions",
-      icon: "/otherAssets/billingIcon.png",
+      heading: 'Billing',
+      subHeading: 'Manage your billing transactions',
+      icon: '/otherAssets/billingIcon.png',
     },
     {
       id: 4,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
+      heading: 'Bar Services',
+      subHeading: 'Our version of the genius bar',
+      icon: '/assets/X.svg',
     },
     {
       id: 5,
-      heading: "My Phone Numbers",
-      subHeading: "All agent phone numbers",
-      icon: "/assets/unSelectedCallIcon.png",
+      heading: 'My Phone Numbers',
+      subHeading: 'All agent phone numbers',
+      icon: '/assets/unSelectedCallIcon.png',
     },
     {
       id: 6,
-      heading: "Invite Agents",
-      subHeading: "Get 60 credits ",
-      icon: "/otherAssets/inviteAgentIcon.png",
+      heading: 'Invite Agents',
+      subHeading: 'Get 60 credits ',
+      icon: '/otherAssets/inviteAgentIcon.png',
     },
     // {
     //   id: 6,
@@ -75,130 +83,117 @@ function MyAccount() {
     // },
     {
       id: 7,
-      heading: "Twilio Trust Hub",
-      subHeading: "Caller ID & compliance for trusted calls",
-      icon: "/svgIcons/twilioHub.svg",
+      heading: 'Twilio Trust Hub',
+      subHeading: 'Caller ID & compliance for trusted calls',
+      icon: '/svgIcons/twilioHub.svg',
     },
     {
       id: 8,
-      heading: "Terms & Conditions",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Terms & Conditions',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 9,
-      heading: "Privacy Policy",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Privacy Policy',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 10,
-      heading: "Cancellation & Refund",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Cancellation & Refund',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
-  ];
+  ]
 
-  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-  const [userLocalData, setUserLocalData] = useState(null);
+  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
+  const [userLocalData, setUserLocalData] = useState(null)
   //select the invite teams by default
   useEffect(() => {
+    const data = getUserLocalData()
+    setUserLocalData(data.user)
 
-    const data = getUserLocalData();
-    setUserLocalData(data.user);
+    const tab = searchParams.get('tab')
+    const number = Number(tab)
 
-    const tab = searchParams.get("tab");
-    const number = Number(tab);
-
-    const exists = manuBar.find((item) => item.id === number);
+    const exists = manuBar.find((item) => item.id === number)
     if (exists) {
-      setTabSelected(number);
+      setTabSelected(number)
     } else {
-      setTabSelected(6); // Default to Invite Agents
-      setParamsInSearchBar(6);
+      setTabSelected(6) // Default to Invite Agents
+      setParamsInSearchBar(6)
       // console.log("Setting the tab value");
     }
-  }, []);
-
+  }, [])
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", index); // Set or update the 'tab' parameter
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', index) // Set or update the 'tab' parameter
 
     // Push the updated URL
-    router.push(`/dashboard/myAccount?${params.toString()}`);
+    router.push(`/dashboard/myAccount?${params.toString()}`)
 
     // //console.log;
-  };
+  }
 
   const renderComponent = () => {
     // setTabSelected(selectedMenuId);
 
     switch (tabSelected) {
       case 1:
-        return <BasicInfo />;
+        return <BasicInfo />
       case 2:
         if (isSubaccountTeamMember(userLocalData)) {
-          return <SubAccountPlansAndPayments />;
+          return <SubAccountPlansAndPayments />
         } else {
-          return <NewBilling />;
+          return <NewBilling />
         }
-        return <NewBilling />;
+        return <NewBilling />
       case 3:
-        return <BillingHistory />;
+        return <BillingHistory />
       case 4:
-        return <BarServices />;
+        return <BarServices />
       case 5:
-        return <MyPhoneNumber />;
+        return <MyPhoneNumber />
       case 6:
-        return <InviteAgentX />;
+        return <InviteAgentX />
       case 7:
-        return <TwilioTrustHub />;
+        return <TwilioTrustHub />
       default:
-        return <div>Please select an option.</div>;
+        return <div>Please select an option.</div>
     }
-  };
+  }
 
   const handleTabSelect = (item, index) => {
-
     if (item.id === 8) {
-      window.open(
-        termsAndConditionUrl,
-        "_blank"
-      );
+      window.open(termsAndConditionUrl, '_blank')
       return
     } else if (item.id === 9) {
-      window.open(
-        privacyPollicyUrl,
-        "_blank"
-      );
+      window.open(privacyPollicyUrl, '_blank')
       return
     } else if (item.id === 10) {
-      window.open(
-        CancellationAndRefundUrl,
-        "_blank"
-      );
+      window.open(CancellationAndRefundUrl, '_blank')
       return
     }
-    console.log("Index is", index);
-    setTabSelected(item.id);
-    setParamsInSearchBar(item.id);
-
+    console.log('Index is', index)
+    setTabSelected(item.id)
+    setParamsInSearchBar(item.id)
   }
 
   return (
     // <Suspense>
     <div
       className="w-full flex flex-col items-center"
-      style={{ overflow: "hidden", height: "100vh" }}
+      style={{ overflow: 'hidden', height: '100vh' }}
     >
       <div
         className=" w-full flex flex-row justify-between items-center py-4 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>My Account</div>
+        <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
 
         <div className="flex flex-col">
           <NotficationsDrawer />
@@ -212,8 +207,8 @@ function MyAccount() {
               <button
                 className="w-full outline-none"
                 style={{
-                  textTransform: "none", // Prevents uppercase transformation
-                  fontWeight: "normal", // Optional: Adjust the font weight
+                  textTransform: 'none', // Prevents uppercase transformation
+                  fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
@@ -224,31 +219,36 @@ function MyAccount() {
                   className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                   style={{
                     backgroundColor:
-                      index === tabSelected - 1 ? "#402FFF10" : "transparent",
+                      index === tabSelected - 1 ? '#402FFF10' : 'transparent',
                   }}
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />
                   <div
                     className="flex flex-col gap-1 items-start text-start"
-                  // style={{
-                  //   whiteSpace: "nowrap",
-                  //   overflow: "hidden",
-                  //   textOverflow: "ellipsis",
-                  // }}
+                    // style={{
+                    //   whiteSpace: "nowrap",
+                    //   overflow: "hidden",
+                    //   textOverflow: "ellipsis",
+                    // }}
                   >
                     <div
                       style={{
                         fontSize: 16,
-                        fontWeight: "700",
-                        color: "#000",
-                        textAlign: "left",
+                        fontWeight: '700',
+                        color: '#000',
+                        textAlign: 'left',
                       }}
                     >
                       {item.heading}
                     </div>
 
                     <div
-                      style={{ fontSize: 13, fontWeight: "500", color: "#000", textAlign: "left", }}
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '500',
+                        color: '#000',
+                        textAlign: 'left',
+                      }}
                     >
                       {item.subHeading}
                     </div>
@@ -262,10 +262,10 @@ function MyAccount() {
         <div
           className="w-9/12 "
           style={{
-            overflow: "auto",
-            height: "92vh",
+            overflow: 'auto',
+            height: '92vh',
             borderLeftWidth: 1,
-            borderBottomColor: "#00000012",
+            borderBottomColor: '#00000012',
           }}
         >
           {renderComponent()}
@@ -273,7 +273,7 @@ function MyAccount() {
       </div>
     </div>
     // </Suspense>
-  );
+  )
 }
 
-export default MyAccount;
+export default MyAccount

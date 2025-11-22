@@ -1,4 +1,4 @@
-import { FormControl, MenuItem, Select } from '@mui/material';
+import { FormControl, MenuItem, Select } from '@mui/material'
 import React from 'react'
 
 const AddTeamUtility = () => {
@@ -8,41 +8,36 @@ const AddTeamUtility = () => {
         <FormControl fullWidth>
           <Select
             id="demo-simple-select"
-            value={assignToMember || ""} // Default to empty string when no value is selected
+            value={assignToMember || ''} // Default to empty string when no value is selected
             onChange={handleAssignTeamMember}
             displayEmpty // Enables placeholder
             renderValue={(selected) => {
               if (!selected) {
-                return (
-                  <div style={{ color: "#aaa" }}>
-                    Select team member
-                  </div>
-                ); // Placeholder style
+                return <div style={{ color: '#aaa' }}>Select team member</div> // Placeholder style
               }
-              return selected;
+              return selected
             }}
             sx={{
-              border: "1px solid #00000020", // Default border
-              "&:hover": {
-                border: "1px solid #00000020", // Same border on hover
+              border: '1px solid #00000020', // Default border
+              '&:hover': {
+                border: '1px solid #00000020', // Same border on hover
               },
-              "& .MuiOutlinedInput-notchedOutline": {
-                border: "none", // Remove the default outline
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none', // Remove the default outline
               },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-              {
-                border: "none", // Remove outline on focus
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                border: 'none', // Remove outline on focus
               },
-              "&.MuiSelect-select": {
+              '&.MuiSelect-select': {
                 py: 0, // Optional padding adjustments
               },
             }}
             MenuProps={{
               PaperProps: {
                 style: {
-                  maxHeight: "30vh", // Limit dropdown height
-                  overflow: "auto", // Enable scrolling in dropdown
-                  scrollbarWidth: "none",
+                  maxHeight: '30vh', // Limit dropdown height
+                  overflow: 'auto', // Enable scrolling in dropdown
+                  scrollbarWidth: 'none',
                 },
               },
             }}
@@ -71,7 +66,7 @@ const AddTeamUtility = () => {
                   {getAgentsListImage(item?.invitedUser)}
                   {item.invitedUser?.name}
                 </MenuItem>
-              );
+              )
             })}
           </Select>
         </FormControl>
@@ -80,9 +75,6 @@ const AddTeamUtility = () => {
   )
 }
 
-export default AddTeamUtility;
+export default AddTeamUtility
 
-
-export const getTeamMembers = async () => {
-
-}
+export const getTeamMembers = async () => {}

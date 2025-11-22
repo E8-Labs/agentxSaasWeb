@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   FormControl,
@@ -6,13 +5,18 @@ import {
   Modal,
   Select,
   Switch,
-} from '@mui/material';
-import { ArrowUpRight, X } from '@phosphor-icons/react';
-import axios from 'axios';
-import Image from 'next/image';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
-import Apis from '../../apis/Apis';
-import CloseBtn from '@/components/globalExtras/CloseBtn';
+} from '@mui/material'
+import { ArrowUpRight, X } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+
+import Apis from '../../apis/Apis'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../leads/AgentSelectSnackMessage'
 
 const WebAgentModal = ({
   open,
@@ -28,33 +32,32 @@ const WebAgentModal = ({
   selectedSmartList,
   setSelectedSmartList,
 }) => {
-
-  const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill);
-  const [requireForm, setRequireForm] = useState(false);
-  const [smartLists, setSmartLists] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill)
+  const [requireForm, setRequireForm] = useState(false)
+  const [smartLists, setSmartLists] = useState([])
+  const [loading, setLoading] = useState(false)
   const [snackbar, setSnackbar] = useState({
     isVisible: false,
     title: '',
     message: '',
-    type: SnackbarTypes.Error
-  });
+    type: SnackbarTypes.Error,
+  })
 
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
       isVisible: true,
       title,
       message,
-      type
-    });
-  };
+      type,
+    })
+  }
 
   const hideSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, isVisible: false }));
-  };
+    setSnackbar((prev) => ({ ...prev, isVisible: false }))
+  }
 
   useEffect(() => {
-    console.log("agent name is", agentName)
+    console.log('agent name is', agentName)
     // if(agentSmartRefill){
     //   setRequireForm(true);
     //   setSelectedSmartList(agentSmartRefill);
@@ -63,111 +66,123 @@ const WebAgentModal = ({
     //   setRequireForm(false);
     //   setSelectedSmartList('');
     // }
-  }, [agentSmartRefillId]);
+  }, [agentSmartRefillId])
 
   useEffect(() => {
     if (open) {
-      fetchSmartLists();
+      fetchSmartLists()
     }
-  }, [open]);
+  }, [open])
 
   const fetchSmartLists = async () => {
     try {
-      setLoading(true);
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      setLoading(true)
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
-      const response = await axios.get(
-        `${Apis.getSheets}?type=manual`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${AuthToken}`
-          }
-        }
-      );
+      const response = await axios.get(`${Apis.getSheets}?type=manual`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${AuthToken}`,
+        },
+      })
 
-      console.log("get sheets response is", response);
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        setSmartLists(response.data.data);
-        console.log('agentSmartRefillId', agentSmartRefillId);
-        console.log('agentSmartRefill', agentSmartRefill);
+      console.log('get sheets response is', response)
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.length > 0
+      ) {
+        setSmartLists(response.data.data)
+        console.log('agentSmartRefillId', agentSmartRefillId)
+        console.log('agentSmartRefill', agentSmartRefill)
 
-        if (typeof agentSmartRefillId !== "undefined" || agentSmartRefill) {
-          setRequireForm(true);
+        if (typeof agentSmartRefillId !== 'undefined' || agentSmartRefill) {
+          setRequireForm(true)
         }
-        setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
+        setSelectedSmartList(
+          agentSmartRefillId || agentSmartRefill || response.data.data[0].id,
+        )
       }
     } catch (error) {
-      console.error('Error fetching smart lists:', error);
-      showSnackbar('', error.response?.data?.message || 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
+      console.error('Error fetching smart lists:', error)
+      showSnackbar(
+        '',
+        error.response?.data?.message ||
+          'Failed to fetch smart lists. Please try again.',
+        SnackbarTypes.Error,
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleToggleChange = async (event) => {
-    console.log('handleToggleChange', event.target.checked);
-    console.log('agentSmartRefill', agentSmartRefillId);
+    console.log('handleToggleChange', event.target.checked)
+    console.log('agentSmartRefill', agentSmartRefillId)
     if (event.target.checked === false) {
       // attach smart list to the agent with the agentSmartRefill id null
       try {
-        let AuthToken = null;
-        const localData = localStorage.getItem("User");
+        let AuthToken = null
+        const localData = localStorage.getItem('User')
         if (localData) {
-          const UserDetails = JSON.parse(localData);
-          AuthToken = UserDetails.token;
+          const UserDetails = JSON.parse(localData)
+          AuthToken = UserDetails.token
         }
 
         const response = await axios.post(
           `${Apis.attachSmartList}`,
           {
             agentId: agentId,
-            smartListId: null
+            smartListId: null,
           },
           {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${AuthToken}`
-            }
-          }
-        );
+              Authorization: `Bearer ${AuthToken}`,
+            },
+          },
+        )
 
         if (response.data) {
-          setRequireForm(!event.target.checked);
-          setSelectedSmartList('');
-          showSnackbar('', 'Smart list enabled', SnackbarTypes.Success);
+          setRequireForm(!event.target.checked)
+          setSelectedSmartList('')
+          showSnackbar('', 'Smart list enabled', SnackbarTypes.Success)
         }
       } catch (error) {
-        console.error('Error detaching smart list:', error);
-        showSnackbar('', 'Error detaching smart list. Please try again.', SnackbarTypes.Error);
+        console.error('Error detaching smart list:', error)
+        showSnackbar(
+          '',
+          'Error detaching smart list. Please try again.',
+          SnackbarTypes.Error,
+        )
       }
     } else {
-      setRequireForm(event.target.checked);
+      setRequireForm(event.target.checked)
       if (!event.target.checked) {
-        setSelectedSmartList('');
+        setSelectedSmartList('')
       }
     }
-  };
+  }
 
   const handleOpenAgent = async () => {
-    console.log("handleOpenAgent called")
+    console.log('handleOpenAgent called')
     if (requireForm && !selectedSmartList) {
-      return; // Don't open if form is required but no smart list selected
+      return // Don't open if form is required but no smart list selected
     }
 
     // If form is required and a smart list is selected, attach it to the agent first
     if (requireForm && selectedSmartList) {
       try {
-        let AuthToken = null;
-        const localData = localStorage.getItem("User");
+        let AuthToken = null
+        const localData = localStorage.getItem('User')
         if (localData) {
-          const UserDetails = JSON.parse(localData);
-          AuthToken = UserDetails.token;
+          const UserDetails = JSON.parse(localData)
+          AuthToken = UserDetails.token
         }
 
         // Note: This API endpoint might need to be added to Apis.js
@@ -175,61 +190,70 @@ const WebAgentModal = ({
           `${Apis.attachSmartList}`, // Using a placeholder - update Apis.js if needed
           {
             agentId: agentId,
-            smartListId: selectedSmartList
+            smartListId: selectedSmartList,
           },
           {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${AuthToken}`
-            }
-          }
-        );
+              Authorization: `Bearer ${AuthToken}`,
+            },
+          },
+        )
 
         if (response.data) {
-          console.log("feature type is", fetureType)
+          console.log('feature type is', fetureType)
           // return;
           // Success - now open the agent
-          if (fetureType === "webhook") {
-            onCopyUrl();
+          if (fetureType === 'webhook') {
+            onCopyUrl()
           } else {
-            onOpenAgent();
-            showSnackbar('', 'Smart list attached successfully!', SnackbarTypes.Success);
-
+            onOpenAgent()
+            showSnackbar(
+              '',
+              'Smart list attached successfully!',
+              SnackbarTypes.Success,
+            )
           }
         }
       } catch (error) {
-        console.error('Error attaching smart list:', error);
-        showSnackbar('', 'Error attaching smart list. Please try again.', SnackbarTypes.Error);
-        return;
+        console.error('Error attaching smart list:', error)
+        showSnackbar(
+          '',
+          'Error attaching smart list. Please try again.',
+          SnackbarTypes.Error,
+        )
+        return
       }
     } else {
-      console.log("no form required or no smart list selected, just open the agent")
-      if (fetureType === "webhook") {
-        onCopyUrl();
+      console.log(
+        'no form required or no smart list selected, just open the agent',
+      )
+      if (fetureType === 'webhook') {
+        onCopyUrl()
       } else {
-        onOpenAgent();
+        onOpenAgent()
       }
     }
-  };
+  }
 
   const handleNewSmartList = () => {
-    onShowNewSmartList();
-  };
+    onShowNewSmartList()
+  }
 
   const styles = {
     modalsStyle: {
-      height: "100vh",
-      bgcolor: "transparent",
-      mx: "auto",
+      height: '100vh',
+      bgcolor: 'transparent',
+      mx: 'auto',
       // my: "50vh",
       // transform: "translateY(-50%)",
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
-  if (!open) return null;
+  if (!open) return null
 
   return (
     <Modal
@@ -239,34 +263,58 @@ const WebAgentModal = ({
       BackdropProps={{
         timeout: 1000,
         sx: {
-          backgroundColor: "#00000020",
+          backgroundColor: '#00000020',
         },
       }}
     >
-      <Box className="xl:w-4/12 lg:w-6/12 sm:w-10/12 w-6/12 flex flex-col items-center justify-center" sx={styles.modalsStyle}>
+      <Box
+        className="xl:w-4/12 lg:w-6/12 sm:w-10/12 w-6/12 flex flex-col items-center justify-center"
+        sx={styles.modalsStyle}
+      >
         <div className="flex flex-col justify-center items-center bg-white rounded-lg px-4 py-6 w-full">
           {/* Header */}
-          <div style={{width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-            <h2 className='capitalize' style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
-              {agentName.slice(0, 20)} {agentName.length > 20 ? "..." : ""} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 24,
+            }}
+          >
+            <h2
+              className="capitalize"
+              style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}
+            >
+              {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} |{' '}
+              {`${fetureType === 'webhook' ? 'Webhook Agent' : 'Browser Agent'}`}
             </h2>
             <CloseBtn
               onClick={(e) => {
-                e.stopPropagation();
-                onClose();
+                e.stopPropagation()
+                onClose()
               }}
             />
           </div>
 
           {/* Require Form Section */}
-          <div style={{
-            marginBottom: 24,
-            padding: 16,
-            backgroundColor: '#f8f9fa',
-            borderRadius: 8,
-            border: '1px solid #e9ecef'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div
+            style={{
+              marginBottom: 24,
+              padding: 16,
+              backgroundColor: '#f8f9fa',
+              borderRadius: 8,
+              border: '1px solid #e9ecef',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}
+            >
               <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
                 Require users to complete a form?
               </div>
@@ -287,23 +335,38 @@ const WebAgentModal = ({
               />
             </div>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              This prompts users to fill out a form before they engage in a conversation with your AI.
+              This prompts users to fill out a form before they engage in a
+              conversation with your AI.
             </div>
           </div>
 
           {/* Smart List Selection */}
           {requireForm && (
-            <div style={{ marginBottom: 24 ,width: '90%'}}>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <div style={{ fontWeight: 'medium', color: 'rgba(0, 0, 0, 0.5)', fontSize: '16px' }}>
+            <div style={{ marginBottom: 24, width: '90%' }}>
+              <div
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 16,
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 'medium',
+                    color: 'rgba(0, 0, 0, 0.5)',
+                    fontSize: '16px',
+                  }}
+                >
                   Select Smart List
                 </div>
                 <button
                   className="text-purple underline text-transform-none font-medium"
                   onClick={(e) => {
-                    console.log('New Smartlist button clicked');
-                    e.stopPropagation();
-                    handleNewSmartList();
+                    console.log('New Smartlist button clicked')
+                    e.stopPropagation()
+                    handleNewSmartList()
                   }}
                   style={{
                     background: 'none',
@@ -311,7 +374,7 @@ const WebAgentModal = ({
                     cursor: 'pointer',
                     fontSize: '14px',
                     position: 'relative',
-                    zIndex: 10
+                    zIndex: 10,
                   }}
                 >
                   New Smartlist
@@ -319,52 +382,57 @@ const WebAgentModal = ({
               </div>
 
               {loading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '16px 0',
+                  }}
+                >
                   <div>Loading...</div>
                 </div>
               ) : smartLists.length > 0 ? (
-                <FormControl className='w-full h-[50px]'>
+                <FormControl className="w-full h-[50px]">
                   <Select
                     value={selectedSmartList}
                     onChange={(e) => setSelectedSmartList(e.target.value)}
                     style={{
-                      border: "1px solid #E5E7EB",
+                      border: '1px solid #E5E7EB',
                       fontSize: '14px',
                       padding: '12px',
                       backgroundColor: '#fff',
                       width: '100%',
                       borderRadius: '6px',
-                      outline: 'none'
+                      outline: 'none',
                     }}
                     sx={{
-                      height: "48px",
-                      borderRadius: "13px",
-                      border: "1px solid #00000020", // Default border
-                      "&:hover": {
-                        border: "1px solid #00000020", // Same border on hover
+                      height: '48px',
+                      borderRadius: '13px',
+                      border: '1px solid #00000020', // Default border
+                      '&:hover': {
+                        border: '1px solid #00000020', // Same border on hover
                       },
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        border: "none", // Remove the default outline
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        border: 'none', // Remove the default outline
                       },
-                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        border: "none", // Remove outline on focus
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        border: 'none', // Remove outline on focus
                       },
-                      "&.MuiSelect-select": {
+                      '&.MuiSelect-select': {
                         py: 0, // Optional padding adjustments
                       },
                     }}
                     MenuProps={{
                       PaperProps: {
                         style: {
-                          maxHeight: "30vh", // Limit dropdown height
-                          overflow: "auto", // Enable scrolling in dropdown
-                          scrollbarWidth: "none",
+                          maxHeight: '30vh', // Limit dropdown height
+                          overflow: 'auto', // Enable scrolling in dropdown
+                          scrollbarWidth: 'none',
                           // borderRadius: "10px"
                         },
                       },
                     }}
                   >
-
                     {smartLists.map((list, index) => (
                       <MenuItem key={list.id || index} value={list.id}>
                         {list.sheetName}
@@ -373,7 +441,9 @@ const WebAgentModal = ({
                   </Select>
                 </FormControl>
               ) : (
-                <div style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}>
+                <div
+                  style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}
+                >
                   No smart lists available. Create a new one to get started.
                 </div>
               )}
@@ -381,12 +451,20 @@ const WebAgentModal = ({
           )}
 
           {/* Buttons */}
-          <div style={{ width: '90%', display: 'flex', justifyContent: 'space-between', gap: 16, marginTop: 24 }}>
+          <div
+            style={{
+              width: '90%',
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: 16,
+              marginTop: 24,
+            }}
+          >
             <button
               onClick={(e) => {
-                console.log('Cancel button clicked');
-                e.stopPropagation();
-                onClose();
+                console.log('Cancel button clicked')
+                e.stopPropagation()
+                onClose()
               }}
               style={{
                 padding: '8px 16px',
@@ -403,27 +481,31 @@ const WebAgentModal = ({
             </button>
             <button
               onClick={(e) => {
-                console.log('Open agent button clicked');
-                e.stopPropagation();
-                handleOpenAgent();
+                console.log('Open agent button clicked')
+                e.stopPropagation()
+                handleOpenAgent()
               }}
               disabled={requireForm && !selectedSmartList}
               style={{
                 padding: '8px 24px',
-                backgroundColor: requireForm && !selectedSmartList ? '#d1d5db' : '#7c3aed',
+                backgroundColor:
+                  requireForm && !selectedSmartList ? '#d1d5db' : '#7c3aed',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: requireForm && !selectedSmartList ? 'not-allowed' : 'pointer',
+                cursor:
+                  requireForm && !selectedSmartList ? 'not-allowed' : 'pointer',
                 fontWeight: '500',
                 fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
                 position: 'relative',
-                zIndex: 10
+                zIndex: 10,
               }}
             >
-              {fetureType === "webhook" ? "Copy Webhook Url" : "Open agent in new tab"}
+              {fetureType === 'webhook'
+                ? 'Copy Webhook Url'
+                : 'Open agent in new tab'}
               <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
             </button>
           </div>
@@ -439,8 +521,7 @@ const WebAgentModal = ({
         </div>
       </Box>
     </Modal>
+  )
+}
 
-  );
-};
-
-export default WebAgentModal;
+export default WebAgentModal

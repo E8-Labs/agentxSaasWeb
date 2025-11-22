@@ -1,245 +1,245 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import moment from "moment";
-import { GetFormattedDateString, ToUppercase } from "@/utilities/utility";
-import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
-import { PersistanceKeys } from "@/constants/Constants";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { UserTypes } from "@/constants/UserTypes";
-import LeadLoading from "../dashboard/leads/LeadLoading";
-import { BatchStatus } from "../constants/constants";
-import { getReadableStatus } from "@/utilities/UserUtility";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import { PersistanceKeys } from '@/constants/Constants'
+import { UserTypes } from '@/constants/UserTypes'
+import { getReadableStatus } from '@/utilities/UserUtility'
+import {
+  getAgentImageWithMemoji,
+  getAgentsListImage,
+} from '@/utilities/agentUtilities'
+import { GetFormattedDateString, ToUppercase } from '@/utilities/utility'
+
+import Apis from '../apis/Apis'
+import { BatchStatus } from '../constants/constants'
+import LeadLoading from '../dashboard/leads/LeadLoading'
 
 function SheduledCalls({ user }) {
-  const Limit = 30;
+  const Limit = 30
   // const [user, setUser] = useState(null);
-  const [leadsLoading, setLeadsLoading] = useState(false);
-  const [hasMoreLeads, setHasMoreLeads] = useState(true);
-  const [callsLoading, setCallsLoading] = useState(false);
-  const [hasMoreCalls, setHasMoreCalls] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [hasMoreLeads, setHasMoreLeads] = useState(true)
+  const [callsLoading, setCallsLoading] = useState(false)
+  const [hasMoreCalls, setHasMoreCalls] = useState(true)
+  const [searchValue, setSearchValue] = useState('')
   //code for agent details
-  const [callDetails, setCallDetails] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [agentsList, setAgentsList] = useState([]);
-  const [filteredAgentsList, setFilteredAgentsList] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [callDetails, setCallDetails] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [agentsList, setAgentsList] = useState([])
+  const [filteredAgentsList, setFilteredAgentsList] = useState([])
+  const [anchorEl, setAnchorEl] = React.useState(null)
   //code for call log details
-  const [SelectedAgent, setSelectedAgent] = useState(null);
-  const [SelectedItem, setSelectedItem] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
-  const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
-  const [filteredSheduledCalllogs, setFilteredSheduledCalllogs] = useState([]);
-  const [detailsFilterSearchValue, setDetailsFilterSearchValue] = useState("");
+  const [SelectedAgent, setSelectedAgent] = useState(null)
+  const [SelectedItem, setSelectedItem] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false)
+  const [sheduledCalllogs, setSheduledCalllogs] = useState([])
+  const [filteredSheduledCalllogs, setFilteredSheduledCalllogs] = useState([])
+  const [detailsFilterSearchValue, setDetailsFilterSearchValue] = useState('')
   //code for leeads details modal
-  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false);
-  const [selectedLeadsList, setSelectedLeadsList] = useState([]);
-  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState(
-    []
-  );
-  const [leadsSearchValue, setLeadsSearchValue] = useState("");
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
+  const [selectedLeadsList, setSelectedLeadsList] = useState([])
+  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState([])
+  const [leadsSearchValue, setLeadsSearchValue] = useState('')
   //variable for warningpopup
-  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
-  const [color, setColor] = useState(false);
+  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null)
+  const [color, setColor] = useState(false)
 
   //variable for showing modal
-  const [extraTagsModal, setExtraTagsModal] = useState(false);
-  const [otherTags, setOtherTags] = useState([]);
+  const [extraTagsModal, setExtraTagsModal] = useState(false)
+  const [otherTags, setOtherTags] = useState([])
 
-  const filterTimerRef = useRef(null);
+  const filterTimerRef = useRef(null)
   useEffect(() => {
-    getScheduledOrOngoingActivityCalls();
-  }, []);
+    getScheduledOrOngoingActivityCalls()
+  }, [])
   useEffect(() => {
     if (filterTimerRef.current) {
-      clearTimeout(filterTimerRef.current);
+      clearTimeout(filterTimerRef.current)
     }
     filterTimerRef.current = setTimeout(() => {
       //console.log;
       // if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
       if (SelectedItem) {
-        setHasMoreCalls(true);
-        setFilteredSheduledCalllogs([]);
-        setSheduledCalllogs([]);
-        fetchCallsInBatch(SelectedItem, 0);
+        setHasMoreCalls(true)
+        setFilteredSheduledCalllogs([])
+        setSheduledCalllogs([])
+        fetchCallsInBatch(SelectedItem, 0)
       }
       // }
-    }, 400);
-  }, [detailsFilterSearchValue]);
+    }, 400)
+  }, [detailsFilterSearchValue])
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+  }
 
   const handleClosePopup = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-    setSelectedLeadsList([]);
-    setFilteredSelectedLeadsList([]);
-    setHasMoreLeads(true);
-    setShowLeadDetailsModal(true);
-    fetchLeadsInBatch(item);
-  };
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+    setSelectedLeadsList([])
+    setFilteredSelectedLeadsList([])
+    setHasMoreLeads(true)
+    setShowLeadDetailsModal(true)
+    fetchLeadsInBatch(item)
+  }
 
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSelectedLeadsList(selectedLeadsList);
-      return;
+      setFilteredSelectedLeadsList(selectedLeadsList)
+      return
     }
 
     const filtered = selectedLeadsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSelectedLeadsList(filtered);
-  };
+    setFilteredSelectedLeadsList(filtered)
+  }
 
   //code to get agents
   const getScheduledOrOngoingActivityCalls = async (offset = 0) => {
     try {
       if (offset === 0) {
-        setInitialLoader(true);
+        setInitialLoader(true)
       }
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
 
-      let mainAgent = null;
-      const localAgent = localStorage.getItem("agentDetails");
+      let mainAgent = null
+      const localAgent = localStorage.getItem('agentDetails')
       if (localAgent) {
-        const agentDetails = JSON.parse(localAgent);
+        const agentDetails = JSON.parse(localAgent)
         // //console.log;
         // //console.log;
-        mainAgent = agentDetails;
+        mainAgent = agentDetails
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      const ApiPath = `${Apis.getSheduledCallLogs}`;
+      const ApiPath = `${Apis.getSheduledCallLogs}`
 
       // //console.log; //scheduled
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("response is of gat active calls", response.data.data);
+        console.log('response is of gat active calls', response.data.data)
 
         let newData = response.data.data
 
         if (offset === 0) {
-
-          setFilteredAgentsList(response.data.data);
-          setCallDetails(response.data.data);
-          setAgentsList(response.data.data);
+          setFilteredAgentsList(response.data.data)
+          setCallDetails(response.data.data)
+          setAgentsList(response.data.data)
         } else {
-          setFilteredAgentsList((prev) => [...prev, ...newData]);
-          setCallDetails((prev) => [...prev, ...newData]);
-          setAgentsList((prev) => [...prev, ...newData]);
-
+          setFilteredAgentsList((prev) => [...prev, ...newData])
+          setCallDetails((prev) => [...prev, ...newData])
+          setAgentsList((prev) => [...prev, ...newData])
         }
 
         if (newData.length < Limit) {
-          setHasMoreCalls(false);
+          setHasMoreCalls(false)
         } else {
-          setHasMoreCalls(true);
+          setHasMoreCalls(true)
         }
       }
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   //code to show call log details popup
 
   const handleShowBatchCalls = (item, agent, event) => {
     if (event) {
-      setAnchorEl(event.currentTarget);
+      setAnchorEl(event.currentTarget)
     }
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-    setShowDetailsModal(true);
-    setHasMoreCalls(true);
-    fetchCallsInBatch(item, 0);
-  };
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+    setShowDetailsModal(true)
+    setHasMoreCalls(true)
+    fetchCallsInBatch(item, 0)
+  }
 
   //code to filter slected agent leads
   const handleDetailsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSheduledCalllogs(sheduledCalllogs);
-      return;
+      setFilteredSheduledCalllogs(sheduledCalllogs)
+      return
     }
 
     const filtered = sheduledCalllogs.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSheduledCalllogs(filtered);
-  };
+    setFilteredSheduledCalllogs(filtered)
+  }
 
   //main page search
   const handleSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredAgentsList(agentsList);
-      return;
+      setFilteredAgentsList(agentsList)
+      return
     }
 
     //// //console.log;
 
     const filtered = agentsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       //// //console.log
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
@@ -247,64 +247,64 @@ function SheduledCalls({ user }) {
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredAgentsList(filtered);
-  };
+    setFilteredAgentsList(filtered)
+  }
 
-  const [PauseLoader, setPauseLoader] = useState(false);
+  const [PauseLoader, setPauseLoader] = useState(false)
   //code to pause the agent
   const pauseAgents = async () => {
     // //console.log;
 
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.pauseAgent;
+      setPauseLoader(true)
+      const ApiPath = Apis.pauseAgent
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Paused",
-              };
+                status: 'Paused',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -312,9 +312,9 @@ function SheduledCalls({ user }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
+  }
 
   //function to resume calls
   const resumeCalls = async () => {
@@ -322,52 +322,52 @@ function SheduledCalls({ user }) {
     // //console.log
     // return
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.resumeCalls;
+      setPauseLoader(true)
+      const ApiPath = Apis.resumeCalls
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Active",
-              };
+                status: 'Active',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -375,27 +375,27 @@ function SheduledCalls({ user }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
+  }
 
   const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstApiCall = false;
-      setLeadsLoading(true);
+      let firstApiCall = false
+      setLeadsLoading(true)
       let leadsInBatchLocalData = localStorage.getItem(
-        PersistanceKeys.LeadsInBatch + `${batch.id}`
-      );
+        PersistanceKeys.LeadsInBatch + `${batch.id}`,
+      )
       if (selectedLeadsList.length == 0) {
-        firstApiCall = true;
+        firstApiCall = true
         if (leadsInBatchLocalData) {
           //console.log;
-          let leads = JSON.parse(leadsInBatchLocalData);
+          let leads = JSON.parse(leadsInBatchLocalData)
           //console.log;
           // setSelectedLeadsList(leads);
           // setFilteredSelectedLeadsList(leads);
-          setLeadsLoading(false);
+          setLeadsLoading(false)
           // return;
         } else {
           //console.log;
@@ -404,23 +404,18 @@ function SheduledCalls({ user }) {
         //console.log;
       }
 
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log(
-        "Api Call Leads : ",
-        path
-      );
-      const response = await fetch(path,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setLeadsLoading(false);
-      const data = await response.json();
+      console.log('Api Call Leads : ', path)
+      const response = await fetch(path, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      setLeadsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
@@ -431,43 +426,43 @@ function SheduledCalls({ user }) {
         //   JSON.stringify(data.data)
         // );
 
-        console.log("Response of leads list detail", data.data)
+        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
-          setSelectedLeadsList(data.data);
-          setFilteredSelectedLeadsList(data.data);
+          setSelectedLeadsList(data.data)
+          setFilteredSelectedLeadsList(data.data)
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
-            JSON.stringify(data.data)
-          );
+            JSON.stringify(data.data),
+          )
         } else {
-          setSelectedLeadsList((prev) => [...prev, ...data.data]);
-          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setSelectedLeadsList((prev) => [...prev, ...data.data])
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data])
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.length < Limit) {
-          setHasMoreLeads(false);
+          setHasMoreLeads(false)
         } else {
-          setHasMoreLeads(true);
+          setHasMoreLeads(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error('Failed to fetch leads in batch:', data.message)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
+      console.error('Error fetching leads in batch:', error)
     }
-  };
+  }
 
   const fetchCallsInBatch = async (batch, offset = 0) => {
     //console.log;
 
     try {
-      let firstCall = false;
-      setCallsLoading(true);
+      let firstCall = false
+      setCallsLoading(true)
       if (sheduledCalllogs.length == 0) {
-        firstCall = true;
+        firstCall = true
         // let leadsInBatchLocalData = localStorage.getItem(
         //   PersistanceKeys.CallsInBatch + `${batch.id}`
         // );
@@ -485,67 +480,65 @@ function SheduledCalls({ user }) {
         // }
       }
 
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
       //console.log;
       let url =
-        "/api/calls/callsInABatch" + `?batchId=${batch.id}&offset=${offset}`;
+        '/api/calls/callsInABatch' + `?batchId=${batch.id}&offset=${offset}`
       if (detailsFilterSearchValue && detailsFilterSearchValue.length > 0) {
-        url = `${url}&search=${detailsFilterSearchValue}`;
+        url = `${url}&search=${detailsFilterSearchValue}`
       }
       //console.log;
       const response = await fetch(url, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
       //console.log;
-      setCallsLoading(false);
-      const data = await response.json();
+      setCallsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
         if (firstCall) {
-          setSheduledCalllogs(data.data.pastCalls);
-          setFilteredSheduledCalllogs(data.data.pastCalls);
+          setSheduledCalllogs(data.data.pastCalls)
+          setFilteredSheduledCalllogs(data.data.pastCalls)
           localStorage.setItem(
             PersistanceKeys.CallsInBatch + `${batch.id}`,
-            JSON.stringify(data.data.pastCalls)
-          );
+            JSON.stringify(data.data.pastCalls),
+          )
         } else {
-          setSheduledCalllogs((prev) => [...prev, ...data.data.pastCalls]);
+          setSheduledCalllogs((prev) => [...prev, ...data.data.pastCalls])
           setFilteredSheduledCalllogs((prev) => [
             ...prev,
             ...data.data.pastCalls,
-          ]);
+          ])
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.pastCalls.length < Limit) {
-          setHasMoreCalls(false);
+          setHasMoreCalls(false)
         } else {
-          setHasMoreCalls(true);
+          setHasMoreCalls(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error('Failed to fetch leads in batch:', data.message)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
-    }
-  };
-
-  function GetLoadingOrNoCallsView() {
-    if (callsLoading) {
-      return <div className="text-center mt-6 text-3xl">Loading...</div>;
-    } else if (!callsLoading && sheduledCalllogs.length == 0) {
-      return <div className="text-center mt-6 text-3xl">No Call Found</div>;
+      console.error('Error fetching leads in batch:', error)
     }
   }
 
-
+  function GetLoadingOrNoCallsView() {
+    if (callsLoading) {
+      return <div className="text-center mt-6 text-3xl">Loading...</div>
+    } else if (!callsLoading && sheduledCalllogs.length == 0) {
+      return <div className="text-center mt-6 text-3xl">No Call Found</div>
+    }
+  }
 
   // function getAgentNameForActiviti(agent) {
   //   const agents = agent.agents || [];
@@ -563,28 +556,26 @@ function SheduledCalls({ user }) {
 
   function getAgentNameForActiviti(agent) {
     // console.log("agents in getAgentNameForActiviti", agent)
-    const agents = agent?.agents || [];
+    const agents = agent?.agents || []
 
     if (agents?.length > 0) {
-      let name = agents[0]?.name || "-";
+      let name = agents[0]?.name || '-'
 
-      if (agents[0].agentType === "outbound") {
-        return formatName(name);
-      } else
-        if (agents[1].agentType == "outbound") {
-          return formatName(agents[1]?.name);
-        }
-        else return formatName(name);
+      if (agents[0].agentType === 'outbound') {
+        return formatName(name)
+      } else if (agents[1].agentType == 'outbound') {
+        return formatName(agents[1]?.name)
+      } else return formatName(name)
     }
-    return "-";
+    return '-'
   }
 
   function getAgentImageForActiviti(agent) {
-    const agents = agent.agents || [];
+    const agents = agent.agents || []
     if (agents.length > 0) {
       let img
-      if (agents[0].agentType === "outbound") {
-        img = agents[0]?.thumb_profile_image;
+      if (agents[0].agentType === 'outbound') {
+        img = agents[0]?.thumb_profile_image
 
         if (img) {
           return (
@@ -594,16 +585,15 @@ function SheduledCalls({ user }) {
               height={40}
               width={40}
               style={{
-                height: "40px",
-                width: "40px",
-                resize: "cover",
+                height: '40px',
+                width: '40px',
+                resize: 'cover',
               }}
               alt="*"
             />
           )
         } else {
           return (
-
             <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
               {getFirstAlphabetFromName(agent)}
             </div>
@@ -611,7 +601,7 @@ function SheduledCalls({ user }) {
         }
       } else {
         if (agents.length > 1) {
-          img = agents[1]?.thumb_profile_image;
+          img = agents[1]?.thumb_profile_image
           if (img) {
             return (
               <Image
@@ -620,9 +610,9 @@ function SheduledCalls({ user }) {
                 height={40}
                 width={40}
                 style={{
-                  height: "40px",
-                  width: "40px",
-                  resize: "cover",
+                  height: '40px',
+                  width: '40px',
+                  resize: 'cover',
                 }}
                 alt="*"
               />
@@ -637,36 +627,39 @@ function SheduledCalls({ user }) {
         }
       }
     }
-    return "-";
+    return '-'
   }
 
   function formatName(name) {
-    if (typeof name !== "string" || name.length === 0) return "-";
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    if (typeof name !== 'string' || name.length === 0) return '-'
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
   }
 
-
   function getFirstAlphabetFromName(agent) {
-    const name = getAgentNameForActiviti(agent);
+    const name = getAgentNameForActiviti(agent)
     // console.log('name', name)
 
-    return name.length > 0 ? name?.slice(0, 1).toUpperCase() : "";
+    return name.length > 0 ? name?.slice(0, 1).toUpperCase() : ''
   }
 
   // Function to get call status with scheduled date if applicable
   function getCallStatusWithSchedule(item) {
-    const currentTime = moment();
-    const startTime = moment(item.startTime);
+    const currentTime = moment()
+    const startTime = moment(item.startTime)
 
     // // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime) && item.status === "Active") {
+    if (
+      item.startTime &&
+      startTime.isAfter(currentTime) &&
+      item.status === 'Active'
+    ) {
       // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
-      return `Scheduled`;
+      const formattedDate = startTime.format('MMM DD')
+      return `Scheduled`
     }
 
     // Return the regular readable status for past or current calls
-    return getReadableStatus(item.status);
+    return getReadableStatus(item.status)
   }
 
   return (
@@ -681,56 +674,55 @@ function SheduledCalls({ user }) {
             anchorEl={anchorEl}
             onClose={handleClosePopup}
             anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
+              vertical: 'bottom',
+              horizontal: 'right',
             }}
             transformOrigin={{
-              vertical: "top",
-              horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+              vertical: 'top',
+              horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
             }}
             PaperProps={{
               elevation: 0, // This will remove the shadow
               style: {
-                boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                borderRadius: "10px",
-                width: "120px",
+                boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                borderRadius: '10px',
+                width: '120px',
               },
             }}
           >
             <div
               className="p-2 flex flex-col gap-2"
-              style={{ fontWeight: "500", fontSize: 15 }}
+              style={{ fontWeight: '500', fontSize: 15 }}
             >
-              {
-                SelectedItem?.status !== "Completed" && (
-                  <div>
-                    {PauseLoader ? (
-                      <CircularProgress size={18} />
-                    ) : (
-                      <button
-                        className="text-start outline-none"
-                        onClick={() => {
-                          if (SelectedItem?.status == "Paused") {
-                            //// //console.log
-                            setColor(true);
-                            setShowConfirmationPopup("resume Calls");
-                          } else {
-                            //// //console.log
-                            setShowConfirmationPopup("pause Calls");
-                            setColor(false);
-                          }
-                          // //console.log
-                        }}
-                      >
-                        {SelectedItem?.status == "Paused"
-                          ? "Run Calls" :
-                          SelectedItem?.status == "Completed" ? ""
-                            : "Pause Calls"}
-                      </button>
-                    )}
-                  </div>
-                )
-              }
+              {SelectedItem?.status !== 'Completed' && (
+                <div>
+                  {PauseLoader ? (
+                    <CircularProgress size={18} />
+                  ) : (
+                    <button
+                      className="text-start outline-none"
+                      onClick={() => {
+                        if (SelectedItem?.status == 'Paused') {
+                          //// //console.log
+                          setColor(true)
+                          setShowConfirmationPopup('resume Calls')
+                        } else {
+                          //// //console.log
+                          setShowConfirmationPopup('pause Calls')
+                          setColor(false)
+                        }
+                        // //console.log
+                      }}
+                    >
+                      {SelectedItem?.status == 'Paused'
+                        ? 'Run Calls'
+                        : SelectedItem?.status == 'Completed'
+                          ? ''
+                          : 'Pause Calls'}
+                    </button>
+                  )}
+                </div>
+              )}
 
               <button
                 className="text-start outline-none"
@@ -782,29 +774,34 @@ function SheduledCalls({ user }) {
             </div>
           </div>
 
-
-
           <div>
             <div
               className={`h-[70vh] overflow-auto`}
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               {filteredAgentsList.length > 0 ? (
                 <div>
                   <InfiniteScroll
                     dataLength={filteredAgentsList.length}
                     next={() => {
-
-                      getScheduledOrOngoingActivityCalls(filteredAgentsList.length);
+                      getScheduledOrOngoingActivityCalls(
+                        filteredAgentsList.length,
+                      )
                     }}
                     hasMore={hasMoreCalls}
                     loader={
                       <div className="flex justify-center py-4">
-                        <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                        <CircularProgress size={30} sx={{ color: '#7902DF' }} />
                       </div>
                     }
                     endMessage={
-                      <p style={{ textAlign: "center", padding: "10px", color: "#00000060" }}>
+                      <p
+                        style={{
+                          textAlign: 'center',
+                          padding: '10px',
+                          color: '#00000060',
+                        }}
+                      >
                         You’re all caught up
                       </p>
                     }
@@ -824,18 +821,22 @@ function SheduledCalls({ user }) {
                                     <div className="w-[20%]">
                                       {getAgentImageWithMemoji(agent)}
                                     </div>
-                                    <div style={styles.text2} className="w-[80%]">
+                                    <div
+                                      style={styles.text2}
+                                      className="w-[80%]"
+                                    >
                                       {getAgentNameForActiviti(agent)}
                                     </div>
                                   </div>
                                   <div className="w-2/12 ">
                                     {user.user.userType ==
-                                      UserTypes.RealEstateAgent
+                                    UserTypes.RealEstateAgent
                                       ? `${ToUppercase(
-                                        agent?.agents[0]?.agentObjective
-                                      )}`
-                                      : `${agent?.agents[0]?.agentRole || "Other"
-                                      }`}
+                                          agent?.agents[0]?.agentObjective,
+                                        )}`
+                                      : `${
+                                          agent?.agents[0]?.agentRole || 'Other'
+                                        }`}
                                   </div>
                                   <div className="w-1/12">
                                     <button
@@ -844,7 +845,7 @@ function SheduledCalls({ user }) {
                                       onClick={(event) => {
                                         // handleShowPopup(event, item, agent);
                                         // fetchLeadsInBatch(item);
-                                        handleShowLeads(agent, item);
+                                        handleShowLeads(agent, item)
                                         // setShowDetailsModal(true);
                                         // setHasMoreCalls(true);
                                         // fetchCallsInBatch(SelectedItem);
@@ -855,18 +856,18 @@ function SheduledCalls({ user }) {
                                     </button>
                                   </div>
                                   <div className="w-1/12 truncate">
-                                    {item.Sheet?.sheetName || "-"}
+                                    {item.Sheet?.sheetName || '-'}
                                   </div>
                                   <div className="w-2/12">
                                     {item?.createdAt ? (
                                       <div style={styles.text2}>
                                         {GetFormattedDateString(
                                           item?.createdAt,
-                                          true
+                                          true,
                                         )}
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                   </div>
                                   <div className="w-1/12">
@@ -877,11 +878,11 @@ function SheduledCalls({ user }) {
                                       aria-describedby={id}
                                       variant="contained"
                                       onClick={(event) => {
-                                        handleShowPopup(event, item, agent);
+                                        handleShowPopup(event, item, agent)
                                       }}
                                     >
                                       <Image
-                                        src={"/otherAssets/threeDotsIcon.png"}
+                                        src={'/otherAssets/threeDotsIcon.png'}
                                         height={24}
                                         width={24}
                                         alt="icon"
@@ -890,19 +891,19 @@ function SheduledCalls({ user }) {
                                   </div>
                                 </div>
                               </div>
-                            );
+                            )
                           })}
                         </div>
-                      );
+                      )
                     })}
                   </InfiniteScroll>
                 </div>
               ) : (
                 <div
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 24,
-                    textAlign: "center",
+                    textAlign: 'center',
                     marginTop: 20,
                   }}
                 >
@@ -912,7 +913,6 @@ function SheduledCalls({ user }) {
             </div>
           </div>
 
-
           {/* Leads list modal goes here */}
           <Modal
             open={showLeadDetailsModal}
@@ -921,28 +921,28 @@ function SheduledCalls({ user }) {
             BackdropProps={{
               timeout: 100,
               sx: {
-                backgroundColor: "#00000020",
+                backgroundColor: '#00000020',
                 // //backdropFilter: "blur(20px)",
               },
             }}
           >
             <Box
               className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-              sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+              sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
             >
               <div className="flex flex-row justify-center w-full h-[80vh]">
                 <div
                   className="sm:w-10/12 w-full h-[100%] overflow-none"
                   style={{
-                    backgroundColor: "#ffffff",
+                    backgroundColor: '#ffffff',
                     padding: 20,
-                    borderRadius: "13px",
+                    borderRadius: '13px',
                   }}
                 >
                   <div className="flex flex-row items-center justify-between">
                     <div
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 17,
                       }}
                     >
@@ -950,11 +950,11 @@ function SheduledCalls({ user }) {
                     </div>
                     <button
                       onClick={() => {
-                        setShowLeadDetailsModal(false);
+                        setShowLeadDetailsModal(false)
                       }}
                     >
                       <Image
-                        src={"/assets/crossIcon.png"}
+                        src={'/assets/crossIcon.png'}
                         height={40}
                         width={40}
                         alt="*"
@@ -964,7 +964,7 @@ function SheduledCalls({ user }) {
                   <div
                     className="max-h-[92%] overflow-auto"
                     style={{
-                      scrollbarWidth: "none",
+                      scrollbarWidth: 'none',
                     }}
                   >
                     {AgentCallLogLoader ? (
@@ -980,13 +980,13 @@ function SheduledCalls({ user }) {
                             className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                             value={leadsSearchValue}
                             onChange={(e) => {
-                              const value = e.target.value;
+                              const value = e.target.value
                               // handleLeadsSearchChange(value);
-                              setLeadsSearchValue(e.target.value);
+                              setLeadsSearchValue(e.target.value)
                             }}
                           />
                           <img
-                            src={"/otherAssets/searchIcon.png"}
+                            src={'/otherAssets/searchIcon.png'}
                             alt="Search"
                             width={20}
                             height={20}
@@ -997,8 +997,8 @@ function SheduledCalls({ user }) {
                           className="flex flex-row items-center mt-6"
                           style={{
                             fontSize: 15,
-                            fontWeight: "500",
-                            color: "#00000070",
+                            fontWeight: '500',
+                            color: '#00000070',
                           }}
                         >
                           <div className="w-2/12">Name</div>
@@ -1012,7 +1012,7 @@ function SheduledCalls({ user }) {
                         <div
                           className="h-[70svh] overflow-auto pb-[100px] mt-6"
                           id="scrollableDiv1"
-                          style={{ scrollbarWidth: "none" }}
+                          style={{ scrollbarWidth: 'none' }}
                         >
                           {filteredSelectedLeadsList.length > 0 ? (
                             <div className="w-full">
@@ -1021,12 +1021,12 @@ function SheduledCalls({ user }) {
                                 endMessage={
                                   <p
                                     style={{
-                                      textAlign: "center",
-                                      paddingTop: "10px",
-                                      fontWeight: "400",
-                                      fontFamily: "inter",
+                                      textAlign: 'center',
+                                      paddingTop: '10px',
+                                      fontWeight: '400',
+                                      fontFamily: 'inter',
                                       fontSize: 16,
-                                      color: "#00000060",
+                                      color: '#00000060',
                                     }}
                                   >
                                     {`You're all caught up`}
@@ -1037,8 +1037,8 @@ function SheduledCalls({ user }) {
                                 next={() => {
                                   fetchLeadsInBatch(
                                     SelectedItem,
-                                    filteredSelectedLeadsList.length
-                                  );
+                                    filteredSelectedLeadsList.length,
+                                  )
                                 }}
                                 hasMore={hasMoreLeads}
                                 loader={
@@ -1046,12 +1046,12 @@ function SheduledCalls({ user }) {
                                     {leadsLoading && (
                                       <CircularProgress
                                         size={35}
-                                        sx={{ color: "#7902DF" }}
+                                        sx={{ color: '#7902DF' }}
                                       />
                                     )}
                                   </div>
                                 }
-                                style={{ overflow: "unset" }}
+                                style={{ overflow: 'unset' }}
                               >
                                 {filteredSelectedLeadsList.map(
                                   (item, index) => (
@@ -1061,7 +1061,7 @@ function SheduledCalls({ user }) {
                                       style={{
                                         fontSize: 15,
                                         fontWeight: 500,
-                                        scrollbarWidth: "none",
+                                        scrollbarWidth: 'none',
                                       }}
                                     >
                                       <div
@@ -1084,13 +1084,14 @@ function SheduledCalls({ user }) {
                                           </div>
                                         </div>
                                         <div className="w-2/12 truncate">
-                                          {item?.phone || "-"}
+                                          {item?.phone || '-'}
                                         </div>
                                         <div className="w-2/12 truncate">
-                                          {item?.address || "-"}
+                                          {item?.address || '-'}
                                         </div>
                                         <div className="w-2/12 truncate">
-                                          {SelectedItem?.Sheet?.sheetName || "-"}
+                                          {SelectedItem?.Sheet?.sheetName ||
+                                            '-'}
                                         </div>
                                         <div className="w-2/12">
                                           {item.tags.length > 0 ? (
@@ -1109,8 +1110,8 @@ function SheduledCalls({ user }) {
                                                 <div
                                                   className="text-purple underline cursor-pointer"
                                                   onClick={() => {
-                                                    setExtraTagsModal(true);
-                                                    setOtherTags(item.tags);
+                                                    setExtraTagsModal(true)
+                                                    setOtherTags(item.tags)
                                                   }}
                                                 >
                                                   +{item.tags.length - 1}
@@ -1118,15 +1119,15 @@ function SheduledCalls({ user }) {
                                               )}
                                             </div>
                                           ) : (
-                                            "-"
+                                            '-'
                                           )}
                                         </div>
                                         <div className="w-2/12 truncate">
-                                          {item?.stage?.stageTitle || "-"}
+                                          {item?.stage?.stageTitle || '-'}
                                         </div>
                                       </div>
                                     </div>
-                                  )
+                                  ),
                                 )}
                               </InfiniteScroll>
                             </div>
@@ -1156,7 +1157,7 @@ function SheduledCalls({ user }) {
             BackdropProps={{
               timeout: 1000,
               sx: {
-                backgroundColor: "#00000020",
+                backgroundColor: '#00000020',
                 // //backdropFilter: "blur(20px)",
               },
             }}
@@ -1166,16 +1167,16 @@ function SheduledCalls({ user }) {
                 <div
                   className="sm:w-full w-full"
                   style={{
-                    backgroundColor: "#ffffff",
+                    backgroundColor: '#ffffff',
                     padding: 20,
-                    borderRadius: "13px",
+                    borderRadius: '13px',
                   }}
                 >
                   <div className="w-full flex items-center justify-between">
                     <div
                       style={{
                         fontsize: 15,
-                        fontWeight: "600",
+                        fontWeight: '600',
                       }}
                     >
                       Other Tags
@@ -1183,11 +1184,11 @@ function SheduledCalls({ user }) {
                     <div>
                       <button
                         onClick={() => {
-                          setExtraTagsModal(false);
+                          setExtraTagsModal(false)
                         }}
                       >
                         <Image
-                          src={"/assets/blackBgCross.png"}
+                          src={'/assets/blackBgCross.png'}
                           height={20}
                           width={20}
                           alt="*"
@@ -1228,7 +1229,7 @@ function SheduledCalls({ user }) {
                         )} */}
                           </div>
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 </div>
@@ -1238,38 +1239,38 @@ function SheduledCalls({ user }) {
         </>
       )}
     </div>
-  );
+  )
 }
 
-export default SheduledCalls;
+export default SheduledCalls
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "500",
+    color: '#00000090',
+    fontWeight: '500',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
     // color: '#000000',
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    fontWeight: '500',
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   modalsStyle: {
     // height: "auto",
     // height: "90svh",
-    bgcolor: "transparent",
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}
 
 export const ShowConfirmationPopup = ({
   showConfirmationPopuup,
@@ -1284,24 +1285,24 @@ export const ShowConfirmationPopup = ({
       <Modal
         open={showConfirmationPopuup} //showConfirmationPopuup
         onClose={() => {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
         }}
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-4/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
         >
-          <div style={{ width: "100%" }}>
+          <div style={{ width: '100%' }}>
             <div
               className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
@@ -1315,7 +1316,7 @@ export const ShowConfirmationPopup = ({
 
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
-                  src={"/assets/warningFill.png"}
+                  src={'/assets/warningFill.png'}
                   height={18}
                   width={18}
                   alt="*"
@@ -1324,7 +1325,7 @@ export const ShowConfirmationPopup = ({
                   className="text-black"
                   style={{
                     fontSize: 16,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Are you sure you want to {showConfirmationPopuup}
@@ -1335,7 +1336,7 @@ export const ShowConfirmationPopup = ({
               <button
                 className="w-4/12"
                 onClick={() => {
-                  setShowConfirmationPopup(null);
+                  setShowConfirmationPopup(null)
                 }}
               >
                 Cancel
@@ -1347,20 +1348,20 @@ export const ShowConfirmationPopup = ({
                   </div>
                 ) : (
                   <button
-                    className={`outline-none ${color ? "bg-purple" : "bg-red"}`}
+                    className={`outline-none ${color ? 'bg-purple' : 'bg-red'}`}
                     style={{
-                      color: "white",
-                      height: "50px",
-                      borderRadius: "10px",
-                      width: "100%",
+                      color: 'white',
+                      height: '50px',
+                      borderRadius: '10px',
+                      width: '100%',
                       fontWeight: 600,
-                      fontSize: "20",
+                      fontSize: '20',
                     }}
                     onClick={() => {
                       if (color === true) {
-                        resumeCalls();
+                        resumeCalls()
                       } else {
-                        pauseAgent();
+                        pauseAgent()
                       }
                     }}
                   >
@@ -1374,5 +1375,5 @@ export const ShowConfirmationPopup = ({
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}

@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
 import {
   Alert,
   Box,
@@ -11,71 +7,77 @@ import {
   Snackbar,
   Switch,
   TextField,
-} from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import moment from "moment";
-import getProfileDetails from "@/components/apis/GetProfile";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import SmartRefillCard from '@/components/agency/agencyExtras.js/SmartRefillCard'
+import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
+import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal'
+import {
+  RemoveSmartRefillApi,
+  SmartRefillApi,
+} from '@/components/onboarding/extras/SmartRefillapi'
+import { GetFormattedDateString } from '@/utilities/utility'
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../../leads/AgentSelectSnackMessage";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import { RemoveSmartRefillApi, SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
-import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
-import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
-import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
-import TransactionDetailsModal from "@/components/modals/TransactionDetailsModal";
+} from '../../leads/AgentSelectSnackMessage'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
-function SubAccountBilling({
-  hideBtns,
-  selectedUser
-}) {
-  console.log("Selected user passed is", selectedUser);
+function SubAccountBilling({ hideBtns, selectedUser }) {
+  console.log('Selected user passed is', selectedUser)
   //stroes user cards list
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([])
 
   //userlocal data
-  const [userLocalData, setUserLocalData] = useState(null);
-  const [currentPlan, setCurrentPlan] = useState(null);
-  const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
-  const [redeemLoader, setRedeemLoader] = useState(false);
+  const [userLocalData, setUserLocalData] = useState(null)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [cancelPlanLoader, setCancelPlanLoader] = useState(false)
+  const [redeemLoader, setRedeemLoader] = useState(false)
 
   //stoores payment history
-  const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
-  const [historyLoader, setHistoryLoader] = useState(false);
+  const [PaymentHistoryData, setPaymentHistoryData] = useState([])
+  const [historyLoader, setHistoryLoader] = useState(false)
 
-  const [selectedCard, setSelectedCard] = useState(cards[0]);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(cards[0])
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
 
   //add card variables
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-  const [cardData, getcardData] = useState("");
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
+  const [cardData, getcardData] = useState('')
 
   //variables for selecting plans
-  const [togglePlan, setTogglePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [togglePlan, setTogglePlan] = useState(null)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //variables for cancel plan
-  const [giftPopup, setGiftPopup] = useState(false);
-  const [ScreenWidth, setScreenWidth] = useState(null);
+  const [giftPopup, setGiftPopup] = useState(false)
+  const [ScreenWidth, setScreenWidth] = useState(null)
   const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
-    useState(false);
+    useState(false)
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
-    useState(false);
+    useState(false)
 
   const [plans, setPlans] = useState([])
   const [initialLoader, setInitialLoader] = useState(false)
@@ -83,211 +85,209 @@ function SubAccountBilling({
   //transaction details modal variables
   const [transactionDetailsModal, setTransactionDetailsModal] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState(null)
-  const [transactionDetailsLoader, setTransactionDetailsLoader] = useState(false)
+  const [transactionDetailsLoader, setTransactionDetailsLoader] =
+    useState(false)
   const [clickedTransactionId, setClickedTransactionId] = useState(null)
 
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
     // //console.log;
-    setScreenWidth(screenWidth);
-  }, []);
-
-
+    setScreenWidth(screenWidth)
+  }, [])
 
   //cancel plan reasons
   const cancelPlanReasons = [
     {
       id: 1,
-      reason: "It’s too expensive",
+      reason: 'It’s too expensive',
     },
     {
       id: 2,
-      reason: "I’m using something else",
+      reason: 'I’m using something else',
     },
     {
       id: 3,
-      reason: "I’m not getting the results I expected",
+      reason: 'I’m not getting the results I expected',
     },
     {
       id: 4,
-      reason: "It’s too complicated to use",
+      reason: 'It’s too complicated to use',
     },
     {
       id: 5,
-      reason: "Others",
+      reason: 'Others',
     },
-  ];
+  ]
 
   useEffect(() => {
-    getProfile();
+    getProfile()
     getPlans()
-    getPaymentHistory();
-    getCardsList();
-  }, []);
+    getPaymentHistory()
+    getCardsList()
+  }, [])
 
   //get plans apis
   const getPlans = async () => {
     try {
-      setInitialLoader(true);
-      const Token = AuthToken();
-      console.log("user id is", selectedUser?.id);
-      let ApiPath = null;
+      setInitialLoader(true)
+      const Token = AuthToken()
+      console.log('user id is', selectedUser?.id)
+      let ApiPath = null
       if (selectedUser) {
-        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`;
+        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`
       } else {
-        ApiPath = Apis.getSubAccountPlans;
+        ApiPath = Apis.getSubAccountPlans
       }
-      console.log("Api path of get plan is", ApiPath);
+      console.log('Api path of get plan is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + Token,
-          "Content-Type": "application/json"
-        }
-      });
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
 
       if (response) {
-        console.log("Response of get plans api is", response.data.data);
-        setPlans(response.data.data.monthlyPlans);
-        setInitialLoader(false);
+        console.log('Response of get plans api is', response.data.data)
+        setPlans(response.data.data.monthlyPlans)
+        setInitialLoader(false)
       }
-
     } catch (error) {
-      setInitialLoader(false);
-      console.error("Error occured in getting subaccount plans", error);
+      setInitialLoader(false)
+      console.error('Error occured in getting subaccount plans', error)
     }
   }
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       // let response = await getProfileDetails();
       //console.log;
 
-      const Token = AuthToken();
-      let ApiPath = null;
+      const Token = AuthToken()
+      let ApiPath = null
       if (selectedUser) {
-        ApiPath = `${Apis.getProfileFromId}?id=${selectedUser.id}`;
+        ApiPath = `${Apis.getProfileFromId}?id=${selectedUser.id}`
       } else {
-        ApiPath = Apis.getProfileData;
+        ApiPath = Apis.getProfileData
       }
 
-      console.log("Api path for get profile is", ApiPath);
+      console.log('Api path for get profile is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + Token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of get profile api is", response);
-        let plan = response?.data?.data?.plan;
+        console.log('Response of get profile api is', response)
+        let plan = response?.data?.data?.plan
         console.log('response?.data?.data?.plan', response?.data?.data?.plan)
 
-        let togglePlan = plan?.planId;
+        let togglePlan = plan?.planId
 
-        setUserLocalData(response?.data?.data);
+        setUserLocalData(response?.data?.data)
         // //console.log;
-        setTogglePlan(togglePlan);
-        setCurrentPlan(togglePlan);
+        setTogglePlan(togglePlan)
+        setCurrentPlan(togglePlan)
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
-  };
+  }
 
   //function to close the add card popup
   const handleClose = (data) => {
     // //console.log;
     if (data) {
-      setAddPaymentPopup(false);
-      getCardsList();
+      setAddPaymentPopup(false)
+      getCardsList()
     }
-  };
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
-      let ApiPath = null;
+      let ApiPath = null
       if (selectedUser) {
-        ApiPath = `${Apis.getCardsList}?userId=${selectedUser.id}`;
+        ApiPath = `${Apis.getCardsList}?userId=${selectedUser.id}`
       } else {
-        ApiPath = Apis.getCardsList;
+        ApiPath = Apis.getCardsList
       }
 
-      console.log("Api path of get cards api is", ApiPath);
+      console.log('Api path of get cards api is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setCards(response.data.data);
+          setCards(response.data.data)
         }
       }
     } catch (error) {
       // //console.log;
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
+  }
 
   //function to make default cards api
   const makeDefaultCard = async (item) => {
-    setSelectedCard(item);
+    setSelectedCard(item)
     // //console.log
     // return
     try {
-      setMakeDefaultCardLoader(true);
+      setMakeDefaultCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
       // //console.log
 
-      const ApiPath = Apis.makeDefaultCard;
+      const ApiPath = Apis.makeDefaultCard
 
       const ApiData = {
         paymentMethodId: item.id,
-      };
+      }
 
       // //console.log
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
@@ -295,22 +295,22 @@ function SubAccountBilling({
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
               //console.log;
-              cards[index].isDefault = false;
+              cards[index].isDefault = false
             }
-          });
-          item.isDefault = true;
+          })
+          item.isDefault = true
         }
       }
     } catch (error) {
       // console.error("Error occured in make default card api is", error);
     } finally {
-      setMakeDefaultCardLoader(false);
+      setMakeDefaultCardLoader(false)
     }
-  };
+  }
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    console.log("Selected id", item.id);
+    console.log('Selected id', item.id)
     // if (togglePlan) {
     //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     //     setSelectedPlan(prevId => (prevId === item ? null : item));
@@ -319,40 +319,39 @@ function SubAccountBilling({
     //     setAddPaymentPopUp(true);
     // }
     // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
+      console.log('ssubscribe')
 
-      console.log("ssubscribe")
-
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
         if (localDetails?.user?.cards?.length > 0) {
           // //console.log;
         } else {
-          setErrorSnack("No payment method added");
-          return;
+          setErrorSnack('No payment method added')
+          return
         }
       }
 
       // //console.log;
 
-      const ApiPath = Apis.subAgencyAndSubAccountPlans;
-      const formData = new FormData();
-      formData.append("planId", togglePlan);
+      const ApiPath = Apis.subAgencyAndSubAccountPlans
+      const formData = new FormData()
+      formData.append('planId', togglePlan)
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
       // //console.log;
       // //console.log;
@@ -361,21 +360,21 @@ function SubAccountBilling({
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          localDetails.user.plan = response.data.data;
-          console.log("response.data.data", response.data)
+          localDetails.user.plan = response.data.data
+          console.log('response.data.data', response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
-          let response2 = await getProfileDetails();
+          let response2 = await getProfileDetails()
           if (response2) {
-            let togglePlan = response2?.data?.data?.plan?.planId;
+            let togglePlan = response2?.data?.data?.plan?.planId
             // let planType = null;
             // if (togglePlan === "Plan30") {
             //   planType = 1;
@@ -386,74 +385,74 @@ function SubAccountBilling({
             // } else if (togglePlan === "Plan720") {
             //   planType = 4;
             // }
-            setTogglePlan(togglePlan);
-            setCurrentPlan(togglePlan);
+            setTogglePlan(togglePlan)
+            setCurrentPlan(togglePlan)
           }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your plan successfully updated");
+          setSuccessSnack('Your plan successfully updated')
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+      console.error('Error occured in api is:', error)
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
 
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
-      console.log("Payment history trigered for subaccount")
-      setHistoryLoader(true);
+      console.log('Payment history trigered for subaccount')
+      setHistoryLoader(true)
 
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`;
-      console.log("Api path for payment history of subaccount is", ApiPath);
+      const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`
+      console.log('Api path for payment history of subaccount is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPaymentHistoryData(response.data.data);
+          setPaymentHistoryData(response.data.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in get history api is", error);
     } finally {
-      setHistoryLoader(false);
+      setHistoryLoader(false)
     }
-  };
+  }
 
   //function to cancel current plan
   const handleCancelPlan = async () => {
     try {
-      setCancelPlanLoader(true);
+      setCancelPlanLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`;
+      const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`
 
       // //console.log;
 
@@ -462,76 +461,79 @@ function SubAccountBilling({
 
       const ApiData = {
         // patanai: "Sari dunya",
-      };
+      }
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         //console.log;
         if (response.data.status === true) {
           // //console.log;
           // window.location.reload();
-          await getProfileDetails();
-          setShowConfirmCancelPlanPopup(false);
-          setGiftPopup(false);
-          setTogglePlan(null);
-          setCurrentPlan(null);
-          setShowConfirmCancelPlanPopup2(true);
+          await getProfileDetails()
+          setShowConfirmCancelPlanPopup(false)
+          setGiftPopup(false)
+          setTogglePlan(null)
+          setCurrentPlan(null)
+          setShowConfirmCancelPlanPopup2(true)
           let user = userLocalData
-          user.plan.status = "cancelled"
+          user.plan.status = 'cancelled'
           setUserLocalData(user)
           //console.log
-          setSuccessSnack("Your plan was successfully cancelled");
+          setSuccessSnack('Your plan was successfully cancelled')
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Eror occured in cancel plan api is", error);
+      console.error('Eror occured in cancel plan api is', error)
     } finally {
-      setCancelPlanLoader(false);
+      setCancelPlanLoader(false)
     }
-  };
+  }
 
   //function to call redeem api
   const handleRedeemPlan = async () => {
     //console.log;
     try {
-      setRedeemLoader(true);
+      setRedeemLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.redeemPlan;
+      const ApiPath = Apis.redeemPlan
 
       const ApiData = {
-        sub_Type: "0", //send 1 for already redeemed plan
-      };
+        sub_Type: '0', //send 1 for already redeemed plan
+      }
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        let response2 = await getProfileDetails();
-        console.log("response2?.data?.data?.plan?.id", response2?.data?.data?.plan?.id)
+        let response2 = await getProfileDetails()
+        console.log(
+          'response2?.data?.data?.plan?.id',
+          response2?.data?.data?.plan?.id,
+        )
         if (response2) {
-          let togglePlan = response2?.data?.data?.plan?.planId;
+          let togglePlan = response2?.data?.data?.plan?.planId
           // let planType = null;
           // if (togglePlan === "Plan30") {
           //   planType = 1;
@@ -542,167 +544,169 @@ function SubAccountBilling({
           // } else if (togglePlan === "Plan720") {
           //   planType = 4;
           // }
-          setUserLocalData(response2?.data?.data);
-          setGiftPopup(false);
-          setTogglePlan(togglePlan);
-          setCurrentPlan(togglePlan);
+          setUserLocalData(response2?.data?.data)
+          setGiftPopup(false)
+          setTogglePlan(togglePlan)
+          setCurrentPlan(togglePlan)
           if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 AI Credits");
+            setSuccessSnack("You've claimed an extra 30 AI Credits")
           } else if (response2.data.status === false) {
-            setErrorSnack(response2.data.message);
+            setErrorSnack(response2.data.message)
           }
         }
       }
     } catch (error) {
       // console.error("Error occurd in api is", error);
     } finally {
-      setRedeemLoader(false);
+      setRedeemLoader(false)
     }
-  };
+  }
 
   //function to get card brand image
   const getCardImage = (item) => {
-    if (item.brand === "visa") {
-      return "/svgIcons/Visa.svg";
-    } else if (item.brand === "Mastercard") {
-      return "/svgIcons/mastercard.svg";
-    } else if (item.brand === "amex") {
-      return "/svgIcons/Amex.svg";
-    } else if (item.brand === "discover") {
-      return "/svgIcons/Discover.svg";
-    } else if (item.brand === "dinersClub") {
-      return "/svgIcons/DinersClub.svg";
+    if (item.brand === 'visa') {
+      return '/svgIcons/Visa.svg'
+    } else if (item.brand === 'Mastercard') {
+      return '/svgIcons/mastercard.svg'
+    } else if (item.brand === 'amex') {
+      return '/svgIcons/Amex.svg'
+    } else if (item.brand === 'discover') {
+      return '/svgIcons/Discover.svg'
+    } else if (item.brand === 'dinersClub') {
+      return '/svgIcons/DinersClub.svg'
     }
-  };
+  }
 
   //variables
-  const textFieldRef = useRef(null);
-  const [selectReason, setSelectReason] = useState("");
-  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
-  const [otherReasonInput, setOtherReasonInput] = useState("");
+  const textFieldRef = useRef(null)
+  const [selectReason, setSelectReason] = useState('')
+  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false)
+  const [otherReasonInput, setOtherReasonInput] = useState('')
 
   //delreason extra variables
-  const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
+  const [cancelReasonLoader, setCancelReasonLoader] = useState(false)
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
     // //console.log;
-    setSelectReason(item.reason);
-    if (item.reason === "Others") {
-      setShowOtherReasonInput(true);
+    setSelectReason(item.reason)
+    if (item.reason === 'Others') {
+      setShowOtherReasonInput(true)
       const timer = setTimeout(() => {
-        textFieldRef.current.focus();
-      }, 300);
-      return () => clearTimeout(timer);
+        textFieldRef.current.focus()
+      }, 300)
+      return () => clearTimeout(timer)
     } else {
-      setShowOtherReasonInput(false);
-      setOtherReasonInput("");
+      setShowOtherReasonInput(false)
+      setOtherReasonInput('')
     }
-  };
+  }
 
   //function to get transaction details
   const getTransactionDetails = async (transactionId) => {
     try {
-      setTransactionDetailsLoader(true);
-      const Token = AuthToken();
+      setTransactionDetailsLoader(true)
+      const Token = AuthToken()
 
-      const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`;
-      console.log("Api path for transaction details is", ApiPath);
+      const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`
+      console.log('Api path for transaction details is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + Token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("Transaction details response:", response.data);
+        console.log('Transaction details response:', response.data)
         if (response.data.status === true) {
-          setTransactionDetails(response.data.data);
-          setTransactionDetailsModal(true);
+          setTransactionDetails(response.data.data)
+          setTransactionDetailsModal(true)
         } else {
-          setErrorSnack(response.data.message || "Failed to fetch transaction details");
+          setErrorSnack(
+            response.data.message || 'Failed to fetch transaction details',
+          )
         }
       }
     } catch (error) {
-      console.error("Error occurred in get transaction details api:", error);
-      setErrorSnack("Failed to fetch transaction details");
+      console.error('Error occurred in get transaction details api:', error)
+      setErrorSnack('Failed to fetch transaction details')
     } finally {
-      setTransactionDetailsLoader(false);
-      setClickedTransactionId(null);
+      setTransactionDetailsLoader(false)
+      setClickedTransactionId(null)
     }
-  };
+  }
 
   //function to handle transaction click
   const handleTransactionClick = (item) => {
     if (item.transactionId) {
-      setClickedTransactionId(item.transactionId);
-      getTransactionDetails(item.transactionId);
+      setClickedTransactionId(item.transactionId)
+      getTransactionDetails(item.transactionId)
     } else {
-      setErrorSnack("Transaction ID not available");
+      setErrorSnack('Transaction ID not available')
     }
-  };
+  }
 
   //del reason api
   const handleDelReason = async () => {
     if (!otherReasonInput || selectReason)
       try {
-        setCancelReasonLoader(true);
-        const localdata = localStorage.getItem("User");
-        let AuthToken = null;
+        setCancelReasonLoader(true)
+        const localdata = localStorage.getItem('User')
+        let AuthToken = null
         if (localdata) {
-          const D = JSON.parse(localdata);
-          AuthToken = D.token;
+          const D = JSON.parse(localdata)
+          AuthToken = D.token
         }
 
         const ApiData = {
           reason: otherReasonInput || selectReason,
-        };
+        }
 
         // //console.log;
 
-        const ApiPath = Apis.calcelPlanReason;
+        const ApiPath = Apis.calcelPlanReason
         // //console.log;
 
         const response = await axios.post(ApiPath, ApiData, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
-            "Content-Type": "application/json",
+            Authorization: 'Bearer ' + AuthToken,
+            'Content-Type': 'application/json',
           },
-        });
+        })
 
         if (response) {
           //console.log;
           if (response.data.status === true) {
-            setShowConfirmCancelPlanPopup2(false);
-            setSuccessSnack(response.data.message);
+            setShowConfirmCancelPlanPopup2(false)
+            setSuccessSnack(response.data.message)
           } else if (response.data.status === true) {
-            setErrorSnack(response.data.message);
+            setErrorSnack(response.data.message)
           }
         }
       } catch (error) {
-        setErrorSnack(error);
-        setCancelReasonLoader(false);
-        console.error("Error occured in api is ", error);
+        setErrorSnack(error)
+        setCancelReasonLoader(false)
+        console.error('Error occured in api is ', error)
       } finally {
-        setCancelReasonLoader(false);
+        setCancelReasonLoader(false)
         // //console.log;
       }
-  };
+  }
 
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
       style={{
-        paddingBottom: "50px",
-        scrollbarWidth: "none", // For Firefox
-        WebkitOverflowScrolling: "touch",
+        paddingBottom: '50px',
+        scrollbarWidth: 'none', // For Firefox
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(null);
+          setErrorSnack(null)
         }}
         message={errorSnack}
         type={SnackbarTypes.Error}
@@ -710,31 +714,30 @@ function SubAccountBilling({
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(null);
+          setSuccessSnack(null)
         }}
         message={successSnack}
         type={SnackbarTypes.Success}
       />
       <div className="w-full flex flex-row items-center justify-between">
         <div className="flex flex-col">
-          <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+          <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
             Billing
           </div>
 
           <div
             style={{
               fontSize: 12,
-              fontWeight: "500",
-              color: "#00000090",
+              fontWeight: '500',
+              color: '#00000090',
             }}
           >
-            {"Account > Billing"}
+            {'Account > Billing'}
           </div>
         </div>
       </div>
 
-
-      <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
+      <div style={{ fontSize: 16, fontWeight: '700', marginTop: 40 }}>
         My Billing History
       </div>
 
@@ -763,9 +766,14 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
-                  }`}
-                onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
+                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${
+                  transactionDetailsLoader
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'cursor-pointer hover:bg-gray-50'
+                }`}
+                onClick={() =>
+                  !transactionDetailsLoader && handleTransactionClick(item)
+                }
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -773,10 +781,13 @@ function SubAccountBilling({
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
+                  <div style={styles.text2}>
+                    ${formatFractional2(item.price)}
+                  </div>
                 </div>
                 <div className="w-2/12 items-start">
-                  {clickedTransactionId === item.transactionId && transactionDetailsLoader ? (
+                  {clickedTransactionId === item.transactionId &&
+                  transactionDetailsLoader ? (
                     <div className="flex items-center justify-center">
                       <CircularProgress size={20} thickness={2} />
                     </div>
@@ -784,9 +795,9 @@ function SubAccountBilling({
                     <div
                       className="p-2 flex flex-row gap-2 items-center"
                       style={{
-                        backgroundColor: "#01CB7610",
+                        backgroundColor: '#01CB7610',
                         borderRadius: 20,
-                        width: "5vw",
+                        width: '5vw',
                       }}
                     >
                       <div
@@ -794,13 +805,13 @@ function SubAccountBilling({
                           height: 8,
                           width: 8,
                           borderRadius: 5,
-                          background: "#01CB76",
+                          background: '#01CB76',
                         }}
                       ></div>
                       <div
                         style={{
                           fontSize: 15,
-                          color: "#01CB76",
+                          color: '#01CB76',
                           fontWeight: 500,
                         }}
                       >
@@ -828,7 +839,7 @@ function SubAccountBilling({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -838,23 +849,23 @@ function SubAccountBilling({
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -867,8 +878,8 @@ function SubAccountBilling({
                   stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  togglePlan={''}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -884,7 +895,7 @@ function SubAccountBilling({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -894,10 +905,10 @@ function SubAccountBilling({
             <div
               className="sm:w-7/12 w-full h-[70%]"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
-                paddingBottom: "20px",
+                borderRadius: '13px',
+                paddingBottom: '20px',
               }}
             >
               <div className="flex flex-row justify-end">
@@ -906,7 +917,7 @@ function SubAccountBilling({
                   onClick={() => setGiftPopup(false)}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -917,7 +928,7 @@ function SubAccountBilling({
               <div
                 className="text-center text-purple"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 16.8,
                 }}
               >
@@ -928,11 +939,11 @@ function SubAccountBilling({
                 <div
                   className="text-center  w-full"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize:
                       ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
-                    width: ScreenWidth > 1200 ? "70%" : "100%",
-                    alignSelf: "center",
+                    width: ScreenWidth > 1200 ? '70%' : '100%',
+                    alignSelf: 'center',
                   }}
                 >
                   {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
@@ -941,12 +952,13 @@ function SubAccountBilling({
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${
+                    ScreenWidth < 1200 ? 'mt-4' : 'mt-6'
+                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
-                    src={"/svgIcons/gift.svg"}
+                    src={'/svgIcons/gift.svg'}
                     height={
                       ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
                     }
@@ -958,25 +970,25 @@ function SubAccountBilling({
                   Enjoy your next calls on us
                 </div>
                 <div className="w-full flex flex-row justify-center items-center mt-8">
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: 'relative' }}>
                     <Image
-                      src={"/svgIcons/giftIcon.svg"}
+                      src={'/svgIcons/giftIcon.svg'}
                       height={81}
                       width={81}
                       alt="*"
                       className="-mb-28 ms-4"
                       style={{
                         zIndex: 9999,
-                        position: "relative",
+                        position: 'relative',
                       }}
                     />
                     <div
                       className="text-purple"
                       style={{
                         fontSize: 200,
-                        fontWeight: "400",
+                        fontWeight: '400',
                         zIndex: 0,
-                        position: "relative",
+                        position: 'relative',
                       }}
                     >
                       30
@@ -986,7 +998,7 @@ function SubAccountBilling({
                   <div
                     style={{
                       fontSize: 40,
-                      fontWeight: "700",
+                      fontWeight: '700',
                     }}
                   >
                     AI Credits
@@ -1000,10 +1012,10 @@ function SubAccountBilling({
                   <button
                     className="rounded-lg text-white bg-purple outline-none"
                     style={{
-                      fontWeight: "700",
-                      fontSize: "16",
-                      height: "50px",
-                      width: "340px",
+                      fontWeight: '700',
+                      fontSize: '16',
+                      height: '50px',
+                      width: '340px',
                     }}
                     onClick={handleRedeemPlan}
                   >
@@ -1013,11 +1025,11 @@ function SubAccountBilling({
                 <button
                   className="outline-none mt-6"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
                   }}
                   onClick={() => {
-                    setShowConfirmCancelPlanPopup(true);
+                    setShowConfirmCancelPlanPopup(true)
                   }}
                 >
                   {`No thank you, I’d like to cancel my Agentx`}
@@ -1036,7 +1048,7 @@ function SubAccountBilling({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1049,16 +1061,16 @@ function SubAccountBilling({
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
-                height: "394px",
+                borderRadius: '13px',
+                height: '394px',
               }}
             >
               <div className="flex flex-row justify-end">
                 <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1068,7 +1080,7 @@ function SubAccountBilling({
               <div
                 className="text-center mt-8"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 22,
                 }}
               >
@@ -1079,22 +1091,23 @@ function SubAccountBilling({
                 <div
                   className="text-center"
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 15,
-                    width: "70%",
-                    alignSelf: "center",
+                    width: '70%',
+                    alignSelf: 'center',
                   }}
                 >
-                  Canceling your account means you lose access to your agents, leads, pipeline, staff and more.
+                  Canceling your account means you lose access to your agents,
+                  leads, pipeline, staff and more.
                 </div>
               </div>
 
               <button
                 className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 16.8,
-                  outline: "none",
+                  outline: 'none',
                 }}
               >
                 Never mind, keep my account
@@ -1108,12 +1121,12 @@ function SubAccountBilling({
                 <button
                   className="w-full flex flex-row items-center rounded-lg justify-center mt-8"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
-                    outline: "none",
+                    outline: 'none',
                   }}
                   onClick={handleCancelPlan}
-                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1131,7 +1144,7 @@ function SubAccountBilling({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1144,9 +1157,9 @@ function SubAccountBilling({
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
                 // height: "394px"
               }}
             >
@@ -1154,15 +1167,15 @@ function SubAccountBilling({
                 <div
                   style={{
                     fontSize: 16.8,
-                    fontWeight: "500",
-                    paddingLeft: "12px",
+                    fontWeight: '500',
+                    paddingLeft: '12px',
                   }}
                 >
                   Cancel Plan
                 </div>
                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1172,7 +1185,7 @@ function SubAccountBilling({
 
               <div className="flex flex-row items-center justify-center">
                 <Image
-                  src={"/svgIcons/warning2.svg"}
+                  src={'/svgIcons/warning2.svg'}
                   height={49}
                   width={49}
                   alt="*"
@@ -1181,9 +1194,9 @@ function SubAccountBilling({
 
               <div
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 22,
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginTop: 10,
                 }}
               >
@@ -1192,9 +1205,9 @@ function SubAccountBilling({
 
               <div
                 style={{
-                  fontWeight: "500",
+                  fontWeight: '500',
                   fontSize: 16,
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginTop: 30,
                 }}
               >
@@ -1206,38 +1219,37 @@ function SubAccountBilling({
                   {cancelPlanReasons.map((item, index) => (
                     <button
                       onClick={() => {
-                        handleSelectReason(item);
+                        handleSelectReason(item)
                       }}
                       key={index}
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 15,
-                        textAlign: "start",
+                        textAlign: 'start',
                         marginTop: 6,
                       }}
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
                             item.reason === selectReason
-                              ? "2px solid #7902DF"
-                              : "2px solid #15151510",
+                              ? '2px solid #7902DF'
+                              : '2px solid #15151510',
                           // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
                           // margin: item.reason === selectReason && "5px",
-                          height: "20px",
-                          width: "20px",
+                          height: '20px',
+                          width: '20px',
                         }}
                       >
                         <div
                           className="w-full h-full rounded-full"
                           style={{
                             backgroundColor:
-                              item.reason === selectReason && "#7902DF",
-                            height: "12px",
-                            width: "12px",
+                              item.reason === selectReason && '#7902DF',
+                            height: '12px',
+                            width: '12px',
                           }}
                         />
                       </div>
@@ -1256,27 +1268,27 @@ function SubAccountBilling({
                         minRows={4}
                         maxRows={5}
                         sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              border: "1px solid #00000010", // Normal border
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              border: '1px solid #00000010', // Normal border
                             },
-                            "&:hover fieldset": {
-                              border: "1px solid #00000010", // Hover border
+                            '&:hover fieldset': {
+                              border: '1px solid #00000010', // Hover border
                             },
-                            "&.Mui-focused fieldset": {
-                              border: "none", // Remove border on focus
+                            '&.Mui-focused fieldset': {
+                              border: 'none', // Remove border on focus
                             },
                           },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Additional safety to remove outline
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Additional safety to remove outline
                           },
-                          "& .Mui-focused": {
-                            outline: "none", // Remove focus outline
+                          '& .Mui-focused': {
+                            outline: 'none', // Remove focus outline
                           },
                         }}
                         value={otherReasonInput}
                         onChange={(e) => {
-                          setOtherReasonInput(e.target.value);
+                          setOtherReasonInput(e.target.value)
                         }}
                       />
                     </div>
@@ -1289,20 +1301,27 @@ function SubAccountBilling({
                     <button
                       className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
                       style={{
-                        fontWeight: "600",
+                        fontWeight: '600',
                         fontSize: 16.8,
-                        outline: "none",
-                        backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                          ? "#7902df"
-                          : "#00000050",
-                        color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                          ? "#ffffff"
-                          : "#000000",
+                        outline: 'none',
+                        backgroundColor:
+                          selectReason &&
+                          (selectReason !== 'Others' || otherReasonInput)
+                            ? '#7902df'
+                            : '#00000050',
+                        color:
+                          selectReason &&
+                          (selectReason !== 'Others' || otherReasonInput)
+                            ? '#ffffff'
+                            : '#000000',
                       }}
                       onClick={() => {
-                        handleDelReason();
+                        handleDelReason()
                       }}
-                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                      disabled={
+                        !selectReason &&
+                        (selectReason !== 'Others' || otherReasonInput)
+                      }
                     >
                       Continue
                     </button>
@@ -1322,90 +1341,90 @@ function SubAccountBilling({
         isLoading={transactionDetailsLoader}
       />
     </div>
-  );
+  )
 }
 
-export default SubAccountBilling;
+export default SubAccountBilling
 const styles = {
   text: {
     fontSize: 12,
-    color: "#00000090",
+    color: '#00000090',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
+    color: '#000000',
     fontWeight: 500,
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   paymentModal: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   gitTextStyle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   //style for plans
   cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
+    fontSize: '14',
+    fontWeight: '500',
+    border: '1px solid #00000020',
   },
   pricingBox: {
-    position: "relative",
+    position: 'relative',
     // padding: '10px',
     // borderRadius: "10px",
     // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
+    display: 'inline-block',
+    width: '100%',
   },
   triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    width: '0',
+    height: '0',
+    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderLeft: '50px solid transparent',
   },
   labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
+    position: 'absolute',
+    top: '10px', // Adjusted to keep the text centered within the larger triangle
+    right: '5px',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    transform: 'rotate(45deg)',
   },
   content: {
-    textAlign: "left",
-    paddingTop: "10px",
+    textAlign: 'left',
+    paddingTop: '10px',
   },
   originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
+    textDecoration: 'line-through',
+    color: '#7902DF65',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   discountedPrice: {
-    color: "#7902DF65",
-    fontWeight: "bold",
+    color: '#7902DF65',
+    fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: "10px",
+    marginLeft: '10px',
   },
-};
+}

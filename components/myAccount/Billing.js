@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "../apis/Apis";
-import axios from "axios";
 import {
   Alert,
   Box,
@@ -11,266 +7,280 @@ import {
   Snackbar,
   Switch,
   TextField,
-} from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "../createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import moment from "moment";
-import getProfileDetails from "../apis/GetProfile";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import PlansService from '@/utilities/PlansService'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import SmartRefillCard from '../agency/agencyExtras.js/SmartRefillCard'
+import { formatFractional2 } from '../agency/plan/AgencyUtilities'
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
+import AddCardDetails from '../createagent/addpayment/AddCardDetails'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
-import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
-import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
-import PlansService from "@/utilities/PlansService";
-import { formatFractional2 } from "../agency/plan/AgencyUtilities";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import {
+  RemoveSmartRefillApi,
+  SmartRefillApi,
+} from '../onboarding/extras/SmartRefillapi'
+import UpgradePlanConfirmation from './UpgradePlanConfirmation'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 function Billing() {
   //stroes user cards list
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([])
 
   //userlocal data
-  const [userLocalData, setUserLocalData] = useState(null);
-  const [userDataLoader, setUserDataLoader] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState(null);
-  const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
-  const [redeemLoader, setRedeemLoader] = useState(false);
+  const [userLocalData, setUserLocalData] = useState(null)
+  const [userDataLoader, setUserDataLoader] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [cancelPlanLoader, setCancelPlanLoader] = useState(false)
+  const [redeemLoader, setRedeemLoader] = useState(false)
 
   //stoores payment history
-  const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
-  const [historyLoader, setHistoryLoader] = useState(false);
+  const [PaymentHistoryData, setPaymentHistoryData] = useState([])
+  const [historyLoader, setHistoryLoader] = useState(false)
 
-  const [selectedCard, setSelectedCard] = useState(cards[0]);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(cards[0])
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
 
   //add card variables
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-  const [cardData, getcardData] = useState("");
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
+  const [cardData, getcardData] = useState('')
 
   //variables for selecting plans
-  const [togglePlan, setTogglePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [togglePlan, setTogglePlan] = useState(null)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //variables for cancel plan
-  const [giftPopup, setGiftPopup] = useState(false);
-  const [ScreenWidth, setScreenWidth] = useState(null);
-  const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] = useState(false);
-  const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
+  const [giftPopup, setGiftPopup] = useState(false)
+  const [ScreenWidth, setScreenWidth] = useState(null)
+  const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
+    useState(false)
+  const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
+    useState(false)
 
   //smart refill variables
-  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false)
 
   //confirmation popup for update plan
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 
   //array of plans - now loaded dynamically
-  const [plans, setPlans] = useState([]);
+  const [plans, setPlans] = useState([])
 
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
     // //console.log;
-    setScreenWidth(screenWidth);
-    
+    setScreenWidth(screenWidth)
+
     // Load plans for billing
-    loadPlansForBilling();
-  }, []);
+    loadPlansForBilling()
+  }, [])
 
   // Function to load plans for billing context
   const loadPlansForBilling = async () => {
     try {
       // Load plans with features using getUserPlans instead of PlansService
-      const { getUserPlans } = await import('../userPlans/UserPlanServices');
-      const plansData = await getUserPlans();
-      
+      const { getUserPlans } = await import('../userPlans/UserPlanServices')
+      const plansData = await getUserPlans()
+
       if (plansData) {
         // Filter features to only show those with thumb = true
-        const filteredPlans = plansData.map(plan => ({
+        const filteredPlans = plansData.map((plan) => ({
           ...plan,
-          features: plan.features && Array.isArray(plan.features) ? plan.features.filter(feature => feature.thumb === true) : []
-        }));
-        setPlans(filteredPlans);
+          features:
+            plan.features && Array.isArray(plan.features)
+              ? plan.features.filter((feature) => feature.thumb === true)
+              : [],
+        }))
+        setPlans(filteredPlans)
       } else {
-        setPlans(PlansService.getFallbackPlans('billing', false));
+        setPlans(PlansService.getFallbackPlans('billing', false))
       }
     } catch (error) {
-      console.error('Error loading billing plans:', error);
-      setPlans(PlansService.getFallbackPlans('billing', false));
+      console.error('Error loading billing plans:', error)
+      setPlans(PlansService.getFallbackPlans('billing', false))
     }
-  };
+  }
 
   //cancel plan reasons
   const cancelPlanReasons = [
     {
       id: 1,
-      reason: "It’s too expensive",
+      reason: 'It’s too expensive',
     },
     {
       id: 2,
-      reason: "I’m using something else",
+      reason: 'I’m using something else',
     },
     {
       id: 3,
-      reason: "I’m not getting the results I expected",
+      reason: 'I’m not getting the results I expected',
     },
     {
       id: 4,
-      reason: "It’s too complicated to use",
+      reason: 'It’s too complicated to use',
     },
     {
       id: 5,
-      reason: "Others",
+      reason: 'Others',
     },
-  ];
+  ]
 
   useEffect(() => {
-    const d = localStorage.getItem("User");
+    const d = localStorage.getItem('User')
     if (d) {
-      const Data = JSON.parse(d);
-      console.log("Smart refill is", Data.user.smartRefill);
-      setAllowSmartRefill(Data.user.smartRefill);
+      const Data = JSON.parse(d)
+      console.log('Smart refill is', Data.user.smartRefill)
+      setAllowSmartRefill(Data.user.smartRefill)
     }
-    getProfile();
-    getPaymentHistory();
-    getCardsList();
-  }, []);
+    getProfile()
+    getPaymentHistory()
+    getCardsList()
+  }, [])
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
+      const localData = localStorage.getItem('User')
+      let response = await getProfileDetails()
       //console.log;
       if (response) {
-        let plan = response?.data?.data?.plan;
-        let togglePlan = plan?.type;
-        let planType = null;
-        if (plan.status == "active") {
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
+        let plan = response?.data?.data?.plan
+        let togglePlan = plan?.type
+        let planType = null
+        if (plan.status == 'active') {
+          if (togglePlan === 'Plan30') {
+            planType = 1
+          } else if (togglePlan === 'Plan120') {
+            planType = 2
+          } else if (togglePlan === 'Plan360') {
+            planType = 3
+          } else if (togglePlan === 'Plan720') {
+            planType = 4
           }
         }
-        setUserLocalData(response?.data?.data);
+        setUserLocalData(response?.data?.data)
         // console.log("User get profile data is", response?.data?.data);
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
+        setTogglePlan(planType)
+        setCurrentPlan(planType)
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
-  };
+  }
 
   //function to close the add card popup
   const handleClose = (data) => {
-    console.log("Data recieved is", data);
+    console.log('Data recieved is', data)
     if (data) {
-      setAddPaymentPopup(false);
+      setAddPaymentPopup(false)
       window.dispatchEvent(
-        new CustomEvent("hidePlanBar", { detail: { update: true } })
+        new CustomEvent('hidePlanBar', { detail: { update: true } }),
       )
       window.dispatchEvent(
-        new CustomEvent("UpdateProfile", { detail: { update: true } })
+        new CustomEvent('UpdateProfile', { detail: { update: true } }),
       )
-      getCardsList();
+      getCardsList()
     }
-  };
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      const ApiPath = Apis.getCardsList
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setCards(response.data.data);
+          setCards(response.data.data)
         }
       }
     } catch (error) {
       // //console.log;
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
+  }
 
   //function to make default cards api
   const makeDefaultCard = async (item) => {
-    setSelectedCard(item);
+    setSelectedCard(item)
     // //console.log
     // return
     try {
-      setMakeDefaultCardLoader(true);
+      setMakeDefaultCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
       // //console.log
 
-      const ApiPath = Apis.makeDefaultCard;
+      const ApiPath = Apis.makeDefaultCard
 
       const ApiData = {
         paymentMethodId: item.id,
-      };
+      }
 
       // //console.log
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
@@ -278,58 +288,58 @@ function Billing() {
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
               //console.log;
-              cards[index].isDefault = false;
+              cards[index].isDefault = false
             }
-          });
-          item.isDefault = true;
+          })
+          item.isDefault = true
         }
       }
     } catch (error) {
       // console.error("Error occured in make default card api is", error);
     } finally {
-      setMakeDefaultCardLoader(false);
+      setMakeDefaultCardLoader(false)
     }
-  };
+  }
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      let planType = null;
+      let planType = null
 
       //// //console.log;
 
       if (togglePlan === 1) {
-        planType = "Plan30";
+        planType = 'Plan30'
       } else if (togglePlan === 2) {
-        planType = "Plan120";
+        planType = 'Plan120'
       } else if (togglePlan === 3) {
-        planType = "Plan360";
+        planType = 'Plan360'
       } else if (togglePlan === 4) {
-        planType = "Plan720";
+        planType = 'Plan720'
       }
 
       // //console.log;
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
         if (localDetails?.user?.cards?.length > 0) {
           // //console.log;
         } else {
-          setErrorSnack("No payment method added");
-          return;
+          setErrorSnack('No payment method added')
+          return
         }
       }
 
@@ -338,116 +348,116 @@ function Billing() {
       const ApiData = {
         plan: planType,
         payNow: true,
-      };
+      }
 
       // //console.log;
 
-      const ApiPath = Apis.subscribePlan;
+      const ApiPath = Apis.subscribePlan
       // //console.log;
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // console.log
         if (response.data.status === true) {
-          localDetails.user.plan = response.data.data;
-          console.log("User plan sibscibe res[ponse is",response.data.data)
+          localDetails.user.plan = response.data.data
+          console.log('User plan sibscibe res[ponse is', response.data.data)
 
           window.dispatchEvent(
-            new CustomEvent("hidePlanBar", { detail: { update: true } })
+            new CustomEvent('hidePlanBar', { detail: { update: true } }),
           )
           window.dispatchEvent(
-            new CustomEvent("UpdateProfile", { detail: { update: true } })
+            new CustomEvent('UpdateProfile', { detail: { update: true } }),
           )
           let user = userLocalData
           user.plan = response.data.data
           setUserLocalData(user)
-          let response2 = await getProfileDetails();
+          let response2 = await getProfileDetails()
           if (response2) {
-            let togglePlan = response2?.data?.data?.plan?.type;
-            let planType = null;
-            if (togglePlan === "Plan30") {
-              planType = 1;
-            } else if (togglePlan === "Plan120") {
-              planType = 2;
-            } else if (togglePlan === "Plan360") {
-              planType = 3;
-            } else if (togglePlan === "Plan720") {
-              planType = 4;
+            let togglePlan = response2?.data?.data?.plan?.type
+            let planType = null
+            if (togglePlan === 'Plan30') {
+              planType = 1
+            } else if (togglePlan === 'Plan120') {
+              planType = 2
+            } else if (togglePlan === 'Plan360') {
+              planType = 3
+            } else if (togglePlan === 'Plan720') {
+              planType = 4
             }
-            setTogglePlan(planType);
-            setCurrentPlan(planType);
+            setTogglePlan(planType)
+            setCurrentPlan(planType)
           }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your plan successfully updated");
+          setSuccessSnack('Your plan successfully updated')
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
 
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
-      setHistoryLoader(true);
+      setHistoryLoader(true)
 
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.getPaymentHistory;
+      const ApiPath = Apis.getPaymentHistory
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPaymentHistoryData(response.data.data);
+          setPaymentHistoryData(response.data.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in get history api is", error);
     } finally {
-      setHistoryLoader(false);
+      setHistoryLoader(false)
     }
-  };
+  }
 
   //function to cancel current plan
   const handleCancelPlan = async () => {
     try {
-      setCancelPlanLoader(true);
+      setCancelPlanLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.cancelPlan;
+      const ApiPath = Apis.cancelPlan
 
       // //console.log;
 
@@ -456,230 +466,229 @@ function Billing() {
 
       const ApiData = {
         // patanai: "Sari dunya",
-      };
+      }
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         //console.log;
         if (response.data.status === true) {
           // //console.log;
           // window.location.reload();
-          await getProfileDetails();
-          setShowConfirmCancelPlanPopup(false);
-          setGiftPopup(false);
-          setTogglePlan(null);
-          setCurrentPlan(null);
-          setShowConfirmCancelPlanPopup2(true);
+          await getProfileDetails()
+          setShowConfirmCancelPlanPopup(false)
+          setGiftPopup(false)
+          setTogglePlan(null)
+          setCurrentPlan(null)
+          setShowConfirmCancelPlanPopup2(true)
           let user = userLocalData
-          user.plan.status = "cancelled"
+          user.plan.status = 'cancelled'
           setUserLocalData(user)
           //console.log
-          setSuccessSnack("Your plan was successfully cancelled");
+          setSuccessSnack('Your plan was successfully cancelled')
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Eror occured in cancel plan api is", error);
+      console.error('Eror occured in cancel plan api is', error)
     } finally {
-      setCancelPlanLoader(false);
+      setCancelPlanLoader(false)
     }
-  };
+  }
 
   //function to call redeem api
   const handleRedeemPlan = async () => {
     //console.log;
     try {
-      setRedeemLoader(true);
+      setRedeemLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.redeemPlan;
+      const ApiPath = Apis.redeemPlan
 
       const ApiData = {
-        sub_Type: "0", //send 1 for already redeemed plan
-      };
+        sub_Type: '0', //send 1 for already redeemed plan
+      }
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        let response2 = await getProfileDetails();
+        let response2 = await getProfileDetails()
         // //console.log;
         if (response2) {
-          let togglePlan = response2?.data?.data?.plan?.type;
-          let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
+          let togglePlan = response2?.data?.data?.plan?.type
+          let planType = null
+          if (togglePlan === 'Plan30') {
+            planType = 1
+          } else if (togglePlan === 'Plan120') {
+            planType = 2
+          } else if (togglePlan === 'Plan360') {
+            planType = 3
+          } else if (togglePlan === 'Plan720') {
+            planType = 4
           }
-          setUserLocalData(response2?.data?.data);
-          setGiftPopup(false);
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          setUserLocalData(response2?.data?.data)
+          setGiftPopup(false)
+          setTogglePlan(planType)
+          setCurrentPlan(planType)
           if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 mins");
+            setSuccessSnack("You've claimed an extra 30 mins")
           } else if (response2.data.status === false) {
-            setErrorSnack(response2.data.message);
+            setErrorSnack(response2.data.message)
           }
         }
       }
     } catch (error) {
       // console.error("Error occurd in api is", error);
     } finally {
-      setRedeemLoader(false);
+      setRedeemLoader(false)
     }
-  };
+  }
 
   //function to get card brand image
   const getCardImage = (item) => {
-    if (item.brand === "visa") {
-      return "/svgIcons/Visa.svg";
-    } else if (item.brand === "Mastercard") {
-      return "/svgIcons/mastercard.svg";
-    } else if (item.brand === "amex") {
-      return "/svgIcons/Amex.svg";
-    } else if (item.brand === "discover") {
-      return "/svgIcons/Discover.svg";
-    } else if (item.brand === "dinersClub") {
-      return "/svgIcons/DinersClub.svg";
+    if (item.brand === 'visa') {
+      return '/svgIcons/Visa.svg'
+    } else if (item.brand === 'Mastercard') {
+      return '/svgIcons/mastercard.svg'
+    } else if (item.brand === 'amex') {
+      return '/svgIcons/Amex.svg'
+    } else if (item.brand === 'discover') {
+      return '/svgIcons/Discover.svg'
+    } else if (item.brand === 'dinersClub') {
+      return '/svgIcons/DinersClub.svg'
     }
-  };
+  }
 
   //variables
-  const textFieldRef = useRef(null);
-  const [selectReason, setSelectReason] = useState("");
-  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
-  const [otherReasonInput, setOtherReasonInput] = useState("");
+  const textFieldRef = useRef(null)
+  const [selectReason, setSelectReason] = useState('')
+  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false)
+  const [otherReasonInput, setOtherReasonInput] = useState('')
 
   //delreason extra variables
-  const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
+  const [cancelReasonLoader, setCancelReasonLoader] = useState(false)
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
     // //console.log;
-    setSelectReason(item.reason);
-    if (item.reason === "Others") {
-      setShowOtherReasonInput(true);
+    setSelectReason(item.reason)
+    if (item.reason === 'Others') {
+      setShowOtherReasonInput(true)
       const timer = setTimeout(() => {
-        textFieldRef.current.focus();
-      }, 300);
-      return () => clearTimeout(timer);
+        textFieldRef.current.focus()
+      }, 300)
+      return () => clearTimeout(timer)
     } else {
-      setShowOtherReasonInput(false);
-      setOtherReasonInput("");
+      setShowOtherReasonInput(false)
+      setOtherReasonInput('')
     }
-  };
+  }
 
   //del reason api
   const handleDelReason = async () => {
     if (!otherReasonInput || selectReason)
       try {
-        setCancelReasonLoader(true);
-        const localdata = localStorage.getItem("User");
-        let AuthToken = null;
+        setCancelReasonLoader(true)
+        const localdata = localStorage.getItem('User')
+        let AuthToken = null
         if (localdata) {
-          const D = JSON.parse(localdata);
-          AuthToken = D.token;
+          const D = JSON.parse(localdata)
+          AuthToken = D.token
         }
 
         const ApiData = {
           reason: otherReasonInput || selectReason,
-        };
+        }
 
         // //console.log;
 
-        const ApiPath = Apis.calcelPlanReason;
+        const ApiPath = Apis.calcelPlanReason
         // //console.log;
 
         const response = await axios.post(ApiPath, ApiData, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
-            "Content-Type": "application/json",
+            Authorization: 'Bearer ' + AuthToken,
+            'Content-Type': 'application/json',
           },
-        });
+        })
 
         if (response) {
           //console.log;
           if (response.data.status === true) {
-            setShowConfirmCancelPlanPopup2(false);
-            setSuccessSnack(response.data.message);
+            setShowConfirmCancelPlanPopup2(false)
+            setSuccessSnack(response.data.message)
           } else if (response.data.status === true) {
-            setErrorSnack(response.data.message);
+            setErrorSnack(response.data.message)
           }
         }
       } catch (error) {
-        setErrorSnack(error);
-        setCancelReasonLoader(false);
-        console.error("Error occured in api is ", error);
+        setErrorSnack(error)
+        setCancelReasonLoader(false)
+        console.error('Error occured in api is ', error)
       } finally {
-        setCancelReasonLoader(false);
+        setCancelReasonLoader(false)
         // //console.log;
       }
-  };
-
+  }
 
   //function to update profile
   const handleUpdateProfile = async () => {
     try {
-      setUserDataLoader(true);
-      const response = await SmartRefillApi();
+      setUserDataLoader(true)
+      const response = await SmartRefillApi()
       if (response) {
-        setUserDataLoader(false);
-        console.log("Response of update profile api is", response);
+        setUserDataLoader(false)
+        console.log('Response of update profile api is', response)
         if (response.data.status === true) {
-          setSuccessSnack(response.data.message);
-          setAllowSmartRefill(true);
+          setSuccessSnack(response.data.message)
+          setAllowSmartRefill(true)
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
-      setUserDataLoader(false);
+      console.error('Error occured in api is', error)
+      setUserDataLoader(false)
     }
   }
 
   //function to remove smart refill
   const handleRemoveSmartRefill = async () => {
     try {
-      setUserDataLoader(true);
-      const response = await RemoveSmartRefillApi();
+      setUserDataLoader(true)
+      const response = await RemoveSmartRefillApi()
       if (response) {
-        setUserDataLoader(false);
-        console.log("Response of remove smart refill api is", response);
+        setUserDataLoader(false)
+        console.log('Response of remove smart refill api is', response)
         if (response.data.status === true) {
-          setSuccessSnack(response.data.message);
-          setAllowSmartRefill(false);
+          setSuccessSnack(response.data.message)
+          setAllowSmartRefill(false)
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
-      setUserDataLoader(false);
+      console.error('Error occured in api is', error)
+      setUserDataLoader(false)
     }
   }
 
@@ -687,15 +696,15 @@ function Billing() {
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
       style={{
-        paddingBottom: "50px",
-        scrollbarWidth: "none", // For Firefox
-        WebkitOverflowScrolling: "touch",
+        paddingBottom: '50px',
+        scrollbarWidth: 'none', // For Firefox
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(null);
+          setErrorSnack(null)
         }}
         message={errorSnack}
         type={SnackbarTypes.Error}
@@ -703,40 +712,40 @@ function Billing() {
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(null);
+          setSuccessSnack(null)
         }}
         message={successSnack}
         type={SnackbarTypes.Success}
       />
       <div className="w-full flex flex-row items-center justify-between">
         <div className="flex flex-col">
-          <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+          <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
             Billing
           </div>
 
           <div
             style={{
               fontSize: 12,
-              fontWeight: "500",
-              color: "#00000090",
+              fontWeight: '500',
+              color: '#00000090',
             }}
           >
-            {"Account > Billing"}
+            {'Account > Billing'}
           </div>
         </div>
 
         <button
           className=""
           onClick={() => {
-            setAddPaymentPopup(true);
+            setAddPaymentPopup(true)
           }}
         >
           <div
             style={{
               fontSize: 15,
-              fontWeight: "500",
-              color: "#7902DF",
-              textDecorationLine: "underline",
+              fontWeight: '500',
+              color: '#7902DF',
+              textDecorationLine: 'underline',
             }}
           >
             Add New Card
@@ -760,17 +769,17 @@ function Billing() {
               <div
                 className="w-full flex flex-row gap-4"
                 style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  display: "flex",
-                  scrollbarWidth: "none",
-                  WebkitOverflowScrolling: "touch",
-                  height: "",
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  display: 'flex',
+                  scrollbarWidth: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                  height: '',
                   marginTop: 20,
                   // border:'2px solid red'
-                  scrollbarWidth: "none",
-                  overflowY: "hidden",
-                  height: "", // Ensures the height is always fixed
+                  scrollbarWidth: 'none',
+                  overflowY: 'hidden',
+                  height: '', // Ensures the height is always fixed
                   flexShrink: 0,
                 }}
               >
@@ -785,12 +794,12 @@ function Billing() {
                         style={{
                           backgroundColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? "#4011FA05"
-                              : "transparent",
+                              ? '#4011FA05'
+                              : 'transparent',
                           borderColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? "#7902DF"
-                              : "#15151510",
+                              ? '#7902DF'
+                              : '#15151510',
                         }}
                       >
                         <div className="flex items-center gap-4">
@@ -808,9 +817,9 @@ function Billing() {
                             <div className="flex flex-row items-center gap-3">
                               <div
                                 style={{
-                                  fontSize: "16px",
-                                  fontWeight: "700",
-                                  color: "#000",
+                                  fontSize: '16px',
+                                  fontWeight: '700',
+                                  color: '#000',
                                 }}
                               >
                                 ****{item.last4}
@@ -823,7 +832,7 @@ function Billing() {
                                 item.isDefault && (
                                   <div
                                     className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                    style={{ fontSize: 11, fontWeight: "500" }}
+                                    style={{ fontSize: 11, fontWeight: '500' }}
                                   >
                                     Default
                                   </div>
@@ -832,9 +841,9 @@ function Billing() {
                             </div>
                             <div
                               style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "#909090",
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                color: '#909090',
                               }}
                             >
                               {item.brand} Card
@@ -845,7 +854,7 @@ function Billing() {
                         {/* Card Logo */}
                         <div>
                           <Image
-                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                            src={getCardImage(item) || '/svgIcons/Visa.svg'}
                             alt="Card Logo"
                             width={50}
                             height={50}
@@ -859,7 +868,7 @@ function Billing() {
             ) : (
               <div
                 className="text-start mt-12"
-                style={{ fontSize: 18, fontWeight: "600" }}
+                style={{ fontSize: 18, fontWeight: '600' }}
               >
                 No payment method added
               </div>
@@ -886,13 +895,13 @@ function Billing() {
               ...styles.pricingBox,
               border:
                 item.id === togglePlan
-                  ? "2px solid #7902DF"
-                  : "1px solid #15151520",
-              backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                  ? '2px solid #7902DF'
+                  : '1px solid #15151520',
+              backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
             }}
           >
             <div
-              style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+              style={{ ...styles.triangleLabel, borderTopRightRadius: '7px' }}
             ></div>
             <span style={styles.labelText}>{item.planStatus}</span>
             <div
@@ -903,14 +912,14 @@ function Billing() {
                 <div>
                   {item.id === togglePlan ? (
                     <Image
-                      src={"/svgIcons/checkMark.svg"}
+                      src={'/svgIcons/checkMark.svg'}
                       height={24}
                       width={24}
                       alt="*"
                     />
                   ) : (
                     <Image
-                      src={"/svgIcons/unCheck.svg"}
+                      src={'/svgIcons/unCheck.svg'}
                       height={24}
                       width={24}
                       alt="*"
@@ -924,8 +933,8 @@ function Billing() {
                     className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                     style={{
                       fontSize: 11.6,
-                      fontWeight: "500",
-                      width: "fit-content",
+                      fontWeight: '500',
+                      width: 'fit-content',
                     }}
                   >
                     Current Plan
@@ -935,9 +944,9 @@ function Billing() {
                 <div className="flex flex-row items-center gap-3">
                   <div
                     style={{
-                      color: "#151515",
+                      color: '#151515',
                       fontSize: 20,
-                      fontWeight: "600",
+                      fontWeight: '600',
                     }}
                   >
                     {item.mints}mins | {item.calls} Calls*
@@ -945,7 +954,7 @@ function Billing() {
                   {item.status && (
                     <div
                       className="flex px-2 py-1 bg-purple rounded-full text-white"
-                      style={{ fontSize: 11.6, fontWeight: "500" }}
+                      style={{ fontSize: 11.6, fontWeight: '500' }}
                     >
                       {item.status}
                     </div>
@@ -955,10 +964,10 @@ function Billing() {
                   <div
                     className="mt-2"
                     style={{
-                      color: "#15151590",
+                      color: '#15151590',
                       fontSize: 12,
-                      width: "60%",
-                      fontWeight: "600",
+                      width: '60%',
+                      fontWeight: '600',
                     }}
                   >
                     {item.details}
@@ -971,23 +980,26 @@ function Billing() {
                       <div style={styles.discountedPrice}>
                         ${item.discountPrice}
                       </div>
-                      <p style={{ color: "#15151580" }}>/mo*</p>
+                      <p style={{ color: '#15151580' }}>/mo*</p>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Features section - only show features with thumb = true */}
                 {Array.isArray(item.features) && item.features.length > 0 && (
                   <div className="mt-4">
                     <div className="flex flex-col gap-2">
                       {item.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex flex-row items-start gap-2">
-                          <Image 
-                            src="/svgIcons/selectedTickBtn.svg" 
-                            height={14} 
-                            width={14} 
-                            alt="✓" 
-                            className="mt-1 flex-shrink-0" 
+                        <div
+                          key={featureIndex}
+                          className="flex flex-row items-start gap-2"
+                        >
+                          <Image
+                            src="/svgIcons/selectedTickBtn.svg"
+                            height={14}
+                            width={14}
+                            alt="✓"
+                            className="mt-1 flex-shrink-0"
                           />
                           <div className="text-sm font-normal text-gray-700">
                             {feature.text}
@@ -1006,30 +1018,30 @@ function Billing() {
       <div
         className="w-9/12 mt-4 flex flex-row items-start gap-2"
         style={{
-          borderRadius: "7px",
-          border: "1px solid #15151540",
-          padding: "15px",
-          backgroundColor: "#330864",
+          borderRadius: '7px',
+          border: '1px solid #15151540',
+          padding: '15px',
+          backgroundColor: '#330864',
         }}
       >
         <Image
-          src={"/assets/diamond.png"}
+          src={'/assets/diamond.png'}
           className="mt-2"
           height={18}
           width={20}
           alt="*"
         />
         <div>
-          <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
+          <div style={{ color: '#ffffff', fontSize: 20, fontWeight: '600' }}>
             Enterprise Plan
           </div>
           <div className="flex flex-row items-start justify-between w-full">
             <div
               style={{
-                color: "#ffffff",
+                color: '#ffffff',
                 fontSize: 12,
-                fontWeight: "600",
-                width: "60%",
+                fontWeight: '600',
+                width: '60%',
               }}
             >
               Custom solution specific to your business. Integrate AgentX into
@@ -1037,12 +1049,12 @@ function Billing() {
             </div>
             <button
               className="text-[#ffffff] pe-8"
-              style={{ fontSize: 14, fontWeight: "700" }}
+              style={{ fontSize: 14, fontWeight: '700' }}
               onClick={() => {
                 window.open(
-                  "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
-                  "_blank"
-                );
+                  'https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ',
+                  '_blank',
+                )
               }}
             >
               Contact Team
@@ -1052,7 +1064,6 @@ function Billing() {
       </div>
 
       {userLocalData?.plan && (
-
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (
@@ -1064,17 +1075,17 @@ function Billing() {
                 className="rounded-xl w-9/12 mt-8"
                 disabled={togglePlan === currentPlan}
                 style={{
-                  height: "50px",
+                  height: '50px',
                   fontSize: 16,
-                  fontWeight: "700",
+                  fontWeight: '700',
                   flexShrink: 0,
                   backgroundColor:
-                    togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                  color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                    togglePlan === currentPlan ? '#00000020' : '#7902DF',
+                  color: togglePlan === currentPlan ? '#000000' : '#ffffff',
                 }}
                 // onClick={handleSubscribePlan}
                 onClick={() => {
-                  setShowConfirmationModal(true);
+                  setShowConfirmationModal(true)
                 }}
               >
                 Continue
@@ -1083,21 +1094,19 @@ function Billing() {
           </div>
 
           {/* Code for Confirmation poup */}
-          {
-            showConfirmationModal && (
-              <UpgradePlanConfirmation
-                plan={togglePlan}
-                open={showConfirmationModal}
-                onClose={() => {
-                  setShowConfirmationModal(false);
-                }}
-                onConfirm={() => {
-                  handleSubscribePlan();
-                  setTimeout(() => setShowConfirmationModal(false), 0);
-                }}
-              />
-            )
-          }
+          {showConfirmationModal && (
+            <UpgradePlanConfirmation
+              plan={togglePlan}
+              open={showConfirmationModal}
+              onClose={() => {
+                setShowConfirmationModal(false)
+              }}
+              onConfirm={() => {
+                handleSubscribePlan()
+                setTimeout(() => setShowConfirmationModal(false), 0)
+              }}
+            />
+          )}
 
           {/* {togglePlan === currentPlan && (
             <button
@@ -1122,14 +1131,14 @@ function Billing() {
           )} */}
 
           <div className="w-9/12 flex flex-row items-center justify-center">
-            {userLocalData.plan?.status != "cancelled" && (
+            {userLocalData.plan?.status != 'cancelled' && (
               <button
                 className="text-black  outline-none rounded-xl w-fit-content mt-3"
                 style={{
                   fontSize: 16,
-                  fontWeight: "700",
-                  height: "50px",
-                  textDecorationLine: "underline",
+                  fontWeight: '700',
+                  height: '50px',
+                  textDecorationLine: 'underline',
                   flexShrink: 0,
                 }}
                 onClick={() => {
@@ -1138,11 +1147,11 @@ function Billing() {
                     userLocalData?.cancelPlanRedemptions === 0
                   ) {
                     // //console.log;
-                    setGiftPopup(true);
+                    setGiftPopup(true)
                   } // if (userLocalData?.isTrial === true && userLocalData?.cancelPlanRedemptions !== 0)
                   else {
                     // //console.log;
-                    setShowConfirmCancelPlanPopup(true);
+                    setShowConfirmCancelPlanPopup(true)
                   }
                   //// //console.log
                   //// //console.log
@@ -1155,7 +1164,7 @@ function Billing() {
         </div>
       )}
 
-      <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
+      <div style={{ fontSize: 16, fontWeight: '700', marginTop: 40 }}>
         My Billing History
       </div>
 
@@ -1192,15 +1201,17 @@ function Billing() {
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
+                  <div style={styles.text2}>
+                    ${formatFractional2(item.price)}
+                  </div>
                 </div>
                 <div className="w-2/12 items-start">
                   <div
                     className="p-2 flex flex-row gap-2 items-center"
                     style={{
-                      backgroundColor: "#01CB7610",
+                      backgroundColor: '#01CB7610',
                       borderRadius: 20,
-                      width: "5vw",
+                      width: '5vw',
                     }}
                   >
                     <div
@@ -1208,13 +1219,13 @@ function Billing() {
                         height: 8,
                         width: 8,
                         borderRadius: 5,
-                        background: "#01CB76",
+                        background: '#01CB76',
                       }}
                     ></div>
                     <div
                       style={{
                         fontSize: 15,
-                        color: "#01CB76",
+                        color: '#01CB76',
                         fontWeight: 500,
                       }}
                     >
@@ -1241,7 +1252,7 @@ function Billing() {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1251,23 +1262,23 @@ function Billing() {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1280,8 +1291,8 @@ function Billing() {
                   stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  togglePlan={''}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1297,7 +1308,7 @@ function Billing() {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1307,10 +1318,10 @@ function Billing() {
             <div
               className="sm:w-7/12 w-full h-[70%]"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
-                paddingBottom: "20px",
+                borderRadius: '13px',
+                paddingBottom: '20px',
               }}
             >
               <div className="flex flex-row justify-end">
@@ -1319,7 +1330,7 @@ function Billing() {
                   onClick={() => setGiftPopup(false)}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1330,7 +1341,7 @@ function Billing() {
               <div
                 className="text-center text-purple"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 16.8,
                 }}
               >
@@ -1341,11 +1352,11 @@ function Billing() {
                 <div
                   className="text-center  w-full"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize:
                       ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
-                    width: ScreenWidth > 1200 ? "70%" : "100%",
-                    alignSelf: "center",
+                    width: ScreenWidth > 1200 ? '70%' : '100%',
+                    alignSelf: 'center',
                   }}
                 >
                   {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
@@ -1354,12 +1365,13 @@ function Billing() {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${
+                    ScreenWidth < 1200 ? 'mt-4' : 'mt-6'
+                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
-                    src={"/svgIcons/gift.svg"}
+                    src={'/svgIcons/gift.svg'}
                     height={
                       ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
                     }
@@ -1371,25 +1383,25 @@ function Billing() {
                   Enjoy your next calls on us
                 </div>
                 <div className="w-full flex flex-row justify-center items-center mt-8">
-                  <div style={{ position: "relative" }}>
+                  <div style={{ position: 'relative' }}>
                     <Image
-                      src={"/svgIcons/giftIcon.svg"}
+                      src={'/svgIcons/giftIcon.svg'}
                       height={81}
                       width={81}
                       alt="*"
                       className="-mb-28 ms-4"
                       style={{
                         zIndex: 9999,
-                        position: "relative",
+                        position: 'relative',
                       }}
                     />
                     <div
                       className="text-purple"
                       style={{
                         fontSize: 200,
-                        fontWeight: "400",
+                        fontWeight: '400',
                         zIndex: 0,
-                        position: "relative",
+                        position: 'relative',
                       }}
                     >
                       30
@@ -1399,7 +1411,7 @@ function Billing() {
                   <div
                     style={{
                       fontSize: 40,
-                      fontWeight: "700",
+                      fontWeight: '700',
                     }}
                   >
                     Mins
@@ -1413,10 +1425,10 @@ function Billing() {
                   <button
                     className="rounded-lg text-white bg-purple outline-none"
                     style={{
-                      fontWeight: "700",
-                      fontSize: "16",
-                      height: "50px",
-                      width: "340px",
+                      fontWeight: '700',
+                      fontSize: '16',
+                      height: '50px',
+                      width: '340px',
                     }}
                     onClick={handleRedeemPlan}
                   >
@@ -1426,11 +1438,11 @@ function Billing() {
                 <button
                   className="outline-none mt-6"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
                   }}
                   onClick={() => {
-                    setShowConfirmCancelPlanPopup(true);
+                    setShowConfirmCancelPlanPopup(true)
                   }}
                 >
                   {`No thank you, I’d like to cancel my Agentx`}
@@ -1449,7 +1461,7 @@ function Billing() {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1462,16 +1474,16 @@ function Billing() {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
-                height: "394px",
+                borderRadius: '13px',
+                height: '394px',
               }}
             >
               <div className="flex flex-row justify-end">
                 <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1481,7 +1493,7 @@ function Billing() {
               <div
                 className="text-center mt-8"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 22,
                 }}
               >
@@ -1492,10 +1504,10 @@ function Billing() {
                 <div
                   className="text-center"
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 15,
-                    width: "70%",
-                    alignSelf: "center",
+                    width: '70%',
+                    alignSelf: 'center',
                   }}
                 >
                   Canceling your AgentX means you lose access to your agents,
@@ -1506,12 +1518,12 @@ function Billing() {
               <button
                 className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 16.8,
-                  outline: "none",
+                  outline: 'none',
                 }}
               >
-              Never mind, keep my account
+                Never mind, keep my account
               </button>
 
               {cancelPlanLoader ? (
@@ -1522,12 +1534,12 @@ function Billing() {
                 <button
                   className="w-full flex flex-row items-center rounded-lg justify-center mt-8"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
-                    outline: "none",
+                    outline: 'none',
                   }}
                   onClick={handleCancelPlan}
-                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1545,7 +1557,7 @@ function Billing() {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1558,9 +1570,9 @@ function Billing() {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
                 // height: "394px"
               }}
             >
@@ -1568,15 +1580,15 @@ function Billing() {
                 <div
                   style={{
                     fontSize: 16.8,
-                    fontWeight: "500",
-                    paddingLeft: "12px",
+                    fontWeight: '500',
+                    paddingLeft: '12px',
                   }}
                 >
                   Cancel Plan
                 </div>
                 <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1586,7 +1598,7 @@ function Billing() {
 
               <div className="flex flex-row items-center justify-center">
                 <Image
-                  src={"/svgIcons/warning2.svg"}
+                  src={'/svgIcons/warning2.svg'}
                   height={49}
                   width={49}
                   alt="*"
@@ -1595,9 +1607,9 @@ function Billing() {
 
               <div
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 22,
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginTop: 10,
                 }}
               >
@@ -1606,9 +1618,9 @@ function Billing() {
 
               <div
                 style={{
-                  fontWeight: "500",
+                  fontWeight: '500',
                   fontSize: 16,
-                  textAlign: "center",
+                  textAlign: 'center',
                   marginTop: 30,
                 }}
               >
@@ -1620,38 +1632,37 @@ function Billing() {
                   {cancelPlanReasons.map((item, index) => (
                     <button
                       onClick={() => {
-                        handleSelectReason(item);
+                        handleSelectReason(item)
                       }}
                       key={index}
                       style={{
-                        fontWeight: "500",
+                        fontWeight: '500',
                         fontSize: 15,
-                        textAlign: "start",
+                        textAlign: 'start',
                         marginTop: 6,
                       }}
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
                             item.reason === selectReason
-                              ? "2px solid #7902DF"
-                              : "2px solid #15151510",
+                              ? '2px solid #7902DF'
+                              : '2px solid #15151510',
                           // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
                           // margin: item.reason === selectReason && "5px",
-                          height: "20px",
-                          width: "20px",
+                          height: '20px',
+                          width: '20px',
                         }}
                       >
                         <div
                           className="w-full h-full rounded-full"
                           style={{
                             backgroundColor:
-                              item.reason === selectReason && "#7902DF",
-                            height: "12px",
-                            width: "12px",
+                              item.reason === selectReason && '#7902DF',
+                            height: '12px',
+                            width: '12px',
                           }}
                         />
                       </div>
@@ -1670,27 +1681,27 @@ function Billing() {
                         minRows={4}
                         maxRows={5}
                         sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              border: "1px solid #00000010", // Normal border
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              border: '1px solid #00000010', // Normal border
                             },
-                            "&:hover fieldset": {
-                              border: "1px solid #00000010", // Hover border
+                            '&:hover fieldset': {
+                              border: '1px solid #00000010', // Hover border
                             },
-                            "&.Mui-focused fieldset": {
-                              border: "none", // Remove border on focus
+                            '&.Mui-focused fieldset': {
+                              border: 'none', // Remove border on focus
                             },
                           },
-                          "& .MuiOutlinedInput-notchedOutline": {
-                            border: "none", // Additional safety to remove outline
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none', // Additional safety to remove outline
                           },
-                          "& .Mui-focused": {
-                            outline: "none", // Remove focus outline
+                          '& .Mui-focused': {
+                            outline: 'none', // Remove focus outline
                           },
                         }}
                         value={otherReasonInput}
                         onChange={(e) => {
-                          setOtherReasonInput(e.target.value);
+                          setOtherReasonInput(e.target.value)
                         }}
                       />
                     </div>
@@ -1703,20 +1714,27 @@ function Billing() {
                     <button
                       className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
                       style={{
-                        fontWeight: "600",
+                        fontWeight: '600',
                         fontSize: 16.8,
-                        outline: "none",
-                        backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                          ? "#7902df"
-                          : "#00000050",
-                        color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                          ? "#ffffff"
-                          : "#000000",
+                        outline: 'none',
+                        backgroundColor:
+                          selectReason &&
+                          (selectReason !== 'Others' || otherReasonInput)
+                            ? '#7902df'
+                            : '#00000050',
+                        color:
+                          selectReason &&
+                          (selectReason !== 'Others' || otherReasonInput)
+                            ? '#ffffff'
+                            : '#000000',
                       }}
                       onClick={() => {
-                        handleDelReason();
+                        handleDelReason()
                       }}
-                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                      disabled={
+                        !selectReason &&
+                        (selectReason !== 'Others' || otherReasonInput)
+                      }
                     >
                       Continue
                     </button>
@@ -1728,90 +1746,90 @@ function Billing() {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default Billing;
+export default Billing
 const styles = {
   text: {
     fontSize: 12,
-    color: "#00000090",
+    color: '#00000090',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
+    color: '#000000',
     fontWeight: 500,
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   paymentModal: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   gitTextStyle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   //style for plans
   cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
+    fontSize: '14',
+    fontWeight: '500',
+    border: '1px solid #00000020',
   },
   pricingBox: {
-    position: "relative",
+    position: 'relative',
     // padding: '10px',
-    borderRadius: "10px",
+    borderRadius: '10px',
     // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
+    display: 'inline-block',
+    width: '100%',
   },
   triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    width: '0',
+    height: '0',
+    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderLeft: '50px solid transparent',
   },
   labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
+    position: 'absolute',
+    top: '10px', // Adjusted to keep the text centered within the larger triangle
+    right: '5px',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    transform: 'rotate(45deg)',
   },
   content: {
-    textAlign: "left",
-    paddingTop: "10px",
+    textAlign: 'left',
+    paddingTop: '10px',
   },
   originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
+    textDecoration: 'line-through',
+    color: '#7902DF65',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   discountedPrice: {
-    color: "#000000",
-    fontWeight: "bold",
+    color: '#000000',
+    fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: "10px",
+    marginLeft: '10px',
   },
-};
+}

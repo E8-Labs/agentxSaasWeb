@@ -1,12 +1,7 @@
+import { Box, FormControl, MenuItem, Select, Typography } from '@mui/material'
 import React, { useState } from 'react'
-import { FormControl, Select, MenuItem, Box, Typography } from '@mui/material'
 
-const OldCnamVoiceStir = ({
-  value,
-  setValue,
-  twilioLocalData
-}) => {
-
+const OldCnamVoiceStir = ({ value, setValue, twilioLocalData }) => {
   // Use the actual trust products data from props
   const options = twilioLocalData || []
 
@@ -16,7 +11,6 @@ const OldCnamVoiceStir = ({
 
   return (
     <div>
-
       <FormControl fullWidth>
         <Select
           fullWidth
@@ -25,29 +19,27 @@ const OldCnamVoiceStir = ({
           displayEmpty
           renderValue={(selected) => {
             if (!selected) {
-              return (
-                <div style={{ color: "#aaa" }}>
-                  Select a trust product
-                </div>
-              )
+              return <div style={{ color: '#aaa' }}>Select a trust product</div>
             }
             // Find the selected option to display the friendly name
-            const selectedOption = options.find(option => option.id === selected)
+            const selectedOption = options.find(
+              (option) => option.id === selected,
+            )
             return selectedOption ? selectedOption?.friendlyName : selected
           }}
           sx={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "8px",
-            "&:hover": {
-              border: "1px solid #e5e7eb",
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px',
+            '&:hover': {
+              border: '1px solid #e5e7eb',
             },
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
             },
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              border: "none",
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
             },
-            "& .MuiSelect-select": {
+            '& .MuiSelect-select': {
               py: 2,
               px: 2.2,
             },
@@ -55,9 +47,9 @@ const OldCnamVoiceStir = ({
           MenuProps={{
             PaperProps: {
               style: {
-                maxHeight: "30vh",
-                overflow: "auto",
-                scrollbarWidth: "none",
+                maxHeight: '30vh',
+                overflow: 'auto',
+                scrollbarWidth: 'none',
               },
             },
           }}
@@ -77,8 +69,8 @@ const OldCnamVoiceStir = ({
                   '&:hover': {
                     backgroundColor: '#7902DF10',
                     color: '#000000',
-                  }
-                }
+                  },
+                },
               }}
             >
               <div className="flex flex-col">
@@ -91,7 +83,6 @@ const OldCnamVoiceStir = ({
           ))}
         </Select>
       </FormControl>
-
     </div>
   )
 }

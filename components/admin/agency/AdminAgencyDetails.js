@@ -1,84 +1,81 @@
-import Apis from '@/components/apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
-import axios from 'axios';
-import Image from 'next/image';
+import { Box, CircularProgress, Modal } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component';
-import moment from 'moment';
-import SelectedUserDetails from '../users/SelectedUserDetails';
-import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
-import { Searchbar } from '@/components/general/MuiSearchBar';
-import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities';
+import InfiniteScroll from 'react-infinite-scroll-component'
 
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import Apis from '@/components/apis/Apis'
+import { Searchbar } from '@/components/general/MuiSearchBar'
+
+import SelectedUserDetails from '../users/SelectedUserDetails'
+import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails'
 
 function AdminAgencyDetails() {
-
   useEffect(() => {
     getAgencyDetails()
   }, [])
 
   const [loading, setLoading] = useState(false)
   const [agencies, setAgencies] = useState([])
-  const [hasMore, setHasMore] = useState(true);
-  const LimitPerPage = 30;
+  const [hasMore, setHasMore] = useState(true)
+  const LimitPerPage = 30
 
   //selected item
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null)
 
   //search query
-  const [searchQuery, setSearchQuery] = useState("");
-
+  const [searchQuery, setSearchQuery] = useState('')
 
   const getAgencyDetails = async (offset = 0, loading = true) => {
     try {
       if (loading) {
-        setLoading(true);
+        setLoading(true)
       }
 
-      const localData = localStorage.getItem("User");
-      const AuthToken = localData ? JSON.parse(localData).token : null;
+      const localData = localStorage.getItem('User')
+      const AuthToken = localData ? JSON.parse(localData).token : null
 
-      const ApiPath = `${Apis.getAdminAgencies}?offset=${offset}`;
+      const ApiPath = `${Apis.getAdminAgencies}?offset=${offset}`
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response.data?.data?.agencies) {
-        const newData = response.data.data.agencies;
+        const newData = response.data.data.agencies
         console.log('reponse.data', response.data)
-        const updated = offset === 0 ? newData : [...agencies, ...newData];
+        const updated = offset === 0 ? newData : [...agencies, ...newData]
 
-        setAgencies(updated);
-        if (newData.length < LimitPerPage) setHasMore(false);
+        setAgencies(updated)
+        if (newData.length < LimitPerPage) setHasMore(false)
       }
     } catch (error) {
-      console.error("Error fetching agencies:", error);
+      console.error('Error fetching agencies:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Filter agencies based on search query
   const filteredAgencies = agencies.filter((agency) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
     return (
       agency.agencyName?.toLowerCase().includes(query) ||
       agency.plan?.title?.toLowerCase().includes(query) ||
       agency.email?.toLowerCase().includes(query)
-    );
-  });
+    )
+  })
 
   return (
     <div className="w-full items-start">
       <div className="py-4 px-10 flex flex-row items-center gap-4">
-        <div style={{ fontSize: 24, fontWeight: "600" }}>
-          Agency
-        </div>
+        <div style={{ fontSize: 24, fontWeight: '600' }}>Agency</div>
         <Searchbar
           value={searchQuery}
           setValue={setSearchQuery}
@@ -87,17 +84,37 @@ function AdminAgencyDetails() {
       </div>
 
       <div className="w-full flex flex-row mt-3 px-10 mt-12">
-        <div className="w-3/12"><div style={styles.text}>Agency Name</div></div>
-        <div className="w-2/12"><div style={styles.text}>Sub Account</div></div>
-        <div className="w-1/12"><div style={styles.text}>Plan</div></div>
-        <div className="w-1/12"><div style={styles.text}>Total Spent</div></div>
-        <div className="w-1/12"><div style={styles.text}>Credits Used</div></div>
-        <div className="w-1/12"><div style={styles.text}>Renewal</div></div>
-        <div className="w-1/12"><div style={styles.text}>Agents</div></div>
-        <div className="w-2/12"><div style={styles.text}>Created</div></div>
+        <div className="w-3/12">
+          <div style={styles.text}>Agency Name</div>
+        </div>
+        <div className="w-2/12">
+          <div style={styles.text}>Sub Account</div>
+        </div>
+        <div className="w-1/12">
+          <div style={styles.text}>Plan</div>
+        </div>
+        <div className="w-1/12">
+          <div style={styles.text}>Total Spent</div>
+        </div>
+        <div className="w-1/12">
+          <div style={styles.text}>Credits Used</div>
+        </div>
+        <div className="w-1/12">
+          <div style={styles.text}>Renewal</div>
+        </div>
+        <div className="w-1/12">
+          <div style={styles.text}>Agents</div>
+        </div>
+        <div className="w-2/12">
+          <div style={styles.text}>Created</div>
+        </div>
       </div>
 
-      <div className="h-[77vh] overflow-auto" id="scrollableDiv1" style={{ scrollbarWidth: "none" }}>
+      <div
+        className="h-[77vh] overflow-auto"
+        id="scrollableDiv1"
+        style={{ scrollbarWidth: 'none' }}
+      >
         <InfiniteScroll
           className="lg:flex hidden flex-col w-full"
           scrollableTarget="scrollableDiv1"
@@ -115,110 +132,122 @@ function AdminAgencyDetails() {
             </p>
           }
         >
-          {filteredAgencies.length > 0 ? (
-            filteredAgencies.map((item) => (
-              <div
-                key={item.id}
-                className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
-                style={{ cursor: "pointer" }}
-                onClick={() => { setSelectedUser(item) }}
-              >
-                <div className="w-3/12 flex flex-row gap-2 items-center">
-                  <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
-                    {item.agencyName?.slice(0, 1).toUpperCase()}
+          {filteredAgencies.length > 0
+            ? filteredAgencies.map((item) => (
+                <div
+                  key={item.id}
+                  className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    setSelectedUser(item)
+                  }}
+                >
+                  <div className="w-3/12 flex flex-row gap-2 items-center">
+                    <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
+                      {item.agencyName?.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div style={styles.text2}>{item.agencyName}</div>
                   </div>
-                  <div style={styles.text2}>{item.agencyName}</div>
-                </div>
 
-                <div className="w-2/12">
-                  <div style={styles.text2}>{item.subAccountsCount}</div>
-                </div>
-                <div className="w-1/12"><div style={styles.text2}>{item.plan.title}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>${formatFractional2(item.totalSpent)}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} credits</div></div>
-                <div className="w-1/12"><div style={styles.text2}>{moment(item.renewal).format("MM/DD/YYYY")}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>{item.agentsCount}</div></div>
-                <div className="w-2/12">
-                  <div style={styles.text2}>
-                    {moment(item.createdAt).format("MM/DD/YYYY")}
+                  <div className="w-2/12">
+                    <div style={styles.text2}>{item.subAccountsCount}</div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>{item.plan.title}</div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>
+                      ${formatFractional2(item.totalSpent)}
+                    </div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>{item.minutesUsed} credits</div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>
+                      {moment(item.renewal).format('MM/DD/YYYY')}
+                    </div>
+                  </div>
+                  <div className="w-1/12">
+                    <div style={styles.text2}>{item.agentsCount}</div>
+                  </div>
+                  <div className="w-2/12">
+                    <div style={styles.text2}>
+                      {moment(item.createdAt).format('MM/DD/YYYY')}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            !loading && (
-              <div className="text-center mt-4" style={{ fontWeight: "bold", fontSize: 20 }}>
-                No agency found
-              </div>
-            )
-          )}
+              ))
+            : !loading && (
+                <div
+                  className="text-center mt-4"
+                  style={{ fontWeight: 'bold', fontSize: 20 }}
+                >
+                  No agency found
+                </div>
+              )}
         </InfiniteScroll>
       </div>
 
       <Modal
         open={selectedUser ? true : false}
         onClose={() => {
-          localStorage.removeItem("AdminProfileData")
-          setSelectedUser(null);
+          localStorage.removeItem('AdminProfileData')
+          setSelectedUser(null)
         }}
         BackdropProps={{
           timeout: 200,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             zIndex: 1200, // Keep backdrop below Drawer
           },
         }}
         sx={{
           zIndex: 1300, // Keep Modal below the Drawer
         }}
-
       >
         <Box
           className="w-11/12  p-8 rounded-[15px]"
           sx={{
             ...styles.modalsStyle,
-            backgroundColor: "white",
-            position: "relative",
+            backgroundColor: 'white',
+            position: 'relative',
             zIndex: 1301, // Keep modal content above its backdrop
           }}
         >
           <SelectedAgencyDetails
             selectedUser={selectedUser}
             handleDel={() => {
-              setAgencies((prev) => prev.filter((u) =>
-                u.id != selectedUser.id
-              ));
-              localStorage.removeItem("AdminProfileData")
-              setSelectedUser(null);
+              setAgencies((prev) => prev.filter((u) => u.id != selectedUser.id))
+              localStorage.removeItem('AdminProfileData')
+              setSelectedUser(null)
             }}
             handleClose={() => {
-              localStorage.removeItem("AdminProfileData")
-              setSelectedUser(null);
+              localStorage.removeItem('AdminProfileData')
+              setSelectedUser(null)
             }}
             handlePauseUser={(d) => {
-              console.log("User paused");
+              console.log('User paused')
 
-              const updatedStatus = selectedUser.profile_status === "active" ? "paused" : "active";
+              const updatedStatus =
+                selectedUser.profile_status === 'active' ? 'paused' : 'active'
 
               const updatedUser = {
                 ...selectedUser,
-                profile_status: updatedStatus
-              };
+                profile_status: updatedStatus,
+              }
 
               // ✅ Update the user in the list
               setAgencies((prev) =>
-                prev.map((u) =>
-                  u.id === updatedUser.id ? updatedUser : u
-                )
-              );
+                prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)),
+              )
 
               // ✅ Re-send updated user to child
-              setSelectedUser(updatedUser);
+              setSelectedUser(updatedUser)
             }}
           />
         </Box>
       </Modal>
-
     </div>
   )
 }
@@ -227,27 +256,27 @@ export default AdminAgencyDetails
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "600",
+    color: '#00000090',
+    fontWeight: '600',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
-    fontWeight: "500",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    color: '#000000',
+    fontWeight: '500',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

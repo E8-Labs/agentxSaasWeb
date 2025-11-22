@@ -1,32 +1,32 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
 export const AudioWaveActivity = ({
   isActive = false,
   barCount = 11,
-  className = "",
+  className = '',
 }) => {
-  const [scalePattern, setScalePattern] = useState(Array(barCount).fill(0));
+  const [scalePattern, setScalePattern] = useState(Array(barCount).fill(0))
 
   useEffect(() => {
     if (!isActive) {
-      setScalePattern(Array(barCount).fill(0));
-      return;
+      setScalePattern(Array(barCount).fill(0))
+      return
     }
 
     const interval = setInterval(() => {
-      setScalePattern((prev) => prev.map(() => Math.floor(Math.random() * 5)));
-    }, 200);
+      setScalePattern((prev) => prev.map(() => Math.floor(Math.random() * 5)))
+    }, 200)
 
-    return () => clearInterval(interval);
-  }, [isActive, barCount]);
+    return () => clearInterval(interval)
+  }, [isActive, barCount])
 
   const scaleClasses = [
-    "scale-y-100",
-    "scale-y-200",
-    "scale-y-[300%]",
-    "scale-y-[400%]",
-    "scale-y-[500%]",
-  ];
+    'scale-y-100',
+    'scale-y-200',
+    'scale-y-[300%]',
+    'scale-y-[400%]',
+    'scale-y-[500%]',
+  ]
 
   return (
     <div
@@ -38,10 +38,10 @@ export const AudioWaveActivity = ({
           className={
             isActive
               ? `bg-purple transition-transform duration-300 ease-in-out size-1 rounded-full ${scaleClasses[scaleIndex]}`
-              : "bg-purple transition-transform duration-300 ease-in-out size-1 rounded-full"
+              : 'bg-purple transition-transform duration-300 ease-in-out size-1 rounded-full'
           }
         />
       ))}
     </div>
-  );
-};
+  )
+}

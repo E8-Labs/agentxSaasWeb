@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import Image from "next/image";
-import { CaretDown, CaretUp, Minus } from "@phosphor-icons/react";
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
   Alert,
   Box,
@@ -13,16 +10,20 @@ import {
   Popover,
   Select,
   Snackbar,
-} from "@mui/material";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import ColorPicker from "../dashboardPipeline/ColorPicker";
-import TagsInput from "../dashboard/leads/TagsInput";
+} from '@mui/material'
+import { CaretDown, CaretUp, Minus } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '../apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
-import CloseBtn from "../globalExtras/CloseBtn";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import TagsInput from '../dashboard/leads/TagsInput'
+import ColorPicker from '../dashboardPipeline/ColorPicker'
+import CloseBtn from '../globalExtras/CloseBtn'
+import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
 
 const RearrangeStages = ({
   stages,
@@ -42,87 +43,87 @@ const RearrangeStages = ({
   reorderStageLoader,
   setShowReorderBtn,
 }) => {
-  const [pipelineStages, setPipelineStages] = useState(stages);
-  const [delStageLoader, setDelStageLoader] = useState(false);
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [showDelStagePopup, setShowDelStagePopup] = useState(null);
-  const [actionInfoEl, setActionInfoEl] = React.useState(null);
+  const [pipelineStages, setPipelineStages] = useState(stages)
+  const [delStageLoader, setDelStageLoader] = useState(false)
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [showDelStagePopup, setShowDelStagePopup] = useState(null)
+  const [actionInfoEl, setActionInfoEl] = React.useState(null)
   // const [showReorderBtn, setShowReorderBtn] = useState(false);
 
   const handlePopoverOpen = (event) => {
-    setActionInfoEl(event.currentTarget);
-  };
+    setActionInfoEl(event.currentTarget)
+  }
 
   const handlePopoverClose = () => {
-    setActionInfoEl(null);
-  };
+    setActionInfoEl(null)
+  }
 
-  const open = Boolean(actionInfoEl);
+  const open = Boolean(actionInfoEl)
 
   useEffect(() => {
-    setPipelineStages(stages);
-  }, [stages]);
+    setPipelineStages(stages)
+  }, [stages])
 
   //code for drag and drop stages
   const handleOnDragEnd = (result) => {
-    const { source, destination } = result;
+    const { source, destination } = result
 
     // if (!destination) return;
     if (!destination || source.index === 0 || destination.index === 0) {
-      return;
+      return
     }
 
-    const items = Array.from(pipelineStages);
-    const [reorderedItem] = items.splice(source.index, 1);
-    items.splice(destination.index, 0, reorderedItem);
+    const items = Array.from(pipelineStages)
+    const [reorderedItem] = items.splice(source.index, 1)
+    items.splice(destination.index, 0, reorderedItem)
 
     const updatedStages = items.map((stage, index) => ({
       ...stage,
       order: index + 1,
-    }));
+    }))
 
     if (updatedStages) {
-      setShowReorderBtn(true);
+      setShowReorderBtn(true)
     }
 
-    setPipelineStages(updatedStages);
-    onUpdateOrder(updatedStages);
-  };
+    setPipelineStages(updatedStages)
+    onUpdateOrder(updatedStages)
+  }
 
   //code to add new stage
-  const [addNewStageModal, setAddNewStageModal] = useState(false);
-  const [newStageTitle, setNewStageTitle] = useState("");
-  const [tagsValue, setTagsValue] = useState([]);
-  const [stageColor, setStageColor] = useState("#FF4E4E");
-  const [addStageLoader, setAddStageLoader] = useState(false);
+  const [addNewStageModal, setAddNewStageModal] = useState(false)
+  const [newStageTitle, setNewStageTitle] = useState('')
+  const [tagsValue, setTagsValue] = useState([])
+  const [stageColor, setStageColor] = useState('#FF4E4E')
+  const [addStageLoader, setAddStageLoader] = useState(false)
   //code for advance setting modal inside new stages
-  const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+  const [showAdvanceSettings, setShowAdvanceSettings] = useState(false)
   //code for input arrays
   const [inputs, setInputs] = useState([
     {
       id: 1,
-      value: "",
+      value: '',
       placeholder: `Sure, i’d be interested in knowing what my home is worth`,
     },
-    { id: 2, value: "", placeholder: "Yeah, how much is my home worth today?" },
-    { id: 3, value: "", placeholder: "Yeah, how much is my home worth today?" },
-  ]);
-  const [action, setAction] = useState("");
+    { id: 2, value: '', placeholder: 'Yeah, how much is my home worth today?' },
+    { id: 3, value: '', placeholder: 'Yeah, how much is my home worth today?' },
+  ])
+  const [action, setAction] = useState('')
 
   //variable to show and hide the add stage btn
-  const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+  const [showAddStageBtn, setShowAddStageBtn] = useState(false)
 
   //get my teams list
-  const [myTeamList, setMyTeamList] = useState([]);
-  const [myTeamAdmin, setMyTeamAdmin] = useState(null);
-  const [assignToMember, setAssignToMember] = useState("");
-  const [assignLeadToMember, setAssignLeadToMember] = useState([]);
+  const [myTeamList, setMyTeamList] = useState([])
+  const [myTeamAdmin, setMyTeamAdmin] = useState(null)
+  const [assignToMember, setAssignToMember] = useState('')
+  const [assignLeadToMember, setAssignLeadToMember] = useState([])
 
   useEffect(() => {
-    getMyTeam();
-  }, []);
+    getMyTeam()
+  }, [])
 
   //code for showing the add stage button according to dirredent conditions
   useEffect(() => {
@@ -130,39 +131,39 @@ const RearrangeStages = ({
       if (
         !newStageTitle ||
         !action ||
-        inputs.filter((input) => input.value.trim() !== "").length < 3
+        inputs.filter((input) => input.value.trim() !== '').length < 3
       ) {
         // //console.log;
-        setShowAddStageBtn(false);
+        setShowAddStageBtn(false)
       } else if (
         newStageTitle &&
         action &&
-        inputs.filter((input) => input.value.trim() !== "").length === 3
+        inputs.filter((input) => input.value.trim() !== '').length === 3
       ) {
         // //console.log;
-        setShowAddStageBtn(true);
+        setShowAddStageBtn(true)
       }
     } else if (!showAdvanceSettings) {
       // if (newStageTitle) {
       if (newStageTitle) {
-        setShowAddStageBtn(true);
+        setShowAddStageBtn(true)
       } else if (!newStageTitle) {
-        setShowAddStageBtn(false);
+        setShowAddStageBtn(false)
       }
       // }
     }
-  }, [showAdvanceSettings, newStageTitle, inputs, action]);
+  }, [showAdvanceSettings, newStageTitle, inputs, action])
 
   //code to delete stage
   const handleDeleteStage = async () => {
     try {
-      setDelStageLoader(true);
+      setDelStageLoader(true)
       // //console.log;
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
         //// //console.log;
       }
 
@@ -171,45 +172,49 @@ const RearrangeStages = ({
       const ApiData = {
         pipelineId: selectedPipelineItem.id,
         stageId: showDelStagePopup.id,
-      };
+      }
 
       // //console.log;
       // return
-      const ApiPath = Apis.deleteStage;
+      const ApiPath = Apis.deleteStage
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPipelineStages(response.data.data.stages);
-          setSuccessSnack(response.data.message);
-          setShowDelStagePopup(null);
+          setPipelineStages(response.data.data.stages)
+          setSuccessSnack(response.data.message)
+          setShowDelStagePopup(null)
 
-          let p = localStorage.getItem("pipelinesList")
+          let p = localStorage.getItem('pipelinesList')
 
           if (p) {
             let localPipelines = JSON.parse(p)
 
-            let updatedPipelines = localPipelines.map(pipeline => {
+            let updatedPipelines = localPipelines.map((pipeline) => {
               if (selectedPipelineItem.id === pipeline.id) {
                 return {
                   ...pipeline,
-                  stages: pipeline.stages.filter(stage => stage.id !== showDelStagePopup.id)
-                };
+                  stages: pipeline.stages.filter(
+                    (stage) => stage.id !== showDelStagePopup.id,
+                  ),
+                }
               }
-              return pipeline; // Return unchanged pipeline for others
-            });
+              return pipeline // Return unchanged pipeline for others
+            })
 
             //console.log
-            localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
-
+            localStorage.setItem(
+              'pipelinesList',
+              JSON.stringify(updatedPipelines),
+            )
           } else {
             //console.log
           }
@@ -219,9 +224,9 @@ const RearrangeStages = ({
     } catch (error) {
       // console.error("Error occured in delstage api is:", error);
     } finally {
-      setDelStageLoader(false);
+      setDelStageLoader(false)
     }
-  };
+  }
 
   //selec teammeber
   //new teammeber
@@ -246,28 +251,28 @@ const RearrangeStages = ({
   // };
 
   const handleAssignTeamMember = (event) => {
-    let value = event.target.value;
+    let value = event.target.value
     // //console.log;
-    setAssignToMember(event.target.value);
+    setAssignToMember(event.target.value)
 
     const selectedItem = myTeamList.find(
-      (item) => item?.invitedUser?.name === value
-    );
+      (item) => item?.invitedUser?.name === value,
+    )
     // //console.log;
     setAssignToMember(
-      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
-    ); //
+      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name,
+    ) //
     setAssignLeadToMember([
       ...assignLeadToMember,
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
-    ]); //
+    ]) //
 
     // //console.log;
-  };
+  }
 
   const getMyTeam = async () => {
     try {
-      let response = await getTeamsList();
+      let response = await getTeamsList()
       // if (response) {
       //  // //console.log;
       //   let teams = [];
@@ -284,77 +289,76 @@ const RearrangeStages = ({
 
       if (response) {
         // //console.log;
-        let teams = [];
+        let teams = []
         if (response.admin) {
-          let admin = response.admin;
-          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin };
-          teams.push(newInvite);
+          let admin = response.admin
+          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin }
+          teams.push(newInvite)
         }
         if (response.data && response.data.length > 0) {
           for (const t of response.data) {
-            if (t.status == "Accepted") {
-              teams.push(t);
+            if (t.status == 'Accepted') {
+              teams.push(t)
             }
           }
         }
 
-        setMyTeamList(teams);
-        setMyTeamAdmin(response.admin);
+        setMyTeamList(teams)
+        setMyTeamAdmin(response.admin)
       }
-
     } catch (error) {
       // console.error("Error occured in api is", error);
     }
-  };
+  }
 
   //function to clsoe add stage modal
   const handleCloseAddStage = () => {
-    setAddNewStageModal(false);
-    setNewStageTitle("");
+    setAddNewStageModal(false)
+    setNewStageTitle('')
     setInputs([
-      { id: 1, value: "" },
-      { id: 2, value: "" },
-      { id: 3, value: "" },
-    ]);
-    setAction("");
-  };
+      { id: 1, value: '' },
+      { id: 2, value: '' },
+      { id: 3, value: '' },
+    ])
+    setAction('')
+  }
 
   //code for add stage input fields
   const handleAddStageInputsChanges = (id, value) => {
     setInputs(
-      inputs.map((input) => (input.id === id ? { ...input, value } : input))
-    );
-  };
+      inputs.map((input) => (input.id === id ? { ...input, value } : input)),
+    )
+  }
 
   // Handle deletion of input field
   const handleDelete = (id) => {
-    setInputs(inputs.filter((input) => input.id !== id));
-  };
+    setInputs(inputs.filter((input) => input.id !== id))
+  }
 
   // Handle adding a new input field
   const handleAddInput = () => {
-    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1
     setInputs([
       ...inputs,
-      { id: newId, value: "", placeholder: "Add sample answer" },
-    ]);
-  };
+      { id: newId, value: '', placeholder: 'Add sample answer' },
+    ])
+  }
 
   //code for adding new custom stage
   const handleAddNewStageTitle = async () => {
     try {
-      setAddStageLoader(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      setAddStageLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
         // //console.log;
       }
 
       // //console.log;
 
-      const ApiPath = Apis.addCustomStage;
+      const ApiPath = Apis.addCustomStage
       // //console.log;
 
       const ApiData = {
@@ -364,79 +368,79 @@ const RearrangeStages = ({
         action: action,
         examples: inputs,
         tags: tagsValue,
-      };
+      }
 
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPipelineStages(response.data.data.stages);
-          setAddNewStageModal(false);
-          setNewStageTitle("");
-          setStageColor("");
+          setPipelineStages(response.data.data.stages)
+          setAddNewStageModal(false)
+          setNewStageTitle('')
+          setStageColor('')
         } else {
-          let message = response.data.message;
-          setErrorMessage(message);
+          let message = response.data.message
+          setErrorMessage(message)
           setErrorSnack(true)
         }
       }
     } catch (error) {
       // console.error("Error occured inn adding new stage title api is", error);
     } finally {
-      setAddStageLoader(false);
+      setAddStageLoader(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#00000070",
+      fontWeight: '500',
+      color: '#00000070',
     },
     AddNewKYCQuestionModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
     labelStyle: {
-      backgroundColor: "white",
-      fontWeight: "400",
+      backgroundColor: 'white',
+      fontWeight: '400',
       fontSize: 10,
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -447,11 +451,7 @@ const RearrangeStages = ({
         type={SnackbarTypes.Success}
       />
       <AgentSelectSnackMessage
-        isVisible={
-          errorSnack == false || errorSnack == null
-            ? false
-            : true
-        }
+        isVisible={errorSnack == false || errorSnack == null ? false : true}
         hide={() => setErrorSnack(false)}
         message={errorMessage}
         type={SnackbarTypes.Error}
@@ -463,21 +463,21 @@ const RearrangeStages = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
             style={{
-              height: "100%",
-              overflowY: "auto",
+              height: '100%',
+              overflowY: 'auto',
               // borderRadius: "8px",
               // padding: "10px",
-              border: "none",
-              scrollbarWidth: "none",
+              border: 'none',
+              scrollbarWidth: 'none',
               marginTop: 20,
               // backgroundColor: "red"
             }}
           >
             <div
               style={{
-                height: "60svh",
-                overflow: "auto",
-                scrollbarWidth: "none",
+                height: '60svh',
+                overflow: 'auto',
+                scrollbarWidth: 'none',
               }}
             >
               {pipelineStages.map((item, index) => (
@@ -495,10 +495,10 @@ const RearrangeStages = ({
                       style={{
                         ...provided.draggableProps.style,
                         // border: "1px solid red",
-                        borderRadius: "10px",
+                        borderRadius: '10px',
                         // padding: "15px",
-                        marginBottom: "10px",
-                        backgroundColor: "#fff",
+                        marginBottom: '10px',
+                        backgroundColor: '#fff',
                         // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                       }}
                       className="flex flex-row items-start overflow-auto"
@@ -507,7 +507,7 @@ const RearrangeStages = ({
                         <div className="outline-none mt-2">
                           {index > 0 && (
                             <Image
-                              src={"/assets/list.png"}
+                              src={'/assets/list.png'}
                               height={6}
                               width={16}
                               alt="*"
@@ -525,8 +525,8 @@ const RearrangeStages = ({
                               className="mt-3"
                               style={{
                                 fontSize: 13,
-                                fontWeight: "500",
-                                color: "#00000060",
+                                fontWeight: '500',
+                                color: '#00000060',
                               }}
                             >
                               {item.description}
@@ -651,40 +651,40 @@ const RearrangeStages = ({
             <Modal
               open={addNewStageModal}
               onClose={() => {
-                handleCloseAddStage();
+                handleCloseAddStage()
               }}
             >
               <Box
                 className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
               >
-                <div style={{ width: "100%" }}>
+                <div style={{ width: '100%' }}>
                   <div
-                    style={{ scrollbarWidth: "none" }} //className='max-h-[60vh] overflow-auto'
+                    style={{ scrollbarWidth: 'none' }} //className='max-h-[60vh] overflow-auto'
                   >
                     <div
                       style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        width: '100%',
+                        direction: 'row',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
                       {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      <div style={{ fontWeight: '700', fontSize: 22 }}>
                         Add New Stage
                       </div>
                       <div
                         style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
+                          direction: 'row',
+                          display: 'flex',
+                          justifyContent: 'end',
                         }}
                       >
                         <CloseBtn
                           onClick={() => {
-                            handleCloseAddStage();
+                            handleCloseAddStage()
                           }}
                         />
                       </div>
@@ -694,7 +694,7 @@ const RearrangeStages = ({
                       <div
                         className="mt-4"
                         style={{
-                          fontWeight: "600",
+                          fontWeight: '600',
                           fontSize: 12,
                           paddingBottom: 5,
                         }}
@@ -704,16 +704,16 @@ const RearrangeStages = ({
                       <input
                         value={newStageTitle}
                         onChange={(e) => {
-                          setNewStageTitle(e.target.value);
+                          setNewStageTitle(e.target.value)
                         }}
                         placeholder="Enter stage title"
                         className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
+                        style={{ border: '1px solid #00000020' }}
                       />
                       <div
                         style={{
                           marginTop: 20,
-                          fontWeight: "600",
+                          fontWeight: '600',
                           fontSize: 12,
                           paddingBottom: 5,
                         }}
@@ -726,11 +726,11 @@ const RearrangeStages = ({
                     <div className="text-purple mt-4">
                       <button
                         onClick={() => {
-                          setShowAdvanceSettings(!showAdvanceSettings);
+                          setShowAdvanceSettings(!showAdvanceSettings)
                         }}
                         className="flex flex-row items-center gap-2 outline-none"
                       >
-                        <div style={{ fontWeight: "600", fontSize: 15 }}>
+                        <div style={{ fontWeight: '600', fontSize: 15 }}>
                           Advanced Settings
                         </div>
                         {showAdvanceSettings ? (
@@ -744,7 +744,7 @@ const RearrangeStages = ({
                     {showAdvanceSettings && (
                       <div>
                         <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          <p style={{ fontWeight: '600', fontSize: 15 }}>
                             Action
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
@@ -753,7 +753,7 @@ const RearrangeStages = ({
                             height={20}
                             width={20}
                             alt="*"
-                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-owns={open ? 'mouse-over-popover' : undefined}
                             aria-haspopup="true"
                             onMouseEnter={handlePopoverOpen}
                             onMouseLeave={handlePopoverClose}
@@ -762,22 +762,22 @@ const RearrangeStages = ({
                           <Popover
                             id="mouse-over-popover"
                             sx={{
-                              pointerEvents: "none",
+                              pointerEvents: 'none',
                             }}
                             open={open}
                             anchorEl={actionInfoEl}
                             anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
+                              vertical: 'top',
+                              horizontal: 'center',
                             }}
                             transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
+                              vertical: 'bottom',
+                              horizontal: 'left',
                             }}
                             PaperProps={{
                               elevation: 1, // This will remove the shadow
                               style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
                               },
                             }}
                             onClose={handlePopoverClose}
@@ -786,12 +786,12 @@ const RearrangeStages = ({
                             <div className="p-2">
                               <div className="flex flex-row items-center gap-1">
                                 <Image
-                                  src={"/svgIcons/infoIcon.svg"}
+                                  src={'/svgIcons/infoIcon.svg'}
                                   height={24}
                                   width={24}
                                   alt="*"
                                 />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                <p style={{ fontWeight: '500', fontSize: 12 }}>
                                   Tip: Tell your AI when to move the leads to
                                   this stage.
                                 </p>
@@ -803,26 +803,26 @@ const RearrangeStages = ({
                           className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                           placeholder="Ex: Does the human express interest getting a CMA "
                           style={{
-                            border: "1px solid #00000020",
-                            fontWeight: "500",
+                            border: '1px solid #00000020',
+                            fontWeight: '500',
                             fontSize: 15,
                           }}
                           value={action}
                           onChange={(e) => {
-                            setAction(e.target.value);
+                            setAction(e.target.value)
                           }}
                         />
 
                         <p
                           className="mt-4"
-                          style={{ fontWeight: "600", fontSize: 15 }}
+                          style={{ fontWeight: '600', fontSize: 15 }}
                         >
                           Sample Answers
                         </p>
 
                         <p
                           className="mt-2"
-                          style={{ fontWeight: "500", fontSize: 12 }}
+                          style={{ fontWeight: '500', fontSize: 12 }}
                         >
                           What are possible answers leads will give to this
                           question?
@@ -830,7 +830,7 @@ const RearrangeStages = ({
 
                         <div
                           className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
-                          style={{ scrollbarWidth: "none" }}
+                          style={{ scrollbarWidth: 'none' }}
                         >
                           {inputs.map((input, index) => (
                             <div
@@ -841,8 +841,8 @@ const RearrangeStages = ({
                                 className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
                                 style={{
                                   ...styles.paragraph,
-                                  width: "95%",
-                                  borderColor: "#00000020",
+                                  width: '95%',
+                                  borderColor: '#00000020',
                                 }}
                                 placeholder={input.placeholder}
                                 // placeholder={`
@@ -854,17 +854,17 @@ const RearrangeStages = ({
                                 onChange={(e) =>
                                   handleAddStageInputsChanges(
                                     input.id,
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               />
                               <button
                                 className="outline-none border-none"
-                                style={{ width: "5%" }}
+                                style={{ width: '5%' }}
                                 onClick={() => handleDelete(input.id)}
                               >
                                 <Image
-                                  src={"/assets/blackBgCross.png"}
+                                  src={'/assets/blackBgCross.png'}
                                   height={20}
                                   width={20}
                                   alt="*"
@@ -887,7 +887,7 @@ const RearrangeStages = ({
                                                     </div> */}
 
                         <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          <p style={{ fontWeight: '600', fontSize: 15 }}>
                             Notify a team member when leads move here
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
@@ -896,7 +896,7 @@ const RearrangeStages = ({
                             height={20}
                             width={20}
                             alt="*"
-                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-owns={open ? 'mouse-over-popover' : undefined}
                             aria-haspopup="true"
                             onMouseEnter={handlePopoverOpen}
                             onMouseLeave={handlePopoverClose}
@@ -904,22 +904,22 @@ const RearrangeStages = ({
                           <Popover
                             id="mouse-over-popover"
                             sx={{
-                              pointerEvents: "none",
+                              pointerEvents: 'none',
                             }}
                             open={open}
                             anchorEl={actionInfoEl}
                             anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
+                              vertical: 'top',
+                              horizontal: 'center',
                             }}
                             transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
+                              vertical: 'bottom',
+                              horizontal: 'left',
                             }}
                             PaperProps={{
                               elevation: 1, // This will remove the shadow
                               style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
                               },
                             }}
                             onClose={handlePopoverClose}
@@ -928,12 +928,12 @@ const RearrangeStages = ({
                             <div className="p-2">
                               <div className="flex flex-row items-center gap-1">
                                 <Image
-                                  src={"/svgIcons/infoIcon.svg"}
+                                  src={'/svgIcons/infoIcon.svg'}
                                   height={24}
                                   width={24}
                                   alt="*"
                                 />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                <p style={{ fontWeight: '500', fontSize: 12 }}>
                                   Tip: Tell your AI when to move the leads to
                                   this stage.
                                 </p>
@@ -946,41 +946,41 @@ const RearrangeStages = ({
                           <FormControl fullWidth>
                             <Select
                               id="demo-simple-select"
-                              value={assignToMember || ""} // Default to empty string when no value is selected
+                              value={assignToMember || ''} // Default to empty string when no value is selected
                               onChange={handleAssignTeamMember}
                               displayEmpty // Enables placeholder
                               renderValue={(selected) => {
                                 if (!selected) {
                                   return (
-                                    <div style={{ color: "#aaa" }}>
+                                    <div style={{ color: '#aaa' }}>
                                       Select team member
                                     </div>
-                                  ); // Placeholder style
+                                  ) // Placeholder style
                                 }
-                                return selected;
+                                return selected
                               }}
                               sx={{
-                                border: "1px solid #00000020", // Default border
-                                "&:hover": {
-                                  border: "1px solid #00000020", // Same border on hover
+                                border: '1px solid #00000020', // Default border
+                                '&:hover': {
+                                  border: '1px solid #00000020', // Same border on hover
                                 },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove the default outline
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove the default outline
                                 },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                                "&.MuiSelect-select": {
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
                               }}
                               MenuProps={{
                                 PaperProps: {
                                   style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
+                                    maxHeight: '30vh', // Limit dropdown height
+                                    overflow: 'auto', // Enable scrolling in dropdown
+                                    scrollbarWidth: 'none',
                                   },
                                 },
                               }}
@@ -1009,13 +1009,13 @@ const RearrangeStages = ({
                                     {getAgentsListImage(item?.invitedUser)}
                                     {item.invitedUser?.name}
                                   </MenuItem>
-                                );
+                                )
                               })}
                             </Select>
                           </FormControl>
                         </div>
 
-                        <p style={{ fontWeight: "500", fontSize: 15 }}>Tags</p>
+                        <p style={{ fontWeight: '500', fontSize: 15 }}>Tags</p>
 
                         <div className="mt-4">
                           <TagsInput setTags={setTagsValue} />
@@ -1032,13 +1032,13 @@ const RearrangeStages = ({
                     <button
                       className="mt-4 outline-none"
                       style={{
-                        backgroundColor: "#402FFF",
-                        color: "white",
-                        height: "50px",
-                        borderRadius: "10px",
-                        width: "100%",
+                        backgroundColor: '#402FFF',
+                        color: 'white',
+                        height: '50px',
+                        borderRadius: '10px',
+                        width: '100%',
                         fontWeight: 600,
-                        fontSize: "20",
+                        fontSize: '20',
                       }}
                       onClick={handleAddNewStageTitle}
                     >
@@ -1052,7 +1052,7 @@ const RearrangeStages = ({
         )}
       </Droppable>
     </DragDropContext>
-  );
-};
+  )
+}
 
-export default RearrangeStages;
+export default RearrangeStages

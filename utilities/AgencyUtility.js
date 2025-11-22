@@ -1,4 +1,4 @@
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys } from '@/constants/Constants'
 
 /**
  * Agency UUID Management Utilities
@@ -14,13 +14,13 @@ import { PersistanceKeys } from "@/constants/Constants";
 export const extractAgencyUUIDFromPath = (pathname) => {
   try {
     // Match pattern: /onboarding/{uuid}
-    const match = pathname.match(/\/onboarding\/([^\/]+)/);
-    return match ? match[1] : null;
+    const match = pathname.match(/\/onboarding\/([^\/]+)/)
+    return match ? match[1] : null
   } catch (error) {
-    console.error('Error extracting agency UUID:', error);
-    return null;
+    console.error('Error extracting agency UUID:', error)
+    return null
   }
-};
+}
 
 /**
  * Save agency UUID to localStorage
@@ -28,10 +28,10 @@ export const extractAgencyUUIDFromPath = (pathname) => {
  */
 export const saveAgencyUUID = (uuid) => {
   if (typeof window !== 'undefined' && uuid) {
-    localStorage.setItem(PersistanceKeys.AgencyUUID, uuid);
-    console.log('[Agency] UUID saved:', uuid);
+    localStorage.setItem(PersistanceKeys.AgencyUUID, uuid)
+    console.log('[Agency] UUID saved:', uuid)
   }
-};
+}
 
 /**
  * Get saved agency UUID from localStorage
@@ -39,10 +39,10 @@ export const saveAgencyUUID = (uuid) => {
  */
 export const getAgencyUUID = () => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem(PersistanceKeys.AgencyUUID);
+    return localStorage.getItem(PersistanceKeys.AgencyUUID)
   }
-  return null;
-};
+  return null
+}
 
 /**
  * Remove agency UUID from localStorage
@@ -50,18 +50,18 @@ export const getAgencyUUID = () => {
  */
 export const clearAgencyUUID = () => {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(PersistanceKeys.AgencyUUID);
-    console.log('[Agency] UUID cleared');
+    localStorage.removeItem(PersistanceKeys.AgencyUUID)
+    console.log('[Agency] UUID cleared')
   }
-};
+}
 
 /**
  * Check if current session has an agency UUID
  * @returns {boolean} - True if agency UUID exists
  */
 export const hasAgencyUUID = () => {
-  return !!getAgencyUUID();
-};
+  return !!getAgencyUUID()
+}
 
 /**
  * Initialize agency UUID from current URL if present
@@ -70,14 +70,14 @@ export const hasAgencyUUID = () => {
  */
 export const initializeAgencyUUID = (pathname) => {
   if (typeof window !== 'undefined') {
-    const uuid = extractAgencyUUIDFromPath(pathname);
+    const uuid = extractAgencyUUIDFromPath(pathname)
     if (uuid) {
-      saveAgencyUUID(uuid);
-      return uuid;
+      saveAgencyUUID(uuid)
+      return uuid
     }
   }
-  return null;
-};
+  return null
+}
 
 /**
  * Get agency UUID for API calls
@@ -85,10 +85,10 @@ export const initializeAgencyUUID = (pathname) => {
  * @returns {string|null} - UUID for API or null
  */
 export const getAgencyUUIDForAPI = () => {
-  const uuid = getAgencyUUID();
+  const uuid = getAgencyUUID()
   if (uuid) {
-    console.log('[Agency] Using UUID for registration:', uuid);
-    return uuid;
+    console.log('[Agency] Using UUID for registration:', uuid)
+    return uuid
   }
-  return null;
-};
+  return null
+}

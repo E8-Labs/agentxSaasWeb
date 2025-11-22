@@ -1,50 +1,50 @@
-import React, { useState } from "react";
-import Image from "next/image";
-import { getSupportUrlFor } from "@/utilities/UserUtility";
-import { PersistanceKeys } from "@/constants/Constants";
+import Image from 'next/image'
+import React, { useState } from 'react'
+
+import { PersistanceKeys } from '@/constants/Constants'
+import { getSupportUrlFor } from '@/utilities/UserUtility'
 
 function SubAccountSupport() {
-  const [HoverAIWebinar, setHoverAIWebinar] = useState(false);
-  const [hoverConsultation, setHoverConsultation] = useState(false);
+  const [HoverAIWebinar, setHoverAIWebinar] = useState(false)
+  const [hoverConsultation, setHoverConsultation] = useState(false)
 
   //function to get support
   const getSupport = () => {
-    let userData = localStorage.getItem("User");
+    let userData = localStorage.getItem('User')
     if (userData) {
-      const D = JSON.parse(userData);
-      let url = getSupportUrlFor(D.user);
-      if (typeof window !== "undefined") {
-        window.open(url, "_blank");
+      const D = JSON.parse(userData)
+      let url = getSupportUrlFor(D.user)
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank')
       }
     }
-  };
+  }
 
   const getConsultation = () => {
-    let url = PersistanceKeys.GlobalConsultationUrl;
-    if (typeof window !== "undefined") {
-      window.open(url, "_blank");
+    let url = PersistanceKeys.GlobalConsultationUrl
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank')
     }
-  };
+  }
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
       style={{
-        paddingBottom: "50px",
-        height: "100%",
-        overflow: "auto",
-        scrollbarWidth: "none",
+        paddingBottom: '50px',
+        height: '100%',
+        overflow: 'auto',
+        scrollbarWidth: 'none',
       }}
     >
-      <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+      <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Support
       </div>
 
-      <div style={{ fontSize: 12, fontWeight: "500", color: "#00000090" }}>
-        {"Account > Support"}
+      <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
+        {'Account > Support'}
       </div>
 
       <div className="w-full flex flex-row items-center gap-4 mt-10">
-
         {/*<div
         style={{
           alignSelf: "center",
@@ -149,11 +149,9 @@ function SubAccountSupport() {
         </div>*/}
 
         <div className="w-6/12">
-          <button
-            className="border-none outline-none"
-            onClick={getSupport}>
+          <button className="border-none outline-none" onClick={getSupport}>
             <Image
-              src={"/agencyIcons/TecSupport.jpg"}
+              src={'/agencyIcons/TecSupport.jpg'}
               alt="*"
               height={526}
               width={387}
@@ -164,19 +162,19 @@ function SubAccountSupport() {
         <div className="w-6/12">
           <button
             className="border-none outline-none"
-            onClick={getConsultation}>
+            onClick={getConsultation}
+          >
             <Image
-              src={"/agencyIcons/WeeklyAgencyGrowth.jpg"}
+              src={'/agencyIcons/WeeklyAgencyGrowth.jpg'}
               alt="*"
               height={526}
               width={387}
             />
           </button>
         </div>
-
       </div>
     </div>
-  );
+  )
 }
 
-export default SubAccountSupport;
+export default SubAccountSupport

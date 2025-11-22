@@ -1,10 +1,21 @@
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Calendar, PhoneCall, Star, TrendingUp, User } from 'lucide-react'
+import React from 'react'
+import { useState } from 'react'
+import { useEffect } from 'react'
+import {
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
+import { FindVoice } from '@/components/createagent/Voices'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Table,
   TableBody,
@@ -12,48 +23,40 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { User, TrendingUp, PhoneCall, Calendar, Star } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { FindVoice } from "@/components/createagent/Voices";
-import TopVoicesModal from "./TopVoicesModal";
-import UsersWithUniqueNumbers from "./UsersWithUniqueNumbersModal";
-import UsersWithAgnets from "./UsersWithAgents";
-import UsersWithPipelines from "./UsersWIthPipelines";
-import UsersWithTeam from "./UsersWithTeam";
-import UsersWithLeads from "./UsersWithLeads";
-import UsersWithCalender from "./UsersWithCalenders";
-import { PersistanceKeys } from "@/constants/Constants";
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PersistanceKeys } from '@/constants/Constants'
+
+import TopVoicesModal from './TopVoicesModal'
+import UsersWithPipelines from './UsersWIthPipelines'
+import UsersWithAgnets from './UsersWithAgents'
+import UsersWithCalender from './UsersWithCalenders'
+import UsersWithLeads from './UsersWithLeads'
+import UsersWithTeam from './UsersWithTeam'
+import UsersWithUniqueNumbers from './UsersWithUniqueNumbersModal'
+
 // import { stat } from "fs";
 
 const data = [
-  { name: "Jan", users: 4000 },
-  { name: "Feb", users: 4500 },
-  { name: "Mar", users: 5000 },
-  { name: "Apr", users: 5200 },
-  { name: "May", users: 6000 },
-];
+  { name: 'Jan', users: 4000 },
+  { name: 'Feb', users: 4500 },
+  { name: 'Mar', users: 5000 },
+  { name: 'Apr', users: 5200 },
+  { name: 'May', users: 6000 },
+]
 
 function AgentXStats({ user }) {
-  const [stats, setStats] = useState(null);
-  const [showAllVoices, setShowAllVoices] = useState(false);
+  const [stats, setStats] = useState(null)
+  const [showAllVoices, setShowAllVoices] = useState(false)
   const [showAllUsersWithUniqueNumbers, setShowAllUsersWithUniqueNumbers] =
-    useState(false);
-  const [showAllUsersWithAgents, setShowAllUsersWithAgents] = useState(false);
-  const [showAllUsersWithTeam, setShowAllUsersWithTeam] = useState(false);
-  const [showAllUsersWithLeads, setShowAllUsersWithLeads] = useState(false);
+    useState(false)
+  const [showAllUsersWithAgents, setShowAllUsersWithAgents] = useState(false)
+  const [showAllUsersWithTeam, setShowAllUsersWithTeam] = useState(false)
+  const [showAllUsersWithLeads, setShowAllUsersWithLeads] = useState(false)
   const [showAllUsersWithPipelines, setShowAllUsersWithPipelines] =
-    useState(false);
+    useState(false)
   const [showAllUsersWithCalender, setShowAllUsersWithCalender] =
-    useState(false);
+    useState(false)
 
   useEffect(() => {
     // Example usage:
@@ -65,37 +68,39 @@ function AgentXStats({ user }) {
         let adminData = JSON.parse(data)
         setStats(adminData)
       } else {
-
-      fetchAdminStats();
+        fetchAdminStats()
       }
     }
-  }, [user]);
+  }, [user])
 
   const fetchAdminStats = async () => {
     try {
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
 
-      const response = await fetch("/api/admin/stats", {
-        method: "GET",
+      const response = await fetch('/api/admin/stats', {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        console.log("dashboard data is",data)
-        setStats(data.stats.data);
-        localStorage.setItem(PersistanceKeys.adminDashboardData, JSON.stringify(data.stats.data));
+        console.log('dashboard data is', data)
+        setStats(data.stats.data)
+        localStorage.setItem(
+          PersistanceKeys.adminDashboardData,
+          JSON.stringify(data.stats.data),
+        )
       } else {
-        console.error("Failed to fetch admin stats:", data.error);
+        console.error('Failed to fetch admin stats:', data.error)
       }
     } catch (error) {
-      console.error("Error fetching admin stats:", error);
+      console.error('Error fetching admin stats:', error)
     }
-  };
+  }
 
   //All bottom cards >2 agents, >1 pipelines etc
   function GetStatView(title, percentage, count, icon) {
@@ -105,14 +110,14 @@ function AgentXStats({ user }) {
           topVoices={stats?.topVoices || []}
           open={showAllVoices}
           onClose={() => {
-            setShowAllVoices(false);
+            setShowAllVoices(false)
           }}
         />
         <UsersWithUniqueNumbers
           user={user}
           open={showAllUsersWithUniqueNumbers}
           onClose={() => {
-            setShowAllUsersWithUniqueNumbers(false);
+            setShowAllUsersWithUniqueNumbers(false)
           }}
         />
         <div className="cursor-pointer flex items-start  justify-between w-full  mb-2">
@@ -122,15 +127,18 @@ function AgentXStats({ user }) {
             className="cursor-pointer h-20  -ml-2 -mt-3"
           />
           {/* Show both count and percentage when both are valid (including count=0) */}
-          {((typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
-            (percentage !== "" && percentage !== null && percentage !== undefined)) && (
+          {(typeof count === 'number' ||
+            (count !== '' && count !== null && count !== undefined)) &&
+            percentage !== '' &&
+            percentage !== null &&
+            percentage !== undefined && (
               <div className="cursor-pointer flex flex-col mr-2 items-end">
                 <div
                   className="cursor-pointer font-light"
                   style={{
-                    fontFamily: "Inter",
+                    fontFamily: 'Inter',
                     fontSize: 23,
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                   }}
                 >
                   {count}
@@ -141,44 +149,60 @@ function AgentXStats({ user }) {
               </div>
             )}
           {/* Show single value (count or percentage) when only one exists */}
-          {(!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ||
-            !(percentage !== "" && percentage !== null && percentage !== undefined)) && (
-              <div className="cursor-pointer flex flex-col mr-2 items-end">
-                <h2
-                  className="cursor-pointer font-light"
-                  style={{
-                    fontFamily: "Inter",
-                    fontSize: 23,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) 
-                    ? count 
-                    : percentage}
-                  {!(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) ? "%" : ""}
-                </h2>
-                {/* Only show percentage below if we're showing count above */}
-                {(typeof count === 'number' || (count !== "" && count !== null && count !== undefined)) &&
-                 (percentage !== "" && percentage !== null && percentage !== undefined) && (
+          {(!(
+            typeof count === 'number' ||
+            (count !== '' && count !== null && count !== undefined)
+          ) ||
+            !(
+              percentage !== '' &&
+              percentage !== null &&
+              percentage !== undefined
+            )) && (
+            <div className="cursor-pointer flex flex-col mr-2 items-end">
+              <h2
+                className="cursor-pointer font-light"
+                style={{
+                  fontFamily: 'Inter',
+                  fontSize: 23,
+                  fontWeight: 'bold',
+                }}
+              >
+                {typeof count === 'number' ||
+                (count !== '' && count !== null && count !== undefined)
+                  ? count
+                  : percentage}
+                {!(
+                  typeof count === 'number' ||
+                  (count !== '' && count !== null && count !== undefined)
+                )
+                  ? '%'
+                  : ''}
+              </h2>
+              {/* Only show percentage below if we're showing count above */}
+              {(typeof count === 'number' ||
+                (count !== '' && count !== null && count !== undefined)) &&
+                percentage !== '' &&
+                percentage !== null &&
+                percentage !== undefined && (
                   <p className="cursor-pointer text-gray-500 text-lg">
                     {percentage}%
                   </p>
                 )}
-              </div>
-            )}
+            </div>
+          )}
         </div>
 
         <div className="cursor-pointer flex flex-row items-start w-full pl-3">
           <p className="cursor-pointer font-semibold mt-2 mb-2">{title}</p>
         </div>
       </Card>
-    );
+    )
   }
 
   return (
     <div
       className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4 pb-8 "
-      style={{ overflow: "auto", scrollbarWidth: "none" }}
+      style={{ overflow: 'auto', scrollbarWidth: 'none' }}
     >
       {/*  Stats  */}
       {/* <span className=" flex flex-row gap-2">
@@ -193,8 +217,8 @@ function AgentXStats({ user }) {
         className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-red px-8 rounded-lg w-[96%]"
         style={{
           backgroundImage: "url('/daustatback.svg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
         {/* Top Metrics */}
@@ -266,7 +290,7 @@ function AgentXStats({ user }) {
         user={user}
         open={showAllUsersWithAgents}
         onClose={() => {
-          setShowAllUsersWithAgents(false);
+          setShowAllUsersWithAgents(false)
         }}
       />
 
@@ -274,7 +298,7 @@ function AgentXStats({ user }) {
         user={user}
         open={showAllUsersWithPipelines}
         onClose={() => {
-          setShowAllUsersWithPipelines(false);
+          setShowAllUsersWithPipelines(false)
         }}
       />
 
@@ -282,7 +306,7 @@ function AgentXStats({ user }) {
         user={user}
         open={showAllUsersWithTeam}
         onClose={() => {
-          setShowAllUsersWithTeam(false);
+          setShowAllUsersWithTeam(false)
         }}
       />
 
@@ -290,7 +314,7 @@ function AgentXStats({ user }) {
         user={user}
         open={showAllUsersWithLeads}
         onClose={() => {
-          setShowAllUsersWithLeads(false);
+          setShowAllUsersWithLeads(false)
         }}
       />
 
@@ -298,7 +322,7 @@ function AgentXStats({ user }) {
         user={user}
         open={showAllUsersWithCalender}
         onClose={() => {
-          setShowAllUsersWithCalender(false);
+          setShowAllUsersWithCalender(false)
         }}
       />
 
@@ -310,10 +334,10 @@ function AgentXStats({ user }) {
           stats={stats}
           voiceIds={stats?.topVoices}
           onViewAll={() => {
-            setShowAllVoices(true);
+            setShowAllVoices(true)
           }}
           onViewUniqueNumbers={() => {
-            setShowAllUsersWithUniqueNumbers(true);
+            setShowAllUsersWithUniqueNumbers(true)
           }}
         />
       </div>
@@ -323,82 +347,82 @@ function AgentXStats({ user }) {
         {/* Top Metrics */}
         <button
           onClick={() => {
-            setShowAllUsersWithAgents(true);
+            setShowAllUsersWithAgents(true)
           }}
         >
           {GetStatView(
-            "> 2 agents",
+            '> 2 agents',
             stats?.agentUsers?.percentage,
             stats?.agentUsers?.count,
-            "/mt2agentsicon.png"
+            '/mt2agentsicon.png',
           )}
         </button>
 
         <button
           onClick={() => {
-            setShowAllUsersWithPipelines(true);
+            setShowAllUsersWithPipelines(true)
           }}
         >
           {GetStatView(
-            "> 1 pipeline",
+            '> 1 pipeline',
             stats?.pipelineUsers?.percentage,
             stats?.pipelineUsers?.count,
-            "/mt1pipelineicon.png"
+            '/mt1pipelineicon.png',
           )}
         </button>
 
         <button
           onClick={() => {
-            setShowAllUsersWithLeads(true);
+            setShowAllUsersWithLeads(true)
           }}
         >
           {GetStatView(
-            "Uploaded Leads",
+            'Uploaded Leads',
             stats?.leadsUsers?.percentage,
             stats?.leadsUsers?.count,
-            "/uploadleadsicon.png"
+            '/uploadleadsicon.png',
           )}
         </button>
 
         <button
           onClick={() => {
-            setShowAllUsersWithTeam(true);
+            setShowAllUsersWithTeam(true)
           }}
         >
           {GetStatView(
-            "Invited Teams",
+            'Invited Teams',
             stats?.teamsUsers?.percentage,
             stats?.teamsUsers?.count,
-            "/invtedteamsiocn.png"
+            '/invtedteamsiocn.png',
           )}
         </button>
 
         <button
           onClick={() => {
-            setShowAllUsersWithCalender(true);
+            setShowAllUsersWithCalender(true)
           }}
         >
           {GetStatView(
-            "Added calendar",
+            'Added calendar',
             stats?.calendarUsers?.percentage,
             stats?.calendarUsers?.count,
-            "/addedtocalendaricon.png"
+            '/addedtocalendaricon.png',
           )}
         </button>
 
         {GetStatView(
-          "Call Success Rate",
+          'Call Success Rate',
           stats?.callSuccessRate,
-          "",
-          "/callsuccessicon.png"
+          '',
+          '/callsuccessicon.png',
         )}
 
         {GetStatView(
-          "Average Call Per User",
-          "",
+          'Average Call Per User',
+          '',
           stats?.avgCallsPerUser,
 
-          "/avgcallicon.png"
+          '/avgcallicon.png',
         )}
 
         {/* <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[14vw]">
@@ -422,28 +446,28 @@ function AgentXStats({ user }) {
         </Card> */}
       </div>
     </div>
-  );
+  )
 }
 
-export default AgentXStats;
+export default AgentXStats
 
 function VoicesComponent({
   stats,
   voiceIds = [
-    { id: "JVFlaC5njBD4JVXTPOyq", users: 231 },
-    { id: "PFIFGOLGFTh5WCxNE7aV", users: 408 },
-    { id: "SqVGDZffOHdbKuvIy7MP", users: 89 },
+    { id: 'JVFlaC5njBD4JVXTPOyq', users: 231 },
+    { id: 'PFIFGOLGFTh5WCxNE7aV', users: 408 },
+    { id: 'SqVGDZffOHdbKuvIy7MP', users: 89 },
   ],
   onViewAll,
   onViewUniqueNumbers,
 }) {
   function GetVoiceCard(index = 0) {
-    let color = "bg-green-500/80";
+    let color = 'bg-green-500/80'
     if (index == 1) {
-      color = "bg-purple-500/80";
+      color = 'bg-purple-500/80'
     }
     if (index == 2) {
-      color = "bg-pink-500/80";
+      color = 'bg-pink-500/80'
     }
     return (
       <Card className="cursor-pointer  h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
@@ -466,7 +490,7 @@ function VoicesComponent({
           {voiceIds[index].count} agents
         </p>
       </Card>
-    );
+    )
   }
 
   return (
@@ -490,12 +514,12 @@ function VoicesComponent({
           onClick={() => {
             //console.log;
 
-            onViewAll();
+            onViewAll()
           }}
         >
           <h2
             className="cursor-pointer text-lg font-regular"
-            style={{ fontFamily: "Inter" }}
+            style={{ fontFamily: 'Inter' }}
           >
             View All
           </h2>
@@ -505,7 +529,7 @@ function VoicesComponent({
       <Card
         className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]"
         onClick={() => {
-          onViewUniqueNumbers();
+          onViewUniqueNumbers()
         }}
       >
         <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
@@ -529,7 +553,7 @@ function VoicesComponent({
         </div>
       </Card>
     </div>
-  );
+  )
 }
 
 function SubscriptionsStatsComponent({ stats }) {
@@ -555,13 +579,13 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans["No Plan"]?.count}
+            {stats?.usersOnPlans['No Plan']?.count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
           <p className="cursor-pointer text-lg font-regular text-gray-500">
-            {`${stats?.usersOnPlans["No Plan"]?.percentage}`}%
+            {`${stats?.usersOnPlans['No Plan']?.percentage}`}%
           </p>
         </CardContent>
       </Card>
@@ -652,7 +676,6 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardContent>
       </Card>
 
-
       {/* Cancelled */}
       <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
@@ -670,5 +693,5 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

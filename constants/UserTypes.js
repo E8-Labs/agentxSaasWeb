@@ -16,8 +16,8 @@
 export const UserTypes = {
   RealEstateAgent: 'RealEstateAgent',
   SolarRep: 'SolarRep',
-  General: "GeneralAgent",
-  Reception:"ReceptionAgent",
+  General: 'GeneralAgent',
+  Reception: 'ReceptionAgent',
   SalesDevRep: 'SalesDevRep',
   MarketerAgent: 'MarketerAgent',
   WebsiteAgent: 'WebsiteAgent',

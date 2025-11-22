@@ -1,41 +1,40 @@
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import ShareIcon from "@mui/icons-material/Share";
-
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import ShareIcon from '@mui/icons-material/Share'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 
 export const AudioPlayer = ({ previewUrl }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
 
   const handleMenuClick = (e) => {
-    e.stopPropagation();
-    setAnchorEl(e.currentTarget);
-  };
+    e.stopPropagation()
+    setAnchorEl(e.currentTarget)
+  }
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   const handleDownload = () => {
-    const a = document.createElement("a");
-    a.href = previewUrl;
-    a.download = "voice.mp3";
-    a.click();
-    handleClose();
-  };
+    const a = document.createElement('a')
+    a.href = previewUrl
+    a.download = 'voice.mp3'
+    a.click()
+    handleClose()
+  }
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(previewUrl);
-      alert("Link copied to clipboard!");
+      await navigator.clipboard.writeText(previewUrl)
+      alert('Link copied to clipboard!')
     } catch (err) {
-      console.error("Clipboard error:", err);
+      console.error('Clipboard error:', err)
     }
-    handleClose();
-  };
+    handleClose()
+  }
 
   return (
     <>
@@ -62,5 +61,5 @@ export const AudioPlayer = ({ previewUrl }) => {
         </MenuItem>
       </Menu>
     </>
-  );
-};
+  )
+}

@@ -1,210 +1,225 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress, Modal } from '@mui/material';
-import { GetFormattedDateString } from "@/utilities/utility";
-import InfiniteScroll from "react-infinite-scroll-component";
+'use client'
+
+import { Box, CircularProgress, Modal } from '@mui/material'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import Apis from '@/components/apis/Apis'
+import { GetFormattedDateString } from '@/utilities/utility'
 
 function UserActivityLogs({ open, onClose, userId, userName }) {
-  const [loading, setLoading] = useState(false);
-  const [activityLogs, setActivityLogs] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [activityLogs, setActivityLogs] = useState([])
   const [pagination, setPagination] = useState({
     totalItems: 0,
     counts: {
       apiCalls: 0,
       paymentTransactions: 0,
-      callBatches: 0
-    }
-  });
-  const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
-  const limitPerLoad = 50;
-  
+      callBatches: 0,
+    },
+  })
+  const [hasMore, setHasMore] = useState(true)
+  const [offset, setOffset] = useState(0)
+  const limitPerLoad = 50
+
   // Cache for storing activity logs data
-  const [cache, setCache] = useState({});
-  const [cacheTimestamp, setCacheTimestamp] = useState(0);
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const [cache, setCache] = useState({})
+  const [cacheTimestamp, setCacheTimestamp] = useState(0)
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
 
   useEffect(() => {
     if (open && userId) {
-      console.log('Modal opened for userId:', userId);
+      console.log('Modal opened for userId:', userId)
       // Check if we have valid cached data
-      if (cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION) {
-        console.log('Using cached data');
-        setActivityLogs(cache[userId].logs || []);
-        setPagination(cache[userId].pagination || {});
-        setHasMore(cache[userId].hasMore || false);
-        setOffset(cache[userId].offset || 0);
+      if (cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION) {
+        console.log('Using cached data')
+        setActivityLogs(cache[userId].logs || [])
+        setPagination(cache[userId].pagination || {})
+        setHasMore(cache[userId].hasMore || false)
+        setOffset(cache[userId].offset || 0)
       } else {
-        console.log('Fetching fresh data');
+        console.log('Fetching fresh data')
         // Clear cache and fetch fresh data
-        setCache({});
-        setCacheTimestamp(0);
-        setActivityLogs([]);
-        setOffset(1);
-        setHasMore(true);
-        fetchActivityLogs(1);
+        setCache({})
+        setCacheTimestamp(0)
+        setActivityLogs([])
+        setOffset(1)
+        setHasMore(true)
+        fetchActivityLogs(1)
       }
     }
-    
+
     // Clear cache when modal closes
     if (!open) {
-      console.log('Modal closed, clearing cache');
-      setCache({});
-      setCacheTimestamp(0);
-      setActivityLogs([]);
-      setOffset(1);
-      setHasMore(true);
+      console.log('Modal closed, clearing cache')
+      setCache({})
+      setCacheTimestamp(0)
+      setActivityLogs([])
+      setOffset(1)
+      setHasMore(true)
     }
-  }, [open, userId]);
+  }, [open, userId])
 
   // Debug useEffect to monitor state changes
   useEffect(() => {
-    console.log('State changed:', { 
-      activityLogsLength: activityLogs.length, 
-      hasMore, 
-      offset, 
-      loading 
-    });
-  }, [activityLogs.length, hasMore, offset, loading]);
+    console.log('State changed:', {
+      activityLogsLength: activityLogs.length,
+      hasMore,
+      offset,
+      loading,
+    })
+  }, [activityLogs.length, hasMore, offset, loading])
 
   // Monitor scroll position and manually trigger loadMore if needed
   useEffect(() => {
-    const scrollableDiv = document.getElementById('scrollableDiv');
+    const scrollableDiv = document.getElementById('scrollableDiv')
     if (scrollableDiv && hasMore && !loading) {
       const handleScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = scrollableDiv;
-        const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
-        
+        const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+        const scrollPercentage = (scrollTop + clientHeight) / scrollHeight
+
         if (scrollPercentage > 0.8) {
-          console.log('Scroll threshold reached, triggering loadMore');
-          loadMore();
+          console.log('Scroll threshold reached, triggering loadMore')
+          loadMore()
         }
-      };
-      
-      scrollableDiv.addEventListener('scroll', handleScroll);
-      return () => scrollableDiv.removeEventListener('scroll', handleScroll);
+      }
+
+      scrollableDiv.addEventListener('scroll', handleScroll)
+      return () => scrollableDiv.removeEventListener('scroll', handleScroll)
     }
-  }, [hasMore, loading, offset]);
+  }, [hasMore, loading, offset])
 
   const fetchActivityLogs = async (currentPage = 1) => {
     try {
-      console.log('fetchActivityLogs called with page:', currentPage);
-      setLoading(true);
-      
+      console.log('fetchActivityLogs called with page:', currentPage)
+      setLoading(true)
+
       // Add a timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
-        console.log('API call timeout after 2 minutes');
-        setLoading(false);
-      }, 120000);
-      
-      const data = localStorage.getItem("User");
+        console.log('API call timeout after 2 minutes')
+        setLoading(false)
+      }, 120000)
+
+      const data = localStorage.getItem('User')
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
         // Use page parameter as the API expects it
-        const apiPath = `${Apis.getUsers.replace('/users', '/user-activity-logs')}?userId=${userId}&page=${currentPage}&limit=${limitPerLoad}`;
-        console.log('API Path:', apiPath);
-        
+        const apiPath = `${Apis.getUsers.replace('/users', '/user-activity-logs')}?userId=${userId}&page=${currentPage}&limit=${limitPerLoad}`
+        console.log('API Path:', apiPath)
+
         const response = await axios.get(apiPath, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
-        console.log('API Response:', response.data);
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        setLoading(false);
+        console.log('API Response:', response.data)
+        console.log('Response status:', response.status)
+        console.log('Response headers:', response.headers)
+        setLoading(false)
         if (response.data?.status) {
-          const newLogs = response.data.data.activities || [];
-          const newPagination = response.data.data.pagination || {};
-          
-          console.log('New logs received:', newLogs.length, 'Current page:', currentPage);
-          console.log('Response structure:', response.data.data);
-          
+          const newLogs = response.data.data.activities || []
+          const newPagination = response.data.data.pagination || {}
+
+          console.log(
+            'New logs received:',
+            newLogs.length,
+            'Current page:',
+            currentPage,
+          )
+          console.log('Response structure:', response.data.data)
+
           if (currentPage === 1) {
             // First load - replace all data
-            setActivityLogs(newLogs);
-            setOffset(2); // Next page to load
+            setActivityLogs(newLogs)
+            setOffset(2) // Next page to load
           } else {
             // Append new data
-            setActivityLogs(prev => [...prev, ...newLogs]);
-            setOffset(currentPage + 1); // Next page to load
+            setActivityLogs((prev) => [...prev, ...newLogs])
+            setOffset(currentPage + 1) // Next page to load
           }
-          
-          setPagination(newPagination);
+
+          setPagination(newPagination)
           // Use hasNextPage from the API response
-          const hasMoreData = newPagination.hasNextPage || false;
-          setHasMore(hasMoreData);
-          
-          console.log('Updated state:', { 
-            hasMore: hasMoreData, 
+          const hasMoreData = newPagination.hasNextPage || false
+          setHasMore(hasMoreData)
+
+          console.log('Updated state:', {
+            hasMore: hasMoreData,
             currentPage: currentPage,
             totalItems: newPagination.totalItems || 0,
-            hasNextPage: newPagination.hasNextPage
-          });
-          
+            hasNextPage: newPagination.hasNextPage,
+          })
+
           // Cache the data
           const cacheData = {
-            logs: currentPage === 1 ? newLogs : [...(cache[userId]?.logs || []), ...newLogs],
+            logs:
+              currentPage === 1
+                ? newLogs
+                : [...(cache[userId]?.logs || []), ...newLogs],
             pagination: newPagination,
             hasMore: hasMoreData,
-            offset: currentPage + 1
-          };
-          
-          setCache(prev => ({
+            offset: currentPage + 1,
+          }
+
+          setCache((prev) => ({
             ...prev,
-            [userId]: cacheData
-          }));
-          setCacheTimestamp(Date.now());
+            [userId]: cacheData,
+          }))
+          setCacheTimestamp(Date.now())
         } else {
-          console.log('API response status is false:', response.data);
+          console.log('API response status is false:', response.data)
         }
       }
     } catch (error) {
-      console.error("Error fetching activity logs:", error);
-      console.error("Error details:", {
+      console.error('Error fetching activity logs:', error)
+      console.error('Error details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        config: error.config
-      });
+        config: error.config,
+      })
     } finally {
-      clearTimeout(timeoutId);
-      setLoading(false);
+      clearTimeout(timeoutId)
+      setLoading(false)
     }
-  };
+  }
 
   const loadMore = () => {
-    console.log('loadMore called:', { loading, hasMore, offset, currentLength: activityLogs.length });
+    console.log('loadMore called:', {
+      loading,
+      hasMore,
+      offset,
+      currentLength: activityLogs.length,
+    })
     if (!loading && hasMore) {
-      console.log('Calling fetchActivityLogs with page:', offset);
-      fetchActivityLogs(offset);
+      console.log('Calling fetchActivityLogs with page:', offset)
+      fetchActivityLogs(offset)
     } else {
-      console.log('loadMore blocked:', { loading, hasMore });
+      console.log('loadMore blocked:', { loading, hasMore })
     }
-  };
+  }
 
   const getActivityTypeIcon = (action) => {
     switch (action) {
-      case "API Call":
-        return "🔌";
-      case "Payment Transaction":
-        return "💳";
-      case "Call Batch":
-        return "📞";
+      case 'API Call':
+        return '🔌'
+      case 'Payment Transaction':
+        return '💳'
+      case 'Call Batch':
+        return '📞'
       default:
-        return "📝";
+        return '📝'
     }
-  };
+  }
 
   const getStatusColor = (httpStatus) => {
-    if (httpStatus >= 200 && httpStatus < 300) return "text-green-600";
-    if (httpStatus >= 400 && httpStatus < 500) return "text-yellow-600";
-    if (httpStatus >= 500) return "text-red-600";
-    return "text-gray-600";
-  };
+    if (httpStatus >= 200 && httpStatus < 300) return 'text-green-600'
+    if (httpStatus >= 400 && httpStatus < 500) return 'text-yellow-600'
+    if (httpStatus >= 500) return 'text-red-600'
+    return 'text-gray-600'
+  }
 
   return (
     <Modal
@@ -213,7 +228,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
       BackdropProps={{
         timeout: 200,
         sx: {
-          backgroundColor: "#00000020",
+          backgroundColor: '#00000020',
           zIndex: 1200,
         },
       }}
@@ -224,17 +239,17 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
       <Box
         className="w-11/12 max-h-[90vh] p-8 rounded-[15px] overflow-y-auto"
         sx={{
-          height: "auto",
-          bgcolor: "transparent",
+          height: 'auto',
+          bgcolor: 'transparent',
           p: 2,
-          mx: "auto",
-          my: "5vh",
-          transform: "translateY(-5%)",
+          mx: 'auto',
+          my: '5vh',
+          transform: 'translateY(-5%)',
           borderRadius: 2,
-          border: "none",
-          outline: "none",
-          backgroundColor: "white",
-          position: "relative",
+          border: 'none',
+          outline: 'none',
+          backgroundColor: 'white',
+          position: 'relative',
           zIndex: 1301,
         }}
       >
@@ -242,9 +257,13 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Activity Logs</h2>
             <p className="text-gray-600">User: {userName}</p>
-            {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
+            {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
               <p className="text-xs text-green-600 mt-1">
-                Data cached • Expires in {Math.ceil((CACHE_DURATION - (Date.now() - cacheTimestamp)) / 1000 / 60)} minutes
+                Data cached • Expires in{' '}
+                {Math.ceil(
+                  (CACHE_DURATION - (Date.now() - cacheTimestamp)) / 1000 / 60,
+                )}{' '}
+                minutes
               </p>
             )}
           </div>
@@ -366,39 +385,63 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 relative">
             <div className="text-blue-600 text-sm font-medium">API Calls</div>
-            <div className="text-2xl font-bold text-blue-800">{pagination.counts.apiCalls}</div>
-            {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
-              <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" title="Data cached"></div>
+            <div className="text-2xl font-bold text-blue-800">
+              {pagination.counts.apiCalls}
+            </div>
+            {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
+              <div
+                className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"
+                title="Data cached"
+              ></div>
             )}
           </div>
           <div className="bg-green-50 p-4 rounded-lg border border-green-200 relative">
-            <div className="text-green-600 text-sm font-medium">Payment Transactions</div>
-            <div className="text-2xl font-bold text-green-800">{pagination.counts.paymentTransactions}</div>
-            {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
-              <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" title="Data cached"></div>
+            <div className="text-green-600 text-sm font-medium">
+              Payment Transactions
+            </div>
+            <div className="text-2xl font-bold text-green-800">
+              {pagination.counts.paymentTransactions}
+            </div>
+            {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
+              <div
+                className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"
+                title="Data cached"
+              ></div>
             )}
           </div>
           <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 relative">
-            <div className="text-purple-600 text-sm font-medium">Call Batches</div>
-            <div className="text-2xl font-bold text-purple-800">{pagination.counts.callBatches}</div>
-            {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
-              <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" title="Data cached"></div>
+            <div className="text-purple-600 text-sm font-medium">
+              Call Batches
+            </div>
+            <div className="text-2xl font-bold text-purple-800">
+              {pagination.counts.callBatches}
+            </div>
+            {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
+              <div
+                className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"
+                title="Data cached"
+              ></div>
             )}
           </div>
           <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 relative">
-            <div className="text-orange-600 text-sm font-medium">Unique IPs</div>
+            <div className="text-orange-600 text-sm font-medium">
+              Unique IPs
+            </div>
             <div className="text-2xl font-bold text-orange-800">
               {(() => {
-                const uniqueIPs = new Set();
-                activityLogs.forEach(log => {
-                  const ip = log.details?.ipAddress || log.details?.meta?.ip;
-                  if (ip) uniqueIPs.add(ip);
-                });
-                return uniqueIPs.size;
+                const uniqueIPs = new Set()
+                activityLogs.forEach((log) => {
+                  const ip = log.details?.ipAddress || log.details?.meta?.ip
+                  if (ip) uniqueIPs.add(ip)
+                })
+                return uniqueIPs.size
               })()}
             </div>
-            {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
-              <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full" title="Data cached"></div>
+            {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
+              <div
+                className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full"
+                title="Data cached"
+              ></div>
             )}
           </div>
         </div>
@@ -407,15 +450,23 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         {loading && activityLogs.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-8">
             <div className="flex justify-center">
-              <CircularProgress size={50} sx={{ color: "#7902DF" }} />
+              <CircularProgress size={50} sx={{ color: '#7902DF' }} />
             </div>
-            <p className="text-center mt-4 text-gray-600">Loading activity logs...</p>
-            <p className="text-center mt-2 text-sm text-gray-500">This may take a few moments...</p>
+            <p className="text-center mt-4 text-gray-600">
+              Loading activity logs...
+            </p>
+            <p className="text-center mt-2 text-sm text-gray-500">
+              This may take a few moments...
+            </p>
           </div>
         ) : activityLogs.length === 0 && !loading ? (
           <div className="bg-white rounded-lg border border-gray-200 p-8">
-            <p className="text-center text-gray-600">No activity logs found for this user.</p>
-            <p className="text-center mt-2 text-sm text-gray-500">Try refreshing or check the console for errors.</p>
+            <p className="text-center text-gray-600">
+              No activity logs found for this user.
+            </p>
+            <p className="text-center mt-2 text-sm text-gray-500">
+              Try refreshing or check the console for errors.
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -426,19 +477,25 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                 hasMore={hasMore}
                 loader={
                   <div className="w-full flex justify-center py-4">
-                    <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                    <CircularProgress size={30} sx={{ color: '#7902DF' }} />
                   </div>
                 }
                 endMessage={
                   <div className="text-center py-4 text-gray-500">
-                    {activityLogs.length > 0 ? "You've reached the end of the activity logs." : "No activity logs found."}
+                    {activityLogs.length > 0
+                      ? "You've reached the end of the activity logs."
+                      : 'No activity logs found.'}
                   </div>
                 }
                 scrollableTarget="scrollableDiv"
                 style={{ overflow: 'visible' }}
-                onScroll={() => console.log('InfiniteScroll onScroll triggered')}
+                onScroll={() =>
+                  console.log('InfiniteScroll onScroll triggered')
+                }
                 scrollThreshold={0.8}
-                onEndReached={() => console.log('InfiniteScroll onEndReached triggered')}
+                onEndReached={() =>
+                  console.log('InfiniteScroll onEndReached triggered')
+                }
                 onEndReachedThreshold={0.8}
               >
                 <table className="min-w-full divide-y divide-gray-200">
@@ -463,17 +520,26 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {activityLogs.map((log, index) => (
-                      <tr key={`${log.id}-${index}`} className="hover:bg-gray-50">
+                      <tr
+                        key={`${log.id}-${index}`}
+                        className="hover:bg-gray-50"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <span className="text-lg mr-2">{getActivityTypeIcon(log.action)}</span>
-                            <span className="text-sm font-medium text-gray-900">{log.action}</span>
+                            <span className="text-lg mr-2">
+                              {getActivityTypeIcon(log.action)}
+                            </span>
+                            <span className="text-sm font-medium text-gray-900">
+                              {log.action}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{log.description}</div>
+                          <div className="text-sm text-gray-900">
+                            {log.description}
+                          </div>
                         </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {GetFormattedDateString(log.dateTime)}
                           </div>
@@ -481,11 +547,12 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {log.details?.ipAddress || log.details?.meta?.ip ? (
-                              <span 
+                              <span
                                 className="bg-gray-100 px-2 py-1 rounded text-xs font-mono"
                                 title={`IP Address: ${log.details?.ipAddress || log.details?.meta?.ip}`}
                               >
-                                {log.details?.ipAddress || log.details?.meta?.ip}
+                                {log.details?.ipAddress ||
+                                  log.details?.meta?.ip}
                               </span>
                             ) : (
                               <span className="text-gray-400">-</span>
@@ -502,9 +569,11 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                                       {log.details.method}
                                     </span>
                                     {log.details.httpStatus && (
-                                      <span className={`text-xs px-2 py-1 rounded ${getStatusColor(log.details.httpStatus)}`}>
+                                      <span
+                                        className={`text-xs px-2 py-1 rounded ${getStatusColor(log.details.httpStatus)}`}
+                                      >
                                         {log.details.httpStatus}
-                                    </span>
+                                      </span>
                                     )}
                                   </div>
                                 )}
@@ -530,16 +599,18 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         <div className="text-center mt-4 text-sm text-gray-600">
           {activityLogs.length > 0 && (
             <>
-              Showing {activityLogs.length} of {pagination.totalItems} total activity logs
-              {cache[userId] && (Date.now() - cacheTimestamp) < CACHE_DURATION && (
-                <span className="ml-2 text-green-600">(Cached)</span>
-              )}
+              Showing {activityLogs.length} of {pagination.totalItems} total
+              activity logs
+              {cache[userId] &&
+                Date.now() - cacheTimestamp < CACHE_DURATION && (
+                  <span className="ml-2 text-green-600">(Cached)</span>
+                )}
             </>
           )}
         </div>
       </Box>
     </Modal>
-  );
+  )
 }
 
-export default UserActivityLogs;
+export default UserActivityLogs

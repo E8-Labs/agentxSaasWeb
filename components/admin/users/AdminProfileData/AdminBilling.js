@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
 import {
   Alert,
   Box,
@@ -12,48 +8,62 @@ import {
   Switch,
   TextField,
   Tooltip,
-} from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import moment from "moment";
-import getProfileDetails from "@/components/apis/GetProfile";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { getBusinessProfile } from '@/apiservicescomponent/twilioapis/GetBusinessProfile'
+import SmartRefillCard from '@/components/agency/agencyExtras.js/SmartRefillCard'
+import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import { getUserLocalData } from '@/components/constants/constants'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { GetFormattedDateString } from "@/utilities/utility";
-import AdminGetProfileDetails from "../../AdminGetProfileDetails";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
-import PlansService, { duration } from "@/utilities/PlansService";
-import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
-import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
-import DowngradePlanPopup from "@/components/myAccount/cancelationFlow/DowngradePlanPopup";
-import CancelPlanAnimation from "@/components/myAccount/cancelationFlow/CancelPlanAdnimation";
-import UpgradePlan from "@/components/userPlans/UpgradePlan";
-import UpgradeModal from "@/constants/UpgradeModal";
-import UserPlans from "@/components/userPlans/UserPlans";
-import LeggacyPlanUpgrade from "@/components/myAccount/LegacyPlanUpgrade";
-import { downgradeToGrowthFeatures, downgradeToStarterFeatures, getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation, isLagecyPlan } from "@/components/userPlans/UserPlanServices";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import PauseSubscription from "@/components/myAccount/cancelationFlow/PauseSubscription";
-import { getBusinessProfile } from "@/apiservicescomponent/twilioapis/GetBusinessProfile";
-import { getUserLocalData } from "@/components/constants/constants";
-import { getFeaturesToLose } from "@/utilities/PlanComparisonUtils";
-import { DurationView } from "@/components/plan/DurationView";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
-import { useUser } from "@/hooks/redux-hooks";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import LeggacyPlanUpgrade from '@/components/myAccount/LegacyPlanUpgrade'
+import CancelPlanAnimation from '@/components/myAccount/cancelationFlow/CancelPlanAdnimation'
+import DowngradePlanPopup from '@/components/myAccount/cancelationFlow/DowngradePlanPopup'
+import PauseSubscription from '@/components/myAccount/cancelationFlow/PauseSubscription'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { DurationView } from '@/components/plan/DurationView'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import {
+  downgradeToGrowthFeatures,
+  downgradeToStarterFeatures,
+  getMonthlyPrice,
+  getTotalPrice,
+  getUserPlans,
+  initiateCancellation,
+  isLagecyPlan,
+} from '@/components/userPlans/UserPlanServices'
+import UserPlans from '@/components/userPlans/UserPlans'
+import UpgradeModal from '@/constants/UpgradeModal'
+import { isSubaccountTeamMember } from '@/constants/teamTypes/TeamTypes'
+import { useUser } from '@/hooks/redux-hooks'
+import { getFeaturesToLose } from '@/utilities/PlanComparisonUtils'
+import PlansService, { duration } from '@/utilities/PlansService'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 function AdminBilling({ selectedUser, from }) {
   //stroes user cards list
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([])
 
   //stores subAccount Plans
   const defaultPlans = [
@@ -61,97 +71,96 @@ function AdminBilling({ selectedUser, from }) {
       id: 1,
       mints: 30,
       calls: 125,
-      details: "Great for trying out AI sales agents.",
+      details: 'Great for trying out AI sales agents.',
       // originalPrice: "45",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
+      discountPrice: '45',
+      planStatus: '',
+      status: '',
     },
     {
       id: 2,
       mints: 120,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
+      calls: '500',
+      details: 'Perfect for lead updates and engagement.',
+      originalPrice: '165',
+      discountPrice: '99',
+      planStatus: '40%',
+      status: '',
     },
     {
       id: 3,
       mints: 360,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
+      calls: '1500',
+      details: 'Perfect for lead reactivation and prospecting.',
+      originalPrice: '540',
+      discountPrice: '299',
+      planStatus: '50%',
+      status: 'Popular',
     },
     {
       id: 4,
       mints: 720,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals. ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "60%",
-      status: "Best Value",
+      calls: '5k',
+      details: 'Ideal for teams and reaching new GCI goals. ',
+      originalPrice: '1200',
+      discountPrice: '599',
+      planStatus: '60%',
+      status: 'Best Value',
     },
-  ];
+  ]
 
-  const { user: reduxUser, updateProfile } = useUser();
-
+  const { user: reduxUser, updateProfile } = useUser()
 
   //userlocal data
-  const [userLocalData, setUserLocalData] = useState(null);
-  const [currentPlan, setCurrentPlan] = useState(null);
-  const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
-  const [redeemLoader, setRedeemLoader] = useState(false);
+  const [userLocalData, setUserLocalData] = useState(null)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [cancelPlanLoader, setCancelPlanLoader] = useState(false)
+  const [redeemLoader, setRedeemLoader] = useState(false)
 
   //stoores payment history
-  const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
-  const [historyLoader, setHistoryLoader] = useState(false);
+  const [PaymentHistoryData, setPaymentHistoryData] = useState([])
+  const [historyLoader, setHistoryLoader] = useState(false)
 
-  const [selectedCard, setSelectedCard] = useState(cards[0]);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(cards[0])
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
 
   //add card variables
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-  const [cardData, getcardData] = useState("");
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
+  const [cardData, getcardData] = useState('')
 
   //variables for selecting plans
-  const [togglePlan, setTogglePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [togglePlan, setTogglePlan] = useState(null)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //variables for cancel plan
-  const [giftPopup, setGiftPopup] = useState(false);
-  const [ScreenWidth, setScreenWidth] = useState(null);
+  const [giftPopup, setGiftPopup] = useState(false)
+  const [ScreenWidth, setScreenWidth] = useState(null)
   const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
-    useState(false);
+    useState(false)
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
-    useState(false);
+    useState(false)
 
-  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false)
 
   //confirmation popup for update plan
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
 
   //array of plans - now loaded dynamically
-  const [plans, setPlans] = useState([]);
+  const [plans, setPlans] = useState([])
 
   const [showCancelPopup, setShowCancelPoup] = useState(false)
 
   const [selectedDuration, setSelectedDuration] = useState(duration[0])
 
-  const [monthlyPlans, setMonthlyPlans] = useState([]);
-  const [quaterlyPlans, setQuaterlyPlans] = useState([]);
-  const [yearlyPlans, setYearlyPlans] = useState([]);
+  const [monthlyPlans, setMonthlyPlans] = useState([])
+  const [quaterlyPlans, setQuaterlyPlans] = useState([])
+  const [yearlyPlans, setYearlyPlans] = useState([])
 
   const [currentFullPlan, setCurrentFullPlan] = useState(null)
   const [toggleFullPlan, setToggleFullPlan] = useState(null)
@@ -159,105 +168,106 @@ function AdminBilling({ selectedUser, from }) {
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showDowngradeModal, setShowDowngradeModal] = useState(false)
-  const [downgradeTitle, setDowngradeTitle] = useState("")
+  const [downgradeTitle, setDowngradeTitle] = useState('')
   const [downgradeFeatures, setDowngradeFeatures] = useState([])
 
   // Smart Refill Upgrade Modal state
-  const [showSmartRefillUpgradeModal, setShowSmartRefillUpgradeModal] = useState(false)
+  const [showSmartRefillUpgradeModal, setShowSmartRefillUpgradeModal] =
+    useState(false)
 
   // State for UserPlans modal
   const [showUserPlansModal, setShowUserPlansModal] = useState(false)
   const [showLegacyPlanUpgrade, setShowLegacyPlanUpgrade] = useState(false)
 
   // Add state to hold the profile plan before matching
-  const [profilePlan, setProfilePlan] = useState(null);
+  const [profilePlan, setProfilePlan] = useState(null)
 
   // Track if initial plan selection has been done
-  const [initialPlanSelectionDone, setInitialPlanSelectionDone] = useState(false);
+  const [initialPlanSelectionDone, setInitialPlanSelectionDone] =
+    useState(false)
 
   const [cancelInitiateLoader, setCancelInitiateLoader] = useState(false)
 
   //delreason extra variables
-  const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
+  const [cancelReasonLoader, setCancelReasonLoader] = useState(false)
 
   //snack messages variables
   const [showSnack, setShowSnack] = useState({
     message: null,
-    type: null
-  });
+    type: null,
+  })
 
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
     // //console.log;
-    setScreenWidth(screenWidth);
-  }, []);
+    setScreenWidth(screenWidth)
+  }, [])
 
   //code to get plans
   useEffect(() => {
-    if (from === "subaccount") {
-      getPlans();
+    if (from === 'subaccount') {
+      getPlans()
     } else {
-      loadPlansForBilling();
+      loadPlansForBilling()
     }
     if (selectedUser?.id) {
-      getCardsList();
-      getPaymentHistory();
-      getProfile();
+      getCardsList()
+      getPaymentHistory()
+      getProfile()
     }
   }, [selectedUser])
-
 
   //cancel plan reasons
   const cancelPlanReasons = [
     {
       id: 1,
-      reason: "It’s too expensive",
+      reason: 'It’s too expensive',
     },
     {
       id: 2,
-      reason: "I’m using something else",
+      reason: 'I’m using something else',
     },
     {
       id: 3,
-      reason: "I’m not getting the results I expected",
+      reason: 'I’m not getting the results I expected',
     },
     {
       id: 4,
-      reason: "It’s too complicated to use",
+      reason: 'It’s too complicated to use',
     },
     {
       id: 5,
-      reason: "Others",
+      reason: 'Others',
     },
-  ];
+  ]
 
   useEffect(() => {
-    const d = localStorage.getItem("User");
+    const d = localStorage.getItem('User')
     if (d) {
-      const Data = JSON.parse(d);
-      console.log("Smart refill is", Data.user.smartRefill);
-      setAllowSmartRefill(Data.user.smartRefill);
+      const Data = JSON.parse(d)
+      console.log('Smart refill is', Data.user.smartRefill)
+      setAllowSmartRefill(Data.user.smartRefill)
     }
-    getProfile();
-    getPaymentHistory();
-    getCardsList();
-  }, []);
+    getProfile()
+    getPaymentHistory()
+    getCardsList()
+  }, [])
 
   useEffect(() => {
-    console.log('selectedPlan changed:', selectedPlan);
-  }, [selectedPlan]);
+    console.log('selectedPlan changed:', selectedPlan)
+  }, [selectedPlan])
 
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
-    setScreenWidth(screenWidth);
+    setScreenWidth(screenWidth)
     getPlans()
-  }, []);
+  }, [])
 
   const getPlans = async () => {
     let plansList = await getUserPlans()
@@ -269,60 +279,63 @@ function AdminBilling({ selectedUser, from }) {
     if (plansList) {
       // Filter features in each plan to only show features where thumb = true
       if (!isSubaccountTeamMember(userData.user)) {
-        filteredPlans = plansList?.map(plan => ({
+        filteredPlans = plansList?.map((plan) => ({
           ...plan,
-          features: plan.features && Array.isArray(plan.features)  ? plan.features.filter(feature => feature.thumb === true) : []
-        }));
+          features:
+            plan.features && Array.isArray(plan.features)
+              ? plan.features.filter((feature) => feature.thumb === true)
+              : [],
+        }))
 
         setPlans(filteredPlans)
       } else {
         // filter the plans and show only first 6 features of each plan
-        filteredPlans = plansList?.map(plan => ({
+        filteredPlans = plansList?.map((plan) => ({
           ...plan,
-          features: plan.features ? plan.features.slice(0, 6) : []
-        }));
+          features: plan.features ? plan.features.slice(0, 6) : [],
+        }))
         setPlans(filteredPlans)
       }
 
       console.log('filteredPlans after filtering', filteredPlans)
 
-      let currentPlan = userData?.user?.plan?.planId;
+      let currentPlan = userData?.user?.plan?.planId
 
       console.log('currentPlan for filter', currentPlan)
 
-      let planFromList = filteredPlans.find(plan => plan.id === currentPlan);
+      let planFromList = filteredPlans.find((plan) => plan.id === currentPlan)
 
       console.log('filtered current plan is', planFromList)
-      const monthly = [];
-      const quarterly = [];
-      const yearly = [];
-      let freePlan = null;
-      filteredPlans.forEach(plan => {
+      const monthly = []
+      const quarterly = []
+      const yearly = []
+      let freePlan = null
+      filteredPlans.forEach((plan) => {
         switch (plan.billingCycle) {
-          case "monthly":
-            monthly.push(plan);
+          case 'monthly':
+            monthly.push(plan)
             if (plan.isFree) {
-              freePlan = plan;
+              freePlan = plan
             }
-            break;
-          case "quarterly":
-            quarterly.push(plan);
-            break;
-          case "yearly":
-            yearly.push(plan);
-            break;
+            break
+          case 'quarterly':
+            quarterly.push(plan)
+            break
+          case 'yearly':
+            yearly.push(plan)
+            break
           default:
-            break;
+            break
         }
-      });
+      })
 
       if (freePlan) {
-        quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
-        yearly.unshift({ ...freePlan, billingCycle: "yearly" });
+        quarterly.unshift({ ...freePlan, billingCycle: 'quarterly' })
+        yearly.unshift({ ...freePlan, billingCycle: 'yearly' })
       }
-      setMonthlyPlans(monthly);
-      setQuaterlyPlans(quarterly);
-      setYearlyPlans(yearly);
+      setMonthlyPlans(monthly)
+      setQuaterlyPlans(quarterly)
+      setYearlyPlans(yearly)
 
       console.log('monthly', monthly)
       console.log('quarterly', quarterly)
@@ -336,14 +349,14 @@ function AdminBilling({ selectedUser, from }) {
   useEffect(() => {
     // Only run this once when plans are loaded and we haven't done initial selection
     if (initialPlanSelectionDone) {
-      return;
+      return
     }
 
-    console.log('Auto-select useEffect triggered');
-    console.log('currentFullPlan:', currentFullPlan);
-    console.log('monthlyPlans length:', monthlyPlans.length);
-    console.log('quaterlyPlans length:', quaterlyPlans.length);
-    console.log('yearlyPlans length:', yearlyPlans.length);
+    console.log('Auto-select useEffect triggered')
+    console.log('currentFullPlan:', currentFullPlan)
+    console.log('monthlyPlans length:', monthlyPlans.length)
+    console.log('quaterlyPlans length:', quaterlyPlans.length)
+    console.log('yearlyPlans length:', yearlyPlans.length)
 
     if (userLocalData && userLocalData.plan) {
       setTogglePlan(userLocalData.plan.planId)
@@ -352,74 +365,93 @@ function AdminBilling({ selectedUser, from }) {
       setCurrentPlan(userLocalData.plan.planId)
     }
 
-    if (currentFullPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
-      const billingCycle = getBillingCycleFromPlan(currentFullPlan);
-      console.log('Detected billing cycle from plan:', billingCycle);
-      console.log('Current plan details:', currentFullPlan);
+    if (
+      currentFullPlan &&
+      (monthlyPlans.length > 0 ||
+        quaterlyPlans.length > 0 ||
+        yearlyPlans.length > 0)
+    ) {
+      const billingCycle = getBillingCycleFromPlan(currentFullPlan)
+      console.log('Detected billing cycle from plan:', billingCycle)
+      console.log('Current plan details:', currentFullPlan)
 
       // Set the appropriate duration based on billing cycle
-      let targetDuration = duration[0]; // Default to monthly
-      if (billingCycle === "quarterly") {
-        targetDuration = duration[1];
-        console.log('Setting quarterly duration');
-      } else if (billingCycle === "yearly") {
-        targetDuration = duration[2];
-        console.log('Setting yearly duration');
+      let targetDuration = duration[0] // Default to monthly
+      if (billingCycle === 'quarterly') {
+        targetDuration = duration[1]
+        console.log('Setting quarterly duration')
+      } else if (billingCycle === 'yearly') {
+        targetDuration = duration[2]
+        console.log('Setting yearly duration')
       } else {
-        console.log('Setting monthly duration (default)');
+        console.log('Setting monthly duration (default)')
       }
 
-      setSelectedDuration(targetDuration);
+      setSelectedDuration(targetDuration)
 
       // Find and select the matching plan in the target billing cycle
-      let currentPlans = [];
-      if (billingCycle === "monthly") {
-        currentPlans = monthlyPlans;
-      } else if (billingCycle === "quarterly") {
-        currentPlans = quaterlyPlans;
-      } else if (billingCycle === "yearly") {
-        currentPlans = yearlyPlans;
+      let currentPlans = []
+      if (billingCycle === 'monthly') {
+        currentPlans = monthlyPlans
+      } else if (billingCycle === 'quarterly') {
+        currentPlans = quaterlyPlans
+      } else if (billingCycle === 'yearly') {
+        currentPlans = yearlyPlans
       }
 
-      console.log('Target plans for billing cycle:', currentPlans);
-      const matchingPlan = findMatchingPlan(currentFullPlan, currentPlans);
-      console.log('Found matching plan:', matchingPlan);
+      console.log('Target plans for billing cycle:', currentPlans)
+      const matchingPlan = findMatchingPlan(currentFullPlan, currentPlans)
+      console.log('Found matching plan:', matchingPlan)
 
       if (matchingPlan) {
-        console.log('Auto-selecting plan:', matchingPlan.name);
-        setTogglePlan(matchingPlan.id);
-        setToggleFullPlan(matchingPlan);
-        setSelectedPlan(matchingPlan);
+        console.log('Auto-selecting plan:', matchingPlan.name)
+        setTogglePlan(matchingPlan.id)
+        setToggleFullPlan(matchingPlan)
+        setSelectedPlan(matchingPlan)
       } else {
-        console.log('No matching plan found');
+        console.log('No matching plan found')
       }
 
       // Mark that we've done the initial selection
-      setInitialPlanSelectionDone(true);
+      setInitialPlanSelectionDone(true)
     } else {
-      console.log('Conditions not met for auto-selection');
+      console.log('Conditions not met for auto-selection')
     }
-  }, [currentFullPlan, monthlyPlans, quaterlyPlans, yearlyPlans, initialPlanSelectionDone]);
+  }, [
+    currentFullPlan,
+    monthlyPlans,
+    quaterlyPlans,
+    yearlyPlans,
+    initialPlanSelectionDone,
+  ])
 
   // Effect to match profile plan with plans list and set currentFullPlan
   useEffect(() => {
     if (isLagecyPlan(profilePlan)) {
       setCurrentFullPlan(profilePlan)
-    } else if (profilePlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
-      console.log('🔄 [PLAN-SYNC] Attempting to match profile plan with plans list');
-      const matchedPlan = findMatchingPlanFromAllArrays(profilePlan);
+    } else if (
+      profilePlan &&
+      (monthlyPlans.length > 0 ||
+        quaterlyPlans.length > 0 ||
+        yearlyPlans.length > 0)
+    ) {
+      console.log(
+        '🔄 [PLAN-SYNC] Attempting to match profile plan with plans list',
+      )
+      const matchedPlan = findMatchingPlanFromAllArrays(profilePlan)
 
       if (matchedPlan) {
-        matchedPlan.planId = profilePlan.planId;
-        console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan);
-        setCurrentFullPlan(matchedPlan);
+        matchedPlan.planId = profilePlan.planId
+        console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan)
+        setCurrentFullPlan(matchedPlan)
       } else {
-        console.log('🔄 [PLAN-SYNC] No match found, using profile plan as fallback');
-        setCurrentFullPlan(profilePlan);
+        console.log(
+          '🔄 [PLAN-SYNC] No match found, using profile plan as fallback',
+        )
+        setCurrentFullPlan(profilePlan)
       }
     }
-  }, [profilePlan, monthlyPlans, quaterlyPlans, yearlyPlans]);
-
+  }, [profilePlan, monthlyPlans, quaterlyPlans, yearlyPlans])
 
   // Function to load plans for billing context
   const loadPlansForBilling = async () => {
@@ -428,28 +460,28 @@ function AdminBilling({ selectedUser, from }) {
         'billing_plans',
         'regular',
         'billing',
-        false
-      );
-      setPlans(plansData);
+        false,
+      )
+      setPlans(plansData)
     } catch (error) {
-      console.error('Error loading billing plans:', error);
-      setPlans(PlansService.getFallbackPlans('billing', false));
+      console.error('Error loading billing plans:', error)
+      setPlans(PlansService.getFallbackPlans('billing', false))
     }
-  };
+  }
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
-      let response = await AdminGetProfileDetails(selectedUser.id);
+      const localData = localStorage.getItem('User')
+      let response = await AdminGetProfileDetails(selectedUser.id)
       //console.log;
       if (response) {
-        let plan = response.plan;
-        let togglePlan = plan?.planId;
+        let plan = response.plan
+        let togglePlan = plan?.planId
 
-        setProfilePlan(plan)  // Set profile plan for matching, don't set currentFullPlan directly
+        setProfilePlan(plan) // Set profile plan for matching, don't set currentFullPlan directly
         setIsPaused(plan.pauseExpiresAt != null ? true : false)
         setToggleFullPlan(plan)
-        let planType = togglePlan;
+        let planType = togglePlan
         // if (plan.status == "active") {
         //     if (togglePlan === "Plan30") {
         //         planType = 1;
@@ -461,119 +493,118 @@ function AdminBilling({ selectedUser, from }) {
         //         planType = 4;
         //     }
         // }
-        setUserLocalData(response);
-        console.log("User get profile data is", response);
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
+        setUserLocalData(response)
+        console.log('User get profile data is', response)
+        setTogglePlan(planType)
+        setCurrentPlan(planType)
         console.log('setTogglePlan', planType)
         // console.log('plan', plan)
-
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
-  };
+  }
 
   useEffect(() => {
     // //console.log;
-  }, [userLocalData]);
+  }, [userLocalData])
 
   //function to close the add card popup
   const handleClose = (data) => {
-    console.log("Data recieved is", data);
+    console.log('Data recieved is', data)
     if (data) {
-      setAddPaymentPopup(false);
+      setAddPaymentPopup(false)
       window.dispatchEvent(
-        new CustomEvent("hidePlanBar", { detail: { update: true } })
+        new CustomEvent('hidePlanBar', { detail: { update: true } }),
       )
       window.dispatchEvent(
-        new CustomEvent("UpdateProfile", { detail: { update: true } })
+        new CustomEvent('UpdateProfile', { detail: { update: true } }),
       )
-      getCardsList();
+      getCardsList()
     }
-  };
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     if (!selectedUser?.id) {
-      console.log("No selected user, skipping getCardsList");
-      return;
+      console.log('No selected user, skipping getCardsList')
+      return
     }
 
-    console.log("Get cards api trigered");
+    console.log('Get cards api trigered')
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList + "?userId=" + selectedUser.id;
+      const ApiPath = Apis.getCardsList + '?userId=' + selectedUser.id
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of get cars api is", response.data);
+        console.log('Response of get cars api is', response.data)
         if (response.data.status === true) {
-          setCards(response.data.data);
+          setCards(response.data.data)
         }
       }
     } catch (error) {
       // //console.log;
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
+  }
 
   //function to make default cards api
   const makeDefaultCard = async (item) => {
-    setSelectedCard(item);
+    setSelectedCard(item)
     // //console.log
     // return
     try {
-      setMakeDefaultCardLoader(true);
+      setMakeDefaultCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
       // //console.log
 
-      const ApiPath = Apis.makeDefaultCard;
+      const ApiPath = Apis.makeDefaultCard
 
       const ApiData = {
         paymentMethodId: item.id,
-      };
+      }
 
       // //console.log
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
@@ -581,48 +612,48 @@ function AdminBilling({ selectedUser, from }) {
           let crds = cards.forEach((card, index) => {
             if (card.isDefault) {
               //console.log;
-              cards[index].isDefault = false;
+              cards[index].isDefault = false
             }
-          });
-          item.isDefault = true;
+          })
+          item.isDefault = true
         }
       }
     } catch (error) {
       // console.error("Error occured in make default card api is", error);
     } finally {
-      setMakeDefaultCardLoader(false);
+      setMakeDefaultCardLoader(false)
     }
-  };
+  }
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    setTogglePlan(item.id);
+    setTogglePlan(item.id)
     setToggleFullPlan(item)
 
     setSelectedPlan(item)
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      let planType = selectedPlan.planType;
+      let planType = selectedPlan.planType
 
       //// //console.log;
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
         if (localDetails?.user?.cards?.length > 0) {
           // //console.log;
         } else {
-          setErrorSnack("No payment method added");
-          return;
+          setErrorSnack('No payment method added')
+          return
         }
       }
 
@@ -632,92 +663,95 @@ function AdminBilling({ selectedUser, from }) {
         plan: planType,
         payNow: true,
         userId: selectedUser.id,
-      };
+      }
 
       console.log(ApiData)
 
-      const ApiPath = Apis.subscribePlan;
+      const ApiPath = Apis.subscribePlan
       // //console.log;
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // console.log
         if (response.data.status === true) {
-          console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
+          console.log(
+            '✅ [NEW-BILLING] Plan subscription successful:',
+            response.data.data,
+          )
           // Refresh profile and update all state
-          await refreshProfileAndState();
+          await refreshProfileAndState()
 
-          setSuccessSnack(response.data.message);
-          setShowDowngradeModal(false);
+          setSuccessSnack(response.data.message)
+          setShowDowngradeModal(false)
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
 
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
-      setHistoryLoader(true);
+      setHistoryLoader(true)
 
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.getPaymentHistory + "?userId=" + selectedUser.id;
+      const ApiPath = Apis.getPaymentHistory + '?userId=' + selectedUser.id
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          setPaymentHistoryData(response.data.data);
+          setPaymentHistoryData(response.data.data)
         }
       }
     } catch (error) {
-      console.error("Error occured in get history api is", error);
+      console.error('Error occured in get history api is', error)
     } finally {
-      setHistoryLoader(false);
+      setHistoryLoader(false)
     }
-  };
+  }
 
   //function to cancel current plan
   const handleCancelPlan = async () => {
     try {
-      setCancelPlanLoader(true);
+      setCancelPlanLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.cancelPlan;
+      const ApiPath = Apis.cancelPlan
 
       // //console.log;
 
@@ -725,339 +759,369 @@ function AdminBilling({ selectedUser, from }) {
       // //console.log;
 
       const ApiData = {
-        patanai: "Sari dunya",
-      };
+        patanai: 'Sari dunya',
+      }
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          await getProfileDetails();
-          setShowConfirmCancelPlanPopup(false);
-          setGiftPopup(false);
-          setTogglePlan(null);
-          setCurrentPlan(null);
-          setShowConfirmCancelPlanPopup2(true);
-          setSuccessSnack("Your plan was successfully cancelled");
+          await getProfileDetails()
+          setShowConfirmCancelPlanPopup(false)
+          setGiftPopup(false)
+          setTogglePlan(null)
+          setCurrentPlan(null)
+          setShowConfirmCancelPlanPopup2(true)
+          setSuccessSnack('Your plan was successfully cancelled')
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
       // console.error("Eror occured in cancel plan api is", error);
     } finally {
-      setCancelPlanLoader(false);
+      setCancelPlanLoader(false)
     }
-  };
+  }
 
   //function to call redeem api
   const handleRedeemPlan = async () => {
     try {
-      setRedeemLoader(true);
+      setRedeemLoader(true)
 
-      let AuthToken = null;
+      let AuthToken = null
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.redeemPlan;
+      const ApiPath = Apis.redeemPlan
 
       const ApiData = {
-        sub_Type: "0", //send 1 for already redeemed plan
-      };
+        sub_Type: '0', //send 1 for already redeemed plan
+      }
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        let response2 = await getProfileDetails();
+        let response2 = await getProfileDetails()
         // //console.log;
         if (response2) {
-          let togglePlan = response2?.data?.data?.plan?.type;
-          let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
+          let togglePlan = response2?.data?.data?.plan?.type
+          let planType = null
+          if (togglePlan === 'Plan30') {
+            planType = 1
+          } else if (togglePlan === 'Plan120') {
+            planType = 2
+          } else if (togglePlan === 'Plan360') {
+            planType = 3
+          } else if (togglePlan === 'Plan720') {
+            planType = 4
           }
-          setUserLocalData(response2?.data?.data);
-          setGiftPopup(false);
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          setUserLocalData(response2?.data?.data)
+          setGiftPopup(false)
+          setTogglePlan(planType)
+          setCurrentPlan(planType)
           if (response2.data.status === true) {
-            setSuccessSnack("You've claimed an extra 30 mins");
+            setSuccessSnack("You've claimed an extra 30 mins")
           } else if (response2.data.status === false) {
-            setErrorSnack(response2.data.message);
+            setErrorSnack(response2.data.message)
           }
         }
       }
     } catch (error) {
       // console.error("Error occurd in api is", error);
     } finally {
-      setRedeemLoader(false);
+      setRedeemLoader(false)
     }
-  };
+  }
 
   //function to get card brand image
   const getCardImage = (item) => {
-    if (item.brand === "visa") {
-      return "/svgIcons/Visa.svg";
-    } else if (item.brand === "Mastercard") {
-      return "/svgIcons/mastercard.svg";
-    } else if (item.brand === "amex") {
-      return "/svgIcons/Amex.svg";
-    } else if (item.brand === "discover") {
-      return "/svgIcons/Discover.svg";
-    } else if (item.brand === "dinersClub") {
-      return "/svgIcons/DinersClub.svg";
+    if (item.brand === 'visa') {
+      return '/svgIcons/Visa.svg'
+    } else if (item.brand === 'Mastercard') {
+      return '/svgIcons/mastercard.svg'
+    } else if (item.brand === 'amex') {
+      return '/svgIcons/Amex.svg'
+    } else if (item.brand === 'discover') {
+      return '/svgIcons/Discover.svg'
+    } else if (item.brand === 'dinersClub') {
+      return '/svgIcons/DinersClub.svg'
     }
-  };
+  }
 
   //variables
-  const textFieldRef = useRef(null);
-  const [selectReason, setSelectReason] = useState("");
-  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
-  const [otherReasonInput, setOtherReasonInput] = useState("");
+  const textFieldRef = useRef(null)
+  const [selectReason, setSelectReason] = useState('')
+  const [showOtherReasonInput, setShowOtherReasonInput] = useState(false)
+  const [otherReasonInput, setOtherReasonInput] = useState('')
 
   //function to select the cancel plan reason
   const handleSelectReason = async (item) => {
     // //console.log;
-    setSelectReason(item.reason);
-    if (item.reason === "Others") {
-      setShowOtherReasonInput(true);
+    setSelectReason(item.reason)
+    if (item.reason === 'Others') {
+      setShowOtherReasonInput(true)
       const timer = setTimeout(() => {
-        textFieldRef.current.focus();
-      }, 300);
-      return () => clearTimeout(timer);
+        textFieldRef.current.focus()
+      }, 300)
+      return () => clearTimeout(timer)
     } else {
-      setShowOtherReasonInput(false);
-      setOtherReasonInput("");
+      setShowOtherReasonInput(false)
+      setOtherReasonInput('')
     }
-  };
+  }
 
   //del reason api
   const handleDelReason = async () => {
     try {
-      setCancelReasonLoader(true);
-      const localdata = localStorage.getItem("User");
-      let AuthToken = null;
+      setCancelReasonLoader(true)
+      const localdata = localStorage.getItem('User')
+      let AuthToken = null
       if (localdata) {
-        const D = JSON.parse(localdata);
-        AuthToken = D.token;
+        const D = JSON.parse(localdata)
+        AuthToken = D.token
       }
 
       const ApiData = {
         reason: otherReasonInput || selectReason,
-      };
+      }
 
       // //console.log;
 
-      const ApiPath = Apis.calcelPlanReason;
+      const ApiPath = Apis.calcelPlanReason
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmCancelPlanPopup2(false);
-          setSuccessSnack(response.data.message);
+          setShowConfirmCancelPlanPopup2(false)
+          setSuccessSnack(response.data.message)
         } else if (response.data.status === true) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      setErrorSnack(error);
-      setCancelReasonLoader(false);
+      setErrorSnack(error)
+      setCancelReasonLoader(false)
       // console.error("Error occured in api is ", error);
     } finally {
-      setCancelReasonLoader(false);
+      setCancelReasonLoader(false)
       // //console.log;
     }
-  };
+  }
 
   const getCurrentPlans = () => {
-    if (selectedDuration.id === 1) return monthlyPlans;
-    if (selectedDuration.id === 2) return quaterlyPlans;
-    if (selectedDuration.id === 3) return yearlyPlans;
-    return [];
-  };
+    if (selectedDuration.id === 1) return monthlyPlans
+    if (selectedDuration.id === 2) return quaterlyPlans
+    if (selectedDuration.id === 3) return yearlyPlans
+    return []
+  }
 
   // Function to determine billing cycle from current plan
   const getBillingCycleFromPlan = (plan) => {
-    if (!plan) return "monthly"; // Default to monthly for free plans
+    if (!plan) return 'monthly' // Default to monthly for free plans
 
-    console.log('Analyzing plan for billing cycle:', plan);
+    console.log('Analyzing plan for billing cycle:', plan)
 
     // Check if plan has billingCycle property
     if (plan.billingCycle) {
-      console.log('Found billingCycle property:', plan.billingCycle);
-      return plan.billingCycle;
+      console.log('Found billingCycle property:', plan.billingCycle)
+      return plan.billingCycle
     }
 
     // Check if plan has billing_cycle property (alternative naming)
     if (plan.billing_cycle) {
-      console.log('Found billing_cycle property:', plan.billing_cycle);
-      return plan.billing_cycle;
+      console.log('Found billing_cycle property:', plan.billing_cycle)
+      return plan.billing_cycle
     }
 
     // Check plan type for legacy plans
     if (plan.planType) {
-      console.log('Found planType:', plan.planType);
+      console.log('Found planType:', plan.planType)
       // Map planType to billing cycle based on common patterns
-      if (plan.planType.toLowerCase().includes('yearly') || plan.planType.toLowerCase().includes('year')) {
-        return "yearly";
-      } else if (plan.planType.toLowerCase().includes('quarterly') || plan.planType.toLowerCase().includes('quarter')) {
-        return "quarterly";
-      } else if (plan.planType.toLowerCase().includes('monthly') || plan.planType.toLowerCase().includes('month')) {
-        return "monthly";
+      if (
+        plan.planType.toLowerCase().includes('yearly') ||
+        plan.planType.toLowerCase().includes('year')
+      ) {
+        return 'yearly'
+      } else if (
+        plan.planType.toLowerCase().includes('quarterly') ||
+        plan.planType.toLowerCase().includes('quarter')
+      ) {
+        return 'quarterly'
+      } else if (
+        plan.planType.toLowerCase().includes('monthly') ||
+        plan.planType.toLowerCase().includes('month')
+      ) {
+        return 'monthly'
       }
     }
 
     // Check plan name for billing cycle indicators
     if (plan.name) {
-      console.log('Checking plan name:', plan.name);
-      if (plan.name.toLowerCase().includes('yearly') || plan.name.toLowerCase().includes('year')) {
-        return "yearly";
-      } else if (plan.name.toLowerCase().includes('quarterly') || plan.name.toLowerCase().includes('quarter')) {
-        return "quarterly";
-      } else if (plan.name.toLowerCase().includes('monthly') || plan.name.toLowerCase().includes('month')) {
-        return "monthly";
+      console.log('Checking plan name:', plan.name)
+      if (
+        plan.name.toLowerCase().includes('yearly') ||
+        plan.name.toLowerCase().includes('year')
+      ) {
+        return 'yearly'
+      } else if (
+        plan.name.toLowerCase().includes('quarterly') ||
+        plan.name.toLowerCase().includes('quarter')
+      ) {
+        return 'quarterly'
+      } else if (
+        plan.name.toLowerCase().includes('monthly') ||
+        plan.name.toLowerCase().includes('month')
+      ) {
+        return 'monthly'
       }
     }
 
     // Check if it's a free plan (default to monthly)
     if (plan.isFree || plan.price <= 0) {
-      console.log('Detected free plan, defaulting to monthly');
-      return "monthly";
+      console.log('Detected free plan, defaulting to monthly')
+      return 'monthly'
     }
 
-    console.log('No billing cycle detected, defaulting to monthly');
+    console.log('No billing cycle detected, defaulting to monthly')
     // Default to monthly
-    return "monthly";
-  };
+    return 'monthly'
+  }
 
   // Function to find matching plan in different billing cycles
   const findMatchingPlan = (plan, plansList) => {
     if (!plan || !plansList) {
-      console.log('findMatchingPlan: Missing plan or plansList');
-      return null;
+      console.log('findMatchingPlan: Missing plan or plansList')
+      return null
     }
 
-    console.log('findMatchingPlan: Looking for plan:', plan);
-    console.log('findMatchingPlan: In plans list:', plansList);
+    console.log('findMatchingPlan: Looking for plan:', plan)
+    console.log('findMatchingPlan: In plans list:', plansList)
 
     // First try to match by name
-    let matchingPlan = plansList.find(p => p.name === plan.name);
+    let matchingPlan = plansList.find((p) => p.name === plan.name)
     if (matchingPlan) {
-      console.log('findMatchingPlan: Found match by name:', matchingPlan);
-      return matchingPlan;
+      console.log('findMatchingPlan: Found match by name:', matchingPlan)
+      return matchingPlan
     }
 
     // Then try to match by planType
     if (plan.planType) {
-      matchingPlan = plansList.find(p => p.planType === plan.planType);
+      matchingPlan = plansList.find((p) => p.planType === plan.planType)
       if (matchingPlan) {
-        console.log('findMatchingPlan: Found match by planType:', matchingPlan);
-        return matchingPlan;
+        console.log('findMatchingPlan: Found match by planType:', matchingPlan)
+        return matchingPlan
       }
     }
 
     // For free plans, find the free plan in the list
     if (plan.price <= 0 || plan.isFree) {
-      matchingPlan = plansList.find(p => p.isFree || p.price <= 0);
+      matchingPlan = plansList.find((p) => p.isFree || p.price <= 0)
       if (matchingPlan) {
-        console.log('findMatchingPlan: Found match for free plan:', matchingPlan);
-        return matchingPlan;
+        console.log(
+          'findMatchingPlan: Found match for free plan:',
+          matchingPlan,
+        )
+        return matchingPlan
       }
     }
 
     // Try to match by similar characteristics (same tier but different billing)
     if (plan.name) {
       // Look for plans with similar names but different billing cycles
-      matchingPlan = plansList.find(p => {
+      matchingPlan = plansList.find((p) => {
         // Check if the plan names are similar (e.g., "Starter" matches "Starter")
-        const planNameWords = plan.name.toLowerCase().split(' ');
-        const pNameWords = p.name.toLowerCase().split(' ');
-        return planNameWords.some(word => pNameWords.includes(word));
-      });
+        const planNameWords = plan.name.toLowerCase().split(' ')
+        const pNameWords = p.name.toLowerCase().split(' ')
+        return planNameWords.some((word) => pNameWords.includes(word))
+      })
       if (matchingPlan) {
-        console.log('findMatchingPlan: Found match by similar name:', matchingPlan);
-        return matchingPlan;
+        console.log(
+          'findMatchingPlan: Found match by similar name:',
+          matchingPlan,
+        )
+        return matchingPlan
       }
     }
 
-    console.log('findMatchingPlan: No matching plan found');
-    return null;
-  };
+    console.log('findMatchingPlan: No matching plan found')
+    return null
+  }
 
   // Helper function to find matching plan from all plan arrays (monthly, quarterly, yearly)
   const findMatchingPlanFromAllArrays = (profilePlan) => {
-    if (!profilePlan) return null;
+    if (!profilePlan) return null
 
     // Combine all plan arrays
-    const allPlans = [...monthlyPlans, ...quaterlyPlans, ...yearlyPlans];
+    const allPlans = [...monthlyPlans, ...quaterlyPlans, ...yearlyPlans]
 
     if (allPlans.length === 0) {
-      console.log('🔍 [PLAN-MATCH] No plans available yet');
-      return null;
+      console.log('🔍 [PLAN-MATCH] No plans available yet')
+      return null
     }
 
     // Try to find by planId first (most reliable)
     if (profilePlan.planId) {
-      const matchByPlanId = allPlans.find(plan => plan.id === profilePlan.planId);
+      const matchByPlanId = allPlans.find(
+        (plan) => plan.id === profilePlan.planId,
+      )
       if (matchByPlanId) {
-        console.log('🔍 [PLAN-MATCH] Found by planId:', matchByPlanId);
-        return matchByPlanId;
+        console.log('🔍 [PLAN-MATCH] Found by planId:', matchByPlanId)
+        return matchByPlanId
       }
     }
 
     // Try to find by planType
     if (profilePlan.type) {
-      const matchByType = allPlans.find(plan => plan.planType === profilePlan.type);
+      const matchByType = allPlans.find(
+        (plan) => plan.planType === profilePlan.type,
+      )
       if (matchByType) {
-        console.log('🔍 [PLAN-MATCH] Found by planType:', matchByType);
-        return matchByType;
+        console.log('🔍 [PLAN-MATCH] Found by planType:', matchByType)
+        return matchByType
       }
     }
 
     // Try to find by title/name
     if (profilePlan.title) {
-      const matchByTitle = allPlans.find(plan => plan.name === profilePlan.title);
+      const matchByTitle = allPlans.find(
+        (plan) => plan.name === profilePlan.title,
+      )
       if (matchByTitle) {
-        console.log('🔍 [PLAN-MATCH] Found by title:', matchByTitle);
-        return matchByTitle;
+        console.log('🔍 [PLAN-MATCH] Found by title:', matchByTitle)
+        return matchByTitle
       }
     }
 
-    console.log('🔍 [PLAN-MATCH] No matching plan found for:', profilePlan);
-    return null;
-  };
+    console.log('🔍 [PLAN-MATCH] No matching plan found for:', profilePlan)
+    return null
+  }
 
   const handleCancelClick = async () => {
     setCancelInitiateLoader(true)
@@ -1067,24 +1131,25 @@ function AdminBilling({ selectedUser, from }) {
   }
 
   const handleUpgradeClick = () => {
-    if (currentPlan && selectedPlan.name === 'Free') { // if user try to downgrade on free plan
+    if (currentPlan && selectedPlan.name === 'Free') {
+      // if user try to downgrade on free plan
       setShowCancelPoup(true)
     } else {
-      const planComparison = comparePlans(currentFullPlan, selectedPlan);
-      console.log('🔍 [PLAN-CHANGE] Comparison result:', planComparison);
+      const planComparison = comparePlans(currentFullPlan, selectedPlan)
+      console.log('🔍 [PLAN-CHANGE] Comparison result:', planComparison)
 
       if (planComparison === 'upgrade') {
         setShowUpgradeModal(true)
       } else if (planComparison === 'downgrade') {
-        console.log("🔍 [PLAN-CHANGE] Downgrade plan:", selectedPlan);
+        console.log('🔍 [PLAN-CHANGE] Downgrade plan:', selectedPlan)
         // Set title based on target plan
-        setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
+        setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`)
 
         // Calculate features that would be lost
-        console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan);
-        const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan);
-        console.log("🔍 [PLAN-CHANGE] Features to lose:", featuresToLose);
-        setDowngradeFeatures(featuresToLose);
+        console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan)
+        const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan)
+        console.log('🔍 [PLAN-CHANGE] Features to lose:', featuresToLose)
+        setDowngradeFeatures(featuresToLose)
         if (featuresToLose.length > 0) {
           setShowDowngradeModal(true)
         } else {
@@ -1097,230 +1162,250 @@ function AdminBilling({ selectedUser, from }) {
 
   // Function to check if user is on free plan
   const isFreePlan = () => {
-    return currentFullPlan && (currentFullPlan.price === 0 || currentFullPlan.isFree);
-  };
+    return (
+      currentFullPlan && (currentFullPlan.price === 0 || currentFullPlan.isFree)
+    )
+  }
 
   // Helper function to compare plans based on monthly price
   // Returns: 'upgrade' | 'downgrade' | 'same'
   const comparePlans = (currentPlan, targetPlan) => {
     if (!currentPlan || !targetPlan) {
-      return null; // Changed from 'same' to null to indicate loading state
+      return null // Changed from 'same' to null to indicate loading state
     }
 
     // Get monthly prices (discountPrice is already per-month for all billing cycles)
-    const currentPrice = currentPlan.discountPrice || currentPlan.price || 0;
-    const targetPrice = targetPlan.discountPrice || targetPlan.price || 0;
+    const currentPrice = currentPlan.discountPrice || currentPlan.price || 0
+    const targetPrice = targetPlan.discountPrice || targetPlan.price || 0
 
-    console.log('🔍 [PLAN-COMPARE] Current plan:', currentPlan.name, 'Price:', currentPrice, 'Billing:', currentPlan.billingCycle);
-    console.log('🔍 [PLAN-COMPARE] Target plan:', targetPlan.name, 'Price:', targetPrice, 'Billing:', targetPlan.billingCycle);
+    console.log(
+      '🔍 [PLAN-COMPARE] Current plan:',
+      currentPlan.name,
+      'Price:',
+      currentPrice,
+      'Billing:',
+      currentPlan.billingCycle,
+    )
+    console.log(
+      '🔍 [PLAN-COMPARE] Target plan:',
+      targetPlan.name,
+      'Price:',
+      targetPrice,
+      'Billing:',
+      targetPlan.billingCycle,
+    )
 
     // If same plan (by ID), it's the same
-    if (currentPlan.id === targetPlan.id || currentPlan.planId === targetPlan.id) {
-      return 'same';
+    if (
+      currentPlan.id === targetPlan.id ||
+      currentPlan.planId === targetPlan.id
+    ) {
+      return 'same'
     }
 
     // If target is free plan and current is paid, it's a downgrade
     if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
-      return 'downgrade';
+      return 'downgrade'
     }
 
     // If current is free and target is paid, it's an upgrade
     if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
-      return 'upgrade';
+      return 'upgrade'
     }
 
     // Get billing cycle order (monthly < quarterly < yearly)
     const billingCycleOrder = {
-      'monthly': 1,
-      'quarterly': 2,
-      'yearly': 3
-    };
+      monthly: 1,
+      quarterly: 2,
+      yearly: 3,
+    }
 
-    const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 1;
-    const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 1;
+    const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 1
+    const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 1
 
     // If same name/tier but different billing cycle
     if (currentPlan.name === targetPlan.name) {
       // Longer billing cycle is considered an upgrade (more commitment)
       if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade';
+        return 'upgrade'
       } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade';
+        return 'downgrade'
       } else {
-        return 'same';
+        return 'same'
       }
     }
 
     // Compare prices
     if (targetPrice > currentPrice) {
-      return 'upgrade';
+      return 'upgrade'
     } else if (targetPrice < currentPrice) {
-      return 'downgrade';
+      return 'downgrade'
     } else {
       // Same price, different plans - consider billing cycle
       if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade';
+        return 'upgrade'
       } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade';
+        return 'downgrade'
       } else {
-        return 'same';
+        return 'same'
       }
     }
-  };
+  }
 
   // Handler for smart refill disabled click
   const handleSmartRefillDisabledClick = () => {
-    setShowSmartRefillUpgradeModal(true);
-  };
+    setShowSmartRefillUpgradeModal(true)
+  }
 
   // Handler for smart refill upgrade modal
   const handleSmartRefillUpgrade = async () => {
-    setShowSmartRefillUpgradeModal(false);
+    setShowSmartRefillUpgradeModal(false)
     // Refresh profile after upgrade
-    await refreshProfileAndState();
-  };
+    await refreshProfileAndState()
+  }
 
   // Function to refresh profile and update all related state
   const refreshProfileAndState = async () => {
     try {
-      console.log('🔄 [NEW-BILLING] Refreshing profile after plan change...');
-      const response = await AdminGetProfileDetails(selectedUser.id);
+      console.log('🔄 [NEW-BILLING] Refreshing profile after plan change...')
+      const response = await AdminGetProfileDetails(selectedUser.id)
 
       if (response) {
-        const profileData = response;
-        const plan = profileData.plan;
+        const profileData = response
+        const plan = profileData.plan
 
         // Update user local data
-        setUserLocalData(profileData);
+        setUserLocalData(profileData)
 
         // Update plan-related state
-        setProfilePlan(plan);  // Set profile plan for matching, currentFullPlan will be set by useEffect
-        setToggleFullPlan(plan);
-        setCurrentPlan(plan?.planId);
-        setTogglePlan(plan?.planId);
+        setProfilePlan(plan) // Set profile plan for matching, currentFullPlan will be set by useEffect
+        setToggleFullPlan(plan)
+        setCurrentPlan(plan?.planId)
+        setTogglePlan(plan?.planId)
 
         // Update pause status
-        setIsPaused(plan?.pauseExpiresAt != null ? true : false);
+        setIsPaused(plan?.pauseExpiresAt != null ? true : false)
 
         console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
           planId: plan?.planId,
           planType: plan?.type,
-          planPrice: plan?.price
-        });
+          planPrice: plan?.price,
+        })
 
-        return true;
+        return true
       }
     } catch (error) {
-      console.error('❌ [NEW-BILLING] Error refreshing profile:', error);
+      console.error('❌ [NEW-BILLING] Error refreshing profile:', error)
     }
-    return false;
-  };
+    return false
+  }
 
   const handleCloseCancelation = async () => {
-    setShowCancelPoup(false);
+    setShowCancelPoup(false)
     // Refresh profile after cancellation
-    await refreshProfileAndState();
+    await refreshProfileAndState()
   }
 
   // Function to determine button text and action
   const getButtonConfig = () => {
-    console.log("currentPlan", currentFullPlan)
-    console.log("selectedPlan", selectedPlan)
-    console.log("isLagecyPlan(currentFullPlan)", isLagecyPlan(currentFullPlan))
-    console.log("isLagecyPlan(selectedPlan)", isLagecyPlan(selectedPlan))
-
+    console.log('currentPlan', currentFullPlan)
+    console.log('selectedPlan', selectedPlan)
+    console.log('isLagecyPlan(currentFullPlan)', isLagecyPlan(currentFullPlan))
+    console.log('isLagecyPlan(selectedPlan)', isLagecyPlan(selectedPlan))
 
     // If no plan is selected, show loading or disabled state
     if (!selectedPlan) {
       return {
-        text: "Cancel Subscription",
+        text: 'Cancel Subscription',
         action: () => handleCancelClick(),
         isLoading: cancelInitiateLoader,
-        className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
-        style: {}
-      };
-
+        className:
+          'w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border',
+        style: {},
+      }
     }
 
     // Compare plans based on price
-    const planComparison = comparePlans(currentFullPlan, selectedPlan);
-    console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison);
+    const planComparison = comparePlans(currentFullPlan, selectedPlan)
+    console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison)
 
     // If still loading (currentFullPlan not ready), don't show any button
     if (planComparison === null) {
-      return null; // Will hide the button section while loading
+      return null // Will hide the button section while loading
     }
 
     // If current plan is same as selected plan (by ID), show Cancel
     if (currentPlan === togglePlan) {
       return {
-        text: "Cancel Subscription",
+        text: 'Cancel Subscription',
         action: () => handleCancelClick(),
         isLoading: cancelInitiateLoader,
-        className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
-        style: {}
-      };
+        className:
+          'w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border',
+        style: {},
+      }
     }
 
     // If it's the same plan tier (shouldn't happen with proper selection logic)
     if (planComparison === 'same') {
       return {
-        text: "Cancel Subscription",
+        text: 'Cancel Subscription',
         action: () => handleCancelClick(),
         isLoading: cancelInitiateLoader,
-        className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
-        style: {}
-      };
+        className:
+          'w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border',
+        style: {},
+      }
     }
 
     // If it's an upgrade, show Upgrade button
     if (planComparison === 'upgrade') {
       return {
-        text: "Upgrade Plan",
+        text: 'Upgrade Plan',
         action: () => handleUpgradeClick(),
         isLoading: subscribePlanLoader,
-        className: "rounded-xl w-full",
+        className: 'rounded-xl w-full',
         style: {
-          height: "50px",
+          height: '50px',
           fontSize: 16,
-          fontWeight: "700",
+          fontWeight: '700',
           flexShrink: 0,
-          backgroundColor: "#7902DF",
-          color: "#ffffff",
-        }
-      };
+          backgroundColor: '#7902DF',
+          color: '#ffffff',
+        },
+      }
     }
 
     // Otherwise it's a downgrade
     return {
-      text: "Downgrade Plan",
+      text: 'Downgrade Plan',
       action: () => handleUpgradeClick(),
       isLoading: subscribePlanLoader,
-      className: "rounded-xl w-full",
+      className: 'rounded-xl w-full',
       style: {
-        height: "50px",
+        height: '50px',
         fontSize: 16,
-        fontWeight: "700",
+        fontWeight: '700',
         flexShrink: 0,
-        backgroundColor: "#7902DF",
-        color: "#ffffff",
-      }
-    };
+        backgroundColor: '#7902DF',
+        color: '#ffffff',
+      },
+    }
   }
 
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
       style={{
-        paddingBottom: "50px",
-        scrollbarWidth: "none", // For Firefox
-        WebkitOverflowScrolling: "touch",
+        paddingBottom: '50px',
+        scrollbarWidth: 'none', // For Firefox
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(null);
+          setErrorSnack(null)
         }}
         message={errorSnack}
         type={SnackbarTypes.Error}
@@ -1328,7 +1413,7 @@ function AdminBilling({ selectedUser, from }) {
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(null);
+          setSuccessSnack(null)
         }}
         message={successSnack}
         type={SnackbarTypes.Success}
@@ -1339,26 +1424,26 @@ function AdminBilling({ selectedUser, from }) {
         hide={() => {
           setShowSnack({
             message: null,
-            type: null
-          });
+            type: null,
+          })
         }}
         message={showSnack.message}
         type={showSnack.type || SnackbarTypes.Error}
       />
       <div className="w-full flex flex-row items-center justify-between">
         <div className="flex flex-col">
-          <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+          <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
             Billing
           </div>
 
           <div
             style={{
               fontSize: 12,
-              fontWeight: "500",
-              color: "#00000090",
+              fontWeight: '500',
+              color: '#00000090',
             }}
           >
-            {"Account > Billing"}
+            {'Account > Billing'}
           </div>
         </div>
 
@@ -1388,8 +1473,8 @@ function AdminBilling({ selectedUser, from }) {
         <div
           style={{
             fontSize: 18,
-            fontWeight: "600",
-            color: "#000",
+            fontWeight: '600',
+            color: '#000',
             marginBottom: 16,
           }}
         >
@@ -1410,11 +1495,11 @@ function AdminBilling({ selectedUser, from }) {
               <div
                 className="w-full flex flex-row gap-4"
                 style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  display: "flex",
-                  scrollbarWidth: "none",
-                  WebkitOverflowScrolling: "touch",
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  display: 'flex',
+                  scrollbarWidth: 'none',
+                  WebkitOverflowScrolling: 'touch',
                   marginTop: 10,
                   flexShrink: 0,
                 }}
@@ -1426,13 +1511,13 @@ function AdminBilling({ selectedUser, from }) {
                       style={{
                         backgroundColor:
                           item.isDefault || selectedCard?.id === item.id
-                            ? "#4011FA05"
-                            : "transparent",
+                            ? '#4011FA05'
+                            : 'transparent',
                         borderColor:
                           item.isDefault || selectedCard?.id === item.id
-                            ? "#7902DF"
-                            : "#15151510",
-                        cursor: "default", // Read-only for admin
+                            ? '#7902DF'
+                            : '#15151510',
+                        cursor: 'default', // Read-only for admin
                       }}
                     >
                       <div className="flex items-center gap-4">
@@ -1450,9 +1535,9 @@ function AdminBilling({ selectedUser, from }) {
                           <div className="flex flex-row items-center gap-3">
                             <div
                               style={{
-                                fontSize: "16px",
-                                fontWeight: "700",
-                                color: "#000",
+                                fontSize: '16px',
+                                fontWeight: '700',
+                                color: '#000',
                               }}
                             >
                               ****{item.last4}
@@ -1460,7 +1545,7 @@ function AdminBilling({ selectedUser, from }) {
                             {item.isDefault && (
                               <div
                                 className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                style={{ fontSize: 11, fontWeight: "500" }}
+                                style={{ fontSize: 11, fontWeight: '500' }}
                               >
                                 Default
                               </div>
@@ -1468,9 +1553,9 @@ function AdminBilling({ selectedUser, from }) {
                           </div>
                           <div
                             style={{
-                              fontSize: "14px",
-                              fontWeight: "500",
-                              color: "#909090",
+                              fontSize: '14px',
+                              fontWeight: '500',
+                              color: '#909090',
                             }}
                           >
                             {item.brand} Card
@@ -1481,7 +1566,7 @@ function AdminBilling({ selectedUser, from }) {
                       {/* Card Logo */}
                       <div>
                         <Image
-                          src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                          src={getCardImage(item) || '/svgIcons/Visa.svg'}
                           alt="Card Logo"
                           width={50}
                           height={50}
@@ -1494,7 +1579,7 @@ function AdminBilling({ selectedUser, from }) {
             ) : (
               <div
                 className="text-start mt-12"
-                style={{ fontSize: 18, fontWeight: "600" }}
+                style={{ fontSize: 18, fontWeight: '600' }}
               >
                 No payment method added
               </div>
@@ -1517,24 +1602,27 @@ function AdminBilling({ selectedUser, from }) {
             duration={duration}
             selectedDuration={selectedDuration}
             handleDurationChange={(item) => {
-              setSelectedDuration(item);
+              setSelectedDuration(item)
 
               // Auto-select matching plan when switching billing cycles
               if (currentFullPlan) {
-                let targetPlans = [];
+                let targetPlans = []
                 if (item.id === 1) {
-                  targetPlans = monthlyPlans;
+                  targetPlans = monthlyPlans
                 } else if (item.id === 2) {
-                  targetPlans = quaterlyPlans;
+                  targetPlans = quaterlyPlans
                 } else if (item.id === 3) {
-                  targetPlans = yearlyPlans;
+                  targetPlans = yearlyPlans
                 }
 
-                const matchingPlan = findMatchingPlan(currentFullPlan, targetPlans);
+                const matchingPlan = findMatchingPlan(
+                  currentFullPlan,
+                  targetPlans,
+                )
                 if (matchingPlan) {
-                  setTogglePlan(matchingPlan.id);
-                  setToggleFullPlan(matchingPlan);
-                  setSelectedPlan(matchingPlan);
+                  setTogglePlan(matchingPlan.id)
+                  setToggleFullPlan(matchingPlan)
+                  setSelectedPlan(matchingPlan)
                 }
               }
             }}
@@ -1542,26 +1630,28 @@ function AdminBilling({ selectedUser, from }) {
         </div>
       </div>
 
-      <div className="w-full flex flex-row gap-4"
+      <div
+        className="w-full flex flex-row gap-4"
         style={{
-          overflowX: "auto",
-          overflowY: "hidden",
-          display: "flex",
-          scrollbarWidth: "none",
-          WebkitOverflowScrolling: "touch",
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          display: 'flex',
+          scrollbarWidth: 'none',
+          WebkitOverflowScrolling: 'touch',
           marginTop: 20,
           flexShrink: 0,
-          alignItems: "stretch", // This makes all cards the same height
-        }}>
+          alignItems: 'stretch', // This makes all cards the same height
+        }}
+      >
         {getCurrentPlans()?.map((item, index) => (
           <div
             key={item.id}
             className="mt-4 outline-none flex-shrink-0 cursor-pointer"
-            style={{ width: "250px" }} // Fixed width for consistent card sizes
+            style={{ width: '250px' }} // Fixed width for consistent card sizes
             onClick={(e) => {
               // Only handle click if it's not from the View Details button
               if (!e.target.closest('.view-details-btn')) {
-                handleTogglePlanClick(item);
+                handleTogglePlanClick(item)
               }
             }}
           >
@@ -1571,10 +1661,10 @@ function AdminBilling({ selectedUser, from }) {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? "2px solid #7902DF"
-                    : "1px solid #15151520",
-                backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                minHeight: "320px", // Further increased height for better feature accommodation
+                    ? '2px solid #7902DF'
+                    : '1px solid #15151520',
+                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                minHeight: '320px', // Further increased height for better feature accommodation
               }}
             >
               <div className="flex flex-col items-start h-full justify-between">
@@ -1582,48 +1672,50 @@ function AdminBilling({ selectedUser, from }) {
                   <div className="flex flex-row items-center w-full justify-between mb-3">
                     {item.id === togglePlan ? (
                       <Image
-                        src={"/svgIcons/checkMark.svg"}
+                        src={'/svgIcons/checkMark.svg'}
                         height={24}
                         width={24}
                         alt="*"
                       />
                     ) : (
                       <Image
-                        src={"/svgIcons/unCheck.svg"}
+                        src={'/svgIcons/unCheck.svg'}
                         height={24}
                         width={24}
                         alt="*"
                       />
                     )}
 
-                    {
-                      isPaused && item.id === currentPlan ? (
-                        <div
-                          className="flex px-2 py-1 bg-[#EAB308] rounded-full text-white"
-                          style={{
-                            fontSize: 11.6,
-                            fontWeight: "500",
-                            width: "fit-content",
-                          }}
-                        >
-                          Paused
-                        </div>
-                      ) : (
-                        <div>
-                          {
-                            item.id === currentPlan && (
-                              <div style={{
-                                fontSize: 11.6,
-                                fontWeight: "500",
-                                width: "fit-content",
-                              }}>
-                                Renews on: {reduxUser?.nextChargeDate && moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
-                              </div>
-                            )
-                          }
-                        </div>
-                      )
-                    }
+                    {isPaused && item.id === currentPlan ? (
+                      <div
+                        className="flex px-2 py-1 bg-[#EAB308] rounded-full text-white"
+                        style={{
+                          fontSize: 11.6,
+                          fontWeight: '500',
+                          width: 'fit-content',
+                        }}
+                      >
+                        Paused
+                      </div>
+                    ) : (
+                      <div>
+                        {item.id === currentPlan && (
+                          <div
+                            style={{
+                              fontSize: 11.6,
+                              fontWeight: '500',
+                              width: 'fit-content',
+                            }}
+                          >
+                            Renews on:{' '}
+                            {reduxUser?.nextChargeDate &&
+                              moment(userLocalData?.nextChargeDate).format(
+                                'MM/DD/YYYY',
+                              )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-row items-center justify-between w-full mb-4">
@@ -1636,7 +1728,11 @@ function AdminBilling({ selectedUser, from }) {
                   </div>
 
                   <div className="text-xl font-bold text-left mb-2">
-                    ${formatFractional2(item.discountPrice || item.discountedPrice || 0) || "0"}/mo
+                    $
+                    {formatFractional2(
+                      item.discountPrice || item.discountedPrice || 0,
+                    ) || '0'}
+                    /mo
                   </div>
 
                   {/*
@@ -1656,7 +1752,10 @@ function AdminBilling({ selectedUser, from }) {
                     <div className="mt-6 flex-1">
                       <div className="flex flex-col gap-3">
                         {item.features?.map((feature, featureIndex) => (
-                          <div key={featureIndex} className="flex flex-row items-start gap-1">
+                          <div
+                            key={featureIndex}
+                            className="flex flex-row items-start gap-1"
+                          >
                             <Image
                               src="/svgIcons/selectedTickBtn.svg"
                               height={16}
@@ -1666,47 +1765,51 @@ function AdminBilling({ selectedUser, from }) {
                             />
                             <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                               {
-                                (
-                                  <div className="text-sm font-normal text-gray-700 leading-relaxed flex flex-row items-center gap-2 text-start">
-                                    <span>{feature.text}</span>
-                                    {feature.subtext && (
-                                      <Tooltip
-                                        title={feature.subtext}
-                                        arrow
-                                        placement="top"
-                                        componentsProps={{
-                                          tooltip: {
-                                            sx: {
-                                              backgroundColor: "#ffffff", // Ensure white background
-                                              color: "#333", // Dark text color
-                                              fontSize: "14px",
-                                              padding: "10px 15px",
-                                              borderRadius: "8px",
-                                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                            },
+                                <div className="text-sm font-normal text-gray-700 leading-relaxed flex flex-row items-center gap-2 text-start">
+                                  <span>{feature.text}</span>
+                                  {feature.subtext && (
+                                    <Tooltip
+                                      title={feature.subtext}
+                                      arrow
+                                      placement="top"
+                                      componentsProps={{
+                                        tooltip: {
+                                          sx: {
+                                            backgroundColor: '#ffffff', // Ensure white background
+                                            color: '#333', // Dark text color
+                                            fontSize: '14px',
+                                            padding: '10px 15px',
+                                            borderRadius: '8px',
+                                            boxShadow:
+                                              '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                                           },
-                                          arrow: {
-                                            sx: {
-                                              color: "#ffffff", // Match tooltip background
-                                            },
+                                        },
+                                        arrow: {
+                                          sx: {
+                                            color: '#ffffff', // Match tooltip background
                                           },
+                                        },
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          fontSize: 12,
+                                          fontWeight: '600',
+                                          color: '#000000',
+                                          cursor: 'pointer',
                                         }}
                                       >
-                                        <div
-                                          style={{
-                                            fontSize: 12,
-                                            fontWeight: "600",
-                                            color: "#000000",
-                                            cursor: "pointer",
-                                          }}
-                                        >
-                                          <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
-                                          />
-                                        </div>
-                                      </Tooltip>
-                                    )}
-                                  </div>
-                                )
+                                        <Image
+                                          src="/agencyIcons/InfoIcon.jpg"
+                                          alt="info"
+                                          width={16}
+                                          height={16}
+                                          className="cursor-pointer rounded-full"
+                                        />
+                                      </div>
+                                    </Tooltip>
+                                  )}
+                                </div>
                               }
                             </div>
                           </div>
@@ -1716,15 +1819,14 @@ function AdminBilling({ selectedUser, from }) {
                   )}
                 </div>
 
-
                 <div className="flex flex-row items-center justify-between w-full mt-4">
                   {item.id === currentPlan && (
                     <div
                       className="flex px-2 py-1 bg-purple rounded-full text-white"
                       style={{
                         fontSize: 9,
-                        fontWeight: "600",
-                        width: "fit-content",
+                        fontWeight: '600',
+                        width: 'fit-content',
                       }}
                     >
                       Current Plan
@@ -1735,8 +1837,8 @@ function AdminBilling({ selectedUser, from }) {
                     className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline"
                     onClick={(e) => {
                       // e.stopPropagation();
-                      console.log('View Details clicked, opening modal');
-                      setShowUserPlansModal(true);
+                      console.log('View Details clicked, opening modal')
+                      setShowUserPlansModal(true)
                     }}
                     style={{
                       color: '#7902DF',
@@ -1757,8 +1859,8 @@ function AdminBilling({ selectedUser, from }) {
 
       <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
         {(() => {
-          const buttonConfig = getButtonConfig();
-          console.log('selected plan in button config', selectedPlan);
+          const buttonConfig = getButtonConfig()
+          console.log('selected plan in button config', selectedPlan)
 
           // If buttonConfig is null (still loading), show loading spinner
           if (buttonConfig === null) {
@@ -1767,8 +1869,11 @@ function AdminBilling({ selectedUser, from }) {
 
           // Only show button if user has a paid plan or if they have selected a different plan
           // Show cancel button if user is on paid plan and selected their own plan
-          if (currentFullPlan?.name === "Free" && selectedPlan?.name === "Free") {
-            return null;
+          if (
+            currentFullPlan?.name === 'Free' &&
+            selectedPlan?.name === 'Free'
+          ) {
+            return null
           }
 
           return (
@@ -1787,10 +1892,9 @@ function AdminBilling({ selectedUser, from }) {
                 </button>
               )}
             </div>
-          );
+          )
         })()}
       </div>
-
 
       <LeggacyPlanUpgrade
         open={showLegacyPlanUpgrade}
@@ -1802,7 +1906,6 @@ function AdminBilling({ selectedUser, from }) {
           refreshProfileAndState()
         }}
         reduxUser={reduxUser}
-
       />
 
       <DowngradePlanPopup
@@ -1830,7 +1933,7 @@ function AdminBilling({ selectedUser, from }) {
           setSelectedPlan={setSelectedPlan}
           open={showUpgradeModal}
           handleClose={async (upgradeResult) => {
-            setShowUpgradeModal(false);
+            setShowUpgradeModal(false)
 
             // If upgrade was successful, refresh profile and state
             if (upgradeResult) {
@@ -1838,8 +1941,11 @@ function AdminBilling({ selectedUser, from }) {
               //     message: "Upgraded to " + selectedPlan.name + " Plan",
               //     type: SnackbarTypes.Success
               // });
-              console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
-              await refreshProfileAndState();
+              console.log(
+                '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
+                upgradeResult,
+              )
+              await refreshProfileAndState()
             }
           }}
           plan={selectedPlan}
@@ -1856,7 +1962,7 @@ function AdminBilling({ selectedUser, from }) {
         open={showSmartRefillUpgradeModal}
         handleClose={() => setShowSmartRefillUpgradeModal(false)}
         onUpgradeSuccess={handleSmartRefillUpgrade}
-        functionality={"smartRefill"}
+        functionality={'smartRefill'}
       />
 
       {/* UserPlans Modal */}
@@ -1864,32 +1970,43 @@ function AdminBilling({ selectedUser, from }) {
         <Modal
           open={showUserPlansModal}
           onClose={() => {
-            console.log('Modal onClose triggered');
-            setShowUserPlansModal(false);
+            console.log('Modal onClose triggered')
+            setShowUserPlansModal(false)
           }}
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
             sx: {
-              backgroundColor: "#00000020",
-              backdropFilter: "blur(15px)",
+              backgroundColor: '#00000020',
+              backdropFilter: 'blur(15px)',
             },
           }}
         >
           <Box
             className="flex justify-center items-center border-none"
             sx={{
-              bgcolor: "transparent",
-              outline: "none",
+              bgcolor: 'transparent',
+              outline: 'none',
               width: '100%',
               height: '100%',
             }}
           >
-            <div className="flex flex-col bg-white rounded-lg overflow-hidden relative" style={{ width: '90%', height: '90%' }}>
+            <div
+              className="flex flex-col bg-white rounded-lg overflow-hidden relative"
+              style={{ width: '90%', height: '90%' }}
+            >
               <div className="w-full flex flex-row items-center justify-between px-6 pt-6 h-[8%]">
-                <div className="flex w-full flex-row items-center gap-2"
-                  style={{ backgroundColor: '' }}>
-                  <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+                <div
+                  className="flex w-full flex-row items-center gap-2"
+                  style={{ backgroundColor: '' }}
+                >
+                  <Image
+                    src={'/assets/assignX.png'}
+                    height={30}
+                    width={130}
+                    alt="*"
+                    style={{ backgroundColor: '' }}
+                  />
 
                   <div className={`w-[80%]`}>
                     <ProgressBar value={100} />
@@ -1897,34 +2014,39 @@ function AdminBilling({ selectedUser, from }) {
                 </div>
                 <CloseBtn
                   onClick={() => {
-                    setShowUserPlansModal(false);
+                    setShowUserPlansModal(false)
                   }}
                 />
               </div>
-              <div className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
+              <div
+                className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
               >
                 <Elements stripe={stripePromise}>
                   <UserPlans
                     handleContinue={() => {
-                      setShowUserPlansModal(false);
-                      refreshProfileAndState();
+                      setShowUserPlansModal(false)
+                      refreshProfileAndState()
                     }}
                     handleBack={() => setShowUserPlansModal(false)}
                     from="billing-modal"
                     onPlanSelected={(plan) => {
-                      console.log('Plan selected from modal:', plan);
+                      console.log('Plan selected from modal:', plan)
                       // Close UserPlans modal
-                      setShowUserPlansModal(false);
+                      setShowUserPlansModal(false)
                       // Set the selected plan
-                      setSelectedPlan(plan);
-                      setTogglePlan(plan.id);
-                      setToggleFullPlan(plan);
+                      setSelectedPlan(plan)
+                      setTogglePlan(plan.id)
+                      setToggleFullPlan(plan)
                       // Open Upgrade modal
-                      setShowUpgradeModal(true);
+                      setShowUpgradeModal(true)
                     }}
                     disAblePlans={true}
                     hideProgressBar={true}
-                    isFrom={isSubaccountTeamMember(userLocalData) ? "SubAccount" : "User"}
+                    isFrom={
+                      isSubaccountTeamMember(userLocalData)
+                        ? 'SubAccount'
+                        : 'User'
+                    }
                   />
                 </Elements>
               </div>
@@ -1941,7 +2063,7 @@ function AdminBilling({ selectedUser, from }) {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1951,23 +2073,23 @@ function AdminBilling({ selectedUser, from }) {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1979,8 +2101,8 @@ function AdminBilling({ selectedUser, from }) {
                   //selectedPlan={selectedPlan}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  togglePlan={''}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -2019,92 +2141,91 @@ function AdminBilling({ selectedUser, from }) {
         isPaused={isPaused}
         selectedUser={selectedUser}
       />
-
     </div>
-  );
+  )
 }
 
-export default AdminBilling;
+export default AdminBilling
 const styles = {
   text: {
     fontSize: 12,
-    color: "#00000090",
+    color: '#00000090',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
+    color: '#000000',
     fontWeight: 500,
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   paymentModal: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   gitTextStyle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   //style for plans
   cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
+    fontSize: '14',
+    fontWeight: '500',
+    border: '1px solid #00000020',
   },
   pricingBox: {
-    position: "relative",
+    position: 'relative',
     // padding: '10px',
-    borderRadius: "10px",
+    borderRadius: '10px',
     // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
+    display: 'inline-block',
+    width: '100%',
   },
   triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    width: '0',
+    height: '0',
+    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderLeft: '50px solid transparent',
   },
   labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
+    position: 'absolute',
+    top: '10px', // Adjusted to keep the text centered within the larger triangle
+    right: '5px',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    transform: 'rotate(45deg)',
   },
   content: {
-    textAlign: "left",
-    paddingTop: "10px",
+    textAlign: 'left',
+    paddingTop: '10px',
   },
   originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
+    textDecoration: 'line-through',
+    color: '#7902DF65',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   discountedPrice: {
-    color: "#000000",
-    fontWeight: "bold",
+    color: '#000000',
+    fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: "10px",
+    marginLeft: '10px',
   },
-};
+}

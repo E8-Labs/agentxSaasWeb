@@ -1,38 +1,38 @@
-import { Box, CircularProgress, Modal } from "@mui/material";
-import Image from "next/image";
-import React from "react";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import Image from 'next/image'
+import React from 'react'
 
 const LoaderAnimation = ({
   loaderModal,
   isOpen,
-  title = "Your agent is building..",
+  title = 'Your agent is building..',
 }) => {
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     modalsStyle: {
-      height: "auto",
+      height: 'auto',
       // bgcolor: "transparent",
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
-      border: "none",
-      outline: "none",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div>
@@ -42,7 +42,7 @@ const LoaderAnimation = ({
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(5px)",
           },
         }}
@@ -55,9 +55,9 @@ const LoaderAnimation = ({
             <div
               className="w-full"
               style={{
-                backgroundColor: "transparent",
+                backgroundColor: 'transparent',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row items-start mt-12 justify-center">
@@ -65,7 +65,7 @@ const LoaderAnimation = ({
                 <Image
                   className=""
                   src="/agentXOrb.gif"
-                  style={{ height: "142px", width: "152px", resize: "contain" }}
+                  style={{ height: '142px', width: '152px', resize: 'contain' }}
                   height={142}
                   width={142}
                   alt="*"
@@ -74,7 +74,7 @@ const LoaderAnimation = ({
 
               <div
                 className="text-center mt-8"
-                style={{ fontWeight: "600", fontSize: 16 }}
+                style={{ fontWeight: '600', fontSize: 16 }}
               >
                 {title}
               </div>
@@ -90,7 +90,7 @@ const LoaderAnimation = ({
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default LoaderAnimation;
+export default LoaderAnimation

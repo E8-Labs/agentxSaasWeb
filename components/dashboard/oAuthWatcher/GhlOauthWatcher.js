@@ -1,25 +1,28 @@
 // components/GhlOauthWatcher.jsx
-"use client";
-import { useEffect } from "react";
+'use client'
+
+import { useEffect } from 'react'
+
+// components/GhlOauthWatcher.jsx
 
 export default function GhlOauthWatcher() {
-    useEffect(() => {
-        const qs = new URLSearchParams(window.location.search);
-        const code = qs.get("code");
-        const error = qs.get("error");
-        const state = qs.get("state");
+  useEffect(() => {
+    const qs = new URLSearchParams(window.location.search)
+    const code = qs.get('code')
+    const error = qs.get('error')
+    const state = qs.get('state')
 
-        if (window.opener && (code || error)) {
-            try {
-                window.opener.postMessage(
-                    { type: "GHL_OAUTH_CODE", code, error, state },
-                    window.location.origin
-                );
-            } finally {
-                window.close();
-            }
-        }
-    }, []);
+    if (window.opener && (code || error)) {
+      try {
+        window.opener.postMessage(
+          { type: 'GHL_OAUTH_CODE', code, error, state },
+          window.location.origin,
+        )
+      } finally {
+        window.close()
+      }
+    }
+  }, [])
 
-    return null;
+  return null
 }

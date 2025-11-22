@@ -1,122 +1,124 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-// import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import InputAdornment from "@mui/material/InputAdornment";
+'use client'
+
 import {
-  MenuItem,
-  FormControl,
-  Select,
-  Snackbar,
   Alert,
   CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+  Snackbar,
   TextField,
-} from "@mui/material";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import { CaretDown, CaretUp, Copy } from "@phosphor-icons/react";
-import CallWorthyReviewsPopup from "@/components/dashboard/leads/CallWorthyReviewsPopup";
+} from '@mui/material'
+// import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import InputAdornment from '@mui/material/InputAdornment'
+import { CaretDown, CaretUp, Copy } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import DashboardSlider from '@/components/animations/DashboardSlider'
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { Searchbar } from "@/components/general/MuiSearchBar";
-import DashboardSlider from "@/components/animations/DashboardSlider";
-import { allIntegrations } from "@/constants/Constants";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import CallWorthyReviewsPopup from '@/components/dashboard/leads/CallWorthyReviewsPopup'
+import { Searchbar } from '@/components/general/MuiSearchBar'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import { allIntegrations } from '@/constants/Constants'
 
 function AdminIntegration({ selectedUser }) {
-  const [showKeysBox, setshowKeysBox] = useState(false);
-  const [myKeys, setMyKeys] = useState([]);
-  const [keyLoader, setKeyLoader] = useState(false);
-  const [genratekeyLoader, setGenrateeyLoader] = useState(false);
-  const [genratekeyLoader2, setGenrateeyLoader2] = useState(false);
-  const [showCopySnak, setShowCopySnak] = useState(null);
+  const [showKeysBox, setshowKeysBox] = useState(false)
+  const [myKeys, setMyKeys] = useState([])
+  const [keyLoader, setKeyLoader] = useState(false)
+  const [genratekeyLoader, setGenrateeyLoader] = useState(false)
+  const [genratekeyLoader2, setGenrateeyLoader2] = useState(false)
+  const [showCopySnak, setShowCopySnak] = useState(null)
 
   //test
 
-  const [showCallReviewPopup, setShowCallReviewPopup] = useState(false);
+  const [showCallReviewPopup, setShowCallReviewPopup] = useState(false)
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const [search, setSearch] = useState("");
-  const [integrations, setIntegrations] = useState(allIntegrations);
+  const [search, setSearch] = useState('')
+  const [integrations, setIntegrations] = useState(allIntegrations)
 
   useEffect(() => {
-    getMyApiKeys();
-  }, [selectedUser]);
+    getMyApiKeys()
+  }, [selectedUser])
 
   useEffect(() => {
     if (search) {
       let searched = allIntegrations.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase())
-      );
-      setIntegrations(searched);
+        item.title.toLowerCase().includes(search.toLowerCase()),
+      )
+      setIntegrations(searched)
     } else {
-      setIntegrations(allIntegrations);
+      setIntegrations(allIntegrations)
     }
-  }, [search]);
+  }, [search])
 
   const getMyApiKeys = async () => {
     // //console.log;
     try {
-      const data = localStorage.getItem("User");
-      setKeyLoader(true);
-      let u = JSON.parse(data);
+      const data = localStorage.getItem('User')
+      setKeyLoader(true)
+      let u = JSON.parse(data)
       // //console.log;
 
-      let path = Apis.myApiKeys + "?userId=" + selectedUser.id;
-      console.log("api path", path)
+      let path = Apis.myApiKeys + '?userId=' + selectedUser.id
+      console.log('api path', path)
 
       const response = await axios.get(path, {
         headers: {
-          Authorization: "Bearer " + u.token,
+          Authorization: 'Bearer ' + u.token,
         },
-      });
+      })
 
       if (response) {
-        setKeyLoader(false);
+        setKeyLoader(false)
 
         if (response.data.status) {
           // //console.log;
-          setMyKeys(response.data.data);
+          setMyKeys(response.data.data)
         } else {
           // //console.log;
         }
       }
     } catch (e) {
-      setKeyLoader(false);
+      setKeyLoader(false)
       // //console.log;
     }
-  };
+  }
 
   const genrateApiKey = async () => {
     try {
-      const data = localStorage.getItem("User");
+      const data = localStorage.getItem('User')
 
-      let u = JSON.parse(data);
+      let u = JSON.parse(data)
       // //console.log;
 
       let apidata = {
-        userId: selectedUser.id
-      };
+        userId: selectedUser.id,
+      }
 
       // return
 
       const response = await axios.post(Apis.genrateApiKey, apidata, {
         headers: {
-          Authorization: "Bearer " + u.token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + u.token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        setGenrateeyLoader(false);
-        setGenrateeyLoader2(false);
+        setGenrateeyLoader(false)
+        setGenrateeyLoader2(false)
 
         if (response.data.status) {
           // //console.log;
-          setShowCopySnak("Api key generated successfully");
-          setMyKeys((prevKeys) => [...prevKeys, response.data.data]);
+          setShowCopySnak('Api key generated successfully')
+          setMyKeys((prevKeys) => [...prevKeys, response.data.data])
         } else {
           // console.log(
           //   "get genrate api keys api message is",
@@ -125,12 +127,12 @@ function AdminIntegration({ selectedUser }) {
         }
       }
     } catch (e) {
-      setGenrateeyLoader2(false);
-      setGenrateeyLoader(false);
+      setGenrateeyLoader2(false)
+      setGenrateeyLoader(false)
 
       // //console.log;
     }
-  };
+  }
 
   // const myKeys = [
   //   {
@@ -163,24 +165,23 @@ function AdminIntegration({ selectedUser }) {
   // funtion for mask keys
 
   const maskId = (id) => {
-    const maskedId = id.slice(0, -4).replace(/./g, "*") + id.slice(-4);
+    const maskedId = id.slice(0, -4).replace(/./g, '*') + id.slice(-4)
     // //console.log;
     // //console.log;
-    return maskedId;
-  };
+    return maskedId
+  }
 
   return (
     <div className="w-full flex flex-col items-center">
       {/* Slider code */}
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           right: 0,
-          bottom: 0
-        }}>
-        <DashboardSlider
-          needHelp={false}
-          selectedUser={selectedUser} />
+          bottom: 0,
+        }}
+      >
+        <DashboardSlider needHelp={false} selectedUser={selectedUser} />
       </div>
       <AgentSelectSnackMessage
         isVisible={showCopySnak}
@@ -190,10 +191,9 @@ function AdminIntegration({ selectedUser }) {
       />
       <div
         className=" w-full flex flex-row justify-between items-center pt-4 px-10"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
-
+        <div style={{ fontSize: 24, fontWeight: '600' }}>Integration</div>
       </div>
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {
@@ -216,22 +216,22 @@ function AdminIntegration({ selectedUser }) {
       </div> */}
       <div
         className="w-full flex flex-col h-[60vh] mt-4"
-        style={{ overflow: "auto", scrollbarWidth: "none" }}
+        style={{ overflow: 'auto', scrollbarWidth: 'none' }}
       >
         <div className="w-full pl-5 pr-8">
           <div className="flex flex-row justify-between items-start">
             <Searchbar
-              placeholder={"Search your favorite integrations"}
+              placeholder={'Search your favorite integrations'}
               value={search}
               setValue={(search) => {
-                setSearch(search);
+                setSearch(search)
               }}
             />
             <div className="border w-4/12 p-3 ">
               <button
                 className="w-full"
                 onClick={() => {
-                  setshowKeysBox(!showKeysBox);
+                  setshowKeysBox(!showKeysBox)
                 }}
               >
                 <div className="flex flex-row items-center justify-between ">
@@ -291,20 +291,20 @@ function AdminIntegration({ selectedUser }) {
                         navigator.clipboard
                           .writeText(myKeys[myKeys.length - 1].key)
                           .then(() =>
-                            setShowCopySnak("Api key copied successfully")
+                            setShowCopySnak('Api key copied successfully'),
                           )
                           .catch((err) =>
-                            console.error("Failed to copy API key:", err)
-                          );
+                            console.error('Failed to copy API key:', err),
+                          )
                       }}
                     >
                       <div
                         className="w-[90%] truncate "
                         style={{
                           fontFamily: "'Courier New', monospace", // Monospace font
-                          lineHeight: "1.5", // Line height for proper spacing
-                          verticalAlign: "middle", // Align text vertically
-                          whiteSpace: "nowrap", // Prevent wrapping of the text
+                          lineHeight: '1.5', // Line height for proper spacing
+                          verticalAlign: 'middle', // Align text vertically
+                          whiteSpace: 'nowrap', // Prevent wrapping of the text
                         }}
                       >
                         {/* {item.key} */}
@@ -320,19 +320,19 @@ function AdminIntegration({ selectedUser }) {
                     <button
                       className="mt-5"
                       onClick={() => {
-                        setGenrateeyLoader2(true);
-                        genrateApiKey();
+                        setGenrateeyLoader2(true)
+                        genrateApiKey()
                       }}
                     >
                       <div
                         style={{
                           fontSize: 16,
-                          fontWeight: "500",
-                          color: "#7902df",
-                          textDecorationLine: "underline",
+                          fontWeight: '500',
+                          color: '#7902df',
+                          textDecorationLine: 'underline',
                         }}
                       >
-                        {myKeys.length > 0 ? "Refresh" : "Generate"}
+                        {myKeys.length > 0 ? 'Refresh' : 'Generate'}
                       </div>
                     </button>
                   )}
@@ -435,11 +435,11 @@ function AdminIntegration({ selectedUser }) {
                 className="w-12 h-12 object-contain"
               />
               <div className="flex flex-col gap-2">
-                <div style={{ fontSize: "1vw", fontWeight: "500" }}>
+                <div style={{ fontSize: '1vw', fontWeight: '500' }}>
                   {integration.title}
                 </div>
                 <div
-                  style={{ fontSize: "1vw", fontWeight: "500" }}
+                  style={{ fontSize: '1vw', fontWeight: '500' }}
                   className="flex-wrap text-gray-600 w-[20vw]"
                 >
                   {integration.description}
@@ -450,8 +450,8 @@ function AdminIntegration({ selectedUser }) {
                     //   setShowCopySnak("Comming soon");
                     //   return;
                     // }
-                    if (typeof window !== "undefined") {
-                      window.open(integration.url, "_blank");
+                    if (typeof window !== 'undefined') {
+                      window.open(integration.url, '_blank')
                     }
                   }}
                   className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -466,7 +466,7 @@ function AdminIntegration({ selectedUser }) {
         <div></div>
       </div>
     </div>
-  );
+  )
 }
 
-export default AdminIntegration;
+export default AdminIntegration

@@ -1,14 +1,14 @@
-import { useEffect } from "react";
+import { useEffect } from 'react'
 
 export default function GoogleAuthCallback() {
-    useEffect(() => {
-        const code = new URLSearchParams(window.location.search).get("code");
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('code')
 
-        if (code && window.opener) {
-            window.opener.postMessage({ type: "google-auth-code", code }, "*");
-            window.close();
-        }
-    }, []);
+    if (code && window.opener) {
+      window.opener.postMessage({ type: 'google-auth-code', code }, '*')
+      window.close()
+    }
+  }, [])
 
-    return <p>Authenticating...</p>;
+  return <p>Authenticating...</p>
 }

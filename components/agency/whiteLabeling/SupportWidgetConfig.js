@@ -1,15 +1,18 @@
 import React from 'react'
-import LabelingHeader from './LabelingHeader';
-import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget';
+
+import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget'
+import LabelingHeader from './LabelingHeader'
 
 const SupportWidgetConfig = () => {
   return (
     <div>
       {/* Banner Section */}
       <LabelingHeader
-        img={"/otherAssets/supportIcon.png"}
-        title={"Setup your support widget"}
-        description={"Give your users access to requesting support using the support widget."}
+        img={'/otherAssets/supportIcon.png'}
+        title={'Setup your support widget'}
+        description={
+          'Give your users access to requesting support using the support widget.'
+        }
       />
 
       {/* Brand Configuration Card */}
@@ -27,10 +30,9 @@ const SupportWidgetConfig = () => {
 
 export default SupportWidgetConfig
 
-
 const styles = {
-  semiBoldHeading: { fontSize: 18, fontWeight: "600" },
-  smallRegular: { fontSize: 13, fontWeight: "400" },
-  regular: { fontSize: 16, fontWeight: "400" },
-  inputs: { fontSize: "15px", fontWeight: "500", color: "#000000" },
-};
+  semiBoldHeading: { fontSize: 18, fontWeight: '600' },
+  smallRegular: { fontSize: 13, fontWeight: '400' },
+  regular: { fontSize: 16, fontWeight: '400' },
+  inputs: { fontSize: '15px', fontWeight: '500', color: '#000000' },
+}

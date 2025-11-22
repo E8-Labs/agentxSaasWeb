@@ -1,9 +1,20 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react'
+import { useEffect } from 'react'
+import {
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import {
   Table,
   TableBody,
@@ -11,34 +22,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PersistanceKeys } from '@/constants/Constants'
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import AgentXStats from "./AgentXStats";
-import { useState } from "react";
-import { useEffect } from "react";
-import { PersistanceKeys } from "@/constants/Constants";
-import AdminSubscriptions from "./AdminSubscriptions";
-import AdminEngagments from "./AdminEngagments";
+import AdminEngagments from './AdminEngagments'
+import AdminSubscriptions from './AdminSubscriptions'
+import AgentXStats from './AgentXStats'
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (userData) {
-      let user = JSON.parse(userData);
-      setUser(user);
+      let user = JSON.parse(userData)
+      setUser(user)
     }
-  }, []);
+  }, [])
 
   return (
     <div className="px-6">
@@ -62,5 +63,5 @@ export default function Dashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

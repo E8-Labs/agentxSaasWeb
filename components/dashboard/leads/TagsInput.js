@@ -1,113 +1,110 @@
-import React, { useEffect, useState } from 'react';
-import CreatableSelect from 'react-select/creatable';
+import React, { useEffect, useState } from 'react'
+import CreatableSelect from 'react-select/creatable'
 
 const components = {
-    DropdownIndicator: null, // Remove dropdown indicator
-};
+  DropdownIndicator: null, // Remove dropdown indicator
+}
 
 const createOption = (label) => ({
-    label,
-    value: label,
-});
+  label,
+  value: label,
+})
 
 const TagsInput = ({ setTags, tags }) => {
-    const [inputValue, setInputValue] = useState('');
-    const [value, setValue] = useState([]);
+  const [inputValue, setInputValue] = useState('')
+  const [value, setValue] = useState([])
 
-    useEffect(() => {
-        console.log("Test code trigered")
-        if (
-          tags &&
-          Array.isArray(tags) &&
-          JSON.stringify(tags) !== JSON.stringify(value.map(v => v.value))
-        ) {
-          setValue(tags.map(tag => createOption(tag)));
-        }
-      }, []);
-      
+  useEffect(() => {
+    console.log('Test code trigered')
+    if (
+      tags &&
+      Array.isArray(tags) &&
+      JSON.stringify(tags) !== JSON.stringify(value.map((v) => v.value))
+    ) {
+      setValue(tags.map((tag) => createOption(tag)))
+    }
+  }, [])
 
-    useEffect(() => {
-       // //console.log;
-        const updatedTagsArray = value.map(tag => tag.value);
-       // //console.log;
-        setTags(updatedTagsArray);
-    }, [value])
+  useEffect(() => {
+    // //console.log;
+    const updatedTagsArray = value.map((tag) => tag.value)
+    // //console.log;
+    setTags(updatedTagsArray)
+  }, [value])
 
+  //   const handleKeyDown = (event) => {
+  //     if (!inputValue) return;
+  //     switch (event.key) {
+  //       case 'Enter':
+  //       case 'Tab':
+  //         setValue((prev) => [...prev, createOption(inputValue)]);
+  //         setInputValue('');
+  //         event.preventDefault();
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   };
 
+  const handleKeyDown = (event) => {
+    if (!inputValue) return
+    let isDuplicate = null
+    // Prevent adding duplicates
+    setTimeout(() => {
+      isDuplicate = value.some((option) => option.value === inputValue)
+    }, 500)
+    if (isDuplicate) {
+      setInputValue('') // Clear input if duplicate
+      event.preventDefault()
+      return
+    }
 
-    //   const handleKeyDown = (event) => {
-    //     if (!inputValue) return;
-    //     switch (event.key) {
-    //       case 'Enter':
-    //       case 'Tab':
-    //         setValue((prev) => [...prev, createOption(inputValue)]);
-    //         setInputValue('');
-    //         event.preventDefault();
-    //         break;
-    //       default:
-    //         break;
-    //     }
-    //   };
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        setValue((prev) => [...prev, createOption(inputValue)])
+        setInputValue('')
+        event.preventDefault()
+        break
+      default:
+        break
+    }
+  }
 
-    const handleKeyDown = (event) => {
-        if (!inputValue) return;
-        let isDuplicate = null;
-        // Prevent adding duplicates
-        setTimeout(() => {
-            isDuplicate = value.some((option) => option.value === inputValue);
-        }, 500);
-        if (isDuplicate) {
-            setInputValue(''); // Clear input if duplicate
-            event.preventDefault();
-            return;
-        }
+  //custom styles added
+  const customStyles = {
+    multiValue: (styles) => ({
+      ...styles,
+      backgroundColor: '#402fff20',
+    }),
+    multiValueLabel: (styles) => ({
+      ...styles,
+      color: 'balck',
+    }),
+    multiValueRemove: (styles) => ({
+      ...styles,
+      color: 'black',
+      ':hover': {
+        backgroundColor: 'darkred',
+      },
+    }),
+  }
 
-        switch (event.key) {
-            case 'Enter':
-            case 'Tab':
-                setValue((prev) => [...prev, createOption(inputValue)]);
-                setInputValue('');
-                event.preventDefault();
-                break;
-            default:
-                break;
-        }
-    };
+  return (
+    <CreatableSelect
+      components={components}
+      inputValue={inputValue}
+      isClearable
+      isMulti
+      menuIsOpen={false} // Prevent dropdown from opening
+      onChange={(newValue) => setValue(newValue || [])} // Update value
+      onInputChange={(newValue) => setInputValue(newValue)} // Update input text
+      onKeyDown={handleKeyDown} // Handle key presses (Enter, Tab)
+      placeholder="Type something and press enter..."
+      value={value}
+      styles={customStyles}
+    />
+  )
+}
 
-    //custom styles added
-    const customStyles = {
-        multiValue: (styles) => ({
-            ...styles,
-            backgroundColor: '#402fff20',
-        }),
-        multiValueLabel: (styles) => ({
-            ...styles,
-            color: 'balck',
-        }),
-        multiValueRemove: (styles) => ({
-            ...styles,
-            color: 'black',
-            ':hover': {
-                backgroundColor: 'darkred',
-            },
-        }),
-    };
-
-    return (
-        <CreatableSelect
-            components={components}
-            inputValue={inputValue}
-            isClearable
-            isMulti
-            menuIsOpen={false} // Prevent dropdown from opening
-            onChange={(newValue) => setValue(newValue || [])} // Update value
-            onInputChange={(newValue) => setInputValue(newValue)} // Update input text
-            onKeyDown={handleKeyDown} // Handle key presses (Enter, Tab)
-            placeholder="Type something and press enter..."
-            value={value}
-            styles={customStyles}
-        />
-    );
-};
-
-export default TagsInput;
+export default TagsInput

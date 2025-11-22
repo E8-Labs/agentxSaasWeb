@@ -1,69 +1,75 @@
-"use client";
-import React, { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
-import BasicInfo from "@/components/myAccount/BasicInfo";
-import MyPhoneNumber from "@/components/myAccount/MyPhoneNumber";
-import { Button, CircularProgress, Drawer } from "@mui/material";
-import SendFeedback from "@/components/myAccount/SendFeedback";
-import InviteAgentX from "@/components/myAccount/InviteAgentX";
-import Support from "@/components/myAccount/Support";
-import Billing from "@/components/myAccount/Billing";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import { useRouter, useSearchParams } from "next/navigation";
-import BarServices from "@/components/myAccount/BarServices";
-import SubAccountBasicInfo from "./SubAccountBasicInfo";
-import SubAccountBilling from "./SubAccountBilling";
-import SubAccountMyPhoneNumber from "./SubAccountMyPhoneNumber";
-import SubAccountSupport from "./SubAccountSupport";
-import SubAccountSendFeedback from "./SubAccountSendFeedback";
-import SubAccountInviteAgentX from "./SubAccountInviteAgentX";
-import SubAccountBarServices from "./SubAccountBarServices";
-import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
-import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
-import SubAccountPlansAndPayments from "./SubAccountPlansAndPayments";
-import BillingHistory from "@/components/myAccount/BillingHistory";
-import SubAccountTerms from "./SubAccountTerms";
-import SubAccountPrivacy from "./SubAccountPrivacy";
+'use client'
+
+import { Button, CircularProgress, Drawer } from '@mui/material'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { Suspense, useEffect, useState } from 'react'
+
+import BarServices from '@/components/myAccount/BarServices'
+import BasicInfo from '@/components/myAccount/BasicInfo'
+import Billing from '@/components/myAccount/Billing'
+import BillingHistory from '@/components/myAccount/BillingHistory'
+import InviteAgentX from '@/components/myAccount/InviteAgentX'
+import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
+import SendFeedback from '@/components/myAccount/SendFeedback'
+import Support from '@/components/myAccount/Support'
+import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import {
+  CancellationAndRefundUrl,
+  termsAndConditionUrl,
+} from '@/constants/Constants'
+
+import SubAccountBarServices from './SubAccountBarServices'
+import SubAccountBasicInfo from './SubAccountBasicInfo'
+import SubAccountBilling from './SubAccountBilling'
+import SubAccountInviteAgentX from './SubAccountInviteAgentX'
+import SubAccountMyPhoneNumber from './SubAccountMyPhoneNumber'
+import SubAccountPlansAndPayments from './SubAccountPlansAndPayments'
+import SubAccountPrivacy from './SubAccountPrivacy'
+import SubAccountSendFeedback from './SubAccountSendFeedback'
+import SubAccountSupport from './SubAccountSupport'
+import SubAccountTerms from './SubAccountTerms'
 
 function SubAccountMyAccount() {
-  let searchParams = useSearchParams();
-  const router = useRouter();
+  let searchParams = useSearchParams()
+  const router = useRouter()
 
   // tabSelected now stores menu item ID instead of index
-  const [tabSelected, setTabSelected] = useState(2); // Default to ID 2 (Plans & Payment)
-  const [initialLoader, setInitialLoader] = useState(true);
-  const [navBar, setNavBar] = useState([]);
+  const [tabSelected, setTabSelected] = useState(2) // Default to ID 2 (Plans & Payment)
+  const [initialLoader, setInitialLoader] = useState(true)
+  const [navBar, setNavBar] = useState([])
 
   const manuBar = [
     {
       id: 1,
-      heading: "Basic Information",
-      subHeading: "Manage personal information ",
-      icon: "/otherAssets/profileCircle.png",
+      heading: 'Basic Information',
+      subHeading: 'Manage personal information ',
+      icon: '/otherAssets/profileCircle.png',
     },
     {
       id: 2,
-      heading: "Plans & Payment",
-      subHeading: "Manage your plans and payment method ",
-      icon: "/otherAssets/walletIcon.png",
+      heading: 'Plans & Payment',
+      subHeading: 'Manage your plans and payment method ',
+      icon: '/otherAssets/walletIcon.png',
     },
     {
       id: 3,
-      heading: "Billing",
-      subHeading: "Manage your billing transactions",
-      icon: "/otherAssets/walletIcon.png",
+      heading: 'Billing',
+      subHeading: 'Manage your billing transactions',
+      icon: '/otherAssets/walletIcon.png',
     },
     {
       id: 4,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
+      heading: 'Bar Services',
+      subHeading: 'Our version of the genius bar',
+      icon: '/assets/X.svg',
     },
     {
       id: 5,
-      heading: "My Phone Numbers",
-      subHeading: "All agent phone numbers",
-      icon: "/assets/unSelectedCallIcon.png",
+      heading: 'My Phone Numbers',
+      subHeading: 'All agent phone numbers',
+      icon: '/assets/unSelectedCallIcon.png',
     },
     // {
     //   id: 6,
@@ -85,60 +91,60 @@ function SubAccountMyAccount() {
     // },
     {
       id: 7,
-      heading: "Terms & Conditions",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Terms & Conditions',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 8,
-      heading: "Privacy Policy",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Privacy Policy',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 9,
-      heading: "Twilio Trust Hub",
-      subHeading: "Caller ID & compliance for trusted calls",
-      icon: "/svgIcons/twilioHub.svg",
+      heading: 'Twilio Trust Hub',
+      subHeading: 'Caller ID & compliance for trusted calls',
+      icon: '/svgIcons/twilioHub.svg',
     },
     {
       id: 10,
-      heading: "Cancellation & Refund",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Cancellation & Refund',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
-  ];
+  ]
 
   const manuBar2 = [
     {
       id: 1,
-      heading: "Basic Information",
-      subHeading: "Manage personal information ",
-      icon: "/otherAssets/profileCircle.png",
+      heading: 'Basic Information',
+      subHeading: 'Manage personal information ',
+      icon: '/otherAssets/profileCircle.png',
     },
     {
       id: 2,
-      heading: "Plans & Payment",
-      subHeading: "Manage your plans and payment method ",
-      icon: "/otherAssets/walletIcon.png",
+      heading: 'Plans & Payment',
+      subHeading: 'Manage your plans and payment method ',
+      icon: '/otherAssets/walletIcon.png',
     },
     {
       id: 3,
-      heading: "Billing",
-      subHeading: "Manage your billing transactions",
-      icon: "/otherAssets/walletIcon.png",
+      heading: 'Billing',
+      subHeading: 'Manage your billing transactions',
+      icon: '/otherAssets/walletIcon.png',
     },
     {
       id: 4,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
+      heading: 'Bar Services',
+      subHeading: 'Our version of the genius bar',
+      icon: '/assets/X.svg',
     },
     {
       id: 5,
-      heading: "My Phone Numbers",
-      subHeading: "All agent phone numbers",
-      icon: "/assets/unSelectedCallIcon.png",
+      heading: 'My Phone Numbers',
+      subHeading: 'All agent phone numbers',
+      icon: '/assets/unSelectedCallIcon.png',
     },
     // {
     //   id: 6,
@@ -148,152 +154,155 @@ function SubAccountMyAccount() {
     // },
     {
       id: 7,
-      heading: "Terms & Conditions",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Terms & Conditions',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 8,
-      heading: "Privacy Policy",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Privacy Policy',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
     {
       id: 9,
-      heading: "Cancellation & Refund",
-      subHeading: "",
-      icon: "/svgIcons/info.svg",
+      heading: 'Cancellation & Refund',
+      subHeading: '',
+      icon: '/svgIcons/info.svg',
     },
-  ];
+  ]
 
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-  const [selectedUserData, setSelectedUSerData] = useState(null);
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
+  const [selectedUserData, setSelectedUSerData] = useState(null)
 
   // Function to update URL parameters with menu ID
   const setParamsInSearchBar = (menuId = 2) => {
     // Create a new URLSearchParams object to modify
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", menuId.toString()); // Set or update the 'tab' parameter with menu ID
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', menuId.toString()) // Set or update the 'tab' parameter with menu ID
 
     // Push the updated URL
-    router.push(`/dashboard/myAccount?${params.toString()}`);
-  };
+    router.push(`/dashboard/myAccount?${params.toString()}`)
+  }
 
   //load the local storage data
   useEffect(() => {
-    const localData = localStorage.getItem("User");
+    const localData = localStorage.getItem('User')
     if (localData) {
-      const Data = JSON.parse(localData);
+      const Data = JSON.parse(localData)
       const D = Data.user
-      console.log(`user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`)
-      if (D.userRole === "AgencySubAccount" && D.allowSubaccountTwilio === false) {
-        setNavBar(manuBar2);
+      console.log(
+        `user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`,
+      )
+      if (
+        D.userRole === 'AgencySubAccount' &&
+        D.allowSubaccountTwilio === false
+      ) {
+        setNavBar(manuBar2)
       } else {
-        setNavBar(manuBar);
+        setNavBar(manuBar)
       }
-      setInitialLoader(false);
+      setInitialLoader(false)
     } else {
       setInitialLoader(false)
-      console.log("couldNotFetch local data")
+      console.log('couldNotFetch local data')
     }
     // console.log("Test check fail")
-  }, []);
+  }, [])
 
   useEffect(() => {
-    const tab = searchParams.get("tab"); // Get the value of 'tab'
-    const userData = localStorage.getItem("User");
+    const tab = searchParams.get('tab') // Get the value of 'tab'
+    const userData = localStorage.getItem('User')
     if (userData) {
-      const d = JSON.parse(userData);
-      setSelectedUSerData(d.user);
+      const d = JSON.parse(userData)
+      setSelectedUSerData(d.user)
     }
-    
+
     // Find menu item by ID from URL param, validate it exists in current navBar
     if (tab) {
-      const tabId = Number(tab);
+      const tabId = Number(tab)
       // Check if this ID exists in the current navBar (will be set after navBar is populated)
       // We'll validate this in a separate effect that runs after navBar is set
-      setTabSelected(tabId);
+      setTabSelected(tabId)
     } else {
       // Default to ID 2 (Plans & Payment)
-      setTabSelected(2);
-      setParamsInSearchBar(2);
+      setTabSelected(2)
+      setParamsInSearchBar(2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  
+  }, [])
+
   // Validate tabSelected exists in navBar after navBar is set
   useEffect(() => {
     if (navBar.length > 0 && tabSelected) {
-      const menuItemExists = navBar.find(item => item.id === tabSelected);
+      const menuItemExists = navBar.find((item) => item.id === tabSelected)
       if (!menuItemExists) {
         // If selected tab doesn't exist in current navBar, default to ID 2
-        const defaultId = 2;
-        setTabSelected(defaultId);
-        setParamsInSearchBar(defaultId);
+        const defaultId = 2
+        setTabSelected(defaultId)
+        setParamsInSearchBar(defaultId)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navBar, tabSelected]);
+  }, [navBar, tabSelected])
 
   const renderComponent = () => {
     // Switch on menu item ID instead of index
     switch (tabSelected) {
       case 1: // Basic Information
-        return <SubAccountBasicInfo />;
+        return <SubAccountBasicInfo />
       case 2: // Plans & Payment
-        return <SubAccountPlansAndPayments
+        return (
+          <SubAccountPlansAndPayments
           // selectedUser={selectedUserData}
-        />;
+          />
+        )
       case 3: // Billing
-        return <BillingHistory
-          selectedUser={selectedUserData}
-        />;
+        return <BillingHistory selectedUser={selectedUserData} />
       case 4: // Bar Services
-        return <SubAccountBarServices
-          selectedUser={selectedUserData} />;
+        return <SubAccountBarServices selectedUser={selectedUserData} />
       case 5: // My Phone Numbers
-        return <SubAccountMyPhoneNumber />;
+        return <SubAccountMyPhoneNumber />
       case 6: // Invite Agents (if enabled)
-        return <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />;
+        return (
+          <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />
+        )
       case 7: // Terms & Conditions
-        return <SubAccountTerms />;
+        return <SubAccountTerms />
       case 8: // Privacy Policy
-        return <SubAccountPrivacy />;
+        return <SubAccountPrivacy />
       case 9: // Twilio Trust Hub
-        return <TwilioTrustHub />;
+        return <TwilioTrustHub />
       // ID 10 is external link (Cancellation & Refund) handled in handleTabSelect
       default:
-        return <div>Please select an option.</div>;
+        return <div>Please select an option.</div>
     }
-  };
+  }
 
   const handleTabSelect = async (item) => {
     // Handle external links (these don't render components)
-    if (item.heading === "Cancellation & Refund") {
-      window.open(
-        CancellationAndRefundUrl,
-        "_blank"
-      );
-      return;
+    if (item.heading === 'Cancellation & Refund') {
+      window.open(CancellationAndRefundUrl, '_blank')
+      return
     }
-    
-    // For regular menu items (including Terms & Conditions and Privacy Policy), 
+
+    // For regular menu items (including Terms & Conditions and Privacy Policy),
     // set the selected tab using menu ID to display in the right panel
-    setTabSelected(item.id);
-    setParamsInSearchBar(item.id);
+    setTabSelected(item.id)
+    setParamsInSearchBar(item.id)
   }
 
   return (
     // <Suspense>
     <div
       className="w-full flex flex-col items-center"
-      style={{ overflow: "hidden", height: "100vh" }}
+      style={{ overflow: 'hidden', height: '100vh' }}
     >
       <div
         className=" w-full flex flex-row justify-between items-center py-4 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>My Account</div>
+        <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
 
         <div className="flex flex-col">
           <NotficationsDrawer />
@@ -301,75 +310,77 @@ function SubAccountMyAccount() {
       </div>
 
       <div className="w-full flex flex-row item-center pl-4">
-        {
-          initialLoader ? (
-            <div className="w-4/12 flex flex-row items-center justify-center">
-              <CircularProgress />
-            </div>
-          ) : (
-            <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
-              {navBar.map((item, index) => (
-                <div key={item.id} className="w-full">
-                  <button
-                    className="w-full outline-none"
+        {initialLoader ? (
+          <div className="w-4/12 flex flex-row items-center justify-center">
+            <CircularProgress />
+          </div>
+        ) : (
+          <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
+            {navBar.map((item, index) => (
+              <div key={item.id} className="w-full">
+                <button
+                  className="w-full outline-none"
+                  style={{
+                    textTransform: 'none', // Prevents uppercase transformation
+                    fontWeight: 'normal', // Optional: Adjust the font weight
+                  }}
+                  onClick={() => {
+                    handleTabSelect(item)
+                  }}
+                >
+                  <div
+                    className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                     style={{
-                      textTransform: "none", // Prevents uppercase transformation
-                      fontWeight: "normal", // Optional: Adjust the font weight
-                    }}
-                    onClick={() => {
-                      handleTabSelect(item)
+                      backgroundColor:
+                        item.id === tabSelected ? '#402FFF10' : 'transparent',
                     }}
                   >
+                    <Image src={item.icon} height={24} width={24} alt="icon" />
                     <div
-                      className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
+                      className="flex flex-col gap-1 items-start"
                       style={{
-                        backgroundColor:
-                          item.id === tabSelected ? "#402FFF10" : "transparent",
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
                     >
-                      <Image src={item.icon} height={24} width={24} alt="icon" />
                       <div
-                        className="flex flex-col gap-1 items-start"
                         style={{
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
+                          fontSize: 16,
+                          fontWeight: '700',
+                          color: '#000',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
                         }}
                       >
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "700",
-                            color: "#000",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {item.heading}
-                        </div>
+                        {item.heading}
+                      </div>
 
-                        <div
-                          style={{ fontSize: 13, fontWeight: "500", color: "#000" }}
-                        >
-                          {item.subHeading}
-                        </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#000',
+                        }}
+                      >
+                        {item.subHeading}
                       </div>
                     </div>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )
-        }
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div
           className="w-8/12 "
           style={{
-            overflow: "auto",
-            height: "92vh",
+            overflow: 'auto',
+            height: '92vh',
             borderLeftWidth: 1,
-            borderBottomColor: "#00000010",
+            borderBottomColor: '#00000010',
           }}
         >
           {renderComponent()}
@@ -377,7 +388,7 @@ function SubAccountMyAccount() {
       </div>
     </div>
     // </Suspense>
-  );
+  )
 }
 
-export default SubAccountMyAccount;
+export default SubAccountMyAccount
