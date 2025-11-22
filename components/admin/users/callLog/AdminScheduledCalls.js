@@ -48,15 +48,24 @@ function AdminScheduledCalls({ selectedUser }) {
 
   const [PauseLoader, setPauseLoader] = useState(false);
 
+  // Helper function to truncate text
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "-";
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
+
   useEffect(() => {
-    getAgents();
+    if (selectedUser && selectedUser.id) {
+      getAgents();
+    }
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (localD) {
       let d = JSON.parse(localD);
       setUser(d);
     }
     // getSheduledCallLogs();
-  }, []);
+  }, [selectedUser]);
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
@@ -111,6 +120,16 @@ function AdminScheduledCalls({ selectedUser }) {
 
   //code to get agents
   const getAgents = async () => {
+    // Guard: Don't proceed if selectedUser is not available
+    if (!selectedUser || !selectedUser.id) {
+      console.warn("selectedUser is not available");
+      setInitialLoader(false);
+      setFilteredAgentsList([]);
+      setCallDetails([]);
+      setAgentsList([]);
+      return;
+    }
+
     try {
       setInitialLoader(true);
 
@@ -134,6 +153,8 @@ function AdminScheduledCalls({ selectedUser }) {
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`;
+      
+      console.log("Fetching scheduled calls for userId:", selectedUser.id, "API Path:", ApiPath);
 
       ApiPath = ApiPath
 
@@ -146,15 +167,31 @@ function AdminScheduledCalls({ selectedUser }) {
         },
       });
 
-      if (response) {
-        // //console.log;
-
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+      if (response && response.data) {
+        if (response.data.status && response.data.data) {
+          console.log("Scheduled calls data received:", response.data.data);
+          setFilteredAgentsList(response.data.data);
+          setCallDetails(response.data.data);
+          setAgentsList(response.data.data);
+        } else {
+          // No data returned
+          console.log("No scheduled calls data:", response.data.message);
+          setFilteredAgentsList([]);
+          setCallDetails([]);
+          setAgentsList([]);
+        }
+      } else {
+        console.warn("Invalid response structure:", response);
+        setFilteredAgentsList([]);
+        setCallDetails([]);
+        setAgentsList([]);
       }
     } catch (error) {
-      // console.error("Error occured in get Agents api is :", error);
+      console.error("Error occurred in get Agents api:", error);
+      // Set empty arrays on error
+      setFilteredAgentsList([]);
+      setCallDetails([]);
+      setAgentsList([]);
     } finally {
       setInitialLoader(false);
     }
@@ -419,28 +456,27 @@ function AdminScheduledCalls({ selectedUser }) {
       <div className="flex w-full pl-10 flex-row items-start gap-3">
       </div>
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
-          <div style={styles.text}>Agent</div>
+      <div className="w-full flex flex-row items-center justify-between mt-10 px-10 gap-4">
+        <div className="w-3/12 flex-shrink">
+          <div style={styles.text}>Agent Name</div>
         </div>
-        
-          <div className="w-2/12 ">
-            <div style={styles.text}>List Name</div>
-          </div>
-        
-        <div className="w-1/12">
+        <div className="w-2/12 flex-shrink">
+          <div style={styles.text}>List Name</div>
+        </div>
+        <div className="w-1/12 flex-shrink-0 text-center">
           <div style={styles.text}>Leads</div>
         </div>
-        <div className="w-1/12">
+        <div className="w-1/12 flex-shrink-0">
           <div style={styles.text}>Date created</div>
         </div>
-        <div className="w-2/12">
+        <div className="w-2/12 flex-shrink-0">
           <div style={styles.text}>Scheduled on</div>
         </div>
-        <div className="w-1/12">
-          <div style={styles.text}>
-            Action
-          </div>
+        <div className="w-1/12 flex-shrink-0">
+          <div style={styles.text}>Call Status</div>
+        </div>
+        <div className="w-1/12 flex-shrink-0">
+          <div style={styles.text}>Action</div>
         </div>
       </div>
 
@@ -462,27 +498,35 @@ function AdminScheduledCalls({ selectedUser }) {
                         return (
                           <div key={index}>
                             <div
-                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                              className="w-full flex flex-row items-center justify-between mt-10 px-10 gap-4"
                               key={index}
                             >
-                              <div className="w-3/12 flex flex-row gap-4 items-center">
-
+                              <div className="w-3/12 flex flex-row gap-4 items-center min-w-0 flex-shrink">
                                 {getAgentImageWithMemoji(agent)}
-
-                                <div style={styles.text2}>{agent.name}</div>
+                                <div 
+                                  style={styles.text2} 
+                                  className="truncate"
+                                  title={agent.name}
+                                >
+                                  {truncateText(agent.name, 10)}
+                                </div>
                               </div>
 
-                                <div className="w-2/12 ">
-                                  {agent?.agents[0]?.agentObjective ? (
-                                    <div style={styles.text2}>
-                                      {agent.Sheet.sheetName}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+                              <div className="w-2/12 min-w-0 flex-shrink">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div 
+                                    style={styles.text2} 
+                                    className="truncate"
+                                    title={agent.Sheet.sheetName}
+                                  >
+                                    {truncateText(agent.Sheet.sheetName, 15)}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
 
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0 text-center">
                                 <button
                                   style={styles.text2}
                                   className="text-purple underline outline-none"
@@ -493,9 +537,9 @@ function AdminScheduledCalls({ selectedUser }) {
                                   {item?.totalLeads}
                                 </button>
                               </div>
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0">
                                 {item?.createdAt ? (
-                                  <div style={styles.text2}>
+                                  <div style={styles.text2} className="truncate">
                                     {GetFormattedDateString(
                                       item?.createdAt
                                     )}
@@ -504,9 +548,9 @@ function AdminScheduledCalls({ selectedUser }) {
                                   "-"
                                 )}
                               </div>
-                              <div className="w-2/12">
+                              <div className="w-2/12 flex-shrink-0">
                                 {item.startTime ? (
-                                  <div style={styles.text2}>
+                                  <div style={styles.text2} className="truncate">
                                     {moment(item.startTime).format(
                                       "MMM DD,YYYY - hh:mm A"
                                     )}
@@ -515,7 +559,12 @@ function AdminScheduledCalls({ selectedUser }) {
                                   "-"
                                 )}
                               </div>
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0">
+                                <div style={styles.text2}>
+                                  {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase() : "-"}
+                                </div>
+                              </div>
+                              <div className="w-1/12 flex-shrink-0">
                                 <button
                                   aria-describedby={id}
                                   variant="contained"
@@ -864,9 +913,9 @@ const styles = {
     fontSize: 15,
     // color: '#000000',
     fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   modalsStyle: {
     height: "auto",

@@ -89,18 +89,20 @@ function AdminActiveCalls({ selectedUser }) {
 
 
   function getCallStatusWithSchedule(item) {
+    // First check the actual status from the item
+    if (item.status) {
+      // Capitalize first letter and return the status
+      return item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase();
+    }
+
+    // Fallback: Check if the call is scheduled in the future
     const currentTime = moment();
     const startTime = moment(item.startTime);
-
-    // Check if the call is scheduled in the future
     if (item.startTime && startTime.isAfter(currentTime)) {
-      // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
       return `Scheduled`;
     }
 
-    // Return the regular readable status for past or current calls
-    // return getReadableStatus(item.status); 
+    return "Active"; // Default fallback
   }
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
@@ -127,6 +129,16 @@ function AdminActiveCalls({ selectedUser }) {
 
   //code to get agents
   const getAgents = async () => {
+    // Guard: Don't proceed if selectedUser is not available
+    if (!selectedUser || !selectedUser.id) {
+      console.warn("selectedUser is not available");
+      setInitialLoader(false);
+      setFilteredAgentsList([]);
+      setCallDetails([]);
+      setAgentsList([]);
+      return;
+    }
+
     try {
       setInitialLoader(true);
 
@@ -149,8 +161,9 @@ function AdminActiveCalls({ selectedUser }) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}`;
-      ApiPath = ApiPath + "&userId=" + selectedUser.id
+      let ApiPath = `${Apis.getSheduledCallLogs}?userId=${selectedUser.id}`;
+      
+      console.log("Fetching call activity for userId:", selectedUser.id, "API Path:", ApiPath);
       // //console.log; //scheduled
       // return
       const response = await axios.get(ApiPath, {
@@ -160,15 +173,26 @@ function AdminActiveCalls({ selectedUser }) {
         },
       });
 
-      if (response) {
-        console.log("call activity list is", response.data.data)
-
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+      if (response && response.data) {
+        if (response.data.status && response.data.data) {
+          console.log("call activity list is", response.data.data);
+          setFilteredAgentsList(response.data.data);
+          setCallDetails(response.data.data);
+          setAgentsList(response.data.data);
+        } else {
+          // No data returned
+          console.log("No call activity data:", response.data.message);
+          setFilteredAgentsList([]);
+          setCallDetails([]);
+          setAgentsList([]);
+        }
       }
     } catch (error) {
-      console.error("Error occured in get call activity api is :", error);
+      console.error("Error occurred in get call activity api:", error);
+      // Set empty arrays on error
+      setFilteredAgentsList([]);
+      setCallDetails([]);
+      setAgentsList([]);
     } finally {
       setInitialLoader(false);
     }
@@ -240,6 +264,14 @@ function AdminActiveCalls({ selectedUser }) {
   };
 
   const [PauseLoader, setPauseLoader] = useState(false);
+
+  // Helper function to truncate text
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "-";
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
+
   //code to pause the agent
   const pauseAgents = async () => {
     // //console.log;
@@ -681,7 +713,7 @@ function AdminActiveCalls({ selectedUser }) {
             {filteredAgentsList?.length > 0 ? (
               <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                 {/* Table Header */}
-                <div className="w-full flex flex-row mt-2 px-10">
+                <div className="w-full flex flex-row items-center mt-2 px-10 gap-4">
                   <div className="min-w-[150px] flex-shrink-0">
                     <div style={styles.text}>Agent</div>
                   </div>
@@ -690,13 +722,12 @@ function AdminActiveCalls({ selectedUser }) {
                     <div style={styles.text}>List Name</div>
                   </div>
 
-                  
-                  <div className="min-w-[150px] flex-shrink-0">
-                      Leads    
+                  <div className="min-w-[150px] flex-shrink-0 text-center">
+                    <div style={styles.text}>Leads</div>
                   </div>
                   
-                  <div className="min-w-[200px] flex-shrink-0 whitespace-nowrap">
-                      Date created
+                  <div className="min-w-[200px] flex-shrink-0">
+                    <div style={styles.text}>Date created</div>
                   </div>
                   <div className="min-w-[200px] flex-shrink-0">
                     <div style={styles.text}>Call Status</div>
@@ -714,29 +745,33 @@ function AdminActiveCalls({ selectedUser }) {
                         return (
                           <div key={index}>
                             <div
-                              className="w-full flex flex-row items-center justify-between mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                              className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 gap-4"
                               key={index}
                             >
-                            
-
                               <div className="min-w-[150px] flex-shrink-0">
-                                <div style={styles.text2}>{
-                                  agent?.agents[0].agentType === "outbound" ? (
-                                    agent?.agents[0]?.name
-                                  ) : (
-                                    agent?.agents[1]?.name
-                                  )
-                                }</div>
-                              </div>
-
-                              
-                              <div className="min-w-[200px] flex-shrink-0">
-                                <div style={styles.text2} className="truncate">
-                                  {item.Sheet?.sheetName || "-"}
+                                <div 
+                                  style={styles.text2} 
+                                  className="truncate"
+                                  title={agent?.agents[0].agentType === "outbound" ? agent?.agents[0]?.name : agent?.agents[1]?.name}
+                                >
+                                  {truncateText(
+                                    agent?.agents[0].agentType === "outbound" ? agent?.agents[0]?.name : agent?.agents[1]?.name,
+                                    10
+                                  )}
                                 </div>
                               </div>
 
-                              <div className="min-w-[150px] flex-shrink-0">
+                              <div className="min-w-[200px] flex-shrink-0">
+                                <div 
+                                  style={styles.text2} 
+                                  className="truncate"
+                                  title={item.Sheet?.sheetName}
+                                >
+                                  {truncateText(item.Sheet?.sheetName, 15)}
+                                </div>
+                              </div>
+
+                              <div className="min-w-[150px] flex-shrink-0 text-center">
                                 <button
                                   style={styles.text2}
                                   className="text-purple underline outline-none"
@@ -748,17 +783,18 @@ function AdminActiveCalls({ selectedUser }) {
                                 </button>
                               </div>
 
-
                               <div className="min-w-[200px] flex-shrink-0">
                                 {item?.createdAt ? (
-                                  <div style={styles.text2}>
+                                  <div style={styles.text2} className="truncate">
                                     {GetFormattedDateString(item?.createdAt)}
                                   </div>
                                 ) : (
                                   <div style={styles.text2}>-</div>
                                 )}
                               </div>
-                              <div className="min-w-[200px] flex-shrink-0" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                              <div className="min-w-[200px] flex-shrink-0">
+                                <div style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                              </div>
                               <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                                 <button
                                   aria-describedby={id}
