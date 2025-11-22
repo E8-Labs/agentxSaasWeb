@@ -28,32 +28,26 @@ const ActionsTab = ({
 
   // Check if user has access to Tools
   const hasToolsAccess = useMemo(() => {
-    // Check agency capabilities first (for subaccounts)
-    // If undefined/null/false, no access
-    if (reduxUser?.agencyCapabilities?.allowToolsAndActions !== true) {
-      return false
+    // For agency subaccounts, check agency capabilities
+    if (reduxUser?.userRole === 'AgencySubAccount') {
+      return reduxUser?.agencyCapabilities?.allowToolsAndActions === true
     }
-    // Check plan capabilities (for regular users)
-    // If undefined/null/false, no access
-    if (reduxUser?.planCapabilities?.allowToolsAndActions !== true) {
-      return false
-    }
-    return true
+    // For normal users, check plan capabilities
+    return reduxUser?.planCapabilities?.allowToolsAndActions === true
   }, [reduxUser])
 
   // Check if user has access to Lead Scoring
   const hasLeadScoringAccess = useMemo(() => {
-    // Check agency capabilities first (for subaccounts)
-    // If undefined/null/false, no access
-    if (reduxUser?.agencyCapabilities?.allowLeadScoring !== true) {
-      return false
+    // For agency subaccounts, check agency capabilities
+    if (reduxUser?.userRole === 'AgencySubAccount') {
+      return reduxUser?.agencyCapabilities?.allowLeadScoring === true
     }
-    // Check plan capabilities (for regular users)
-    // If undefined/null/false, no access
-    if (reduxUser?.planCapabilities?.allowLeadScoring !== true) {
-      return false
+    // For normal users, check plan capabilities
+    // If allowLeadScoring doesn't exist, default to true
+    if (reduxUser?.planCapabilities?.allowLeadScoring === undefined || reduxUser?.planCapabilities?.allowLeadScoring === null) {
+      return true
     }
-    return true
+    return reduxUser?.planCapabilities?.allowLeadScoring === true
   }, [reduxUser])
 
   // Always show all tabs
