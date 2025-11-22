@@ -138,7 +138,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className={`${agencyUser ? "h-[70vh]" : from === "Admin" || from === "agency" ? "h-[43svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" || from === "agency" ? "" : "pb-12"}`}
+      className={`${agencyUser ? "h-[70vh]" : from === "Admin" || from === "agency" ? "h-[46svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" || from === "agency" ? "" : "pb-12"}`}
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >

@@ -298,7 +298,7 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                                 <div className="bg-[#F9F9F9] p-4 rounded-lg">
                                     <div className="flex flex-row items-center justify-between mb-4">
                                         <div>
-                                            <span style={styles.semiBoldHeading}>Push Notification Title:</span>
+                                            <span style={styles.semiBoldHeading}>Title:</span>
                                             <span className="ms-2" style={styles.smallRegular}>{item.appNotficationTitle}</span>
                                         </div>
                                         <button
@@ -316,7 +316,7 @@ const StandardNot = ({ notificationsData = [], onRefresh, category = 'Standard' 
                                         </button>
                                     </div>
                                     <div className="mb-4">
-                                        <span style={styles.semiBoldHeading}>Push Notification Body:</span>
+                                        <span style={styles.semiBoldHeading}>Body:</span>
                                         <div style={styles.mediumRegular} className="mt-2">
                                             {item.appNotficationBody}
                                         </div>

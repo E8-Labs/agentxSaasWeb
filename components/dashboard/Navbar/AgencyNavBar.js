@@ -257,6 +257,11 @@ const AgencyNavBar = () => {
           }, 2000);
           return;
         }
+        console.log("agencyProfileData.plan?.status", agencyProfileData.plan?.status)
+        if(agencyProfileData.plan?.status === "cancelled") {
+          router.push("/agency/plan");
+          return;
+        }
         
         if (agencyProfileData.consecutivePaymentFailures == 1 || agencyProfileData.consecutivePaymentFailures == 2) {
           setShowPaymentFailedPopup(true);

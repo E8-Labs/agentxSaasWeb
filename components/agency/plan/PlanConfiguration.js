@@ -79,6 +79,7 @@ export default function PlanConfiguration({
         sendText: false,
         allowTrial: false,
         allowTeamSeats: false,
+        allowLeadSource: false,
     });
     const [agencyAllowedFeatures, setAgencyAllowedFeatures] = useState({
         allowLanguageSelection: false,
@@ -93,6 +94,7 @@ export default function PlanConfiguration({
         twilio: false,
         allowTrial: true,
         allowTeamSeats: false,
+        allowLeadSource: false,
     });
 
     //features list
@@ -148,6 +150,11 @@ export default function PlanConfiguration({
             stateKey: "allowTextMessages",
         },
         {
+            label: "Lead Scoring",
+            tooltip: "Enable lead scoring to automatically rate and prioritize leads based on their behavior and engagement.",
+            stateKey: "allowLeadSource",
+        },
+        {
             // label: "Allow Team Seats",
             label: noOfSeats
                 ? `${noOfSeats} Team Seat${noOfSeats > 1 ? "s" : ""}`
@@ -187,6 +194,7 @@ export default function PlanConfiguration({
                 sendText: false,
                 allowTrial: false,
                 allowTeamSeats: false,
+                allowLeadSource: false,
             });
             setCustomFeatures([]);
             setAllowedFeatures([]);
@@ -383,6 +391,7 @@ export default function PlanConfiguration({
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
                 allowLanguageSelection: dynamicFeatures?.allowLanguageSelection,
+                allowLeadSource: dynamicFeatures?.allowLeadSource || dynamicFeatures?.allowLeadScoring || false,
             });
             setTrialValidForDays(configurationData?.trialValidForDays);
             setNoOfSeats(configurationData?.noOfSeats);
@@ -434,6 +443,7 @@ export default function PlanConfiguration({
             sendText: false,
             allowTrial: false,
             allowTeamSeats: false,
+            allowLeadSource: false,
         });
         setCustomFeatures([]);
         setAllowedFeatures([]);
@@ -489,6 +499,7 @@ export default function PlanConfiguration({
         formData.append("allowTextMessages", features.allowTextMessages);
         formData.append("allowTwilio", features.twilio);
         formData.append("allowTrial", features.allowTrial);
+        formData.append("allowLeadSource", features.allowLeadSource);
         if (customFeatures?.length > 0) {
             customFeatures?.forEach((feature, index) => {
                 formData.append(`customFeatures[${index}]`, feature);
@@ -741,6 +752,7 @@ export default function PlanConfiguration({
                 allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
                 sendText: dynamicFeatures?.allowTextMessages,
                 allowTrial: true,
+                allowLeadSource: dynamicFeatures?.allowLeadSource || dynamicFeatures?.allowLeadScoring || false,
             });
         }
     }
