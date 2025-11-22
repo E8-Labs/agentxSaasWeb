@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -519,9 +520,9 @@ const RecruiterAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
                 onChange={(e) => {
@@ -578,9 +579,9 @@ const RecruiterAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -692,31 +693,39 @@ const RecruiterAgentSignUp = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '8px' }}>
-                <PhoneInput
-                  className="border outline-none bg-white"
-                  country={'us'} // Default country
-                  onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
-                  disableDropdown={false} // Enable dropdown to switch between US/CA
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={userPhoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={
-                    locationLoader
-                      ? 'Loading location ...'
-                      : 'Enter Phone Number'
-                  }
-                  disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
-                  inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
-                    paddingTop: '20px',
-                    paddingBottom: '20px',
-                  }}
+                <div style={{ marginTop: '8px' }}>
+                  <PhoneInput
+                    containerClass="phone-input-container"
+                    className="outline-none bg-white focus:ring-0"
+                    country={'us'} // Default country
+                    onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
+                    disableDropdown={false} // Enable dropdown to switch between US/CA
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
+                    value={userPhoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    placeholder={
+                      locationLoader
+                        ? 'Loading location ...'
+                        : 'Enter Phone Number'
+                    }
+                    disabled={loading} // Disable input if still loading
+                    style={{
+                      borderRadius: '7px',
+                      border: '2px solid #00000020',
+                      outline: 'none',
+                      boxShadow: 'none',
+                    }}
+                    inputStyle={{
+                      width: '100%',
+                      borderWidth: '0px',
+                      backgroundColor: 'transparent',
+                      paddingLeft: '60px',
+                      paddingTop: '20px',
+                      paddingBottom: '20px',
+                      outline: 'none',
+                      boxShadow: 'none',
+                    }}
                   buttonStyle={{
                     border: 'none',
                     backgroundColor: 'transparent',
@@ -735,9 +744,9 @@ const RecruiterAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customers
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={ServiceCustomer}
                 onChange={(e) => {

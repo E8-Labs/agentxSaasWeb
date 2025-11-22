@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -573,9 +574,9 @@ const SolarRepAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
                 onChange={(e) => {
@@ -632,9 +633,9 @@ const SolarRepAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -748,7 +749,8 @@ const SolarRepAgentSignUp = ({
 
               <div style={{ marginTop: '8px' }}>
                 <PhoneInput
-                  className="border outline-none bg-white"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
                   onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
                   disableDropdown={false} // Enable dropdown to switch between US/CA
@@ -762,7 +764,12 @@ const SolarRepAgentSignUp = ({
                       : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
                   inputStyle={{
                     width: '100%',
                     borderWidth: '0px',
@@ -770,6 +777,8 @@ const SolarRepAgentSignUp = ({
                     paddingLeft: '60px',
                     paddingTop: '20px',
                     paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   buttonStyle={{
                     border: 'none',
@@ -791,7 +800,7 @@ const SolarRepAgentSignUp = ({
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
                 onChange={(e) => {
@@ -804,7 +813,7 @@ const SolarRepAgentSignUp = ({
               </div>
               <input
                 placeholder="Name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}
                 onChange={(e) => {
@@ -818,7 +827,7 @@ const SolarRepAgentSignUp = ({
               <input
                 // type="number"
                 placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={installationVolume}
                 onChange={(e) => {
@@ -832,7 +841,7 @@ const SolarRepAgentSignUp = ({
               <input
                 // type="number"
                 placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={projectSize}
                 onChange={(e) => {

@@ -922,7 +922,7 @@ export default function AddMonthlyPlan({
                     </div>
                     {discountedPrice && minutes && (
                       <div>
-                        ${formatDecimalValue(discountedPrice * minutes)}
+                        ${formatFractional2(discountedPrice * minutes)}
                       </div>
                     )}
                   </div>
@@ -940,7 +940,7 @@ export default function AddMonthlyPlan({
                     {discountedPrice && minutes && agencyPlanCost ? (
                       <div>
                         $
-                        {formatDecimalValue(
+                        {formatFractional2(
                           Number(agencyPlanCost) * Number(minutes),
                         )}
                       </div>
@@ -964,7 +964,7 @@ export default function AddMonthlyPlan({
                           </div>
                           <div>
                             $
-                            {formatDecimalValue(
+                            {formatFractional2(
                               (Number(discountedPrice) -
                                 Number(agencyPlanCost)) *
                                 Number(minutes),
@@ -975,7 +975,7 @@ export default function AddMonthlyPlan({
                           className="text-end w-full mt-2"
                           style={{ color: getClr() }}
                         >
-                          {formatDecimalValue(
+                          {formatFractional2(
                             ((Number(discountedPrice) -
                               Number(agencyPlanCost)) /
                               Number(agencyPlanCost)) *
@@ -1140,7 +1140,7 @@ export default function AddMonthlyPlan({
 //                     originalPrice > 0 && minutes && ( //replaced
 //                       <span style={styles.labelText}>
 //                         {checkCalulations()}
-//                         {formatDecimalValue(
+//                         {formatFractional2(
 //                           // (originalPrice / originalPrice) * //replaced
 //                           (originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
 //                           100
@@ -1202,7 +1202,7 @@ export default function AddMonthlyPlan({
 //                           {discountedPrice && minutes && (
 //                             <div className="flex flex-row justify-start items-start ">
 //                               <div style={styles.discountedPrice}>
-//                                 ${formatDecimalValue(discountedPrice * minutes)}
+//                                 ${formatFractional2(discountedPrice * minutes)}
 //                               </div>
 //                               <p style={{ color: "#15151580" }}></p>
 //                             </div>

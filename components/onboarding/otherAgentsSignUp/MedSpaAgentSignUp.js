@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -644,7 +645,7 @@ const MedSpaAgentSignUp = ({
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -758,7 +759,8 @@ const MedSpaAgentSignUp = ({
 
               <div style={{ marginTop: '8px' }}>
                 <PhoneInput
-                  className="border outline-none bg-white"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
                   onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
                   value={userPhoneNumber}
@@ -769,7 +771,12 @@ const MedSpaAgentSignUp = ({
                       : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
                   inputStyle={{
                     width: '100%',
                     borderWidth: '0px',
@@ -777,6 +784,8 @@ const MedSpaAgentSignUp = ({
                     paddingLeft: '60px',
                     paddingTop: '20px',
                     paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   buttonStyle={{
                     border: 'none',
@@ -798,7 +807,7 @@ const MedSpaAgentSignUp = ({
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
                 onChange={(e) => {
@@ -811,7 +820,7 @@ const MedSpaAgentSignUp = ({
               </div>
               <input
                 placeholder="Name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}
                 onChange={(e) => {
@@ -824,7 +833,7 @@ const MedSpaAgentSignUp = ({
               </div>
               <input
                 placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={installationVolume}
                 onChange={(e) => {

@@ -197,7 +197,7 @@ export default function PlanFeatures({
               fontSize: '15px',
               fontWeight: '500',
             }}
-          >{`Duration of Trial [Day] (Max 14 days)`}</div>
+          >{`Duration of Trial (Max 14 days)`}</div>
           <div className="w-full">
             <input
               style={styles.inputs}

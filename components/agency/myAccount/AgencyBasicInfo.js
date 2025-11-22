@@ -681,7 +681,7 @@ function AgencyBasicInfo({ selectedAgency }) {
           placeholder="Email"
           style={{ border: '0px solid #000000', outline: 'none' }}
         />
-        {isEmailChanged ? (
+        {isEmailChanged && (
           emailLoader ? (
             <CircularProgress size={20} />
           ) : validEmail === 'Invalid' ? (
@@ -698,19 +698,6 @@ function AgencyBasicInfo({ selectedAgency }) {
               Save
             </button>
           )
-        ) : (
-          <button
-            onClick={() => {
-              emailRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
         )}
       </div>
 

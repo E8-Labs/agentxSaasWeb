@@ -415,7 +415,7 @@ const UPSell = () => {
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      <div className="w-11/12 pt-4">
+      <div className="">
         <AgentSelectSnackMessage
           isVisible={snackBannerMsg !== null}
           message={snackBannerMsg}

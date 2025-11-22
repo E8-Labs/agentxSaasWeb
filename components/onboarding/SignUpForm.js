@@ -29,6 +29,7 @@ import VerificationCodeInput from '../test/VerificationCodeInput'
 import SendVerificationCode from './services/AuthVerification/AuthService'
 import SnackMessages from './services/AuthVerification/SnackMessages'
 import { getLocalLocation } from './services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 const SignUpForm = ({
   handleContinue,
@@ -544,13 +545,13 @@ const SignUpForm = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 ref={(el) => (inputsFields.current[0] = el)}
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
@@ -613,14 +614,14 @@ const SignUpForm = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[1] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -743,7 +744,8 @@ const SignUpForm = ({
               <div style={{ marginTop: '8px' }}>
                 <PhoneInput
                   ref={(el) => (inputsFields.current[2] = el)}
-                  className="border outline-none bg-white"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
                   onlyCountries={['us', 'ca', 'mx']} // Allow US and Canada only
                   disableDropdown={false} // Enable dropdown to switch between US/CA
@@ -757,7 +759,12 @@ const SignUpForm = ({
                       : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
                   inputStyle={{
                     width: '100%',
                     borderWidth: '0px',
@@ -765,6 +772,8 @@ const SignUpForm = ({
                     paddingLeft: '60px',
                     paddingTop: '20px',
                     paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   buttonStyle={{
                     border: 'none',
@@ -787,16 +796,16 @@ const SignUpForm = ({
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                {`What’s your market territory`}
+                {`What's your market territory`}
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[3] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Your territory"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userFarm}
                 onChange={(e) => {
@@ -812,14 +821,14 @@ const SignUpForm = ({
               <div style={styles.headingStyle} className="mt-6">
                 Your brokerage
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[4] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Brokerage"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userBrokage}
                 onChange={(e) => {
@@ -835,7 +844,7 @@ const SignUpForm = ({
               <div style={styles.headingStyle} className="mt-6">
                 How many homes did you sell last year
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[5] = el)}
                 autoComplete="off"
                 autoCorrect="off"
@@ -845,7 +854,7 @@ const SignUpForm = ({
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none mb-2 focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userTransaction}
                 onChange={(e) => {

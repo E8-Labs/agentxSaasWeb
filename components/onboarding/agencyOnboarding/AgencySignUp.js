@@ -783,7 +783,7 @@ const AgencySignUp = ({
                     disabled={loading} // Disable input if still loading
                     style={{
                       borderRadius: '7px',
-                      border: '1px solid #00000020',
+                      border: '2px solid #00000020',
                       outline: 'none',
                       boxShadow: 'none',
                     }}

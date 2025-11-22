@@ -688,7 +688,8 @@ const SalesDevAgent = ({
 
               <div style={{ marginTop: '8px' }}>
                 <PhoneInput
-                  className="border outline-none bg-white"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
                   country={'us'} // Default country
                   onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
                   disableDropdown={false} // Enable dropdown to switch between US/CA
@@ -702,7 +703,12 @@ const SalesDevAgent = ({
                       : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
                   inputStyle={{
                     width: '100%',
                     borderWidth: '0px',
@@ -710,6 +716,8 @@ const SalesDevAgent = ({
                     paddingLeft: '60px',
                     paddingTop: '20px',
                     paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
                   }}
                   buttonStyle={{
                     border: 'none',

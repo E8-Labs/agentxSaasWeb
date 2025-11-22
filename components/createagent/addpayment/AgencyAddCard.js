@@ -893,27 +893,6 @@ const AgencyAddCard = ({
                       >
                         Next Charge Date {getNextChargeDate(selectedPlan)}
                       </div>
-                      {discountCalculation &&
-                        discountCalculation.discountMonths > 0 && (
-                          <div
-                            style={{
-                              fontWeight: '400',
-                              fontSize: 12,
-                              marginTop: '4px',
-                              color: '#666',
-                            }}
-                          >
-                            {discountCalculation.discountMonths} month
-                            {discountCalculation.discountMonths > 1 ? 's' : ''}{' '}
-                            at{' '}
-                            {promoCodeDetails.discountType === 'percentage'
-                              ? `${promoCodeDetails.discountValue}%`
-                              : `$${promoCodeDetails.discountValue}`}{' '}
-                            off
-                            {discountCalculation.fullPriceMonths > 0 &&
-                              `, ${discountCalculation.fullPriceMonths} month${discountCalculation.fullPriceMonths > 1 ? 's' : ''} at full price`}
-                          </div>
-                        )}
                     </div>
                     <div
                       className=""

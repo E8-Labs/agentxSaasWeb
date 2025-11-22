@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 const GeneralAgentSignUp = ({
   handleContinue,
@@ -535,13 +536,13 @@ const GeneralAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 ref={(el) => (inputsFields.current[0] = el)}
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
@@ -604,14 +605,14 @@ const GeneralAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[1] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -732,62 +733,71 @@ const GeneralAgentSignUp = ({
               </div>
 
               <div style={{ marginTop: '8px' }}>
-                <PhoneInput
-                  ref={(el) => (inputsFields.current[2] = el)}
-                  className="border outline-none bg-white"
-                  country={'us'} // restrict to US only
-                  onlyCountries={['us', 'mx']}
-                  disableDropdown={true}
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={userPhoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={
-                    locationLoader
-                      ? 'Loading location ...'
-                      : 'Enter Phone Number'
-                  }
-                  disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
-                  inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
-                    paddingTop: '20px',
-                    paddingBottom: '20px',
-                  }}
-                  buttonStyle={{
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    // display: 'flex',
-                    // alignItems: 'center',
-                    // justifyContent: 'center',
-                  }}
-                  dropdownStyle={{
-                    maxHeight: '150px',
-                    overflowY: 'auto',
-                  }}
-                  defaultMask={loading ? 'Loading...' : undefined}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === 'Done') {
-                      inputsFields.current[3]?.focus() // Move to the second input
-                    }
-                  }}
-                />
+              <PhoneInput
+              ref={(el) => (inputsFields.current[2] = el)}
+              containerClass="phone-input-container"
+              className="outline-none bg-white focus:ring-0"
+              country={'us'} // Default country
+              onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
+              disableDropdown={false} // Enable dropdown to switch between US/CA
+              countryCodeEditable={false}
+              disableCountryCode={false}
+              value={userPhoneNumber}
+              onChange={handlePhoneNumberChange}
+              placeholder={
+                locationLoader
+                  ? 'Loading location ...'
+                  : 'Enter Phone Number'
+              }
+              disabled={loading} // Disable input if still loading
+              style={{
+                borderRadius: '7px',
+                border: '2px solid #00000020',
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              inputStyle={{
+                width: '100%',
+                borderWidth: '0px',
+                backgroundColor: 'transparent',
+                // paddingLeft: "30px",
+                paddingTop: '20px',
+                paddingBottom: '20px',
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              buttonStyle={{
+                border: 'none',
+                backgroundColor: 'transparent',
+                outline: 'none',
+                // display: 'flex',
+                // alignItems: 'center',
+                // justifyContent: 'center',
+              }}
+              dropdownStyle={{
+                maxHeight: '150px',
+                overflowY: 'auto',
+              }}
+              defaultMask={loading ? 'Loading...' : undefined}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Done') {
+                  inputsFields.current[3]?.focus() // Move to the second input
+                }
+              }}
+            />
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                {`What’s the company name`}
+                {`What's the company name`}
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[3] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Company name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={company}
                 onChange={(e) => {
@@ -801,16 +811,16 @@ const GeneralAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                {`What’s your territory`}
+                {`What's your territory`}
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[3] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Your territory"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userFarm}
                 onChange={(e) => {

@@ -557,7 +557,6 @@ const BrandConfig = () => {
               <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
                 Primary color
               </div>
-              <WhiteLAbelTooltTip tip={Logo1Tip} />
             </div>
             <div className="w-32 self-stretch bg-white/80 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-900/10 inline-flex flex-col justify-start items-start gap-[5px] overflow-hidden">
               <div
@@ -588,7 +587,7 @@ const BrandConfig = () => {
               <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
                 Secondary color
               </div>
-              <WhiteLAbelTooltTip tip={Logo1Tip} />
+
             </div>
             <div className="w-32 self-stretch bg-white/80 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-900/10 inline-flex flex-col justify-start items-start gap-[5px] overflow-hidden">
               <div
