@@ -39,11 +39,26 @@ function UpgardView({
     console.log('Title passed to upgrade view is', title)
     console.log('Plan capabilities in upgrade view is', Data)
     if (localUserData?.userRole === 'AgencySubAccount') {
-      if (reduxUser?.agencyCapabilities?.allowCalendarIntegration === false) {
-        setShowUnlockPremiumFeaturesBtn(true)
-      } else if (
-        reduxUser?.agencyCapabilities?.allowToolsAndActions === false
-      ) {
+      // For "Unlock Actions" - cascading check
+      if (title === 'Unlock Actions') {
+        // If agencyCapabilities is false, show "Request Feature"
+        if (reduxUser?.agencyCapabilities?.allowToolsAndActions === false) {
+          setShowUnlockPremiumFeaturesBtn(true)
+        }
+        // If agencyCapabilities is true but planCapabilities is false, show "Upgrade Plan" (button stays false)
+        // If both are true, user has access (won't reach this component)
+      }
+      // For "Unlock Lead Scoring" - cascading check
+      else if (title === 'Unlock Lead Scoring') {
+        // If agencyCapabilities is false, show "Request Feature"
+        if (reduxUser?.agencyCapabilities?.allowLeadScoring === false) {
+          setShowUnlockPremiumFeaturesBtn(true)
+        }
+        // If agencyCapabilities is true but planCapabilities is false, show "Upgrade Plan" (button stays false)
+        // If both are true, user has access (won't reach this component)
+      }
+      // For other features, keep existing logic
+      else if (reduxUser?.agencyCapabilities?.allowCalendarIntegration === false) {
         setShowUnlockPremiumFeaturesBtn(true)
       } else if (reduxUser?.agencyCapabilities?.allowKnowledgeBases === false) {
         setShowUnlockPremiumFeaturesBtn(true)
@@ -53,14 +68,8 @@ function UpgardView({
         reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false
       ) {
         setShowUnlockPremiumFeaturesBtn(true)
-      } else if (reduxUser?.agencyCapabilities?.allowLeadScoring === false) {
-        setShowUnlockPremiumFeaturesBtn(true)
       } else if (title === 'Enable Live Transfer') {
         if (!Data?.allowLiveCallTransfer) {
-          setShowUnlockPremiumFeaturesBtn(true)
-        }
-      } else if (title === 'Unlock Actions') {
-        if (!Data?.allowToolsAndActions) {
           setShowUnlockPremiumFeaturesBtn(true)
         }
       } else if (
@@ -74,13 +83,9 @@ function UpgardView({
         if (!Data?.allowVoicemail) {
           setShowUnlockPremiumFeaturesBtn(true)
         }
-      } else if (title === 'Unlock Lead Scoring') {
-        if (!Data?.allowLeadScoring) {
-          setShowUnlockPremiumFeaturesBtn(true)
-        }
       }
     }
-  }, [localUserData])
+  }, [localUserData, reduxUser, title])
 
   const fetchLocalUserData = (attempt = 1, maxAttempts = 5) => {
     if (userData) {
