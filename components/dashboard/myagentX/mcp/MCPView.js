@@ -11,13 +11,15 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
 import IntroVideoModal from '@/components/createagent/IntroVideoModal';
-import { HowtoVideos } from '@/constants/Constants';
+import { HowtoVideos, HowToVideoTypes } from '@/constants/Constants';
 import { getUserLocalData } from '@/components/constants/constants';
 import UpgradeModal from '@/constants/UpgradeModal';
 import UpgradePlanView from '@/components/callPausedPoupup/UpgradePlanView';
 import UpgardView from '@/constants/UpgardView';
 import getProfileDetails from '@/components/apis/GetProfile';
 import VideoCard from '@/components/createagent/VideoCard';
+
+import { getVideoUrlByType, getTutorialByType } from '@/utils/tutorialVideos';
 
 
 
@@ -479,7 +481,7 @@ function MCPView({
                     open={introVideoModal2}
                     onClose={() => setIntroVideoModal2(false)}
                     videoTitle="Learn how to add Tools"
-                    videoUrl={HowtoVideos.Tools}
+                    videoUrl={getVideoUrlByType(HowToVideoTypes.Tools) || HowtoVideos.Tools}
                 />
 
                 {
@@ -727,12 +729,15 @@ function MCPView({
                 <div className="flex flex-col w-full flex-col items-center justify-center">
                     <div className="w-6/12">
                         <VideoCard
-                            duration="1:47"
+                            duration={(() => {
+                                const tutorial = getTutorialByType(HowToVideoTypes.Tools);
+                                return tutorial?.description || "1:47";
+                            })()}
                             horizontal={false}
                             playVideo={() => {
                                 setIntroVideoModal2(true);
                             }}
-                            title="Learn how to add Tools"
+                            title={getTutorialByType(HowToVideoTypes.Tools)?.title || "Learn how to add Tools"}
                         />
                     </div>
                 </div>

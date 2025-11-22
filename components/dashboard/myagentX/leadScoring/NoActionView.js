@@ -1,6 +1,7 @@
 import IntroVideoModal from '@/components/createagent/IntroVideoModal';
 import VideoCard from '@/components/createagent/VideoCard';
-import { HowtoVideos } from '@/constants/Constants';
+import { HowtoVideos, HowToVideoTypes } from '@/constants/Constants';
+import { getVideoUrlByType, getTutorialByType } from '@/utils/tutorialVideos';
 import Image from 'next/image';
 import React, { useState } from 'react'
 
@@ -54,19 +55,22 @@ function NoActionView({
 
                 <div className="w-6/12">
                     <VideoCard
-                        duration="1:47"
+                        duration={(() => {
+                            const tutorial = getTutorialByType(HowToVideoTypes.Scoring);
+                            return tutorial?.description || "1:47";
+                        })()}
                         horizontal={false}
                         playVideo={() => {
                             setIntroVideoModal(true);
                         }}
-                        title="Learn how to add Scoring"
+                        title={getTutorialByType(HowToVideoTypes.Scoring)?.title || "Learn how to add Scoring"}
                     />
                     {/* Intro modal */}
                     <IntroVideoModal
                         open={introVideoModal}
                         onClose={() => setIntroVideoModal(false)}
-                        videoTitle="Learn how to add a scoring"
-                        videoUrl={HowtoVideos.Calendar}
+                        videoTitle={getTutorialByType(HowToVideoTypes.Scoring)?.title || "Learn how to add Scoring"}
+                        videoUrl={getVideoUrlByType(HowToVideoTypes.Scoring) || HowtoVideos.LeadScoring}
                     />
                 </div>
             </div>
