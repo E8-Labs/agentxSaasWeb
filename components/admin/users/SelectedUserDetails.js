@@ -370,7 +370,7 @@ function SelectedUserDetails({
                                                 height={24} width={24} alt='*'
                                             />
 
-                                            <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000', paddingLeft : item.name === "Activity" ? "5px" : "0px", }}>
+                                            <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000', }}>
                                                 {item.name}
                                             </div>
 
