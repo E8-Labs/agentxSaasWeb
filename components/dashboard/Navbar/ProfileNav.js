@@ -1406,7 +1406,6 @@ const ProfileNav = () => {
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                        paddingLeft : item.name === "Activity" ? "5px" : "0px",
                       }}
                     >
                       {item.name}
