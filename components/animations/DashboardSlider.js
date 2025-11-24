@@ -346,14 +346,14 @@ const DashboardSlider = ({
                             />
                           </div>
                           <div
-                            className="text-black hover:text-purple whitespace-nowrap"
+                            className="text-black hover:text-brand-primary whitespace-nowrap"
                             style={{ fontSize: 15, fontWeight: '500' }}
                           >
                             {item.label}
                           </div>
                           {(item.id === 3 ||
                             item.label === 'Ask Sky for Help') && (
-                            <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                            <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
                               Beta
                             </div>
                           )}
@@ -371,7 +371,7 @@ const DashboardSlider = ({
                       support widget.
                     </div>
                     <button
-                      className="text-white bg-purple outline-none rounded-lg w-full mt-4"
+                      className="text-white bg-brand-primary outline-none rounded-lg w-full mt-4"
                       style={{ height: '40px' }}
                       onClick={() => {
                         setShowUnlockPremiumFeaturesPopup(true)
@@ -402,13 +402,13 @@ const DashboardSlider = ({
                         alt="*"
                       />
                       <div
-                        className="text-black hover:text-purple whitespace-nowrap"
+                        className="text-black hover:text-brand-primary whitespace-nowrap"
                         style={{ fontSize: 15, fontWeight: '500' }}
                       >
                         {item.label}
                       </div>
                       {(item.id === 3 || item.label === 'Ask Sky for Help') && (
-                        <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                        <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
                           Beta
                         </div>
                       )}
@@ -606,7 +606,7 @@ export const GetHelpBtn = ({
       </div>
 
       {/* Text */}
-      <p className="text-[16px] font-bold text-purple cursor-pointer ms-2">
+      <p className="text-[16px] font-bold text-brand-primary cursor-pointer ms-2">
         {text}
       </p>
     </button>

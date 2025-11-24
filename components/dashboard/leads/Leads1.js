@@ -1118,7 +1118,7 @@ const Leads1 = () => {
                 <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddLeadModal(true)
                       }}
@@ -1134,7 +1134,7 @@ const Leads1 = () => {
                   </div>
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddNewSheetModal(true)
                       }}
@@ -2026,7 +2026,7 @@ const Leads1 = () => {
                 <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddLeadModal(true)
                       }}
@@ -2042,7 +2042,7 @@ const Leads1 = () => {
                   </div>
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddNewSheetModal(true)
                       }}
