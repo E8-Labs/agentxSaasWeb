@@ -20,6 +20,7 @@ const DomainConfig = () => {
     message: '',
     isVisible: false,
   })
+  const [copiedFields, setCopiedFields] = useState({}) // Track which fields are copied
   const autoRefreshIntervalRef = useRef(null)
 
   // Fetch subdomain and domain status on mount
@@ -374,6 +375,60 @@ const DomainConfig = () => {
     )
   }
 
+  // Helper function for fallback clipboard copy method (synchronous)
+  const copyWithFallback = (text) => {
+    try {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-999999px'
+      textArea.style.top = '-999999px'
+      textArea.style.opacity = '0'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      const successful = document.execCommand('copy')
+      document.body.removeChild(textArea)
+
+      if (successful) {
+        console.log('✅ Copied to clipboard using execCommand')
+        return true
+      } else {
+        console.error('execCommand copy failed')
+        return false
+      }
+    } catch (fallbackError) {
+      console.error('Fallback copy method failed:', fallbackError)
+      return false
+    }
+  }
+
+  const handleCopyField = async (text, fieldId) => {
+    // Copy to clipboard IMMEDIATELY (synchronously) to preserve user gesture context
+    const copySuccess = copyWithFallback(text)
+
+    if (copySuccess) {
+      setCopiedFields((prev) => ({ ...prev, [fieldId]: true }))
+    } else {
+      // If fallback fails, try async clipboard API as last resort
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text)
+          console.log('✅ Copied to clipboard using Clipboard API')
+          setCopiedFields((prev) => ({ ...prev, [fieldId]: true }))
+        }
+      } catch (clipboardError) {
+        console.error('All clipboard methods failed:', clipboardError)
+      }
+    }
+
+    // Reset the "Copied" state after 2 seconds
+    setTimeout(() => {
+      setCopiedFields((prev) => ({ ...prev, [fieldId]: false }))
+    }, 2000)
+  }
+
   return (
     <div>
       {/* Banner Section */}
@@ -387,7 +442,7 @@ const DomainConfig = () => {
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col gap-6 overflow-hidden">
           {/* Auto Subdomain Display (Always visible, read-only) */}
-          {subdomain && (
+          {/* {subdomain && (
             <div className="w-full">
               <div className="text-start mb-2" style={styles.semiBoldHeading}>
                 Your Subdomain
@@ -405,18 +460,18 @@ const DomainConfig = () => {
                 This subdomain is automatically assigned and always active
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Connect Domain Section */}
           <div className="w-full">
             <div className="text-start mb-2" style={styles.semiBoldHeading}>
-              Connect Domain
+            Enter a domain or sub domain
             </div>
             <div className="w-full flex flex-row items-center gap-2">
               <input
                 style={styles.inputs}
                 className="w-[90%] border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
-                placeholder="example.com"
+                placeholder="app.assignx.ai or assignx.ai"
                 value={customDomain}
                 onChange={(e) => setCustomDomain(e.target.value)}
                 disabled={loading || !!domainStatus}
@@ -429,6 +484,32 @@ const DomainConfig = () => {
                 {loading ? 'Saving...' : 'Save'}
               </button>
             </div>
+
+            {/* Show warning message if DNS configuration is needed - MOVED ABOVE DNS RECORDS */}
+            {domainStatus &&
+              domainStatus.needsDnsConfiguration &&
+              domainStatus.warning && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                  <div className="flex items-start gap-2">
+                    <span className="text-yellow-600 text-lg">⚠️</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-yellow-900 mb-1">
+                        DNS Configuration Required
+                      </div>
+                      <div className="text-xs text-yellow-700">
+                        {domainStatus.warning}
+                      </div>
+                      {(!domainStatus.dnsRecords ||
+                        domainStatus.dnsRecords.length === 0) && (
+                        <div className="text-xs text-yellow-600 mt-2">
+                          If DNS records are not shown above, please contact
+                          support for assistance with domain configuration.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
             {/* DNS Records Table */}
             {domainStatus &&
@@ -455,22 +536,50 @@ const DomainConfig = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {domainStatus.dnsRecords.map((record, index) => (
-                          <tr key={index}>
-                            <td className="border border-gray-200 px-3 py-2 text-sm">
-                              {record.type}
-                            </td>
-                            <td className="border border-gray-200 px-3 py-2 text-sm">
-                              {record.host}
-                            </td>
-                            <td className="border border-gray-200 px-3 py-2 text-sm break-all">
-                              {record.value}
-                            </td>
-                            <td className="border border-gray-200 px-3 py-2 text-sm">
-                              {record.ttl || '600/auto'}
-                            </td>
-                          </tr>
-                        ))}
+                        {domainStatus.dnsRecords.map((record, index) => {
+                          const hostFieldId = `host-${index}`
+                          const valueFieldId = `value-${index}`
+                          return (
+                            <tr key={index}>
+                              <td className="border border-gray-200 px-3 py-2 text-sm">
+                                {record.type}
+                              </td>
+                              <td className="border border-gray-200 px-3 py-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                  <span className="flex-1">{record.host}</span>
+                                  <button
+                                    onClick={() =>
+                                      handleCopyField(record.host, hostFieldId)
+                                    }
+                                    className="text-purple hover:text-purple-700 text-xs font-medium px-2 py-1 rounded transition-colors"
+                                    title="Copy host"
+                                  >
+                                    {copiedFields[hostFieldId] ? 'Copied' : 'Copy'}
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="border border-gray-200 px-3 py-2 text-sm break-all">
+                                <div className="flex items-center gap-2">
+                                  <span className="flex-1 break-all">
+                                    {record.value}
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      handleCopyField(record.value, valueFieldId)
+                                    }
+                                    className="text-purple hover:text-purple-700 text-xs font-medium px-2 py-1 rounded transition-colors flex-shrink-0"
+                                    title="Copy value"
+                                  >
+                                    {copiedFields[valueFieldId] ? 'Copied' : 'Copy'}
+                                  </button>
+                                </div>
+                              </td>
+                              <td className="border border-gray-200 px-3 py-2 text-sm">
+                                {record.ttl || '600/auto'}
+                              </td>
+                            </tr>
+                          )
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -500,25 +609,16 @@ const DomainConfig = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {getStatusBadge(domainStatus.status)}
-                  {/* Show warning if DNS configuration is needed */}
-                  {/* {domainStatus.needsDnsConfiguration && (
-                    <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
-                      ⚠️ DNS configuration needed
-                    </span>
-                  )} */}
-                  {/* Show warning if Vercel shows different status */}
-                  {/* {!domainStatus.needsDnsConfiguration && domainStatus.vercelVerified === false && domainStatus.status === 'verified' && (
-                    <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded">
-                      ⚠️ DNS configuration needed
-                    </span>
-                  )} */}
-                  <button
-                    className="bg-gray-500 text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={handleVerifyDomain}
-                    disabled={verifying || domainStatus.status === 'verified'}
-                  >
-                    {verifying ? 'Verifying...' : 'Verify Domain'}
-                  </button>
+                  {/* Only show Verify Domain button if not verified */}
+                  {domainStatus.status !== 'verified' && (
+                    <button
+                      className="bg-gray-500 text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={handleVerifyDomain}
+                      disabled={verifying}
+                    >
+                      {verifying ? 'Verifying...' : 'Verify Domain'}
+                    </button>
+                  )}
                   <button
                     className="bg-gray-400 text-white rounded-md px-4 py-2 text-center hover:bg-gray-500"
                     onClick={handleRemoveDomain}
@@ -528,46 +628,6 @@ const DomainConfig = () => {
                   </button>
                 </div>
               </div>
-              {/* Show warning message if DNS configuration is needed */}
-              {domainStatus.needsDnsConfiguration && domainStatus.warning && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                  <div className="flex items-start gap-2">
-                    <span className="text-yellow-600 text-lg">⚠️</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-yellow-900 mb-1">
-                        DNS Configuration Required
-                      </div>
-                      <div className="text-xs text-yellow-700">
-                        {domainStatus.warning}
-                      </div>
-                      {(!domainStatus.dnsRecords ||
-                        domainStatus.dnsRecords.length === 0) && (
-                        <div className="text-xs text-yellow-600 mt-2">
-                          If DNS records are not shown above, please contact
-                          support for assistance with domain configuration.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Show DNS records even if verified but DNS records exist (for configuration) */}
-              {domainStatus.dnsRecords &&
-                domainStatus.dnsRecords.length > 0 && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <div className="text-sm font-medium text-blue-900 mb-2">
-                      {domainStatus.status === 'verified'
-                        ? 'DNS Records (for reference)'
-                        : 'DNS Records Required'}
-                    </div>
-                    <div className="text-xs text-blue-700 mb-2">
-                      {domainStatus.status === 'verified'
-                        ? 'Your domain is verified. If you experience any issues, please contact support.'
-                        : 'Please add these DNS records to your domain provider to complete verification.'}
-                    </div>
-                  </div>
-                )}
 
               {/* Show message when DNS records are missing but domain is verified */}
               {domainStatus.needsDnsConfiguration &&
