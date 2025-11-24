@@ -635,19 +635,38 @@ const AgencyNavBar = () => {
                     className="w-full flex flex-row gap-2 items-center py-1 rounded-full"
                     style={{}}
                   >
-                    <Image
-                      src={
-                        pathname === item.href
-                          ? item.selected
-                          : item.uneselected
-                      }
-                      height={24}
-                      width={24}
-                      alt="icon"
-                    />
                     <div
                       className={
-                        pathname === item.href ? 'text-purple' : 'text-black'
+                        pathname === item.href
+                          ? "icon-brand-primary"
+                          : "icon-black"
+                      }
+                      style={
+                        pathname === item.href
+                          ? {
+                              '--icon-mask-image': `url(${
+                                pathname === item.href
+                                  ? item.selected
+                                  : item.uneselected
+                              })`,
+                            }
+                          : {}
+                      }
+                    >
+                      <Image
+                        src={
+                          pathname === item.href
+                            ? item.selected
+                            : item.uneselected
+                        }
+                        height={24}
+                        width={24}
+                        alt="icon"
+                      />
+                    </div>
+                    <div
+                      className={
+                        pathname === item.href ? 'text-brand-primary' : 'text-black'
                       }
                       style={{
                         fontSize: 15,

@@ -1376,6 +1376,17 @@ const ProfileNav = () => {
                           ? "icon-brand-primary"
                           : "icon-black"
                       }
+                      style={
+                        pathname === item.href
+                          ? {
+                              '--icon-mask-image': `url(${
+                                pathname === item.href
+                                  ? item.selected
+                                  : item.uneselected
+                              })`,
+                            }
+                          : {}
+                      }
                     >
                       <Image
                         src={

@@ -359,16 +359,46 @@ a.text-red:hover {
 }
 
 /* Dynamic icon coloring for navigation icons */
-/* Uses CSS filter calculated dynamically by ThemeProvider */
+/* Uses CSS mask-image to apply brand color directly */
 .icon-brand-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  width: 24px;
+  height: 24px;
 }
 
 .icon-brand-primary img {
-  /* Apply dynamic filter calculated from brand color */
-  filter: var(--icon-filter, brightness(0) saturate(100%));
+  /* Hide the original colored image */
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Use a pseudo-element with the image as mask and brand color as background */
+.icon-brand-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsl(var(--brand-primary, 270 75% 50%));
+  /* Use the image URL from CSS custom property as mask */
+  -webkit-mask-image: var(--icon-mask-image);
+  mask-image: var(--icon-mask-image);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
 }
 
 
