@@ -945,7 +945,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               />
             </div>
           ) : (
-            <div className="h-[95vh]">
+            <div className={`h-[95vh]`}>
               {selectedUser?.planCapabilities?.maxLeads < 10000000 &&
                 selectedUser?.plan?.planId != null && (
                   <div
@@ -959,7 +959,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     {`${formatFractional2(selectedUser?.currentUsage?.maxLeads)}/${formatFractional2(selectedUser?.planCapabilities?.maxLeads || 0)} used`}
                   </div>
                 )}
-              <div className="flex flex-row items-start justify-center mt-48 w-full">
+              <div className={`flex flex-row items-start justify-center ${agencyUser ? 'mt-10' : 'mt-48'} w-full`}>
                 <Image
                   src={'/assets/placeholder.png'}
                   height={145}

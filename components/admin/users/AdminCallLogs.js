@@ -17,9 +17,9 @@ function AdminCallLogs({ selectedUser }) {
   const [activeTab, setActiveTab] = useState('All Activities')
 
   return (
-    <div className="w-full flex flex-col items-center overflow-hidden">
+    <div className="w-full h-full bg-blue flex flex-col items-center overflow-hidden">
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-4"
+        className=" w-full flex flex-row justify-between items-center px-4 bg-green"
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         {/* Slider code */}

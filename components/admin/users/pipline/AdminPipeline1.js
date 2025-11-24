@@ -1787,7 +1787,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start h-full mt-7">
+    <div className="w-full flex flex-col items-start h-full mt-2">
       {/* Slider code */}
       <div
         style={{
@@ -1815,7 +1815,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
         // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="w-full">
-          <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
+          <div className="flex flex-row items-center justify-between px-4 mb-4">
             <div className="flex flex-row items-center gap-2">
               <span style={{ fontWeight: '700', fontSize: 25 }}>
                 {SelectedPipeline?.title}

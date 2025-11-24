@@ -654,7 +654,7 @@ function AdminAllCalls({ selectedUser }) {
 
       {initialLoader && filteredCallDetails.length == 0 ? (
         <div
-          className={`flex flex-row items-center justify-center mt-12 h-[50vh] overflow-auto`}
+          className={`flex flex-row items-center justify-center mt-12 h-[41vh] overflow-auto`}
         >
           <CircularProgress size={35} thickness={2} />
         </div>

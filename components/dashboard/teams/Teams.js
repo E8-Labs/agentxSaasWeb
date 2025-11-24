@@ -972,9 +972,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                   width={240}
                   alt="*"
                 />
-                {/*
-                  reduxUser?.agencyCapabilities?.allowTeamCollaboration === false ||
-                */}
+               
                 {reduxUser?.planCapabilities?.allowTeamCollaboration ===
                 false ? (
                   <div className="w-full flex flex-col items-center -mt-12 gap-4">

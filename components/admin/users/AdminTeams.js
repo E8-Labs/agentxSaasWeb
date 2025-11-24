@@ -26,8 +26,10 @@ import {
 import { PersistanceKeys } from '@/constants/Constants'
 import { logout } from '@/utilities/UserUtility'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import UpgradeModal from '@/constants/UpgradeModal'
 
-function AdminTeam({ selectedUser }) {
+function AdminTeam({ selectedUser, }) {
   const timerRef = useRef(null)
   const router = useRouter()
   const [teamDropdown, setteamDropdown] = useState(null)
@@ -60,6 +62,27 @@ function AdminTeam({ selectedUser }) {
   const [checkPhoneLoader, setCheckPhoneLoader] = useState(null)
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
   const [countryCode, setCountryCode] = useState('') // Default country
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false) 
+
+  const [selectedUserDetails, setSelectedUserDetails] = useState(null)
+
+  let agencyData = null
+
+  useEffect(() => {
+  getUserDetails()
+  }, [selectedUser])
+
+  const getUserDetails = async () => {
+    try {
+      const response = await AdminGetProfileDetails(selectedUser.id)
+      setSelectedUserDetails(response)
+      agencyData = response
+    } catch (error) {
+      console.error('Error fetching user details:', error)
+    }
+  }
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true)
@@ -104,7 +127,7 @@ function AdminTeam({ selectedUser }) {
     },
   ]
 
-  useEffect(() => {})
+  useEffect(() => { })
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -498,7 +521,7 @@ function AdminTeam({ selectedUser }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center h-full">
       {/* Slider code */}
       <div
         style={{
@@ -518,8 +541,8 @@ function AdminTeam({ selectedUser }) {
         />
       )}
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-4"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        className=" w-full flex flex-row justify-between items-center px-4"
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
           <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
@@ -571,7 +594,7 @@ function AdminTeam({ selectedUser }) {
                     width={16}
                     height={16}
                     className="cursor-pointer rounded-full"
-                    // onClick={() => setIntroVideoModal2(true)}
+                  // onClick={() => setIntroVideoModal2(true)}
                   />
                 </div>
               </Tooltip>
@@ -662,11 +685,10 @@ function AdminTeam({ selectedUser }) {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${
-                              item.status === 'Pending'
-                                ? 'text-red-500'
-                                : 'text-green-500'
-                            }`}
+                            className={`text-sm font-medium ${item.status === 'Pending'
+                              ? 'text-red-500'
+                              : 'text-green-500'
+                              }`}
                           >
                             {item.status}
                           </div>
@@ -726,15 +748,75 @@ function AdminTeam({ selectedUser }) {
                 })}
               </div>
             ) : (
-              <div className="h-screen w-full flex flex-col items-center justify-center">
-                <div>
-                  <Image
-                    src={'/svgIcons/noTeamIcon2.svg'}
-                    height={291}
-                    width={249}
-                    alt="*"
-                  />
-                </div>
+              <div className="h-full border w-full flex flex-col items-center justify-center ">
+                <Image
+                  src={'/otherAssets/noTemView.png'}
+                  height={280}
+                  width={240}
+                  alt="*"
+                />
+
+                {selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                  false ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <Image
+                      src={'/otherAssets/starsIcon2.png'}
+                      height={30}
+                      width={30}
+                      alt="*"
+                    />
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Unlock Teams
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 15,
+                        textAlign: 'center',
+                      }}
+                    >
+                      Upgrade to invite team members and manage
+                      <br /> agents in one place
+                    </div>
+                  </div>
+                ) : agencyData?.sellSeats ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Add Team (${agencyData.costPerSeat}/mo)
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 15 }}>
+                      Add Seats With Full Access
+                    </div>
+                    <div
+                      className="text-center"
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 15,
+                        width: '700px',
+                      }}
+                    >
+                      Unlock full access for your team by adding an extra seat
+                      to your account.{' '}
+                      <span className="text-purple">
+                        For just ${agencyData.costPerSeat} per additional
+                        user
+                      </span>
+                      , per month. Your team member will have complete access to
+                      all features, allowing seamless collaboration, lead
+                      management, and AI agent usage. Empower your team to work
+                      smarter—add a seat and scale your success effortlessly.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Add Your Team
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 15 }}>
+                      Add team member to better manage your leads
+                    </div>
+                  </div>
+                )}
                 <div className="">
                   <button
                     className="rounded-lg text-white bg-purple mt-8"
@@ -744,11 +826,55 @@ function AdminTeam({ selectedUser }) {
                       height: '50px',
                       width: '173px',
                     }}
-                    onClick={() => setOpenInvitePopup(true)}
+                    onClick={() => {
+                      // if (!selectedUserDetails?.plan?.price) {
+                      //   console.log("No plan price")
+                      //   setShowUpgradeModal(true)
+                      //   return
+                      // }
+
+                      if (
+                        selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                        false
+                      ) {
+                        console.log('should open upgrade plan')
+                        setShowUpgradeModal(true)
+                        return
+                      }
+                      console.log('Current team members are', selectedUserDetails?.currentUsage?.maxTeamMembers)
+                      console.log('MAx team members are', selectedUserDetails?.planCapabilities?.maxTeamMembers)
+
+                      if (
+                        selectedUserDetails?.currentUsage?.maxTeamMembers >=
+                        selectedUserDetails?.planCapabilities?.maxTeamMembers
+                      ) {
+                        console.log('should open upgrade more')
+                        setShowUpgradeModalMore(true)
+                        console.log('should open upgrade warning')
+                      } else {
+                        console.log('Should open invite')
+                        setOpenInvitePopup(true)
+                      }
+                    }}
                   >
-                    + Invite Team
+                    {selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                      false
+                      ? 'Upgrade Plan'
+                      : agencyData?.sellSeats
+                        ? `Add Team $${agencyData.costPerSeat}/mo`
+                        : '+ Invite Team'}
                   </button>
                 </div>
+
+                <UpgradeModal
+                  open={false}
+                  handleClose={() => {
+                    setShowUpgradeModal(false)
+                  }}
+                  title={"You've Hit Your Members Limit"}
+                  subTitle={'Upgrade to add more team members'}
+                  buttonTitle={'No Thanks'}
+                />
               </div>
             )}
           </div>
@@ -975,7 +1101,7 @@ function AdminTeam({ selectedUser }) {
                         maxHeight: '150px',
                         overflowY: 'auto',
                       }}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -991,10 +1117,10 @@ function AdminTeam({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? '#00000020'
                         : '',
                   }}
@@ -1021,10 +1147,10 @@ function AdminTeam({ selectedUser }) {
                       fontWeight: '500',
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? '#000000'
                           : '#ffffff',
                     }}

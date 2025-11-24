@@ -172,7 +172,7 @@ function AdminIntegration({ selectedUser }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full h-full flex flex-col items-center">
       {/* Slider code */}
       <div
         style={{
@@ -190,8 +190,8 @@ function AdminIntegration({ selectedUser }) {
         type={SnackbarTypes.Success}
       />
       <div
-        className=" w-full flex flex-row justify-between items-center pt-4 px-10"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        className=" w-full flex flex-row justify-between items-center px-4"
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>Integration</div>
       </div>
@@ -215,7 +215,7 @@ function AdminIntegration({ selectedUser }) {
 
       </div> */}
       <div
-        className="w-full flex flex-col h-[60vh] mt-4"
+        className="w-full flex flex-col h-auto mt-4"
         style={{ overflow: 'auto', scrollbarWidth: 'none' }}
       >
         <div className="w-full pl-5 pr-8">
@@ -342,88 +342,7 @@ function AdminIntegration({ selectedUser }) {
           </div>
         </div>
 
-        {/* <div className='pl-10 flex flex-col items-center w-7/12' style={{ alignSelf: 'flex-start' }}>
-          <div className='w-full border p-3 flex flex-row items-center justify-between mt-5'>
-            <div className='flex flex-row items-center gap-5'>
-              <Image src={'/otherAssets/twiloImage.png'}
-                height={47}
-                width={47}
-                alt='twilo'
-              />
-              <div className='flex flex-col gap-2'>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#050A08' }}>
-                  Twilio
-                </div>
-
-                <div style={{ fontSize: 11, fontWeight: '400', color: '#050A0860' }}>
-                  Get a phone num from Twilio
-                </div>
-              </div>
-            </div>
-
-            <button className='px-4 py-2 bg-purple border rounded-lg'
-              onClick={() => { setShowCallReviewPopup(true) }}
-            >
-              <div style={{ fontSize: 15, fontWeight: '500', color: '#fff' }}>
-                Add
-              </div>
-            </button>
-
-          </div>
-
-          <div className='w-full border p-3 flex flex-row items-center justify-between mt-5'>
-            <div className='flex flex-row items-center gap-5'>
-              <Image src={'/otherAssets/calenderImage.png'}
-                height={47}
-                width={47}
-                alt='calender'
-              />
-              <div className='flex flex-col gap-2'>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#050A08' }}>
-                  Calender
-                </div>
-
-                <div style={{ fontSize: 11, fontWeight: '400', color: '#050A0860' }}>
-                  Connect to Cal.me, Calendly, smtp to google or apple calendar
-                </div>
-              </div>
-            </div>
-
-            <button className='px-4 py-2 bg-purple border rounded-lg'>
-              <div style={{ fontSize: 15, fontWeight: '500', color: '#fff' }}>
-                Add
-              </div>
-            </button>
-          </div>
-
-          <div className='w-full border p-3 flex flex-row items-center justify-between mt-5'>
-
-            <div className='flex flex-row items-center gap-5'>
-              <Image src={'/otherAssets/fubImage.png'}
-                height={47}
-                width={47}
-                alt='fub'
-              />
-              <div className='flex flex-col gap-2'>
-                <div style={{ fontSize: 15, fontWeight: '500', color: '#050A08' }}>
-                  FUB
-                </div>
-
-                <div style={{ fontSize: 11, fontWeight: '400', color: '#050A0860' }}>
-                  API Keys to send hot leads and booked meetings
-                </div>
-              </div>
-            </div>
-
-            <button className='px-4 py-2 bg-purple border rounded-lg'>
-              <div style={{ fontSize: 15, fontWeight: '500', color: '#fff' }}>
-                Add
-              </div>
-            </button>
-          </div>
-        </div> */}
-
-        <div className="flex flex-row w-full flex-wrap gap-3 p-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-full gap-3 p-4 ">
           {integrations.map((integration, index) => (
             <div
               key={index}
@@ -432,17 +351,19 @@ function AdminIntegration({ selectedUser }) {
               <img
                 src={integration.icon}
                 alt={integration.title}
-                className="w-12 h-12 object-contain"
+                className="w-12 h-13 object-contain"
               />
-              <div className="flex flex-col gap-2">
-                <div style={{ fontSize: '1vw', fontWeight: '500' }}>
-                  {integration.title}
-                </div>
-                <div
-                  style={{ fontSize: '1vw', fontWeight: '500' }}
-                  className="flex-wrap text-gray-600 w-[20vw]"
-                >
-                  {integration.description}
+              <div className="flex flex-col h-full justify-between">
+                <div className="flex flex-col gap-2 flex-1">
+                  <div style={{ fontSize: '1vw', fontWeight: '500' }}>
+                    {integration.title}
+                  </div>
+                  <div
+                    style={{ fontSize: '1vw', fontWeight: '500' }}
+                    className="flex-wrap text-gray-600"
+                  >
+                    {integration.description}
+                  </div>
                 </div>
                 <button
                   onClick={() => {
@@ -458,6 +379,7 @@ function AdminIntegration({ selectedUser }) {
                 >
                   Add
                 </button>
+
               </div>
             </div>
           ))}
