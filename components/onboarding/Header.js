@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
+import AppLogo from '@/components/common/AppLogo'
 
 const Header = ({
   skipSellerKYC,
@@ -26,14 +27,13 @@ const Header = ({
     <div>
       <div className="px-4 flex flex-row items-center md:pt-2">
         <div className="w-4/12">
-          <Image
-            className="ms-6 hidden md:flex"
-            src="/assets/assignX.png"
-            style={{ height: '29px', width: '122px', resize: 'contain' }}
-            height={29}
-            width={122}
-            alt="*"
-          />
+          <div className="ms-6 hidden md:flex">
+            <AppLogo
+              height={29}
+              width={122}
+              alt="logo"
+            />
+          </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
           <Image

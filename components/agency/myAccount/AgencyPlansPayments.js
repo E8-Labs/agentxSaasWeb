@@ -28,6 +28,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar'
 import AgencyPlans from '@/components/plan/AgencyPlans'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { ScrollBarCss } from '@/constants/Constants'
+import AppLogo from '@/components/common/AppLogo'
 import { useUser } from '@/hooks/redux-hooks'
 import { GetFormattedDateString } from '@/utilities/utility'
 
@@ -1798,12 +1799,10 @@ function AgencyPlansPayments({ selectedAgency }) {
               className="flex w-full flex-row items-center gap-2"
               style={{ backgroundColor: '' }}
             >
-              <Image
-                src={'/assets/assignX.png'}
+              <AppLogo
                 height={30}
                 width={130}
-                alt="*"
-                style={{ backgroundColor: '' }}
+                alt="logo"
               />
 
               <div className={`w-[80%]`}>

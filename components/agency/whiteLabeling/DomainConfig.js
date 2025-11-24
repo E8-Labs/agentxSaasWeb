@@ -244,10 +244,14 @@ const DomainConfig = () => {
 
       if (response?.data?.status === true) {
         setShowSnackMessage({
-          type: SnackbarTypes.Success,
-          message: response.data.verified
-            ? 'Domain verified successfully!'
-            : 'Domain verification pending. Please check your DNS records.',
+          type: response.data.verified
+            ? SnackbarTypes.Success
+            : SnackbarTypes.Warning,
+          message:
+            response.data.message ||
+            (response.data.verified
+              ? 'Domain verified successfully!'
+              : 'Domain verification pending. Please check your DNS records.'),
           isVisible: true,
         })
         // Refresh domain status

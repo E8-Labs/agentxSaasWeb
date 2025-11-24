@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
+import AppLogo from '@/components/common/AppLogo'
+
 const Page = ({ handleContinue, DefaultData }) => {
   const styles = {
     modalsStyle: {
@@ -46,14 +48,13 @@ const Page = ({ handleContinue, DefaultData }) => {
           <div className="flex flex-col items-center max-h-[89vh] ">
             {/* header */}
             <div className=" w-full h-[10%] px-4 flex flex-row items-center">
-              <Image
-                className="ms-6"
-                src="/assets/assignX.png"
-                style={{ height: '29px', width: '122px', resize: 'contain' }}
-                height={29}
-                width={122}
-                alt="*"
-              />
+              <div className="ms-6">
+                <AppLogo
+                  height={29}
+                  width={122}
+                  alt="logo"
+                />
+              </div>
             </div>
 
             {/* Body */}

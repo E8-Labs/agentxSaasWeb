@@ -145,10 +145,12 @@ export const copyAgencyOnboardingLink = async ({
     // First, check if custom domain exists in reduxUser (synchronous check)
     let basePath = defaultBasePath
     let customDomain = null
+    let hasCustomDomain = false
 
     if (reduxUser?.agencyBranding?.customDomain) {
       customDomain = reduxUser.agencyBranding.customDomain
       basePath = `https://${customDomain}/`
+      hasCustomDomain = true
       console.log('✅ Found custom domain in user profile:', customDomain)
     } else {
       console.log(
@@ -158,8 +160,15 @@ export const copyAgencyOnboardingLink = async ({
     }
 
     // Generate the onboarding link immediately (using domain from reduxUser or default)
-    const UUIDLink = basePath + `onboarding/${agencyUuid}`
-    console.log('🔗 Generated onboarding link:', UUIDLink)
+    // If custom domain is connected, don't include UUID. If no custom domain, include UUID.
+    const onboardingPath = hasCustomDomain
+      ? 'onboarding'
+      : `onboarding/${agencyUuid}`
+    const UUIDLink = basePath + onboardingPath
+    console.log('🔗 Generated onboarding link:', UUIDLink, {
+      hasCustomDomain,
+      includesUuid: !hasCustomDomain,
+    })
 
     // Copy to clipboard IMMEDIATELY (synchronously) to preserve user gesture context
     const copySuccess = copyWithFallback(UUIDLink)
@@ -185,8 +194,11 @@ export const copyAgencyOnboardingLink = async ({
     // This doesn't block the copy operation
     ;(async () => {
       try {
+        let finalCustomDomain = customDomain
+        let finalHasCustomDomain = hasCustomDomain
+
         // If we didn't have custom domain in reduxUser, try to get it from API
-        if (!customDomain) {
+        if (!finalCustomDomain) {
           try {
             const axios = (await import('axios')).default
             const Apis = (await import('@/components/apis/Apis')).default
@@ -207,10 +219,11 @@ export const copyAgencyOnboardingLink = async ({
                   (domain.status === 'active' || domain.status === 'verified'),
               )
               if (verifiedDomain) {
-                customDomain = verifiedDomain.domain
+                finalCustomDomain = verifiedDomain.domain
+                finalHasCustomDomain = true
                 console.log(
-                  '✅ Found custom domain from branding API (for future use):',
-                  customDomain,
+                  '✅ Found custom domain from branding API:',
+                  finalCustomDomain,
                 )
               }
             }
@@ -222,7 +235,7 @@ export const copyAgencyOnboardingLink = async ({
           }
 
           // If still not found, try the domain status API
-          if (!customDomain) {
+          if (!finalCustomDomain) {
             try {
               const axios = (await import('axios')).default
               const Apis = (await import('@/components/apis/Apis')).default
@@ -239,10 +252,11 @@ export const copyAgencyOnboardingLink = async ({
                 (domainResponse?.data?.data?.status === 'active' ||
                   domainResponse?.data?.data?.status === 'verified')
               ) {
-                customDomain = domainResponse.data.data.domain
+                finalCustomDomain = domainResponse.data.data.domain
+                finalHasCustomDomain = true
                 console.log(
-                  '✅ Found custom domain from domain status API (for future use):',
-                  customDomain,
+                  '✅ Found custom domain from domain status API:',
+                  finalCustomDomain,
                 )
               }
             } catch (domainError) {
@@ -252,24 +266,20 @@ export const copyAgencyOnboardingLink = async ({
               )
             }
           }
+        }
 
-          // If we found a custom domain from API, regenerate the link with it
-          if (customDomain) {
-            const updatedLink = `https://${customDomain}/onboarding/${agencyUuid}`
-            console.log(
-              '🔄 Updating stored link with custom domain:',
-              updatedLink,
-            )
-            // Store the updated link
-            const { UpdateProfile } = await import(
-              '@/components/apis/UpdateProfile'
-            )
-            await UpdateProfile({
-              agencyOnboardingLink: updatedLink,
-            })
-            console.log('✅ Stored updated onboarding link in user profile')
-            return
-          }
+        // Generate the final link based on whether custom domain is connected
+        // If custom domain is connected, don't include UUID. If no custom domain, include UUID.
+        let finalLink
+        if (finalHasCustomDomain && finalCustomDomain) {
+          finalLink = `https://${finalCustomDomain}/onboarding`
+          console.log(
+            '🔄 Generated link with custom domain (no UUID):',
+            finalLink,
+          )
+        } else {
+          finalLink = defaultBasePath + `onboarding/${agencyUuid}`
+          console.log('🔄 Generated link with default domain (with UUID):', finalLink)
         }
 
         // Store the link in the user table
@@ -277,9 +287,9 @@ export const copyAgencyOnboardingLink = async ({
           '@/components/apis/UpdateProfile'
         )
         await UpdateProfile({
-          agencyOnboardingLink: UUIDLink,
+          agencyOnboardingLink: finalLink,
         })
-        console.log('✅ Stored onboarding link in user profile')
+        console.log('✅ Stored onboarding link in user profile:', finalLink)
       } catch (updateError) {
         console.error('Failed to store onboarding link:', updateError)
       }

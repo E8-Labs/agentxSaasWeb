@@ -37,6 +37,7 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import CloseBtn from '../globalExtras/CloseBtn'
 import ProgressBar from '../onboarding/ProgressBar'
+import AppLogo from '@/components/common/AppLogo'
 import {
   RemoveSmartRefillApi,
   SmartRefillApi,
@@ -2161,12 +2162,10 @@ function NewBilling() {
                   className="flex w-full flex-row items-center gap-2"
                   style={{ backgroundColor: '' }}
                 >
-                  <Image
-                    src={'/assets/assignX.png'}
+                  <AppLogo
                     height={30}
                     width={130}
-                    alt="*"
-                    style={{ backgroundColor: '' }}
+                    alt="logo"
                   />
 
                   <div className={`w-[80%]`}>

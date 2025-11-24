@@ -11,6 +11,7 @@ import CreateAgent2 from '@/components/createagent/CreateAgent2'
 import CreateAgent4 from '@/components/createagent/CreateAgent4'
 import CreateAgentVoice from '@/components/createagent/CreateAgentVoice'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
+import AppLogo from '@/components/common/AppLogo'
 
 const Page = () => {
   const [index, setIndex] = useState(0)
@@ -51,18 +52,11 @@ const Page = () => {
       // style={backgroundImage}
       className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4 px-4"
     >
-      <Image
-        className=""
-        src="/assets/assignX.png"
-        style={{
-          height: '29px',
-          width: '122px',
-          resize: 'contain',
-          alignSelf: 'flex-start',
-        }}
+      <AppLogo
         height={29}
         width={122}
-        alt="*"
+        style={{ alignSelf: 'flex-start' }}
+        alt="logo"
       />
       <div className="-mt-4 w-full ">
         <DesktopView width={width} />

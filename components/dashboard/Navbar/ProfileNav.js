@@ -48,6 +48,7 @@ import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
+import AppLogo from "@/components/common/AppLogo";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
@@ -1329,42 +1330,22 @@ const ProfileNav = () => {
           }}
         >
           <div className="w-full flex flex-col gap-2">
-            {/* Show agency branding for subaccount users, otherwise show assignX */}
-            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
-              <>
-                {/* If logo exists, show only logo */}
-                {reduxUser.agencyBranding.logoUrl ? (
-                  <div className="w-full flex justify-start pl-6">
-                    <Image
-                      src={reduxUser.agencyBranding.logoUrl}
-                      alt="agency logo"
-                      height={40}
-                      width={140}
-                      objectFit="contain"
-                      style={{ maxHeight: "40px", marginLeft: "-8px" }}
-                    />
-                  </div>
-                ) : (
-                  /* If no logo, show only agency name */
-                  reduxUser.agencyBranding.companyName && (
-                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
-                      <div className="text-lg font-bold text-black truncate">
-                        {reduxUser.agencyBranding.companyName}
-                      </div>
-                    </div>
-                  )
-                )}
-              </>
+            {/* Show company name if no logo for subaccount users */}
+            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding && !reduxUser.agencyBranding.logoUrl && reduxUser.agencyBranding.companyName ? (
+              <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                <div className="text-lg font-bold text-black truncate">
+                  {reduxUser.agencyBranding.companyName}
+                </div>
+              </div>
             ) : (
-              /* Default assignX logo for regular users */
+              /* AppLogo handles logo display based on hostname */
               <div className="w-full flex justify-start pl-6">
-                <Image
-                  src={"/assets/assignX.png"}
-                  alt="profile"
-                  height={33}
+                <AppLogo
+                  height={reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee" ? 40 : 33}
                   width={140}
-                  objectFit="contain"
+                  maxWidth={200}
                   style={{ marginLeft: "-8px" }}
+                  alt="logo"
                 />
               </div>
             )}

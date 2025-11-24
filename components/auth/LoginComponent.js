@@ -19,6 +19,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
 import {
@@ -1024,31 +1025,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       </div> */}
       <div className="w-11/12 flex flex-col items-center h-[95svh] ">
         <div className="w-full gap-3 h-[10%] flex flex-row items-end">
-          {agencyBranding?.logoUrl ? (
-            <Image
-              className=""
-              src={agencyBranding.logoUrl}
-              style={{
-                height: '29px',
-                width: 'auto',
-                maxWidth: '200px',
-                resize: 'contain',
-                objectFit: 'contain',
-              }}
-              height={29}
-              width={200}
-              alt="agency logo"
-            />
-          ) : (
-            <Image
-              className=""
-              src="/assets/assignX.png"
-              style={{ height: '29px', width: '122px', resize: 'contain' }}
-              height={29}
-              width={122}
-              alt="*"
-            />
-          )}
+          <AppLogo
+            height={29}
+            width={122}
+            maxWidth={200}
+            alt="logo"
+          />
           {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
         </div>
         <div className="w-full  h-[80%] flex flex-row items-center justify-center">

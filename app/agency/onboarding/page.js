@@ -8,6 +8,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar'
 import AgencySignUp from '@/components/onboarding/agencyOnboarding/AgencySignUp'
 import AgencyPlans from '@/components/plan/AgencyPlans'
 import { PersistanceKeys } from '@/constants/Constants'
+import AppLogo from '@/components/common/AppLogo'
 
 function Page() {
   const router = useRouter()
@@ -76,12 +77,10 @@ function Page() {
         className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
         style={{ backgroundColor: '' }}
       >
-        <Image
-          src={'/assets/assignX.png'}
+        <AppLogo
           height={30}
           width={130}
-          alt="*"
-          style={{ backgroundColor: '' }}
+          alt="logo"
         />
         {/* /assets/agentX.png */}
 

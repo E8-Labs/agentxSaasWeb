@@ -22,6 +22,7 @@ import TermsConfig from './TermsConfig'
 import TutorialConfig from './TutorialConfig'
 import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationConfig'
 import CancellationRefundConfig from './CancellationRefundConfig'
+import AppLogo from '@/components/common/AppLogo'
 
 const WhiteLabel = () => {
   const router = useRouter()
@@ -259,11 +260,10 @@ const WhiteLabel = () => {
           <div className="w-full flex flex-row items-center justify-between px-4 py-4 gap-4">
             <div className="flex flex-row items-center gap-3 flex-1">
               <div className="flex items-center justify-center flex-shrink-0">
-                <Image
-                  alt="AssignX Icon"
-                  src={'/assets/newAssignX.png'}
+                <AppLogo
                   height={45}
                   width={45}
+                  alt="AssignX Icon"
                 />
               </div>
               <div className="flex-1">

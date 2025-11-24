@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService'
@@ -446,13 +447,10 @@ const Page = ({ length = 6, onComplete }) => {
       </div> */}
         <div className="w-11/12 flex flex-col items-center h-[90svh] ">
           <div className="w-full gap-3 h-[10%] flex flex-row items-end">
-            <Image
-              className=""
-              src="/assets/assignX.png"
-              style={{ height: '29px', width: '122px', resize: 'contain' }}
+            <AppLogo
               height={29}
               width={122}
-              alt="*"
+              alt="logo"
             />
             {/* <Image className='hidden md:flex' src="/agentXOrb.gif" style={{ height: "69px", width: "75px", resize: "contain" }} height={69} width={69} alt='*' /> */}
           </div>

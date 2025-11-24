@@ -36,6 +36,7 @@ import PauseSubscription from '@/components/myAccount/cancelationFlow/PauseSubsc
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import { DurationView } from '@/components/plan/DurationView'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import AppLogo from '@/components/common/AppLogo'
 import {
   downgradeToGrowthFeatures,
   downgradeToStarterFeatures,
@@ -2000,12 +2001,10 @@ function AdminBilling({ selectedUser, from }) {
                   className="flex w-full flex-row items-center gap-2"
                   style={{ backgroundColor: '' }}
                 >
-                  <Image
-                    src={'/assets/assignX.png'}
+                  <AppLogo
                     height={30}
                     width={130}
-                    alt="*"
-                    style={{ backgroundColor: '' }}
+                    alt="logo"
                   />
 
                   <div className={`w-[80%]`}>

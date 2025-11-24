@@ -23,6 +23,7 @@ import AgentSelectSnackMessage, {
 import BackgroundVideo from '../general/BackgroundVideo'
 import CloseBtn from '../globalExtras/CloseBtn'
 import SelectYearlypopup from './SelectYearlypopup'
+import AppLogo from '@/components/common/AppLogo'
 
 //code for add card
 let stripePublickKey =
@@ -493,12 +494,10 @@ function AgencyPlans({
             className="flex w-full flex-row items-center gap-2 mt-[5vh]"
             style={{ backgroundColor: '' }}
           >
-            <Image
-              src={'/assets/assignX.png'}
+            <AppLogo
               height={30}
               width={130}
-              alt="*"
-              style={{ backgroundColor: '' }}
+              alt="logo"
             />
 
             <div className={`w-[100%]`}>
