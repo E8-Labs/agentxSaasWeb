@@ -88,7 +88,7 @@ function NoAgent({
       </div>
       {showBtn && (
         <button
-          className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg mt-6"
+          className="flex h-[54px] items-center flex-row gap-2 bg-brand-primary p-2 px-8 rounded-lg mt-6"
           onClick={() => {
             handleAddNewAgent()
           }}

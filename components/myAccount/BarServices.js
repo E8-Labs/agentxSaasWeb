@@ -463,9 +463,9 @@ function BarServices() {
                   ...styles.pricingBox,
                   border:
                     item.id === togglePlan
-                      ? '2px solid #7902DF'
+                      ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                       : '1px solid #15151520',
-                  backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                  backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)' : '',
                 }}
               >
                 <div
@@ -524,7 +524,7 @@ function BarServices() {
                       </div>
                       {item.status && (
                         <div
-                          className="flex px-2 py-1 bg-purple rounded-full text-white"
+                          className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{ fontSize: 11.6, fontWeight: '500' }}
                         >
                           {item.status}
@@ -586,7 +586,7 @@ function BarServices() {
                 fontWeight: '700',
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? '#00000020' : '#7902DF',
+                  togglePlan === currentPlan ? '#00000020' : 'hsl(var(--brand-primary, 270 75% 50%))',
                 color: togglePlan === currentPlan ? '#000000' : '#ffffff',
               }}
               onClick={() => {
@@ -724,7 +724,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -742,7 +742,7 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },

@@ -36,7 +36,7 @@ function NoVoicemailView({
 
       {showAddBtn && (
         <button
-          className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
+          className="flex h-[54px] items-center flex-row gap-2 bg-brand-primary p-2 px-8 rounded-lg"
           onClick={openModal}
         >
           <Plus color="white"></Plus>

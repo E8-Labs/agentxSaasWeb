@@ -3799,7 +3799,7 @@ function Page() {
                     {name && phone && (
                       <button
                         // style={{ marginTop: 10 }}
-                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                        className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center text-white"
                         onClick={handleTestAiClick}
                       >
                         <div
@@ -4055,7 +4055,7 @@ function Page() {
                       </div>
                     </button>
                     <div
-                      className="text-purple max-w-[140px]"
+                      className="text-brand-primary max-w-[140px]"
                       style={{ fontSize: 11, fontWeight: '600' }}
                     >
                       {showDrawerSelectedAgent?.agentObjective}{' '}
@@ -4417,8 +4417,8 @@ function Page() {
                   )
                 }
                 icon="/svgIcons/convosIcon2.svg"
-                bgColor="bg-purple-100"
-                iconColor="text-purple-500"
+                bgColor="bg-brand-primary/10"
+                iconColor="text-brand-primary"
               />
               <Card
                 name="Hot Leads"

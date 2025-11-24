@@ -1516,7 +1516,7 @@ function NewBilling() {
           fontSize: 16,
           fontWeight: '700',
           flexShrink: 0,
-          backgroundColor: '#7902DF',
+          backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
           color: '#ffffff',
         },
       }
@@ -1533,7 +1533,7 @@ function NewBilling() {
         fontSize: 16,
         fontWeight: '700',
         flexShrink: 0,
-        backgroundColor: '#7902DF',
+        backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
         color: '#ffffff',
       },
     }
@@ -1601,11 +1601,10 @@ function NewBilling() {
           }}
         >
           <div
+            className="text-brand-primary underline"
             style={{
               fontSize: 15,
               fontWeight: '500',
-              color: '#7902DF',
-              textDecorationLine: 'underline',
             }}
           >
             Add New Card
@@ -1658,13 +1657,13 @@ function NewBilling() {
                               : 'transparent',
                           borderColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? '#7902DF'
+                              ? 'hsl(var(--brand-primary, 270 75% 50%))'
                               : '#15151510',
                         }}
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
+                            className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`} //border-[#2548FD]
                             style={{
                               borderWidth:
                                 item.isDefault || selectedCard?.id === item.id
@@ -1691,7 +1690,7 @@ function NewBilling() {
 
                                 item.isDefault && (
                                   <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                    className="flex px-2 py-1 rounded-full bg-brand-primary text-white text-[10]"
                                     style={{ fontSize: 11, fontWeight: '500' }}
                                   >
                                     Default
@@ -1811,9 +1810,9 @@ function NewBilling() {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? '2px solid #7902DF'
+                    ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                     : '1px solid #15151520',
-                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)' : '',
                 minHeight: '320px', // Further increased height for better feature accommodation
               }}
             >
@@ -1985,7 +1984,7 @@ function NewBilling() {
                   {item.id === currentPlan &&
                     userLocalData?.plan?.status !== 'cancelled' && (
                       <div
-                        className="flex px-2 py-1 bg-purple rounded-full text-white"
+                        className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                         style={{
                           fontSize: 9,
                           fontWeight: '600',
@@ -2003,8 +2002,8 @@ function NewBilling() {
                       console.log('View Details clicked, opening modal')
                       setShowUserPlansModal(true)
                     }}
+                    className="text-brand-primary"
                     style={{
-                      color: '#7902DF',
                       textDecoration: 'none',
                       fontWeight: 600,
                       fontSize: 10,
@@ -2329,7 +2328,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -2347,7 +2346,7 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },

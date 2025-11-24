@@ -372,7 +372,7 @@ const AgentsListPaginated = ({
                         </div>
                       </div>
                       <div
-                        className="flex flex-row gap-3 items-center text-purple"
+                        className="flex flex-row gap-3 items-center text-brand-primary"
                         style={{ fontSize: 15, fontWeight: '500' }}
                       >
                         <button
@@ -428,7 +428,7 @@ const AgentsListPaginated = ({
                       </div>
                     )}
                     <button
-                      className="bg-purple px-4 py-2 rounded-lg"
+                      className="bg-brand-primary px-4 py-2 rounded-lg text-white"
                       onClick={() => {
                         console.log('Show test ai modal', item)
                         if (!item.phoneNumber) {
@@ -510,8 +510,8 @@ const AgentsListPaginated = ({
                       name="Convos"
                       value={<div>{item.callsGt10 || '-'}</div>}
                       icon="/svgIcons/convosIcon2.svg"
-                      bgColor="bg-purple-100"
-                      iconColor="text-purple-500"
+                      bgColor="bg-brand-primary/10"
+                      iconColor="text-brand-primary"
                     />
                     <AgentInfoCard
                       name="Hot Leads"
@@ -630,7 +630,7 @@ export const WarningModal = ({
               Close
             </button>
             <button
-              className="mt-4 outline-none bg-purple w-7/12"
+              className="mt-4 outline-none bg-brand-primary w-7/12 text-white"
               style={{
                 color: 'white',
                 height: '50px',
