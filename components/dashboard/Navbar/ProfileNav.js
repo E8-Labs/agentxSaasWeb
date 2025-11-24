@@ -1382,7 +1382,7 @@ const ProfileNav = () => {
                     />
                     <div
                       className={
-                        pathname === item.href ? "text-purple" : "text-black"
+                        pathname === item.href ? "text-brand-primary" : "text-black"
                       }
                       style={{
                         fontSize: 15,
