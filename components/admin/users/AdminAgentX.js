@@ -4269,7 +4269,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   style={styles.dropdownMenu}
                                   value={
                                     showGlobalBtn
-                                      ? getGlobalPhoneNumber(reduxUser).replace(
+                                      ? getGlobalPhoneNumber(selectedUser).replace(
                                           '+',
                                           '',
                                         )
@@ -4279,7 +4279,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   disabled={
                                     (assignNumber &&
                                       assignNumber.replace('+', '') ===
-                                        getGlobalPhoneNumber(reduxUser).replace(
+                                        getGlobalPhoneNumber(selectedUser).replace(
                                           '+',
                                           '',
                                         )) ||
@@ -4294,12 +4294,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     )
                                     // return;
                                     AssignNumber(
-                                      getGlobalPhoneNumber(reduxUser),
+                                      getGlobalPhoneNumber(selectedUser),
                                     )
                                     // handleReassignNumber(showConfirmationModal);
                                   }}
                                 >
-                                  {getGlobalPhoneNumber(reduxUser)}
+                                  {getGlobalPhoneNumber(selectedUser)}
                                   {showGlobalBtn &&
                                     ' (available for testing calls only)'}
                                   {showGlobalBtn == false &&
