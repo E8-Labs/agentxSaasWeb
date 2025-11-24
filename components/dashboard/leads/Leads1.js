@@ -1275,9 +1275,9 @@ const Leads1 = () => {
                     Works with only a CSV, TSV or Excel files
                   </p>
                   <button className="w-full flex flex-row justify-center mt-6 outline-none">
-                    <div className="border border-purple rounded-[10px]">
+                    <div className="border border-brand-primary rounded-[10px]">
                       <div
-                        className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
+                        className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
                         style={{
                           fontWeight: '500',
                           fontSize: 12,
