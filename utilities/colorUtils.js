@@ -105,3 +105,43 @@ export function getDefaultSecondaryColor() {
   return '270 60% 60%' // Lighter purple variant
 }
 
+/**
+ * Calculates CSS filter to convert purple icons to brand color
+ * @param {string} brandColorHex - Brand color in hex format (e.g., "#7902DF")
+ * @returns {string} - CSS filter string
+ */
+export function calculateIconFilter(brandColorHex) {
+  if (!brandColorHex || !isValidHex(brandColorHex)) {
+    return 'brightness(0) saturate(100%)' // Default: black
+  }
+
+  // Get HSL values for brand color
+  const hsl = hexToHsl(brandColorHex)
+  const parts = hsl.split(' ')
+  const h = parseFloat(parts[0])
+  const s = parseFloat(parts[1].replace('%', ''))
+  const l = parseFloat(parts[2].replace('%', ''))
+
+  // Default purple (#7902DF) is at 270deg hue
+  const defaultPurpleHue = 270
+  const hueDiff = h - defaultPurpleHue
+
+  // Normalize hue difference to -180 to 180 range
+  let normalizedHueDiff = hueDiff
+  if (normalizedHueDiff > 180) {
+    normalizedHueDiff -= 360
+  } else if (normalizedHueDiff < -180) {
+    normalizedHueDiff += 360
+  }
+
+  // Calculate brightness adjustment
+  // Purple has ~50% lightness, so adjust based on brand color lightness
+  const defaultPurpleLightness = 50
+  const lightnessDiff = l - defaultPurpleLightness
+  const brightnessAdjust = 1 + lightnessDiff / 100
+
+  // Return CSS filter string
+  // Convert to grayscale, then hue-rotate to brand color, adjust brightness
+  return `brightness(0) saturate(100%) hue-rotate(${normalizedHueDiff}deg) brightness(${brightnessAdjust})`
+}
+

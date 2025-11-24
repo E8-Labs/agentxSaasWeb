@@ -5,21 +5,49 @@ import {
   hexToHsl,
   getDefaultPrimaryColor,
   getDefaultSecondaryColor,
+  calculateIconFilter,
 } from '@/utilities/colorUtils'
 
 /**
  * ThemeProvider Component
  * Dynamically applies agency branding colors (primary/secondary) based on hostname
  * - Only applies colors on custom domains (not assignx.ai domains)
+ * - Exception: Applies branding on assignx.ai domains if user is a subaccount
  * - Reads agencyBranding from cookie/localStorage
  * - Converts hex colors to HSL and injects CSS variables
  * - Listens for branding updates to refresh colors
+ * - Can be disabled via NEXT_PUBLIC_DISABLE_AGENCY_BRANDING env variable
  */
 const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const applyTheme = () => {
+      // Check if agency branding is disabled via environment variable
+      const isBrandingDisabled =
+        process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING === 'true' ||
+        process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING === '1'
+
+      if (isBrandingDisabled) {
+        console.log('🚫 [ThemeProvider] Agency branding disabled via environment variable')
+        // Force assignx branding
+        const defaultPrimary = getDefaultPrimaryColor()
+        const defaultSecondary = getDefaultSecondaryColor()
+        document.documentElement.style.setProperty(
+          '--brand-primary',
+          defaultPrimary,
+        )
+        document.documentElement.style.setProperty(
+          '--brand-secondary',
+          defaultSecondary,
+        )
+        document.documentElement.style.setProperty(
+          '--icon-filter',
+          'brightness(0) saturate(100%)',
+        )
+        return
+      }
+
       const hostname = window.location.hostname
 
       // Check if hostname is assignx.ai domain
@@ -28,8 +56,23 @@ const ThemeProvider = ({ children }) => {
         hostname === 'assignx.ai' ||
         hostname.includes('localhost')
 
-      // If assignx domain, use default colors (don't override)
-      if (isAssignxDomain) {
+      // Check if user is a subaccount (for exception rule)
+      let isSubaccount = false
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          isSubaccount =
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+
+      // If assignx domain AND not a subaccount, use default colors (don't override)
+      // Exception: If subaccount, apply branding even on assignx.ai domains
+      if (isAssignxDomain && !isSubaccount) {
         // Set defaults explicitly to ensure consistency
         const defaultPrimary = getDefaultPrimaryColor()
         const defaultSecondary = getDefaultSecondaryColor()
@@ -41,10 +84,15 @@ const ThemeProvider = ({ children }) => {
           '--brand-secondary',
           defaultSecondary,
         )
+        // Icons stay purple (no filter needed)
+        document.documentElement.style.setProperty(
+          '--icon-filter',
+          'brightness(0) saturate(100%)',
+        )
         return
       }
 
-      // For custom domains, check agency branding
+      // For custom domains OR subaccounts on assignx.ai domains, check agency branding
       const getCookie = (name) => {
         const value = `; ${document.cookie}`
         const parts = value.split(`; ${name}=`)
@@ -76,6 +124,24 @@ const ThemeProvider = ({ children }) => {
         }
       }
 
+      // Additional fallback: Check user data for agencyBranding (for subaccounts)
+      if (!branding && isSubaccount) {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            // Check if agencyBranding exists in user object
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            }
+          }
+        } catch (error) {
+          console.log('Error parsing user data for agencyBranding:', error)
+        }
+      }
+
       // Apply colors if branding exists
       if (branding) {
         // Convert and apply primary color
@@ -87,12 +153,24 @@ const ThemeProvider = ({ children }) => {
           )
           // Also update --primary for shadcn/ui compatibility
           document.documentElement.style.setProperty('--primary', primaryHsl)
+          
+          // Calculate and apply icon filter to convert purple icons to brand color
+          const iconFilter = calculateIconFilter(branding.primaryColor)
+          document.documentElement.style.setProperty(
+            '--icon-filter',
+            iconFilter,
+          )
         } else {
           // Use default if no primary color
           const defaultPrimary = getDefaultPrimaryColor()
           document.documentElement.style.setProperty(
             '--brand-primary',
             defaultPrimary,
+          )
+          // Reset icon filter to default
+          document.documentElement.style.setProperty(
+            '--icon-filter',
+            'brightness(0) saturate(100%)',
           )
         }
 
@@ -124,6 +202,11 @@ const ThemeProvider = ({ children }) => {
         document.documentElement.style.setProperty(
           '--brand-secondary',
           defaultSecondary,
+        )
+        // Reset icon filter to default
+        document.documentElement.style.setProperty(
+          '--icon-filter',
+          'brightness(0) saturate(100%)',
         )
       }
     }

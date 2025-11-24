@@ -1370,16 +1370,24 @@ const ProfileNav = () => {
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
                     style={{}}
                   >
-                    <Image
-                      src={
+                    <div
+                      className={
                         pathname === item.href
-                          ? item.selected
-                          : item.uneselected
+                          ? "icon-brand-primary"
+                          : "icon-black"
                       }
-                      height={24}
-                      width={24}
-                      alt="icon"
-                    />
+                    >
+                      <Image
+                        src={
+                          pathname === item.href
+                            ? item.selected
+                            : item.uneselected
+                        }
+                        height={24}
+                        width={24}
+                        alt="icon"
+                      />
+                    </div>
                     <div
                       className={
                         pathname === item.href ? "text-brand-primary" : "text-black"
