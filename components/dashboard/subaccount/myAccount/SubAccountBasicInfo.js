@@ -12,8 +12,10 @@ import { UpdateProfile } from '@/components/apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { Input } from '@/components/ui/input'
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
+import { logout } from '@/utilities/UserUtility'
 
 function SubAccountBasicInfo() {
   const router = useRouter()
@@ -959,14 +961,7 @@ function SubAccountBasicInfo() {
             className="text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl"
             style={{ fontWeight: '600', fontSize: 17 }}
             onClick={() => {
-              localStorage.clear()
-              // localStorage.removeItem("User");
-              // localStorage.removeItem("localAgentDetails");
-              if (typeof document !== 'undefined') {
-                document.cookie =
-                  'User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-              }
-              router.push('/')
+              logout()
             }}
           >
             Log Out
@@ -1041,26 +1036,15 @@ function SubAccountBasicInfo() {
         onChange={handleImageChange}
       />
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Full Name
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid ${focusedName ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
+      <div style={styles.headingStyle}>Full Name</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedName ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
           value={name}
@@ -1070,7 +1054,6 @@ function SubAccountBasicInfo() {
           }}
           type="text"
           placeholder="Name"
-          style={{ border: '0px solid #7902DF', outline: 'none' }}
         />
         {isNameChanged &&
           (loading ? (
@@ -1087,26 +1070,16 @@ function SubAccountBasicInfo() {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Email address
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Email address</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
           ref={emailRef}
-          className="w-11/12 outline-none focus:ring-0"
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedEmail ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedEmail(true)}
           onBlur={() => setFocusedEmail(false)}
           value={email}
@@ -1138,7 +1111,6 @@ function SubAccountBasicInfo() {
           }}
           type="email"
           placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {isEmailChanged ? (
           emailLoader ? (
@@ -1174,35 +1146,19 @@ function SubAccountBasicInfo() {
         )}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Phone number
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid #00000010`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Phone number</div>
+      <div className="w-6/12 mt-2">
+        <Input
           readOnly
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
-          value={phone}
-          onChange={(event) => {
-            // setEmail(event.target.value)
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: '1px solid #00000010',
           }}
+          value={phone}
           type="text"
-          placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
+          placeholder="Phone number"
         />
       </div>
 
@@ -1212,26 +1168,15 @@ function SubAccountBasicInfo() {
           (userType && userType === UserTypes.InsuranceAgent) ||
           (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Farm
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${focusedFarm ? '#8a2be2' : '#00000010'}`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Farm</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedFarm ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedFarm(true)}
                   onBlur={() => setFocusedFarm(false)}
                   value={farm}
@@ -1241,7 +1186,6 @@ function SubAccountBasicInfo() {
                   }}
                   type="text"
                   placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isFarmChanged &&
                   (loading2 ? (
@@ -1269,28 +1213,15 @@ function SubAccountBasicInfo() {
             (userType && userType === UserTypes.RecruiterAgent) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Area of service
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedServiceArea ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Area of service</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedServiceArea ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedServiceArea(true)}
                   onBlur={() => setFocusedServiceArea(false)}
                   value={serviceArea}
@@ -1299,8 +1230,7 @@ function SubAccountBasicInfo() {
                     setIsServiceAreaChanged(true)
                   }}
                   type="text"
-                  placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Area of service"
                 />
                 {isServiceAreaChanged &&
                   (loading6 ? (
@@ -1329,28 +1259,15 @@ function SubAccountBasicInfo() {
           (userType && userType === UserTypes.InsuranceAgent) ||
           (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Brokerage
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedBrokerage ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Brokerage</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedBrokerage ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedBrokerage(true)}
                   onBlur={() => setFocusedBrokerage(false)}
                   value={brokerAge}
@@ -1360,7 +1277,6 @@ function SubAccountBasicInfo() {
                   }}
                   type="text"
                   placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isBrokerageChanged &&
                   (loading3 ? (
@@ -1386,28 +1302,15 @@ function SubAccountBasicInfo() {
             (userType && userType === UserTypes.MarketerAgent) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Company
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Company</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCompany ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCompany(true)}
                   onBlur={() => setFocusedCompany(false)}
                   value={company}
@@ -1417,7 +1320,6 @@ function SubAccountBasicInfo() {
                   }}
                   type="text"
                   placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isCompanyChanged &&
                   (loading8 ? (
@@ -1440,28 +1342,15 @@ function SubAccountBasicInfo() {
             </>
           ) : userType && userType === UserTypes.WebsiteAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Website URL
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedWebsite ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Website URL</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedWebsite ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedWebSite(true)}
                   onBlur={() => setFocusedWebSite(false)}
                   value={websiteUrl}
@@ -1470,8 +1359,7 @@ function SubAccountBasicInfo() {
                     setIsWebsiteUrlChanged(true)
                   }}
                   type="text"
-                  placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Website URL"
                 />
                 {isWebsiteUrlChanged &&
                   (loading10 ? (
@@ -1496,28 +1384,15 @@ function SubAccountBasicInfo() {
             (userType && userType === UserTypes.LawAgent) ||
             (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Company Affiliation
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Company Affiliation</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCompanyAffiliation ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCompanyAffiliation(true)}
                   onBlur={() => setFocusedCompanyAffiliation(false)}
                   value={companyAffiliation}
@@ -1526,8 +1401,7 @@ function SubAccountBasicInfo() {
                     setIsCompanyAffiliationChanged(true)
                   }}
                   type="text"
-                  placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Company Affiliation"
                 />
                 {isCompanyAffiliationChanged &&
                   (loading11 ? (
@@ -1554,28 +1428,15 @@ function SubAccountBasicInfo() {
 
           {userType && userType === UserTypes.RealEstateAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                How many homes did you sell last year
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedTransaction ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>How many homes did you sell last year</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedTransaction ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedTransaction(true)}
                   onBlur={() => setFocusedTransaction(false)}
                   value={transaction}
@@ -1589,7 +1450,6 @@ function SubAccountBasicInfo() {
                     setIsTransactionChange(true)
                   }}
                   placeholder="Type here"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isTransactionChanged &&
                   (loading4 ? (
@@ -1612,29 +1472,15 @@ function SubAccountBasicInfo() {
             </>
           ) : userType && userType === UserTypes.SolarRep ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Installation Volume per Year
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedInstallationVolume ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  // type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+              <div style={styles.headingStyle}>Installation Volume per Year</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedInstallationVolume ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
                   value={installationVolume}
@@ -1643,7 +1489,6 @@ function SubAccountBasicInfo() {
                     setIsInstallationVolumeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isInstallationVolumechanged &&
                   (loading7 ? (
@@ -1671,31 +1516,20 @@ function SubAccountBasicInfo() {
           {(userType && userType === UserTypes.SolarRep) ||
           (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
+              <div style={styles.headingStyle}>
                 {userType === UserTypes.DebtCollectorAgent
                   ? ' Balance Size of Debts '
                   : 'Average Project Size (kw)'}
               </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedProjectSize ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedProjectSize ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedProjectSize(true)}
                   onBlur={() => setFocusedProjectSize(false)}
                   value={projectSize}
@@ -1704,7 +1538,6 @@ function SubAccountBasicInfo() {
                     setIsprojectSizeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isProjectSizeChanged &&
                   (loading9 ? (
@@ -1727,29 +1560,16 @@ function SubAccountBasicInfo() {
             </>
           ) : userType && userType === UserTypes.MedSpaAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Clients per month
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Clients per month</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedClientsPerMonth ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedClientsPerMonth(true)}
                   onBlur={() => setFocusedClientsPerMonth(false)}
                   value={clientsPerMonth}
@@ -1758,7 +1578,6 @@ function SubAccountBasicInfo() {
                     setIsClientsPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isClientsPerMonthChanged &&
                   (loading12 ? (
@@ -1781,29 +1600,16 @@ function SubAccountBasicInfo() {
             </>
           ) : userType && userType === UserTypes.LawAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Cases per month
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Cases per month</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCasesPerMonth ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCasesPerMonth(true)}
                   onBlur={() => setFocusedCasesPerMonth(false)}
                   value={CasesPerMonth}
@@ -1812,7 +1618,6 @@ function SubAccountBasicInfo() {
                     iscasesPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {iscasesPerMonthChanged &&
                   (loading12 ? (
@@ -2250,5 +2055,11 @@ const styles = {
   headingStyle: {
     fontSize: 16,
     fontWeight: '600',
+    marginTop: '4vh',
+  },
+  inputStyle: {
+    fontSize: 15,
+    fontWeight: '500',
+    borderRadius: '7px',
   },
 }

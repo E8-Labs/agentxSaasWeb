@@ -1,6 +1,14 @@
 'use client'
 
-import { Box, Button, CircularProgress, TextField } from '@mui/material'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -12,8 +20,10 @@ import { UpdateProfile } from '@/components/apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { Input } from '@/components/ui/input'
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
+import { logout } from '@/utilities/UserUtility'
 
 function AgencyBasicInfo({ selectedAgency }) {
   const router = useRouter()
@@ -499,15 +509,7 @@ function AgencyBasicInfo({ selectedAgency }) {
             className="text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl"
             style={{ fontWeight: '600', fontSize: 17 }}
             onClick={() => {
-              localStorage.clear()
-              // localStorage.removeItem("User");
-              // localStorage.removeItem("localAgentDetails");
-              if (typeof document !== 'undefined') {
-                document.cookie =
-                  'User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-              }
-              // router.push("/");
-              window.location.href = '/'
+             logout()
             }}
           >
             Log Out
@@ -582,26 +584,15 @@ function AgencyBasicInfo({ selectedAgency }) {
         onChange={handleImageChange}
       />
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Full Name
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid ${focusedName ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
+      <div style={styles.headingStyle}>Full Name</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedName ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
           value={name}
@@ -611,7 +602,6 @@ function AgencyBasicInfo({ selectedAgency }) {
           }}
           type="text"
           placeholder="Name"
-          style={{ border: '0px solid #7902DF', outline: 'none' }}
         />
         {isNameChanged &&
           (loading ? (
@@ -628,27 +618,17 @@ function AgencyBasicInfo({ selectedAgency }) {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Email address
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid #00000010`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Email address</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
           ref={emailRef}
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedEmail ? '#000' : '#00000010'}`,
+          }}
+          onFocus={() => setFocusedEmail(true)}
           onBlur={() => setFocusedEmail(false)}
           value={email}
           onChange={(event) => {
@@ -679,7 +659,6 @@ function AgencyBasicInfo({ selectedAgency }) {
           }}
           type="text"
           placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {isEmailChanged && (
           emailLoader ? (
@@ -701,57 +680,31 @@ function AgencyBasicInfo({ selectedAgency }) {
         )}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Phone number
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Phone number</div>
+      <div className="w-6/12 mt-2">
+        <Input
           readOnly
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
-          value={phone}
-          onChange={(event) => {
-            // setEmail(event.target.value)
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: '1px solid #00000010',
           }}
+          value={phone}
           type="text"
-          placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
+          placeholder="Phone number"
         />
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Company
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid ${focusedCompany ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
+      <div style={styles.headingStyle}>Company</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedCompany ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedCompany(true)}
           onBlur={() => setFocusedCompany(false)}
           value={company}
@@ -761,7 +714,6 @@ function AgencyBasicInfo({ selectedAgency }) {
           }}
           type="text"
           placeholder="Company"
-          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {isCompanyChanged &&
           (loading14 ? (
@@ -778,25 +730,15 @@ function AgencyBasicInfo({ selectedAgency }) {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Website
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid ${focusedWebsite ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
+      <div style={styles.headingStyle}>Website</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedWebsite ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedWebsite(true)}
           onBlur={() => setFocusedWebsite(false)}
           value={websiteUrl}
@@ -806,7 +748,6 @@ function AgencyBasicInfo({ selectedAgency }) {
           }}
           type="text"
           placeholder="Website"
-          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {isWebsiteUrlChanged &&
           (loading10 ? (
@@ -823,34 +764,50 @@ function AgencyBasicInfo({ selectedAgency }) {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Company Size
-      </div>
-
-      <div className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5">
-        <select
-          className="w-full p-2 border border-[#00000020] rounded-md outline-none"
-          value={`${minSize}-${maxSize}`}
-          onChange={(e) => {
-            const [min, max] = e.target.value.split('-')
-            setMinSize(parseInt(min))
-            setMaxSize(parseInt(max))
-          }}
-        >
-          <option value="">Select company size</option>
-          {sizeList.map((size) => (
-            <option key={size.label} value={`${size.min}-${size.max}`}>
-              {size.label}
-            </option>
-          ))}
-        </select>
+      <div style={styles.headingStyle}>Company Size</div>
+      <div className="w-6/12 mt-2">
+        <FormControl fullWidth>
+          <Select
+            value={minSize && maxSize ? `${minSize}-${maxSize}` : ''}
+            onChange={(e) => {
+              const value = e.target.value
+              if (value) {
+                const [min, max] = value.split('-')
+                setMinSize(parseInt(min))
+                setMaxSize(parseInt(max))
+              } else {
+                setMinSize('')
+                setMaxSize('')
+              }
+            }}
+            displayEmpty
+            sx={{
+              height: '40px',
+              borderRadius: '7px',
+              fontSize: '15px',
+              fontWeight: '500',
+              border: '1px solid #00000020',
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid #00000020',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid #00000020',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                border: '1px solid #000',
+              },
+            }}
+          >
+            <MenuItem value="">
+              <em>Select company size</em>
+            </MenuItem>
+            {sizeList.map((size) => (
+              <MenuItem key={size.label} value={`${size.min}-${size.max}`}>
+                {size.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
 
       {/* Success Message */}
@@ -878,5 +835,11 @@ const styles = {
   headingStyle: {
     fontSize: 16,
     fontWeight: '600',
+    marginTop: '4vh',
+  },
+  inputStyle: {
+    fontSize: 15,
+    fontWeight: '500',
+    borderRadius: '7px',
   },
 }

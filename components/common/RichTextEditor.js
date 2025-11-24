@@ -72,6 +72,52 @@ const RichTextEditor = forwardRef(
                 return true // Allow default behavior
               },
             },
+            // Prevent space from creating new line at end of blocks (especially headings)
+            'prevent-space-newline': {
+              key: ' ',
+              handler: function (range, context) {
+                const editor = this.quill
+                
+                try {
+                  // Get the format at the current position
+                  const format = editor.getFormat(range.index)
+                  
+                  // Check if we're in a heading
+                  const isHeading = format.header === 2 || 
+                                   format.header === 3 || 
+                                   format.header === 4
+                  
+                  // Get the line/block we're in
+                  const [line, offset] = editor.getLine(range.index)
+                  
+                  if (line) {
+                    // Get the text content of the current line
+                    const lineStart = editor.getIndex(line)
+                    const lineLength = line.length()
+                    const lineText = editor.getText(lineStart, lineLength)
+                    
+                    // Check if cursor is at or near the end of the line
+                    const isAtEnd = offset >= lineText.length
+                    
+                    // If at end of a block (especially headings), insert space instead of creating new line
+                    if (isAtEnd) {
+                      // Insert space at current position
+                      editor.insertText(range.index, ' ', 'user')
+                      // Move cursor after the space
+                      setTimeout(() => {
+                        editor.setSelection(range.index + 1, 'user')
+                      }, 0)
+                      return false // Prevent default behavior
+                    }
+                  }
+                } catch (error) {
+                  // If there's an error, allow default behavior
+                  console.warn('Error in prevent-space-newline handler:', error)
+                }
+                
+                return true // Allow default behavior
+              },
+            },
           },
         },
       }),
@@ -136,7 +182,7 @@ const RichTextEditor = forwardRef(
       insertVariable,
     }))
 
-    // Set up keyboard handler to prevent cursor jumping when adding space in headings
+    // Set up keyboard handler to prevent space from creating new lines/blocks
     useEffect(() => {
       if (!quillRef.current) return
 
@@ -153,75 +199,25 @@ const RichTextEditor = forwardRef(
         const range = selection.getRangeAt(0)
         const container = range.startContainer
 
-        // Check if we're inside a heading element
-        let headingElement =
+        // Find the block element (p, h2, h3, h4, li, etc.)
+        let blockElement =
           container.nodeType === Node.TEXT_NODE
             ? container.parentElement
             : container
 
-        // Traverse up to find heading element
-        while (headingElement && headingElement !== editorElement) {
+        // Traverse up to find block element
+        while (blockElement && blockElement !== editorElement) {
+          const tagName = blockElement.tagName
+          // Check if we're inside a block element
           if (
-            headingElement.tagName &&
-            ['H2', 'H3', 'H4'].includes(headingElement.tagName)
+            tagName &&
+            ['P', 'H2', 'H3', 'H4', 'LI', 'DIV'].includes(tagName)
           ) {
-            // Check if cursor is at the end of the heading text
-            const isAtEnd =
-              range.startOffset ===
-              (container.nodeType === Node.TEXT_NODE
-                ? container.textContent.length
-                : headingElement.textContent.length)
-
-            if (isAtEnd) {
-              e.preventDefault()
-              e.stopPropagation()
-              e.stopImmediatePropagation()
-
-              // Get Quill selection
-              const quillSelection = editor.getSelection()
-              if (quillSelection) {
-                // Insert space at current position
-                editor.insertText(quillSelection.index, ' ')
-                // Keep cursor after the space
-                setTimeout(() => {
-                  editor.setSelection(quillSelection.index + 1)
-                }, 0)
-              }
-              return false
-            }
-            break
-          }
-          headingElement = headingElement.parentElement
-        }
-      }
-
-      const handleKeyDown = (e) => {
-        // Only handle space key
-        if (e.key !== ' ' && e.keyCode !== 32) return
-
-        const selection = window.getSelection()
-        if (!selection || selection.rangeCount === 0) return
-
-        const range = selection.getRangeAt(0)
-        const container = range.startContainer
-
-        // Check if we're inside a heading element
-        let headingElement =
-          container.nodeType === Node.TEXT_NODE
-            ? container.parentElement
-            : container
-
-        // Traverse up to find heading element
-        while (headingElement && headingElement !== editorElement) {
-          if (
-            headingElement.tagName &&
-            ['H2', 'H3', 'H4'].includes(headingElement.tagName)
-          ) {
-            // Check if cursor is at the end of the heading text
+            // Check if cursor is at the end of the block text
             const textLength =
               container.nodeType === Node.TEXT_NODE
                 ? container.textContent.length
-                : headingElement.textContent.length
+                : blockElement.textContent.length
             const isAtEnd = range.startOffset >= textLength
 
             if (isAtEnd) {
@@ -243,7 +239,61 @@ const RichTextEditor = forwardRef(
             }
             break
           }
-          headingElement = headingElement.parentElement
+          blockElement = blockElement.parentElement
+        }
+      }
+
+      const handleKeyDown = (e) => {
+        // Only handle space key
+        if (e.key !== ' ' && e.keyCode !== 32) return
+
+        const selection = window.getSelection()
+        if (!selection || selection.rangeCount === 0) return
+
+        const range = selection.getRangeAt(0)
+        const container = range.startContainer
+
+        // Find the block element (p, h2, h3, h4, li, etc.)
+        let blockElement =
+          container.nodeType === Node.TEXT_NODE
+            ? container.parentElement
+            : container
+
+        // Traverse up to find block element
+        while (blockElement && blockElement !== editorElement) {
+          const tagName = blockElement.tagName
+          // Check if we're inside a block element
+          if (
+            tagName &&
+            ['P', 'H2', 'H3', 'H4', 'LI', 'DIV'].includes(tagName)
+          ) {
+            // Check if cursor is at the end of the block text
+            const textLength =
+              container.nodeType === Node.TEXT_NODE
+                ? container.textContent.length
+                : blockElement.textContent.length
+            const isAtEnd = range.startOffset >= textLength
+
+            if (isAtEnd) {
+              e.preventDefault()
+              e.stopPropagation()
+              e.stopImmediatePropagation()
+
+              // Get Quill selection
+              const quillSelection = editor.getSelection()
+              if (quillSelection) {
+                // Insert space at current position
+                editor.insertText(quillSelection.index, ' ')
+                // Keep cursor after the space
+                setTimeout(() => {
+                  editor.setSelection(quillSelection.index + 1)
+                }, 0)
+              }
+              return false
+            }
+            break
+          }
+          blockElement = blockElement.parentElement
         }
       }
 
@@ -328,6 +378,16 @@ const RichTextEditor = forwardRef(
           /* Ensure proper cursor behavior in all blocks */
           .quill-editor-wrapper .ql-editor * {
             text-transform: none;
+          }
+
+          /* Prevent space from creating new lines - allow spaces within blocks */
+          .quill-editor-wrapper .ql-editor p,
+          .quill-editor-wrapper .ql-editor h2,
+          .quill-editor-wrapper .ql-editor h3,
+          .quill-editor-wrapper .ql-editor h4,
+          .quill-editor-wrapper .ql-editor li {
+            white-space: pre-wrap;
+            word-wrap: break-word;
           }
 
           /* Hide leading empty paragraph that allows editing before headings */

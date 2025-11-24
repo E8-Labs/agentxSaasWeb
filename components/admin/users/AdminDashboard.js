@@ -23,9 +23,10 @@ import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { Constants, PersistanceKeys } from '@/constants/Constants'
 import { secondsToMinsConverter } from '@/utilities/utility'
 
-const AdminDashboard = ({ selectedUser }) => {
+const AdminDashboard = ({ selectedUser, agencyUser }) => {
   const router = useRouter()
 
+  console.log('agencyUser', agencyUser)
   //variable stores screenWidth
   const [screenWidth, setScreenWidth] = useState(null)
   const [screenHeight, setScreenHeight] = useState(null)
@@ -330,334 +331,355 @@ const AdminDashboard = ({ selectedUser }) => {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col items-center w-full h-[100%]">
-          <div className="w-full flex flex-col items-center h-[100%]">
-            {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
+        <div className="flex flex-col mt-12 items-center w-full h-[100%]">
+        {
+          agencyUser && (
+            <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '80%',
+              height: '20%',
+              objectFit: 'cover',
+              zIndex: -1, // Ensure the video stays behind content
+              overflow: 'hidden',
+            }}
+          >
+            <BackgroundVideo />
+          </div>
+          )
+        }
+          
+          <div className="flex flex-col items-center w-full h-[100%]">
+            <div className="w-full flex flex-col items-center h-[100%]">
+              {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
 
-            <div className="h-[95%] w-full flex flex-row justify-center bg-white rounded-xl">
-              <div className="w-full h-[100%]">
-                <div className="w-full flex flex-row items-center justify-between h-[30%]">
-                  <div className="w-2/12 flex flex-col gap-1">
-                    <div
-                      style={{ fontSize: 29, fontWeight: '600', color: '#000' }}
-                    >
-                      Usage
+              <div className="h-[95%] w-full flex flex-row justify-center bg-white rounded-xl">
+                <div className="w-full h-[100%]">
+                  <div className="w-full flex flex-row items-center justify-between h-[30%]">
+                    <div className="w-2/12 flex flex-col gap-1">
+                      <div
+                        style={{ fontSize: 29, fontWeight: '600', color: '#000' }}
+                      >
+                        Usage
+                      </div>
+                      <div
+                        style={{ fontSize: 15, fontWeight: '400', color: '#000' }}
+                      >
+                        Total Activity
+                      </div>
+                      <div
+                        style={{
+                          fontSize:
+                            screenHeight < 640
+                              ? 35
+                              : screenHeight < 800
+                                ? 50
+                                : 75,
+                          fontWeight: '700',
+                          color: '#000',
+                        }}
+                      >
+                        {statsDetails?.totalCalls || '-'}
+                      </div>
                     </div>
-                    <div
-                      style={{ fontSize: 15, fontWeight: '400', color: '#000' }}
-                    >
-                      Total Activity
-                    </div>
-                    <div
-                      style={{
-                        fontSize:
-                          screenHeight < 640
-                            ? 35
-                            : screenHeight < 800
-                              ? 50
-                              : 75,
-                        fontWeight: '700',
-                        color: '#000',
-                      }}
-                    >
-                      {statsDetails?.totalCalls || '-'}
-                    </div>
-                  </div>
-                  <div className="w-8/12 flex flex-col items-end gap-2">
-                    <div
-                      className="w-fit-content flex flex-row justify-between"
-                      style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}
-                    >
-                      {/* <div style={{ fontSize: 15 }}>
+                    <div className="w-8/12 flex flex-col items-end gap-2">
+                      <div
+                        className="w-fit-content flex flex-row justify-between"
+                        style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}
+                      >
+                        {/* <div style={{ fontSize: 15 }}>
  Last 24hrs
  </div> */}
 
-                      <FormControl>
-                        {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
-                        <Select
-                          // labelId="demo-simple-select-label"
-                          // id="demo-simple-select"
-                          value={Duration}
-                          // label="Age"
-                          onChange={handleChange}
-                          displayEmpty // Enables placeholder
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
-                            }
-                            return selected
-                          }}
-                          sx={{
-                            border: 'none', // Default border
-                            '&:hover': {
-                              border: 'none', // Same border on hover
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove the default outline
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              border: 'none', // Remove outline on focus
-                            },
-                            '&.MuiSelect-select': {
-                              py: 0, // Optional padding adjustments
-                            },
-                          }}
-                          MenuProps={{
-                            PaperProps: {
-                              style: {
-                                maxHeight: '30vh', // Limit dropdown height
-                                overflow: 'auto', // Enable scrolling in dropdown
-                                scrollbarWidth: 'none',
-                                // borderRadius: "10px"
+                        <FormControl>
+                          {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                          <Select
+                            // labelId="demo-simple-select-label"
+                            // id="demo-simple-select"
+                            value={Duration}
+                            // label="Age"
+                            onChange={handleChange}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
+                              }
+                              return selected
+                            }}
+                            sx={{
+                              border: 'none', // Default border
+                              '&:hover': {
+                                border: 'none', // Same border on hover
                               },
-                            },
-                          }}
-                        >
-                          <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={'24 hrs'}
-                            style={{
-                              backgroundColor:
-                                Duration === '24 hrs' && '#7902DF',
-                              color: Duration === '24 hrs' && '#ffffff',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                border: 'none', // Remove the default outline
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                border: 'none', // Remove outline on focus
+                              },
+                              '&.MuiSelect-select': {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: '30vh', // Limit dropdown height
+                                  overflow: 'auto', // Enable scrolling in dropdown
+                                  scrollbarWidth: 'none',
+                                  // borderRadius: "10px"
+                                },
+                              },
                             }}
                           >
-                            Last 24 Hours
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={'Last 7 Days'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'Last 7 Days' && '#7902DF',
-                              color: Duration === 'Last 7 Days' && '#ffffff',
-                            }}
-                          >
-                            Last 7 Days
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={'Last 30 Days'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'Last 30 Days' && '#7902DF',
-                              color: Duration === 'Last 30 Days' && '#ffffff',
-                            }}
-                          >
-                            Last 30 Days
-                          </MenuItem>
-                          <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={'All time'}
-                            style={{
-                              backgroundColor:
-                                Duration === 'All time' && '#7902DF',
-                              color: Duration === 'All time' && '#ffffff',
-                            }}
-                          >
-                            All time
-                          </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </div>
-
-                    <div
-                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
-                      style={{
-                        backgroundImage: "url('/svgIcons/cardBg.svg')",
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center',
-                        width: '40vw',
-                        minHeight: '13vh',
-                        borderRadius: 10,
-                      }}
-                    >
-                      <div className="flex flex-row gap-3 items-start">
-                        <Image
-                          src={'/svgIcons/timerIcon.svg'}
-                          height={50}
-                          width={50}
-                          alt="timer"
-                        />
-                        <div className="flex flex-col">
-                          <div
-                            style={{
-                              fontSize: 15,
-                              fontWeight: '400',
-                              color: '#fff',
-                            }}
-                          >
-                            Balance
-                          </div>
-
-                          <div
-                            className="lg:text-4xl md:text-2xl sm:text-xl text-lg font-bold text-white"
-                            style={{
-                              // fontSize: 40,
-                              fontWeight: '400',
-                              color: '#fff',
-                            }}
-                          >
-                            {secondsToMinsConverter(
-                              selectedUser?.totalSecondsAvailable || 0,
-                            )}{' '}
-                            AI Credits
-                          </div>
-                        </div>
+                            <MenuItem
+                              className="hover:bg-[#402FFF10]"
+                              value={'24 hrs'}
+                              style={{
+                                backgroundColor:
+                                  Duration === '24 hrs' && '#7902DF',
+                                color: Duration === '24 hrs' && '#ffffff',
+                              }}
+                            >
+                              Last 24 Hours
+                            </MenuItem>
+                            <MenuItem
+                              className="hover:bg-[#402FFF10]"
+                              value={'Last 7 Days'}
+                              style={{
+                                backgroundColor:
+                                  Duration === 'Last 7 Days' && '#7902DF',
+                                color: Duration === 'Last 7 Days' && '#ffffff',
+                              }}
+                            >
+                              Last 7 Days
+                            </MenuItem>
+                            <MenuItem
+                              className="hover:bg-[#402FFF10]"
+                              value={'Last 30 Days'}
+                              style={{
+                                backgroundColor:
+                                  Duration === 'Last 30 Days' && '#7902DF',
+                                color: Duration === 'Last 30 Days' && '#ffffff',
+                              }}
+                            >
+                              Last 30 Days
+                            </MenuItem>
+                            <MenuItem
+                              className="hover:bg-[#402FFF10]"
+                              value={'All time'}
+                              style={{
+                                backgroundColor:
+                                  Duration === 'All time' && '#7902DF',
+                                color: Duration === 'All time' && '#ffffff',
+                              }}
+                            >
+                              All time
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
                       </div>
 
-                      <div className="flex flex-col gap-2">
-                        <div
-                          style={{
-                            fontSize: 15,
-                            fontWeight: '400',
-                            color: '#fff',
-                          }}
-                        >
-                          Scale your business
-                        </div>
-                        <button
-                          className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
-                          onClick={() => {
-                            const openBilling = true
-                            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-                            router.push('/dashboard/myAccount?tab=2')
-                          }}
-                        >
+                      <div
+                        className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
+                        style={{
+                          backgroundImage: "url('/svgIcons/cardBg.svg')",
+                          backgroundSize: 'cover',
+                          backgroundRepeat: 'no-repeat',
+                          backgroundPosition: 'center',
+                          width: '40vw',
+                          minHeight: '13vh',
+                          borderRadius: 10,
+                        }}
+                      >
+                        <div className="flex flex-row gap-3 items-start">
                           <Image
-                            src={'/svgIcons/king.svg'}
-                            height={20}
-                            width={20}
-                            alt="*"
+                            src={'/svgIcons/timerIcon.svg'}
+                            height={50}
+                            width={50}
+                            alt="timer"
                           />
+                          <div className="flex flex-col">
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: '400',
+                                color: '#fff',
+                              }}
+                            >
+                              Balance
+                            </div>
+
+                            <div
+                              className="lg:text-4xl md:text-2xl sm:text-xl text-lg font-bold text-white"
+                              style={{
+                                // fontSize: 40,
+                                fontWeight: '400',
+                                color: '#fff',
+                              }}
+                            >
+                              {secondsToMinsConverter(
+                                selectedUser?.totalSecondsAvailable || 0,
+                              )}{' '}
+                              AI Credits
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
                           <div
                             style={{
-                              fontWeight: '500',
                               fontSize: 15,
+                              fontWeight: '400',
+                              color: '#fff',
                             }}
                           >
-                            Upgrade
+                            Scale your business
                           </div>
-                        </button>
+                          <button
+                            className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
+                            onClick={() => {
+                              const openBilling = true
+                              // localStorage.setItem("openBilling", JSON.stringify(openBilling));
+                              router.push('/dashboard/myAccount?tab=2')
+                            }}
+                          >
+                            <Image
+                              src={'/svgIcons/king.svg'}
+                              height={20}
+                              width={20}
+                              alt="*"
+                            />
+                            <div
+                              style={{
+                                fontWeight: '500',
+                                fontSize: 15,
+                              }}
+                            >
+                              Upgrade
+                            </div>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="w-full py-8 overflow-none">
-                  {/* Metrics Section */}
-                  <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                    {/* Card: Conversations > 10 Sec */}
-                    <Card
-                      icon="/svgIcons/convosIcon.svg"
-                      title="Convos"
-                      value={statsDetails?.totalCallsGt10 || '-'}
-                      subtitle="Answer rate"
-                      rate={
-                        statsComparisonDetails?.callsGt10Change
-                          ? `${statsComparisonDetails?.callsGt10Change.toFixed(
+                  <div className="w-full py-8 overflow-none">
+                    {/* Metrics Section */}
+                    <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                      {/* Card: Conversations > 10 Sec */}
+                      <Card
+                        icon="/svgIcons/convosIcon.svg"
+                        title="Convos"
+                        value={statsDetails?.totalCallsGt10 || '-'}
+                        subtitle="Answer rate"
+                        rate={
+                          statsComparisonDetails?.callsGt10Change
+                            ? `${statsComparisonDetails?.callsGt10Change.toFixed(
                               2,
                             )}%`
-                          : '-'
-                      }
-                      borderSide="border-b-2"
-                    />
+                            : '-'
+                        }
+                        borderSide="border-b-2"
+                      />
 
-                    {/* Card: Hot Leads */}
-                    <Card
-                      icon="/svgIcons/hotLeadsIcon.svg"
-                      title="Hot Leads"
-                      value={statsDetails?.hotLeads || '-'}
-                      subtitle="Conversion rate"
-                      rate={
-                        statsComparisonDetails?.hotLeadsChange
-                          ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
+                      {/* Card: Hot Leads */}
+                      <Card
+                        icon="/svgIcons/hotLeadsIcon.svg"
+                        title="Hot Leads"
+                        value={statsDetails?.hotLeads || '-'}
+                        subtitle="Conversion rate"
+                        rate={
+                          statsComparisonDetails?.hotLeadsChange
+                            ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
                               2,
                             )}%`
-                          : '-'
-                      }
-                      borderSide="border-l-2 border-b-2"
-                      recomendation={false}
-                    />
+                            : '-'
+                        }
+                        borderSide="border-l-2 border-b-2"
+                        recomendation={false}
+                      />
 
-                    {/* Card: Booked Meetings */}
-                    <Card
-                      icon="/svgIcons/bookedMeetingsIcon.svg"
-                      title="Booked Meetings"
-                      value={statsDetails?.meetingScheduled || '-'}
-                      subtitle="Conversion rate"
-                      // rate={
-                      // statsComparisonDetails?.durationChange
-                      // ? `${statsComparisonDetails?.durationChange.toFixed(
-                      // 2
-                      // )}%`
-                      // : "-"
-                      // }
-                      rate={
-                        statsComparisonDetails?.bookingChange
-                          ? `${statsComparisonDetails?.bookingChange.toFixed(
+                      {/* Card: Booked Meetings */}
+                      <Card
+                        icon="/svgIcons/bookedMeetingsIcon.svg"
+                        title="Booked Meetings"
+                        value={statsDetails?.meetingScheduled || '-'}
+                        subtitle="Conversion rate"
+                        // rate={
+                        // statsComparisonDetails?.durationChange
+                        // ? `${statsComparisonDetails?.durationChange.toFixed(
+                        // 2
+                        // )}%`
+                        // : "-"
+                        // }
+                        rate={
+                          statsComparisonDetails?.bookingChange
+                            ? `${statsComparisonDetails?.bookingChange.toFixed(
                               2,
                             )}%`
-                          : '-'
-                      }
-                      borderSide="border-l-2 border-b-2"
-                      recomendation={false}
-                    />
+                            : '-'
+                        }
+                        borderSide="border-l-2 border-b-2"
+                        recomendation={false}
+                      />
 
-                    {/* Card: Voicemails */}
-                    <Card
-                      icon="/svgIcons/voicemailIcon.svg"
-                      title="Voicemails"
-                      value={statsDetails?.voicemail || '-'}
-                      borderSide=""
-                    />
+                      {/* Card: Voicemails */}
+                      <Card
+                        icon="/svgIcons/voicemailIcon.svg"
+                        title="Voicemails"
+                        value={statsDetails?.voicemail || '-'}
+                        borderSide=""
+                      />
 
-                    {/* Card: Not Interested */}
-                    <Card
-                      icon="/svgIcons/notInterestedIcon.svg"
-                      title="Not Interested"
-                      value={statsDetails?.notInterested || '-'}
-                      borderSide="border-l-2"
-                    />
+                      {/* Card: Not Interested */}
+                      <Card
+                        icon="/svgIcons/notInterestedIcon.svg"
+                        title="Not Interested"
+                        value={statsDetails?.notInterested || '-'}
+                        borderSide="border-l-2"
+                      />
 
-                    {/* Card: Avg Convo Duration */}
-                    <Card
-                      icon="/svgIcons/avgDurationIcon.svg"
-                      title="Avg Convo Duration"
-                      value={
-                        statsDetails?.formattedAvDuration &&
-                        statsDetails?.formattedAvDuration != 'N/A'
-                          ? statsDetails?.formattedAvDuration
-                          : '-'
-                      }
-                      borderSide="border-l-2"
-                    />
+                      {/* Card: Avg Convo Duration */}
+                      <Card
+                        icon="/svgIcons/avgDurationIcon.svg"
+                        title="Avg Convo Duration"
+                        value={
+                          statsDetails?.formattedAvDuration &&
+                            statsDetails?.formattedAvDuration != 'N/A'
+                            ? statsDetails?.formattedAvDuration
+                            : '-'
+                        }
+                        borderSide="border-l-2"
+                      />
 
-                    {/* Card: credits used */}
-                    <Card
-                      icon="/otherAssets/creditsUsedIcons.png"
-                      title="Credits Used"
-                      value={statsDetails?.creditsUsed || '-'}
-                      borderSide="border-t-2"
-                    />
+                      {/* Card: credits used */}
+                      <Card
+                        icon="/otherAssets/creditsUsedIcons.png"
+                        title="Credits Used"
+                        value={statsDetails?.creditsUsed || '-'}
+                        borderSide="border-t-2"
+                      />
 
-                    {/* Card: Email Sent */}
-                    <Card
-                      icon="/otherAssets/emailSentIcon.png"
-                      title="Emails Sent"
-                      value={statsDetails?.emailsSent || '-'}
-                      borderSide="border-l-2 border-t-2"
-                    />
+                      {/* Card: Email Sent */}
+                      <Card
+                        icon="/otherAssets/emailSentIcon.png"
+                        title="Emails Sent"
+                        value={statsDetails?.emailsSent || '-'}
+                        borderSide="border-l-2 border-t-2"
+                      />
 
-                    {/* Card: Text send */}
-                    <Card
-                      icon="/otherAssets/smsSentIcon.png"
-                      title="Texts Sent"
-                      value={statsDetails?.smsSents || '-'}
-                      borderSide="border-l-2 border-t-2"
-                    />
+                      {/* Card: Text send */}
+                      <Card
+                        icon="/otherAssets/smsSentIcon.png"
+                        title="Texts Sent"
+                        value={statsDetails?.smsSents || '-'}
+                        borderSide="border-l-2 border-t-2"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -409,13 +409,13 @@ const UPSell = () => {
 
   return (
     <div
-      className="flex flex-row justify-center overflow-y-auto pb-10"
+      className="flex w-full  flex-row justify-center overflow-y-auto pb-10"
       style={{
         scrollbarWidth: 'none',
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      <div className="">
+      <div className="w-full">
         <AgentSelectSnackMessage
           isVisible={snackBannerMsg !== null}
           message={snackBannerMsg}
@@ -446,7 +446,7 @@ const UPSell = () => {
             <CircularProgress size={30} />
           </div>
         ) : (
-          <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl mt-8">
+          <div className="w-11/12 border rounded-xl p-4 rounded-lg border rounded-xl mt-8">
             <div
               style={{ fontWeight: '600', fontSize: '22px', color: '#000000' }}
             >

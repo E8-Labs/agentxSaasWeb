@@ -518,7 +518,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   setPlanType('monthly')
                 }}
               >
-                Monthly Plans
+               Subscriptions
               </button>
             </div>
             <div

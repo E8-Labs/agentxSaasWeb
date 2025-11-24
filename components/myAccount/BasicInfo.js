@@ -16,6 +16,7 @@ import { UpdateProfile } from '../apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Input } from '@/components/ui/input'
 
 function BasicInfo() {
   const router = useRouter()
@@ -1101,26 +1102,16 @@ function BasicInfo() {
         onChange={handleImageChange}
       />
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Full Name
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-        style={{
-          border: `1px solid #00000010`,
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Full Name</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
           readOnly
-          className="w-11/12 outline-none focus:ring-0"
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedName ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
           value={name}
@@ -1130,7 +1121,6 @@ function BasicInfo() {
           }}
           type="text"
           placeholder="Name"
-          style={{ border: '0px solid #7902DF', outline: 'none' }}
         />
         {isNameChanged &&
           (loading ? (
@@ -1147,26 +1137,16 @@ function BasicInfo() {
           ))}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Email address
-      </div>
-
-      <div
-        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-        style={{
-          border: `1px solid ${focusedEmail ? '#000000' : '#00000010'}`,
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Email address</div>
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <Input
           ref={emailRef}
-          className="w-11/12 outline-none focus:ring-0"
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: `1px solid ${focusedEmail ? '#000' : '#00000010'}`,
+          }}
           onFocus={() => setFocusedEmail(true)}
           onBlur={() => setFocusedEmail(false)}
           value={email}
@@ -1198,7 +1178,6 @@ function BasicInfo() {
           }}
           type="email"
           placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
         />
         {isEmailChanged ? (
           emailLoader ? (
@@ -1233,34 +1212,19 @@ function BasicInfo() {
         )}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Phone number
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 outline-none focus-within:border-black transition-colors"
-        style={{
-          border: `1px solid #00000010`,
-        }}
-      >
-        <input
+      <div style={styles.headingStyle}>Phone number</div>
+      <div className="w-6/12 mt-2">
+        <Input
           readOnly
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
-          value={phone}
-          onChange={(event) => {
-            // setEmail(event.target.value)
+          className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+          style={{
+            ...styles.inputStyle,
+            marginTop: '8px',
+            border: '1px solid #00000010',
           }}
+          value={phone}
           type="text"
-          placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
+          placeholder="Phone number"
         />
       </div>
 
@@ -1270,26 +1234,16 @@ function BasicInfo() {
           (userType && userType === UserTypes.InsuranceAgent) ||
           (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Farm
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${focusedFarm ? '#000000' : '#00000010'}`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Farm</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={farmRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedFarm ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedFarm(true)}
                   onBlur={() => setFocusedFarm(false)}
                   value={farm}
@@ -1299,7 +1253,6 @@ function BasicInfo() {
                   }}
                   type="text"
                   placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isFarmChanged ? (
                   loading2 ? (
@@ -1341,28 +1294,16 @@ function BasicInfo() {
             (userType && userType === UserTypes.RecruiterAgent) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Area of service
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedServiceArea ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Area of service</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={serviceAreaRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedServiceArea ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedServiceArea(true)}
                   onBlur={() => setFocusedServiceArea(false)}
                   value={serviceArea}
@@ -1371,8 +1312,7 @@ function BasicInfo() {
                     setIsServiceAreaChanged(true)
                   }}
                   type="text"
-                  placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Area of service"
                 />
                 {isServiceAreaChanged ? (
                   loading6 ? (
@@ -1410,28 +1350,16 @@ function BasicInfo() {
           ) : (userType && userType === UserTypes.General) ||
             (userType && userType === UserTypes.Reception) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Teritorry
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedTerritory ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Teritorry</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={teritorryRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedTerritory ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedTerritory(true)}
                   onBlur={() => setFocusedTerritory(false)}
                   value={teritorry}
@@ -1441,7 +1369,6 @@ function BasicInfo() {
                   }}
                   type="text"
                   placeholder="Teritorry"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isTeritorryChanged ? (
                   loading14 ? (
@@ -1484,28 +1411,16 @@ function BasicInfo() {
           (userType && userType === UserTypes.InsuranceAgent) ||
           (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Brokerage
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedBrokerage ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Brokerage</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={brokerAgeRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedBrokerage ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedBrokerage(true)}
                   onBlur={() => setFocusedBrokerage(false)}
                   value={brokerAge}
@@ -1515,7 +1430,6 @@ function BasicInfo() {
                   }}
                   type="text"
                   placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isBrokerageChanged ? (
                   loading3 ? (
@@ -1557,28 +1471,16 @@ function BasicInfo() {
             (userType && userType === UserTypes.Reception) ||
             (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Company
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Company</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={companyRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCompany ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCompany(true)}
                   onBlur={() => setFocusedCompany(false)}
                   value={company}
@@ -1588,7 +1490,6 @@ function BasicInfo() {
                   }}
                   type="text"
                   placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isCompanyChanged ? (
                   loading8 ? (
@@ -1625,28 +1526,16 @@ function BasicInfo() {
             </>
           ) : userType && userType === UserTypes.WebsiteAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Website URL
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedWebsite ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Website URL</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={websiteRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedWebsite ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedWebSite(true)}
                   onBlur={() => setFocusedWebSite(false)}
                   value={websiteUrl}
@@ -1655,8 +1544,7 @@ function BasicInfo() {
                     setIsWebsiteUrlChanged(true)
                   }}
                   type="text"
-                  placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Website URL"
                 />
                 {isWebsiteUrlChanged ? (
                   loading10 ? (
@@ -1695,28 +1583,16 @@ function BasicInfo() {
             (userType && userType === UserTypes.LawAgent) ||
             (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Company Affiliation
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Company Affiliation</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={companyAffiliationRef}
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCompanyAffiliation ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCompanyAffiliation(true)}
                   onBlur={() => setFocusedCompanyAffiliation(false)}
                   value={companyAffiliation}
@@ -1725,8 +1601,7 @@ function BasicInfo() {
                     setIsCompanyAffiliationChanged(true)
                   }}
                   type="text"
-                  placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
+                  placeholder="Company Affiliation"
                 />
                 {isCompanyAffiliationChanged ? (
                   loading11 ? (
@@ -1767,31 +1642,19 @@ function BasicInfo() {
 
           {userType && userType === UserTypes.RealEstateAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                How many homes did you sell last year
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedTransaction ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>How many homes did you sell last year</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={transactionRef}
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedTransaction ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedTransaction(true)}
                   onBlur={() => setFocusedTransaction(false)}
                   value={transaction}
@@ -1802,7 +1665,6 @@ function BasicInfo() {
                     setIsTransactionChange(true)
                   }}
                   placeholder="Type here"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isTransactionChanged ? (
                   loading4 ? (
@@ -1839,29 +1701,16 @@ function BasicInfo() {
             </>
           ) : userType && userType === UserTypes.SolarRep ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Installation Volume per Year
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedInstallationVolume ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Installation Volume per Year</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={installationVolumeRef}
-                  // type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedInstallationVolume ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
                   value={installationVolume}
@@ -1870,7 +1719,6 @@ function BasicInfo() {
                     setIsInstallationVolumeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isInstallationVolumechanged ? (
                   loading7 ? (
@@ -1912,31 +1760,21 @@ function BasicInfo() {
           {(userType && userType === UserTypes.SolarRep) ||
           (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
+              <div style={styles.headingStyle}>
                 {userType === UserTypes.DebtCollectorAgent
                   ? ' Balance Size of Debts '
                   : 'Average Project Size (kw)'}
               </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedProjectSize ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={projectSizeRef}
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedProjectSize ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedProjectSize(true)}
                   onBlur={() => setFocusedProjectSize(false)}
                   value={projectSize}
@@ -1945,7 +1783,6 @@ function BasicInfo() {
                     setIsprojectSizeChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isProjectSizeChanged ? (
                   loading9 ? (
@@ -1982,29 +1819,17 @@ function BasicInfo() {
             </>
           ) : userType && userType === UserTypes.MedSpaAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Clients per month
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Clients per month</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={clientsPerMonthRef}
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedClientsPerMonth ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedClientsPerMonth(true)}
                   onBlur={() => setFocusedClientsPerMonth(false)}
                   value={clientsPerMonth}
@@ -2013,7 +1838,6 @@ function BasicInfo() {
                     setIsClientsPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {isClientsPerMonthChanged ? (
                   loading12 ? (
@@ -2050,29 +1874,17 @@ function BasicInfo() {
             </>
           ) : userType && userType === UserTypes.LawAgent ? (
             <>
-              <div
-                style={{
-                  fontSize: 16,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: '4vh',
-                }}
-              >
-                Cases per month
-              </div>
-
-              <div
-                className="flex items-center rounded-lg px-3 py-2.5 w-6/12 mt-5 focus-within:border-black transition-colors"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#000000' : '#00000010'
-                  }`,
-                }}
-              >
-                <input
+              <div style={styles.headingStyle}>Cases per month</div>
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <Input
                   ref={casesPerMonthRef}
                   type="number"
-                  className="w-11/12 outline-none focus:ring-0"
+                  className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: `1px solid ${focusedCasesPerMonth ? '#000' : '#00000010'}`,
+                  }}
                   onFocus={() => setFocusedCasesPerMonth(true)}
                   onBlur={() => setFocusedCasesPerMonth(false)}
                   value={CasesPerMonth}
@@ -2081,7 +1893,6 @@ function BasicInfo() {
                     iscasesPerMonthChanged(true)
                   }}
                   placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
                 />
                 {iscasesPerMonthChanged ? (
                   loading12 ? (
@@ -2533,5 +2344,11 @@ const styles = {
   headingStyle: {
     fontSize: 16,
     fontWeight: '600',
+    marginTop: '4vh',
+  },
+  inputStyle: {
+    fontSize: 15,
+    fontWeight: '500',
+    borderRadius: '7px',
   },
 }

@@ -513,7 +513,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Activity' ? (
                   <AdminCallLogs selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Dashboard' ? (
-                  <AdminDashboard selectedUser={selectedUser} />
+                  <AdminDashboard selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Integration' ? (
                   <AdminIntegration selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Team' ? (

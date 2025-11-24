@@ -730,7 +730,7 @@ function AgencySubacount({ selectedAgency }) {
         </div>
 
         {initialLoader ? (
-          <div className="w-full flex flex-row justify-center mt-4">
+          <div className="w-full h-[68vh] flex flex-row justify-center mt-4">
             <CircularProgress size={35} />
           </div>
         ) : (

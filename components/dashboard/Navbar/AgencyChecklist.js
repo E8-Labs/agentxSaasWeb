@@ -71,7 +71,7 @@ const AgencyChecklist = ({ userDetails }) => {
         },
         {
           id: 3,
-          label: 'Add Monthly Plans',
+          label: 'Add Subscriptions',
           status: T?.plansAdded,
           route: '/agency/dashboard/plans',
         },

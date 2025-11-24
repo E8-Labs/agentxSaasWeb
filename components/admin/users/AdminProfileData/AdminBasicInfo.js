@@ -221,7 +221,7 @@ function AdminBasicInfo({ selectedUser }) {
 
         setUserRole(userData?.userRole)
         setUserType(userData?.userType)
-        setUserDetails(userData.user)
+        setUserDetails(userData?.user)
         setName(userData?.name)
         setSelectedImage(LocalData?.thumb_profile_image)
         setEmail(userData?.email)

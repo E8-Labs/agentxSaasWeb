@@ -21,6 +21,7 @@ import SupportWidgetConfig from './SupportWidgetConfig'
 import TermsConfig from './TermsConfig'
 import TutorialConfig from './TutorialConfig'
 import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationConfig'
+import CancellationRefundConfig from './CancellationRefundConfig'
 
 const WhiteLabel = () => {
   const router = useRouter()
@@ -105,7 +106,7 @@ const WhiteLabel = () => {
     const tabParam = searchParams.get('tab')
     if (tabParam) {
       const tabNumber = parseInt(tabParam, 10)
-      if (tabNumber >= 1 && tabNumber <= 9) {
+      if (tabNumber >= 1 && tabNumber <= 10) {
         setSelectedWhiteLabelTabs(tabNumber)
       }
     }
@@ -148,6 +149,7 @@ const WhiteLabel = () => {
     { id: 7, title: 'Upsell', comingSoon: false },
     { id: 8, title: 'Privacy Policy', comingSoon: false },
     { id: 9, title: 'Terms & Conditions', comingSoon: false },
+    { id: 10, title: 'Cancellation & Refund', comingSoon: false },
   ]
 
   return (
@@ -236,6 +238,11 @@ const WhiteLabel = () => {
           {selectedWhiteLabelTabs === 9 && (
             <div className="w-full h-full">
               <TermsConfig />
+            </div>
+          )}
+          {selectedWhiteLabelTabs === 10 && (
+            <div className="w-full h-full">
+              <CancellationRefundConfig />
             </div>
           )}
         </div>

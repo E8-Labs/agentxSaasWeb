@@ -35,6 +35,7 @@ import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSi
 import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp'
 import { PersistanceKeys } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
+import ShootingStarLoading from '@/components/animations/ShootingStarLoading'
 
 const Page = ({ params }) => {
   const router = useRouter()
@@ -290,6 +291,16 @@ const Page = ({ params }) => {
     overflow: 'none',
   }
 
+  if (showredirectPopup) {
+    return (
+      <div>
+        <ShootingStarLoading
+          open={showredirectPopup}
+        />
+      </div>
+    )
+  }
+
   return (
     <ErrorBoundary>
       <div
@@ -338,10 +349,6 @@ const Page = ({ params }) => {
           handleShowRedirectPopup={() => {
             setShowredirectPopup(true)
           }}
-        />
-        <LoaderAnimation
-          isOpen={showredirectPopup}
-          title="Redirecting to create agent..."
         />
         <Modal
           open={congratsPopup}
