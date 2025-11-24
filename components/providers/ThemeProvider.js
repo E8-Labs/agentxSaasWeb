@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   hexToHsl,
   getDefaultPrimaryColor,
   getDefaultSecondaryColor,
   calculateIconFilter,
 } from '@/utilities/colorUtils'
+import Apis from '@/components/apis/Apis'
 
 /**
  * ThemeProvider Component
@@ -19,10 +20,12 @@ import {
  * - Can be disabled via NEXT_PUBLIC_DISABLE_AGENCY_BRANDING env variable
  */
 const ThemeProvider = ({ children }) => {
+  const [brandingFetched, setBrandingFetched] = useState(false)
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const applyTheme = () => {
+    const applyTheme = async (forceRefresh = false) => {
       // Check if agency branding is disabled via environment variable
       const isBrandingDisabled =
         process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING === 'true' ||
@@ -130,15 +133,77 @@ const ThemeProvider = ({ children }) => {
           const userData = localStorage.getItem('User')
           if (userData) {
             const parsedUser = JSON.parse(userData)
-            // Check if agencyBranding exists in user object
+            // Check multiple possible locations for agencyBranding
             if (parsedUser?.user?.agencyBranding) {
               branding = parsedUser.user.agencyBranding
+              console.log('✅ [ThemeProvider] Found branding in user.user.agencyBranding')
             } else if (parsedUser?.agencyBranding) {
               branding = parsedUser.agencyBranding
+              console.log('✅ [ThemeProvider] Found branding in user.agencyBranding')
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+              console.log('✅ [ThemeProvider] Found branding in user.agency.agencyBranding')
             }
           }
         } catch (error) {
           console.log('Error parsing user data for agencyBranding:', error)
+        }
+      }
+
+      // Debug logging for subaccounts on localhost
+      if (isSubaccount && isAssignxDomain) {
+        console.log('🔍 [ThemeProvider] Subaccount detected on assignx domain:', {
+          hostname,
+          isSubaccount,
+          hasBranding: !!branding,
+          brandingSource: branding
+            ? 'found'
+            : 'not found - will use defaults',
+        })
+      }
+
+      // For subaccounts on localhost, try to fetch fresh branding from API if not found or if forced
+      if ((!branding || forceRefresh) && isSubaccount && isAssignxDomain && !brandingFetched) {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const authToken = parsedUser?.token || parsedUser?.user?.token
+
+            if (authToken) {
+              console.log('🔄 [ThemeProvider] Fetching fresh branding from API for subaccount...')
+              setBrandingFetched(true) // Prevent multiple simultaneous requests
+
+              const response = await fetch(Apis.getAgencyBranding, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+
+              if (response.ok) {
+                const data = await response.json()
+                if (data?.status === true && data?.data?.branding) {
+                  const freshBranding = data.data.branding
+                  branding = freshBranding
+
+                  // Update localStorage and cookie with fresh data
+                  localStorage.setItem(
+                    'agencyBranding',
+                    JSON.stringify(freshBranding),
+                  )
+                  const cookieValue = encodeURIComponent(
+                    JSON.stringify(freshBranding),
+                  )
+                  document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+
+                  console.log('✅ [ThemeProvider] Fetched and cached fresh branding from API')
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Error fetching branding from API:', error)
         }
       }
 
@@ -212,12 +277,17 @@ const ThemeProvider = ({ children }) => {
     }
 
     // Apply theme on mount
-    applyTheme()
+    applyTheme().catch((error) => {
+      console.log('Error applying theme:', error)
+    })
 
     // Listen for branding updates (same event as logo updates)
     const handleBrandingUpdate = (event) => {
       console.log('🔄 [ThemeProvider] Branding updated, refreshing colors')
-      applyTheme()
+      setBrandingFetched(false) // Reset to allow fresh fetch if needed
+      applyTheme(true).catch((error) => {
+        console.log('Error refreshing theme:', error)
+      })
     }
 
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
