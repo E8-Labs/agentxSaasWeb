@@ -82,7 +82,7 @@ const DelAdminUser = ({
                   </div>
                 ) : (
                   <button
-                    className="outline-none bg-red"
+                    className="outline-none bg-purple"
                     style={{
                       color: 'white',
                       height: '50px',

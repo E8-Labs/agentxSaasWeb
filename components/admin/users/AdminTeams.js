@@ -530,7 +530,7 @@ function AdminTeam({ selectedUser, }) {
           bottom: 0,
         }}
       >
-        <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        <DashboardSlider needHelp={false} selectedUser={selectedUserDetails} />
       </div>
       {showSnak && (
         <AgentSelectSnackMessage
@@ -546,21 +546,21 @@ function AdminTeam({ selectedUser, }) {
       >
         <div className="flex flex-row items-center gap-3">
           <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
-          {selectedUser?.planCapabilities?.allowTeamCollaboration &&
-            selectedUser?.plan.planId != null &&
-            selectedUser?.planCapabilities?.maxTeamMembers < 1000 && (
+          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
               <div
                 style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
               >
-                {`${selectedUser?.currentUsage?.maxTeamMembers}/${selectedUser?.planCapabilities?.maxTeamMembers || 0} used`}
+                {`${selectedUserDetails?.currentUsage?.maxTeamMembers}/${selectedUserDetails?.planCapabilities?.maxTeamMembers || 0} used`}
               </div>
             )}
 
-          {selectedUser?.planCapabilities?.allowTeamCollaboration &&
-            selectedUser?.plan.planId != null &&
-            selectedUser?.planCapabilities?.maxTeamMembers < 1000 && (
+          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
               <Tooltip
-                title={`Additional team seats are $${selectedUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                title={`Additional team seats are $${selectedUserDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow
                 componentsProps={{
                   tooltip: {
@@ -748,7 +748,7 @@ function AdminTeam({ selectedUser, }) {
                 })}
               </div>
             ) : (
-              <div className="h-full border w-full flex flex-col items-center justify-center ">
+              <div className="h-full w-full flex flex-col items-center justify-center ">
                 <Image
                   src={'/otherAssets/noTemView.png'}
                   height={280}

@@ -621,6 +621,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     } else {
       setSelectedAgentForWebAgent(agent)
       setShowWebAgentModal(true)
+      setFetureType('webagent')
     }
   }
 
@@ -655,6 +656,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowNewSmartListModal(false)
     setSelectedSmartList(smartListId)
     setShowAllSetModal(true)
+    setFetureType('webagent')
   }
 
   const handleCloseAllSetModal = () => {
@@ -2568,7 +2570,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       <div
         className="w-full flex flex-row justify-between items-center"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
           <div
@@ -2626,7 +2628,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     width={16}
                     height={16}
                     className="cursor-pointer rounded-full"
-                    // onClick={() => setIntroVideoModal2(true)}
+                  // onClick={() => setIntroVideoModal2(true)}
                   />
                 </div>
               </Tooltip>
@@ -2811,7 +2813,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     setErrorMessage('')
                   }}
                 >
-                  <CloseBtn onClick={() => {}} />
+                  <CloseBtn onClick={() => { }} />
                 </button>
               </div>
 
@@ -2877,7 +2879,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     maxHeight: '150px',
                     overflowY: 'auto',
                   }}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2908,9 +2910,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? 'mb-16' : ''
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: '1px solid #00000010',
@@ -2991,7 +2992,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         >
           <div
             className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-            // style={{  }}
+          // style={{  }}
           >
             <div
               className="w-full flex flex-col h-[95%]"
@@ -3334,7 +3335,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   name="Calls"
                   value={
                     showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                      showDrawerSelectedAgent?.calls > 0 ? (
                       <div>{showDrawerSelectedAgent?.calls}</div>
                     ) : (
                       '-'
@@ -3348,7 +3349,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   name="Convos"
                   value={
                     showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                      showDrawerSelectedAgent?.callsGt10 > 0 ? (
                       <div>{showDrawerSelectedAgent?.callsGt10}</div>
                     ) : (
                       '-'
@@ -3388,16 +3389,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   name="Time"
                   value={
                     showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                      showDrawerSelectedAgent?.totalDuration > 0 ? (
                       // <div>{showDrawer?.totalDuration}</div>
                       <div>
                         {showDrawerSelectedAgent?.totalDuration
                           ? moment
-                              .utc(
-                                (showDrawerSelectedAgent?.totalDuration || 0) *
-                                  1000,
-                              )
-                              .format('HH:mm:ss')
+                            .utc(
+                              (showDrawerSelectedAgent?.totalDuration || 0) *
+                              1000,
+                            )
+                            .format('HH:mm:ss')
                           : '-'}
                       </div>
                     ) : (
@@ -3415,11 +3416,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`${
-                      activeTab === tab
+                    className={`${activeTab === tab
                         ? 'text-purple border-b-2 border-purple'
                         : 'text-black-500'
-                    }`}
+                      }`}
                     style={{ fontSize: 15, fontWeight: '500' }}
                   >
                     {tab}
@@ -3525,9 +3525,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3551,12 +3551,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     key={index}
                                     style={
                                       item.value === 'multi' &&
-                                      selectedUser?.planCapabilities
-                                        ?.allowLanguageSelection === false
+                                        selectedUser?.planCapabilities
+                                          ?.allowLanguageSelection === false
                                         ? { pointerEvents: 'auto' }
                                         : {}
                                     }
-                                    // disabled={languageValue === item.title || languageValue !== "en-US"}
+                                  // disabled={languageValue === item.title || languageValue !== "en-US"}
                                   >
                                     <Image
                                       src={item.flag}
@@ -3579,7 +3579,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                         ?.allowLanguageSelection === false ||
                                         selectedUser?.planCapabilities
                                           ?.allowLanguageSelection ===
-                                          false) && (
+                                        false) && (
                                         <UpgradeTagWithModal
                                           externalTrigger={showUpgradePlanModal}
                                           onModalClose={() =>
@@ -3729,7 +3729,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                               audio.pause()
                                               audio.removeEventListener(
                                                 'ended',
-                                                () => {},
+                                                () => { },
                                               )
                                             }
                                             setPreview(null)
@@ -3847,9 +3847,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3954,9 +3954,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -4064,9 +4064,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -4225,39 +4225,39 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       {showReassignBtn && (
                                         <div
                                           className="w-full"
-                                          // onClick={(e) => {
-                                          //   console.log(
-                                          //     "Should open confirmation modal"
-                                          //   );
-                                          //   e.stopPropagation();
-                                          //   setShowConfirmationModal(item);
-                                          // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                         >
                                           {item.claimedBy && (
                                             <div className="flex flex-row items-center gap-2">
                                               {showDrawerSelectedAgent?.name !==
                                                 item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setShowConfirmationModal(
-                                                          item,
-                                                        )
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                                  <div>
+                                                    <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                    {reassignLoader === item ? (
+                                                      <CircularProgress
+                                                        size={15}
+                                                      />
+                                                    ) : (
+                                                      <button
+                                                        className="text-purple underline"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation()
+                                                          setShowConfirmationModal(
+                                                            item,
+                                                          )
+                                                        }}
+                                                      >
+                                                        Reassign
+                                                      </button>
+                                                    )}
+                                                  </div>
+                                                )}
                                             </div>
                                           )}
                                         </div>
@@ -4270,22 +4270,22 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   value={
                                     showGlobalBtn
                                       ? getGlobalPhoneNumber(selectedUser).replace(
-                                          '+',
-                                          '',
-                                        )
+                                        '+',
+                                        '',
+                                      )
                                       : ''
                                   }
                                   // disabled={!showGlobalBtn}
                                   disabled={
                                     (assignNumber &&
                                       assignNumber.replace('+', '') ===
-                                        getGlobalPhoneNumber(selectedUser).replace(
-                                          '+',
-                                          '',
-                                        )) ||
+                                      getGlobalPhoneNumber(selectedUser).replace(
+                                        '+',
+                                        '',
+                                      )) ||
                                     (showDrawerSelectedAgent &&
                                       showDrawerSelectedAgent.agentType ===
-                                        'inbound')
+                                      'inbound')
                                   }
                                   onClick={() => {
                                     console.log(
@@ -4401,7 +4401,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           requestFeature={true}
                         />
                       ) : selectedUser?.planCapabilities
-                          ?.allowLiveCallTransfer === false ? (
+                        ?.allowLiveCallTransfer === false ? (
                         <UpgradeTagWithModal
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
@@ -4469,16 +4469,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
                 </div>
               ) : activeTab === 'Actions' ? (
-                selectedUser?.agencyCapabilities?.allowToolsAndActions ===
-                false ? (
-                  <UpgardView
-                    setShowSnackMsg={setShowSnackMsg}
-                    title={'Unlock Actions'}
-                    subTitle={
-                      'Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools.'
-                    }
-                  />
-                ) : !selectedUser?.planCapabilities?.allowToolsAndActions ? (
+                !selectedUser?.planCapabilities?.allowToolsAndActions &&
+                  reduxUser?.userRole !== 'AgencySubAccount' ? (
                   <UpgardView
                     setShowSnackMsg={setShowSnackMsg}
                     title={'Unlock Actions'}

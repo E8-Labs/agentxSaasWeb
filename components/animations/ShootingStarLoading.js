@@ -61,8 +61,8 @@ function ShootingStarLoading({ open }) {
               <div
                 className="absolute right-0 top-1/2 -translate-y-1/2 rounded-full"
                 style={{
-                  width: '12px',
-                  height: '12px',
+                  width: '18px',
+                  height: '8px',
                   background: 'rgba(121, 2, 223, 1)',
                 }}
               />

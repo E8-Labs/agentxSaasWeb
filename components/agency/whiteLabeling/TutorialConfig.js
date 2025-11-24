@@ -161,6 +161,9 @@ const TutorialConfig = () => {
   }
 
   const handleSaveTutorial = async (updatedData) => {
+    if(!updatedData ||!updatedData.title || !updatedData.media) {
+      return
+    }
     setIsSaving(true)
     try {
       let token = AuthToken()

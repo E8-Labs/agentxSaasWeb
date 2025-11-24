@@ -370,28 +370,6 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                             }}
                             alt="*"
                           />
-                          {/*  <div
-                            className="h-[80%] w-[70%] rounded-full flex items-center justify-center bg-transparent bg-cover bg-center bg-no-repeat"
-                            style={{
-                              backgroundImage: `url('/agencyIcons/agentsView/orb.jpg')`, // Replace with actual path
-                            }}
-                          >
-                            <img
-                              src={item.icon}
-                              style={{
-                                // width: [6, 7, 8, 9, 11, 12, 13].includes(item.id)
-                                //   ? "100%"
-                                //   : item.id === 1
-                                //     ? "50%"
-                                //     : "60%",
-                                width: "50%",
-                                transform: "scale(1.1)",
-                                objectFit: "contain",
-                                borderRadius: item.roundedImage ? "50%" : "1%",
-                              }}
-                              alt="*"
-                            />
-                          </div>*/}
                         </div>
                         <div
                           className="text-center mt-2 pb-2 text-sm sm:text-base md:text-base"

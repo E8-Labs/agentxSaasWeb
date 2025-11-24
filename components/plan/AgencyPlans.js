@@ -113,6 +113,8 @@ function AgencyPlans({
     }
   }
 
+  console.log('disAblePlans', disAblePlans)
+
   // Function to check if a plan is the current user's plan
   const isPlanCurrent = (item) => {
     if (!currentUserPlan || !item) return false
@@ -609,7 +611,7 @@ function AgencyPlans({
                   <button
                     key={item.id}
                     onClick={() => {
-                      if (disAblePlans || isCurrentPlan) {
+                      if (disAblePlans) {
                         return
                       }
                       handleTogglePlanClick(item, index)
@@ -624,9 +626,9 @@ function AgencyPlans({
                         )
                       }
                     }}
-                    disabled={disAblePlans || isCurrentPlan}
+                    disabled={disAblePlans || (isCurrentPlan && currentUserPlan?.status !== 'cancelled')}
                     onMouseEnter={() => {
-                      if (!isCurrentPlan) {
+                      if (!isCurrentPlan || currentUserPlan?.status === 'cancelled') {
                         console.log('Hover entered on plan', item.tag)
                         setHoverPlan(item)
                       }
@@ -634,7 +636,7 @@ function AgencyPlans({
                     onMouseLeave={() => {
                       setHoverPlan(null)
                     }}
-                    className={`w-[370px] rounded-2xl p-2 ${isCurrentPlan ? 'border py-2 opacity-60 cursor-not-allowed' : selectedPlan?.id === item.id ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]' : 'border py-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]'}`}
+                    className={`w-[370px] rounded-2xl p-2 ${isCurrentPlan && currentUserPlan?.status !== 'cancelled' ? 'border py-2 opacity-60 cursor-not-allowed' : selectedPlan?.id === item.id ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]' : 'border py-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]'}`}
                     style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                   >
                     <div className="flex flex-col items-center h-auto w-full">
@@ -645,7 +647,7 @@ function AgencyPlans({
                               src={
                                 (selectedPlan?.id === item.id ||
                                   hoverPlan?.id === item.id) &&
-                                !isCurrentPlan
+                                (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                   ? '/svgIcons/powerWhite.svg'
                                   : '/svgIcons/power.svg'
                               }
@@ -661,7 +663,7 @@ function AgencyPlans({
                                 color:
                                   (selectedPlan?.id === item.id ||
                                     hoverPlan?.id === item.id) &&
-                                  !isCurrentPlan
+                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                     ? 'white'
                                     : '#7902df',
                               }}
@@ -672,7 +674,7 @@ function AgencyPlans({
                               src={
                                 (selectedPlan?.id === item.id ||
                                   hoverPlan?.id === item.id) &&
-                                !isCurrentPlan
+                                (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                   ? '/svgIcons/enterArrowWhite.svg'
                                   : '/svgIcons/enterArrow.svg'
                               }
@@ -741,9 +743,9 @@ function AgencyPlans({
                                   </div>
                                 ) : (
                                   <button
-                                    disabled={isCurrentPlan}
+                                    disabled={isCurrentPlan && currentUserPlan?.status !== 'cancelled'}
                                     className={`w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 rounded-lg flex items-center ${
-                                      isCurrentPlan
+                                      isCurrentPlan && currentUserPlan?.status !== 'cancelled'
                                         ? 'bg-gray-400 text-white cursor-not-allowed'
                                         : 'bg-purple text-white'
                                     }`}
@@ -753,7 +755,7 @@ function AgencyPlans({
                                       alignSelf: 'center',
                                     }}
                                     onClick={(e) => {
-                                      if (isCurrentPlan) return
+                                      if (isCurrentPlan && currentUserPlan?.status !== 'cancelled') return
                                       e.preventDefault()
                                       e.stopPropagation()
                                       const currentItem = item
@@ -781,7 +783,7 @@ function AgencyPlans({
                                       }
                                     }}
                                   >
-                                    {isCurrentPlan
+                                    {isCurrentPlan && currentUserPlan?.status === 'cancelled'
                                       ? 'Current Plan'
                                       : selectedPlan?.id === item.id
                                         ? 'Continue'

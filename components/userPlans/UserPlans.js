@@ -701,7 +701,8 @@ function UserPlans({
           {getCurrentPlans()?.length > 0 &&
             getCurrentPlans()?.map((item, index) => {
               const isCurrentUserPlan = isCurrentPlan(item)
-              const isDisabled = disAblePlans || isCurrentUserPlan
+              const currentPlanStatus = reduxUser?.plan?.status
+              const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
 
               return (
                 <button
@@ -747,13 +748,12 @@ function UserPlans({
                           />
 
                           <div
-                            className="text-base font-semibold"
-                            className={
+                            className={`text-base font-semibold ${
                               selectedPlan?.id === item.id ||
                               (hoverPlan?.id === item.id && !isDisabled)
                                 ? 'text-white'
                                 : 'text-brand-primary'
-                            }
+                            }`}
                             style={{}}
                           >
                             {item.status}

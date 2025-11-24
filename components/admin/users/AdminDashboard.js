@@ -338,11 +338,11 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
             style={{
               position: 'absolute',
               top: 0,
-              right: 0,
-              width: '80%',
+              // right: 0,
+              width: '90%',
               height: '20%',
               objectFit: 'cover',
-              zIndex: -1, // Ensure the video stays behind content
+              zIndex: 1, // Ensure the video stays behind content
               overflow: 'hidden',
             }}
           >
@@ -351,13 +351,13 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
           )
         }
           
-          <div className="flex flex-col items-center w-full h-[100%]">
+          <div className="flex flex-col items-center w-[80%] h-[100%] z-20">
             <div className="w-full flex flex-col items-center h-[100%]">
               {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
-
-              <div className="h-[95%] w-full flex flex-row justify-center bg-white rounded-xl">
+ 
+              <div className="h-[95%] w-full flex flex-row justify-center bg-white px-4 rounded-xl">
                 <div className="w-full h-[100%]">
                   <div className="w-full flex flex-row items-center justify-between h-[30%]">
                     <div className="w-2/12 flex flex-col gap-1">

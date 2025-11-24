@@ -358,11 +358,6 @@ function SubAccountBarServices({ selectedUser }) {
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
-    } else {
-      let url = selectedUserDetails?.userSettings?.hireTeamUrl
-      if (typeof window !== 'undefined') {
-        window.open(url, '_blank')
-      }
     }
   }
 

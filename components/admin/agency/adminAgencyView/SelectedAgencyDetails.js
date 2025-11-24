@@ -27,11 +27,10 @@ import AdminDashboard from '../../users/AdminDashboard'
 import AdminIntegration from '../../users/AdminIntegration'
 import AdminLeads1 from '../../users/AdminLeads1'
 import AdminProfileData from '../../users/AdminProfileData'
-import AdminTeam from '../../users/AdminTeams'
+import AdminTeams from '../../users/AdminTeams'
 // import ResetTrial from './ResetTrial'
 import ResetTrial from '../../users/ResetTrial'
 import AdminPipeline1 from '../../users/pipline/AdminPipeline1'
-
 function SelectedAgencyDetails({
   selectedUser,
   handleDel,
@@ -501,9 +500,8 @@ function SelectedAgencyDetails({
               ) : selectedManu.name == 'Call Logs' ? (
                 <AdminDashboardCallLogs selectedAgency={selectedUser} />
               ) : selectedManu.name == 'Teams' ? (
-                <Teams
-                  agencyData={selectedUser}
-                  selectedAgency={selectedUser}
+                <AdminTeams
+                 selectedUser={selectedUser}
                 />
               ) : selectedManu.name == 'Account' ? (
                 <AgencyMyAccount selectedAgency={selectedUser} />

@@ -214,8 +214,8 @@ const DashboardSlider = ({
           label: Data.supportWebinarTitle || 'Support Webinar',
           url:
             Data.supportWebinarCalendarUrl || PersistanceKeys.SupportWebinarUrl,
-          image: '/otherAssets/supportBlack.jpg',
-          image2: '/otherAssets/supportBlue.jpg',
+          image: '/svgIcons/supportBlack.svg',
+          image2: '/svgIcons/supportBlue.svg',
         })
       }
 
@@ -224,8 +224,8 @@ const DashboardSlider = ({
           id: crypto.randomUUID(),
           label: Data.giveFeedbackTitle || 'Give Feedback',
           url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
-          image: '/otherAssets/feedBackIcon.jpg',
-          image2: '/otherAssets/feedBackIconBlue.jpg',
+          image: '/svgIcons/feedBackIcon.svg',
+          image2: '/svgIcons/feedBackIconBlue.svg',
         })
       }
 
@@ -234,8 +234,8 @@ const DashboardSlider = ({
           id: crypto.randomUUID(),
           label: Data.hireTeamTitle || 'Hire the Team',
           url: Data.hireTeamUrl || PersistanceKeys.HireTeamUrl,
-          image: '/otherAssets/hireTeamBlack.jpg',
-          image2: '/otherAssets/hireTeamBlue.jpg',
+          image: '/svgIcons/hireTeamBlack.svg',
+          image2: '/svgIcons/hireTeamBlue.svg',
         })
       }
 
@@ -245,7 +245,7 @@ const DashboardSlider = ({
           label: Data.billingAndSupportTitle || 'Billing Support',
           url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
           image: '/otherAssets/billingIcon.jpg',
-          image2: '/otherAssets/billingIconBlue.png',
+          image2: '/otherAssets/billingIconBlue.jpg',
         })
       }
 
@@ -254,8 +254,8 @@ const DashboardSlider = ({
           id: crypto.randomUUID(),
           label: Data.resourceHubTitle || 'Resource Hub',
           url: Data.resourceHubUrl,
-          image: '/otherAssets/resourceHubBlack.jpg',
-          image2: '/otherAssets/resourceHubBlue.jpg',
+          image: '/svgIcons/resourceHubBlack.svg',
+          image2: '/svgIcons/resourceHubBlue.svg',
         })
       }
 
