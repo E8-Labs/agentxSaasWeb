@@ -38,6 +38,8 @@ import AgentSelectSnackMessage, {
 import CloseBtn from '../globalExtras/CloseBtn'
 import ProgressBar from '../onboarding/ProgressBar'
 import AppLogo from '@/components/common/AppLogo'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   RemoveSmartRefillApi,
   SmartRefillApi,
@@ -1601,7 +1603,7 @@ function NewBilling() {
           }}
         >
           <div
-            className="text-brand-primary underline"
+            className="text-brand-primary hover:text-brand-primary/80 underline transition-colors"
             style={{
               fontSize: 15,
               fontWeight: '500',
@@ -1625,7 +1627,12 @@ function NewBilling() {
         ) : (
           <div className="w-full">
             {cards.length > 0 ? (
-              <div
+              <RadioGroup
+                value={selectedCard?.id?.toString() || cards.find(c => c.isDefault)?.id?.toString() || ''}
+                onValueChange={(value) => {
+                  const card = cards.find(c => c.id?.toString() === value)
+                  if (card) makeDefaultCard(card)
+                }}
                 className="w-full flex flex-row gap-4"
                 style={{
                   overflowX: 'auto',
@@ -1635,10 +1642,9 @@ function NewBilling() {
                   WebkitOverflowScrolling: 'touch',
                   height: '',
                   marginTop: 20,
-                  // border:'2px solid red'
                   scrollbarWidth: 'none',
                   overflowY: 'hidden',
-                  height: '', // Ensures the height is always fixed
+                  height: '',
                   flexShrink: 0,
                 }}
               >
@@ -1662,15 +1668,10 @@ function NewBilling() {
                         }}
                       >
                         <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`} //border-[#2548FD]
-                            style={{
-                              borderWidth:
-                                item.isDefault || selectedCard?.id === item.id
-                                  ? 3
-                                  : 1,
-                            }}
-                          ></div>
+                          <RadioGroupItem
+                            value={item.id?.toString() || ''}
+                            className="h-5 w-5 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                          />
                           {/* Card Details */}
                           <div className="flex flex-col items-start">
                             <div className="flex flex-row items-center gap-3">
@@ -1723,7 +1724,7 @@ function NewBilling() {
                     </button>
                   </div>
                 ))}
-              </div>
+              </RadioGroup>
             ) : (
               <div
                 className="text-start mt-12"
@@ -1819,21 +1820,10 @@ function NewBilling() {
               <div className="flex flex-col items-start h-full justify-between">
                 <div className="w-full">
                   <div className="flex flex-row items-center w-full justify-between mb-3">
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={'/svgIcons/checkMark.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={'/svgIcons/unCheck.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                    <Checkbox
+                      checked={item.id === togglePlan}
+                      className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
 
                     {isPaused && item.id === currentPlan ? (
                       <div
@@ -1917,12 +1907,9 @@ function NewBilling() {
                             key={featureIndex}
                             className="flex flex-row items-start gap-1"
                           >
-                            <Image
-                              src="/svgIcons/selectedTickBtn.svg"
-                              height={16}
-                              width={16}
-                              alt="✓"
-                              className="mt-0.5 flex-shrink-0"
+                            <Checkbox
+                              checked={true}
+                              className="h-4 w-4 mt-0.5 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                             <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                               {
@@ -2178,7 +2165,10 @@ function NewBilling() {
                 />
               </div>
               <div
-                className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
+                className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin`}
+                style={{
+                  scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+                }}
               >
                 <Elements stripe={stripePromise}>
                   <UserPlans

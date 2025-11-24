@@ -334,17 +334,15 @@ const DashboardSlider = ({
                           className="w-full flex flex-row items-center gap-2 "
                           onClick={() => handleOnClick(item, index)}
                         >
-                          <div className="" style={{ height: 24, width: 24 }}>
-                            <Image
-                              className=""
-                              src={
-                                index === hoverIndex ? item.image2 : item.image
-                              }
-                              width={item.height || 24}
-                              height={item.width || 24}
-                              alt="*"
-                            />
-                          </div>
+                          <Image
+                            className=""
+                            src={
+                              index === hoverIndex ? item.image2 : item.image
+                            }
+                            width={item.height || 24}
+                            height={item.width || 24}
+                            alt="*"
+                          />
                           <div
                             className="text-black hover:text-brand-primary whitespace-nowrap"
                             style={{ fontSize: 15, fontWeight: '500' }}

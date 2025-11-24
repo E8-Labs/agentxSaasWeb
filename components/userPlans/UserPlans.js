@@ -642,7 +642,7 @@ function UserPlans({
                       <div
                         key={item.id}
                         // className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                        className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-purple shadow-sm shadow-purple' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
+                        className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
                         style={{ fontWeight: '600', fontSize: '13px' }}
                       >
                         Save {item.save}
@@ -666,7 +666,7 @@ function UserPlans({
                     <button
                       key={item.id}
                       // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                      className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple shadow-md shadow-purple rounded-full' : 'text-black'}`}
+                      className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'}`}
                       onClick={() => {
                         setSelectedDuration(item)
                         // getCurrentPlans();
@@ -721,8 +721,8 @@ function UserPlans({
                     setHoverPlan(null)
                   }}
                   disabled={isDisabled}
-                  className={`flex flex-col items-center rounded-lg ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]'}
-                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2' : 'border p-2'}
+                  className={`flex flex-col items-center rounded-lg ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-t from-brand-primary to-brand-secondary'}
+                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-t from-brand-primary to-brand-secondary p-2' : 'border p-2'}
                                  ${isDisabled ? 'opacity-75 cursor-not-allowed' : ''}
                                 flex-shrink-0
                                  `}
@@ -748,13 +748,13 @@ function UserPlans({
 
                           <div
                             className="text-base font-semibold"
-                            style={{
-                              color:
-                                selectedPlan?.id === item.id ||
-                                (hoverPlan?.id === item.id && !isDisabled)
-                                  ? 'white'
-                                  : '#7902df',
-                            }}
+                            className={
+                              selectedPlan?.id === item.id ||
+                              (hoverPlan?.id === item.id && !isDisabled)
+                                ? 'text-white'
+                                : 'text-brand-primary'
+                            }
+                            style={{}}
                           >
                             {item.status}
                           </div>
@@ -789,7 +789,7 @@ function UserPlans({
                                 ${formatFractional2(item?.originalPrice) || ''}
                               </span>
                             )}
-                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
+                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-brand-secondary to-brand-primary bg-clip-text text-transparent">
                             ${formatFractional2(item.discountedPrice || 0)}
                           </span>
                         </div>
@@ -809,7 +809,7 @@ function UserPlans({
                             <CircularProgress size={20} />
                           ) : (
                             <div
-                              className="w-[95%] py-3.5 h-[50px] mt-3 bg-purple rounded-lg text-white cursor-pointer"
+                              className="w-[95%] py-3.5 h-[50px] mt-3 bg-brand-primary rounded-lg text-white cursor-pointer"
                               disabled={isDisabled}
                               onClick={(e) => {
                                 e.preventDefault()

@@ -1226,7 +1226,7 @@ function AgencyPlansPayments({ selectedAgency }) {
             style={{
               fontSize: 15,
               fontWeight: '500',
-              color: '#7902DF',
+              className: 'text-brand-primary',
               textDecorationLine: 'underline',
             }}
           >
@@ -1280,13 +1280,13 @@ function AgencyPlansPayments({ selectedAgency }) {
                               : 'transparent',
                           borderColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? '#7902DF'
+                              ? 'hsl(var(--brand-primary, 270 75% 50%))'
                               : '#15151510',
                         }}
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
+                            className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`} //border-[#2548FD]
                             style={{
                               borderWidth:
                                 item.isDefault || selectedCard?.id === item.id
@@ -1313,7 +1313,7 @@ function AgencyPlansPayments({ selectedAgency }) {
 
                                 item.isDefault && (
                                   <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                    className="flex px-2 py-1 rounded-full bg-brand-primary text-white text-[10]"
                                     style={{ fontSize: 11, fontWeight: '500' }}
                                   >
                                     Default
@@ -1369,7 +1369,7 @@ function AgencyPlansPayments({ selectedAgency }) {
               <button
                 key={item.id}
                 // className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
-                className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-purple shadow-sm shadow-purple' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
+                className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
                 style={{ fontWeight: '600', fontSize: '13px' }}
                 onClick={() => {
                   handleDurationChange(item)
@@ -1387,7 +1387,7 @@ function AgencyPlansPayments({ selectedAgency }) {
           {duration.map((item) => (
             <button
               key={item.id}
-              className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple shadow-md shadow-purple rounded-full' : 'text-black'}`}
+              className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'}`}
               onClick={() => {
                 handleDurationChange(item)
               }}
@@ -1412,7 +1412,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                             ...styles.pricingBox,
                             border:
                                 item.id === togglePlan
-                                    ? "2px solid #7902DF"
+                                    ? "2px solid hsl(var(--brand-primary, 270 75% 50%))"
                                     : "1px solid #15151520",
                             backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
                         }}
@@ -1447,7 +1447,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                             <div className="w-full">
                                 {item.id === currentPlan && currentPlanDetails?.status === "active" && (
                                     <div
-                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                        className="-mt-[27px] flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                         style={{
                                             fontSize: 11.6,
                                             fontWeight: "500",
@@ -1470,7 +1470,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                                     </div>
                                     {item.status && (
                                         <div
-                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                            className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                             style={{ fontSize: 11.6, fontWeight: "500" }}
                                         >
                                             {item.status}
@@ -1656,7 +1656,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                     {item.id === currentPlan &&
                       currentPlanDetails?.status === 'active' && (
                         <div
-                          className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                          className="mt-4 flex px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{
                             fontSize: 9,
                             fontWeight: '600',
@@ -1671,7 +1671,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                     <button
                       className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none"
                       style={{
-                        color: '#7902DF',
+                        className: 'text-brand-primary',
                         width: 'fit-content',
                         textDecoration: 'none',
                         whiteSpace: 'nowrap',
@@ -1710,7 +1710,7 @@ function AgencyPlansPayments({ selectedAgency }) {
               fontWeight: '700',
               flexShrink: 0,
               backgroundColor:
-                togglePlan === currentPlan ? 'transparent' : '#7902DF',
+                togglePlan === currentPlan ? 'transparent' : 'hsl(var(--brand-primary, 270 75% 50%))',
               color: togglePlan === currentPlan ? '#000000' : '#ffffff',
               border:
                 togglePlan === currentPlan ? '1px solid #00000080' : 'none',
@@ -2009,7 +2009,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                 >
                   {confirmChecked ? (
                     <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
                       style={{ height: '17px', width: '17px' }}
                     >
                       <Image
@@ -2035,7 +2035,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                 </button>
               </div>
               <button
-                className={`${confirmChecked ? 'bg-purple' : 'bg-btngray'} ${confirmChecked ? 'text-white' : 'text-black'} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                className={`${confirmChecked ? 'bg-brand-primary' : 'bg-btngray'} ${confirmChecked ? 'text-white' : 'text-black'} px-4 h-[40px] rounded-lg mt-4 w-full`}
                 onClick={() => {
                   if (confirmChecked) {
                     setShowConfirmCancelPlanPopup(false)
@@ -2142,9 +2142,9 @@ function AgencyPlansPayments({ selectedAgency }) {
                         style={{
                           border:
                             item.reason === selectReason
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                               : '2px solid #15151510',
-                          // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
+                          // backgroundColor: item.reason === selectReason ? "hsl(var(--brand-primary, 270 75% 50%))" : "",
                           // margin: item.reason === selectReason && "5px",
                           height: '20px',
                           width: '20px',
@@ -2154,7 +2154,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                           className="w-full h-full rounded-full"
                           style={{
                             backgroundColor:
-                              item.reason === selectReason && '#7902DF',
+                              item.reason === selectReason && 'hsl(var(--brand-primary, 270 75% 50%))',
                             height: '12px',
                             width: '12px',
                           }}
@@ -2298,7 +2298,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -2316,12 +2316,12 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: '10px',

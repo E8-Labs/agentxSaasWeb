@@ -437,44 +437,44 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
                             }}
                           >
                             <MenuItem
-                              className="hover:bg-[#402FFF10]"
+                              className="hover:bg-brand-primary/10"
                               value={'24 hrs'}
                               style={{
                                 backgroundColor:
-                                  Duration === '24 hrs' && '#7902DF',
+                                  Duration === '24 hrs' && 'hsl(var(--brand-primary, 270 75% 50%))',
                                 color: Duration === '24 hrs' && '#ffffff',
                               }}
                             >
                               Last 24 Hours
                             </MenuItem>
                             <MenuItem
-                              className="hover:bg-[#402FFF10]"
+                              className="hover:bg-brand-primary/10"
                               value={'Last 7 Days'}
                               style={{
                                 backgroundColor:
-                                  Duration === 'Last 7 Days' && '#7902DF',
+                                  Duration === 'Last 7 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
                                 color: Duration === 'Last 7 Days' && '#ffffff',
                               }}
                             >
                               Last 7 Days
                             </MenuItem>
                             <MenuItem
-                              className="hover:bg-[#402FFF10]"
+                              className="hover:bg-brand-primary/10"
                               value={'Last 30 Days'}
                               style={{
                                 backgroundColor:
-                                  Duration === 'Last 30 Days' && '#7902DF',
+                                  Duration === 'Last 30 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
                                 color: Duration === 'Last 30 Days' && '#ffffff',
                               }}
                             >
                               Last 30 Days
                             </MenuItem>
                             <MenuItem
-                              className="hover:bg-[#402FFF10]"
+                              className="hover:bg-brand-primary/10"
                               value={'All time'}
                               style={{
                                 backgroundColor:
-                                  Duration === 'All time' && '#7902DF',
+                                  Duration === 'All time' && 'hsl(var(--brand-primary, 270 75% 50%))',
                                 color: Duration === 'All time' && '#ffffff',
                               }}
                             >

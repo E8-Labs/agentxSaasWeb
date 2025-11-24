@@ -27,6 +27,7 @@ import AgentSelectSnackMessage, {
 import CloseBtn from '../globalExtras/CloseBtn'
 import { DurationView } from '../plan/DurationView'
 import UserAddCard from './UserAddCardModal'
+import AppLogo from '@/components/common/AppLogo'
 import {
   calculatePlanPrice,
   checkReferralCode,
@@ -1543,7 +1544,7 @@ function UpgradePlanContent({
           fontSize: 16,
           fontWeight: '700',
           flexShrink: 0,
-          backgroundColor: '#7902DF',
+          backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
           color: '#ffffff',
         },
       }
@@ -1561,7 +1562,7 @@ function UpgradePlanContent({
         fontSize: 16,
         fontWeight: '700',
         flexShrink: 0,
-        backgroundColor: '#7902DF',
+        backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
         color: '#ffffff',
       },
     }
@@ -1622,23 +1623,18 @@ function UpgradePlanContent({
             </div>
 
             <div className="w-full flex flex-row items-stretch pb-4 content-div h-full overflow-hidden">
-              {/* Left AgentX Logo */}
+              {/* Left Logo */}
               <div
                 className="flex flex-col LeftInnerDiv1 items-start justify-center w-[20%]"
                 style={{
                   flexShrink: 0,
                 }}
               >
-                <Image
-                  alt="*"
-                  src={'/otherAssets/paymentCircle2.png'}
+                <AppLogo
                   height={240}
                   width={190}
-                  style={{
-                    borderTopRightRadius: '200px',
-                    borderBottomRightRadius: '200px',
-                    boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
-                  }}
+                  alt="logo"
+                  className="object-contain"
                 />
               </div>
 
@@ -1701,11 +1697,11 @@ function UpgradePlanContent({
                             className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
                                                         ${
                                                           isCurrentPlan
-                                                            ? `${currentSelectedPlan?.id === item.id ? 'border-purple' : 'border-gray-300'} cursor-not-allowed opacity-60`
+                                                            ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
                                                             : currentSelectedPlan?.id ===
                                                                 item.id
-                                                              ? 'border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100'
-                                                              : 'border-gray-200 hover:border-purple hover:shadow-md'
+                                                              ? 'border-brand-primary bg-gradient-to-r from-brand-primary/5 to-brand-primary/10 shadow-lg shadow-brand-primary/20'
+                                                              : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
                                                         }`}
                             key={item.id}
                             onClick={() => {
@@ -1735,7 +1731,7 @@ function UpgradePlanContent({
                                                         ${
                                                           isCurrentPlan
                                                             ? 'bg-gray-400 text-white cursor-not-allowed'
-                                                            : 'bg-purple text-white'
+                                                            : 'bg-brand-primary text-white'
                                                         }`}
                             >
                               {isCurrentPlan ? 'Current Plan' : 'Select Plan'}
@@ -1783,7 +1779,7 @@ function UpgradePlanContent({
                               onClick={() => {
                                 setShowAddCard(true)
                               }}
-                              className="text-xs font-medium mt-4 text-purple hover:text-purple-700"
+                              className="text-xs font-medium mt-4 text-brand-primary hover:text-brand-primary/80"
                             >
                               + Add Payment
                             </button>
@@ -1806,13 +1802,13 @@ function UpgradePlanContent({
                                     borderColor:
                                       item.isDefault ||
                                       selectedCard?.id === item.id
-                                        ? '#7902DF'
+                                        ? 'hsl(var(--brand-primary, 270 75% 50%))'
                                         : '#15151510',
                                   }}
                                 >
                                   <div className="flex items-center gap-2">
                                     <div
-                                      className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
+                                      className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`}
                                       style={{
                                         borderWidth:
                                           item.isDefault ||
@@ -1915,10 +1911,10 @@ function UpgradePlanContent({
                                 <div className="flex flex-row items-start justify-between w-full mt-4">
                                   <div>
                                     <div
+                                      className="text-brand-primary"
                                       style={{
                                         fontWeight: '600',
                                         fontSize: 15,
-                                        color: '#7902DF',
                                       }}
                                     >
                                       Promo Code Applied
@@ -1940,10 +1936,10 @@ function UpgradePlanContent({
                                     </div>
                                   </div>
                                   <div
+                                    className="text-brand-primary"
                                     style={{
                                       fontWeight: '600',
                                       fontSize: 15,
-                                      color: '#7902DF',
                                     }}
                                   >
                                     -$
@@ -2058,7 +2054,7 @@ function UpgradePlanContent({
                           >
                             {agreeTerms ? (
                               <div
-                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                className="bg-brand-primary flex flex-row items-center justify-center rounded"
                                 style={{ height: '24px', width: '24px' }}
                               >
                                 <Image
@@ -2088,13 +2084,9 @@ function UpgradePlanContent({
                               href={
                                 'https://www.myagentx.com/terms-and-condition'
                               }
-                              style={{
-                                textDecoration: 'underline',
-                                color: '#7902DF',
-                              }}
+                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200"
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="hover:text-purple-700 transition-colors duration-200"
                             >
                               Terms & Conditions
                             </a>
@@ -2152,7 +2144,7 @@ function UpgradePlanContent({
                           className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
                                                     ${
                                                       isUpgradeButtonEnabled()
-                                                        ? 'text-white bg-purple hover:bg-purple-700'
+                                                        ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
                                                         : 'text-black bg-[#00000050] cursor-not-allowed'
                                                     }`}
                           disabled={!isUpgradeButtonEnabled()}
