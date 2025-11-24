@@ -77,6 +77,10 @@ input[type="date"]::-moz-datetime-edit-year-field {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    /* Agency branding colors - defaults to purple (#7902DF) */
+    /* These will be overridden by ThemeProvider when agency colors are set */
+    --brand-primary: 270 75% 50%; /* Default purple: #7902DF */
+    --brand-secondary: 270 60% 60%; /* Default lighter purple variant */
   }
 
   .dark {

@@ -99,6 +99,12 @@ module.exports = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
+        // Agency branding colors (dynamically set by ThemeProvider)
+        // Falls back to default purple if not set
+        brand: {
+          primary: 'hsl(var(--brand-primary, 270 75% 50%))', // Default: #7902DF
+          secondary: 'hsl(var(--brand-secondary, 270 60% 60%))', // Default: lighter purple
+        },
       },
       scrollbar: {
         width: '15px',
