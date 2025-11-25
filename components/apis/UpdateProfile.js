@@ -39,7 +39,7 @@ export const UpdateProfile = async (apidata) => {
         if (response.data.status === true) {
           u.user = response.data.data
 
-          //// //console.log
+          console.log('response.data.data', response.data.data)
           localStorage.setItem('User', JSON.stringify(u))
           //console.log
           window.dispatchEvent(

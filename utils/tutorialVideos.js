@@ -49,7 +49,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Pipeline,
     },
     [HowToVideoTypes.Analytics]: {
-      title: 'Analytics and Reporting',
+      title: 'Learn how to customize your script',
       description: '6:10',
       videoUrl: HowtoVideos.script,
     },

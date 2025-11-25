@@ -47,6 +47,7 @@ function AgencyBasicInfo({ selectedAgency }) {
   const [isEmailChanged, setIsEmailChanged] = useState(false)
   const [isWebsiteUrlChanged, setIsWebsiteUrlChanged] = useState(false)
   const [isCompanyChanged, setIsCompanyChanged] = useState(false)
+  const [isCompanySizeChanged, setIsCompanySizeChanged] = useState(false)
 
   const [loading, setloading] = useState(false)
 
@@ -54,6 +55,7 @@ function AgencyBasicInfo({ selectedAgency }) {
   const [loading10, setLoading10] = useState(false)
   const [loading13, setLoading13] = useState(false)
   const [loading14, setLoading14] = useState(false)
+  const [loading15, setLoading15] = useState(false)
 
   // Email validation and checking states
   const [originalEmail, setOriginalEmail] = useState('')
@@ -78,6 +80,8 @@ function AgencyBasicInfo({ selectedAgency }) {
   const [company, setCompany] = useState('')
   const [minSize, setMinSize] = useState('')
   const [maxSize, setMaxSize] = useState('')
+  const [originalMinSize, setOriginalMinSize] = useState('')
+  const [originalMaxSize, setOriginalMaxSize] = useState('')
 
   const sizeList = [
     { label: '1-10', min: 1, max: 10 },
@@ -121,6 +125,8 @@ function AgencyBasicInfo({ selectedAgency }) {
     setWebsiteUrl(data.website)
     setMinSize(data.companySizeMin)
     setMaxSize(data.companySizeMax)
+    setOriginalMinSize(data.companySizeMin || '')
+    setOriginalMaxSize(data.companySizeMax || '')
   }
 
   const uploadeImage = async (imageUrl) => {
@@ -484,6 +490,29 @@ function AgencyBasicInfo({ selectedAgency }) {
     }
   }
 
+  const handleCompanySizeSave = async () => {
+    try {
+      setLoading15(true)
+      let data = {
+        companySizeMin: minSize,
+        companySizeMax: maxSize,
+      }
+      if (selectedAgency) {
+        data.userId = selectedAgency.id
+      }
+      await UpdateProfile(data)
+      
+      setIsCompanySizeChanged(false)
+      setOriginalMinSize(minSize)
+      setOriginalMaxSize(maxSize)
+      setLoading15(false)
+      showSuccess('Account Updated')
+    } catch (e) {
+      setLoading15(false)
+      // //console.log;
+    }
+  }
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
@@ -765,7 +794,7 @@ function AgencyBasicInfo({ selectedAgency }) {
       </div>
 
       <div style={styles.headingStyle}>Company Size</div>
-      <div className="w-6/12 mt-2">
+      <div className="flex items-center w-6/12 mt-2 gap-2">
         <FormControl fullWidth>
           <Select
             value={minSize && maxSize ? `${minSize}-${maxSize}` : ''}
@@ -775,9 +804,11 @@ function AgencyBasicInfo({ selectedAgency }) {
                 const [min, max] = value.split('-')
                 setMinSize(parseInt(min))
                 setMaxSize(parseInt(max))
+                setIsCompanySizeChanged(true)
               } else {
                 setMinSize('')
                 setMaxSize('')
+                setIsCompanySizeChanged(true)
               }
             }}
             displayEmpty
@@ -808,6 +839,19 @@ function AgencyBasicInfo({ selectedAgency }) {
             ))}
           </Select>
         </FormControl>
+        {isCompanySizeChanged &&
+          (loading15 ? (
+            <CircularProgress size={20} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleCompanySizeSave()
+              }}
+              style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+            >
+              Save
+            </button>
+          ))}
       </div>
 
       {/* Success Message */}

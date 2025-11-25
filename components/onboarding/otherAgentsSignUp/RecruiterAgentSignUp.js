@@ -266,6 +266,17 @@ const RecruiterAgentSignUp = ({
     // //console.log);
     setPhoneVerifiedSuccessSnack(true)
     // handleWaitList();
+    // Close verification popup immediately
+    setShowVerifyPopup(false)
+    // Show loader immediately for desktop screens
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
+    }
+    const SM_SCREEN_SIZE = 640
+    if (screenWidth > SM_SCREEN_SIZE && handleShowRedirectPopup) {
+      handleShowRedirectPopup()
+    }
     handleRegister()
   }
 
