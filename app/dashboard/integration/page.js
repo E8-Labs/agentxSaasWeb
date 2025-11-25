@@ -412,7 +412,7 @@ function Page() {
                         {/* {item.key} */}
                         {maskId(myKeys[myKeys.length - 1].key)}
                       </div>
-                      <Copy size={20} color="#7920fd" />
+                      <Copy size={20} color="hsl(var(--brand-primary))" />
                     </button>
                   )}
 
@@ -430,7 +430,7 @@ function Page() {
                         style={{
                           fontSize: 16,
                           fontWeight: '500',
-                          color: '#7902df',
+                          color: 'hsl(var(--brand-primary))',
                           textDecorationLine: 'underline',
                         }}
                       >
@@ -561,7 +561,7 @@ function Page() {
                         window.open(integration.url, '_blank')
                       }
                     }}
-                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2"
+                    className="w-full bg-brand-primary text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2"
                     disabled={
                       googleAuthLoader && integration.title === 'Google'
                     }
@@ -591,7 +591,7 @@ function Page() {
               <div className="font-bold text-[22px] mt-2">{`Can't find what you're looking for.`}</div>
 
               <button
-                className="w-[23wh] px-8 py-2 mt-4 rounded-md bg-purple text-white text-[16px] font-meduim"
+                className="w-[23wh] px-8 py-2 mt-4 rounded-md bg-brand-primary text-white text-[16px] font-meduim"
                 onClick={() => {
                   window.open(
                     'https://zapier.com/apps/myagentx/integrations',

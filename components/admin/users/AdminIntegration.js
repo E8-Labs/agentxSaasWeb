@@ -310,7 +310,7 @@ function AdminIntegration({ selectedUser }) {
                         {/* {item.key} */}
                         {maskId(myKeys[myKeys.length - 1].key)}
                       </div>
-                      <Copy size={20} color="#7920fd" />
+                      <Copy size={20} color="hsl(var(--brand-primary))" />
                     </button>
                   )}
 
@@ -328,7 +328,7 @@ function AdminIntegration({ selectedUser }) {
                         style={{
                           fontSize: 16,
                           fontWeight: '500',
-                          color: '#7902df',
+                          color: 'hsl(var(--brand-primary))',
                           textDecorationLine: 'underline',
                         }}
                       >
@@ -375,7 +375,7 @@ function AdminIntegration({ selectedUser }) {
                       window.open(integration.url, '_blank')
                     }
                   }}
-                  className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="w-full bg-brand-primary text-white px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Add
                 </button>
