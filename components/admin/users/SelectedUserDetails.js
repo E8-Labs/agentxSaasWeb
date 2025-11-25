@@ -54,17 +54,18 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
     },
     {
-      id: 4,
-      name: 'Activity',
-      selectedImage: '/otherAssets/selectedActivityLog.png',
-      unSelectedImage: '/otherAssets/activityLog.png',
-    },
-    {
       id: 5,
       name: 'Pipeline',
       selectedImage: '/svgIcons/selectedPiplineIcon.svg',
       unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
     },
+    {
+      id: 4,
+      name: 'Activity',
+      selectedImage: '/otherAssets/selectedActivityLog.png',
+      unSelectedImage: '/otherAssets/activityLog.png',
+    },
+    
     {
       id: 6,
       name: 'Integration',
