@@ -2719,7 +2719,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           className="w-full py-6 flex justify-center items-center"
           style={{
             marginTop: 40,
-            border: '1px dashed #7902DF',
+            border: '1px dashed hsl(var(--brand-primary))',
             borderRadius: '10px',
             // borderColor: '#7902DF',
             boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
@@ -2933,7 +2933,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     {name && phone && (
                       <button
                         // style={{ marginTop: 10 }}
-                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                        className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                         onClick={handleTestAiClick}
                       >
                         <div
@@ -3115,7 +3115,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         </div>
                       </button>
                       <div
-                        className="text-purple"
+                        className="text-brand-primary"
                         style={{ fontSize: 11, fontWeight: '600' }}
                       >
                         {showDrawerSelectedAgent?.agentObjective}{' '}
@@ -3246,8 +3246,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
                             <div
                               style={{
-                                backgroundColor: '#7902DF05',
-                                color: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                color: 'hsl(var(--brand-primary))',
                                 padding: '4px 8px',
                                 borderRadius: '12px',
                                 fontSize: '12px',
@@ -3356,8 +3356,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     )
                   }
                   icon="/svgIcons/convosIcon2.svg"
-                  bgColor="bg-purple-100"
-                  iconColor="text-purple-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Hot Leads"
@@ -3417,7 +3417,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
-                        ? 'text-purple border-b-2 border-purple'
+                        ? 'text-brand-primary border-b-2 border-brand-primary'
                         : 'text-black-500'
                       }`}
                     style={{ fontSize: 15, fontWeight: '500' }}
@@ -5184,7 +5184,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         </div>
 
                         <button
-                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
+                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                           style={{
                             fontWeight: '500',
                             fontSize: 15,
@@ -5234,7 +5234,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           </div>
                         ) : (
                           <button
-                            className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                            className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
                             style={{ fontWeight: '600', fontSize: 15 }}
                             onClick={() => {
                               updateAgent()
@@ -5348,7 +5348,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 </div>
                               ) : (
                                 <button
-                                  className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                                  className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
                                   style={{ fontWeight: '600', fontSize: 15 }}
                                   onClick={() => {
                                     updateAgent()

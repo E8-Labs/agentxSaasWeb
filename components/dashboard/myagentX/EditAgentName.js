@@ -124,9 +124,8 @@ const EditAgentName = ({
           ) : (
             <button
               className="mt-4 outline-none"
+              className="bg-brand-primary text-white"
               style={{
-                backgroundColor: '#7902DF',
-                color: 'white',
                 height: '50px',
                 borderRadius: '10px',
                 width: '100%',

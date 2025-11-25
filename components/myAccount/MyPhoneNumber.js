@@ -211,11 +211,10 @@ function MyPhoneNumber() {
           }}
         >
           <div
+            className="text-brand-primary underline"
             style={{
               fontSize: 15,
               fontWeight: '500',
-              color: '#7902DF',
-              textDecorationLine: 'underline',
             }}
           >
             Add New Number

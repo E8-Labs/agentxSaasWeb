@@ -110,7 +110,7 @@ function Knowledgebase({ user, agent }) {
             </div>
 
             <button
-              className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
+              className="flex flex-row h-[54px] items-center gap-2 bg-brand-primary p-2 px-8 rounded-lg"
               onClick={() => {
                 if (
                   user?.planCapabilities.maxKnowledgeBases >

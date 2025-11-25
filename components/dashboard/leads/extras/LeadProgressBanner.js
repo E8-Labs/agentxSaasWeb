@@ -18,7 +18,7 @@ export const LeadProgressBanner = ({
       </div>
       <Progress
         value={uploadProgress}
-        className="h-2 bg-gray-200 [&>div]:bg-purple"
+        className="h-2 bg-gray-200 [&>div]:bg-brand-primary"
       />
     </Card>
   )

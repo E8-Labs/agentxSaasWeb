@@ -361,7 +361,7 @@ function VoiceMailTab({
 
               <div className='flex flex-row items-center'>
 
-                <div className='text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
+                <div className='text-brand-primary' style={{ fontSize: 15, fontWeight: '500' }}>
                   {getVoiceName(agent?.voicemail.voiceId)}
                 </div>
 

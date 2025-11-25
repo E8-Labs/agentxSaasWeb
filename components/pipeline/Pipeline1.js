@@ -836,7 +836,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 >
                   <div className="w-full flex flex-row items-center justify-center">
                     <CircularProgress
-                      className="text-purple"
+                      sx={{ color: 'hsl(var(--brand-primary))' }}
                       size={150}
                       weight=""
                       thickness={1}

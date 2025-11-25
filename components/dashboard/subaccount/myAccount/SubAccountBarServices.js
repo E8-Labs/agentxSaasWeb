@@ -477,7 +477,7 @@ function SubAccountBarServices({ selectedUser }) {
                 }}
               >
                 <button
-                  className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                  className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium"
                   onClick={(e) => {
                     handleSpeakToAGenius()
                   }}
@@ -509,12 +509,12 @@ function SubAccountBarServices({ selectedUser }) {
                       ...styles.pricingBox,
                       border:
                         Number(item.id) === Number(togglePlan)
-                          ? '2px solid #7902DF'
+                          ? '2px solid hsl(var(--brand-primary))'
                           : '1px solid #15151520',
-                      // backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                      // backgroundColor: item.id === togglePlan ? "hsl(var(--brand-primary) / 0.05)" : "",
                       backgroundColor:
                         Number(item.id) === Number(togglePlan)
-                          ? '#402FFF05'
+                          ? 'hsl(var(--brand-primary) / 0.05)'
                           : '',
                     }}
                   >
@@ -553,7 +553,7 @@ function SubAccountBarServices({ selectedUser }) {
                       <div className="w-full">
                         {Number(item.id) === Number(currentPlan) && (
                           <div
-                            className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                            className="-mt-[27px] flex px-2 py-1 bg-brand-primary rounded-full text-white"
                             style={{
                               fontSize: 11.6,
                               fontWeight: '500',
@@ -575,7 +575,7 @@ function SubAccountBarServices({ selectedUser }) {
                             {item?.title} | {item.minutes} Credits{' '}
                             {item.tag && (
                               <span
-                                className="px-4 py-2 text-white bg-purple rounded-full"
+                                className="px-4 py-2 text-white bg-brand-primary rounded-full"
                                 style={{ fontWeight: '500', fontSize: 14 }}
                               >
                                 {item.tag}
@@ -584,7 +584,7 @@ function SubAccountBarServices({ selectedUser }) {
                           </div>
                           {item.status && (
                             <div
-                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                               style={{ fontSize: 11.6, fontWeight: '500' }}
                             >
                               {item.status}
@@ -640,7 +640,7 @@ function SubAccountBarServices({ selectedUser }) {
                 backgroundColor:
                   Number(currentPlan) === Number(togglePlan)
                     ? '#00000020'
-                    : '#7902DF',
+                    : 'hsl(var(--brand-primary))',
                 color:
                   Number(currentPlan) === Number(togglePlan)
                     ? '#000000'
@@ -781,7 +781,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -799,7 +799,7 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },

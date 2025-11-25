@@ -334,7 +334,7 @@ const EmbedModal = ({
                     }}
                   />
                   <button
-                    className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-purple transition-all duration-300 rounded-lg p-2"
+                    className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Image
@@ -448,11 +448,11 @@ const EmbedModal = ({
                     onClick={(e) => e.stopPropagation()}
                     sx={{
                       '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: '#7902DF',
+                        color: 'hsl(var(--brand-primary))',
                       },
                       '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                         {
-                          backgroundColor: '#7902DF',
+                          backgroundColor: 'hsl(var(--brand-primary))',
                         },
                       margin: 0,
                     }}
@@ -482,7 +482,7 @@ const EmbedModal = ({
                       Select Smartlist
                     </Typography>
                     <button
-                      className="text-purple underline text-transform-none font-medium"
+                      className="text-brand-primary underline text-transform-none font-medium"
                       onClick={(e) => {
                         e.stopPropagation()
                         onShowSmartList()
@@ -573,7 +573,7 @@ const EmbedModal = ({
                   Cancel
                 </button>
                 <button
-                  className="px-6 py-2 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary/90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                   onClick={(e) => {
                     e.stopPropagation()
                     handleCopyEmbed()

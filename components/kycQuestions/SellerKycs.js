@@ -589,7 +589,7 @@ const SellerKycs = ({ handleContinue }) => {
                     key={item.id}
                     style={{
                       ...styles.inputStyle,
-                      color: item.id === toggleClick ? '#7902DF' : '',
+                      color: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
                     }}
                     onClick={(e) => {
                       handleToggleClick(item.id)
@@ -640,8 +640,8 @@ const SellerKycs = ({ handleContinue }) => {
                       <button
                         className="mb-4 border rounded-3xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
                         style={{
-                          border: selected ? '2px solid #7902DF' : '',
-                          backgroundColor: selected ? '#402FFF15' : '',
+                          border: selected ? '2px solid hsl(var(--brand-primary))' : '',
+                          backgroundColor: selected ? 'hsl(var(--brand-primary) / 0.1)' : '',
                         }}
                         key={index}
                         onClick={() => handleSelectNeedKYC(item)}
@@ -743,8 +743,8 @@ const SellerKycs = ({ handleContinue }) => {
                         key={index}
                         onClick={() => handleUrgencyKYC(item)}
                         style={{
-                          border: selected ? '2px solid #7902DF' : '',
-                          backgroundColor: selected ? '#402FFF15' : '',
+                          border: selected ? '2px solid hsl(var(--brand-primary))' : '',
+                          backgroundColor: selected ? 'hsl(var(--brand-primary) / 0.1)' : '',
                         }}
                       >
                         <div style={{ width: '90%' }} className="text-start">
@@ -779,7 +779,7 @@ const SellerKycs = ({ handleContinue }) => {
               )}
 
               <button
-                className="mt-2 w-10/12 md:w-8/12 justify-start flex justify-start flex text-purple"
+                className="mt-2 w-10/12 md:w-8/12 justify-start flex justify-start flex text-brand-primary"
                 style={{
                   fontWeight: '700',
                   fontSize: 15,
@@ -908,7 +908,7 @@ const SellerKycs = ({ handleContinue }) => {
                           // .length === 3 &&
                           newQuestion && (
                             <button
-                              className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
+                              className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
                               style={{ ...styles.headingStyle, height: '50px' }}
                               onClick={handleAddKycQuestion}
                             >

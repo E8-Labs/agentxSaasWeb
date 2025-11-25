@@ -323,9 +323,9 @@ const WebAgentModal = ({
                 onChange={handleToggleChange}
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: '#7902DF',
+                    color: 'hsl(var(--brand-primary))',
                     '& + .MuiSwitch-track': {
-                      backgroundColor: '#7902DF',
+                      backgroundColor: 'hsl(var(--brand-primary))',
                     },
                   },
                   '& .MuiSwitch-track': {
@@ -362,7 +362,7 @@ const WebAgentModal = ({
                   Select Smart List
                 </div>
                 <button
-                  className="text-purple underline text-transform-none font-medium"
+                  className="text-brand-primary underline text-transform-none font-medium"
                   onClick={(e) => {
                     console.log('New Smartlist button clicked')
                     e.stopPropagation()

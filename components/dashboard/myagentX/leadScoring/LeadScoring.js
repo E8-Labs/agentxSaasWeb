@@ -202,7 +202,7 @@ function LeadScoring({
           {templates.length > 0 && (
             <button
               onClick={() => setShowAddScoringModal(true)}
-              className="text-purple-600 hover:text-purple-700 text-sm font-medium underline"
+              className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium underline"
             >
               + Add Score
             </button>
@@ -254,7 +254,7 @@ function LeadScoring({
                       border: '1px solid #D1D5DB',
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      border: '1px solid #7902DF',
+                      border: '1px solid hsl(var(--brand-primary))',
                     },
                   }}
                   MenuProps={{
@@ -299,7 +299,7 @@ function LeadScoring({
                             }
                           }}
                           disabled={isApplyingTemplate}
-                          className={`ml-2 text-base text-purple underline ${isApplyingTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          className={`ml-2 text-base text-brand-primary underline ${isApplyingTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           Edit
                         </button>

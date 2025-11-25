@@ -275,26 +275,26 @@ function SMSTempletePopup({
               <CloseBtn onClick={onClose} />
             </div>
 
-            <div className="w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mb-2">
+            <div className="w-full flex flex-col items-ceter  p-2 bg-brand-primary/10 rounded-lg mb-2">
               <div className="flex flex-row items-center justify-between w-full">
-                <div className="text-purple text-[14] font-[700]">Note</div>
+                <div className="text-brand-primary text-[14] font-[700]">Note</div>
               </div>
 
               <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
                 You can add variables like{' '}
-                <span className="text-purple">{`{First Name}, {Address}.`}</span>
+                <span className="text-brand-primary">{`{First Name}, {Address}.`}</span>
                 {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
                   <div className="flex flex-row flex-wrap gap-2">
                     {uniqueColumns.map((item, index) => (
                       <div
                         key={index}
-                        className="flex flex-row items-center gap-2 text-purple"
+                        className="flex flex-row items-center gap-2 text-brand-primary"
                       >
                         {`{${item}}`},
                       </div>
                     ))}
                     <button
-                      className="text-purple outline-none"
+                      className="text-brand-primary outline-none"
                       onClick={handleShowUniqueCols}
                     >
                       show less
@@ -304,7 +304,7 @@ function SMSTempletePopup({
                   <div>
                     {uniqueColumns.length > 0 && (
                       <button
-                        className="text-purple flex flex-row items-center font-bold outline-none"
+                        className="text-brand-primary flex flex-row items-center font-bold outline-none"
                         onClick={() => {
                           handleShowUniqueCols()
                         }}
@@ -403,7 +403,7 @@ function SMSTempletePopup({
               {body.length}/160
               <br />
               10 text messages equal 1 credit. Balance:
-              <span className="text-purple">
+              <span className="text-brand-primary">
                 {' '}
                 {(user?.totalSecondsAvailable / 60).toFixed(2)}
               </span>
@@ -424,7 +424,7 @@ function SMSTempletePopup({
                 className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${
                   isSaveDisabled
                     ? 'bg-[#00000050]'
-                    : 'bg-purple hover:bg-purple/90'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
                 }`}
                 disabled={isSaveDisabled}
                 onClick={handleSave}

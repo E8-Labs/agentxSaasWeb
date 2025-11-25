@@ -72,7 +72,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
       </div>
 
       <button
-        className="w-full bg-purple rounded-xl h-[50px] mt-8"
+        className="w-full bg-brand-primary rounded-xl h-[50px] mt-8"
         style={{ ...styles.heading, color: 'white' }}
         onClick={() => {
           handleContinue()

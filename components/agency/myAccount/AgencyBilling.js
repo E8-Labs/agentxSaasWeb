@@ -930,13 +930,13 @@ function AgencyBilling({ selectedAgency }) {
               </div>
 
               <div
-                className="text-center text-purple"
+                className="text-center text-brand-primary"
                 style={{
                   fontWeight: '600',
                   fontSize: 16.8,
                 }}
               >
-                {`Here’s a Gift`}
+                {`Here's a Gift`}
               </div>
 
               <div className="flex flex-row items-center justify-center w-full mt-6">
@@ -956,7 +956,7 @@ function AgencyBilling({ selectedAgency }) {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
+                  className={`flex flex-row items-center gap-2 text-brand-primary ${
                     ScreenWidth < 1200 ? 'mt-4' : 'mt-6'
                   }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
@@ -987,7 +987,7 @@ function AgencyBilling({ selectedAgency }) {
                       }}
                     />
                     <div
-                      className="text-purple"
+                      className="text-brand-primary"
                       style={{
                         fontSize: 200,
                         fontWeight: '400',
@@ -1014,7 +1014,7 @@ function AgencyBilling({ selectedAgency }) {
                   </div>
                 ) : (
                   <button
-                    className="rounded-lg text-white bg-purple outline-none"
+                    className="rounded-lg text-white bg-brand-primary outline-none"
                     style={{
                       fontWeight: '700',
                       fontSize: '16',
@@ -1107,7 +1107,7 @@ function AgencyBilling({ selectedAgency }) {
               </div>
 
               <button
-                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-brand-primary text-white justify-center mt-10"
                 style={{
                   fontWeight: '600',
                   fontSize: 16.8,
@@ -1239,9 +1239,9 @@ function AgencyBilling({ selectedAgency }) {
                         style={{
                           border:
                             item.reason === selectReason
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                               : '2px solid #15151510',
-                          // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
+                          // backgroundColor: item.reason === selectReason ? "hsl(var(--brand-primary))" : "",
                           // margin: item.reason === selectReason && "5px",
                           height: '20px',
                           width: '20px',
@@ -1251,7 +1251,7 @@ function AgencyBilling({ selectedAgency }) {
                           className="w-full h-full rounded-full"
                           style={{
                             backgroundColor:
-                              item.reason === selectReason && '#7902DF',
+                              item.reason === selectReason && 'hsl(var(--brand-primary, 270 75% 50%))',
                             height: '12px',
                             width: '12px',
                           }}
@@ -1311,7 +1311,7 @@ function AgencyBilling({ selectedAgency }) {
                         backgroundColor:
                           selectReason &&
                           (selectReason !== 'Others' || otherReasonInput)
-                            ? '#7902df'
+                            ? 'hsl(var(--brand-primary, 270 75% 50%))'
                             : '#00000050',
                         color:
                           selectReason &&
@@ -1395,7 +1395,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -1413,12 +1413,12 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: '10px',

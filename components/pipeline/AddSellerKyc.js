@@ -781,7 +781,7 @@ const AddSellerKyc = ({
             </div>
             {!hideTitle && (
               <button
-                className="mt-10 underline text-purple"
+                className="mt-10 underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={handleCloseSellerKyc}
               >
@@ -794,7 +794,7 @@ const AddSellerKyc = ({
                   key={item.id}
                   style={{
                     ...styles.inputStyle,
-                    color: item.id === toggleClick ? '#7902DF' : '',
+                    color: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
                   }}
                   onClick={(e) => {
                     handleToggleClick(item.id)
@@ -832,7 +832,7 @@ const AddSellerKyc = ({
             </div>
 
             {toggleClick === 1 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {needKYCQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
@@ -840,12 +840,12 @@ const AddSellerKyc = ({
                       border: selectedNeedKYC.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '2px solid #7902DF'
+                        ? '2px solid hsl(var(--brand-primary))'
                         : '',
                       backgroundColor: selectedNeedKYC.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '#402FFF15'
+                        ? 'hsl(var(--brand-primary) / 0.1)'
                         : '',
                     }}
                     key={index}
@@ -880,7 +880,7 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 2 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {motivationKycQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
@@ -890,12 +890,12 @@ const AddSellerKyc = ({
                       border: selectedMotivationKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '2px solid #7902DF'
+                        ? '2px solid hsl(var(--brand-primary))'
                         : '',
                       backgroundColor: selectedMotivationKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '#402FFF15'
+                        ? 'hsl(var(--brand-primary) / 0.1)'
                         : '',
                     }}
                   >
@@ -928,7 +928,7 @@ const AddSellerKyc = ({
                 ))}
               </div>
             ) : toggleClick === 3 ? (
-              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+              <div className="mt-8 w-[90%] max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                 {urgencyKycQuestions.map((item, index) => (
                   <button
                     className="mb-4 border rounded-xl flex flex-row items-center justify-between px-4 sm:h-[10vh] w-full"
@@ -938,12 +938,12 @@ const AddSellerKyc = ({
                       border: selectedUrgencyKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '2px solid #7902DF'
+                        ? '2px solid hsl(var(--brand-primary))'
                         : '',
                       backgroundColor: selectedUrgencyKyc.some(
                         (selectedItem) => selectedItem.id === item.id,
                       )
-                        ? '#402FFF15'
+                        ? 'hsl(var(--brand-primary) / 0.1)'
                         : '',
                     }}
                   >
@@ -980,7 +980,7 @@ const AddSellerKyc = ({
             )}
 
             <button
-              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple text-purple"
+              className="mt-2 w-[90%] outline-none border-none justify-start flex max-h-[37vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary text-brand-primary"
               style={{ fontWeight: '700', fontSize: 15 }}
               onClick={handleAddKyc}
             >
@@ -1055,7 +1055,7 @@ const AddSellerKyc = ({
                       Sample Answers
                     </div>
 
-                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
                       {inputs.map((input, index) => (
                         <div
                           key={input.id}
@@ -1098,7 +1098,7 @@ const AddSellerKyc = ({
                         //   .length === 3 &&
                         newQuestion ? (
                           <button
-                            className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
+                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
                             style={{ ...styles.headingStyle, height: '50px' }}
                             onClick={handleAddKycQuestion}
                           >
@@ -1137,7 +1137,7 @@ const AddSellerKyc = ({
             <div className="w-full flex flex-row item-center justify-center">
               {shouldSave ? (
                 <button
-                  className="bg-purple text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]"
+                  className="bg-brand-primary text-white rounded-lg w-10/12 md:w-8/12  lg:w-6/12 h-[50px]"
                   style={styles.headingStyle}
                   onClick={handleAddNewKyc}
                 >

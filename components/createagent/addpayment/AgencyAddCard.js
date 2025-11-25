@@ -842,7 +842,7 @@ const AgencyAddCard = ({
                           style={{
                             fontWeight: '600',
                             fontSize: 15,
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           Promo Code Applied
@@ -984,7 +984,7 @@ const AgencyAddCard = ({
                       onClick={handleAddCard}
                       className="w-full h-[50px] rounded-xl px-8 text-white py-3"
                       style={{
-                        backgroundColor: '#7902DF',
+                        backgroundColor: 'hsl(var(--brand-primary))',
                         fontWeight: '600',
                         fontSize: 17,
                       }}
@@ -1017,7 +1017,7 @@ const AgencyAddCard = ({
               By continuing you agree to our
               <a
                 href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                style={{ textDecoration: 'underline', color: '#7902DF' }} // Underline and color styling
+                style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }} // Underline and color styling
                 className="ms-1 me-1"
                 target="_blank" // Opens in a new tab (optional)
                 rel="noopener noreferrer" // Security for external links

@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react'
 
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import ClaimNumber from '../myagentX/ClaimNumber'
 
@@ -156,26 +157,10 @@ const AgencyChecklist = ({ userDetails }) => {
                   disabled={item.status === true}
                 >
                   <div className="flex flex-row items-center gap-4">
-                    {item.status === true ? (
-                      <Image
-                        className="ms-2"
-                        src={'/agencyIcons/Check.jpg'}
-                        alt="*"
-                        height={20}
-                        width={20}
-                      />
-                    ) : (
-                      <div className="h-[18px] w-[18px] rounded-full bg-btngray ms-2"></div>
-                    )}
-                    {/*
-                                                        <Image
-                                                        className='ms-2'
-                                                        src={"/agencyIcons/unCheck.jpg"}
-                                                        alt='*'
-                                                        height={20}
-                                                        width={20}
-                                                    />
-                                                    */}
+                    <Checkbox
+                      checked={item.status === true}
+                      className="!rounded-full h-4 w-4 ms-2 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
                     <div
                       // style={styles.text}
                       // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}

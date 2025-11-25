@@ -265,7 +265,7 @@ export default function EnrichModal({
                   )}
 
                   <button
-                    className="h-[53px] text-[16px] w-[143px] rounded-lg bg-purple items-center justify-center text-white"
+                    className="h-[53px] text-[16px] w-[143px] rounded-lg bg-brand-primary items-center justify-center text-white"
                     onClick={() => {
                       if (userData?.user?.cards?.length === 0) {
                         setShowAddCard(true)

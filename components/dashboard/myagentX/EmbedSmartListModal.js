@@ -348,7 +348,7 @@ const EmbedSmartListModal = ({
                       }}
                     />
                     <button
-                      className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-purple transition-all duration-300 rounded-lg p-2"
+                      className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Image
@@ -548,7 +548,7 @@ const EmbedSmartListModal = ({
                   ))}
 
                   <button
-                    className="flex items-center text-purple font-medium hover:bg-purple hover:bg-opacity-5 p-2 -ml-2 rounded"
+                    className="flex items-center text-brand-primary font-medium hover:bg-brand-primary/5 p-2 -ml-2 rounded"
                     onClick={handleAddCustomField}
                     style={{ fontSize: 14 }}
                   >
@@ -574,7 +574,7 @@ const EmbedSmartListModal = ({
 
                 {/* Save Button */}
                 <button
-                  className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-4 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary/90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                   onClick={handleSave}
                   disabled={loading || !sheetName.trim()}
                 >

@@ -751,7 +751,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     <CircularProgress size={15} />
                                   ) : (
                                     <button
-                                      className="text-purple underline"
+                                      className="text-brand-primary underline"
                                       onClick={(e) => {
                                         e.stopPropagation()
                                         // handleReassignNumber(item);
@@ -900,10 +900,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         fontSize: 'clamp(9px, 1.8vw, 13px)',
                         border:
                           userSelectedNumber === item
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '1px solid #15151550',
                         backgroundColor:
-                          userSelectedNumber === item ? '#402FFF15' : '#fff',
+                          userSelectedNumber === item ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
                         minWidth: 'clamp(85px, 18vw, 150px)',
                         maxWidth: '220px',
                         whiteSpace: 'nowrap',
@@ -922,9 +922,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       height: 'clamp(30px, 35px, 40px)',
                       fontSize: 'clamp(9px, 1.8vw, 13px)',
                       border: useOfficeNumber
-                        ? '2px solid #7902DF'
+                        ? '2px solid hsl(var(--brand-primary))'
                         : '1px solid #15151550',
-                      backgroundColor: useOfficeNumber ? '#402FFF15' : '#fff',
+                      backgroundColor: useOfficeNumber ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
                       minWidth: 'clamp(85px, 18vw, 150px)',
                       maxWidth: '200px',
                       whiteSpace: 'nowrap',
@@ -1111,7 +1111,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     <button onClick={handleToggleClick}>
                       {toggleClick ? (
                         <div
-                          className="bg-purple flex flex-row items-center justify-center rounded"
+                          className="bg-brand-primary flex flex-row items-center justify-center rounded"
                           style={{ height: '24px', width: '24px' }}
                         >
                           <Image
@@ -1292,7 +1292,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   }}
                 >
                   Please confirm you would like to reassign{' '}
-                  <span className="text-purple">
+                  <span className="text-brand-primary">
                     ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
                   </span>{' '}
                   to {AgentData?.name}
@@ -1328,7 +1328,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </div>
                   ) : (
                     <button
-                      className="mt-4 outline-none bg-purple w-full"
+                      className="mt-4 outline-none bg-brand-primary w-full"
                       style={{
                         color: 'white',
                         height: '50px',

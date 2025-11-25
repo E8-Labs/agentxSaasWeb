@@ -3463,7 +3463,7 @@ function Page() {
             prefetch={true}
             style={{
               // marginTop: 40,
-              border: '1px dashed #7902DF',
+              border: '1px dashed hsl(var(--brand-primary))',
               borderRadius: '10px',
               // borderColor: '#7902DF',
               boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
@@ -3569,7 +3569,7 @@ function Page() {
               <button
                 className="mt-4 outline-none"
                 style={{
-                  backgroundColor: '#7902DF',
+                  backgroundColor: 'hsl(var(--brand-primary))',
                   color: 'white',
                   height: '50px',
                   borderRadius: '10px',
@@ -4206,8 +4206,8 @@ function Page() {
                               </div>
                               <div
                                 style={{
-                                  backgroundColor: '#7902DF05',
-                                  color: '#7902DF',
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                  color: 'hsl(var(--brand-primary))',
                                   padding: '4px 8px',
                                   borderRadius: '12px',
                                   fontSize: '12px',
@@ -4479,7 +4479,7 @@ function Page() {
                   onClick={() => setActiveTab(tab)}
                   className={`${
                     activeTab === tab
-                      ? 'text-purple border-b-2 border-purple'
+                      ? 'text-brand-primary border-b-2 border-brand-primary'
                       : 'text-black-500'
                   }`}
                   style={{
@@ -4602,7 +4602,7 @@ function Page() {
                             {AgentLanguagesList.map((item, index) => {
                               return (
                                 <MenuItem
-                                  className="flex flex-row items-center gap-2 bg-purple10 w-full"
+                                  className="flex flex-row items-center gap-2 bg-brand-primary/10 w-full"
                                   value={item?.title}
                                   key={index}
                                   // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
@@ -5302,7 +5302,7 @@ function Page() {
                                                   <CircularProgress size={15} />
                                                 ) : (
                                                   <button
-                                                    className="text-purple underline"
+                                                    className="text-brand-primary underline"
                                                     onClick={(e) => {
                                                       e.stopPropagation()
                                                       setShowConfirmationModal(
@@ -5369,7 +5369,7 @@ function Page() {
                               >
                                 <i>Get your own unique phone number.</i>{' '}
                                 <button
-                                  className="text-purple underline"
+                                  className="text-brand-primary underline"
                                   onClick={() => {
                                     setShowClaimPopup(true)
                                   }}
@@ -5856,7 +5856,7 @@ function Page() {
                 }}
               >
                 Please confirm you would like to reassign{' '}
-                <span className="text-purple">
+                <span className="text-brand-primary">
                   {formatPhoneNumber(showConfirmationModal?.phoneNumber)}
                 </span>{' '}
                 to {showDrawerSelectedAgent?.name}.
@@ -5890,7 +5890,7 @@ function Page() {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 outline-none bg-purple w-full"
+                    className="mt-4 outline-none bg-brand-primary w-full"
                     style={{
                       color: 'white',
                       height: '50px',
@@ -5979,7 +5979,7 @@ function Page() {
                 <button
                   className="px-2 pb-1"
                   style={{
-                    borderBottom: showScript && '2px solid #7902DF',
+                    borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowScript}
                 >
@@ -5988,7 +5988,7 @@ function Page() {
                 <button
                   className="px-2 pb-1"
                   style={{
-                    borderBottom: SeledtedScriptKYC && '2px solid #7902DF',
+                    borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowKycs}
                 >
@@ -5998,7 +5998,7 @@ function Page() {
                   className="px-2 pb-1"
                   style={{
                     borderBottom:
-                      SeledtedScriptAdvanceSetting && '2px solid #7902DF',
+                      SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
@@ -6035,7 +6035,7 @@ function Page() {
                         {/* <div className='flex flex-row items-center gap-2'> */}
                         <div
                           style={{ width: 'fit-content' }}
-                          className="text-purple flex flex-row gap-2"
+                          className="text-brand-primary flex flex-row gap-2"
                         >
                           {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
                           {/* {`{First Name}`}, {`{Email}`}, */}
@@ -6046,13 +6046,13 @@ function Page() {
                             {uniqueColumns.map((item, index) => (
                               <div
                                 key={index}
-                                className="flex flex-row items-center gap-2 text-purple"
+                                className="flex flex-row items-center gap-2 text-brand-primary"
                               >
                                 {`{${item}}`},
                               </div>
                             ))}
                             <button
-                              className="text-purple outline-none"
+                              className="text-brand-primary outline-none"
                               onClick={handleShowUniqueCols}
                             >
                               show less
@@ -6062,7 +6062,7 @@ function Page() {
                           <div>
                             {uniqueColumns?.length > 0 && (
                               <button
-                                className="text-purple flex flex-row items-center font-bold outline-none"
+                                className="text-brand-primary flex flex-row items-center font-bold outline-none"
                                 onClick={() => {
                                   handleShowUniqueCols()
                                 }}
@@ -6121,7 +6121,7 @@ function Page() {
                         </div>
 
                         <button
-                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
+                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                           style={{
                             fontWeight: '500',
                             fontSize: 15,
@@ -6188,7 +6188,7 @@ function Page() {
                           </div>
                         ) : (
                           <button
-                            className="bg-purple w-full h-[50px] rounded-xl text-white"
+                            className="bg-brand-primary w-full h-[50px] rounded-xl text-white"
                             style={{ fontWeight: '600', fontSize: 15 }}
                             onClick={async () => {
                               await updateAgent()
@@ -6217,7 +6217,7 @@ function Page() {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjectives && '2px solid #7902DF',
+                        borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowObjectives}
                     >
@@ -6226,7 +6226,7 @@ function Page() {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showGuardrails && '2px solid #7902DF',
+                        borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowGuardrails}
                     >
@@ -6235,7 +6235,7 @@ function Page() {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjection && '2px solid #7902DF',
+                        borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowObjection}
                     >
@@ -6326,7 +6326,7 @@ function Page() {
                                 </div>
                               ) : (
                                 <button
-                                  className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                                  className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
                                   style={{ fontWeight: '600', fontSize: 15 }}
                                   onClick={async () => {
                                     await updateAgent()

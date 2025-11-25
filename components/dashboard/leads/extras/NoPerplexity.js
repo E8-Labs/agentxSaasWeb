@@ -143,7 +143,7 @@ function NoPerplexity({
         <CircularProgress size={27} />
       ) : (
         <button
-          className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-purple items-center justify-center text-white"
+          className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white"
           onClick={() => {
             if (userLocalData?.cards?.length == 0) {
               setShowAddCard(true)

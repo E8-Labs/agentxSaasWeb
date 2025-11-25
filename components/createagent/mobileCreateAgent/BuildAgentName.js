@@ -651,10 +651,10 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                       style={{
                         border:
                           selectedStatus?.id === item.id
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                         backgroundColor:
-                          selectedStatus?.id === item.id ? '#402FFF15' : '',
+                          selectedStatus?.id === item.id ? 'hsl(var(--brand-primary) / 0.1)' : '',
                       }}
                     >
                       {item.title}
@@ -748,7 +748,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
                 style={{ position: 'absolute', bottom: 0, left: 0 }}
               >
                 <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                  className="text-white w-11/12 h-[50px] rounded-lg bg-brand-primary mb-8"
                   onClick={() => {
                     setShowModal(false)
                   }}

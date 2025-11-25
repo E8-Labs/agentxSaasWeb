@@ -153,7 +153,7 @@ export default function AddMcpPopup({
                   <CircularProgress size={20} />
                 ) : (
                   <button
-                    className={`w-1/2 rounded-md p-2 h-[55px] text-[15px] font-[500] ${isAddDisabled ? 'bg-[#00000020] text-black cursor-not-allowed' : 'bg-purple text-white'}`}
+                    className={`w-1/2 rounded-md p-2 h-[55px] text-[15px] font-[500] ${isAddDisabled ? 'bg-[#00000020] text-black cursor-not-allowed' : 'bg-brand-primary text-white'}`}
                     onClick={handleAddMcp}
                     disabled={isAddDisabled}
                   >

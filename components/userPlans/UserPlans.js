@@ -29,6 +29,7 @@ import UserAddCard from './UserAddCardModal'
 import { getUserPlans } from './UserPlanServices'
 import YearlyPlanModal from './YearlyPlanModal'
 import AppLogo from '@/components/common/AppLogo'
+import { Checkbox } from '@/components/ui/checkbox'
 
 function UserPlans({
   handleContinue,
@@ -976,12 +977,9 @@ function UserPlans({
                                 key={feature.text}
                                 className="flex flex-row items-start gap-3 mb-3 w-full"
                               >
-                                <Image
-                                  src="/svgIcons/selectedTickBtn.svg"
-                                  height={14}
-                                  width={14}
-                                  alt="✓"
-                                  className="mt-1 flex-shrink-0"
+                                <Checkbox
+                                  checked={true}
+                                  className="!rounded-full h-3.5 w-3.5 mt-1 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                                 />
 
                                 <FeatureLine

@@ -921,7 +921,7 @@ const PipelineStages = ({
                               </div>
                             ) : (
                               <button
-                                className="bg-purple text-white flex flex-row items-center justify-center gap-2"
+                                className="bg-brand-primary text-white flex flex-row items-center justify-center gap-2"
                                 style={{
                                   ...styles.inputStyle,
                                   borderRadius: '55px',
@@ -1084,8 +1084,8 @@ const PipelineStages = ({
                                               className="ml-2"
                                               style={{ fontWeight: '600' }}
                                             >
-                                              <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
-                                                <div className="text-purple text-[12px]">
+                                              <div className="flex flex-row bg-brand-primary/10 items-cetner gap-2 p-2 rounded">
+                                                <div className="text-brand-primary text-[12px]">
                                                   {(row.communicationType &&
                                                     row.communicationType !=
                                                       'call') ||
@@ -1127,7 +1127,7 @@ const PipelineStages = ({
                                 <button
                                   onClick={(e) => openAddMenu(index, e)}
                                   style={styles.inputStyle}
-                                  className="text-purple mt-4"
+                                  className="text-brand-primary mt-4"
                                 >
                                   + Add (If no answer)
                                 </button>
@@ -1478,7 +1478,7 @@ const PipelineStages = ({
                               </div>
                             ) : (
                               <button
-                                className="mt-4 outline-none bg-purple"
+                                className="mt-4 outline-none bg-brand-primary"
                                 style={{
                                   // backgroundColor: "#402FFF",
                                   color: 'white',
@@ -1630,7 +1630,7 @@ const PipelineStages = ({
                                     </div>
                                   ) : (
                                     <button
-                                      className="mt-10 outline-none bg-purple"
+                                      className="mt-10 outline-none bg-brand-primary"
                                       disabled={!assignNextStage}
                                       style={{
                                         color: 'white',
@@ -1726,7 +1726,7 @@ const PipelineStages = ({
             <button
               className="outline-none w-full flex flex-row items-center justify-center h-[50px] mt-4 rounded-lg"
               style={{
-                border: '2px dashed #7902DF',
+                border: '2px dashed hsl(var(--brand-primary))',
               }}
               onClick={() => {
                 setAddNewStageModal(true)
@@ -1745,7 +1745,7 @@ const PipelineStages = ({
                   }}
                 />
                 <p
-                  className="text-purple"
+                  className="text-brand-primary"
                   style={{ fontSize: 16, fontWeight: '600' }}
                 >
                   Add New Stage
@@ -1895,7 +1895,7 @@ const PipelineStages = ({
                       <ColorPicker setStageColor={setStageColor} />
                     </div>
 
-                    <div className="text-purple mt-4">
+                    <div className="text-brand-primary mt-4">
                       <button
                         onClick={() => {
                           setShowAdvanceSettings(!showAdvanceSettings)
@@ -2053,7 +2053,7 @@ const PipelineStages = ({
                         {/* <div style={{ height: "50px" }}>
                                                         {
                                                             inputs.length < 3 && (
-                                                                <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                                <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
                                                                     fontSize: 15,
                                                                     fontWeight: "700"
                                                                 }}>
@@ -2171,7 +2171,7 @@ const PipelineStages = ({
                               {/* <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
                                   <div>{myTeamAdmin.name}</div>
-                                  <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                  <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
@@ -2231,7 +2231,7 @@ const PipelineStages = ({
                           <button
                             className="mt-4 outline-none"
                             style={{
-                              backgroundColor: '#7902DF',
+                              backgroundColor: 'hsl(var(--brand-primary))',
                               color: 'white',
                               height: '50px',
                               borderRadius: '10px',

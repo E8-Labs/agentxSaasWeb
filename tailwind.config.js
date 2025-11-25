@@ -109,7 +109,7 @@ module.exports = {
       scrollbar: {
         width: '15px',
         colors: {
-          thumb: '#7902DF',
+          thumb: 'hsl(var(--brand-primary, 270 75% 50%))',
           track: 'transparent',
         },
       },

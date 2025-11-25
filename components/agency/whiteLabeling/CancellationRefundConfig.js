@@ -231,8 +231,8 @@ const CancellationRefundConfig = () => {
             <div
               className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
                 loading
-                  ? 'bg-purple-400 cursor-not-allowed'
-                  : 'bg-purple-700 hover:bg-purple-800'
+                  ? 'bg-brand-primary/60 cursor-not-allowed'
+                  : 'bg-brand-primary hover:bg-brand-primary/90'
               } ${!hasChanges() ? 'ml-auto' : ''}`}
               onClick={loading ? undefined : handleSave}
             >

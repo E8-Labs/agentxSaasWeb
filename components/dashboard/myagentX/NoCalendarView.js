@@ -34,7 +34,7 @@ export default function NoCalendarView({
 
         {/* Button Section */}
         <button
-          className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="mt-2 flex items-center px-6 py-3 bg-brand-primary font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
           onClick={() => {
             addCalendarAction()
           }}

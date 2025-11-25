@@ -408,18 +408,18 @@ const AddCalender = ({ handleContinue }) => {
                       {previousCalenders.map((item, index) => {
                         return (
                           <MenuItem
-                            className="w-full hover:bg-purple10 hover:text-black"
+                            className="w-full hover:bg-brand-primary/10 hover:text-black"
                             value={item.title}
                             key={index}
                             selected={selectCalender === item.title} // Apply "selected" to match the selected value
                             sx={{
                               backgroundColor:
                                 selectCalender === item.title
-                                  ? '#7902DF10'
+                                  ? 'hsl(var(--brand-primary) / 0.1)'
                                   : 'transparent', // Set background for selected item
                               // color: selectCalender === item.title ? 'white' : 'inherit', // Change text color for selected item
                               '&.Mui-selected': {
-                                backgroundColor: '#7902DF10', // Override background for selected item
+                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)', // Override background for selected item
                                 // color: 'white', // Change text color for selected item
                               },
                             }}
@@ -442,7 +442,7 @@ const AddCalender = ({ handleContinue }) => {
                       })}
                       <MenuItem className="w-full" value="Custom Calender">
                         <button
-                          className="text-purple underline w-full text-start"
+                          className="text-brand-primary underline w-full text-start"
                           onClick={(e) => {
                             e.stopPropagation() // prevent triggering Select's onChange
                             setSelectCalender('') // clear selection
@@ -477,7 +477,7 @@ const AddCalender = ({ handleContinue }) => {
                   </div>
 
                   <button
-                    className="flex items-center justify-center h-[50px] w-[200px] text-white rounded-xl bg-purple"
+                    className="flex items-center justify-center h-[50px] w-[200px] text-white rounded-xl bg-brand-primary"
                     onClick={() => setShowAddNewCalender(true)}
                   >
                     + Add Calendar
@@ -701,7 +701,7 @@ const AddCalender = ({ handleContinue }) => {
                           fontSize: 16,
                           backgroundColor: !isEnabled()
                             ? '#00000020'
-                            : '#7902DF',
+                            : 'hsl(var(--brand-primary))',
                           color: !isEnabled() ? '#000000' : '',
                         }}
                         onClick={handleAddCalender}

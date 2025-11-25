@@ -13,6 +13,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
 import { logout } from '@/utilities/UserUtility'
@@ -1063,7 +1064,8 @@ function SubAccountBasicInfo() {
               onClick={async () => {
                 handleNameSave()
               }}
-              style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+              className="text-brand-primary"
+              style={{ fontSize: '14px', fontWeight: '600' }}
             >
               Save
             </button>
@@ -1124,7 +1126,8 @@ function SubAccountBasicInfo() {
               onClick={async () => {
                 handleEmailSave()
               }}
-              style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+              className="text-brand-primary"
+              style={{ fontSize: '14px', fontWeight: '600' }}
             >
               Save
             </button>
@@ -1674,10 +1677,10 @@ function SubAccountBasicInfo() {
                           paddingInline: index === 2 && '40px',
                           border:
                             clientType === item.value
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            clientType === item.value ? '#402FFF20' : '',
+                            clientType === item.value ? 'hsl(var(--brand-primary) / 0.1)' : '',
                         }}
                       >
                         {item.title}
@@ -1720,11 +1723,11 @@ function SubAccountBasicInfo() {
                           paddingInline: index === 2 && '40px',
                           border:
                             collectionStratigy === item.value
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
                             collectionStratigy === item.value
-                              ? '#402FFF20'
+                              ? 'hsl(var(--brand-primary) / 0.1)'
                               : '',
                         }}
                       >
@@ -1763,10 +1766,10 @@ function SubAccountBasicInfo() {
                           paddingInline: index === 2 && '40px',
                           border:
                             clientType2 === item.title
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            clientType2 === item.title ? '#402FFF20' : '',
+                            clientType2 === item.title ? 'hsl(var(--brand-primary) / 0.1)' : '',
                         }}
                       >
                         {item.title}
@@ -1803,10 +1806,10 @@ function SubAccountBasicInfo() {
                           paddingInline: index === 2 && '40px',
                           border:
                             consoltation === item.title
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            consoltation === item.title ? '#402FFF20' : '',
+                            consoltation === item.title ? 'hsl(var(--brand-primary) / 0.1)' : '',
                         }}
                       >
                         {item.title}
@@ -1870,10 +1873,10 @@ function SubAccountBasicInfo() {
                   style={{
                     borderWidth: 2,
                     borderColor: serviceId.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: serviceId.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary) / 0.05)'
                       : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -1888,17 +1891,12 @@ function SubAccountBasicInfo() {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      serviceId.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={serviceId.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               )
             })}
@@ -1952,10 +1950,10 @@ function SubAccountBasicInfo() {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedArea.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: selectedArea.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary) / 0.05)'
                       : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -1970,17 +1968,12 @@ function SubAccountBasicInfo() {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      selectedArea.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={selectedArea.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -1994,10 +1987,10 @@ function SubAccountBasicInfo() {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedIndustries.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: selectedIndustries.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary) / 0.05)'
                       : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -2012,17 +2005,12 @@ function SubAccountBasicInfo() {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      selectedIndustries.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={selectedIndustries.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               ))}
             </div>

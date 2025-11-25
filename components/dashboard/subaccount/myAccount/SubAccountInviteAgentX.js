@@ -448,7 +448,7 @@ function SubAccountInviteAgentX() {
                     <div className="w-full">
                       {item.status && (
                         <div
-                          className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                          className="-mt-[27px] sm:hidden px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{
                             fontSize: 11.6,
                             fontWeight: '500',
@@ -468,7 +468,7 @@ function SubAccountInviteAgentX() {
                       >
                         {item.title} | {item.minutes} mins{' '}
                         <span
-                          className="px-2 py-1 bg-purple ms-2 rounded-full text-white"
+                          className="px-2 py-1 bg-brand-primary ms-2 rounded-full text-white"
                           style={{ fontSize: '14px', fontWeight: '500' }}
                         >
                           {item.tag}
@@ -522,7 +522,7 @@ function SubAccountInviteAgentX() {
                   fontWeight: '600',
                   fontSize: 16.8,
                   color: togglePlan ? 'white' : 'black',
-                  backgroundColor: togglePlan ? '#7902DF' : '#00000020',
+                  backgroundColor: togglePlan ? 'hsl(var(--brand-primary))' : '#00000020',
                 }}
                 onClick={handleSubScribePlan}
               >
@@ -544,7 +544,7 @@ function SubAccountInviteAgentX() {
             style={{}}
           />
 
-          <div className="w-8/12 flex flex-col items-start rounded-lg p-2 bg-purple -mt-20 ">
+          <div className="w-8/12 flex flex-col items-start rounded-lg p-2 bg-brand-primary -mt-20 ">
             <div
               className="flex flex-row items-center gap-2"
               style={{ fontSize: '15px', fontWeight: '600', color: '#fff' }}

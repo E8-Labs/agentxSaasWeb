@@ -623,7 +623,7 @@ const UserCalender = ({
                   */}
 
                 {/*
-                    <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                    <div className="text-[13px] font-[500] text-brand-primary underline cursor-pointer flex flex-row items-center gap-2"
                       onClick={() => setIntroVideoModal2(true)}>
                       Learn how to add calendar
                       <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
@@ -634,7 +634,7 @@ const UserCalender = ({
               </div>
               {allCalendars.length > 0 && (
                 <button
-                  className="text-[13px] font-[500] text-purple"
+                  className="text-[13px] font-[500] text-brand-primary"
                   onClick={() => {
                     console.log('Redux token', reduxToken)
                     console.log(
@@ -721,19 +721,19 @@ const UserCalender = ({
                             sx={{
                               backgroundColor:
                                 selectCalender.id === item.id
-                                  ? '#7902DF10'
+                                  ? 'hsl(var(--brand-primary) / 0.1)'
                                   : 'transparent',
                               '&.Mui-selected': {
-                                backgroundColor: '#7902DF10',
+                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                               },
                               '&:hover': {
-                                backgroundColor: '#7902DF10', // light purple
+                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
                                 color: '#000000',
                               },
 
                               // Selected + Hover
                               '&.Mui-selected:hover': {
-                                backgroundColor: '#7902DF15', // even more intense purple
+                                backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
                                 color: '#000000',
                               },
                               '&.Mui-focusVisible': {
@@ -756,7 +756,7 @@ const UserCalender = ({
                               >
                                 {selectCalender.id === item.id ? (
                                   <div
-                                    className="bg-purple flex flex-row items-center justify-center rounded"
+                                    className="bg-brand-primary flex flex-row items-center justify-center rounded"
                                     style={{ height: '24px', width: '24px' }}
                                   >
                                     <Image
@@ -816,7 +816,7 @@ const UserCalender = ({
 
                         {/*<MenuItem className="w-full" value="Custom Calender">
                           <button
-                            className="text-purple underline w-full text-start"
+                            className="text-brand-primary underline w-full text-start"
                             onClick={() => {
                               // setCalendarSelected(null);
                               // setShowAddNewCalender(true);

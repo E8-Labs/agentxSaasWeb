@@ -723,7 +723,7 @@ const RearrangeStages = ({
                       <ColorPicker setStageColor={setStageColor} />
                     </div>
 
-                    <div className="text-purple mt-4">
+                    <div className="text-brand-primary mt-4">
                       <button
                         onClick={() => {
                           setShowAdvanceSettings(!showAdvanceSettings)
@@ -988,7 +988,7 @@ const RearrangeStages = ({
                               {/* <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
                                   <div>{myTeamAdmin.name}</div>
-                                  <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                  <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
@@ -1032,7 +1032,7 @@ const RearrangeStages = ({
                     <button
                       className="mt-4 outline-none"
                       style={{
-                        backgroundColor: '#402FFF',
+                        backgroundColor: 'hsl(var(--brand-primary))',
                         color: 'white',
                         height: '50px',
                         borderRadius: '10px',

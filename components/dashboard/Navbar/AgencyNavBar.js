@@ -572,7 +572,7 @@ const AgencyNavBar = () => {
               ) : (
                 <button
                   style={{ fontSize: 12, fontWeight: 500 }}
-                  className="bg-purple text-white rounded-md p-2 outline-none border-none"
+                  className="bg-brand-primary text-white rounded-md p-2 outline-none border-none"
                   onClick={() => {
                     handleVerifyClick()
                   }}
@@ -802,7 +802,7 @@ const AgencyNavBar = () => {
 
             <div className="w-full">
               <button
-                className={`bg-purple text-white px-4 h-[40px] rounded-lg mt-4 w-full`}
+                className={`bg-brand-primary text-white px-4 h-[40px] rounded-lg mt-4 w-full`}
                 onClick={() => {
                   setShowAddPaymentPopup(true)
                   setShowPaymentFailedPopup(false)

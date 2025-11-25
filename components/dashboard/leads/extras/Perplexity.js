@@ -196,7 +196,7 @@ function Perplexity({ selectedLeadsDetails }) {
               style={{
                 fontsize: 22,
                 fontWeight: '700',
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             >
               {calculateConfidanseScore().toFixed(2)}%
@@ -288,7 +288,7 @@ function Perplexity({ selectedLeadsDetails }) {
             onClick={() => {
               setIsExpanded(!isExpanded)
             }}
-            className="mt-2 text-purple underline"
+            className="mt-2 text-brand-primary underline"
           >
             {isExpanded ? 'Read Less' : 'Read more'}
           </button>

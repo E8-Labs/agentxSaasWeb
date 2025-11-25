@@ -15,6 +15,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar'
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -301,17 +302,10 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                   }
                 >
                   <div className="flex flex-row items-center gap-4">
-                    {item.status === true ? (
-                      <Image
-                        className="ms-2"
-                        src={'/agencyIcons/Check.jpg'}
-                        alt="*"
-                        height={20}
-                        width={20}
-                      />
-                    ) : (
-                      <div className="h-[18px] w-[18px] rounded-full bg-btngray ms-2"></div>
-                    )}
+                    <Checkbox
+                      checked={item.status === true}
+                      className="!rounded-full h-4 w-4 ms-2 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
                     <div className="flex flex-col">
                       <div
                         // style={styles.text}

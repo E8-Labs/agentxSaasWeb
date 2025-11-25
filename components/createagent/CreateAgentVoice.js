@@ -307,10 +307,10 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     style={{
                       border:
                         item.name === selectedVoiceId
-                          ? '2px solid #7902DF'
+                          ? '2px solid hsl(var(--brand-primary))'
                           : '',
                       backgroundColor:
-                        item.name === selectedVoiceId ? '#402FFF10' : '',
+                        item.name === selectedVoiceId ? 'hsl(var(--brand-primary) / 0.1)' : '',
                     }}
                     className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none"
                     onClick={(e) => {
@@ -356,7 +356,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                         >
                           {item.name}
                           {item.status && (
-                            <div className="text-start text-white text-sm font-[500] bg-purple rounded-full px-2 w-fit-content">
+                            <div className="text-start text-white text-sm font-[500] bg-brand-primary rounded-full px-2 w-fit-content">
                               {item.status}
                             </div>
                           )}

@@ -449,7 +449,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 fontSize: 13,
                 fontFamily: 'inter',
                 // marginTop: 40,
-                border: '1px dashed #7902DF',
+                border: '1px dashed hsl(var(--brand-primary))',
                 borderRadius: '10px',
                 // borderColor: '#7902DF',
                 boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
@@ -468,7 +468,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 height: '100px',
                 // border: "2px dashed #0000001006",
                 // backgroundColor: "#EDEDED80",
-                border: '1px dashed #7902DF',
+                border: '1px dashed hsl(var(--brand-primary))',
                 borderRadius: '10px',
                 // borderColor: '#7902DF',
                 boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
@@ -483,7 +483,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
                 className="px-4 py-2 h-full"
                 style={{ fontWeight: '500', fontSize: 16, fontFamily: 'inter' }}
               >
-                Drop file or <br /> <span className="text-purple"> Browse</span>
+                Drop file or <br /> <span className="text-brand-primary"> Browse</span>
               </button>
             </div>
           )}
@@ -497,7 +497,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return (
         <button
           className={`w-full rounded-lg font-medium h-[50px] ${
-            canShowContinue() ? 'bg-purple text-white' : 'bg-btngray text-black'
+            canShowContinue() ? 'bg-brand-primary text-white' : 'bg-btngray text-black'
           } `}
           // variant="contained"
           // fullWidth
@@ -582,8 +582,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<InsertDriveFile />}
               onClick={() => handleTypeSelect('Document')}
               sx={{
-                borderColor: selectedType === 'Document' ? '#7902DF' : '#ccc',
-                color: selectedType === 'Document' ? '#7902DF' : 'black',
+                borderColor: selectedType === 'Document' ? 'hsl(var(--brand-primary))' : '#ccc',
+                color: selectedType === 'Document' ? 'hsl(var(--brand-primary))' : 'black',
                 borderWidth: selectedType === 'Document' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
@@ -599,8 +599,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<TextFields />}
               onClick={() => handleTypeSelect('Text')}
               sx={{
-                borderColor: selectedType === 'Text' ? '#7902DF' : '#ccc',
-                color: selectedType === 'Text' ? '#7902DF' : 'black',
+                borderColor: selectedType === 'Text' ? 'hsl(var(--brand-primary))' : '#ccc',
+                color: selectedType === 'Text' ? 'hsl(var(--brand-primary))' : 'black',
                 borderWidth: selectedType === 'Text' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
@@ -616,8 +616,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<Link />}
               onClick={() => handleTypeSelect('Url')}
               sx={{
-                borderColor: selectedType === 'Url' ? '#7902DF' : '#ccc',
-                color: selectedType === 'Url' ? '#7902DF' : 'black',
+                borderColor: selectedType === 'Url' ? 'hsl(var(--brand-primary))' : '#ccc',
+                color: selectedType === 'Url' ? 'hsl(var(--brand-primary))' : 'black',
                 borderWidth: selectedType === 'Url' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,
@@ -633,8 +633,8 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
               startIcon={<Link />}
               onClick={() => handleTypeSelect('Youtube')}
               sx={{
-                borderColor: selectedType === 'Youtube' ? '#7902DF' : '#ccc',
-                color: selectedType === 'Youtube' ? '#7902DF' : 'black',
+                borderColor: selectedType === 'Youtube' ? 'hsl(var(--brand-primary))' : '#ccc',
+                color: selectedType === 'Youtube' ? 'hsl(var(--brand-primary))' : 'black',
                 borderWidth: selectedType === 'Youtube' ? 2 : 1,
                 borderRadius: 2,
                 paddingX: 2,

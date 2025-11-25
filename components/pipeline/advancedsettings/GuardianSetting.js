@@ -361,7 +361,7 @@ const GuardianSetting = ({
         <div className="flex flex-row items-center justify-between mt-4 pb-3">
           <div style={{ fontWeight: '600', fontSize: 16.8 }}></div>
           <button
-            className="text-purple underline outline-none"
+            className="text-brand-primary underline outline-none"
             style={{ fontWeight: '500', fontSize: 15 }}
             onClick={() => setShowAddObjForm(true)}
           >
@@ -521,7 +521,7 @@ const GuardianSetting = ({
 
       {!showTitle && (
         <button
-          className="text-purple mt-4 outline-none"
+          className="text-brand-primary mt-4 outline-none"
           style={{ fontWeight: '700', fontSize: 16 }}
           onClick={() => setShowAddObjForm(true)}
         >
@@ -658,7 +658,7 @@ const GuardianSetting = ({
                   </div>
                 ) : (
                   <button
-                    className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
+                    className="text-white bg-brand-primary h-[50px] rounded-xl w-full mt-8"
                     onClick={addGuadrial}
                     style={styles.title}
                   >

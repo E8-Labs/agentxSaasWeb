@@ -28,7 +28,7 @@ const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
         <button
           className=" outline-none"
           style={{
-            backgroundColor: '#7902DF',
+            backgroundColor: 'hsl(var(--brand-primary))',
             color: 'white',
             height: '40px',
             borderRadius: '20px',

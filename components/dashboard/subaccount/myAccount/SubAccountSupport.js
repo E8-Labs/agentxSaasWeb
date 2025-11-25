@@ -50,7 +50,7 @@ function SubAccountSupport() {
           alignSelf: "center",
           cursor: "pointer",
         }}
-        className="w-6/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
+        className="w-6/12 hover:bg-brand-primary border rounded p-4 mt-10 cursor-pointer"
         onMouseEnter={() => {
           setHoverAIWebinar(true);
         }}
@@ -79,7 +79,7 @@ function SubAccountSupport() {
             style={{
               fontSize: 16,
               fontWeight: "500",
-              color: HoverAIWebinar ? "white" : "#7902DF",
+              color: HoverAIWebinar ? "white" : "hsl(var(--brand-primary))",
             }}
           >
             Join our weekly AI Webinar
@@ -98,7 +98,7 @@ function SubAccountSupport() {
       </div>
 
       <div
-        className="w-6/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
+        className="w-6/12 hover:bg-brand-primary border rounded p-4 mt-10 cursor-pointer"
         style={{ alignSelf: "center", cursor: "pointer" }}
         onMouseEnter={() => {
           setHoverConsultation(true);
@@ -128,7 +128,7 @@ function SubAccountSupport() {
             style={{
               fontSize: 16,
               fontWeight: "500",
-              color: hoverConsultation ? "#fff" : "#7902DF",
+              color: hoverConsultation ? "#fff" : "hsl(var(--brand-primary))",
             }}
           >
            Done with you agent setup

@@ -840,7 +840,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   {/* <div className='flex flex-row items-center gap-2'> */}
                   <div
                     style={{ width: 'fit-content' }}
-                    className="text-purple flex flex-row gap-2"
+                    className="text-brand-primary flex flex-row gap-2"
                   >
                     {`{First Name}`}, {`{Email}`}, {`{Address}`},{`{Phone}`},
                     {`{Kyc}`}{' '}
@@ -851,13 +851,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       {uniqueColumns.map((item, index) => (
                         <div
                           key={index}
-                          className="flex flex-row items-center gap-2 text-purple"
+                          className="flex flex-row items-center gap-2 text-brand-primary"
                         >
                           {`{${item}}`},
                         </div>
                       ))}
                       <button
-                        className="text-purple outline-none"
+                        className="text-brand-primary outline-none"
                         onClick={handleShowUniqueCols}
                       >
                         show less
@@ -867,7 +867,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     <div>
                       {uniqueColumns.length > 0 && (
                         <button
-                          className="text-purple flex flex-row items-center font-bold outline-none"
+                          className="text-brand-primary flex flex-row items-center font-bold outline-none"
                           onClick={() => {
                             handleShowUniqueCols()
                           }}
@@ -914,7 +914,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 <div>{AgentDetails?.name} Script</div>
                 <div>
                   <button
-                    className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
+                    className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                     style={{
                       fontWeight: '500',
                       fontSize: 15,
@@ -952,7 +952,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               <div className="flex flex-row items-center justify-between w-full">
                 <div style={styles.headingStyle}>Call Script</div>
                 <button
-                  className="text-purple underline"
+                  className="text-brand-primary underline"
                   style={{
                     fontSize: 15,
                     fontWeight: '700',
@@ -1085,7 +1085,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         style={{
                           ...styles.inputStyle,
                           color:
-                            item.id === settingToggleClick ? '#7902DF' : '',
+                            item.id === settingToggleClick ? 'hsl(var(--brand-primary))' : '',
                           marginLeft: item.id === 2 ? 10 : 0,
                         }}
                         onClick={(e) => {

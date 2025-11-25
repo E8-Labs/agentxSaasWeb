@@ -531,7 +531,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
               setOpenSellerNeeds(true)
@@ -637,7 +637,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
               setOpenSelerMotivation(true)
@@ -745,7 +745,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
               setAddSellerKyc(true)
@@ -935,7 +935,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
                   setAddBuyerKyc(true)
@@ -1041,7 +1041,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
                   setAddBuyerKyc(true)
@@ -1148,7 +1148,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
                   setAddBuyerKyc(true)

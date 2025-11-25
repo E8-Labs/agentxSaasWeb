@@ -77,7 +77,7 @@ const ActionsTab = ({
             return (
               <button
                 key={item.id}
-                className={`px-4 py-1 ${selectedActionTab === item.id ? 'text-white bg-purple shadow-md shadow-purple rounded-full' : 'text-black'} border-none outline-none`}
+                className={`px-4 py-1 ${selectedActionTab === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'} border-none outline-none`}
                 onClick={() => setSelectedActionTab(item.id)}
               >
                 {item.title}

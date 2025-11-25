@@ -271,7 +271,7 @@ const NewSmartListModal = ({ open, onClose, agentId, onSuccess }) => {
                 ))}
 
                 <button
-                  className="text-purple underline text-transform-none font-medium hover:bg-purple hover:bg-opacity-10 p-2 rounded"
+                  className="text-brand-primary underline text-transform-none font-medium hover:bg-brand-primary/10 p-2 rounded"
                   onClick={handleAddCustomField}
                 >
                   <Plus size={16} className="inline mr-1" />
@@ -298,7 +298,7 @@ const NewSmartListModal = ({ open, onClose, agentId, onSuccess }) => {
               }}
             >
               <button
-                className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-brand-primary text-white rounded-lg font-medium hover:bg-brand-primary/90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                 onClick={handleSave}
                 disabled={loading || !sheetName.trim()}
               >

@@ -18,7 +18,7 @@ const Footer = ({
         <div>
           {!donotShowBack && (
             <button
-              className="text-purple"
+              className="text-brand-primary"
               style={{ fontWeight: '700', fontSize: '16' }}
               onClick={handleBack}
             >
@@ -36,7 +36,7 @@ const Footer = ({
             ) : (
               <button
                 disabled={shouldContinue}
-                className="rounded-lg text-white bg-purple"
+                className="rounded-lg text-white bg-brand-primary"
                 style={{
                   fontWeight: '700',
                   fontSize: '16',

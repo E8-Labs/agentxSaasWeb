@@ -442,7 +442,7 @@ const BuyerKycs = ({ handleContinue }) => {
         hide={() => setShowErrorSnack(false)}
         message={showErrorSnack}
       />
-      <div className="bg-white  rounded-2xl w-10/12 h-[90%] py-4  scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple flex flex-col justify-between">
+      <div className="bg-white  rounded-2xl w-10/12 h-[90%] py-4  scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary flex flex-col justify-between">
         <div className="h-[80vh] ">
           {/* header */}
           <div className="h-[10%]">
@@ -499,7 +499,7 @@ const BuyerKycs = ({ handleContinue }) => {
                       key={item.id}
                       style={{
                         ...styles.inputStyle,
-                        color: item.id === toggleClick ? '#7902DF' : '',
+                        color: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
                       }}
                       onClick={(e) => {
                         handleToggleClick(item.id)
@@ -548,12 +548,12 @@ const BuyerKycs = ({ handleContinue }) => {
                           border: selectedNeedKYC.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                           backgroundColor: selectedNeedKYC.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '#402FFF15'
+                            ? 'hsl(var(--brand-primary) / 0.1)'
                             : '',
                         }}
                         key={index}
@@ -601,12 +601,12 @@ const BuyerKycs = ({ handleContinue }) => {
                           border: selectedMotivationKyc.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                           backgroundColor: selectedMotivationKyc.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '#402FFF15'
+                            ? 'hsl(var(--brand-primary) / 0.1)'
                             : '',
                         }}
                       >
@@ -652,12 +652,12 @@ const BuyerKycs = ({ handleContinue }) => {
                           border: selectedUrgencyKyc.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                           backgroundColor: selectedUrgencyKyc.some(
                             (selectedItem) => selectedItem.id === item.id,
                           )
-                            ? '#402FFF15'
+                            ? 'hsl(var(--brand-primary) / 0.1)'
                             : '',
                         }}
                       >
@@ -694,7 +694,7 @@ const BuyerKycs = ({ handleContinue }) => {
                 )}
 
                 <button
-                  className="mt-2 w-10/12 md:w-8/12 outline-none border-none justify-start flex text-purple"
+                  className="mt-2 w-10/12 md:w-8/12 outline-none border-none justify-start flex text-brand-primary"
                   style={{ fontWeight: '700', fontSize: 15 }}
                   onClick={handleAddKyc}
                 >
@@ -784,7 +784,7 @@ const BuyerKycs = ({ handleContinue }) => {
                       question?
                     </div>
 
-                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple mt-4">
+                    <div className="max-h-[30vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary mt-4">
                       {inputs.map((input, index) => (
                         <div
                           key={input.id}
@@ -827,7 +827,7 @@ const BuyerKycs = ({ handleContinue }) => {
                         // 3 &&
                         newQuestion && (
                           <button
-                            className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
+                            className="bg-brand-primary outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
                             style={{ ...styles.headingStyle, height: '50px' }}
                             onClick={handleAddKycQuestion}
                           >

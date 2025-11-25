@@ -39,6 +39,8 @@ import UserPlans from '@/components/userPlans/UserPlans'
 import { useUser } from '@/hooks/redux-hooks'
 import { GetFormattedDateString } from '@/utilities/utility'
 import AppLogo from '@/components/common/AppLogo'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -1026,11 +1028,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           }}
         >
           <div
+            className="text-brand-primary hover:text-brand-primary/80 underline transition-colors"
             style={{
               fontSize: 15,
               fontWeight: '500',
-              color: '#7902DF',
-              textDecorationLine: 'underline',
             }}
           >
             Add New Card
@@ -1083,13 +1084,13 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                               : 'transparent',
                           borderColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? '#7902DF'
+                              ? 'hsl(var(--brand-primary, 270 75% 50%))'
                               : '#15151510',
                         }}
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
+                            className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`} //border-[#2548FD]
                             style={{
                               borderWidth:
                                 item.isDefault || selectedCard?.id === item.id
@@ -1116,7 +1117,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
                                 item.isDefault && (
                                   <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
+                                    className="flex px-2 py-1 rounded-full bg-brand-primary text-white text-[10]"
                                     style={{ fontSize: 11, fontWeight: '500' }}
                                   >
                                     Default
@@ -1179,7 +1180,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             {duration?.map((item) => (
               <button
                 key={item.id}
-                className={`px-4 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-purple shadow-md shadow-purple rounded-full' : 'text-black'}`}
+                className={`px-4 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'}`}
                 onClick={() => {
                   setSelectedDuration(item)
                   getCurrentPlans(item)
@@ -1192,7 +1193,12 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         </div>
       )}
 
-      <div
+      <RadioGroup
+        value={togglePlan?.toString() || ''}
+        onValueChange={(value) => {
+          const plan = getCurrentPlans(selectedDuration)?.find(p => p.id?.toString() === value)
+          if (plan) handleTogglePlanClick(plan)
+        }}
         className="w-full flex flex-row gap-4"
         style={{
           overflowX: 'auto',
@@ -1206,11 +1212,15 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         }}
       >
         {getCurrentPlans(selectedDuration)?.map((item, index) => (
-          <button
+          <div
             key={item.id}
-            className="mt-4 outline-none flex-shrink-0"
+            className="mt-4 outline-none flex-shrink-0 cursor-pointer"
             style={{ width: '300px' }} // Fixed width for consistent card sizes
-            onClick={(e) => handleTogglePlanClick(item)}
+            onClick={(e) => {
+              if (!e.target.closest('.view-details-btn')) {
+                handleTogglePlanClick(item)
+              }
+            }}
           >
             <div
               className="px-4 py-4 pb-4 flex flex-col gap-3 h-full rounded-xl"
@@ -1218,30 +1228,19 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? '2px solid #7902DF'
+                    ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                     : '1px solid #15151520',
-                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary) / 0.05)' : '',
                 minHeight: '320px', // Further increased height for better feature accommodation
               }}
             >
               <div className="flex flex-col items-start h-full justify-between">
                 <div className="w-full">
                   <div className="flex flex-row items-center w-full justify-between mb-3">
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={'/svgIcons/checkMark.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={'/svgIcons/unCheck.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                    <RadioGroupItem
+                      value={item.id?.toString() || ''}
+                      className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
 
                     {/*
                                             isPaused && item.id === currentPlan ? (
@@ -1337,12 +1336,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                                   key={featureIndex}
                                   className="flex flex-row items-start gap-1"
                                 >
-                                  <Image
-                                    src="/svgIcons/selectedTickBtn.svg"
-                                    height={16}
-                                    width={16}
-                                    alt="✓"
-                                    className="mt-0.5 flex-shrink-0"
+                                  <Checkbox
+                                    checked={true}
+                                    className="h-4 w-4 mt-0.5 flex-shrink-0 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                                   />
                                   <div className="text-sm font-normal text-gray-700 leading-relaxed flex flex-row items-center gap-2 text-start">
                                     <span>{feature.text}</span>
@@ -1402,7 +1398,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                     {item.id === currentPlan &&
                       userLocalData?.plan?.status !== 'cancelled' && (
                         <div
-                          className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                          className="mt-4 flex px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{
                             fontSize: 9,
                             fontWeight: '600',
@@ -1415,9 +1411,8 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   </div>
                   <div>
                     <button
-                      className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none"
+                      className="view-details-btn mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none text-brand-primary"
                       style={{
-                        color: '#7902DF',
                         width: 'fit-content',
                         textDecoration: 'none',
                         whiteSpace: 'nowrap',
@@ -1427,7 +1422,8 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                         display: 'flex',
                         alignItems: 'center',
                       }}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation()
                         console.log('Trigering open details view')
                         setShowPlanDetailsPopup(true)
                       }}
@@ -1438,9 +1434,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                 </div>
               </div>
             </div>
-          </button>
+          </div>
         ))}
-      </div>
+      </RadioGroup>
 
       {userLocalData?.plan && planTitleTag() && (
         <div className="w-full flex flex-row items-center justify-center">
@@ -1458,7 +1454,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                 fontWeight: '700',
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? 'transparent' : '#7902DF',
+                  togglePlan === currentPlan ? 'transparent' : 'hsl(var(--brand-primary, 270 75% 50%))',
                 color: togglePlan === currentPlan ? '#000000' : '#ffffff',
                 border:
                   togglePlan === currentPlan ? '1px solid #00000080' : 'none',
@@ -1577,7 +1573,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             />
           </div>
           <div
-            className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
+            className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin`}
+            style={{
+              scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+            }}
           >
             <UserPlans
               handleContinue={() => {
@@ -1755,13 +1754,13 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
               </div>
 
               <div
-                className="text-center text-purple"
+                className="text-center text-brand-primary"
                 style={{
                   fontWeight: '600',
                   fontSize: 16.8,
                 }}
               >
-                {`Here’s a Gift`}
+                {`Here's a Gift`}
               </div>
 
               <div className="flex flex-row items-center justify-center w-full mt-6">
@@ -1781,9 +1780,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
+                  className={`flex flex-row items-center gap-2 text-brand-primary ${
                     ScreenWidth < 1200 ? 'mt-4' : 'mt-6'
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  }bg-brand-primary/10 py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1812,7 +1811,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                       }}
                     />
                     <div
-                      className="text-purple"
+                      className="text-brand-primary"
                       style={{
                         fontSize: 200,
                         fontWeight: '400',
@@ -1839,7 +1838,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   </div>
                 ) : (
                   <button
-                    className="rounded-lg text-white bg-purple outline-none"
+                    className="rounded-lg text-white bg-brand-primary outline-none"
                     style={{
                       fontWeight: '700',
                       fontSize: '16',
@@ -1933,7 +1932,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
               </div>
 
               <button
-                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
+                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-brand-primary text-white justify-center mt-10"
                 style={{
                   fontWeight: '600',
                   fontSize: 16.8,
@@ -2064,9 +2063,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                         style={{
                           border:
                             item.reason === selectReason
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                               : '2px solid #15151510',
-                          // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
+                          // backgroundColor: item.reason === selectReason ? "hsl(var(--brand-primary))" : "",
                           // margin: item.reason === selectReason && "5px",
                           height: '20px',
                           width: '20px',
@@ -2076,7 +2075,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                           className="w-full h-full rounded-full"
                           style={{
                             backgroundColor:
-                              item.reason === selectReason && '#7902DF',
+                              item.reason === selectReason && 'hsl(var(--brand-primary, 270 75% 50%))',
                             height: '12px',
                             width: '12px',
                           }}
@@ -2136,7 +2135,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                         backgroundColor:
                           selectReason &&
                           (selectReason !== 'Others' || otherReasonInput)
-                            ? '#7902df'
+                            ? 'hsl(var(--brand-primary, 270 75% 50%))'
                             : '#00000050',
                         color:
                           selectReason &&
@@ -2231,7 +2230,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -2249,12 +2248,12 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: '10px',

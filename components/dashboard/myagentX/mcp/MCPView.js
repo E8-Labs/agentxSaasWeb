@@ -440,7 +440,7 @@ function MCPView({
 
             {/*
                             <div className="flex flex-row items-center gap-2">
-                                <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                <button className="border-none outline-none text-[13px] font-[500] text-brand-primary underline cursor-pointer flex flex-row items-center gap-2"
                                     onClick={() => setIntroVideoModal2(true)}
                                 >
                                     Learn how to add Tools
@@ -453,7 +453,7 @@ function MCPView({
           </div>
           {mcpTools.length > 0 && (
             <button
-              className="text-[13px] font-[500] text-purple"
+              className="text-[13px] font-[500] text-brand-primary"
               onClick={() => {
                 setShowAddMcpPopup(true)
               }}
@@ -526,7 +526,7 @@ function MCPView({
                             .map((item, index) => (
                               <div
                                 key={index}
-                                className="flex items-center gap-2 bg-purple text-white rounded-[15px] px-2 py-1" //bg-btngray
+                                className="flex items-center gap-2 bg-brand-primary text-white rounded-[15px] px-2 py-1" //bg-btngray
                               >
                                 <span className="text-[15px] font-[500]">
                                   {item.name}
@@ -588,7 +588,7 @@ function MCPView({
                           <div className="flex flex-row items-center gap-3">
                             {selectedMcpIds.includes(item.id) ? (
                               <div
-                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                className="bg-brand-primary flex flex-row items-center justify-center rounded"
                                 style={{ height: '24px', width: '24px' }}
                               >
                                 <Image
@@ -689,7 +689,7 @@ function MCPView({
 
           {/* Button Section */}
           <button
-            className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="mt-2 flex items-center px-6 py-3 bg-brand-primary font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
             onClick={() => {
               if (user?.planCapabilities?.allowToolsAndActions === false) {
                 setShowUpgradeModal(true)

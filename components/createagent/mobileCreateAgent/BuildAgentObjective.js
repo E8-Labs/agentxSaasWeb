@@ -462,9 +462,9 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                         handleToggleClick(item)
                       }}
                       style={{
-                        borderColor: item.id === toggleClick ? '#7902DF' : '',
+                        borderColor: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
                         backgroundColor:
-                          item.id === toggleClick ? '#402FFF10 ' : '',
+                          item.id === toggleClick ? 'hsl(var(--brand-primary) / 0.1)' : '',
                       }}
                     >
                       <div className="flex flex-row items-center w-full justify-between">
@@ -488,7 +488,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                         <div>
                           {item.id === toggleClick ? (
                             <div
-                              className="bg-purple flex flex-row items-center justify-center rounded"
+                              className="bg-brand-primary flex flex-row items-center justify-center rounded"
                               style={{ height: '24px', width: '24px' }}
                             >
                               <Image
@@ -620,10 +620,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                       style={{
                         border:
                           selectedStatus?.id === item.id
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                         backgroundColor:
-                          selectedStatus?.id === item.id ? '#402FFF15' : '',
+                          selectedStatus?.id === item.id ? 'hsl(var(--brand-primary) / 0.1)' : '',
                       }}
                     >
                       {item.title}
@@ -717,7 +717,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                 style={{ position: 'absolute', bottom: 0, left: 0 }}
               >
                 <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                  className="text-white w-11/12 h-[50px] rounded-lg bg-brand-primary mb-8"
                   onClick={() => {
                     setShowModal(false)
                   }}

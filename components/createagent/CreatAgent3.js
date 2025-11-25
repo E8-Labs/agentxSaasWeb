@@ -292,7 +292,7 @@ const CreatAgent3 = ({
       right: '0',
       width: '0',
       height: '0',
-      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
       borderLeft: '50px solid transparent',
     },
     labelText: {
@@ -310,7 +310,7 @@ const CreatAgent3 = ({
     },
     originalPrice: {
       textDecoration: 'line-through',
-      color: '#7902DF65',
+      color: 'hsl(var(--brand-primary) / 0.4)',
       fontSize: 18,
       fontWeight: '600',
     },
@@ -441,7 +441,7 @@ const CreatAgent3 = ({
                 <div
                   className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-3 px-4"
                   style={{
-                    backgroundColor: '#402FFF20',
+                    backgroundColor: 'hsl(var(--brand-primary) / 0.2)',
                     borderRadius: '50px',
                     width: 'fit-content',
                   }}
@@ -452,7 +452,7 @@ const CreatAgent3 = ({
                     width={24}
                     alt="*"
                   />
-                  <div className="text-purple" style={styles.giftTextStyle}>
+                  <div className="text-brand-primary" style={styles.giftTextStyle}>
                     Every plan renews monthly and tops up when your minutes hit
                     0
                   </div>
@@ -489,15 +489,15 @@ const CreatAgent3 = ({
                         ...styles.pricingBox,
                         border:
                           item.id === togglePlan
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '1px solid #15151520',
                         backgroundColor:
-                          item.id === togglePlan ? '#402FFF05' : '',
+                          item.id === togglePlan ? 'hsl(var(--brand-primary) / 0.05)' : '',
                       }}
                     >
                       {item.status && (
                         <div
-                          className="-mt-[18px] sm:hidden flex px-2 py-1 bg-purple rounded-full text-white"
+                          className="-mt-[18px] sm:hidden flex px-2 py-1 bg-brand-primary rounded-full text-white"
                           style={{
                             fontSize: 11.6,
                             fontWeight: '500',
@@ -714,7 +714,7 @@ const CreatAgent3 = ({
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
                       style={{ height: "24px", width: "24px" }}
                     >
                       <Image
@@ -936,7 +936,7 @@ const CreatAgent3 = ({
                 )}
 
                 <button
-                  className="bg-purple text-white w-full rounded-xl mt-6 mb-6"
+                  className="bg-brand-primary text-white w-full rounded-xl mt-6 mb-6"
                   style={{ fontSize: 16, fontWeight: '700', height: '50px' }}
                   onClick={() => {
                     let screenWidth = 1000
@@ -1029,7 +1029,7 @@ const CreatAgent3 = ({
                   <div
                     className="hidden md:flex flex-row items-center justify-center py-3 gap-4 mt-6 mb-8 px-4"
                     style={{
-                      backgroundColor: '#402FFF20',
+                      backgroundColor: 'hsl(var(--brand-primary) / 0.2)',
                       borderRadius: '50px',
                       width: 'fit-content',
                     }}
@@ -1040,7 +1040,7 @@ const CreatAgent3 = ({
                       width={24}
                       alt="*"
                     />
-                    <div className="text-purple" style={styles.giftTextStyle}>
+                    <div className="text-brand-primary" style={styles.giftTextStyle}>
                       Invest In Your Business Growth.
                     </div>
                   </div>
@@ -1060,10 +1060,10 @@ const CreatAgent3 = ({
                           ...styles.pricingBox,
                           border:
                             item.id === togglePlan2
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '1px solid #15151520',
                           backgroundColor:
-                            item.id === togglePlan2 ? '#402FFF05' : '',
+                            item.id === togglePlan2 ? 'hsl(var(--brand-primary) / 0.05)' : '',
                         }}
                       >
                         <div
@@ -1099,7 +1099,7 @@ const CreatAgent3 = ({
                           <div className="w-full">
                             {item.id === 1 && (
                               <div
-                                className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                className="-mt-[27px] flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                 style={{
                                   fontSize: 11.6,
                                   fontWeight: '500',
@@ -1111,7 +1111,7 @@ const CreatAgent3 = ({
                             )}
                             {item.status && (
                               <div
-                                className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                                className="-mt-[27px] sm:hidden px-2 py-1 bg-brand-primary rounded-full text-white"
                                 style={{
                                   fontSize: 11.6,
                                   fontWeight: '500',
@@ -1132,7 +1132,7 @@ const CreatAgent3 = ({
                               {item.mints}mins | {item.calls} calls*
                               {item.status && (
                                 <div
-                                  className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex hidden sm:flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                   style={{
                                     fontSize: 11.6,
                                     fontWeight: '500',
@@ -1180,7 +1180,7 @@ const CreatAgent3 = ({
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
                       style={{ height: '24px', width: '24px' }}
                     >
                       <Image
@@ -1221,7 +1221,7 @@ const CreatAgent3 = ({
                       ...styles.headingStyle,
                       height: '50px',
                       backgroundColor:
-                        agreeTerms && togglePlan2 ? '#7902DF' : '#00000010',
+                        agreeTerms && togglePlan2 ? 'hsl(var(--brand-primary))' : '#00000010',
                       color: agreeTerms && togglePlan2 ? 'white' : '#000000',
                     }}
                     onClick={() => {

@@ -399,7 +399,7 @@ const BuildAgentTask = ({
                   className="flex flex-row items-center justify-center gap-2 border h-[60px] w-full sm:w-[240px] outline-none px-6"
                   style={{
                     borderRadius: '23px',
-                    border: OutBoundCalls ? '2px solid #7902DF' : '',
+                    border: OutBoundCalls ? '2px solid hsl(var(--brand-primary))' : '',
                   }}
                   onClick={handleOutBoundCallClick}
                 >
@@ -433,7 +433,7 @@ const BuildAgentTask = ({
                   className="flex flex-row items-center justify-center gap-2 border h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] outline-none px-6"
                   style={{
                     borderRadius: '23px',
-                    border: InBoundCalls ? '2px solid #7902DF' : '',
+                    border: InBoundCalls ? '2px solid hsl(var(--brand-primary))' : '',
                   }}
                   onClick={handleInboundCallClick}
                 >
@@ -544,10 +544,10 @@ const BuildAgentTask = ({
                       style={{
                         border:
                           selectedStatus?.id === item.id
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                         backgroundColor:
-                          selectedStatus?.id === item.id ? '#402FFF15' : '',
+                          selectedStatus?.id === item.id ? 'hsl(var(--brand-primary) / 0.1)' : '',
                       }}
                     >
                       {item.title}
@@ -599,7 +599,7 @@ const BuildAgentTask = ({
                 style={{ position: 'absolute', bottom: 0, left: 0 }}
               >
                 <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                  className="text-white w-11/12 h-[50px] rounded-lg bg-brand-primary mb-8"
                   onClick={() => {
                     setShowModal(false)
                   }}

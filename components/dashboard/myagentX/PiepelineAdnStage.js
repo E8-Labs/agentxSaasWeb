@@ -166,7 +166,7 @@ const PipelineAndStage = ({
           </div>
 
           <button
-            className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-purple text-white px-4"
+            className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-brand-primary text-white px-4"
             style={{
               fontWeight: '500',
               fontSize: 15,

@@ -569,7 +569,7 @@ const AddCardDetails = ({
         >
           {agreeTerms ? (
             <div
-              className="bg-purple flex flex-row items-center justify-center rounded"
+              className="bg-brand-primary flex flex-row items-center justify-center rounded"
               style={{ height: '24px', width: '24px' }}
             >
               <Image
@@ -623,7 +623,7 @@ const AddCardDetails = ({
               <button
                 onClick={handleAddCard}
                 disabled={disableContinue}
-                className={`${disableContinue ? 'bg-[#00000020] text-black' : 'bg-purple text-white'} w-full h-[50px] rounded-xl px-8 py-3`}
+                className={`${disableContinue ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'} w-full h-[50px] rounded-xl px-8 py-3`}
                 style={{ fontWeight: '600', fontSize: 17 }}
               >
                 Continue

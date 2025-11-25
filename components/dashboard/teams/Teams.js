@@ -766,7 +766,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             {myTeam.length !== 0 && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
-                  className="rounded-lg text-white bg-purple mt-8"
+                  className="rounded-lg text-white bg-brand-primary mt-8"
                   style={{
                     fontWeight: '500',
                     fontSize: '16',
@@ -1014,7 +1014,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                     >
                       Unlock full access for your team by adding an extra seat
                       to your account.{' '}
-                      <span className="text-purple">
+                      <span className="text-brand-primary">
                         For just ${userLocalData.costPerSeat} per additional
                         user
                       </span>
@@ -1036,7 +1036,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                 )}
                 <div className="">
                   <button
-                    className="rounded-lg text-white bg-purple mt-8"
+                    className="rounded-lg text-white bg-brand-primary mt-8"
                     style={{
                       fontWeight: '500',
                       fontSize: '16',
@@ -1368,7 +1368,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                         ? '#00000020'
                         : '',
                   }}
-                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
                     let data = {
                       name: name,

@@ -158,7 +158,7 @@ export default function EditMcpPopup({
                   <CircularProgress size={20} />
                 ) : (
                   <button
-                    className="w-1/2 bg-purple text-white rounded-md p-2 h-[55px]"
+                    className="w-1/2 bg-brand-primary text-white rounded-md p-2 h-[55px]"
                     onClick={handleEditMcp}
                   >
                     Save

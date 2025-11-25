@@ -616,7 +616,7 @@ export const PromptTagInput = ({
 
                 {showSaveChangesBtn && (
                   <button
-                    className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                    className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
                     style={{ fontWeight: '600', fontSize: 15 }}
                     onClick={() => {
                       setShowScriptModal(false)
@@ -693,7 +693,7 @@ export const PromptTagInput = ({
 
               {/* <div className="mt-4 w-full h-[15%]">
                 <button
-                  className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
+                  className="bg-brand-primary text-white text-xl font-medium w-full rounded-2xl h-[50px]"
                   onClick={() => {
                     setShowScriptModal(false);
                   }}

@@ -30,7 +30,7 @@ const CreateAgent2 = ({ handleContinue, handleBack }) => {
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
         {/* header */}
         <Header />
         {/* Body */}
@@ -45,7 +45,7 @@ const CreateAgent2 = ({ handleContinue, handleBack }) => {
             Your first 30 minutes are on us!
           </div>
           <div
-            className="flex flex-row items-center gap-2 text-purple mt-6"
+            className="flex flex-row items-center gap-2 text-brand-primary mt-6"
             style={styles.gitTextStyle}
           >
             <Image src={'/svgIcons/gift.svg'} height={22} width={22} alt="*" />
@@ -59,7 +59,7 @@ const CreateAgent2 = ({ handleContinue, handleBack }) => {
             alt="*"
           />
           <button
-            className="rounded-lg text-white bg-purple"
+            className="rounded-lg text-white bg-brand-primary"
             style={{
               fontWeight: '700',
               fontSize: '16',

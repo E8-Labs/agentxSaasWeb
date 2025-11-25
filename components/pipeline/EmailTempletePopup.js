@@ -739,7 +739,7 @@ function EmailTempletePopup({
               <button
                 onClick={(event) => setShowChangeManu(event.currentTarget)}
               >
-                <div className="text-15 font-[700] underline text-purple">
+                <div className="text-15 font-[700] underline text-brand-primary">
                   Change Account
                 </div>
               </button>
@@ -787,8 +787,8 @@ function EmailTempletePopup({
                     },
                   }}
                 >
-                  <div className="flex flex-row gap-2 text-purple">
-                    <Plus weight="bold" size={22} className="text-purple" />
+                  <div className="flex flex-row gap-2 text-brand-primary">
+                    <Plus weight="bold" size={22} className="text-brand-primary" />
                     Add Account
                   </div>
                 </MenuItem>
@@ -887,10 +887,10 @@ function EmailTempletePopup({
                           borderColor: '#d1d5db',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#7902DF',
+                          borderColor: 'hsl(var(--brand-primary))',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#7902DF',
+                          borderColor: 'hsl(var(--brand-primary))',
                         },
                       }}
                     >
@@ -920,7 +920,7 @@ function EmailTempletePopup({
 
             <div className="mt-3 flex flex-row items-center justify-between">
               <label className="flex flex-row items-center gap-2 cursor-pointer">
-                <div className="text-[15px] font-[500] text-purple underline">
+                <div className="text-[15px] font-[500] text-brand-primary underline">
                   Add Attachments
                 </div>
                 <Image
@@ -988,7 +988,7 @@ function EmailTempletePopup({
             ) : (
               <button
                 className={`w-1/2 h-[53px] text-[15px] font-[700] 
-                                    ${isSaveDisabled ? 'bg-black/50' : 'bg-purple'} rounded-lg text-white`}
+                                    ${isSaveDisabled ? 'bg-black/50' : 'bg-brand-primary'} rounded-lg text-white`}
                 disabled={isSaveDisabled}
                 onClick={saveEmail}
               >

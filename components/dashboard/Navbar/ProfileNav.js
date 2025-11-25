@@ -1215,7 +1215,7 @@ const ProfileNav = () => {
           showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
               {`Your account is paused. Click here to`} <span
-                className="text-purple underline cursor-pointer"
+                className="text-brand-primary underline cursor-pointer"
                 onClick={() => {
                   resumeAccount()
                 }}
@@ -1246,14 +1246,14 @@ const ProfileNav = () => {
                       {reduxUser?.plan?.price === 0 ? "You're out of Free AI Credits." :
                         `Action Needed! Your AI agents are paused. You don't have enough credits.`}
                       {reduxUser?.smartRefill === false && (<span
-                        className="text-purple underline cursor-pointer"
+                        className="text-brand-primary underline cursor-pointer"
                         onClick={() => {
                           handleSmartRefill();
                         }}
                       >
                       {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
                       </span>)}  <span
-                        className="text-purple underline cursor-pointer"
+                        className="text-brand-primary underline cursor-pointer"
                         onClick={() => {
                           setShowUpgradePlanModal2(true)
                         }}
@@ -1267,7 +1267,7 @@ const ProfileNav = () => {
                       <div style={{ fontSize: 15, fontWeight: '700', }}>
                         {`Your subscription payment could not be processed.`}
                         <span
-                          className="text-purple underline cursor-pointer"
+                          className="text-brand-primary underline cursor-pointer"
                           onClick={() => {
                             setShowUpgradePlanModal2(true)
                           }}
@@ -1483,7 +1483,7 @@ const ProfileNav = () => {
                       return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                     })()}
                   </div>
-                  <div className="text-xs font-medium text-purple">
+                  <div className="text-xs font-medium text-brand-primary">
                     {checkTrialDays(reduxUser) ? `${checkTrialDays(reduxUser)}` : ""}
                   </div>
                 </div>
@@ -1709,7 +1709,7 @@ const ProfileNav = () => {
                               {item.calls} Calls*
                               {item.status && (
                                 <div
-                                  className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex hidden sm:flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                   style={{ fontSize: 11.6, fontWeight: "500" }}
                                 >
                                   {item.status}
@@ -1760,7 +1760,7 @@ const ProfileNav = () => {
                   ) : (
                     <button
                       disabled={!togglePlan}
-                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white"
+                      className="w-full flex flex-row items-center justify-center h-[50px] bg-brand-primary rounded-lg text-white"
                       style={{
                         fontSize: 16.8,
                         fontWeight: "600",

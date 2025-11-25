@@ -208,18 +208,18 @@ const EditModal = ({
 
         <div className="w-full flex flex-row items-center justify-between mt-4 gap-2">
           <button
-            className="px-4 py-2 bg-transparent w-1/2 outline-none text-purple rounded hover:bg-purple10"
+            className="px-4 py-2 bg-transparent w-1/2 outline-none text-brand-primary rounded hover:bg-brand-primary/10"
             onClick={onClose}
           >
             Close
           </button>
           {updateLoader ? (
             <div className="w-1/2 flex flex-row items-center justify-center">
-              <CircularProgress size={20} sx={{ color: '#7902DF' }} />
+              <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
             </div>
           ) : (
             <button
-              className="px-4 py-2 bg-purple w-1/2 outline-none text-white rounded"
+              className="px-4 py-2 bg-brand-primary w-1/2 outline-none text-white rounded"
               onClick={() => {
                 handleUpdate(
                   {
