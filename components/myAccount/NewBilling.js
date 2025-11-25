@@ -16,7 +16,7 @@ import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { getBusinessProfile } from '@/apiservicescomponent/twilioapis/GetBusinessProfile'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
@@ -416,7 +416,7 @@ function NewBilling() {
   }
 
   // Helper function to find matching plan from all plan arrays (monthly, quarterly, yearly)
-  const findMatchingPlanFromAllArrays = (profilePlan) => {
+  const findMatchingPlanFromAllArrays = useCallback((profilePlan) => {
     if (!profilePlan) return null
 
     // Combine all plan arrays
@@ -462,7 +462,7 @@ function NewBilling() {
 
     console.log('🔍 [PLAN-MATCH] No matching plan found for:', profilePlan)
     return null
-  }
+  }, [monthlyPlans, quaterlyPlans, yearlyPlans])
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -570,6 +570,7 @@ function NewBilling() {
     quaterlyPlans,
     yearlyPlans,
     initialPlanSelectionDone,
+    reduxUser,
   ])
 
   // Add state to hold the profile plan before matching
@@ -601,7 +602,7 @@ function NewBilling() {
         setCurrentFullPlan(profilePlan)
       }
     }
-  }, [profilePlan, monthlyPlans, quaterlyPlans, yearlyPlans])
+  }, [profilePlan, monthlyPlans, quaterlyPlans, yearlyPlans, findMatchingPlanFromAllArrays])
 
   console.log('togglePlan', togglePlan)
   console.log('currentPlan', currentPlan)
@@ -1983,13 +1984,12 @@ function NewBilling() {
                     )}
 
                   <div
-                    className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline"
+                    className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline text-brand-primary"
                     onClick={(e) => {
                       // e.stopPropagation();
                       console.log('View Details clicked, opening modal')
                       setShowUserPlansModal(true)
                     }}
-                    className="text-brand-primary"
                     style={{
                       textDecoration: 'none',
                       fontWeight: 600,
