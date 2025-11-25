@@ -19,7 +19,7 @@ function AdminCallLogs({ selectedUser }) {
   return (
     <div className="w-full h-full bg-blue flex flex-col items-center overflow-hidden">
       <div
-        className=" w-full flex flex-row justify-between items-center px-4 bg-green"
+        className=" w-full flex flex-row justify-between items-center px-4"
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         {/* Slider code */}

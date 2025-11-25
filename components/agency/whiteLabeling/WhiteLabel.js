@@ -275,7 +275,7 @@ const WhiteLabel = () => {
                     color: '#000',
                   }}
                 >
-                  Copy Agency Link
+                  Agency Link
                 </div>
                 <div
                   style={{ fontSize: '12px', fontWeight: '400', color: '#666' }}
