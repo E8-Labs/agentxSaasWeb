@@ -161,7 +161,7 @@ const TutorialConfig = () => {
   }
 
   const handleSaveTutorial = async (updatedData) => {
-    if(!updatedData ||!updatedData.title || !updatedData.media) {
+    if(updatedData.title === selectedTutorial.title &&  !updatedData.media ) {
       return
     }
     setIsSaving(true)

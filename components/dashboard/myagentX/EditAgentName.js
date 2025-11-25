@@ -123,8 +123,7 @@ const EditAgentName = ({
             </div>
           ) : (
             <button
-              className="mt-4 outline-none"
-              className="bg-brand-primary text-white"
+              className="mt-4 outline-none bg-brand-primary text-white"
               style={{
                 height: '50px',
                 borderRadius: '10px',
