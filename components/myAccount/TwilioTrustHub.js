@@ -63,7 +63,7 @@ const TwilioTrustHub = ({
         if (data) {
           
           console.log('Data Of LocalUser User Plan Capabilities = ', data.user.planCapabilities?.allowTwilioTrustHub)
-            let isFree = !data.user.planCapabilities?.allowTwilioTrustHub || false//allowTwilioIntegration
+            let isFree = !(data.user.planCapabilities?.allowTwilioIntegration || data.user.planCapabilities?.allowTwilioTrustHub) || false//allowTwilioIntegration
             setIsFreePlan(isFree)
             console.log('isFree', isFree)
         }
