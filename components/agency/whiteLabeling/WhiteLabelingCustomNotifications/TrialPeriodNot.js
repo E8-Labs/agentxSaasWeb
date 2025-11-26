@@ -153,7 +153,8 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
               <AccordionItem value={`app-${item.id}`}>
                 <AccordionTrigger>
                   <h3
-                    style={{ fontSize: 18, fontWeight: 600, color: '#7902DF' }}
+                    className="text-brand-primary"
+                    style={{ fontSize: 18, fontWeight: 600 }}
                   >
                     App Notification
                   </h3>
@@ -183,6 +184,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                       >
                         <Image
                           src={'/agencyIcons/purplePen.png'}
+                          className="icon-brand-primary"
                           alt="edit"
                           width={16}
                           height={16}
@@ -199,7 +201,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                       <div>
                         <span style={styles.semiBoldHeading}>CTA:</span>
                         <span
-                          className="ms-2 text-purple underline"
+                          className="ms-2 text-brand-primary underline"
                           style={styles.mediumRegular}
                         >
                           {item.appNotficationCTA}
@@ -218,7 +220,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                       style={{
                         fontSize: 18,
                         fontWeight: 600,
-                        color: '#7902DF',
+                        color: 'hsl(var(--brand-primary))',
                       }}
                     >
                       Email Notification
@@ -249,6 +251,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                         >
                           <Image
                             src={'/agencyIcons/purplePen.png'}
+                          className="icon-brand-primary"
                             alt="edit"
                             width={16}
                             height={16}
@@ -269,7 +272,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                         <div>
                           <span style={styles.semiBoldHeading}>CTA:</span>
                           <span
-                            className="ms-2 text-purple underline"
+                            className="ms-2 text-brand-primary underline"
                             style={styles.mediumRegular}
                           >
                             {item.emailNotficationCTA}

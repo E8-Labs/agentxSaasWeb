@@ -56,7 +56,7 @@ const NotificationConfig = () => {
           return (
             <button
               key={item.id}
-              className={`outline-none ${selectedNotificationTab === item.id && 'border-b-4 border-purple'} h-[45px] px-4`}
+              className={`outline-none ${selectedNotificationTab === item.id && 'border-b-4 border-brand-primary'} h-[45px] px-4`}
               onClick={() => {
                 setSelectedNotificationTab(item.id)
               }}

@@ -374,8 +374,9 @@ const AgencySupportAndWidget = () => {
                       <Image
                         alt="*"
                         src={'/assets/editPen.png'}
-                        height={14}
-                        width={14}
+                        height={16}
+                        width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -407,7 +408,7 @@ const AgencySupportAndWidget = () => {
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary))',
                               },
                           }}
                         />
@@ -427,7 +428,7 @@ const AgencySupportAndWidget = () => {
                       }}
                     >
                       <div
-                        className="text-purple outline-none border-none rounded p-1 bg-white"
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                         style={{ fontSize: '16px', fontWeight: '400' }}
                       >
                         Edit
@@ -437,6 +438,7 @@ const AgencySupportAndWidget = () => {
                         src={'/assets/editPen.png'}
                         height={16}
                         width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -470,7 +472,7 @@ const AgencySupportAndWidget = () => {
                       </div>
                     ) : (
                       <button
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlSuportWebCalendar || !suportWebCalendar ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlSuportWebCalendar || !suportWebCalendar ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
                         style={{ fontSize: '15px', fontWeight: '500' }}
                         onClick={() => {
                           handleUserSettings('suportWebCalendar')
@@ -653,8 +655,9 @@ const AgencySupportAndWidget = () => {
                       <Image
                         alt="*"
                         src={'/assets/editPen.png'}
-                        height={14}
-                        width={14}
+                        height={16}
+                        width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -686,7 +689,7 @@ const AgencySupportAndWidget = () => {
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary))',
                               },
                           }}
                         />
@@ -706,7 +709,7 @@ const AgencySupportAndWidget = () => {
                       }}
                     >
                       <div
-                        className="text-purple outline-none border-none rounded p-1 bg-white"
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                         style={{ fontSize: '16px', fontWeight: '400' }}
                       >
                         Edit
@@ -716,6 +719,7 @@ const AgencySupportAndWidget = () => {
                         src={'/assets/editPen.png'}
                         height={16}
                         width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -749,7 +753,7 @@ const AgencySupportAndWidget = () => {
                       </div>
                     ) : (
                       <button
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlFeedBack || !feedBack ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlFeedBack || !feedBack ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
                         style={{ fontSize: '15px', fontWeight: '500' }}
                         onClick={() => {
                           handleUserSettings('feedBack')
@@ -810,8 +814,9 @@ const AgencySupportAndWidget = () => {
                       <Image
                         alt="*"
                         src={'/assets/editPen.png'}
-                        height={14}
-                        width={14}
+                        height={16}
+                        width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -843,7 +848,7 @@ const AgencySupportAndWidget = () => {
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary))',
                               },
                           }}
                         />
@@ -863,7 +868,7 @@ const AgencySupportAndWidget = () => {
                       }}
                     >
                       <div
-                        className="text-purple outline-none border-none rounded p-1 bg-white"
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                         style={{ fontSize: '16px', fontWeight: '400' }}
                       >
                         Edit
@@ -873,6 +878,7 @@ const AgencySupportAndWidget = () => {
                         src={'/assets/editPen.png'}
                         height={16}
                         width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -909,7 +915,7 @@ const AgencySupportAndWidget = () => {
                         onClick={() => {
                           handleUserSettings('hireTeam')
                         }}
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlHireTeam || !hireTeam ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlHireTeam || !hireTeam ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
                         style={{ fontSize: '15px', fontWeight: '500' }}
                         disabled={isInValidUrlHireTeam || !hireTeam}
                       >
@@ -966,8 +972,9 @@ const AgencySupportAndWidget = () => {
                       <Image
                         alt="*"
                         src={'/assets/editPen.png'}
-                        height={14}
-                        width={14}
+                        height={16}
+                        width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -999,7 +1006,7 @@ const AgencySupportAndWidget = () => {
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary))',
                               },
                           }}
                         />
@@ -1019,7 +1026,7 @@ const AgencySupportAndWidget = () => {
                       }}
                     >
                       <div
-                        className="text-purple outline-none border-none rounded p-1 bg-white"
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                         style={{ fontSize: '16px', fontWeight: '400' }}
                       >
                         Edit
@@ -1029,6 +1036,7 @@ const AgencySupportAndWidget = () => {
                         src={'/assets/editPen.png'}
                         height={16}
                         width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -1065,7 +1073,7 @@ const AgencySupportAndWidget = () => {
                         onClick={() => {
                           handleUserSettings('billingAndSupport')
                         }}
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlBillingAndSupport || !billingAndSupport ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlBillingAndSupport || !billingAndSupport ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
                         style={{ fontSize: '15px', fontWeight: '500' }}
                         disabled={
                           isInValidUrlBillingAndSupport || !billingAndSupport
@@ -1141,8 +1149,9 @@ const AgencySupportAndWidget = () => {
                       <Image
                         alt="*"
                         src={'/assets/editPen.png'}
-                        height={14}
-                        width={14}
+                        height={16}
+                        width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -1174,7 +1183,7 @@ const AgencySupportAndWidget = () => {
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: '#7902DF',
+                                backgroundColor: 'hsl(var(--brand-primary))',
                               },
                           }}
                         />
@@ -1194,7 +1203,7 @@ const AgencySupportAndWidget = () => {
                       }}
                     >
                       <div
-                        className="text-purple outline-none border-none rounded p-1 bg-white"
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                         style={{ fontSize: '16px', fontWeight: '400' }}
                       >
                         Edit
@@ -1204,6 +1213,7 @@ const AgencySupportAndWidget = () => {
                         src={'/assets/editPen.png'}
                         height={16}
                         width={16}
+                        className="icon-brand-primary"
                       />
                     </button>
                   </div>
@@ -1240,7 +1250,7 @@ const AgencySupportAndWidget = () => {
                         onClick={() => {
                           handleUserSettings('resourceHub')
                         }}
-                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlResourceHub || !resourceHub ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlResourceHub || !resourceHub ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
                         style={{ fontSize: '15px', fontWeight: '500' }}
                         disabled={isInValidUrlResourceHub || !resourceHub}
                       >
@@ -1335,7 +1345,7 @@ export const EditTitleModal = ({
             </div>
           ) : (
             <button
-              className="bg-purple text-white px-4 h-[40px] rounded-lg mt-4 w-full"
+              className="bg-brand-primary text-white px-4 h-[40px] rounded-lg mt-4 w-full"
               onClick={() => {
                 // setLoader(true);
                 handleSave()

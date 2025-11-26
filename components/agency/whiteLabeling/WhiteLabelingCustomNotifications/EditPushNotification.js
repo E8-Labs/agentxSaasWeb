@@ -92,7 +92,7 @@ const EditPushNotification = ({
         }}
       >
         <div
-          className="scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple pb-12 px-4"
+          className="scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary pb-12 px-4"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -181,7 +181,7 @@ const EditPushNotification = ({
           </button>
           <button
             onClick={handleSave}
-            className="px-6 bg-purple-600 hover:bg-purple-700 text-white h-[50px] w-[100px] text-center rounded-lg"
+            className="px-6 bg-brand-primary hover:bg-brand-primary/90 text-white h-[50px] w-[100px] text-center rounded-lg"
           >
             Save
           </button>

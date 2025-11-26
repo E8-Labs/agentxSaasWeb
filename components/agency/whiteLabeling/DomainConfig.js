@@ -481,7 +481,7 @@ const DomainConfig = () => {
                 disabled={loading || !!domainStatus}
               />
               <button
-                className="bg-purple text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-brand-primary text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleAddDomain}
                 disabled={loading || !!domainStatus}
               >
@@ -555,7 +555,7 @@ const DomainConfig = () => {
                                     onClick={() =>
                                       handleCopyField(record.host, hostFieldId)
                                     }
-                                    className="text-purple hover:text-purple-700 text-xs font-medium px-2 py-1 rounded transition-colors"
+                                    className="text-brand-primary hover:text-brand-primary/80 text-xs font-medium px-2 py-1 rounded transition-colors"
                                     title="Copy host"
                                   >
                                     {copiedFields[hostFieldId] ? 'Copied' : 'Copy'}

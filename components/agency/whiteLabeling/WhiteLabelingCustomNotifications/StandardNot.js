@@ -256,7 +256,7 @@ const StandardNot = ({
     <>
       {saving && (
         <div className="w-full flex justify-center items-center py-4">
-          <div className="text-purple">Saving...</div>
+          <div className="text-brand-primary">Saving...</div>
         </div>
       )}
       {transformedNotifications.map((item) => {
@@ -351,7 +351,8 @@ const StandardNot = ({
               <AccordionItem value={`app-${item.id}`}>
                 <AccordionTrigger>
                   <h3
-                    style={{ fontSize: 18, fontWeight: 600, color: '#7902DF' }}
+                    className="text-brand-primary"
+                    style={{ fontSize: 18, fontWeight: 600 }}
                   >
                     App Notification
                   </h3>
@@ -376,6 +377,7 @@ const StandardNot = ({
                           alt="edit"
                           width={16}
                           height={16}
+                          className="icon-brand-primary"
                         />
                       </button>
                     </div>
@@ -389,7 +391,7 @@ const StandardNot = ({
                       <div>
                         <span style={styles.semiBoldHeading}>CTA:</span>
                         <span
-                          className="ms-2 text-purple underline"
+                          className="ms-2 text-brand-primary underline"
                           style={styles.mediumRegular}
                         >
                           {item.appNotficationCTA}
@@ -405,10 +407,10 @@ const StandardNot = ({
                 <AccordionItem value={`email-${item.id}`}>
                   <AccordionTrigger>
                     <h3
+                      className="text-brand-primary"
                       style={{
                         fontSize: 18,
                         fontWeight: 600,
-                        color: '#7902DF',
                       }}
                     >
                       Email Notification
@@ -451,7 +453,7 @@ const StandardNot = ({
                         <div>
                           <span style={styles.semiBoldHeading}>CTA:</span>
                           <span
-                            className="ms-2 text-purple underline"
+                            className="ms-2 text-brand-primary underline"
                             style={styles.mediumRegular}
                           >
                             {item.emailNotficationCTA}

@@ -491,7 +491,7 @@ const UPSell = () => {
                           },
                           '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                             {
-                              backgroundColor: '#7902DF',
+                              backgroundColor: 'hsl(var(--brand-primary))',
                             },
                         }}
                       />
@@ -513,7 +513,7 @@ const UPSell = () => {
                         }}
                       >
                         <div
-                          className="text-purple outline-none border-none rounded p-1 bg-white"
+                          className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                           style={{ fontSize: '16px', fontWeight: '400' }}
                         >
                           Edit
@@ -527,7 +527,7 @@ const UPSell = () => {
                       </button>
                     </div>
                     {phoneCalculatorResult && !addUpSellPhone && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -542,7 +542,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${phoneCalculatorResult.agencyNetAmount}
@@ -593,7 +593,7 @@ const UPSell = () => {
                           onClick={() => {
                             handleUserSettings('phonePrice')
                           }}
-                          className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`}
+                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl`}
                           style={{ fontSize: '15px', fontWeight: '500' }}
                         >
                           Save
@@ -601,7 +601,7 @@ const UPSell = () => {
                       )}
                     </div>
                     {phoneCalculatorResult && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -616,7 +616,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${phoneCalculatorResult.agencyNetAmount}
@@ -682,7 +682,7 @@ const UPSell = () => {
                           },
                           '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                             {
-                              backgroundColor: '#7902DF',
+                              backgroundColor: 'hsl(var(--brand-primary))',
                             },
                         }}
                       />
@@ -703,7 +703,7 @@ const UPSell = () => {
                         }}
                       >
                         <div
-                          className="text-purple outline-none border-none rounded p-1 bg-white"
+                          className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                           style={{ fontSize: '16px', fontWeight: '400' }}
                         >
                           Edit
@@ -717,7 +717,7 @@ const UPSell = () => {
                       </button>
                     </div>
                     {dncCalculatorResult && !addDNC && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -732,7 +732,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${dncCalculatorResult.agencyNetAmount}
@@ -783,7 +783,7 @@ const UPSell = () => {
                           onClick={() => {
                             handleUserSettings('dncPrice')
                           }}
-                          className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`}
+                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl`}
                           style={{ fontSize: '15px', fontWeight: '500' }}
                         >
                           Save
@@ -791,7 +791,7 @@ const UPSell = () => {
                       )}
                     </div>
                     {dncCalculatorResult && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -806,7 +806,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${dncCalculatorResult.agencyNetAmount}
@@ -876,7 +876,7 @@ const UPSell = () => {
                           },
                           '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                             {
-                              backgroundColor: '#7902DF',
+                              backgroundColor: 'hsl(var(--brand-primary))',
                             },
                         }}
                       />
@@ -898,7 +898,7 @@ const UPSell = () => {
                         }}
                       >
                         <div
-                          className="text-purple outline-none border-none rounded p-1 bg-white"
+                          className="text-brand-primary outline-none border-none rounded p-1 bg-white"
                           style={{ fontSize: '16px', fontWeight: '400' }}
                         >
                           Edit
@@ -912,7 +912,7 @@ const UPSell = () => {
                       </button>
                     </div>
                     {enrichmentCalculatorResult && !addPerplexityEnrichment && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -927,7 +927,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${enrichmentCalculatorResult.agencyNetAmount}
@@ -978,7 +978,7 @@ const UPSell = () => {
                           onClick={() => {
                             handleUserSettings('enrichmentPrice')
                           }}
-                          className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`}
+                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl`}
                           style={{ fontSize: '15px', fontWeight: '500' }}
                         >
                           Save
@@ -986,7 +986,7 @@ const UPSell = () => {
                       )}
                     </div>
                     {enrichmentCalculatorResult && (
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-brand-primary/10 border border-brand-primary/20 rounded-lg p-3">
                         <div
                           style={{
                             fontSize: 12,
@@ -1001,7 +1001,7 @@ const UPSell = () => {
                           style={{
                             fontSize: 18,
                             fontWeight: '600',
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                           }}
                         >
                           ${enrichmentCalculatorResult.agencyNetAmount}
@@ -1037,7 +1037,7 @@ const UPSell = () => {
                   <div style={styles.subHeading}>Upsell leads</div>
                 </div>
                 <div
-                  className="bg-purple text-white rounded-full w-[100px] h-[25px] flex flex-row items-center justify-center cursor-pointer"
+                  className="bg-brand-primary text-white rounded-full w-[100px] h-[25px] flex flex-row items-center justify-center cursor-pointer"
                   style={{ fontSize: '12px', fontWeight: '400' }}
                 >
                   Coming Soon

@@ -247,7 +247,7 @@ const EmailConfig = () => {
                   <button
                     onClick={handleGoogleAuth}
                     disabled={connecting}
-                    className="bg-purple text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="bg-brand-primary text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {connecting ? (
                       <>
