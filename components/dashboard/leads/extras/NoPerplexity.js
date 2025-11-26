@@ -135,6 +135,7 @@ function NoPerplexity({
             height={16}
             width={16}
             alt="*"
+            style={{ filter: 'brightness(0)' }}
           />
         </Tooltip>
       </div>

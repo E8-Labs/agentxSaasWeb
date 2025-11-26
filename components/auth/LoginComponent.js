@@ -1201,73 +1201,79 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           style={{ fontWeight: '500', fontSize: 11.6 }}
         >
           <div className="flex-shrink-0">
-            Copyrights @ 2025 AssignX. All Rights Reserved.
+            Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                window.open(
-                  'https://www.myagentx.com/terms-and-condition',
-                  '_blank',
-                )
-              }
-            }}
-          >
-            | Terms & Conditions
-          </button>
-          <button
-            className="flex-shrink-0 outline-none"
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                window.open(
-                  'https://www.myagentx.com/terms-and-condition',
-                  '_blank',
-                )
-              }
-            }}
-          >
-            | Privacy Policy
-          </button>
+          {!agencyBranding && (
+            <>
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.open(
+                      'https://www.myagentx.com/terms-and-condition',
+                      '_blank',
+                    )
+                  }
+                }}
+              >
+                | Terms & Conditions
+              </button>
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.open(
+                      'https://www.myagentx.com/terms-and-condition',
+                      '_blank',
+                    )
+                  }
+                }}
+              >
+                | Privacy Policy
+              </button>
+            </>
+          )}
         </div>
 
         <div className="h-[10%]  w-full flex flex-col items-center justify-center sm:hidden">
-          <div
-            className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
-            style={{ fontWeight: '500', fontSize: 11.6 }}
-          >
-            <button
-              className="flex-shrink-0 outline-none"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  window.open(
-                    'https://www.myagentx.com/terms-and-condition',
-                    '_blank',
-                  )
-                }
-              }}
+          {!agencyBranding && (
+            <div
+              className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
+              style={{ fontWeight: '500', fontSize: 11.6 }}
             >
-              Terms & Conditions
-            </button>
-            <button
-              className="flex-shrink-0 outline-none"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  window.open(
-                    'https://www.myagentx.com/terms-and-condition',
-                    '_blank',
-                  )
-                }
-              }}
-            >
-              | Privacy Policy
-            </button>
-          </div>
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.open(
+                      'https://www.myagentx.com/terms-and-condition',
+                      '_blank',
+                    )
+                  }
+                }}
+              >
+                Terms & Conditions
+              </button>
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.open(
+                      'https://www.myagentx.com/terms-and-condition',
+                      '_blank',
+                    )
+                  }
+                }}
+              >
+                | Privacy Policy
+              </button>
+            </div>
+          )}
           <div
             className="flex-shrink-0 text-center"
             style={{ fontWeight: '500', fontSize: 11.6 }}
           >
-            Copyrights @ 2025 AssignX. All Rights Reserved.
+            Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
         </div>
       </div>

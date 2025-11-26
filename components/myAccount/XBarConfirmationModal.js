@@ -64,39 +64,26 @@ export default function XBarConfirmationModal({
           onClick={onClose}
           variant="outlined"
           sx={{
-            borderColor: '#ddd',
+            borderColor: 'hsl(var(--brand-primary))',
             color: '#000',
             fontWeight: 'bold',
             textTransform: 'none',
             paddingY: '0.8rem',
             borderRadius: '10px',
             width: '45%',
+            '&:hover': {
+              borderColor: 'hsl(var(--brand-primary))',
+              backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+            },
           }}
         >
           Cancel
         </Button>
 
-        {/* <Button
-          onClick={onConfirm}
-          variant="contained"
-          sx={{
-            backgroundColor: "#7902DF",
-            fontWeight: "bold",
-            textTransform: "none",
-            borderRadius: "10px",
-            width: "45%",
-            paddingY: "0.8rem",
-            "&:hover": { backgroundColor: "#6901C3" },
-          }}
-        >
-          Continue
-        </Button> */}
-
         <div
-          className="cursor-pointer w-[45%] flex justify-center items-center bg-purple font-bold rounded-lg text-white text-center py-3"
+          className="cursor-pointer w-[45%] flex justify-center items-center bg-brand-primary font-bold rounded-lg text-white text-center py-3"
           onClick={onConfirm}
           style={{
-            borderColor: '#ddd',
             color: '#fff',
             fontWeight: 'bold',
             textTransform: 'none',

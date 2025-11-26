@@ -159,7 +159,7 @@ export default function EnrichConfirmModal({
                 mb: 0,
               }}
             >
-              <InfoOutlinedIcon sx={{ color: '#7902DF', fontSize: 20 }} />
+              <InfoOutlinedIcon sx={{ color: '#000000', fontSize: 20 }} />
               <Typography sx={{ fontSize: '14px', color: '#000' }}>
                 {`Enrichment is $${displayPricePerLead} / lead `}
               </Typography>

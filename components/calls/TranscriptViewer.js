@@ -47,7 +47,7 @@ export function TranscriptBubble({
             isBot ? 'text-black' : 'text-white'
           }`}
           style={{
-            backgroundColor: isBot ? '#F6F7F9' : '#7902DF',
+            backgroundColor: isBot ? '#F6F7F9' : 'hsl(var(--brand-primary))',
           }}
         >
           {message}
@@ -62,7 +62,7 @@ export function TranscriptBubble({
               }
             >
               {comment && liked === true ? (
-                <ThumbUp fontSize="small" sx={{ color: '#7902DF' }} />
+                <ThumbUp fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
               ) : (
                 <ThumbUpOutlined fontSize="small" />
               )}
@@ -75,7 +75,7 @@ export function TranscriptBubble({
               }
             >
               {comment && liked === false ? (
-                <ThumbDown fontSize="small" sx={{ color: '#7902DF' }} />
+                <ThumbDown fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
               ) : (
                 <ThumbDownOutlined fontSize="small" />
               )}
@@ -90,7 +90,7 @@ export function TranscriptBubble({
                   {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
                   <i>
                     <div
-                      className="text-purple"
+                      className="text-brand-primary"
                       style={{
                         fontSize: '13px',
                         fontWeight: '500',
@@ -101,7 +101,7 @@ export function TranscriptBubble({
                       {comment?.length > 5 && '... '}
                       {comment?.length > 5 && (
                         <button
-                          className="text-purple cursor-pointer outline-noe border-none text-bold"
+                          className="text-brand-primary cursor-pointer outline-noe border-none text-bold"
                           onClick={() => {
                             setReadMoreModal(comment)
                           }}
@@ -119,7 +119,7 @@ export function TranscriptBubble({
                       >
                         {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
                         <Box className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
-                          <div className="text-purple text-large font-bold">
+                          <div className="text-brand-primary text-large font-bold">
                             {readMoreModal?.slice(0, 1).toUpperCase()}
                             {readMoreModal?.slice(1)}
                           </div>
@@ -372,7 +372,7 @@ export function TranscriptViewer({ callId }) {
           </div>
 
           <textarea
-            className="w-full mt-4 rounded-md p-2 focus:border-purple outline-none border"
+            className="w-full mt-4 rounded-md p-2 focus:border-brand-primary outline-none border"
             placeholder="Tell the AI how you really feel.."
             rows={4}
             value={comment}
@@ -387,7 +387,7 @@ export function TranscriptViewer({ callId }) {
               <CircularProgress size={35} />
             ) : (
               <button
-                className="bg-purple p-2 text-white rounded-md"
+                className="bg-brand-primary p-2 text-white rounded-md"
                 onClick={handleAddComment}
               >
                 Add

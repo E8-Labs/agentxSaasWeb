@@ -1355,13 +1355,25 @@ const LeadDetails = ({
                       <div className="flex flex-row items-start justify-between mt-4  w-full">
                         <div className="flex flex-col items-start gap-[5px] ">
                           <div className="flex flex-row items-center gap-4">
-                            <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                              // onClick={() => handleToggleClick(item.id)}
-                            >
-                              {selectedLeadsDetails?.firstName?.slice(0, 1) ||
-                                '-'}
-                            </div>
+                            {selectedLeadsDetails?.agent ? (
+                              <div className="h-[32px] w-[32px]">
+                                {getAgentsListImage(
+                                  selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
+                                    ? selectedLeadsDetails?.agent?.agents?.[0]
+                                    : selectedLeadsDetails?.agent?.agents?.[1],
+                                  32,
+                                  32,
+                                )}
+                              </div>
+                            ) : (
+                              <div
+                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                // onClick={() => handleToggleClick(item.id)}
+                              >
+                                {selectedLeadsDetails?.firstName?.slice(0, 1) ||
+                                  '-'}
+                              </div>
+                            )}
                             <div
                               className="truncate"
                               // onClick={() => handleToggleClick(item.id)}
@@ -1428,14 +1440,14 @@ const LeadDetails = ({
                                                 alt="*"
                                               />
                                               <div>
-                                                <span className="text-purple">
+                                                <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
                                                 {email.email}
                                               </div>
                                             </div>
                                             <button
-                                              className="text-purple underline"
+                                              className="text-brand-primary underline"
                                               onClick={() => {
                                                 setShowAllEmails(true)
                                               }}
@@ -1456,7 +1468,7 @@ const LeadDetails = ({
                               </div>
                               {/* Send Email Button */}
                               <button
-                                className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
+                                className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary text-brand-primary rounded-lg  ml-4"
                                 onClick={() => {
                                   if (googleAccounts.length === 0) {
                                     setShowAuthSelectionPopup(true)
@@ -1466,13 +1478,22 @@ const LeadDetails = ({
                                 }}
                                 disabled={sendEmailLoader}
                               >
-                                <Image
-                                  src="/otherAssets/sendEmailIcon.png"
-                                  height={18}
-                                  width={18}
-                                  alt="Send Email"
+                                <div
+                                  style={{
+                                    width: 18,
+                                    height: 18,
+                                    backgroundColor: 'hsl(var(--brand-primary))',
+                                    WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                    maskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                  }}
                                 />
-                                <span className="text-purple text-[12px] font-[400]">
+                                <span className="text-brand-primary text-[12px] font-[400]">
                                   Send Email
                                 </span>
                               </button>
@@ -1500,14 +1521,14 @@ const LeadDetails = ({
                                             alt="*"
                                           />
                                           <div className="text-[12px] font-[400]">
-                                            <span className="text-purple text-[15px] font-[400]">
+                                            <span className="text-brand-primary text-[15px] font-[400]">
                                               New
                                             </span>{' '}
                                             {email.email}
                                           </div>
                                         </div>
                                         <button
-                                          className="text-purple underline"
+                                          className="text-brand-primary underline"
                                           onClick={() => {
                                             setShowAllEmails(true)
                                           }}
@@ -1571,7 +1592,7 @@ const LeadDetails = ({
                                       <div className="flex flex-col items-start gap-1">
                                         <span>
                                           <button
-                                            className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
+                                            className="text-brand-primary underline hover:text-brand-primary/80 transition-colors text-left p-0 bg-transparent border-none ml-1"
                                             onClick={() => {
                                               console.log(
                                                 'Upgrade clicked from SMS tooltip',
@@ -1632,7 +1653,7 @@ const LeadDetails = ({
                                     <CircularProgress size={20} />
                                   ) : (
                                     <button
-                                      className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
+                                      className={`flex flex-row border border-brand-primary items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
                                       onClick={() => setShowSMSModal(true)}
                                       disabled={
                                         sendSMSLoader ||
@@ -1641,11 +1662,20 @@ const LeadDetails = ({
                                         phoneNumbers.length == 0
                                       }
                                     >
-                                      <Image
-                                        src="/otherAssets/sendSmsIcon.png"
-                                        height={18}
-                                        width={18}
-                                        alt="Send SMS"
+                                      <div
+                                        style={{
+                                          width: 18,
+                                          height: 18,
+                                          backgroundColor: 'hsl(var(--brand-primary))',
+                                          WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                          maskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                          WebkitMaskSize: 'contain',
+                                          maskSize: 'contain',
+                                          WebkitMaskRepeat: 'no-repeat',
+                                          maskRepeat: 'no-repeat',
+                                          WebkitMaskPosition: 'center',
+                                          maskPosition: 'center',
+                                        }}
                                       />
                                       <span className="text-[12px] font-[400]">
                                         Send Text
@@ -1695,9 +1725,9 @@ const LeadDetails = ({
                                               key={index}
                                               className="flex flex-row items-center gap-2"
                                             >
-                                              <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                              <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
                                                 <div
-                                                  className="text-purple" //1C55FF10
+                                                  className="text-brand-primary" //1C55FF10
                                                 >
                                                   {tag}
                                                 </div>
@@ -1717,7 +1747,7 @@ const LeadDetails = ({
                                                     <X
                                                       size={15}
                                                       weight="bold"
-                                                      color="#7902DF"
+                                                      color="hsl(var(--brand-primary))"
                                                     />
                                                   </button>
                                                 )}
@@ -1738,7 +1768,7 @@ const LeadDetails = ({
                                     >
                                       {selectedLeadsDetails?.tags.length >
                                         2 && (
-                                        <div className="text-purple underline">
+                                        <div className="text-brand-primary underline">
                                           +
                                           {selectedLeadsDetails?.tags.length -
                                             2}
@@ -1877,7 +1907,7 @@ const LeadDetails = ({
                                         className="flex space-x-3 overflow-x-auto items-center"
                                       >
                                         <div className="flex items-center space-x-1">
-                                          <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                          <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
                                             {user?.name?.charAt(0)}
                                           </div>
                                           <span className="text-gray-700 text-sm">
@@ -1936,7 +1966,7 @@ const LeadDetails = ({
                               <div>
                                 {getExtraColumsCount(columnsLength) > 0 ? (
                                   <div
-                                    className="text-purple underline"
+                                    className="text-brand-primary underline"
                                     style={{ fontsize: 15, fontWeight: '500' }}
                                   >
                                     +{getExtraColumsCount(columnsLength)}
@@ -2088,7 +2118,7 @@ const LeadDetails = ({
                                             alt="*"
                                           />
                                           <div>
-                                            <span className="text-purple">
+                                            <span className="text-brand-primary">
                                               New
                                             </span>{' '}
                                             {email?.email}
@@ -2104,7 +2134,7 @@ const LeadDetails = ({
                                   onClick={() => {
                                     setShowAllEmails(false)
                                   }}
-                                  className="h-[50px] rounded-xl bg-purple text-white w-full"
+                                  className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
                                 >
                                   Close
                                 </button>
@@ -2165,9 +2195,9 @@ const LeadDetails = ({
                                         key={index}
                                         className="flex flex-row items-center gap-2"
                                       >
-                                        <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                        <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
                                           <div
-                                            className="text-purple" //1C55FF10
+                                            className="text-brand-primary" //1C55FF10
                                           >
                                             {tag}
                                           </div>
@@ -2185,7 +2215,7 @@ const LeadDetails = ({
                                               <X
                                                 size={15}
                                                 weight="bold"
-                                                color="#7902DF"
+                                                color="hsl(var(--brand-primary))"
                                               />
                                             </button>
                                           )}
@@ -2253,7 +2283,7 @@ const LeadDetails = ({
                               )}
                             </div>
                             <div className="">{myTeamAdmin?.name}</div>
-                            <div className="bg-purple text-white text-sm px-2 rounded-full">
+                            <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                               Admin
                             </div>
                           </div>
@@ -2319,10 +2349,10 @@ const LeadDetails = ({
                         className="outline-none p-2 flex flex-row gap-2"
                         style={{
                           borderBottom: showPerplexityDetails
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                           backgroundColor: showPerplexityDetails
-                            ? '#7902DF05'
+                            ? 'hsl(var(--brand-primary) / 0.05)'
                             : '',
                         }}
                         onClick={() => {
@@ -2332,19 +2362,34 @@ const LeadDetails = ({
                           setShowAcitivityDetails(false)
                         }}
                       >
-                        <Image
-                          src={
-                            showPerplexityDetails
-                              ? '/svgIcons/sparklesPurple.svg'
-                              : '/svgIcons/sparkles.svg'
-                          }
-                          width={20}
-                          height={20}
-                          alt="*"
+                        <div
+                          style={{
+                            width: 20,
+                            height: 20,
+                            backgroundColor: showPerplexityDetails
+                              ? 'hsl(var(--brand-primary))'
+                              : 'transparent',
+                            WebkitMaskImage: `url(${
+                              showPerplexityDetails
+                                ? '/svgIcons/sparklesPurple.svg'
+                                : '/svgIcons/sparkles.svg'
+                            })`,
+                            maskImage: `url(${
+                              showPerplexityDetails
+                                ? '/svgIcons/sparklesPurple.svg'
+                                : '/svgIcons/sparkles.svg'
+                            })`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                         <div
                           style={{
-                            color: showPerplexityDetails ? '#7902DF' : 'black',
+                            color: showPerplexityDetails ? 'hsl(var(--brand-primary))' : 'black',
                           }}
                         >
                           Insights
@@ -2355,9 +2400,9 @@ const LeadDetails = ({
                         className="outline-none p-2 flex flex-row gap-2"
                         style={{
                           borderBottom: showKYCDetails
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
-                          backgroundColor: showKYCDetails ? '#7902DF05' : '',
+                          backgroundColor: showKYCDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
                         }}
                         onClick={() => {
                           setShowPerpelexityDetails(false)
@@ -2366,19 +2411,34 @@ const LeadDetails = ({
                           setShowAcitivityDetails(false)
                         }}
                       >
-                        <Image
-                          src={
-                            showKYCDetails
-                              ? '/svgIcons/selectedKycIcon.svg'
-                              : '/svgIcons/unselectedKycIcon.svg'
-                          }
-                          width={24}
-                          height={24}
-                          alt="*"
+                        <div
+                          style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: showKYCDetails
+                              ? 'hsl(var(--brand-primary))'
+                              : '#000000',
+                            WebkitMaskImage: `url(${
+                              showKYCDetails
+                                ? '/svgIcons/selectedKycIcon.svg'
+                                : '/svgIcons/unselectedKycIcon.svg'
+                            })`,
+                            maskImage: `url(${
+                              showKYCDetails
+                                ? '/svgIcons/selectedKycIcon.svg'
+                                : '/svgIcons/unselectedKycIcon.svg'
+                            })`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                         <div
                           style={{
-                            color: showKYCDetails ? '#7902DF' : 'black',
+                            color: showKYCDetails ? 'hsl(var(--brand-primary))' : 'black',
                           }}
                         >
                           KYC
@@ -2389,10 +2449,10 @@ const LeadDetails = ({
                         className="outline-none p-2 flex flex-row gap-2"
                         style={{
                           borderBottom: showAcitivityDetails
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
                           backgroundColor: showAcitivityDetails
-                            ? '#7902DF05'
+                            ? 'hsl(var(--brand-primary) / 0.05)'
                             : '',
                         }}
                         onClick={() => {
@@ -2402,19 +2462,34 @@ const LeadDetails = ({
                           setShowAcitivityDetails(true)
                         }}
                       >
-                        <Image
-                          src={
-                            showAcitivityDetails
-                              ? '/svgIcons/selectedActivityIcon.svg'
-                              : '/svgIcons/unselectedActivityIcon.svg'
-                          }
-                          width={24}
-                          height={24}
-                          alt="*"
+                        <div
+                          style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: showAcitivityDetails
+                              ? 'hsl(var(--brand-primary))'
+                              : '#000000',
+                            WebkitMaskImage: `url(${
+                              showAcitivityDetails
+                                ? '/svgIcons/selectedActivityIcon.svg'
+                                : '/svgIcons/unselectedActivityIcon.svg'
+                            })`,
+                            maskImage: `url(${
+                              showAcitivityDetails
+                                ? '/svgIcons/selectedActivityIcon.svg'
+                                : '/svgIcons/unselectedActivityIcon.svg'
+                            })`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                         <div
                           style={{
-                            color: showAcitivityDetails ? '#7902DF' : 'black',
+                            color: showAcitivityDetails ? 'hsl(var(--brand-primary))' : 'black',
                           }}
                         >
                           Activity
@@ -2425,9 +2500,9 @@ const LeadDetails = ({
                         className="outline-none p-2 flex flex-row gap-2"
                         style={{
                           borderBottom: showNotesDetails
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
-                          backgroundColor: showNotesDetails ? '#7902DF05' : '',
+                          backgroundColor: showNotesDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
                         }}
                         onClick={() => {
                           setShowPerpelexityDetails(false)
@@ -2436,19 +2511,34 @@ const LeadDetails = ({
                           setShowAcitivityDetails(false)
                         }}
                       >
-                        <Image
-                          src={
-                            showNotesDetails
-                              ? '/svgIcons/selectedNotesIcon.svg'
-                              : '/svgIcons/unselectedNotesIcon.svg'
-                          }
-                          width={24}
-                          height={24}
-                          alt="*"
+                        <div
+                          style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: showNotesDetails
+                              ? 'hsl(var(--brand-primary))'
+                              : '#000000',
+                            WebkitMaskImage: `url(${
+                              showNotesDetails
+                                ? '/svgIcons/selectedNotesIcon.svg'
+                                : '/svgIcons/unselectedNotesIcon.svg'
+                            })`,
+                            maskImage: `url(${
+                              showNotesDetails
+                                ? '/svgIcons/selectedNotesIcon.svg'
+                                : '/svgIcons/unselectedNotesIcon.svg'
+                            })`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                         <div
                           style={{
-                            color: showNotesDetails ? '#7902DF' : 'black',
+                            color: showNotesDetails ? 'hsl(var(--brand-primary))' : 'black',
                           }}
                         >
                           Notes
@@ -2525,7 +2615,7 @@ const LeadDetails = ({
                                     ></div>
                                     <div className="h-full w-full">
                                       {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>
+                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-brand-primary'>
                                                 {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
                                             </span>
                                         </div> */}
@@ -2599,8 +2689,8 @@ const LeadDetails = ({
                                   setShowAddNotes(true)
                                 }}
                               >
-                                <Plus size={17} color="#7902DF" weight="bold" />
-                                <div className="text-purple">Add Notes</div>
+                                <Plus size={17} color="hsl(var(--brand-primary))" weight="bold" />
+                                <div className="text-brand-primary">Add Notes</div>
                               </button>
                             </div>
                           ) : (
@@ -2653,10 +2743,10 @@ const LeadDetails = ({
                                 >
                                   <Plus
                                     size={17}
-                                    color="#7902DF"
+                                    color="hsl(var(--brand-primary))"
                                     weight="bold"
                                   />
-                                  <div className="text-purple">Add Notes</div>
+                                  <div className="text-brand-primary">Add Notes</div>
                                 </button>
                               </div>
                             </div>
@@ -3135,7 +3225,7 @@ const LeadDetails = ({
                   <CircularProgress size={25} />
                 ) : (
                   <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                    className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-6/12"
                     style={{
                       fontWeight: '600',
                       fontsize: 16,
@@ -3180,7 +3270,7 @@ const LeadDetails = ({
                 Your browser does not support the audio element.
               </audio>
               <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
                 onClick={() => {
                   setShowNoAudioPlay(false)
                 }}
@@ -3224,7 +3314,7 @@ const LeadDetails = ({
                 Your browser does not support the audio element.
               </audio>
               <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
                 onClick={() => {
                   setShowAudioPlay(null);
                 }}
@@ -3288,7 +3378,7 @@ const LeadDetails = ({
               {/* Buttons */}
 
               <button
-                className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
+                className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
                 style={{ fontWeight: '600', fontSize: 15 }}
                 onClick={() => {
                   setShowAudioPlay(null)

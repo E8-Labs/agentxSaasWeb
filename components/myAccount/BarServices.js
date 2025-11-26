@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys, XBarPlans } from '@/constants/Constants'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -71,6 +72,7 @@ function BarServices() {
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false)
   const [role, setRole] = useState('')
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   useEffect(() => {
     let screenWidth = 1000
@@ -137,6 +139,10 @@ function BarServices() {
         let response = await getProfileDetails()
 
         setRole(response?.data?.data?.userRole)
+        // Check if user is subaccount
+        if (response?.data?.data?.userRole === 'AgencySubAccount') {
+          setIsSubaccount(true)
+        }
         if (response) {
           let togglePlan = response?.data?.data?.supportPlan
           console.log('response of get ', togglePlan)
@@ -389,7 +395,8 @@ function BarServices() {
         <div
           className="w-10/12 p-4 rounded-lg flex flex-row items-center"
           style={{
-            backgroundImage: 'url(/svgIcons/cardBg.svg)',
+            backgroundImage: isSubaccount ? 'none' : 'url(/svgIcons/cardBg.svg)',
+            backgroundColor: isSubaccount ? 'hsl(var(--brand-primary) / 0.15)' : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -427,7 +434,7 @@ function BarServices() {
             <div className="flex flex-row justify-between mt-2">
               <div></div>
               <button
-                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium"
                 onClick={(e) => {
                   //console.log;
                   let url = PersistanceKeys.HireTeamUrl
@@ -443,7 +450,14 @@ function BarServices() {
           </div>
         </div>
 
-        <div
+        <RadioGroup
+          value={togglePlan?.toString() || ''}
+          onValueChange={(value) => {
+            const plan = plans.find((p) => p.id.toString() === value)
+            if (plan) {
+              handleTogglePlanClick(plan)
+            }
+          }}
           className="w-9/12 max-h-[25%] overflow-y-auto scrollbar-hide md:max-h-[38%] lg:max-h-[50%]"
           style={{
             scrollbarWidth: 'none',
@@ -451,11 +465,10 @@ function BarServices() {
           }}
         >
           {plans.map((item, index) => (
-            <button
+            <div
               key={item.id}
-              className="w-full mt-4 outline-none"
+              className="w-full mt-4"
               onClick={(e) => handleTogglePlanClick(item)}
-              disabled={item.id === togglePlan}
             >
               <div
                 className="px-4 py-1 pb-4"
@@ -480,23 +493,13 @@ function BarServices() {
                   style={styles.content}
                 >
                   <div className="mt-1">
-                    <div>
-                      {item.id === togglePlan ? (
-                        <Image
-                          src={'/svgIcons/checkMark.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={'/svgIcons/unCheck.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      )}
-                    </div>
+                    <label htmlFor={`plan-${item.id}`} className="cursor-pointer">
+                      <RadioGroupItem
+                        value={item.id.toString()}
+                        id={`plan-${item.id}`}
+                        className="h-6 w-6"
+                      />
+                    </label>
                   </div>
                   <div className="w-full">
                     {/* {item.id === currentPlan && (
@@ -567,9 +570,9 @@ function BarServices() {
                   </div>
                 </div>
               </div>
-            </button>
+            </div>
           ))}
-        </div>
+        </RadioGroup>
 
         <div className="flex flex-col w-full pb-6 items-center justify-center">
           {subscribePlanLoader ? (

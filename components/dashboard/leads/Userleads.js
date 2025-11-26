@@ -1360,7 +1360,7 @@ const Userleads = ({
         // //console.log;
         return (
           <button
-            className="underline text-purple"
+            className="underline text-brand-primary"
             onClick={() => {
               // //console.log;
               setSelectedLeadsDetails(item) // Pass selected lead data
@@ -1913,7 +1913,7 @@ const Userleads = ({
                 style={{
                   backgroundColor:
                     selectedLeadsList.length > 0 || selectedAll
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '',
                   color:
                     selectedLeadsList.length > 0 || selectedAll
@@ -2090,7 +2090,7 @@ const Userleads = ({
                       return (
                         <div className="flex-shrink-0" key={filter.key + index}>
                           <div
-                            className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
+                            className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                             style={{ fontWeight: '500', fontSize: 15 }}
                           >
                             {getFilterTitle(filter)}
@@ -2156,10 +2156,10 @@ const Userleads = ({
 
                 <div className="flex flex-row items-center gap-2">
                   {exportLoading ? (
-                    <CircularProgress size={24} sx={{ color: '#7902DF' }} />
+                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
-                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
+                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
                       style={{ fontWeight: 400, fontSize: 14 }}
                       onClick={() => {
                         handleExportLeads()
@@ -2216,7 +2216,7 @@ const Userleads = ({
                             </div>
 
                             <div
-                              className="text-purple"
+                              className="text-brand-primary"
                               style={{
                                 fontSize: '15',
                                 fontWeight: '600',
@@ -2290,9 +2290,9 @@ const Userleads = ({
                         style={{
                           borderBottom:
                             SelectedSheetId === item.id
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
-                          color: SelectedSheetId === item.id ? '#7902DF' : '',
+                          color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                           whiteSpace: 'nowrap', // Prevent text wrapping
                         }}
                         // className='flex flex-row items-center gap-1 px-3'
@@ -2353,7 +2353,7 @@ const Userleads = ({
                             {delSmartListLoader ? (
                               <CircularProgress
                                 size={15}
-                                sx={{ color: '#7902DF' }}
+                                sx={{ color: 'hsl(var(--brand-primary))' }}
                               />
                             ) : (
                               <button
@@ -2381,7 +2381,7 @@ const Userleads = ({
                   })}
                 </div>
                 <button
-                  className="flex flex-row items-center gap-1 text-purple flex-shrink-0"
+                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
                   style={styles.paragraph}
                   // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
@@ -2403,7 +2403,7 @@ const Userleads = ({
                     }
                   }}
                 >
-                  <Plus size={15} color="#7902DF" weight="bold" />
+                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
                   <span>New Leads</span>
                 </button>
               </div>

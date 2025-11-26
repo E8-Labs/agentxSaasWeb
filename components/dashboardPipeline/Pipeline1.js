@@ -2519,15 +2519,11 @@ const Pipeline1 = () => {
                                         }}
                                       >
                                         {/* T is center aligned */}
-                                        <div
-                                          className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                          style={{
-                                            height: '27px',
-                                            width: '27px',
-                                          }}
-                                        >
-                                          {lead.lead.firstName.slice(0, 1)}
-                                        </div>
+                                        {getAgentsListImage(
+                                          lead.lead,
+                                          27,
+                                          27,
+                                        )}
                                         <div style={styles.paragraph}>
                                           {lead.lead.firstName}
                                         </div>
@@ -2562,14 +2558,16 @@ const Pipeline1 = () => {
                                           : '') || ''}
                                       </div>
                                       <div className="flex flex-row items-center gap-4">
-                                        <Image
-                                          src={'/assets/colorCircle.png'}
-                                          height={24}
-                                          width={24}
-                                          alt="*"
-                                        />
+                                        {getAgentsListImage(
+                                          lead.agent?.agents[0]?.agentType ===
+                                            'outbound'
+                                            ? lead.agent?.agents[0]
+                                            : lead.agent?.agents[1],
+                                          24,
+                                          24,
+                                        )}
                                         <div
-                                          className="text-purple underline"
+                                          className="text-brand-primary underline"
                                           style={styles.agentName}
                                         >
                                           {lead.agent?.agents[0]?.agentType ===
@@ -2672,10 +2670,13 @@ const Pipeline1 = () => {
                                                 // </div>
                                                 <div
                                                   key={index}
-                                                  className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                                  className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                                  style={{
+                                                    backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                                  }}
                                                 >
                                                   <div
-                                                    className="text-purple" //1C55FF10
+                                                    className="text-brand-primary" //1C55FF10
                                                   >
                                                     {tagVal.length > 4 ? (
                                                       <div
@@ -2740,7 +2741,7 @@ const Pipeline1 = () => {
                                                       <X
                                                         size={15}
                                                         weight="bold"
-                                                        color="#7902DF"
+                                                        color="hsl(var(--brand-primary))"
                                                       />
                                                     </button>
                                                   )}
@@ -2985,7 +2986,7 @@ const Pipeline1 = () => {
                     <ColorPicker setStageColor={setStageColor} />
                   </div>
 
-                  <div className="text-purple mt-4">
+                  <div className="text-brand-primary mt-4">
                     <button
                       onClick={() => {
                         setShowAdvanceSettings(!showAdvanceSettings)
@@ -3018,6 +3019,7 @@ const Pipeline1 = () => {
                           height={20}
                           width={20}
                           alt="*"
+                          style={{ filter: 'brightness(0)' }}
                           aria-owns={open ? 'mouse-over-popover' : undefined}
                           aria-haspopup="true"
                           onMouseEnter={handlePopoverOpen}
@@ -3055,6 +3057,7 @@ const Pipeline1 = () => {
                                 height={24}
                                 width={24}
                                 alt="*"
+                                style={{ filter: 'brightness(0)' }}
                               />
                               <p style={{ fontWeight: '500', fontSize: 12 }}>
                                 Tip: Tell your AI when to move the leads to this
@@ -3107,6 +3110,7 @@ const Pipeline1 = () => {
                           height={20}
                           width={20}
                           alt="*"
+                          style={{ filter: 'brightness(0)' }}
                           aria-owns={open ? 'mouse-over-popover2' : undefined}
                           aria-haspopup="true"
                           onMouseEnter={(event) => {
@@ -3179,6 +3183,7 @@ const Pipeline1 = () => {
                             height={20}
                             width={20}
                             alt="*"
+                            style={{ filter: 'brightness(0)' }}
                             aria-owns={open ? 'mouse-over-popover2' : undefined}
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
@@ -3219,6 +3224,7 @@ const Pipeline1 = () => {
                                 height={24}
                                 width={24}
                                 alt="*"
+                                style={{ filter: 'brightness(0)' }}
                               />
                               <p style={{ fontWeight: '500', fontSize: 12 }}>
                                 {showSampleTip
@@ -3313,7 +3319,7 @@ const Pipeline1 = () => {
                                     )}
                                     {item.invitedUser?.name}
                                     {item.id === -1 && (
-                                      <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                      <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                         Admin
                                       </div>
                                     )}
@@ -3355,7 +3361,7 @@ const Pipeline1 = () => {
                           <button
                             className="mt-4 outline-none"
                             style={{
-                              backgroundColor: '#7902DF',
+                              backgroundColor: 'hsl(var(--brand-primary))',
                               color: 'white',
                               height: '50px',
                               borderRadius: '10px',
