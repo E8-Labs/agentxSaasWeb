@@ -59,7 +59,10 @@ const TwilioTrustHub = ({
 
     useEffect(() => {
         let data = getUserLocalData()
+        console.log('Data Of LocalUser = ', data)
         if (data) {
+          
+          console.log('Data Of LocalUser User Plan Capabilities = ', data.user.planCapabilities?.allowTwilioTrustHub)
             let isFree = !data.user.planCapabilities?.allowTwilioTrustHub || false//allowTwilioIntegration
             setIsFreePlan(isFree)
             console.log('isFree', isFree)
