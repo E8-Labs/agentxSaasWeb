@@ -4411,20 +4411,17 @@ const [featureTitle, setFeatureTitle] = useState("");
                     />
                   </div>
                 </div>
-              ) : activeTab === "Actions" ? (
-                selectedUser?.agencyCapabilities?.allowToolsAndActions === false ? (
+              ) :   activeTab === 'Actions' ? (
+                !selectedUser?.planCapabilities?.allowToolsAndActions &&
+                  selectedUser?.userRole !== 'AgencySubAccount' ? (
                   <UpgardView
                     setShowSnackMsg={setShowSnackMsg}
-                    title={"Unlock Actions"}
-                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                    title={'Unlock Actions'}
+                    subTitle={
+                      'Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools.'
+                    }
                   />
-                ) : !selectedUser?.planCapabilities?.allowToolsAndActions ? (
-                  <UpgardView
-                    setShowSnackMsg={setShowSnackMsg}
-                    title={"Unlock Actions"}
-                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
-                  />
-                ) :
+                ) : (
                   <div className="w-full">
                     <div
                       className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
@@ -4471,6 +4468,7 @@ const [featureTitle, setFeatureTitle] = useState("");
   
                   />*/}
                   </div>
+                )
               ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">
                   <PiepelineAdnStage
