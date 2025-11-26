@@ -74,7 +74,7 @@ const DashboardSlider = ({
     {
       id: 4,
       label: 'Give Feedback',
-      image: '/svgIcons/feedBackIcon.svg',
+      image: '/svgIcons/feedbackIcon.svg',
       image2: '/svgIcons/feedBackIconBlue.svg',
       url: PersistanceKeys.FeedbackFormUrl,
     },
@@ -224,7 +224,7 @@ const DashboardSlider = ({
           id: crypto.randomUUID(),
           label: Data.giveFeedbackTitle || 'Give Feedback',
           url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
-          image: '/svgIcons/feedBackIcon.svg',
+          image: '/svgIcons/feedbackIcon.svg',
           image2: '/svgIcons/feedBackIconBlue.svg',
         })
       }
