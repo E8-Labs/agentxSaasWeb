@@ -4488,7 +4488,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 </div>
               ) : activeTab === 'Actions' ? (
                 !selectedUser?.planCapabilities?.allowToolsAndActions &&
-                  reduxUser?.userRole !== 'AgencySubAccount' ? (
+                  selectedUser?.userRole !== 'AgencySubAccount' ? (
                   <UpgardView
                     setShowSnackMsg={setShowSnackMsg}
                     title={'Unlock Actions'}
