@@ -153,7 +153,7 @@ export const EditPhoneNumberModal = ({
             </div>
           ) : (
             <button
-              className={`w-full outline-none bg-purple h-[52px] rounded-lg ${errorMessage ? 'bg-[#E0E0E0] text-black' : 'bg-purple text-white'}`}
+              className={`w-full outline-none bg-brand-primary h-[52px] rounded-lg ${errorMessage ? 'bg-[#E0E0E0] text-black' : 'bg-brand-primary text-white'}`}
               disabled={errorMessage}
               onClick={() => {
                 if (!errorMessage) {

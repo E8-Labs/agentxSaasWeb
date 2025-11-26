@@ -12,15 +12,30 @@ import CreateAgent4 from '@/components/createagent/CreateAgent4'
 import CreateAgentVoice from '@/components/createagent/CreateAgentVoice'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
 import AppLogo from '@/components/common/AppLogo'
+import { PersistanceKeys } from '@/constants/Constants'
 
 const Page = () => {
   const [index, setIndex] = useState(0)
   const [width, setWidth] = useState(410)
+  const [isSubAccount, setIsSubAccount] = useState(false)
   // let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice];
 
   useEffect(() => {
     if (typeof window != 'undefined') {
       setWidth(window.innerWidth)
+    }
+    // Check if user is a subaccount
+    const localData = localStorage.getItem('User')
+    if (localData) {
+      const userData = JSON.parse(localData)
+      if (userData?.user?.userRole === 'AgencySubAccount') {
+        setIsSubAccount(true)
+      }
+    }
+    // Also check SubaccoutDetails
+    const subAccountData = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
+    if (subAccountData) {
+      setIsSubAccount(true)
     }
   }, [])
 
@@ -59,7 +74,7 @@ const Page = () => {
         alt="logo"
       />
       <div className="-mt-4 w-full ">
-        <DesktopView width={width} />
+        <DesktopView width={width} isSubAccount={isSubAccount} />
       </div>
       <div
         style={{ width: '100%' }}
@@ -135,7 +150,7 @@ const Page = () => {
 
 export default Page
 
-const DesktopView = ({ width }) => {
+const DesktopView = ({ width, isSubAccount = false }) => {
   return (
     <div className="">
       <div
@@ -162,54 +177,58 @@ const DesktopView = ({ width }) => {
         />
       </div>
 
-      <div
-        style={{
-          position: 'absolute',
-          top: '45%', // Adjust this value to move it higher
-          left: '50%',
-          transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
-          width: '95%', // Set the width to 86%
-          zIndex: 0, // Ensure it stays behind content
-        }}
-      >
-        <Image
-          height={100}
-          width={100}
-          alt="*"
-          style={{
-            position: 'absolute',
-            top: '37%', // Adjust this value to move it higher
-            left: '50%',
-            transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
-            height: '160px',
-            width: '165px',
-            zIndex: 0, // Ensure it stays behind content
-          }}
-          src={'/assets/salmanassets/orbShadow.png'}
-          layout="intrinsic"
-        />
-      </div>
+      {!isSubAccount && (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              top: '45%', // Adjust this value to move it higher
+              left: '50%',
+              transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
+              width: '95%', // Set the width to 86%
+              zIndex: 0, // Ensure it stays behind content
+            }}
+          >
+            <Image
+              height={100}
+              width={100}
+              alt="*"
+              style={{
+                position: 'absolute',
+                top: '37%', // Adjust this value to move it higher
+                left: '50%',
+                transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
+                height: '160px',
+                width: '165px',
+                zIndex: 0, // Ensure it stays behind content
+              }}
+              src={'/assets/salmanassets/orbShadow.png'}
+              layout="intrinsic"
+            />
+          </div>
 
-      <div className="w-full flex flex-row justify-center  ">
-        <Image
-          className="mix-blend-multiply" //mix-blend-multiply
-          src="/agentXOrb.gif"
-          style={{
-            position: 'absolute',
-            top: '37%', // Adjust this value to move it higher
-            left: '50%',
-            transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
-            // width: "95%", // Set the width to 86%
-            zIndex: 0, // Ensure it stays behind content
-            height: '140px',
-            width: '145px',
-            resize: 'contain',
-          }}
-          height={69}
-          width={69}
-          alt="*"
-        />
-      </div>
+          <div className="w-full flex flex-row justify-center  ">
+            <Image
+              className="mix-blend-multiply" //mix-blend-multiply
+              src="/agentXOrb.gif"
+              style={{
+                position: 'absolute',
+                top: '37%', // Adjust this value to move it higher
+                left: '50%',
+                transform: 'translate(-50%, -50%)', // Shift from center but more towards the top
+                // width: "95%", // Set the width to 86%
+                zIndex: 0, // Ensure it stays behind content
+                height: '140px',
+                width: '145px',
+                resize: 'contain',
+              }}
+              height={69}
+              width={69}
+              alt="*"
+            />
+          </div>
+        </>
+      )}
     </div>
   )
 }

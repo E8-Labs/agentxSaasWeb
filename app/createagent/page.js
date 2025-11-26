@@ -252,7 +252,17 @@ const Page = () => {
                 zIndex: -1, // Ensure the video stays behind content
               }}
             >
-              <BackgroundVideo />
+              {subAccount ? (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    background: `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`,
+                  }}
+                />
+              ) : (
+                <BackgroundVideo />
+              )}
             </div>
           )}
           <CurrentComp

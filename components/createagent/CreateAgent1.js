@@ -886,6 +886,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         height={20}
                         width={20}
                         alt="*"
+                        style={{ filter: 'brightness(0)' }}
                       />
                     </div>
                   </div>
@@ -973,6 +974,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         height={24}
                         width={24}
                         alt="*"
+                        style={{ filter: 'var(--icon-filter)' }}
                       />
                     )}
                     <div
@@ -1009,6 +1011,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         height={24}
                         width={24}
                         alt="*"
+                        style={{ filter: 'var(--icon-filter)' }}
                       />
                     )}
                     <div

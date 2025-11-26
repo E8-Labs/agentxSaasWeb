@@ -4613,6 +4613,11 @@ function Page() {
                                       ? { pointerEvents: 'auto' }
                                       : {}
                                   }
+                                  sx={{
+                                    '&:hover': {
+                                      backgroundColor: '#F5F5F5',
+                                    },
+                                  }}
                                 >
                                   <Image
                                     src={item?.flag}
@@ -4621,11 +4626,13 @@ function Page() {
                                     width={22}
                                   />
                                   <div>{item?.title}</div>
-                                  <div
-                                    style={{ color: '#00000060', fontSize: 13 }}
-                                  >
-                                    {item.subLang}
-                                  </div>
+                                  {item.value !== 'multi' && item.subLang && (
+                                    <div
+                                      style={{ color: '#00000060', fontSize: 13 }}
+                                    >
+                                      {item.subLang}
+                                    </div>
+                                  )}
 
                                   {item.value === 'multi' &&
                                     // Combined check - Redux first, localStorage fallback

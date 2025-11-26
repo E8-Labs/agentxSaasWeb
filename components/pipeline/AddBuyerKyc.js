@@ -10,6 +10,7 @@ import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 
@@ -730,9 +731,11 @@ const AddBuyerKyc = ({
               {KYCQuestionType.map((item, index) => (
                 <button
                   key={item.id}
+                  className="pb-2"
                   style={{
                     ...styles.inputStyle,
                     color: item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
+                    borderBottom: item.id === toggleClick ? '2px solid hsl(var(--brand-primary))' : '2px solid transparent',
                   }}
                   onClick={(e) => {
                     handleToggleClick(item.id)
@@ -741,32 +744,6 @@ const AddBuyerKyc = ({
                   {item.title}
                 </button>
               ))}
-            </div>
-            <div>
-              {toggleClick === 1 ? (
-                <Image
-                  src={'/assets/needKYC.png'}
-                  height={5}
-                  width={303}
-                  alt="*"
-                />
-              ) : toggleClick === 2 ? (
-                <Image
-                  src={'/assets/motivationKyc.png'}
-                  height={5}
-                  width={303}
-                  alt="*"
-                />
-              ) : toggleClick === 3 ? (
-                <Image
-                  src={'/assets/urgencyKyc.png'}
-                  height={8}
-                  width={310}
-                  alt="*"
-                />
-              ) : (
-                ''
-              )}
             </div>
 
             {toggleClick === 1 ? (
@@ -796,26 +773,15 @@ const AddBuyerKyc = ({
                       {item.question}
                     </div>
                     <div
-                      className="outline-none border-none"
+                      className="outline-none border-none flex items-center justify-center"
                       style={{ width: '10%' }}
                     >
-                      {selectedNeedKYC.some(
-                        (selectedItem) => selectedItem.id === item.id,
-                      ) ? (
-                        <Image
-                          src={'/assets/charmTick.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={'/assets/charmUnMark.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      )}
+                      <Checkbox
+                        checked={selectedNeedKYC.some(
+                          (selectedItem) => selectedItem.id === item.id,
+                        )}
+                        className="h-5 w-5"
+                      />
                     </div>
                   </button>
                 ))}
@@ -847,26 +813,15 @@ const AddBuyerKyc = ({
                       {item.question}
                     </div>
                     <div
-                      className="outline-none border-none"
+                      className="outline-none border-none flex items-center justify-center"
                       style={{ width: '10%' }}
                     >
-                      {selectedMotivationKyc.some(
-                        (selectedItem) => selectedItem.id === item.id,
-                      ) ? (
-                        <Image
-                          src={'/assets/charmTick.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={'/assets/charmUnMark.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      )}
+                      <Checkbox
+                        checked={selectedMotivationKyc.some(
+                          (selectedItem) => selectedItem.id === item.id,
+                        )}
+                        className="h-5 w-5"
+                      />
                     </div>
                   </button>
                 ))}
@@ -898,26 +853,15 @@ const AddBuyerKyc = ({
                       {item.question}
                     </div>
                     <div
-                      className="outline-none border-none"
+                      className="outline-none border-none flex items-center justify-center"
                       style={{ width: '10%' }}
                     >
-                      {selectedUrgencyKyc.some(
-                        (selectedItem) => selectedItem.id === item.id,
-                      ) ? (
-                        <Image
-                          src={'/assets/charmTick.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={'/assets/charmUnMark.png'}
-                          height={35}
-                          width={35}
-                          alt="*"
-                        />
-                      )}
+                      <Checkbox
+                        checked={selectedUrgencyKyc.some(
+                          (selectedItem) => selectedItem.id === item.id,
+                        )}
+                        className="h-5 w-5"
+                      />
                     </div>
                   </button>
                 ))}

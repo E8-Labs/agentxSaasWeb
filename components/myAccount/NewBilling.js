@@ -1519,7 +1519,7 @@ function NewBilling() {
           fontSize: 16,
           fontWeight: '700',
           flexShrink: 0,
-          backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
+          backgroundColor: '#7902DF',
           color: '#ffffff',
         },
       }
@@ -1604,7 +1604,7 @@ function NewBilling() {
           }}
         >
           <div
-            className="text-brand-primary hover:text-brand-primary/80 underline transition-colors"
+            className="text-purple hover:text-purple/80 underline transition-colors"
             style={{
               fontSize: 15,
               fontWeight: '500',
@@ -1664,14 +1664,14 @@ function NewBilling() {
                               : 'transparent',
                           borderColor:
                             item.isDefault || selectedCard?.id === item.id
-                              ? 'hsl(var(--brand-primary, 270 75% 50%))'
+                              ? '#7902DF'
                               : '#15151510',
                         }}
                       >
                         <div className="flex items-center gap-4">
                           <RadioGroupItem
                             value={item.id?.toString() || ''}
-                            className="h-5 w-5 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                            className="h-5 w-5 border-2 data-[state=checked]:bg-purple data-[state=checked]:border-purple"
                           />
                           {/* Card Details */}
                           <div className="flex flex-col items-start">
@@ -1692,7 +1692,7 @@ function NewBilling() {
 
                                 item.isDefault && (
                                   <div
-                                    className="flex px-2 py-1 rounded-full bg-brand-primary text-white text-[10]"
+                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
                                     style={{ fontSize: 11, fontWeight: '500' }}
                                   >
                                     Default
@@ -1812,9 +1812,9 @@ function NewBilling() {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
+                    ? '2px solid #7902DF'
                     : '1px solid #15151520',
-                backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)' : '',
+                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
                 minHeight: '320px', // Further increased height for better feature accommodation
               }}
             >
@@ -1823,7 +1823,7 @@ function NewBilling() {
                   <div className="flex flex-row items-center w-full justify-between mb-3">
                     <Checkbox
                       checked={item.id === togglePlan}
-                      className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      className="h-6 w-6 border-2 data-[state=checked]:bg-purple data-[state=checked]:border-purple"
                     />
 
                     {isPaused && item.id === currentPlan ? (
@@ -1910,7 +1910,7 @@ function NewBilling() {
                           >
                             <Checkbox
                               checked={true}
-                              className="h-4 w-4 mt-0.5 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                              className="h-4 w-4 mt-0.5 flex-shrink-0 border-2 data-[state=checked]:bg-purple data-[state=checked]:border-purple"
                             />
                             <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                               {
@@ -1972,7 +1972,7 @@ function NewBilling() {
                   {item.id === currentPlan &&
                     userLocalData?.plan?.status !== 'cancelled' && (
                       <div
-                        className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
+                        className="flex px-2 py-1 bg-purple rounded-full text-white"
                         style={{
                           fontSize: 9,
                           fontWeight: '600',
@@ -1984,7 +1984,7 @@ function NewBilling() {
                     )}
 
                   <div
-                    className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline text-brand-primary"
+                    className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline text-purple"
                     onClick={(e) => {
                       // e.stopPropagation();
                       console.log('View Details clicked, opening modal')
@@ -2167,7 +2167,7 @@ function NewBilling() {
               <div
                 className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin`}
                 style={{
-                  scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+                  scrollbarColor: '#7902DF transparent',
                 }}
               >
                 <Elements stripe={stripePromise}>
@@ -2318,7 +2318,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
+    borderTop: '50px solid #7902DF', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -2336,7 +2336,7 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
+    color: '#7902DF65',
     fontSize: 18,
     fontWeight: '600',
   },

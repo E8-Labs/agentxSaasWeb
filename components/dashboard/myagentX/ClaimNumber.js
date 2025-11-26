@@ -9,6 +9,7 @@ import Apis from '@/components/apis/Apis'
 import { getUserLocalData } from '@/components/constants/constants'
 import PurchaseNumberSuccess from '@/components/createagent/PurchaseNumberSuccess'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -368,11 +369,11 @@ const ClaimNumber = ({
                                 style={{
                                   border:
                                     index === selectedPurchasedIndex
-                                      ? '2px solid #7902DF'
+                                      ? '2px solid hsl(var(--brand-primary))'
                                       : '1px solid #00000020',
                                   backgroundColor:
                                     index === selectedPurchasedIndex
-                                      ? '#402FFF05'
+                                      ? 'hsl(var(--brand-primary) / 0.05)'
                                       : '',
                                 }}
                               >
@@ -398,21 +399,10 @@ const ClaimNumber = ({
                                       ${item.price}/mo
                                     </div>
                                     <div>
-                                      {index == selectedPurchasedIndex ? (
-                                        <Image
-                                          src={'/assets/charmTick.png'}
-                                          height={35}
-                                          width={35}
-                                          alt="*"
-                                        />
-                                      ) : (
-                                        <Image
-                                          src={'/assets/charmUnMark.png'}
-                                          height={35}
-                                          width={35}
-                                          alt="*"
-                                        />
-                                      )}
+                                      <Checkbox
+                                        checked={index === selectedPurchasedIndex}
+                                        className="h-5 w-5"
+                                      />
                                     </div>
                                   </div>
                                 </button>
@@ -444,7 +434,7 @@ const ClaimNumber = ({
                       <div>
                         {selectedPurchasedNumber && (
                           <button
-                            className="text-white bg-purple w-full h-[50px] rounded-lg"
+                            className="text-white bg-brand-primary w-full h-[50px] rounded-lg"
                             onClick={() => {
                               let userData = getUserLocalData()
                               if (userData) {
