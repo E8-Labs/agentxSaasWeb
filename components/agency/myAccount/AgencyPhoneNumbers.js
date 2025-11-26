@@ -232,9 +232,8 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         <Button
           variant="contained"
           onClick={() => setShowClaimPopup(true)}
+          className="bg-brand-primary text-white"
           style={{
-            backgroundColor: '#7902DF',
-            color: '#fff',
             textTransform: 'none',
             minWidth: '150px',
           }}
@@ -284,7 +283,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       {/* Phone Numbers List */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <CircularProgress style={{ color: '#7902DF' }} />
+          <CircularProgress style={{ color: 'hsl(var(--brand-primary))' }} />
         </div>
       ) : phoneNumbers.length === 0 ? (
         <div
@@ -314,8 +313,8 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 key={number.id}
                 className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
-                  borderColor: isGlobal ? '#7902DF' : isDisabled ? '#d0d0d0' : '#e0e0e0',
-                  backgroundColor: isGlobal ? '#7902DF10' : isDisabled ? '#f9f9f9' : '#fff',
+                  borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
+                  backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
                   opacity: isDisabled ? 0.7 : 1,
                 }}
               >
@@ -324,8 +323,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                   <div className="flex items-center gap-3 mb-2">
                     {isGlobal && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
-                        style={{ backgroundColor: '#7902DF', color: '#fff' }}
+                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-brand-primary text-white"
                       >
                         Global Number
                       </div>
@@ -393,9 +391,8 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       variant="contained"
                       onClick={() => handleSetGlobalNumber(number.id)}
                       disabled={isLoading}
+                      className="bg-brand-primary text-white"
                       style={{
-                        backgroundColor: '#7902DF',
-                        color: '#fff',
                         textTransform: 'none',
                         minWidth: '100px',
                       }}

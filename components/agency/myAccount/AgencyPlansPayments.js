@@ -31,6 +31,8 @@ import { ScrollBarCss } from '@/constants/Constants'
 import AppLogo from '@/components/common/AppLogo'
 import { useUser } from '@/hooks/redux-hooks'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 import SmartRefillCard from '../agencyExtras.js/SmartRefillCard'
 import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
@@ -1286,14 +1288,29 @@ function AgencyPlansPayments({ selectedAgency }) {
                       >
                         <div className="flex items-center gap-4">
                           <div
-                            className={`w-5 h-5 rounded-full border border-brand-primary flex items-center justify-center`} //border-[#2548FD]
+                            className={`w-5 h-5 rounded-full border flex items-center justify-center`}
                             style={{
                               borderWidth:
                                 item.isDefault || selectedCard?.id === item.id
                                   ? 3
                                   : 1,
+                              borderColor: item.isDefault || selectedCard?.id === item.id
+                                ? 'hsl(var(--brand-primary))'
+                                : 'hsl(var(--brand-primary) / 0.3)',
+                              backgroundColor: item.isDefault || selectedCard?.id === item.id
+                                ? 'hsl(var(--brand-primary))'
+                                : 'transparent',
                             }}
-                          ></div>
+                          >
+                            {(item.isDefault || selectedCard?.id === item.id) && (
+                              <div
+                                className="w-2 h-2 rounded-full"
+                                style={{
+                                  backgroundColor: '#fff',
+                                }}
+                              />
+                            )}
+                          </div>
                           {/* Card Details */}
                           <div className="flex flex-col items-start">
                             <div className="flex flex-row items-center gap-3">
@@ -1505,7 +1522,14 @@ function AgencyPlansPayments({ selectedAgency }) {
                 </button>
             ))*/}
 
-      <div
+      <RadioGroup
+        value={togglePlan?.toString() || ''}
+        onValueChange={(value) => {
+          const plan = getCurrentPlans().find((p) => p.id?.toString() === value)
+          if (plan) {
+            handleTogglePlanClick(plan)
+          }
+        }}
         className="w-full flex flex-row gap-4"
         style={{
           overflowX: 'auto',
@@ -1540,21 +1564,10 @@ function AgencyPlansPayments({ selectedAgency }) {
               <div className="flex flex-col items-start h-full justify-between">
                 <div className="w-full">
                   <div className="flex flex-row items-center w-full justify-between mb-3">
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={'/svgIcons/checkMark.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={'/svgIcons/unCheck.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                    <RadioGroupItem
+                      value={item.id?.toString() || ''}
+                      className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
 
                     <div>
                       {item.id === currentPlan &&
@@ -1633,12 +1646,9 @@ function AgencyPlansPayments({ selectedAgency }) {
                                   key={featureIndex}
                                   className="flex flex-row items-start gap-1"
                                 >
-                                  <Image
-                                    src="/svgIcons/selectedTickBtn.svg"
-                                    height={16}
-                                    width={16}
-                                    alt="✓"
-                                    className="mt-0.5 flex-shrink-0"
+                                  <Checkbox
+                                    checked={true}
+                                    className="h-4 w-4 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                                   />
                                   <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                                     {feature.text}
@@ -1669,9 +1679,8 @@ function AgencyPlansPayments({ selectedAgency }) {
                   </div>
                   <div>
                     <button
-                      className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none"
+                      className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none text-brand-primary"
                       style={{
-                        className: 'text-brand-primary',
                         width: 'fit-content',
                         textDecoration: 'none',
                         whiteSpace: 'nowrap',
@@ -1693,7 +1702,7 @@ function AgencyPlansPayments({ selectedAgency }) {
             </div>
           </button>
         ))}
-      </div>
+      </RadioGroup>
 
       <div className="w-full flex flex-row items-center justify-center">
         {subscribePlanLoader ? (
