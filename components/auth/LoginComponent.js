@@ -74,6 +74,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [agencyBranding, setAgencyBranding] = useState(null)
   // Track if we've determined domain type (to prevent flash of Terms & Privacy)
   const [domainTypeDetermined, setDomainTypeDetermined] = useState(false)
+  const [isAssignxDomain, setIsAssignxDomain] = useState(true)
+
 
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState('')

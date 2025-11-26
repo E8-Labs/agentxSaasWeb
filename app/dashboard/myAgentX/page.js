@@ -4617,6 +4617,12 @@ function Page() {
                                     '&:hover': {
                                       backgroundColor: '#F5F5F5',
                                     },
+                                    '&.Mui-selected': {
+                                      backgroundColor: '#F5F5F5',
+                                      '&:hover': {
+                                        backgroundColor: '#F5F5F5',
+                                      },
+                                    },
                                   }}
                                 >
                                   <Image
@@ -6457,6 +6463,7 @@ function Page() {
         }
         agentSmartRefill={selectedAgentForEmbed?.smartListId}
         onShowSmartList={handleShowEmbedSmartList}
+        agent={selectedAgentForEmbed}
         onShowAllSet={() => {
           setShowEmbedModal(false)
           setShowEmbedAllSetModal(true)
@@ -6476,6 +6483,7 @@ function Page() {
         }
         onSuccess={handleEmbedSmartListCreated}
         fetureType={fetureType}
+        agent={selectedAgentForEmbed}
       />
 
       <AllSetModal

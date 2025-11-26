@@ -13,7 +13,7 @@ import {
 import { Plus, Upload, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
@@ -28,6 +28,8 @@ const EmbedSmartListModal = ({
   agentName,
   agentId,
   onSuccess,
+  selectedUser,
+  agent,
 }) => {
   const textInputRef = useRef(null)
 
@@ -45,6 +47,18 @@ const EmbedSmartListModal = ({
     message: '',
     type: SnackbarTypes.Error,
   })
+
+  // Initialize with existing agent data when modal opens
+  useEffect(() => {
+    if (open && agent) {
+      if (agent.supportButtonText) {
+        setButtonLabel(agent.supportButtonText)
+      }
+      if (agent.supportButtonAvatar) {
+        setLogoPreview(agent.supportButtonAvatar)
+      }
+    }
+  }, [open, agent])
 
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
@@ -112,6 +126,9 @@ const EmbedSmartListModal = ({
 
       const formData = new FormData()
       formData.append('agentId', agentId)
+      if (selectedUser?.id) {
+        formData.append('userId', selectedUser.id)
+      }
       if (logoFile) {
         formData.append('media', logoFile)
         console.log('🔧 EMBED-SMARTLIST - Adding logo file to update')
@@ -121,6 +138,7 @@ const EmbedSmartListModal = ({
 
       console.log('🔧 EMBED-SMARTLIST - Support button settings:', {
         agentId,
+        userId: selectedUser?.id,
         buttonLabel,
         smartListEnabled: true,
         hasLogo: !!logoFile,
@@ -179,11 +197,15 @@ const EmbedSmartListModal = ({
       // Use tags from TagsInput component
       const filteredTags = tagsValue || []
 
-      const payload = {
+      let payload = {
         sheetName: sheetName.trim(),
         columns: allFields,
         tags: filteredTags,
         agentId: agentId,
+      }
+
+      if (selectedUser) {
+        payload.userId = selectedUser?.id
       }
 
       console.log(

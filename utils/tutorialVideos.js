@@ -137,7 +137,7 @@ export const getTutorialVideos = () => {
       },
       {
         id: 6,
-        title: 'Analytics and Reporting',
+        title: 'Learn about creating a script',
         description: '6:10',
         videoUrl: HowtoVideos.script,
         enabled: true,

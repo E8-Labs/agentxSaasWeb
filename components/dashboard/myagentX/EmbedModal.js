@@ -13,7 +13,7 @@ import {
 import { ArrowUpRight, X } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
@@ -29,6 +29,8 @@ const EmbedModal = ({
   onShowSmartList,
   onShowAllSet,
   agentSmartRefill,
+  selectedUser,
+  agent,
 }) => {
   const [buttonLabel, setButtonLabel] = useState('Get Help')
   const [requireForm, setRequireForm] = useState(false)
@@ -69,14 +71,16 @@ const EmbedModal = ({
         AuthToken = UserDetails.token
       }
 
-      const response = await axios.get(
-        'https://apimyagentx.com/agentxtest/api/leads/getSheets?type=manual',
-        {
-          headers: {
-            Authorization: `Bearer ${AuthToken}`,
-          },
+      let apiUrl = 'https://apimyagentx.com/agentxtest/api/leads/getSheets?type=manual'
+      if (selectedUser?.id) {
+        apiUrl += `&userId=${selectedUser.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
         },
-      )
+      })
 
       if (
         response.data &&
@@ -84,7 +88,10 @@ const EmbedModal = ({
         response.data.data.length > 0
       ) {
         setSmartLists(response.data.data)
-        setSelectedSmartList(agentSmartRefill || response.data.data[0].id)
+        // Use agent's smartListId if available, otherwise use agentSmartRefill or first item
+        const smartListIdToSet =
+          agent?.smartListId || agentSmartRefill || response.data.data[0].id
+        setSelectedSmartList(smartListIdToSet)
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error)
@@ -92,6 +99,58 @@ const EmbedModal = ({
       setLoading(false)
     }
   }
+
+  // Initialize with existing agent data when modal opens
+  useEffect(() => {
+    if (open && agent) {
+      if (agent.supportButtonText) {
+        setButtonLabel(agent.supportButtonText)
+      }
+      if (agent.supportButtonAvatar) {
+        setLogoPreview(agent.supportButtonAvatar)
+      }
+      if (agent.smartListEnabled) {
+        setRequireForm(agent.smartListEnabled)
+        // Fetch smart lists if form is required
+        fetchSmartLists()
+      } else if (agent.smartListId) {
+        setSelectedSmartList(agent.smartListId)
+      }
+    } else if (open && !agent) {
+      // Reset to defaults when modal opens without agent data
+      setButtonLabel('Get Help')
+      setLogoPreview(null)
+      setRequireForm(false)
+      setSelectedSmartList('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, agent])
+
+  // Initialize with existing agent data when modal opens
+  useEffect(() => {
+    if (open && agent) {
+      if (agent.supportButtonText) {
+        setButtonLabel(agent.supportButtonText)
+      }
+      if (agent.supportButtonAvatar) {
+        setLogoPreview(agent.supportButtonAvatar)
+      }
+      if (agent.smartListEnabled) {
+        setRequireForm(agent.smartListEnabled)
+        // Fetch smart lists if form is required
+        fetchSmartLists()
+      } else if (agent.smartListId) {
+        setSelectedSmartList(agent.smartListId)
+      }
+    } else if (open && !agent) {
+      // Reset to defaults when modal opens without agent data
+      setButtonLabel('Get Help')
+      setLogoPreview(null)
+      setRequireForm(false)
+      setSelectedSmartList('')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, agent])
 
   const handleToggleChange = (event) => {
     setRequireForm(event.target.checked)
@@ -134,6 +193,9 @@ const EmbedModal = ({
 
       const formData = new FormData()
       formData.append('agentId', agentId)
+      if (selectedUser?.id) {
+        formData.append('userId', selectedUser.id)
+      }
       if (logoFile) {
         formData.append('media', logoFile)
         console.log('🔧 EMBED-MODAL - Adding logo file to update')
@@ -143,6 +205,7 @@ const EmbedModal = ({
 
       console.log('🔧 EMBED-MODAL - Support button settings:', {
         agentId,
+        userId: selectedUser?.id,
         buttonLabel,
         smartListEnabled: requireForm,
         hasLogo: !!logoFile,
@@ -186,6 +249,10 @@ const EmbedModal = ({
       const payload = {
         agentId: agentId,
         smartListId: selectedSmartList,
+      }
+
+      if (selectedUser?.id) {
+        payload.userId = selectedUser.id
       }
 
       console.log('🔧 EMBED-MODAL - Attaching smart list:', payload)
@@ -278,9 +345,9 @@ const EmbedModal = ({
       closeAfterTransition
       BackdropProps={{
         timeout: 1000,
-        sx: {
-          backgroundColor: '#00000020',
-        },
+        // sx: {
+        //   backgroundColor: '#00000020',
+        // },
       }}
     >
       <Box

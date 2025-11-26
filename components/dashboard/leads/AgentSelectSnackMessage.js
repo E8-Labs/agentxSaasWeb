@@ -17,7 +17,10 @@ const calculateToastWidth = (title, description) => {
   // Base width for padding, icon, and spacing
   const baseWidth = 60
   // Average character width in pixels (approximate)
-  const charWidth = 7
+  let charWidth = 7
+  if(title == "Webhook URL Copied"|| description == "Webhook URL Copied") {
+    charWidth = 8
+  }
 
   // Calculate width for title
   const titleLength = title ? title.length : 0

@@ -360,6 +360,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [selectedSmartList, setSelectedSmartList] = useState('')
   const [fetureType, setFetureType] = useState('')
   const [featureTitle, setFeatureTitle] = useState('')
+  // Track drawer state before modal opens
+  const [drawerStateBeforeModal, setDrawerStateBeforeModal] = useState(null)
 
   const playVoice = (url) => {
     if (audio) {
@@ -684,6 +686,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowEmbedAllSetModal(false)
     setSelectedAgentForEmbed(null)
     setEmbedCode('')
+    // Restore drawer if it was open before modal
+    if (drawerStateBeforeModal) {
+      setShowDrawerSelectedAgent(drawerStateBeforeModal)
+      setDrawerStateBeforeModal(null)
+    }
   }
 
   //function for numbers width
@@ -3556,6 +3563,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                         ? { pointerEvents: 'auto' }
                                         : {}
                                     }
+                                    sx={{
+                                      '&:hover': {
+                                        backgroundColor: '#F5F5F5',
+                                      },
+                                      '&.Mui-selected': {
+                                        backgroundColor: '#F5F5F5',
+                                        '&:hover': {
+                                          backgroundColor: '#F5F5F5',
+                                        },
+                                      },
+                                    }}
                                   // disabled={languageValue === item.title || languageValue !== "en-US"}
                                   >
                                     <Image
@@ -5489,8 +5507,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }
         agentSmartRefill={selectedAgentForEmbed?.smartListId}
         onShowSmartList={handleShowEmbedSmartList}
+        selectedUser={selectedUser}
+        agent={selectedAgentForEmbed}
         onShowAllSet={() => {
           setShowEmbedModal(false)
+          // Save drawer state before closing it
+          if (showDrawerSelectedAgent) {
+            setDrawerStateBeforeModal(showDrawerSelectedAgent)
+            setShowDrawerSelectedAgent(null)
+          }
           setShowEmbedAllSetModal(true)
           const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
@@ -5508,6 +5533,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }
         onSuccess={handleEmbedSmartListCreated}
         fetureType={fetureType}
+        selectedUser={selectedUser}
+        agent={selectedAgentForEmbed}
       />
 
       <AllSetModal

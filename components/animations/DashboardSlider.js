@@ -89,7 +89,7 @@ const DashboardSlider = ({
       id: 6,
       label: 'Billing Support',
       image: '/otherAssets/billingIcon.jpg',
-      image2: '/otherAssets/billingIconBlue.jpg',
+      image2: '/otherAssets/billingIconBlue.png',
       url: PersistanceKeys.BillingSupportUrl,
     },
   ])
@@ -245,7 +245,7 @@ const DashboardSlider = ({
           label: Data.billingAndSupportTitle || 'Billing Support',
           url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
           image: '/otherAssets/billingIcon.jpg',
-          image2: '/otherAssets/billingIconBlue.jpg',
+          image2: '/otherAssets/billingIconBlue.png',
         })
       }
 

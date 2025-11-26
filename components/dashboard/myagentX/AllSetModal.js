@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Typography } from '@mui/material'
+import { Box, Button, IconButton, Modal, Typography } from '@mui/material'
 import { ArrowUpRight, Copy, X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
@@ -51,35 +51,36 @@ const AllSetModal = ({
       showSnackbar('Error', 'Failed to copy code', SnackbarTypes.Error)
     }
   }
-  if (!open) return null
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 500,
+        sx: {
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        },
+      }}
+      sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1300,
       }}
-      onClick={onClose}
     >
-      <div
-        style={{
+      <Box
+        sx={{
           backgroundColor: 'white',
-          borderRadius: 8,
-          padding: 24,
+          borderRadius: 2,
+          padding: 3,
           width: 500,
+          maxWidth: '90vw',
           maxHeight: '90vh',
           overflow: 'auto',
           boxShadow:
             '0px 11px 15px -7px rgba(0,0,0,0.2), 0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12)',
           textAlign: 'center',
+          outline: 'none',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -175,8 +176,8 @@ const AllSetModal = ({
           type={snackbar.type}
           hide={hideSnackbar}
         />
-      </div>
-    </div>
+      </Box>
+    </Modal>
   )
 }
 
