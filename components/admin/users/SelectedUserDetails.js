@@ -615,7 +615,7 @@ function SelectedUserDetails({
                                     </div>
                                 ) : (
                                     <button
-                                        className="mt-4 outline-none"
+                                        className="mt-4 outline-none bg-red"
                                         style={{
                                             color: "white",
                                             height: "50px",
