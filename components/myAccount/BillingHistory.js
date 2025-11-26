@@ -79,7 +79,10 @@ function BillingHistory({ selectedUser }) {
         AuthToken = Data.token
       }
 
-      const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`
+      let ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`
+      if (selectedUser) {
+        ApiPath = ApiPath + `?userId=${selectedUser.id}`
+      }
       console.log('Api path for transaction details is', ApiPath)
 
       const response = await axios.get(ApiPath, {

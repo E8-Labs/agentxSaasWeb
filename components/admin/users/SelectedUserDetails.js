@@ -518,7 +518,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Integration' ? (
                   <AdminIntegration selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Team' ? (
-                  <AdminTeam selectedUser={selectedUser} />
+                  <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (
                   <AdminProfileData selectedUser={selectedUser} from={from} />
                 ) : (

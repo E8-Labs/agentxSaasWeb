@@ -92,7 +92,7 @@ const ClaimNumber = ({
       //// //console.log;
       const formData = new FormData()
       formData.append('phoneNumber', selectedPurchasedNumber.phoneNumber)
-      if (MyAgentData) {
+      if (MyAgentData?.id) {
         formData.append('mainAgentId', MyAgentData?.id)
       }
 

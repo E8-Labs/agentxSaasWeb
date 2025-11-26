@@ -29,7 +29,7 @@ import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import UpgradeModal from '@/constants/UpgradeModal'
 
-function AdminTeam({ selectedUser, }) {
+function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
   const router = useRouter()
   const [teamDropdown, setteamDropdown] = useState(null)
@@ -606,7 +606,7 @@ function AdminTeam({ selectedUser, }) {
         </div> */}
       </div>
       <div
-        className="flex h-[60vh] w-full justify-center overflow-auto pb-50"
+        className={`flex ${agencyUser ? 'h-screen' : 'h-[60vh]'} w-full justify-center overflow-auto pb-50`}
         style={{ scrollbarWidth: 'none' }}
       >
         {getTeamLoader ? (
@@ -748,7 +748,7 @@ function AdminTeam({ selectedUser, }) {
                 })}
               </div>
             ) : (
-              <div className="h-full w-full flex flex-col items-center justify-center ">
+                  <div className={`w-full h-full flex flex-col items-center justify-center`}>
                 <Image
                   src={'/otherAssets/noTemView.png'}
                   height={280}
