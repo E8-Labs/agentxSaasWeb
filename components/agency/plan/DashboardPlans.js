@@ -347,11 +347,22 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     try {
       setDelLoading(true)
       const token = AuthToken()
+      
+      // Use selectedPlan.id instead of moreDropdown (which gets cleared when menu closes)
+      const planId = selectedPlan?.id || moreDropdown
+      if (!planId) {
+        setSnackMsg('Plan ID is missing')
+        setSnackMsgType(SnackbarTypes.Error)
+        setDelLoading(false)
+        setShowDeleteModal(false)
+        return
+      }
+      
       let ApiPath = ''
       if (planType === 'monthly') {
-        ApiPath = `${Apis.removeAgencyPlan}/${moreDropdown}`
+        ApiPath = `${Apis.removeAgencyPlan}/${planId}`
       } else if (planType === 'Xbar') {
-        ApiPath = `${Apis.removeAgencyXBar}/${moreDropdown}`
+        ApiPath = `${Apis.removeAgencyXBar}/${planId}`
       }
       console.log('api path is', ApiPath)
       // return

@@ -69,7 +69,7 @@ const DelConfirmationPopup = ({
                     </div>
                   ) : (
                     <div style={{ fontWeight: '500', fontSize: 15 }}>
-                      Are you sure to delete {selectedPlan.title} plan. <br />
+                      Are you sure you want to delete {selectedPlan.title}.
                       This cannot be undone.
                     </div>
                   )}
