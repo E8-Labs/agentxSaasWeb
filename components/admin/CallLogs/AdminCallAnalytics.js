@@ -1,7 +1,7 @@
 import './CalendarOverrides.css'
 import 'react-calendar/dist/Calendar.css'
 
-import { Box, CircularProgress } from '@mui/material'
+import { Box, CircularProgress, Modal } from '@mui/material'
 import { CalendarDots, CaretDown, CaretUp } from '@phosphor-icons/react'
 import axios from 'axios'
 import moment from 'moment'
@@ -10,6 +10,7 @@ import Calendar from 'react-calendar'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import Apis from '@/components/apis/Apis'
+import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
 
 // Hook to handle clicks outside element
 function useClickOutside(ref, handler) {
@@ -43,6 +44,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
   const [showFromDatePicker, setShowFromDatePicker] = useState(false)
   const [showToDatePicker, setShowToDatePicker] = useState(false)
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
 
   // Use ref to track initial mount
   const isInitialMount = useRef(true)
@@ -602,10 +604,12 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                             className="text-purple underline cursor-pointer"
                             onClick={() => {
                               if (user.userId) {
-                                window.open(
-                                  `/admin/users?userId=${user.userId}`,
-                                  '_blank',
-                                )
+                                // Create user object with id and name for SelectedUserDetails
+                                setSelectedUser({
+                                 id: user.userId, 
+                                 name: user.userName || '-',
+                                 email: user.userEmail || '-',
+                                })
                               }
                             }}
                           >
@@ -678,6 +682,49 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
           </div>
         </div>
       )}
+
+      {/* User Details Modal */}
+      <Modal
+        open={selectedUser ? true : false}
+        onClose={() => {
+          setSelectedUser(null)
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: '#00000020',
+            zIndex: 1200,
+          },
+        }}
+        sx={{
+          zIndex: 1300,
+        }}
+      >
+        <Box
+          className="w-11/12 p-8 rounded-[15px]"
+          sx={{
+            ...styles.modalsStyle,
+            backgroundColor: 'white',
+            position: 'relative',
+            zIndex: 1301,
+          }}
+        >
+          <SelectedUserDetails
+            selectedUser={selectedUser}
+            handleDel={() => {
+              setSelectedUser(null)
+            }}
+            handlePauseUser={(d) => {
+              // Optionally refresh analytics data after pause/unpause
+              fetchCallAnalytics()
+            }}
+            handleClose={() => {
+              setSelectedUser(null)
+            }}
+            from="agency"
+          />
+        </Box>
+      </Modal>
     </div>
   )
 }
@@ -700,5 +747,16 @@ const styles = {
     fontWeight: '500',
     color: '#000000',
     borderBottom: '1px solid #f0f0f0',
+  },
+  modalsStyle: {
+    height: 'auto',
+    bgcolor: 'transparent',
+    p: 2,
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
+    borderRadius: 2,
+    border: 'none',
+    outline: 'none',
   },
 }

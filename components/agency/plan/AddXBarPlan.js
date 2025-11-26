@@ -468,10 +468,27 @@ export default function AddXBarPlan({
                 msOverflowStyle: 'none',
               }}
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-row justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">
                   {isEditPlan ? 'Edit Plan' : 'New XBar Option'}
                 </h2>
+                 {/* Default Plan Toggle */}
+                 <div className="flex flex-row items-center gap-2 mb-4">
+                 <label style={styles.labels}>Default Xbar Option</label>
+                 <Switch
+                   checked={isDefaultPlan}
+                   onChange={(e) => setIsDefaultPlan(e.target.checked)}
+                   sx={{
+                     '& .MuiSwitch-switchBase.Mui-checked': {
+                       color: '#7902DF',
+                     },
+                     '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                       {
+                         backgroundColor: '#7902DF',
+                       },
+                   }}
+                 />
+               </div>
               </div>
 
               {/* Plan Name */}
@@ -614,23 +631,7 @@ export default function AddXBarPlan({
                     }}
                   />
 
-                  {/* Default Plan Toggle */}
-                  <div className="flex flex-row items-center justify-between mb-4">
-                    <label style={styles.labels}>Default Xbar Option</label>
-                    <Switch
-                      checked={isDefaultPlan}
-                      onChange={(e) => setIsDefaultPlan(e.target.checked)}
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7902DF',
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                          {
-                            backgroundColor: '#7902DF',
-                          },
-                      }}
-                    />
-                  </div>
+                 
                 </div>
               </div>
             </div>

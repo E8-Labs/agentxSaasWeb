@@ -29,6 +29,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { UpgradeTagWithModal } from '@/components/constants/constants'
 import AgentSelectSnackMessage, {
@@ -39,12 +40,29 @@ import SelectStageDropdown from '@/components/dashboard/leads/StageSelectDropdow
 import NoVoicemailView from '@/components/dashboard/myagentX/NoVoicemailView'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
+import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
+import EmailTempletePopup from '@/components/pipeline/EmailTempletePopup'
+import SMSTempletePopup from '@/components/pipeline/SMSTempletePopup'
+import {
+  getA2PNumbers,
+  getGmailAccounts,
+} from '@/components/pipeline/TempleteServices'
+import ScoringProgress from '@/components/ui/ScoringProgress'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { callStatusColors } from '@/constants/Constants'
+import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import { useUser } from '@/hooks/redux-hooks'
 import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import ConfirmPerplexityModal from '@/components/dashboard/leads/extras/CofirmPerplexityModal'
+import DeleteCallLogConfimation from '@/components/dashboard/leads/extras/DeleteCallLogConfimation'
+import NoPerplexity from '@/components/dashboard/leads/extras/NoPerplexity'
+import Perplexity from '@/components/dashboard/leads/extras/Perplexity'
+import { Tooltip } from '@mui/material'
 
 const AdminLeadDetails = ({
   showDetailsModal,
@@ -62,6 +80,8 @@ const AdminLeadDetails = ({
   // //console.log;
 
   const [columnsLength, setcolumnsLength] = useState([])
+  const [showTeams, setShowTeams] = useState(false)
+
 
   const [initialLoader, setInitialLoader] = useState(false)
 
@@ -73,10 +93,10 @@ const AdminLeadDetails = ({
   const [showAllEmails, setShowAllEmails] = useState(false)
 
   //code for buttons of details popup
-  const [showKYCDetails, setShowKycDetails] = useState(true)
+  const [showKYCDetails, setShowKycDetails] = useState(false)
   const [showNotesDetails, setShowNotesDetails] = useState(false)
   const [showAcitivityDetails, setShowAcitivityDetails] = useState(false)
-  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(false)
+  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(true)
 
   //code for add stage notes
   const [showAddNotes, setShowAddNotes] = useState(false)
@@ -85,7 +105,7 @@ const AdminLeadDetails = ({
   const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false)
 
   //code for call activity transcript text
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(null)
   const [isExpandedActivity, setIsExpandedActivity] = useState([])
 
   const [expandedCustomFields, setExpandedCustomFields] = useState([]) // check if the custom fields Read More or Read less should show
@@ -130,8 +150,61 @@ const AdminLeadDetails = ({
   // Redux user hook for upgrade tag
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
+  // Email functionality states
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+  const [sendEmailLoader, setSendEmailLoader] = useState(false)
+
+  // SMS functionality states
+  const [showSMSModal, setShowSMSModal] = useState(false)
+  const [phoneNumbers, setPhoneNumbers] = useState([])
+  const [phoneLoading, setPhoneLoading] = useState(false)
+  const [sendSMSLoader, setSendSMSLoader] = useState(false)
+
+  const [googleAccounts, setGoogleAccounts] = useState([])
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+
+  // Stripe configuration for upgrade modal
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+  const stripePromise = loadStripe(stripePublickKey)
+
+  // Upgrade modal states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [currentFullPlan, setCurrentFullPlan] = useState(null)
+
+  const [creditCost, setCreditCost] = useState(null)
+  const [userLocalData, setUserLocalData] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false)
+  const [showDelModal, setShowDelModal] = useState(false)
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
+  const [seletedCallLog, setSelectedCallLog] = useState(null)
+  const [delCallLoader, setdelCallLoader] = useState(false)
+
+  //code for stages drop down
+  const [updateLeadLoader, setUpdateLeadLoader] = useState(false)
+
   useEffect(() => {
     //console.log;
+  }, [])
+
+  useEffect(() => {
+    const getData = async () => {
+      let user = await getProfileDetails()
+      if (user) {
+        setUserLocalData(user.data.data)
+      }
+    }
+
+    getNumbers()
+    getData()
+    getCreditCost()
+    getGoogleAccounts()
   }, [])
 
   useEffect(() => {
@@ -142,7 +215,47 @@ const AdminLeadDetails = ({
       getStagesList(selectedLead)
     }
     getMyteam()
-  }, [selectedLead])
+  }, [selectedLead, pipelineId])
+
+  // get the credit cost
+  const getCreditCost = async () => {
+    let data = {
+      leadCount: 100,
+      type: 'enrichment',
+    }
+    let creditCost = await calculateCreditCost(data)
+    if (creditCost) {
+      setCreditCost(creditCost)
+    }
+  }
+
+  const getNumbers = async () => {
+    let data = localStorage.getItem('selectedUser')
+    let selectedUser = null
+
+    if (data && data !== 'undefined' && data !== 'null') {
+      try {
+        selectedUser = JSON.parse(data)
+      } catch (error) {
+        console.error('Error parsing selectedUser from localStorage:', error)
+        selectedUser = null
+      }
+    }
+
+    setPhoneLoading(true)
+    let id = selectedUser?.id
+    let num = await getA2PNumbers(id)
+    if (num) {
+      setPhoneNumbers(num)
+    }
+    setPhoneLoading(false)
+  }
+
+  const getGoogleAccounts = async () => {
+    let accounts = await getGmailAccounts()
+    setGoogleAccounts(accounts)
+    setSelectedGoogleAccount(accounts[0] || null)
+  }
 
   //code for getting teammebers
   const getMyteam = async () => {
@@ -190,6 +303,7 @@ const AdminLeadDetails = ({
       let response = await AssignTeamMember(
         selectedLeadsDetails.id,
         item.invitingUserId,
+        selectedUser
       )
       if (response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
@@ -219,13 +333,12 @@ const AdminLeadDetails = ({
   //function to update stage
   const updateLeadStage = async (stage) => {
     try {
-      // //console.log;
       let AuthToken = null
+      setUpdateLeadLoader(true)
 
       const localDetails = localStorage.getItem('User')
       if (localDetails) {
         const Data = JSON.parse(localDetails)
-        //// //console.log;
         AuthToken = Data.token
       }
 
@@ -234,10 +347,7 @@ const AdminLeadDetails = ({
         stageId: stage.id,
       }
 
-      // //console.log;
-
       const ApiPath = Apis.updateLeadStageApi
-      // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -246,7 +356,7 @@ const AdminLeadDetails = ({
       })
 
       if (response) {
-        // //console.log;
+        setUpdateLeadLoader(false)
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message)
           setShowSuccessSnack2(true)
@@ -257,7 +367,7 @@ const AdminLeadDetails = ({
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is", error);
+      setUpdateLeadLoader(false)
     } finally {
       // //console.log;
     }
@@ -673,6 +783,350 @@ const AdminLeadDetails = ({
     }
   }
 
+  const deleteCallLog = async (item) => {
+    try {
+      setdelCallLoader(true)
+      let data = localStorage.getItem('User')
+      if (data) {
+        let u = JSON.parse(data)
+        let path = Apis.deleteCallLog
+
+        let apiData = {
+          id: item.id,
+        }
+
+        const response = await axios.post(path, apiData, {
+          headers: {
+            Authorization: 'Bearer ' + u.token,
+          },
+        })
+
+        if (response) {
+          if (response.data) {
+            let call = response.data.data
+            setSelectedLeadsDetails((prev) => ({
+              ...prev,
+              callActivity: prev.callActivity.filter(
+                (log) => log.id !== item.id,
+              ),
+            }))
+
+            setShowConfirmationPopup(false)
+
+            setShowSuccessSnack('Call activity deleted')
+            setShowSuccessSnack2(true)
+          }
+        }
+      }
+    } catch (e) {
+      console.log('error in call log delete api is', e)
+    } finally {
+      setdelCallLoader(false)
+    }
+  }
+
+  const getOutcome = (item) => {
+    if (item.communicationType == 'sms') {
+      return 'Text Sent'
+    } else if (item.communicationType == 'email') {
+      return 'Email Sent'
+    } else if (item.callOutcome) {
+      return item?.callOutcome
+    } else {
+      return 'Ongoing'
+    }
+  }
+
+  const getCommunicationTypeIcon = (item) => {
+    if (item.communicationType == 'sms') {
+      return '/otherAssets/smsIcon.png'
+    } else if (item.communicationType == 'email') {
+      return '/otherAssets/email.png'
+    } else if (item.communicationType == 'call') {
+      return '/otherAssets/callIcon.png'
+    } else if (item.communicationType == 'web') {
+      return '/otherAssets/webhook2.svg'
+    } else return '/otherAssets/callIcon.png'
+  }
+
+  // Send email API function
+  const sendEmailToLead = async (emailData) => {
+    try {
+      setSendEmailLoader(true)
+
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        throw new Error('User not found')
+      }
+
+      const userData = JSON.parse(localData)
+      const formData = new FormData()
+
+      formData.append('leadId', selectedLeadsDetails?.id)
+      formData.append('subject', emailData.subject || '')
+      formData.append('content', emailData.content || '')
+      formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []))
+      formData.append(
+        'emailAccountId',
+        JSON.stringify(selectedGoogleAccount.id || []),
+      )
+
+      if (emailData.attachments && emailData.attachments.length > 0) {
+        emailData.attachments.forEach((file) => {
+          formData.append('attachments', file)
+        })
+      }
+
+      const response = await axios.post(Apis.sendEmailToLead, formData, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      if (response.data.status === true) {
+        setShowSuccessSnack('Email sent successfully!')
+        setShowSuccessSnack2(true)
+        setShowEmailModal(false)
+      } else {
+        setShowErrorSnack(response.data.message || 'Failed to send email')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error sending email:', error)
+      setShowErrorSnack('Failed to send email. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setSendEmailLoader(false)
+    }
+  }
+
+  // Send SMS API function
+  const sendSMSToLead = async (smsData) => {
+    try {
+      setSendSMSLoader(true)
+
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        throw new Error('User not found')
+      }
+
+      const userData = JSON.parse(localData)
+      const formData = new FormData()
+
+      formData.append('leadPhone', selectedLeadsDetails?.phone || '')
+      formData.append('content', smsData.content || '')
+      formData.append('phone', smsData.phone || '')
+      formData.append('leadId', smsData.leadId || '')
+
+      const response = await axios.post(Apis.sendSMSToLead, formData, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      if (response.data.status === true) {
+        setShowSuccessSnack('SMS sent successfully!')
+        setShowSuccessSnack2(true)
+        setShowSMSModal(false)
+      } else {
+        setShowErrorSnack(response.data.message || 'Failed to send SMS')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      setShowErrorSnack('Failed to send SMS. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setSendSMSLoader(false)
+    }
+  }
+
+  const handleEnrichLead = async () => {
+    try {
+      setLoading(true)
+      const data = localStorage.getItem('User')
+
+      if (data) {
+        let u = JSON.parse(data)
+
+        let apidata = {
+          leadId: selectedLeadsDetails.id,
+        }
+
+        const response = await axios.post(Apis.enrichLead, apidata, {
+          headers: {
+            Authorization: 'Bearer ' + u.token,
+          },
+        })
+
+        if (response.data) {
+          setLoading(false)
+          if (response.data.status === true) {
+            setSelectedLeadsDetails(response.data.data)
+            let credits = u.user.enrichCredits
+
+            setShowSuccessSnack(response.data.message)
+            setShowSuccessSnack2(true)
+
+            if (credits == 0) {
+              u.user.enrichCredits = 99
+            } else {
+              u.user.enrichCredits = credits - 1
+            }
+
+            localStorage.setItem('User', JSON.stringify(u))
+
+            setshowConfirmPerplexity(false)
+          } else {
+            setShowErrorSnack(response.data.message)
+            setShowErrorSnack2(true)
+          }
+        }
+      }
+    } catch (e) {
+      setLoading(false)
+      console.log('error in enrich lead is', e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const callTranscript = (item, initialText) => {
+    return (
+      <div className="flex flex-col">
+        <div className="flex mt-4 flex-row items-center gap-4">
+          <div
+            className=""
+            style={{
+              fontWeight: '500',
+              fontSize: 12,
+              color: '#00000070',
+            }}
+          >
+            Call ID
+          </div>
+
+          <button onClick={() => handleCopy(item.callId)}>
+            <Image src={'/svgIcons/copy.svg'} height={15} width={15} alt="*" />
+          </button>
+        </div>
+        <div className="flex flex-row items-center justify-between mt-4">
+          <div
+            style={{
+              fontWeight: '500',
+              fontSize: 15,
+            }}
+          >
+            {moment(item?.duration * 1000).format('mm:ss')}{' '}
+          </div>
+          <button
+            onClick={() => {
+              if (item?.recordingUrl) {
+                setShowAudioPlay(item?.recordingUrl)
+              } else {
+                setShowNoAudioPlay(true)
+              }
+            }}
+          >
+            <Image src={'/assets/play.png'} height={35} width={35} alt="*" />
+          </button>
+        </div>
+        {item.transcript ? (
+          <div className="w-full">
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: '600',
+                fontSize: 15,
+              }}
+            >
+              {`${initialText}...`}
+            </div>
+            <div className="w-full flex flex-row items-center justify-between">
+              <button
+                style={{
+                  fontWeight: '600',
+                  fontSize: 15,
+                }}
+                onClick={() => {
+                  handleReadMoreToggle(item)
+                }}
+                className="mt-2 text-black underline"
+              >
+                {'Read Transcript'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div
+            style={{
+              fontWeight: '600',
+              fontSize: 15,
+            }}
+          >
+            No transcript
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const emailSmsTranscript = (item) => {
+    return (
+      <div className="flex flex-col items-start gap-2">
+        {item.sentSubject && (
+          <div className="flex flex-col items-start gap-2">
+            <div className="text-base font-semibold text-[#00000050]">
+              Subject
+            </div>
+
+            <div className="text-base font-medium text-[#000000]">
+              {item.sentSubject}
+            </div>
+          </div>
+        )}
+
+        {item.sentContent && (
+          <div className="flex flex-col items-start gap-2">
+            <div className="text-base font-semibold text-[#00000050]">
+              Content
+            </div>
+
+            <div className="text-base font-medium text-[#000000]">
+              {item.sentContent}
+            </div>
+          </div>
+        )}
+
+        {item.template?.attachments?.length > 0 && (
+          <div className="flex flex-col items-start gap-2">
+            <div className="text-base font-semibold text-[#00000050]">
+              Attachments
+            </div>
+
+            {item.template?.attachments.map((attachment, index) => (
+              <div key={index} className="flex flex-row items-center gap-2">
+                <div
+                  key={index}
+                  className="text-base font-medium text-[#000000] w-6/12 truncate"
+                  onClick={() => {
+                    window.open(attachment.url, '_blank')
+                  }}
+                >
+                  {attachment.fileName}
+                </div>
+
+                <div>{attachment.size}KB</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const styles = {
     modalsStyle: {
       // height: "auto",
@@ -797,17 +1251,13 @@ const AdminLeadDetails = ({
                         <div style={{ fontSize: 18, fontWeight: '700' }}>
                           More Info
                         </div>
-                        <div className="flex flex-row items-center gap-2">
-                          <UpgradeTagWithModal
-                            reduxUser={reduxUser}
-                            setReduxUser={setReduxUser}
-                          />
-                          <CloseBtn
+                        <button
                             onClick={() => {
                               setShowDetailsModal(false)
                             }}
-                          />
-                        </div>
+                        >
+                          <CloseIcon />
+                        </button>
                       </div>
                       <div>
                         <div className="flex flex-row items-start justify-between mt-4  w-full">
@@ -815,17 +1265,31 @@ const AdminLeadDetails = ({
                             <div className="flex flex-row items-center gap-4">
                               <div
                                 className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                onClick={() => handleToggleClick(item.id)}
                               >
-                                {selectedLeadsDetails?.firstName.slice(0, 1)}
+                                {selectedLeadsDetails?.firstName?.slice(0, 1) ||
+                                  '-'}
                               </div>
-                              <div
-                                className="truncate"
-                                onClick={() => handleToggleClick(item.id)}
-                              >
+                              <div className="truncate">
                                 {selectedLeadsDetails?.firstName}{' '}
                                 {selectedLeadsDetails?.lastName}
                               </div>
+                              {selectedLeadsDetails?.scoringDetails &&
+                                selectedLeadsDetails?.scoringDetails?.questions
+                                  ?.length > 0 && (
+                                  <ScoringProgress
+                                    value={
+                                      selectedLeadsDetails?.scoringDetails
+                                        ?.totalScore
+                                    }
+                                    maxValue={10}
+                                    questions={
+                                      selectedLeadsDetails?.scoringDetails
+                                        ?.questions
+                                    }
+                                    showTooltip={true}
+                                    tooltipTitle="Results"
+                                  />
+                                )}
                               {selectedLeadsDetails?.isOnDncList && (
                                 <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
                                   DNC
@@ -833,8 +1297,15 @@ const AdminLeadDetails = ({
                               )}
                             </div>
                             {/* Email Field */}
+                            {(selectedLeadsDetails?.email ||
+                              selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <EnvelopeSimple size={20} color="#000000100" />
+                                  <Image
+                                    src="/otherAssets/email.png"
+                                    height={16}
+                                    width={16}
+                                    alt="email"
+                                  />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
                                   selectedLeadsDetails?.email
@@ -873,8 +1344,7 @@ const AdminLeadDetails = ({
                                             >
                                               {selectedLeadsDetails?.emails
                                                 ?.length > 1
-                                                ? `+${
-                                                    selectedLeadsDetails?.emails
+                                                    ? `+${selectedLeadsDetails?.emails
                                                       ?.length - 1
                                                   }`
                                                 : ''}
@@ -885,65 +1355,38 @@ const AdminLeadDetails = ({
                                   </div>
                                 )}
                               </div>
-                            </div>
-                            <div>
-                              {selectedLeadsDetails?.email && (
-                                <div className="flex flex-row w-full justify-end">
-                                  {selectedLeadsDetails?.emails
-                                    ?.slice(0, 1)
-                                    .map((email, emailIndex) => {
-                                      return (
-                                        <div
-                                          key={emailIndex}
-                                          className="flex flex-row items-center gap-2"
-                                        >
-                                          <div
-                                            className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                            style={styles.paragraph}
-                                          >
-                                            <Image
-                                              src={'/assets/power.png'}
-                                              height={9}
-                                              width={7}
-                                              alt="*"
-                                            />
-                                            <div>
-                                              <span className="text-purple">
-                                                New
-                                              </span>{' '}
-                                              {email.email}
-                                            </div>
-                                          </div>
+                                  {/* Send Email Button */}
                                           <button
-                                            className="text-purple underline"
+                                    className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
                                             onClick={() => {
-                                              setShowAllEmails(true)
-                                            }}
-                                          >
-                                            {selectedLeadsDetails?.emails
-                                              ?.length > 1
-                                              ? `+${
-                                                  selectedLeadsDetails?.emails
-                                                    ?.length - 1
-                                                }`
-                                              : ''}
+                                      if (googleAccounts.length === 0) {
+                                        setShowAuthSelectionPopup(true)
+                                      } else {
+                                        setShowEmailModal(true)
+                                      }
+                                    }}
+                                    disabled={sendEmailLoader}
+                                  >
+                                    <Image
+                                      src="/otherAssets/sendEmailIcon.png"
+                                      height={18}
+                                      width={18}
+                                      alt="Send Email"
+                                    />
+                                    <span className="text-purple text-[12px] font-[400]">
+                                      Send Email
+                                    </span>
                                           </button>
-                                        </div>
-                                      )
-                                    })}
                                 </div>
                               )}
-                            </div>
-                            <div className="flex flex-row gap-2 justify-center items-center">
-                              {/* <div className="w-4 h-4 filter invert brightness-0"> */}
+                            {selectedLeadsDetails?.phone && (
+                              <div className="flex flex-row gap-2 justify-center items-center -mt-2">
                               <Image
-                                src="/assets/callBtn.png"
+                                  src="/otherAssets/phone.png"
                                 width={16}
-                                height={16}
+                                  height={20}
                                 alt="call"
                               />
-                              {/* </div> */}
-                              {/* <Phone className="w-4 h-4 text-black" /> */}
                               <div style={styles.heading2}>
                                 {formatPhoneNumber(
                                   selectedLeadsDetails?.phone,
@@ -951,18 +1394,119 @@ const AdminLeadDetails = ({
                               </div>
                               {selectedLeadsDetails?.cell != null && (
                                 <div
-                                  className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
+                                    className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
                                   style={{ color: 'white' }}
                                 >
                                   {selectedLeadsDetails?.cell}
                                 </div>
                               )}
-                            </div>
+                                {/* Send SMS Button for Phone */}
+                                <div className="relative ml-4">
+                                  {userLocalData?.planCapabilities
+                                    ?.allowTextMessages === false && (
+                                      <Image
+                                        className="absolute -top-3 -left-2 z-10"
+                                        src="/otherAssets/starsIcon2.png"
+                                        height={20}
+                                        width={20}
+                                        alt="Upgrade"
+                                      />
+                                    )}
 
+                                  <Tooltip
+                                    title={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages === false ? (
+                                        <div className="flex flex-col items-start gap-1">
+                                          <span>
+                                            <button
+                                              className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
+                                              onClick={() => {
+                                                setShowUpgradeModal(true)
+                                              }}
+                                            >
+                                              {`Upgrade `}
+                                            </button>
+                                            {' account to send text'}
+                                          </span>
+                            </div>
+                                      ) : phoneNumbers.length == 0 ? (
+                                        'You need to complete A2P to text'
+                                      ) : (
+                                        ''
+                                      )
+                                    }
+                                    arrow
+                                    disableHoverListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    disableFocusListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    disableTouchListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: '#ffffff',
+                                          color: '#333',
+                                          fontSize: '14px',
+                                          fontWeight: '500',
+                                          padding: '12px 15px',
+                                          borderRadius: '8px',
+                                          boxShadow:
+                                            '0px 4px 20px rgba(0, 0, 0, 0.15)',
+                                          border: '1px solid #e5e7eb',
+                                          maxWidth: '250px',
+                                        },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: '#ffffff',
+                                        },
+                                      },
+                                    }}
+                                  >
+                                    {sendSMSLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
+                                      <button
+                                        className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
+                                        onClick={() => setShowSMSModal(true)}
+                                        disabled={
+                                          sendSMSLoader ||
+                                          !userLocalData?.planCapabilities
+                                            ?.allowTextMessages ||
+                                          phoneNumbers.length == 0
+                                        }
+                                      >
+                                        <Image
+                                          src="/otherAssets/sendSmsIcon.png"
+                                          height={18}
+                                          width={18}
+                                          alt="Send SMS"
+                                        />
+                                        <span className="text-[12px] font-[400]">
+                                          Send Text
+                                        </span>
+                                      </button>
+                                    )}
+                                  </Tooltip>
+                                </div>
+                              </div>
+                            )}
+
+                            {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
-                              {/* <EnvelopeSimple size={20} color='#00000060' /> */}
                               <Image
-                                src={'/assets/location.png'}
+                                  src={'/otherAssets/location.png'}
                                 height={16}
                                 width={16}
                                 alt="man"
@@ -971,22 +1515,20 @@ const AdminLeadDetails = ({
                                 {selectedLeadsDetails?.address || '-'}
                               </div>
                             </div>
+                            )}
+                            {selectedLeadsDetails?.tags?.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                src={'/assets/tag.png'}
+                                  src={'/otherAssets/tag.png'}
                                 height={16}
                                 width={16}
                                 alt="man"
                               />
                               <div>
-                                {selectedLeadsDetails?.tags.length > 0 ? (
                                   <div
                                     className="text-end flex flex-row items-center gap-2 "
-                                    // style={styles.paragraph}
                                   >
-                                    {
-                                      // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                      selectedLeadsDetails?.tags
+                                    {selectedLeadsDetails?.tags
                                         .slice(0, 2)
                                         .map((tag, index) => {
                                           return (
@@ -995,17 +1537,13 @@ const AdminLeadDetails = ({
                                               className="flex flex-row items-center gap-2"
                                             >
                                               <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                                                <div
-                                                  className="text-purple" //1C55FF10
-                                                >
+                                              <div className="text-purple">
                                                   {tag}
                                                 </div>
                                                 {DelTagLoader &&
                                                 tag.includes(DelTagLoader) ? (
                                                   <div>
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
+                                                  <CircularProgress size={15} />
                                                   </div>
                                                 ) : (
                                                   <button
@@ -1023,37 +1561,29 @@ const AdminLeadDetails = ({
                                               </div>
                                             </div>
                                           )
-                                        })
-                                    }
+                                      })}
                                     <button
                                       className="outline-none"
                                       onClick={() => {
-                                        // console.log(
-                                        //   "tags are",
-                                        //   selectedLeadsDetails?.tags
-                                        // );
                                         setExtraTagsModal(true)
                                       }}
                                     >
-                                      {selectedLeadsDetails?.tags.length >
-                                        2 && (
+                                      {selectedLeadsDetails?.tags.length > 2 && (
                                         <div className="text-purple underline">
                                           +
-                                          {selectedLeadsDetails?.tags.length -
-                                            2}
+                                          {selectedLeadsDetails?.tags.length - 2}
                                         </div>
                                       )}
                                     </button>
                                   </div>
-                                ) : (
-                                  '-'
-                                )}
                               </div>
                             </div>
+                            )}
 
+                            {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                src="/assets/pipelineIcon.svg"
+                                  src="/otherAssets/pipeline2.png"
                                 height={20}
                                 width={20}
                                 alt="*"
@@ -1068,14 +1598,15 @@ const AdminLeadDetails = ({
                                   : '-'}
                               </div>
                             </div>
+                            )}
 
                             <div>
                               {selectedLeadsDetails?.booking && (
                                 <div className="flex flex-row items-center gap-2">
                                   <Image
-                                    src="/svgIcons/calendar.svg"
-                                    height={14}
-                                    width={14}
+                                    src="/otherAssets/Calendar.png"
+                                    height={16}
+                                    width={16}
                                     alt="*"
                                   />
                                   <div style={styles.heading2}>
@@ -1114,21 +1645,27 @@ const AdminLeadDetails = ({
                                       }}
                                     ></div>
 
+                                    {updateLeadLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
                                     <SelectStageDropdown
                                       selectedStage={selectedStage}
                                       handleStageChange={handleStageChange}
                                       stagesList={stagesList}
                                       updateLeadStage={updateLeadStage}
                                     />
+                                    )}
                                   </>
                                 )}
                               </div>
                             </div>
 
-                            <div className="mt-10">
-                              {selectedLeadsDetails?.teamsAssigned?.length >
-                              0 ? (
-                                <div className="p-8">
+                          </div>
+                        </div>
+                        <div className="w-full mt-3">
+                          <div className="">
+                            {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
+                              <div className="">
                                   <LeadTeamsAssignedList
                                     users={selectedLeadsDetails?.teamsAssigned}
                                   />
@@ -1136,26 +1673,55 @@ const AdminLeadDetails = ({
                               ) : globalLoader ? (
                                 <CircularProgress size={25} />
                               ) : (
+                              <div className="flex flex-col w-full max-w-full overflow-hidden">
                                 <button
-                                  className="text-end outline-none"
-                                  style={styles.paragraph}
-                                  aria-describedby={id}
-                                  variant="contained"
+                                  className="flex flex-row items-center gap-3"
                                   onClick={(event) => {
                                     handleShowPopup(event)
                                   }}
                                 >
                                   <Image
-                                    src={'/assets/manIcon.png'}
-                                    height={30}
-                                    width={30}
-                                    alt="man"
+                                    src={'/otherAssets/assignTeamIcon.png'}
+                                    alt="*"
+                                    height={16}
+                                    width={16}
                                   />
+                                  <div
+                                    style={{
+                                      fontWeight: '500',
+                                      fontsize: 15,
+                                      color: '#000000100',
+                                    }}
+                                  >
+                                    Assign Team
+                                  </div>
                                 </button>
+                                <div className="flex w-full">
+                                  {showTeams && (
+                                    <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                      {myTeam.map((user) => (
+                                        <div
+                                          key={user.id}
+                                          className="flex space-x-3 overflow-x-auto items-center"
+                                        >
+                                          <div className="flex items-center space-x-1">
+                                            <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                              {user?.name?.charAt(0)}
+                                            </div>
+                                            <span className="text-gray-700 text-sm">
+                                              {user?.name}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                               )}
                             </div>
+                              </div>
+                            )}
                           </div>
                         </div>
+
 
                         <div className=" flex w-full">
                           {getExtraColumsCount(columnsLength) >= 1 && (
@@ -1502,18 +2068,20 @@ const AdminLeadDetails = ({
                           onClose={handleClosePopup}
                           anchorOrigin={{
                             vertical: 'bottom',
-                            horizontal: 'right',
+                            horizontal: 'left',
                           }}
                           transformOrigin={{
                             vertical: 'top',
-                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                            horizontal: 'left',
                           }}
+                          disablePortal={false}
                           PaperProps={{
-                            elevation: 0, // This will remove the shadow
+                            elevation: 0,
                             style: {
                               boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                               borderRadius: '10px',
                               minWidth: '120px',
+                              zIndex: 9999,
                             },
                           }}
                         >
@@ -1539,9 +2107,8 @@ const AdminLeadDetails = ({
                                 ) : (
                                   <div
                                     className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                    onClick={() => handleToggleClick(item.id)}
                                   >
-                                    {myTeamAdmin?.name.slice(0, 1)}
+                                    {myTeamAdmin?.name?.slice(0, 1)}
                                   </div>
                                 )}
                               </div>
@@ -1582,11 +2149,8 @@ const AdminLeadDetails = ({
                                       ) : (
                                         <div
                                           className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
-                                          {item?.name.slice(0, 1)}
+                                          {item?.name?.slice(0, 1)}
                                         </div>
                                       )}
                                       {item.name}
@@ -1610,41 +2174,41 @@ const AdminLeadDetails = ({
                           paddingInline: 20,
                         }}
                       >
-                        {/* <button
+                        <button
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
                         borderBottom: showPerplexityDetails
-                          ? "2px solid #7902DF"
-                          : "",
+                              ? '2px solid #7902DF'
+                              : '',
                         backgroundColor: showPerplexityDetails
-                          ? "#7902DF05"
-                          : "",
+                              ? '#7902DF05'
+                              : '',
                       }}
                       onClick={() => {
-                        setShowPerpelexityDetails(true);
-                        setShowKycDetails(false);
-                        setShowNotesDetails(false);
-                        setShowAcitivityDetails(false);
+                            setShowPerpelexityDetails(true)
+                            setShowKycDetails(false)
+                            setShowNotesDetails(false)
+                            setShowAcitivityDetails(false)
                       }}
                     >
                       <Image
                         src={
                           showPerplexityDetails
-                            ? "/svgIcons/selectedPerplexityIcon.svg"
-                            : "/svgIcons/unselectedPerplexityIcon.svg"
+                                ? '/svgIcons/sparklesPurple.svg'
+                                : '/svgIcons/sparkles.svg'
                         }
-                        width={24}
-                        height={24}
+                            width={20}
+                            height={20}
                         alt="*"
                       />
                       <div
                         style={{
-                          color: showPerplexityDetails ? "#7902DF" : "black",
+                              color: showPerplexityDetails ? '#7902DF' : 'black',
                         }}
                       >
-                        Lead Insights
+                            Insights
                       </div>
-                    </button> */}
+                        </button>
 
                         <button
                           className="outline-none p-2 flex flex-row gap-2"
@@ -1757,127 +2321,32 @@ const AdminLeadDetails = ({
                         style={{ height: '1px', backgroundColor: '#15151530' }}
                       />
 
-                      <div style={{ paddingInline: 20 }}>
-                        {/* {showPerplexityDetails && (
-                      <div
-                        className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]"
-                        style={{
-                          overflowY: "auto",
-                          scrollbarWidth: "none",
-                          overflowX: "hidden",
-                        }}
-                      >
-                        <div className="w-full flex flex-row justify-between items-center">
-                          <div className="w-full flex flex-row items-center gap-2">
-                            <Image
-                              src={"/svgIcons/image.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                              style={{ borderRadius: "50%" }}
+                      <div style={{ paddingInline: 0 }}>
+                        {showPerplexityDetails &&
+                          (selectedLeadsDetails &&
+                            selectedLeadsDetails.enrichData ? (
+                            <Perplexity
+                              selectedLeadsDetails={selectedLeadsDetails}
                             />
-
-                            <div style={{ fontsize: 22, fontWeight: "700" }}>
-                              More About Storm Johnson
-                            </div>
-                          </div>
-
-                          <div className="flex flex-row items-center gap-2 ">
-                            <Image
-                              src={"/svgIcons/confidanceIcon.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
+                          ) : (
+                            <NoPerplexity
+                              setshowConfirmPerplexity={setshowConfirmPerplexity}
+                              user={userLocalData}
+                              handleEnrichLead={handleEnrichLead}
+                              loading={loading}
+                              creditCost={creditCost}
                             />
+                          ))}
 
-                            <div style={{ fontsize: 22, fontWeight: "700" }}>
-                              Confidence Score:{" "}
-                              <span
-                                style={{
-                                  fontsize: 22,
-                                  fontWeight: "700",
-                                  color: "#7902DF",
-                                }}
-                              >
-                                70%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        <ConfirmPerplexityModal
+                          showConfirmPerplexity={showConfirmPerplexity}
+                          setshowConfirmPerplexity={setshowConfirmPerplexity}
+                          selectedLeadsDetails={selectedLeadsDetails}
+                          handleEnrichLead={handleEnrichLead}
+                          loading={loading}
+                          creditCost={creditCost}
+                        />
 
-                        <div className="w-full flex flex-row items-cneter gap-2 ">
-                          <div className="flex flex-col gap-2 w-[185px] h-[80px] px-2 py-2 items-center bg-[#FAFAFA] rounded">
-                            <div className="w-full flex flex-row items-cneter gap-2 ">
-                              <Image
-                                src={"/svgIcons/image.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                                style={{ borderRadius: "50%" }}
-                              />
-
-                              <div
-                                style={{
-                                  fontsize: 13,
-                                  fontWeight: "500",
-                                  color: "#00000060",
-                                }}
-                              >
-                                lifestyleandtech
-                              </div>
-                            </div>
-
-                            <div style={{ fontsize: 13, fontWeight: "500" }}>
-                              What now? With trevor noah,
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                          <Image
-                            src={"/svgIcons/perpelexityIcon.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-
-                          <div style={{ fontsize: 16, fontWeight: "700" }}>
-                            Perplexity
-                          </div>
-                        </div>
-
-                        <div style={{ fontsize: 15, fontWeight: "500" }}>
-                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
-                        </div>
-
-                        <div
-                          style={{
-                            fontsize: 15,
-                            fontWeight: "500",
-                            textDecorationLine: "underline",
-                            alignSelf: "flex-start",
-                          }}
-                        >
-                          {`Dwayne "The Rock" Johnson is a renowned actor`}
-                        </div>
-
-                        <div style={{ fontsize: 15, fontWeight: "500" }}>
-                          {`Dwayne "The Rock" Johnson is a renowned actor, producer, and former professional wrestler. He has been involved in numerous projects across various genres, including films and podcasts. Here are some recent highlights:`}
-                        </div>
-
-                        <div className="w-full flex flex-row items-cneter gap-2 mt-5">
-                          <Image
-                            src={"/svgIcons/image.svg"}
-                            height={144}
-                            width={160}
-                            alt="*"
-                            style={{
-                              borderRadius: "20px",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )} */}
                         {showKYCDetails && (
                           <div>
                             {selectedLeadsDetails?.kycs.length < 1 ? (
@@ -2095,12 +2564,12 @@ const AdminLeadDetails = ({
                                 {selectedLeadsDetails?.callActivity.map(
                                   (item, index) => {
                                     const initialTextLength = Math.ceil(
-                                      item.transcript?.length * 0.1,
-                                    ) // 40% of the text
-                                    const initialText = item.transcript?.slice(
-                                      0,
-                                      initialTextLength,
-                                    )
+                                      item?.transcript?.length * 0.1,
+                                    ) // 10% of the text
+                                    const initialText = item.transcript //?.slice(
+                                    // 0,
+                                    // initialTextLength
+                                    // );
                                     return (
                                       <div key={index}>
                                         <div className="mt-4">
@@ -2128,6 +2597,14 @@ const AdminLeadDetails = ({
                                               <div className="h-full w-full">
                                                 <div className="flex flex-row items-center justify-between">
                                                   <div className="flex flex-row items-center gap-1">
+                                                    <Image
+                                                      src={getCommunicationTypeIcon(
+                                                        item,
+                                                      )}
+                                                      height={15}
+                                                      width={15}
+                                                      alt="*"
+                                                    />
                                                     <div
                                                       style={{
                                                         fontWeight: '600',
@@ -2136,9 +2613,6 @@ const AdminLeadDetails = ({
                                                     >
                                                       Outcome
                                                     </div>
-                                                    {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                    </div> */}
                                                   </div>
                                                   <button
                                                     className="
@@ -2161,10 +2635,8 @@ const AdminLeadDetails = ({
                                                           showColor(item),
                                                       }}
                                                     ></div>
-                                                    {item?.callOutcome
-                                                      ? item?.callOutcome
-                                                      : 'Ongoing'}
-                                                    {/* {checkCallStatus(item)} */}
+
+                                                    {getOutcome(item)}
 
                                                     {item.callOutcome !==
                                                       'No Answer' && (
@@ -2249,122 +2721,58 @@ const AdminLeadDetails = ({
                                                           paddingInline: 15,
                                                         }}
                                                       >
-                                                        <div className="flex mt-4 flex-row items-center gap-4">
-                                                          <div
-                                                            className=""
-                                                            style={{
-                                                              fontWeight: '500',
-                                                              fontSize: 12,
-                                                              color:
-                                                                '#00000070',
-                                                            }}
-                                                          >
-                                                            Call ID
-                                                          </div>
+                                                        {item.communicationType ===
+                                                          'sms' ||
+                                                          item.communicationType ==
+                                                          'email'
+                                                          ? emailSmsTranscript(
+                                                            item,
+                                                          )
+                                                          : callTranscript(
+                                                            item,
+                                                            initialText,
+                                                          )}
 
+                                                        <div
+                                                          className="
+                                                        w-full flex flex-row justify-end -mt-2
+                                                        "
+                                                        >
                                                           <button
-                                                            onClick={() =>
-                                                              handleCopy(
-                                                                item.callId,
-                                                              )
-                                                            }
-                                                          >
-                                                            <Image
-                                                              src={
-                                                                '/svgIcons/copy.svg'
-                                                              }
-                                                              height={15}
-                                                              width={15}
-                                                              alt="*"
-                                                            />
-                                                          </button>
-                                                        </div>
-                                                        <div className="flex flex-row items-center justify-between mt-4">
-                                                          <div
-                                                            style={{
-                                                              fontWeight: '500',
-                                                              fontSize: 15,
-                                                            }}
-                                                          >
-                                                            {moment(
-                                                              item?.duration *
-                                                                1000,
-                                                            ).format(
-                                                              'mm:ss',
-                                                            )}{' '}
-                                                          </div>
-                                                          <button
-                                                            onClick={() => {
-                                                              if (
-                                                                item?.recordingUrl
-                                                              ) {
-                                                                setShowAudioPlay(
-                                                                  item?.recordingUrl,
-                                                                )
-                                                              } else {
-                                                                setShowNoAudioPlay(
-                                                                  true,
-                                                                )
-                                                              }
-                                                              // window.open(item.recordingUrl, "_blank")
-                                                            }}
-                                                          >
-                                                            <Image
-                                                              src={
-                                                                '/assets/play.png'
-                                                              }
-                                                              height={35}
-                                                              width={35}
-                                                              alt="*"
-                                                            />
-                                                          </button>
-                                                        </div>
-                                                        {item.transcript ? (
-                                                          <div className="w-full">
-                                                            <div
-                                                              className="mt-4"
-                                                              style={{
-                                                                fontWeight:
-                                                                  '600',
-                                                                fontSize: 15,
-                                                              }}
-                                                            >
-                                                              {/* {item.transcript} */}
-                                                              {`${initialText}...`}
-                                                              {/* {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`} */}
-                                                            </div>
-                                                            <div className="w-full flex flex-row items-center justify-between">
-                                                              <button
-                                                                style={{
-                                                                  fontWeight:
-                                                                    '600',
-                                                                  fontSize: 15,
-                                                                }}
-                                                                onClick={() => {
-                                                                  handleReadMoreToggle(
-                                                                    item,
-                                                                  )
-                                                                }}
-                                                                className="mt-2 text-black underline"
-                                                              >
-                                                                {'Read more'}
-                                                              </button>
-                                                            </div>
-                                                          </div>
-                                                        ) : (
-                                                          <div
                                                             style={{
                                                               fontWeight: '600',
                                                               fontSize: 15,
+                                                              color: '#00000050',
                                                             }}
-                                                          >
-                                                            No transcript
+                                                            onClick={() => {
+                                                              setShowConfirmationPopup(
+                                                                  true,
+                                                                )
+                                                              setSelectedCallLog(
+                                                                    item,
+                                                                  )
+                                                                }}
+                                                              >
+                                                            Delete
+                                                              </button>
+
+                                                          <DeleteCallLogConfimation
+                                                            showConfirmationPopup={
+                                                              showConfirmationPopup
+                                                            }
+                                                            setShowConfirmationPopup={
+                                                              setShowConfirmationPopup
+                                                            }
+                                                            onContinue={() => {
+                                                              deleteCallLog(
+                                                                seletedCallLog,
+                                                              )
+                                                            }}
+                                                            loading={
+                                                              delCallLoader
+                                                            }
+                                                          />
                                                           </div>
-                                                        )}
                                                       </div>
                                                     </>
                                                   ))}
@@ -2388,21 +2796,42 @@ const AdminLeadDetails = ({
                           right: 20,
                         }}
                       >
-                        {delLeadLoader ? (
-                          <CircularProgress size={20} />
-                        ) : (
                           <div>
                             {!hideDelete && (
                               <button
-                                onClick={handleDeleteLead}
-                                className="text-red"
-                                style={{ fontsize: 15, fontWeight: '500' }}
+                              className="flex flex-row gap-2 items-center"
+                              onClick={() => {
+                                setShowDelModal(true)
+                              }}
+                              style={{
+                                marginTop: 20,
+                                alignSelf: 'end',
+                              }}
+                            >
+                              <Image
+                                src={'/otherAssets/redDeleteIcon.png'}
+                                height={24}
+                                width={24}
+                                alt="del"
+                                style={{
+                                  filter:
+                                    'brightness(0) saturate(100%) opacity(0.5)',
+                                }}
+                              />
+
+                              <div
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: '600',
+                                  color: '#15151590',
+                                  textDecorationLine: 'underline',
+                                }}
                               >
                                 Delete
+                              </div>
                               </button>
                             )}
                           </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -2537,6 +2966,61 @@ const AdminLeadDetails = ({
         </Box>
       </Modal>
 
+      {/* delete lead modal */}
+      <Modal
+        open={showDelModal}
+        onClose={() => setShowDelModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={styles.modalsStyle}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="font-bold text-xl mt-6">
+                Are you sure you want to delete this lead
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button
+                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                  onClick={() => {
+                    setShowDelModal(false)
+                  }}
+                >
+                  Cancel
+                </button>
+                {delLeadLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={async () => {
+                      await handleDeleteLead(selectedLeadsDetails)
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
       {/* Modal for audio play */}
       <Modal
         open={showAudioPlay}
@@ -2545,40 +3029,138 @@ const AdminLeadDetails = ({
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
-            // //backdropFilter: "blur(5px)",
           },
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
+        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center">
             <div
-              className="w-full flex flex-col items-center"
+              className="w-full flex flex-col items-end"
               style={{
                 backgroundColor: '#ffffff',
                 padding: 20,
                 borderRadius: '13px',
               }}
             >
-              <audio controls>
-                <source src={showAudioPlay} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
               <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                className="mb-3"
+                style={{ fontWeight: '600', fontSize: 15 }}
+                onClick={() => {
+                  navigator.clipboard.writeText(showAudioPlay).then(() => {
+                  setShowAudioPlay(null)
+                    setShowSuccessSnack('Audio URL copied')
+                    setShowSuccessSnack2(true)
+                  })
+                }}
+              >
+                <Image
+                  src={'/otherAssets/share.png'}
+                  height={20}
+                  width={20}
+                  alt="*"
+                />
+              </button>
+
+              <audio
+                id="custom-audio"
+                controls
+                style={{ width: '100%' }}
+                src={showAudioPlay}
+              />
+
+              <button
+                className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
+                style={{ fontWeight: '600', fontSize: 15 }}
                 onClick={() => {
                   setShowAudioPlay(null)
                 }}
-                style={{ fontWeight: '600', fontSize: 15 }}
               >
                 Close
               </button>
-
-              {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
           </div>
         </Box>
       </Modal>
+
+      {/* Email Template Modal */}
+      <AuthSelectionPopup
+        open={showAuthSelectionPopup}
+        onClose={() => setShowAuthSelectionPopup(false)}
+        onSuccess={() => {
+          setShowEmailModal(true)
+          setShowAuthSelectionPopup(false)
+        }}
+        setShowEmailTempPopup={(value) => {
+          setShowEmailModal(value)
+          setShowAuthSelectionPopup(false)
+        }}
+        showEmailTempPopup={showEmailModal}
+        selectedGoogleAccount={selectedGoogleAccount}
+        setSelectedGoogleAccount={(account) => {
+          setSelectedGoogleAccount(account)
+        }}
+      />
+
+      <EmailTempletePopup
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        communicationType="email"
+        addRow={null}
+        isEditing={false}
+        editingRow={null}
+        onUpdateRow={null}
+        selectedGoogleAccount={selectedGoogleAccount}
+        setSelectedGoogleAccount={setSelectedGoogleAccount}
+        onSendEmail={sendEmailToLead}
+        isLeadEmail={true}
+        leadEmail={
+          selectedLeadsDetails?.email ||
+          selectedLeadsDetails?.emails?.[0]?.email
+        }
+        leadId={selectedLeadsDetails?.id}
+      />
+
+      {/* SMS Template Modal */}
+      <SMSTempletePopup
+        open={showSMSModal}
+        onClose={() => setShowSMSModal(false)}
+        phoneNumbers={phoneNumbers}
+        phoneLoading={phoneLoading}
+        communicationType="sms"
+        addRow={null}
+        isEditing={false}
+        editingRow={null}
+        onUpdateRow={null}
+        onSendSMS={sendSMSToLead}
+        isLeadSMS={true}
+        leadPhone={selectedLeadsDetails?.phone}
+        leadId={selectedLeadsDetails?.id}
+      />
+
+      {/* Upgrade Plan Modal */}
+      <Elements stripe={stripePromise}>
+        <UpgradePlan
+          selectedPlan={selectedPlan}
+          setSelectedPlan={() => {
+            console.log('setSelectedPlan is called')
+          }}
+          open={showUpgradeModal}
+          handleClose={async (upgradeResult) => {
+            setShowUpgradeModal(false)
+            if (upgradeResult) {
+              const getData = async () => {
+                let user = await getProfileDetails()
+                if (user) {
+                  setUserLocalData(user.data.data)
+                }
+              }
+              await getData()
+            }
+          }}
+          plan={selectedPlan}
+          currentFullPlan={currentFullPlan}
+        />
+      </Elements>
     </div>
   )
 }

@@ -301,10 +301,13 @@ export default function AddMonthlyPlan({
       const DiscountedPrice = basicsData?.discountedPrice
       if (
         DiscountedPrice !== undefined &&
-        DiscountedPrice !== null &&
-        DiscountedPrice > 0
+        DiscountedPrice !== null
       ) {
+        // Set discountedPrice even if it's 0, so the form is properly initialized
         setDiscountedPrice(formatFractional2(DiscountedPrice))
+      } else {
+        // Clear discountedPrice if not provided
+        setDiscountedPrice('')
       }
 
       if (basicsData?.minutes !== undefined && basicsData?.minutes !== null) {
@@ -335,6 +338,9 @@ export default function AddMonthlyPlan({
         const DiscountedPrice =
           selectedPlan.discountedPrice / selectedPlan.minutes
         setDiscountedPrice(formatFractional2(DiscountedPrice))
+      } else {
+        // Clear discountedPrice if not provided
+        setDiscountedPrice('')
       }
 
       if (

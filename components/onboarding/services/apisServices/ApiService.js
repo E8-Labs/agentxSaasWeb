@@ -8,7 +8,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import CircularLoader from '@/utilities/CircularLoader'
 
 //api call to assign lead to teamm members
-export const AssignTeamMember = async (ApiData) => {
+export const AssignTeamMember = async (ApiData,selectedUser) => {
   try {
     // //console.log
     let AuthToken = null
@@ -31,6 +31,10 @@ export const AssignTeamMember = async (ApiData) => {
     // return;
 
     const ApiPath = Apis.AssignLeadToTeam
+
+    if(selectedUser){
+      ApiData.userId = selectedUser.id
+    }
     // //console.log
     // return
     const response = await axios.post(ApiPath, ApiData, {
@@ -45,7 +49,7 @@ export const AssignTeamMember = async (ApiData) => {
       return response
     }
   } catch (error) {
-    // console.error("Error occured in assign lead to teammeber api is", error);
+    console.error("Error occured in assign lead to teammeber api is", error);
   } finally {
     // //console.log;
   }
