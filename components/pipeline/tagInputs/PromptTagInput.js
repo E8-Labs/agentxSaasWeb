@@ -42,16 +42,20 @@ export const PromptTagInput = ({
 
   useEffect(() => {
     let arr = [...options]
-    uniqueColumns?.map((item) => {
-      if (!arr.includes(item)) {
-        arr.push(item)
-      }
-    })
-    kycsList?.map((item) => {
-      if (!arr.includes(item.question)) {
-        arr.push(item.question)
-      }
-    })
+    if (Array.isArray(uniqueColumns)) {
+      uniqueColumns.map((item) => {
+        if (!arr.includes(item)) {
+          arr.push(item)
+        }
+      })
+    }
+    if (Array.isArray(kycsList)) {
+      kycsList.map((item) => {
+        if (item?.question && !arr.includes(item.question)) {
+          arr.push(item.question)
+        }
+      })
+    }
     console.log('kycs list is:', kycsList)
     console.log('arr is:', arr)
     setOptions(arr)

@@ -1404,7 +1404,7 @@ const Leads1 = () => {
                       }}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7902DF',
+                          color: 'hsl(var(--brand-primary))',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                           {
@@ -1444,6 +1444,7 @@ const Leads1 = () => {
                           height={16}
                           width={16}
                           alt="*"
+                          style={{ filter: 'brightness(0)' }}
                         />
                       </div>
                     </Tooltip>
@@ -2143,7 +2144,7 @@ const Leads1 = () => {
                             }}
                             sx={{
                               '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#7902DF',
+                                color: 'hsl(var(--brand-primary))',
                               },
                               '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                                 {

@@ -980,30 +980,23 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     }}
                     onClick={handleOutBoundCallClick}
                   >
-                    {OutBoundCalls ? (
-                      <Image
-                        src={'/svgIcons/callOutFocus.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          WebkitMaskImage: 'url(/assets/callOut.png)',
-                          maskImage: 'url(/assets/callOut.png)',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                        }}
-                      />
-                    )}
+                    <div
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: OutBoundCalls
+                          ? 'hsl(var(--brand-primary))'
+                          : '#000000',
+                        WebkitMaskImage: 'url(/assets/callOut.png)',
+                        maskImage: 'url(/assets/callOut.png)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
+                    />
                     <div
                       className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
                       style={{
@@ -1025,30 +1018,23 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     }}
                     onClick={handleInboundCallClick}
                   >
-                    {InBoundCalls ? (
-                      <Image
-                        src={'/svgIcons/callInFocus.svg'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                          WebkitMaskImage: 'url(/assets/callIn.png)',
-                          maskImage: 'url(/assets/callIn.png)',
-                          WebkitMaskSize: 'contain',
-                          maskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          maskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center',
-                          maskPosition: 'center',
-                        }}
-                      />
-                    )}
+                    <div
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: InBoundCalls
+                          ? 'hsl(var(--brand-primary))'
+                          : '#000000',
+                        WebkitMaskImage: 'url(/assets/callIn.png)',
+                        maskImage: 'url(/assets/callIn.png)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
+                    />
                     <div
                       className="text-start ms-2 sm:text-center sm:ms-0"
                       style={styles.inputStyle}

@@ -1297,7 +1297,7 @@ const Userleads = ({
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {canShowSelected ? (
                 <button
-                  className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                   onClick={() => {
                     handleToggleClick(item.id)
                   }}
@@ -2192,7 +2192,7 @@ const Userleads = ({
                         <div>
                           <div className="flex flex-row items-center gap-2">
                             <button
-                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                               onClick={() => {
                                 setSelectedLeadsList([])
                                 setSelectedAll(false)
@@ -2751,7 +2751,7 @@ const Userleads = ({
                                     handleSelectStage(item)
                                   }}
                                   className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-purple` : 'bg-transparent'
+                                    found >= 0 ? `bg-brand-primary` : 'bg-transparent'
                                   } px-6
                               ${
                                 found >= 0 ? `text-white` : 'text-black'
@@ -2771,7 +2771,7 @@ const Userleads = ({
                               }}
                               className={`p-2 border border-[#00000020] ${
                                 noStageSelected
-                                  ? `bg-purple text-white`
+                                  ? `bg-brand-primary text-white`
                                   : 'bg-transparent text-black'
                               } px-6 rounded-2xl`}
                             >
@@ -2801,7 +2801,7 @@ const Userleads = ({
                         <CircularProgress size={25} sx={{ color: '#7902DF' }} />
                       ) : (
                         <button
-                          className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                          className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
                           style={{
                             fontSize: 16.8,
                             fontWeight: '600',

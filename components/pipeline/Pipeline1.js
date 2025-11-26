@@ -39,6 +39,7 @@ const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter()
 
   const [shouldContinue, setShouldContinue] = useState(true)
+  const [isSubaccount, setIsSubaccount] = useState(false)
   const [toggleClick, setToggleClick] = useState(false)
   const [selectedPipelineItem, setSelectedPipelineItem] = useState(null)
   const [selectPipleLine, setSelectPipleLine] = useState('')
@@ -65,6 +66,24 @@ const Pipeline1 = ({ handleContinue }) => {
   useEffect(() => {
     // //console.log;
   }, [reorderSuccessBarMessage])
+
+  useEffect(() => {
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   const [reorderLoader, setReorderLoader] = useState(false)
   //code for new Lead calls
@@ -677,11 +696,24 @@ const Pipeline1 = ({ handleContinue }) => {
         />
       )}
       <div
-        className="bg-white rounded-2xl w-10/12 h-[100%] py-4 flex flex-col justify-between" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div>
-          {/* header */}
-          <Header />
+        <div className="w-full flex-1 flex flex-col min-h-0">
+          {/* header with title centered vertically */}
+          <div className="relative w-full flex-shrink-0">
+            <Header />
+            <div
+              className="absolute left-1/2 transform -translate-x-1/2 md:text-4xl text-lg font-[700]"
+              style={{
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 10,
+                pointerEvents: 'none',
+              }}
+            >
+              Pipeline and Stages
+            </div>
+          </div>
           {/* Body */}
 
           {/* Code for side video */}
@@ -727,17 +759,13 @@ const Pipeline1 = ({ handleContinue }) => {
             />
           </div>
 
-          <div className="flex flex-col items-center justify-center px-4 w-full">
-            <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: 'center' }}
-            >
-              Pipeline and Stages
-            </div>
+          <div 
+            className="flex flex-col items-center px-4 w-full flex-1 min-h-0 overflow-hidden"
+          >
 
             <div
-              className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col h-[56vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              style={{ scrollbarWidth: 'none' }}
+              className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              style={{ scrollbarWidth: 'none', minHeight: 0 }}
             >
               {pipelinesDetails.length > 1 && (
                 <div>
@@ -853,7 +881,7 @@ const Pipeline1 = ({ handleContinue }) => {
             </div>
           </div>
         </div>
-        <div>
+        <div className="w-full flex-shrink-0">
           <div>
             <ProgressBar value={33} />
           </div>

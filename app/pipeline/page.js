@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic.js'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import BackgroundVideo from '@/components/general/BackgroundVideo.js'
 
@@ -17,9 +17,28 @@ const Pipeline2 = dynamic(
 
 const Page = () => {
   const [index, setIndex] = useState(1)
+  const [isSubaccount, setIsSubaccount] = useState(false)
   let components = [AddCalender, Pipeline1, Pipeline2]
 
   let CurrentComp = components[index]
+
+  useEffect(() => {
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   // Function to proceed to the next step
   const handleContinue = () => {
@@ -59,7 +78,20 @@ const Page = () => {
           zIndex: -1, // Ensure the video stays behind content
         }}
       >
-        <BackgroundVideo />
+        {isSubaccount ? (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background:
+                process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+                  ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`
+                  : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`,
+            }}
+          />
+        ) : (
+          <BackgroundVideo />
+        )}
       </div>
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>

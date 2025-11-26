@@ -630,21 +630,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             />
           </div>
           <div
-            className="flex flex-col items-center px-4 w-full h-[67vh] overflow-auto"
-            style={{ scrollbarWidth: 'none' }}
+            className="flex flex-col items-center px-4 w-full"
+            style={{
+              paddingTop: isSubaccount ? '50px' : undefined,
+            }}
           >
             <div
-              className="w-11/12 md:text-4xl text-lg font-[600] mt-6"
+              className="w-11/12 md:text-4xl text-lg font-[600]"
               style={{
                 textAlign: 'center',
-                marginTop: isSubaccount ? '-40px' : undefined,
+                marginTop: isSubaccount ? '-80px' : '24px',
+                marginBottom: '16px',
               }}
               // onClick={handleContinue}
             >
               {`Let's talk digits`}
             </div>
             <div
-              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
+              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
               // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
               style={{ scrollbarWidth: 'none' }}
             >

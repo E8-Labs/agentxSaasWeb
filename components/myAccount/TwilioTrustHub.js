@@ -63,8 +63,16 @@ const TwilioTrustHub = ({
     let data = getUserLocalData()
     console.log('Data', data)
     if (data) {
-      let isFree = !data.user.planCapabilities?.allowTwilioIntegration || false //allowTwilioIntegration
+      // Check if either allowTwilioIntegration or allowTwilioTrusthub is true
+      const hasTwilioAccess =
+        data.user.planCapabilities?.allowTwilioIntegration === true ||
+        data.user.planCapabilities?.allowTwilioTrusthub === true
+      // Show upgrade view if user doesn't have Twilio access
+      let isFree = !hasTwilioAccess
       console.log('Plan capabilities', data.user.planCapabilities)
+      console.log('allowTwilioIntegration:', data.user.planCapabilities?.allowTwilioIntegration)
+      console.log('allowTwilioTrusthub:', data.user.planCapabilities?.allowTwilioTrusthub)
+      console.log('hasTwilioAccess:', hasTwilioAccess)
       setIsFreePlan(isFree)
       console.log('isFree', isFree)
     }

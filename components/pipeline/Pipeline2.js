@@ -63,6 +63,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const [user, setUser] = useState(null)
   const [AgentDetails, setAgentDetails] = useState(null)
   const [introVideoModal, setIntroVideoModal] = useState(false)
+  const [isSubaccount, setIsSubaccount] = useState(false)
   //code for tag inputs
   // const [greetingTagInput, setGreetingTagInput] = useState("");
   // const [scriptTagInput, setScriptTagInput] = useState("");
@@ -137,6 +138,21 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     if (userData) {
       let u = JSON.parse(userData)
       setUser(u)
+    }
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
     }
   }, [])
 
@@ -764,8 +780,21 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     >
       <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col justify-between">
         <div>
-          {/* header */}
-          <Header />
+          {/* header with title centered vertically */}
+          <div className="relative w-full flex-shrink-0">
+            <Header />
+            <div
+              className="absolute left-1/2 transform -translate-x-1/2 md:text-4xl text-lg font-[700]"
+              style={{
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 10,
+                pointerEvents: 'none',
+              }}
+            >
+              Create a Script
+            </div>
+          </div>
           {/* Body */}
           {/* Code for side video */}
           <div
@@ -797,7 +826,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           <div
             ref={containerRef}
             className="flex flex-col items-center px-4 w-full overflow-auto h-[68vh]"
-            style={{ scrollbarWidth: 'none' }}
+            style={{ 
+              scrollbarWidth: 'none',
+            }}
           >
             <IntroVideoModal
               open={introVideoModal}
@@ -811,13 +842,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 HowtoVideos.script
               }
             />
-
-            <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: 'center' }}
-            >
-              {`Create a Script`}
-            </div>
             <div className="mt-8 w-7/12 gap-4 flex flex-col">
               <div className="bg-[#00000012] p-4">
                 <div
@@ -1085,8 +1109,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         style={{
                           ...styles.inputStyle,
                           color:
-                            item.id === settingToggleClick ? 'hsl(var(--brand-primary))' : '',
+                            item.id === settingToggleClick
+                              ? 'hsl(var(--brand-primary))'
+                              : '',
                           marginLeft: item.id === 2 ? 10 : 0,
+                          borderBottom:
+                            item.id === settingToggleClick
+                              ? '2px solid hsl(var(--brand-primary))'
+                              : '2px solid transparent',
+                          paddingBottom: '8px',
                         }}
                         onClick={(e) => {
                           handleAdvanceSettingToggleClick(item.id)
@@ -1095,32 +1126,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                         {item.title}
                       </button>
                     ))}
-                  </div>
-                  <div>
-                    {settingToggleClick === 1 ? (
-                      <Image
-                        src={'/assets/needKYC.png'}
-                        height={5}
-                        width={303}
-                        alt="*"
-                      />
-                    ) : settingToggleClick === 2 ? (
-                      <Image
-                        src={'/assets/motivationKyc.png'}
-                        height={5}
-                        width={303}
-                        alt="*"
-                      />
-                    ) : settingToggleClick === 3 ? (
-                      <Image
-                        src={'/assets/urgencyKyc.png'}
-                        height={8}
-                        width={310}
-                        alt="*"
-                      />
-                    ) : (
-                      ''
-                    )}
                   </div>
                 </div>
 

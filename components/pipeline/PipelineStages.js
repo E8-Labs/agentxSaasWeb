@@ -797,6 +797,7 @@ const PipelineStages = ({
               border: 'none',
               scrollbarWidth: 'none',
               marginTop: 20,
+              paddingBottom: '80px',
             }}
           >
             {pipelineStages.map((item, index) => (
@@ -865,7 +866,11 @@ const PipelineStages = ({
                                 setSelectedStage(item)
                               }}
                             >
-                              <PencilSimple size={16} weight="regular" />
+                              <PencilSimple
+                                size={16}
+                                weight="regular"
+                                style={{ color: 'hsl(var(--brand-primary))' }}
+                              />
                             </button>
                           )}
                         </div>
@@ -930,11 +935,20 @@ const PipelineStages = ({
                                 }}
                                 onClick={() => assignNewStage(index)}
                               >
-                                <Image
-                                  src={'/assets/addIcon.png'}
-                                  height={16}
-                                  width={16}
-                                  alt="*"
+                                <div
+                                  style={{
+                                    width: '16px',
+                                    height: '16px',
+                                    backgroundColor: '#FFFFFF',
+                                    WebkitMaskImage: 'url(/assets/addIcon.png)',
+                                    maskImage: 'url(/assets/addIcon.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                  }}
                                 />
                                 <div>Assign</div>
                               </button>
@@ -1100,13 +1114,12 @@ const PipelineStages = ({
                                                     handleEditRow(index, row, e)
                                                   }
                                                 >
-                                                  <Image
-                                                    src={
-                                                      '/svgIcons/editIconPurple.svg'
-                                                    }
-                                                    height={16}
-                                                    width={16}
-                                                    alt="*"
+                                                  <PencilSimple
+                                                    size={16}
+                                                    weight="regular"
+                                                    style={{
+                                                      color: 'hsl(var(--brand-primary))',
+                                                    }}
                                                   />
                                                 </button>
                                               </div>
@@ -1150,7 +1163,7 @@ const PipelineStages = ({
                                 >
                                   {ACTIONS.map((a) => (
                                     <Tooltip
-                                      key={a.id}
+                                      key={a.value}
                                       title={
                                         shouldDisable(a) &&
                                         user?.planCapabilities
@@ -1185,7 +1198,6 @@ const PipelineStages = ({
                                       <div>
                                         <MenuItem
                                           // disabled={shouldDisable(a)}
-                                          key={a.value}
                                           sx={{
                                             width: 180,
                                             '&:hover .action-icon': {
@@ -1291,6 +1303,18 @@ const PipelineStages = ({
                                         }
                                         return selected
                                       }}
+                                      MenuProps={{
+                                        PaperProps: {
+                                          sx: {
+                                            '& .MuiMenuItem-root.Mui-selected': {
+                                              backgroundColor: '#F5F5F5',
+                                              '&:hover': {
+                                                backgroundColor: '#F5F5F5',
+                                              },
+                                            },
+                                          },
+                                        },
+                                      }}
                                       sx={{
                                         ...styles.dropdownMenu,
                                         backgroundColor: 'transparent',
@@ -1330,6 +1354,12 @@ const PipelineStages = ({
                                             py: 0,
                                             my: 0,
                                             minHeight: '32px',
+                                            '&.Mui-selected': {
+                                              backgroundColor: '#F5F5F5',
+                                              '&:hover': {
+                                                backgroundColor: '#F5F5F5',
+                                              },
+                                            },
                                           }}
                                         >
                                           {dropDownStateItem.stageTitle
@@ -1733,15 +1763,19 @@ const PipelineStages = ({
               }}
             >
               <div className="gap-1 flex flex-row items-center">
-                <Image
-                  src={'/assets/addIcon.png'}
-                  height={15}
-                  width={15}
-                  alt="*"
+                <div
                   style={{
-                    // filter: 'invert(23%) sepia(50%) saturate(7999%) hue-rotate(259deg) brightness(100%) contrast(140%)',
-                    filter:
-                      'invert(59%) sepia(84%) saturate(7500%) hue-rotate(260deg) brightness(90%) contrast(110%)',
+                    width: '15px',
+                    height: '15px',
+                    backgroundColor: 'hsl(var(--brand-primary))',
+                    WebkitMaskImage: 'url(/assets/addIcon.png)',
+                    maskImage: 'url(/assets/addIcon.png)',
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
                   }}
                 />
                 <p
