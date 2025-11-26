@@ -43,7 +43,7 @@ const Header = ({
 
   return (
     <div>
-      <div className="px-4 flex flex-row items-center md:pt-2">
+      <div className="px-4 flex flex-row items-center md:pt-6">
         <div className="w-4/12">
           <div className="ms-6 hidden md:flex">
             <AppLogo
