@@ -367,17 +367,25 @@ const StandardNot = ({
                         </span>
                       </div>
                       <button
-                        className="outline-none border-none"
+                        className="outline-none border-none relative"
                         style={styles.smallRegular}
                         onClick={() => handleEditPushClick(item)}
                         title="Edit push notification"
                       >
-                        <Image
-                          src={'/agencyIcons/purplePen.png'}
-                          alt="edit"
-                          width={16}
-                          height={16}
-                          className="icon-brand-primary"
+                        <div
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                            WebkitMaskImage: 'url(/agencyIcons/purplePen.png)',
+                            maskImage: 'url(/agencyIcons/purplePen.png)',
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                       </button>
                     </div>
@@ -426,16 +434,25 @@ const StandardNot = ({
                           </span>
                         </div>
                         <button
-                          className="outline-none border-none"
+                          className="outline-none border-none relative"
                           style={styles.smallRegular}
                           onClick={() => handleEditEmailClick(item)}
                           title="Edit email notification"
                         >
-                          <Image
-                            src={'/agencyIcons/purplePen.png'}
-                            alt="edit"
-                            width={16}
-                            height={16}
+                          <div
+                            style={{
+                              width: '16px',
+                              height: '16px',
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              WebkitMaskImage: 'url(/agencyIcons/purplePen.png)',
+                              maskImage: 'url(/agencyIcons/purplePen.png)',
+                              WebkitMaskSize: 'contain',
+                              maskSize: 'contain',
+                              WebkitMaskRepeat: 'no-repeat',
+                              maskRepeat: 'no-repeat',
+                              WebkitMaskPosition: 'center',
+                              maskPosition: 'center',
+                            }}
                           />
                         </button>
                       </div>

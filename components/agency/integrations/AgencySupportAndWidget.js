@@ -371,12 +371,20 @@ const AgencySupportAndWidget = () => {
                         setShowEditModalTitle(supportCalTitle)
                       }}
                     >
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -433,12 +441,20 @@ const AgencySupportAndWidget = () => {
                       >
                         Edit
                       </div>
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -652,12 +668,20 @@ const AgencySupportAndWidget = () => {
                         setShowEditModalTitle(feedBackTitle)
                       }}
                     >
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -714,12 +738,20 @@ const AgencySupportAndWidget = () => {
                       >
                         Edit
                       </div>
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -811,12 +843,20 @@ const AgencySupportAndWidget = () => {
                         setShowEditModalTitle(hireTeamTitle)
                       }}
                     >
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -873,12 +913,20 @@ const AgencySupportAndWidget = () => {
                       >
                         Edit
                       </div>
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -969,12 +1017,20 @@ const AgencySupportAndWidget = () => {
                         setShowEditModalTitle(billingAndSupportTitle)
                       }}
                     >
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -1031,12 +1087,20 @@ const AgencySupportAndWidget = () => {
                       >
                         Edit
                       </div>
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -1146,12 +1210,20 @@ const AgencySupportAndWidget = () => {
                         setShowEditModalTitle(resourceHubTitle)
                       }}
                     >
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>
@@ -1208,12 +1280,20 @@ const AgencySupportAndWidget = () => {
                       >
                         Edit
                       </div>
-                      <Image
-                        alt="*"
-                        src={'/assets/editPen.png'}
-                        height={16}
-                        width={16}
-                        className="icon-brand-primary"
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     </button>
                   </div>

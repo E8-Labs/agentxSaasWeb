@@ -182,12 +182,20 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                         }
                         title="Edit push notification"
                       >
-                        <Image
-                          src={'/agencyIcons/purplePen.png'}
-                          className="icon-brand-primary"
-                          alt="edit"
-                          width={16}
-                          height={16}
+                        <div
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                            WebkitMaskImage: 'url(/agencyIcons/purplePen.png)',
+                            maskImage: 'url(/agencyIcons/purplePen.png)',
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                          }}
                         />
                       </button>
                     </div>
@@ -249,12 +257,20 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                           }
                           title="Edit email notification"
                         >
-                          <Image
-                            src={'/agencyIcons/purplePen.png'}
-                          className="icon-brand-primary"
-                            alt="edit"
-                            width={16}
-                            height={16}
+                          <div
+                            style={{
+                              width: '16px',
+                              height: '16px',
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              WebkitMaskImage: 'url(/agencyIcons/purplePen.png)',
+                              maskImage: 'url(/agencyIcons/purplePen.png)',
+                              WebkitMaskSize: 'contain',
+                              maskSize: 'contain',
+                              WebkitMaskRepeat: 'no-repeat',
+                              maskRepeat: 'no-repeat',
+                              WebkitMaskPosition: 'center',
+                              maskPosition: 'center',
+                            }}
                           />
                         </button>
                       </div>
