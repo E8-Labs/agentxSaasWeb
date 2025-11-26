@@ -65,7 +65,7 @@ export default function XBarConfirmationModal({
           variant="outlined"
           sx={{
             borderColor: 'hsl(var(--brand-primary))',
-            color: '#000',
+            color: 'hsl(var(--brand-primary))',
             fontWeight: 'bold',
             textTransform: 'none',
             paddingY: '0.8rem',
@@ -74,6 +74,7 @@ export default function XBarConfirmationModal({
             '&:hover': {
               borderColor: 'hsl(var(--brand-primary))',
               backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+              color: 'hsl(var(--brand-primary))',
             },
           }}
         >

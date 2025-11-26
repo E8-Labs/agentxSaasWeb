@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { PersistanceKeys, XBarPlans } from '@/constants/Constants'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { isLightColor } from '@/utilities/colorUtils'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -73,6 +74,7 @@ function BarServices() {
     useState(false)
   const [role, setRole] = useState('')
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [textColor, setTextColor] = useState('#fff') // Default to white text
 
   useEffect(() => {
     let screenWidth = 1000
@@ -128,6 +130,16 @@ function BarServices() {
   useEffect(() => {
     getProfile()
     getCardsList()
+    
+    // Calculate text color based on background for subaccounts
+    if (typeof window !== 'undefined') {
+      const brandPrimary = getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand-primary')
+        .trim()
+      const opacity = 0.4
+      const isLight = isLightColor(brandPrimary, opacity)
+      setTextColor(isLight ? '#000' : '#fff')
+    }
   }, [])
 
   const getProfile = async () => {
@@ -396,11 +408,11 @@ function BarServices() {
           className="w-10/12 p-4 rounded-lg flex flex-row items-center"
           style={{
             backgroundImage: isSubaccount ? 'none' : 'url(/svgIcons/cardBg.svg)',
-            backgroundColor: isSubaccount ? 'hsl(var(--brand-primary) / 0.15)' : undefined,
+            backgroundColor: isSubaccount ? 'hsl(var(--brand-primary) / 0.4)' : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            color: '#fff',
+            color: isSubaccount ? textColor : '#fff',
             alignSelf: 'center',
             marginTop: '2vh',
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -465,10 +477,16 @@ function BarServices() {
           }}
         >
           {plans.map((item, index) => (
-            <div
+            <label
               key={item.id}
-              className="w-full mt-4"
-              onClick={(e) => handleTogglePlanClick(item)}
+              htmlFor={`plan-${item.id}`}
+              className="w-full mt-4 cursor-pointer block"
+              onClick={(e) => {
+                if (e.target.closest('button') || e.target.closest('[role="radio"]')) {
+                  return
+                }
+                handleTogglePlanClick(item)
+              }}
             >
               <div
                 className="px-4 py-1 pb-4"
@@ -492,14 +510,12 @@ function BarServices() {
                   className="flex flex-row items-start gap-3"
                   style={styles.content}
                 >
-                  <div className="mt-1">
-                    <label htmlFor={`plan-${item.id}`} className="cursor-pointer">
-                      <RadioGroupItem
-                        value={item.id.toString()}
-                        id={`plan-${item.id}`}
-                        className="h-6 w-6"
-                      />
-                    </label>
+                  <div className="mt-1 flex items-center">
+                    <RadioGroupItem
+                      value={item.id.toString()}
+                      id={`plan-${item.id}`}
+                      className="h-6 w-6"
+                    />
                   </div>
                   <div className="w-full">
                     {/* {item.id === currentPlan && (
@@ -570,7 +586,7 @@ function BarServices() {
                   </div>
                 </div>
               </div>
-            </div>
+            </label>
           ))}
         </RadioGroup>
 

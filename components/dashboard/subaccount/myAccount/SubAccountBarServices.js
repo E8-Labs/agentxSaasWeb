@@ -15,6 +15,8 @@ import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
@@ -28,6 +30,7 @@ import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import XBarConfirmationModal from '@/components/myAccount/XBarConfirmationModal'
 import { PersistanceKeys } from '@/constants/Constants'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { isLightColor } from '@/utilities/colorUtils'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -79,6 +82,10 @@ function SubAccountBarServices({ selectedUser }) {
   //getplans loader
   const [getPlansLoader, setGetPlansLoader] = useState(false)
 
+  //subaccount detection
+  const [isSubaccount, setIsSubaccount] = useState(true) // This is already a subaccount component
+  const [textColor, setTextColor] = useState('#fff') // Default to white text
+
   //variables for cancel plan
   const [giftPopup, setGiftPopup] = useState(false)
   const [ScreenWidth, setScreenWidth] = useState(null)
@@ -100,6 +107,16 @@ function SubAccountBarServices({ selectedUser }) {
     getPlans()
     getProfile()
     getCardsList()
+    
+    // Calculate text color based on background
+    if (typeof window !== 'undefined') {
+      const brandPrimary = getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand-primary')
+        .trim()
+      const opacity = 0.4
+      const isLight = isLightColor(brandPrimary, opacity)
+      setTextColor(isLight ? '#000' : '#fff')
+    }
   }, [])
 
   //function to get subaccount plans
@@ -421,11 +438,12 @@ function SubAccountBarServices({ selectedUser }) {
         <div
           className="w-10/12 p-6 rounded-lg flex flex-row items-center"
           style={{
-            backgroundImage: 'url(/svgIcons/cardBg.svg)',
+            backgroundImage: 'none',
+            backgroundColor: 'hsl(var(--brand-primary) / 0.4)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            color: '#fff',
+            color: textColor,
             alignSelf: 'center',
             marginTop: '7vh',
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -494,14 +512,28 @@ function SubAccountBarServices({ selectedUser }) {
             <CircularProgress size={25} />
           </div>
         ) : (
-          <div className="w-full flex flex-col items-center">
+          <RadioGroup
+            value={togglePlan?.toString() || ''}
+            onValueChange={(value) => {
+              const plan = plans.find((p) => p.id.toString() === value)
+              if (plan) {
+                handleTogglePlanClick(plan)
+              }
+            }}
+            className="w-full flex flex-col items-center"
+          >
             {plans.length > 0 &&
               plans.map((item, index) => (
-                <button
+                <label
                   key={item.id}
-                  className="w-9/12 mt-4 outline-none"
-                  disabled={Number(item.id) === Number(togglePlan)}
-                  onClick={(e) => handleTogglePlanClick(item)}
+                  htmlFor={`plan-${item.id}`}
+                  className="w-9/12 mt-4 cursor-pointer block"
+                  onClick={(e) => {
+                    if (e.target.closest('button') || e.target.closest('[role="radio"]')) {
+                      return
+                    }
+                    handleTogglePlanClick(item)
+                  }}
                 >
                   <div
                     className="px-4 py-1 pb-4"
@@ -531,24 +563,12 @@ function SubAccountBarServices({ selectedUser }) {
                       className="flex flex-row items-start gap-3"
                       style={styles.content}
                     >
-                      <div className="mt-1">
-                        <div>
-                          {Number(item.id) === Number(togglePlan) ? (
-                            <Image
-                              src={'/svgIcons/checkMark.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={'/svgIcons/unCheck.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          )}
-                        </div>
+                      <div className="mt-1 flex items-center">
+                        <RadioGroupItem
+                          value={item.id.toString()}
+                          id={`plan-${item.id}`}
+                          className="h-6 w-6"
+                        />
                       </div>
                       <div className="w-full">
                         {Number(item.id) === Number(currentPlan) && (
@@ -618,9 +638,9 @@ function SubAccountBarServices({ selectedUser }) {
                       </div>
                     </div>
                   </div>
-                </button>
+                </label>
               ))}
-          </div>
+          </RadioGroup>
         )}
 
         <div className="flex flex-col w-full items-center justify-center">

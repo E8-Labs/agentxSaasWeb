@@ -145,3 +145,28 @@ export function calculateIconFilter(brandColorHex) {
   return `brightness(0) saturate(100%) hue-rotate(${normalizedHueDiff}deg) brightness(${brightnessAdjust})`
 }
 
+/**
+ * Determines if a color is light or dark based on its perceived brightness
+ * Uses relative luminance formula from WCAG guidelines
+ * @param {string} hslString - HSL color string (e.g., "270 75% 50%")
+ * @param {number} opacity - Opacity value (0-1), defaults to 1
+ * @returns {boolean} - True if color is light (use dark text), false if dark (use light text)
+ */
+export function isLightColor(hslString, opacity = 1) {
+  if (!hslString) return false
+
+  // Parse HSL string
+  const parts = hslString.split(' ')
+  const h = parseFloat(parts[0]) || 0
+  const s = parseFloat(parts[1]?.replace('%', '')) || 0
+  const l = parseFloat(parts[2]?.replace('%', '')) || 0
+
+  // Adjust lightness based on opacity (blend with white background)
+  // When opacity < 1, the color appears lighter because it blends with white
+  const adjustedLightness = l + (100 - l) * (1 - opacity)
+
+  // Use WCAG relative luminance threshold
+  // Colors with lightness > 50% are considered light
+  return adjustedLightness > 50
+}
+
