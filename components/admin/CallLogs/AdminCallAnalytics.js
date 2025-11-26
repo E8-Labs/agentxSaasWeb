@@ -167,7 +167,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
           </div>
           {isSummaryCollapsed && (
             <div
-              className="px-3 py-1 bg-purple10 text-purple rounded-full"
+              className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full"
               style={{ fontSize: 12, fontWeight: '500' }}
             >
               {selectedFromDate && selectedToDate
@@ -178,8 +178,8 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
         </div>
         <button
           onClick={() => setIsSummaryCollapsed(!isSummaryCollapsed)}
-          className="flex flex-row items-center gap-2 outline-none hover:opacity-80 transition-opacity"
-          style={{ color: '#7902DF', fontSize: 14, fontWeight: '500' }}
+          className="flex flex-row items-center gap-2 outline-none hover:opacity-80 transition-opacity text-brand-primary"
+          style={{ fontSize: 14, fontWeight: '500' }}
         >
           {isSummaryCollapsed ? (
             <>
@@ -315,10 +315,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Users
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -336,10 +336,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Calls
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -357,10 +357,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Messages
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -378,10 +378,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Emails
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -399,10 +399,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Mins
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -422,10 +422,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Success Rate
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -482,10 +482,10 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     Total Credits
                   </div>
                   <div
+                    className="text-brand-primary"
                     style={{
                       fontSize: 24,
                       fontWeight: '600',
-                      color: '#7902DF',
                       marginTop: 8,
                     }}
                   >
@@ -601,7 +601,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                       >
                         <td style={styles.tableCell}>
                           <div
-                            className="text-purple underline cursor-pointer"
+                            className="text-brand-primary underline cursor-pointer"
                             onClick={() => {
                               if (user.userId) {
                                 // Create user object with id and name for SelectedUserDetails

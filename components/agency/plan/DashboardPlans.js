@@ -471,45 +471,50 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 shadow-md">
         <div
-          className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 "
+          className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
           style={{
-            backgroundImage: isAgency 
-              ? 'none'
-              : "url('/agencyIcons/plansBannerBg.png')",
-            background: isAgency
-              ? (process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
-                  ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`
-                  : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`)
-              : undefined,
+            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            // borderRadius:'20px'
           }}
         >
-          <div
-            style={{
-              fontSize: 29,
-              fontWeight: '700',
-              color: 'white',
-            }}
-          >
-            Total Plans: {filteredList?.length ? filteredList.length : 0}
-          </div>
+          {/* Brand Color Overlay */}
+          {isAgency && (
+            <div
+              className="absolute inset-0 rounded-lg"
+              style={{
+                backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
+                mixBlendMode: 'multiply',
+              }}
+            />
+          )}
+          {/* Content */}
+          <div className="relative z-10 flex flex-row items-center justify-between w-full">
+            <div
+              style={{
+                fontSize: 29,
+                fontWeight: '700',
+                color: 'white',
+              }}
+            >
+              Total Plans: {filteredList?.length ? filteredList.length : 0}
+            </div>
 
-          <button
-            className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium"
-            onClick={() => {
-              setIsEditPlan(false)
-              setSelectedPlan(null)
-              setSelectedPlanDetails(null)
-              setmoreDropdown(null)
-              setTimeout(() => {
-                handleAddPlan()
-              }, 300)
-            }}
-          >
-            New Plan
-          </button>
+            <button
+              className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium"
+              onClick={() => {
+                setIsEditPlan(false)
+                setSelectedPlan(null)
+                setSelectedPlanDetails(null)
+                setmoreDropdown(null)
+                setTimeout(() => {
+                  handleAddPlan()
+                }, 300)
+              }}
+            >
+              New Plan
+            </button>
+          </div>
         </div>
 
         <div className="w-full flex flex-row items-center justify-between ">

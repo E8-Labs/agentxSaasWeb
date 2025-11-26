@@ -179,11 +179,18 @@ const WhiteLabel = () => {
             return (
               <button
                 key={item.id}
-                className={`${selectedWhiteLabelTabs === item.id ? 'text-purple border-purple bg-purple-100 rounded-lg' : 'text-black'} outline-none text-start h-[48px] px-2 flex flex-row items-center`}
+                className={`${selectedWhiteLabelTabs === item.id ? 'text-brand-primary bg-brand-primary/10 rounded-lg' : 'text-black'} outline-none text-start h-[48px] px-2 flex flex-row items-center`}
                 onClick={() => {
                   handleTabChange(item)
                 }}
-                style={styles.regular}
+                style={{
+                  ...styles.regular,
+                  ...(selectedWhiteLabelTabs === item.id
+                    ? {
+                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                      }
+                    : {}),
+                }}
               >
                 <span>{item.title}</span>
                 {item.comingSoon && (
