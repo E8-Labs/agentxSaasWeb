@@ -23,6 +23,7 @@ import AgentSelectSnackMessage, {
 import XBarConfirmationModal from '@/components/myAccount/XBarConfirmationModal'
 import { PersistanceKeys, XBarPlans } from '@/constants/Constants'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { isLightColor } from '@/utilities/colorUtils'
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
@@ -33,6 +34,9 @@ const stripePromise = loadStripe(stripePublickKey)
 function AgencyBarServices() {
   //stroes user cards list
   const [cards, setCards] = useState([])
+  const [isAgency, setIsAgency] = useState(false)
+  const [hasBranding, setHasBranding] = useState(false)
+  const [textColor, setTextColor] = useState('#fff')
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false)
   //userlocal data
@@ -124,6 +128,35 @@ function AgencyBarServices() {
   useEffect(() => {
     getProfile()
     getCardsList()
+    
+    // Check if user is agency with branding
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const isAgencyUser = 
+            parsedUser?.user?.userRole === 'Agency' ||
+            parsedUser?.userRole === 'Agency'
+          setIsAgency(isAgencyUser)
+          
+          // Check if agency has branding
+          if (isAgencyUser && parsedUser?.user?.agencyBranding) {
+            setHasBranding(true)
+            
+            // Calculate text color based on background
+            const brandPrimary = getComputedStyle(document.documentElement)
+              .getPropertyValue('--brand-primary')
+              .trim()
+            const opacity = 0.4
+            const isLight = isLightColor(brandPrimary, opacity)
+            setTextColor(isLight ? '#000' : '#fff')
+          }
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
   const getProfile = async () => {
@@ -375,11 +408,18 @@ function AgencyBarServices() {
         <div
           className="w-10/12 p-4 rounded-lg flex flex-row items-center"
           style={{
-            backgroundImage: 'url(/svgIcons/cardBg.svg)',
+            backgroundImage: (isAgency && hasBranding) 
+              ? 'none'
+              : 'url(/svgIcons/cardBg.svg)',
+            background: (isAgency && hasBranding)
+              ? (process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+                  ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`
+                  : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`)
+              : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            color: '#fff',
+            color: (isAgency && hasBranding) ? textColor : '#fff',
             alignSelf: 'center',
             marginTop: '2vh',
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
@@ -413,7 +453,7 @@ function AgencyBarServices() {
             <div className="flex flex-row justify-between mt-2">
               <div></div>
               <button
-                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium"
                 onClick={(e) => {
                   //console.log;
                   let url = PersistanceKeys.GlobalConsultationUrl
@@ -441,9 +481,9 @@ function AgencyBarServices() {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? '2px solid #7902DF'
+                    ? '2px solid hsl(var(--brand-primary))'
                     : '1px solid #15151520',
-                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary) / 0.05)' : '',
               }}
             >
               <div
@@ -476,7 +516,7 @@ function AgencyBarServices() {
                 <div className="w-full">
                   {/* {item.id === currentPlan && (
                     <div
-                      className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                      className="-mt-[27px] flex px-2 py-1 bg-brand-primary rounded-full text-white"
                       style={{
                         fontSize: 11.6,
                         fontWeight: "500",
@@ -499,7 +539,7 @@ function AgencyBarServices() {
                     </div>
                     {item.status && (
                       <div
-                        className="flex px-2 py-1 bg-purple rounded-full text-white"
+                        className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                         style={{ fontSize: 11.6, fontWeight: '500' }}
                       >
                         {item.status}
@@ -558,7 +598,7 @@ function AgencyBarServices() {
                 fontWeight: '700',
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? '#00000020' : '#7902DF',
+                  togglePlan === currentPlan ? '#00000020' : 'hsl(var(--brand-primary))',
                 color: togglePlan === currentPlan ? '#000000' : '#ffffff',
               }}
               onClick={() => {
@@ -696,7 +736,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -714,7 +754,7 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary) / 0.65)',
     fontSize: 18,
     fontWeight: '600',
   },

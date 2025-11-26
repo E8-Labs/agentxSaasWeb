@@ -1414,7 +1414,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                                 item.id === togglePlan
                                     ? "2px solid hsl(var(--brand-primary, 270 75% 50%))"
                                     : "1px solid #15151520",
-                            backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                            backgroundColor: item.id === togglePlan ? "hsl(var(--brand-primary) / 0.05)" : "",
                         }}
                     >
                         <div
@@ -1531,9 +1531,9 @@ function AgencyPlansPayments({ selectedAgency }) {
                 ...styles.pricingBox,
                 border:
                   item.id === togglePlan
-                    ? '2px solid #7902DF'
+                    ? '2px solid hsl(var(--brand-primary))'
                     : '1px solid #15151520',
-                backgroundColor: item.id === togglePlan ? '#402FFF05' : '',
+                backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary) / 0.05)' : '',
                 minHeight: '320px', // Further increased height for better feature accommodation
               }}
             >
@@ -1816,7 +1816,7 @@ function AgencyPlansPayments({ selectedAgency }) {
             />
           </div>
           <div
-            className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
+            className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary`}
           >
             <AgencyPlans
               isFrom={'addPlan'}
@@ -2214,7 +2214,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                         backgroundColor:
                           selectReason &&
                           (selectReason !== 'Others' || otherReasonInput)
-                            ? '#7902df'
+                            ? 'hsl(var(--brand-primary))'
                             : '#00000050',
                         color:
                           selectReason &&

@@ -492,7 +492,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 onClick={() => setActiveTab(tab)}
                 className={`${
                   activeTab === tab
-                    ? 'text-purple border-b-2 border-purple outline-none'
+                    ? 'text-brand-primary border-b-2 border-brand-primary outline-none'
                     : ''
                 }`}
                 style={{ fontSize: 15, fontWeight: '500' }}
@@ -548,7 +548,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             {GetFiltersFromSelection().map((filter, index) => (
               <div className="flex-shrink-0" key={index}>
                 <div
-                  className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                  className="px-4 py-2 bg-brand-primary/10 text-brand-primary flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                   style={{ fontWeight: '500', fontSize: 15 }}
                 >
                   {getFilterTitle(filter)}
@@ -810,7 +810,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 <div
                                   style={{
                                     fontSize: 12,
-                                    color: '#7902DF',
+                                    color: 'hsl(var(--brand-primary))',
                                     textDecorationLine: 'underline',
                                   }}
                                 >
@@ -1097,10 +1097,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 ? '#fff'
                                 : '',
                               backgroundColor: selectedStatus.includes(
-                                item.status,
-                              )
-                                ? '#7902df'
-                                : '',
+                            item.status,
+                          )
+                            ? 'hsl(var(--brand-primary))'
+                            : '',
                             }}
                           >
                             {item.status}
@@ -1150,7 +1150,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <CircularProgress size={25} />
                 ) : (
                   <button
-                    className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
+                    className="bg-brand-primary h-[45px] w-full text-white rounded-xl outline-none"
                     style={{
                       fontSize: 16.8,
                       fontWeight: '600',
@@ -1158,7 +1158,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         (selectedFromDate && selectedToDate) ||
                         selectedStatus.length > 0 ||
                         selectedSubaccount
-                          ? ''
+                          ? 'hsl(var(--brand-primary))'
                           : '#00000050',
                     }}
                     onClick={() => {

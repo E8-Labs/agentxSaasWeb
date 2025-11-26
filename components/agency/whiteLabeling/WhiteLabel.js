@@ -285,7 +285,7 @@ const WhiteLabel = () => {
               </div>
             </div>
             <button
-              className="flex flex-row items-center justify-center gap-2 bg-purple-100/50 rounded-lg px-4 py-2 hover:bg-purple-100/70 transition-colors flex-shrink-0"
+              className="flex flex-row items-center justify-center gap-2 bg-brand-primary/10 rounded-lg px-4 py-2 hover:bg-brand-primary/20 transition-colors flex-shrink-0"
               onClick={async () => {
                 if (!reduxUser?.twilio?.twilAuthToken) {
                   setShowSnackMessage({
@@ -319,7 +319,7 @@ const WhiteLabel = () => {
                 width={16}
               />
               <div
-                className="text-purple"
+                className="text-brand-primary"
                 style={{ fontSize: '14px', fontWeight: '500' }}
               >
                 {linkCopied ? 'Link Copied' : 'Copy Link'}

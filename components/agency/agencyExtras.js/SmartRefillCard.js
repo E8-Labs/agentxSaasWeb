@@ -7,6 +7,7 @@ import {
   RemoveSmartRefillApi,
   SmartRefillApi,
 } from '@/components/onboarding/extras/SmartRefillapi'
+import { isLightColor } from '@/utilities/colorUtils'
 
 const SmartRefillCard = ({
   selectedUser = null,
@@ -20,9 +21,38 @@ const SmartRefillCard = ({
   //snack messages variables
   const [successSnack, setSuccessSnack] = useState(null)
   const [errorSnack, setErrorSnack] = useState(null)
+  //subaccount detection and text color
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [textColor, setTextColor] = useState('#fff')
 
   useEffect(() => {
     selectRefillOption()
+    
+    // Check if user is subaccount and calculate text color
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const isSub = 
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+          
+          if (isSub) {
+            // Calculate text color based on background
+            const brandPrimary = getComputedStyle(document.documentElement)
+              .getPropertyValue('--brand-primary')
+              .trim()
+            const opacity = 0.4
+            const isLight = isLightColor(brandPrimary, opacity)
+            setTextColor(isLight ? '#000' : '#fff')
+          }
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
   const selectRefillOption = async () => {
@@ -87,13 +117,17 @@ const SmartRefillCard = ({
 
   return (
     <div
-      className="w-full flex flex-row items-center mt-4 bg-purple p-2 rounded-3xl text-white"
+      className="w-full flex flex-row items-center mt-4 p-2 rounded-3xl"
       style={{
-        backgroundImage: 'url(/svgIcons/cardBg.svg)',
+        backgroundImage: isSubaccount 
+          ? (process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+              ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`
+              : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`)
+          : 'url(/svgIcons/cardBg.svg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        color: '#fff',
+        color: isSubaccount ? textColor : '#fff',
         alignSelf: 'center',
         marginTop: '2vh',
       }}
@@ -127,17 +161,17 @@ const SmartRefillCard = ({
             }
           }}
           sx={{
-            // ✅ Checked: green thumb, white track
+            // ✅ Checked: brand color thumb, white track
             '& .MuiSwitch-switchBase.Mui-checked': {
-              color: '#01CB76',
+              color: 'hsl(var(--brand-primary))',
               '& + .MuiSwitch-track': {
                 backgroundColor: '#ffffff',
                 opacity: 1,
               },
             },
-            // ✅ Checked + focused: green thumb
+            // ✅ Checked + focused: brand color thumb
             '& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb': {
-              backgroundColor: '#01CB76',
+              backgroundColor: 'hsl(var(--brand-primary))',
             },
 
             // ✅ Unchecked: gray thumb, gray track
@@ -149,9 +183,9 @@ const SmartRefillCard = ({
               opacity: 1,
             },
 
-            // ✅ Focus ring (optional): remove default blue ring
+            // ✅ Focus ring: brand color
             '& .Mui-focusVisible .MuiSwitch-thumb': {
-              outline: '2px solid #01CB76',
+              outline: '2px solid hsl(var(--brand-primary))',
             },
           }}
         />
@@ -162,10 +196,10 @@ const SmartRefillCard = ({
         width={32}
         alt="*"
       />
-      <div className="ms-4 text-base font-bold w-2/12">Smart Refill</div>
+      <div className="ms-4 text-base font-bold w-2/12" style={{ color: isSubaccount ? textColor : '#fff' }}>Smart Refill</div>
       <div
-        className="ms-2 w-8/12 text-[13px] font-normal text-white"
-        style={{}}
+        className="ms-2 w-8/12 text-[13px] font-normal"
+        style={{ color: isSubaccount ? textColor : '#fff' }}
       >
         Refill your AI credits when they run low. Keeps your calls going without
         interruption.

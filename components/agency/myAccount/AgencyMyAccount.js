@@ -179,7 +179,7 @@ function AgencyMyAccount({ selectedAgency }) {
                   className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                   style={{
                     backgroundColor:
-                      index === tabSelected - 1 ? '#402FFF10' : 'transparent',
+                      index === tabSelected - 1 ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
                   }}
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />

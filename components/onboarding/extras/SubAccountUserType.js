@@ -164,12 +164,12 @@ const SubAccountUserType = ({ onClose, userData, onContinue }) => {
           Select an Agent
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[80%] mt-2 px-6">
+      <div className="flex-1 overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary max-h-[80%] mt-2 px-6">
         <div className="flex flex-wrap w-full">
           {userType.map((item) => (
             <div key={item.id} className="flex w-6/12 md:w-4/12 p-2">
               <div
-                className={`w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border transition-all duration-400 ease-in-out transform active:scale-90 ${selectedUserType === item.userType ? 'border-purple' : 'border-[#00000010]'}`}
+                className={`w-full rounded-lg p-2 md:hover:border-2 md:hover:border-brand-primary border transition-all duration-400 ease-in-out transform active:scale-90 ${selectedUserType === item.userType ? 'border-brand-primary' : 'border-[#00000010]'}`}
                 onClick={() => {
                   setSelectedUserType(item.userType)
                 }}
@@ -217,7 +217,7 @@ const SubAccountUserType = ({ onClose, userData, onContinue }) => {
           onClick={() => {
             handleBack()
           }}
-          className="text-purple-700 font-medium w-1/3 border rounded-lg h-[40px]"
+          className="text-brand-primary font-medium w-1/3 border rounded-lg border-brand-primary h-[40px]"
         >
           Back
         </button>
@@ -227,7 +227,7 @@ const SubAccountUserType = ({ onClose, userData, onContinue }) => {
           }}
           // className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
           disabled={!selectedUserType}
-          className={`px-8 h-[40px] rounded-lg w-1/3 ${selectedUserType ? 'bg-purple text-white' : 'bg-[#00000020] text-black'}`}
+          className={`px-8 h-[40px] rounded-lg w-1/3 ${selectedUserType ? 'bg-brand-primary text-white' : 'bg-[#00000020] text-black'}`}
         >
           Continue
         </button>

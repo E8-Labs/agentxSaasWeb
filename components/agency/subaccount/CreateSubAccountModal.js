@@ -1039,7 +1039,7 @@ export default function CreateSubAccountModal({
                   color: 'white',
                 },
                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: '#7902DF',
+                  backgroundColor: 'hsl(var(--brand-primary))',
                 },
               }}
             />
@@ -1175,7 +1175,7 @@ export default function CreateSubAccountModal({
                         <div className='w-full flex flex-row items-center justify-start pe-4'>
                             <button
                                 onClick={handleAddMember}
-                                className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                                className="mt-3 text-brand-primary border-b boder-2 border-brand-primary/60 text-sm"
                             >
                                 + New Member
                             </button>
@@ -1187,13 +1187,13 @@ export default function CreateSubAccountModal({
       <div className="flex justify-between mt-8">
         <button
           onClick={onClose}
-          className="w-1/4 text-center text-purple border rounded-lg h-[40px]"
+          className="w-1/4 text-center text-brand-primary border rounded-lg h-[40px]"
         >
           Cancel
         </button>
         <button
           disabled={shouldContinue}
-          className={`w-1/3 hover:bg-purple-700 px-6 h-[40px] rounded-lg ${shouldContinue ? 'bg-[#00000020] text-black' : 'bg-purple text-white'}`}
+          className={`w-1/3 hover:bg-brand-primary/80 px-6 h-[40px] rounded-lg ${shouldContinue ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
           onClick={() => {
             handleContinue()
           }}

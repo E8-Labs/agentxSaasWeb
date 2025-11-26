@@ -48,7 +48,7 @@ const LockDetailsView = ({
           (!businessProfileData ||
             businessProfileData.profileType !== 'individual') && (
             <button
-              className="border-none outline-none text-purple"
+              className="border-none outline-none text-brand-primary"
               style={styles.normalFont}
               onClick={handleShowAddModal}
             >

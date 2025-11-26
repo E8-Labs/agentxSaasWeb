@@ -1,8 +1,9 @@
 import { Tooltip } from '@mui/material'
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import { formatFractional2 } from './AgencyUtilities'
 
@@ -21,15 +22,37 @@ const ConfigureSideUI = ({
   handleResetValues,
 }) => {
   // console.log("Passed allwoed features are", allowedFeatures);
+  const [isAgency, setIsAgency] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          setIsAgency(userRole === 'Agency' || userRole === 'AgencySubAccount')
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   return (
     <div
       className={`w-full h-full ${from === 'dashboard' ? 'rounded-xl' : 'rounded-tr-xl rounded-br-xl'}`}
-      style={{
-        backgroundImage: "url('/otherAssets/monthlyplansbg.png')", //"url('/agencyIcons/addPlanBg.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      style={
+        isAgency
+          ? {
+              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`,
+            }
+          : {
+              backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+      }
     >
       <div className="p-4 flex flex-col items-center h-[100%]">
         <div className="flex justify-end w-full items-center h-[5%]">
@@ -49,7 +72,12 @@ const ConfigureSideUI = ({
             msOverflowStyle: 'none',
           }}
         >
-          <div className="w-full bg-gradient-to-b from-[#C73BFF] to-[#7902DF] rounded-lg flex flex-col items-center ">
+          <div 
+            className="w-full rounded-lg flex flex-col items-center"
+            style={{
+              background: `linear-gradient(to bottom, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.7) 100%)`,
+            }}
+          >
             <div className="flex flex-row items-center gap-2 pt-4">
               <Image
                 src="/svgIcons/powerWhite.svg"
@@ -115,8 +143,12 @@ const ConfigureSideUI = ({
                   </span>
                 )}
                 <span
-                  className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2"
-                  style={{ fontWeight: '700', fontSize: '35px' }}
+                  className="ms-2"
+                  style={{ 
+                    fontWeight: '700', 
+                    fontSize: '35px',
+                    color: 'hsl(var(--brand-primary))',
+                  }}
                 >
                   $
                   {formatFractional2(
@@ -132,7 +164,7 @@ const ConfigureSideUI = ({
               >
                 {basicsData?.planDescription || 'Desc text goes here'}
               </div>
-              <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">
+              <button className="bg-brand-primary h-[41px] mt-4 rounded-lg text-center text-white w-full">
                 {allowTrial && trialValidForDays ? (
                   <span>{trialValidForDays} Day Free Trial</span>
                 ) : (
@@ -149,12 +181,7 @@ const ConfigureSideUI = ({
                             key={item.id}
                             className="w-full flex flex-row items-center gap-2 mt-6"
                           >
-                            <Image
-                              src="/otherAssets/selectedTickBtn.png"
-                              height={16}
-                              width={16}
-                              alt="✓"
-                            />
+                            <Checkbox checked={true} className="h-4 w-4" />
                             <div
                               className="flex flex-row items-center gap-2"
                               style={{

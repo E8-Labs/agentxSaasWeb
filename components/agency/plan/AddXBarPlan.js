@@ -480,11 +480,11 @@ export default function AddXBarPlan({
                    onChange={(e) => setIsDefaultPlan(e.target.checked)}
                    sx={{
                      '& .MuiSwitch-switchBase.Mui-checked': {
-                       color: '#7902DF',
+                       color: 'hsl(var(--brand-primary))',
                      },
                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                        {
-                         backgroundColor: '#7902DF',
+                         backgroundColor: 'hsl(var(--brand-primary))',
                        },
                    }}
                  />

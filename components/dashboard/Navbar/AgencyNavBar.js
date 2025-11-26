@@ -482,7 +482,7 @@ const AgencyNavBar = () => {
       right: '0',
       width: '0',
       height: '0',
-      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
       borderLeft: '50px solid transparent',
     },
     labelText: {
@@ -500,7 +500,7 @@ const AgencyNavBar = () => {
     },
     originalPrice: {
       textDecoration: 'line-through',
-      color: '#7902DF65',
+      color: 'hsl(var(--brand-primary) / 0.65)',
       fontSize: 18,
       fontWeight: '600',
     },

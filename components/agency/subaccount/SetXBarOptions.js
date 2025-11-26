@@ -174,10 +174,10 @@ export default function SetXBarOptions({
                 className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
                 style={{
                   borderColor: selectedXBarPlans?.includes(plan.id)
-                    ? '#7e22ce'
+                    ? 'hsl(var(--brand-primary))'
                     : '#ccc',
                   backgroundColor: selectedXBarPlans?.includes(plan.id)
-                    ? '#7e22ce'
+                    ? 'hsl(var(--brand-primary))'
                     : 'transparent',
                 }}
               >
@@ -195,7 +195,7 @@ export default function SetXBarOptions({
           onClick={() => {
             handleBack()
           }}
-          className="text-purple-700 font-medium w-2/6 rounded-lg border"
+          className="text-brand-primary font-medium w-2/6 rounded-lg border border-brand-primary"
         >
           Back
         </button>
@@ -208,7 +208,7 @@ export default function SetXBarOptions({
               handleCreateSubAccount()
             }}
             // className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
-            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? 'bg-[#00000020] text-black' : 'bg-purple text-white'}`}
+            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
           >
             Continue
           </button>

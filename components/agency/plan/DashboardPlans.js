@@ -29,6 +29,7 @@ import XBarSideUI from './XBarSideUI'
 function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [moreDropdown, setmoreDropdown] = useState(null)
+  const [isAgency, setIsAgency] = useState(false)
 
   const [plansList, setPlansList] = useState([])
   const [filteredList, setFilteredList] = useState([])
@@ -87,6 +88,10 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       const u = JSON.parse(localData)
       const currentPlanId = u.user?.plan?.planId
       const agencyPlansList = localStorage.getItem('agencyPlansList')
+      
+      // Check if user is an agency
+      const userRole = u?.user?.userRole || u?.userRole
+      setIsAgency(userRole === 'Agency')
       if (selectedAgency) {
         if (selectedAgency?.planCapabilities?.aiCreditRate) {
           setAgencyPlanCost(selectedAgency?.planCapabilities?.aiCreditRate)
@@ -468,7 +473,14 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 "
           style={{
-            backgroundImage: "url('/agencyIcons/plansBannerBg.png')", //plansBannerBg //svgIcons/bg.svg
+            backgroundImage: isAgency 
+              ? 'none'
+              : "url('/agencyIcons/plansBannerBg.png')",
+            background: isAgency
+              ? (process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+                  ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`
+                  : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`)
+              : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             // borderRadius:'20px'
@@ -485,7 +497,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           </div>
 
           <button
-            className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium"
+            className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium"
             onClick={() => {
               setIsEditPlan(false)
               setSelectedPlan(null)
@@ -506,7 +518,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
             style={{ fontSize: '15', fontWeight: '500', width: 'fit-content' }}
           >
             <div
-              className={`pb-2 flex flex-row items-center px-4 ${planType === 'monthly' ? 'text-purple border-b-2 border-purple' : 'text-black'} gap-4`}
+              className={`pb-2 flex flex-row items-center px-4 ${planType === 'monthly' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} gap-4`}
             >
               {planType === 'monthly' ? (
                 <Image
@@ -524,7 +536,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                 />
               )}
               <button
-                className={`${planType === 'monthly' ? 'text-purple' : 'text-black'}`}
+                className={`${planType === 'monthly' ? 'text-brand-primary' : 'text-black'}`}
                 onClick={() => {
                   setPlanType('monthly')
                 }}
@@ -533,7 +545,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
               </button>
             </div>
             <div
-              className={`pb-4 ${planType === 'Xbar' ? 'text-purple border-b-2 border-purple px-2' : 'text-black'} flex flex-row items-center gap-4`}
+              className={`pb-4 ${planType === 'Xbar' ? 'text-brand-primary border-b-2 border-brand-primary px-2' : 'text-black'} flex flex-row items-center gap-4`}
             >
               {planType === 'Xbar' ? (
                 <Image
@@ -551,7 +563,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                 />
               )}
               <button
-                className={`${planType === 'Xbar' ? 'text-purple' : 'text-black'}`}
+                className={`${planType === 'Xbar' ? 'text-brand-primary' : 'text-black'}`}
                 onClick={() => {
                   setPlanType('Xbar')
                 }}
@@ -626,7 +638,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                           <div
                             key={item.id}
                             style={{ cursor: 'pointer' }}
-                            className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
+                            className="w-full flex flex-row justify-between items-center mt-5 hover:bg-brand-primary/5 py-2"
                           >
                             <div
                               className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -779,7 +791,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   You have no monthly plans created
                 </div>
                 <button
-                  className="mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]"
+                  className="mt-3 bg-brand-primary text-white rounded-lg h-[50px] w-[209px]"
                   style={{ fontWeight: '500', fontSize: 15 }}
                   Create
                   New
@@ -816,7 +828,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   You have no Xbars created
                 </div>
                 <button
-                  className="mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]"
+                  className="mt-3 bg-brand-primary text-white rounded-lg h-[50px] w-[209px]"
                   style={{ fontWeight: '500', fontSize: 15 }}
                   onClick={handleAddPlan}
                 >

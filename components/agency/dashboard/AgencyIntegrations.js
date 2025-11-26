@@ -117,7 +117,7 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`${currentTab === tab.id ? 'text-purple border-b-2 border-purple' : 'text-black'} outline-none px-4`}
+                className={`${currentTab === tab.id ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} outline-none px-4`}
                 onClick={() => {
                   handleTabSelection(tab.id)
                 }}

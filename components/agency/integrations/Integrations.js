@@ -159,7 +159,7 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
           </div>
         ) : (
           <button
-            className="h-[39px] w-[85px] text-center rounded-md bg-purple text-white"
+            className="h-[39px] w-[85px] text-center rounded-md bg-brand-primary text-white"
             onClick={() => {
               setShowAddKeyModal(true)
             }}
@@ -201,7 +201,7 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
                                     color: 'white',
                                 },
                                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
+                                    backgroundColor: 'hsl(var(--brand-primary))',
                                 },
                             }}
                         />

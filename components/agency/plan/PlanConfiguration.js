@@ -1188,7 +1188,7 @@ export default function PlanConfiguration({
                 </div>
                 <button
                   styles={{ fontSize: '15px', fontWeight: '700' }}
-                  className="underline text-purple outline-none border-none"
+                  className="underline text-brand-primary outline-none border-none"
                   onClick={() => {
                     handleAddCustomFeature()
                   }}
@@ -1202,7 +1202,7 @@ export default function PlanConfiguration({
                   onClick={() => {
                     handleBackClick()
                   }}
-                  className="text-purple-600 font-semibold border rounded-lg w-[12vw]"
+                  className="text-brand-primary font-semibold border rounded-lg w-[12vw]"
                 >
                   Back
                 </button>
@@ -1210,7 +1210,7 @@ export default function PlanConfiguration({
                   <CircularProgress size={30} />
                 ) : (
                   <button
-                    className={` ${isFormValid() ? 'bg-purple' : 'bg-[#00000020]'} w-[12vw] ${isFormValid() ? 'text-white' : 'text-black'} font-semibold py-2 px-4 rounded-lg`}
+                    className={` ${isFormValid() ? 'bg-brand-primary' : 'bg-[#00000020]'} w-[12vw] ${isFormValid() ? 'text-white' : 'text-black'} font-semibold py-2 px-4 rounded-lg`}
                     onClick={() => {
                       if (isEditPlan) {
                         handleUpdatePlan()
@@ -1317,7 +1317,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -1335,7 +1335,7 @@ const styles = {
   },
   originalPrice: {
     // textDecoration: "line-through",
-    color: '#7902DF',
+    color: 'hsl(var(--brand-primary))',
     fontSize: 18,
     fontWeight: '600',
   },

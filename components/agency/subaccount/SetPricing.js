@@ -110,7 +110,12 @@ export default function SetPricing({
             className="cursor-pointer"
           >
             {plan.hasTrial && (
-              <div className="w-full overflow-hidden rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+              <div 
+                className="w-full overflow-hidden rounded-t-lg px-4 py-2"
+                style={{
+                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.8) 100%)`,
+                }}
+              >
                 <div className="flex flex-row items-center gap-2">
                   <Image
                     src={'/otherAssets/batchIcon.png'}
@@ -153,10 +158,10 @@ export default function SetPricing({
                 className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
                 style={{
                   borderColor: selectedPlans.includes(plan.id)
-                    ? '#7e22ce'
+                    ? 'hsl(var(--brand-primary))'
                     : '#ccc',
                   backgroundColor: selectedPlans.includes(plan.id)
-                    ? '#7e22ce'
+                    ? 'hsl(var(--brand-primary))'
                     : 'transparent',
                 }}
               >
@@ -174,7 +179,7 @@ export default function SetPricing({
           onClick={() => {
             handleBack()
           }}
-          className="text-purple-700 font-medium w-2/6 border rounded-lg"
+          className="text-brand-primary font-medium w-2/6 border rounded-lg border-brand-primary"
         >
           Back
         </button>
@@ -182,7 +187,7 @@ export default function SetPricing({
           onClick={() => {
             handleContinue()
           }}
-          className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? 'bg-[#00000020] text-black' : 'bg-purple text-white'}`}
+          className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
         >
           Continue
         </button>

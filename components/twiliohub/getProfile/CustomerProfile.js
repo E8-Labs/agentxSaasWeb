@@ -113,7 +113,7 @@ const CustomerProfile = ({
         )}
         <div className="flex flex-row items-center gap-4">
           <button
-            className="text-[15px] font-[500] text-purple outline-none border-none cursor-pointer"
+            className="text-[15px] font-[500] text-brand-primary outline-none border-none cursor-pointer"
             onClick={() => {
               setIntroVideoModal2(true)
             }}

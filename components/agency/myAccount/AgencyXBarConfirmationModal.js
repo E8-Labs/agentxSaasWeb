@@ -94,7 +94,7 @@ export default function AgencyXBarConfirmationModal({
         </Button> */}
 
         <div
-          className="cursor-pointer w-[45%] flex justify-center items-center bg-purple font-bold rounded-lg text-white text-center py-3"
+          className="cursor-pointer w-[45%] flex justify-center items-center bg-brand-primary font-bold rounded-lg text-white text-center py-3"
           onClick={onConfirm}
           style={{
             borderColor: '#ddd',

@@ -143,13 +143,13 @@ input[type="date"]::-moz-datetime-edit-year-field {
 
 /* ------------- Date Picker (Selected Date) ------------- */
 .MuiPickersDay-root.Mui-selected {
-  background-color: #7902DF !important; /* Purple */
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
 /* Hover effect for unselected dates */
 .MuiPickersDay-root:hover {
-  background-color: #a352df !important; /* Light Purple */
+  background-color: hsl(var(--brand-primary) / 0.7) !important;
 }
 
 /* Default color for unselected dates */
@@ -163,7 +163,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
 .MuiClockNumber-root.Mui-selected,
 .MuiPickersTimeClock-root .Mui-selected,
 .MuiTimeClock-root .Mui-selected {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
@@ -171,18 +171,18 @@ input[type="date"]::-moz-datetime-edit-year-field {
 .MuiClock-root .MuiButtonBase-root:hover,
 .MuiPickersTimeClock-root .MuiButtonBase-root:hover,
 .MuiTimeClock-root .MuiButtonBase-root:hover {
-  background-color: #a352df !important;
+  background-color: hsl(var(--brand-primary) / 0.7) !important;
 }
 
 /* Selected AM/PM Button */
 .MuiPickersToolbar-root .Mui-selected {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
 /* ------------- OK & CANCEL Buttons ------------- */
 .MuiDialogActions-root button {
-  color: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
 }
 
 /* Time picker scrollbar track */
@@ -192,7 +192,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
 
 /* Time picker scrollbar thumb */
 .MuiTimeClock-root::-webkit-scrollbar-thumb {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -325,8 +325,8 @@ a.text-red:hover {
 /* Target Lucide icons specifically by class */
 [data-sonner-toast][data-type="success"] svg.lucide,
 [data-sonner-toast][data-type="success"] [data-icon] svg.lucide {
-  color: #7902DF !important;
-  stroke: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
+  stroke: hsl(var(--brand-primary)) !important;
 }
 
 [data-sonner-toast][data-type="error"] svg.lucide,
@@ -337,8 +337,8 @@ a.text-red:hover {
 
 /* Fallback for any SVG in success/error toasts */
 [data-sonner-toast][data-type="success"] svg {
-  color: #7902DF !important;
-  stroke: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
+  stroke: hsl(var(--brand-primary)) !important;
 }
 
 [data-sonner-toast][data-type="error"] svg {
@@ -367,6 +367,7 @@ a.text-red:hover {
   position: relative;
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
 }
 
 .icon-brand-primary img {

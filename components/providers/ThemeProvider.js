@@ -59,23 +59,24 @@ const ThemeProvider = ({ children }) => {
         hostname === 'assignx.ai' ||
         hostname.includes('localhost')
 
-      // Check if user is a subaccount (for exception rule)
+      // Check if user is a subaccount or agency (for exception rule)
       let isSubaccount = false
+      let isAgency = false
       try {
         const userData = localStorage.getItem('User')
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          isSubaccount =
-            parsedUser?.user?.userRole === 'AgencySubAccount' ||
-            parsedUser?.userRole === 'AgencySubAccount'
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          isSubaccount = userRole === 'AgencySubAccount'
+          isAgency = userRole === 'Agency'
         }
       } catch (error) {
         console.log('Error parsing user data:', error)
       }
 
-      // If assignx domain AND not a subaccount, use default colors (don't override)
-      // Exception: If subaccount, apply branding even on assignx.ai domains
-      if (isAssignxDomain && !isSubaccount) {
+      // If assignx domain AND not a subaccount AND not an agency, use default colors (don't override)
+      // Exception: If subaccount or agency, apply branding even on assignx.ai domains
+      if (isAssignxDomain && !isSubaccount && !isAgency) {
         // Set defaults explicitly to ensure consistency
         const defaultPrimary = getDefaultPrimaryColor()
         const defaultSecondary = getDefaultSecondaryColor()
@@ -95,7 +96,7 @@ const ThemeProvider = ({ children }) => {
         return
       }
 
-      // For custom domains OR subaccounts on assignx.ai domains, check agency branding
+      // For custom domains OR subaccounts/agencies on assignx.ai domains, check agency branding
       const getCookie = (name) => {
         const value = `; ${document.cookie}`
         const parts = value.split(`; ${name}=`)
@@ -127,8 +128,8 @@ const ThemeProvider = ({ children }) => {
         }
       }
 
-      // Additional fallback: Check user data for agencyBranding (for subaccounts)
-      if (!branding && isSubaccount) {
+      // Additional fallback: Check user data for agencyBranding (for subaccounts and agencies)
+      if (!branding && (isSubaccount || isAgency)) {
         try {
           const userData = localStorage.getItem('User')
           if (userData) {
@@ -150,11 +151,12 @@ const ThemeProvider = ({ children }) => {
         }
       }
 
-      // Debug logging for subaccounts on localhost
-      if (isSubaccount && isAssignxDomain) {
-        console.log('🔍 [ThemeProvider] Subaccount detected on assignx domain:', {
+      // Debug logging for subaccounts/agencies on localhost
+      if ((isSubaccount || isAgency) && isAssignxDomain) {
+        console.log('🔍 [ThemeProvider] User detected on assignx domain:', {
           hostname,
           isSubaccount,
+          isAgency,
           hasBranding: !!branding,
           brandingSource: branding
             ? 'found'
@@ -162,8 +164,8 @@ const ThemeProvider = ({ children }) => {
         })
       }
 
-      // For subaccounts on localhost, try to fetch fresh branding from API if not found or if forced
-      if ((!branding || forceRefresh) && isSubaccount && isAssignxDomain && !brandingFetched) {
+      // For subaccounts/agencies on localhost, try to fetch fresh branding from API if not found or if forced
+      if ((!branding || forceRefresh) && (isSubaccount || isAgency) && isAssignxDomain && !brandingFetched) {
         try {
           const userData = localStorage.getItem('User')
           if (userData) {
@@ -171,7 +173,7 @@ const ThemeProvider = ({ children }) => {
             const authToken = parsedUser?.token || parsedUser?.user?.token
 
             if (authToken) {
-              console.log('🔄 [ThemeProvider] Fetching fresh branding from API for subaccount...')
+              console.log('🔄 [ThemeProvider] Fetching fresh branding from API for user...')
               setBrandingFetched(true) // Prevent multiple simultaneous requests
 
               const response = await fetch(Apis.getAgencyBranding, {

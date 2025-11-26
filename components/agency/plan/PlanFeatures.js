@@ -83,7 +83,7 @@ export default function PlanFeatures({
                   )}
                   {!agencyAllowedFeatures[item.stateKey] && (
                     <button
-                      className="text-xs text-white bg-purple rounded-full px-2 py-[3px]"
+                      className="text-xs text-white bg-brand-primary rounded-full px-2 py-[3px]"
                       onClick={() => {
                         upgradePlanClickModal()
                       }}
@@ -102,7 +102,7 @@ export default function PlanFeatures({
                       color: 'white',
                     },
                     '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#7902DF',
+                      backgroundColor: 'hsl(var(--brand-primary))',
                       opacity: 1,
                     },
                     '& .MuiSwitch-track': {

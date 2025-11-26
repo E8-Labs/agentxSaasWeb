@@ -118,7 +118,7 @@ export default function StripeDetailsCard({
               </div>
             ) : (
               <button
-                className="bg-purple text-white rounded-lg h-[50px] w-full"
+                className="bg-brand-primary text-white rounded-lg h-[50px] w-full"
                 onClick={() => {
                   handleViewStripeAccount()
                 }}

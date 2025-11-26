@@ -224,7 +224,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                         <div className="flex-1 text-left">
                           <div
                             className={`font-regular text-[16px] ${
-                              isActive ? 'text-purple' : 'text-gray-700'
+                              isActive ? 'text-brand-primary' : 'text-gray-700'
                             } transition-colors`}
                           >
                             {item.label}

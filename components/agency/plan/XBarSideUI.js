@@ -94,7 +94,7 @@ const XBarSideUI = ({
                   </div>
                   {tag ? (
                     <div
-                      className="rounded-full bg-purple text-white p-3 py-1"
+                      className="rounded-full bg-brand-primary text-white p-3 py-1"
                       style={{ fontSize: 14, fontWeight: '500' }}
                     >
                       {tag}

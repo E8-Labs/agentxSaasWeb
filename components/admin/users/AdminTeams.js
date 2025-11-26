@@ -618,7 +618,7 @@ function AdminTeam({ selectedUser, }) {
             {canShowInviteButton() && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
-                  className="rounded-lg text-white bg-purple mt-8"
+                  className="rounded-lg text-white bg-brand-primary mt-8"
                   style={{
                     fontWeight: '500',
                     fontSize: '16',
@@ -797,7 +797,7 @@ function AdminTeam({ selectedUser, }) {
                     >
                       Unlock full access for your team by adding an extra seat
                       to your account.{' '}
-                      <span className="text-purple">
+                      <span className="text-brand-primary">
                         For just ${agencyData.costPerSeat} per additional
                         user
                       </span>
@@ -819,7 +819,7 @@ function AdminTeam({ selectedUser, }) {
                 )}
                 <div className="">
                   <button
-                    className="rounded-lg text-white bg-purple mt-8"
+                    className="rounded-lg text-white bg-brand-primary mt-8"
                     style={{
                       fontWeight: '500',
                       fontSize: '16',
@@ -1124,7 +1124,7 @@ function AdminTeam({ selectedUser, }) {
                         ? '#00000020'
                         : '',
                   }}
-                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
                     let data = {
                       name: name,

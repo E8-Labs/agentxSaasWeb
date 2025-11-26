@@ -748,7 +748,7 @@ export default function AddMonthlyPlan({
                       },
                       '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                         {
-                          backgroundColor: '#7902DF',
+                          backgroundColor: 'hsl(var(--brand-primary))',
                         },
                     }}
                     onChange={(e) => {
@@ -1044,7 +1044,7 @@ export default function AddMonthlyPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${isFormValid() ? 'bg-purple' : 'bg-[#00000020]'} w-[12vw] ${isFormValid() ? 'text-white' : 'text-black'} font-semibold py-2 px-4 rounded-lg`}
+                  className={` ${isFormValid() ? 'bg-brand-primary' : 'bg-[#00000020]'} w-[12vw] ${isFormValid() ? 'text-white' : 'text-black'} font-semibold py-2 px-4 rounded-lg`}
                   onClick={() => {
                     handleNext()
                     // if (isEditPlan) {

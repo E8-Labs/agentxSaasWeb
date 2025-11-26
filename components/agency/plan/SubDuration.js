@@ -40,7 +40,7 @@ const SubDuration = ({ planDuration, setPlanDuration, isEditPlan }) => {
             <button
               key={item.id}
               style={styles.regular}
-              className={`outline-none ${planDuration === item.value ? 'border-2 border-purple' : 'border-gray-200'} h-[40px] w-[120px] rounded-lg text-center border`}
+              className={`outline-none ${planDuration === item.value ? 'border-2 border-brand-primary' : 'border-gray-200'} h-[40px] w-[120px] rounded-lg text-center border`}
               onClick={() => {
                 handleToggle(item)
               }}
@@ -121,11 +121,11 @@ export const LanguagesSelection = ({
     const itemLabel = item?.label?.toLowerCase() || ''
 
     if (title === 'multilingual compatible' || lang === 'multilingual') {
-      return 'border-2 border-purple'
+      return 'border-2 border-brand-primary'
     }
 
     if (title === itemLabel || lang === itemValue) {
-      return 'border-2 border-purple'
+      return 'border-2 border-brand-primary'
     }
 
     return 'border-gray-200'

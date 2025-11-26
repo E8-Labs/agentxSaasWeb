@@ -564,33 +564,46 @@ function AgencySubacount({ selectedAgency }) {
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
         <div
-          className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
-          style={{
-            backgroundImage: "url('/agencyIcons/plansBannerBg.png')", ///agencyIcons/subAccBg.jpg
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            // borderRadius:'20px'
-          }}
+          className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
         >
+          {/* Texture Background */}
           <div
+            className="absolute inset-0 rounded-lg"
             style={{
-              fontSize: 29,
-              fontWeight: '700',
-              color: 'white',
+              backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
-          >
-            Total Sub Accounts: {filteredList?.length || 0}
-          </div>
+          />
+          {/* Brand Color Overlay - lighter to show texture */}
+          <div
+            className="absolute inset-0 rounded-lg"
+            style={{
+              backgroundColor: 'hsl(var(--brand-primary) / 0.5)',
+            }}
+          />
+          {/* Content */}
+          <div className="relative z-10 w-full flex flex-row items-center justify-between">
+            <div
+              style={{
+                fontSize: 29,
+                fontWeight: '700',
+                color: 'white',
+              }}
+            >
+              Total Sub Accounts: {filteredList?.length || 0}
+            </div>
 
-          <button
-            disabled={twililoConectedStatus}
-            className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium border-none outline-none"
-            onClick={() => {
-              handleCheckPlans()
-            }}
-          >
-            {loading ? <CircularProgress size={20} /> : 'Create Sub Account'}
-          </button>
+            <button
+              disabled={twililoConectedStatus}
+              className="flex px-5 py-3 bg-white rounded-lg text-brand-primary font-medium border-none outline-none"
+              onClick={() => {
+                handleCheckPlans()
+              }}
+            >
+              {loading ? <CircularProgress size={20} /> : 'Create Sub Account'}
+            </button>
+          </div>
         </div>
         <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
           <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
@@ -660,7 +673,7 @@ function AgencySubacount({ selectedAgency }) {
                     return (
                       <div
                         key={key}
-                        className="flex-shrink-0 px-4 py-2 bg-[#402FFF10] text-purple rounded-[25px] flex flex-row items-center gap-2"
+                        className="flex-shrink-0 px-4 py-2 bg-brand-primary/10 text-brand-primary rounded-[25px] flex flex-row items-center gap-2"
                       >
                         <div className="text-[15px] font-medium">
                           {labels[key] || key}: {displayValue}
@@ -745,7 +758,7 @@ function AgencySubacount({ selectedAgency }) {
                   <div
                     key={item.id}
                     style={{ cursor: 'pointer' }}
-                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
+                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-brand-primary/5 py-2 cursor-pointer cursor-pointer"
                     // onClick={(e) => handleTogglePopover(e, item)}
                     // onClick={(event) => {
                     //   if (activeAccount === item.id) {
@@ -914,7 +927,7 @@ function AgencySubacount({ selectedAgency }) {
                     >
                       <div className="rounded-[10px] inline-flex flex-col gap-4 w-[200px] shadow-lg">
                         <button
-                          className="px-4 pt-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4 pt-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setSelectedUser(item)
                             handleClosePopover()
@@ -1003,7 +1016,7 @@ function AgencySubacount({ selectedAgency }) {
                    </div>
                    <button
                      disabled={twililoConectedStatus}
-                     className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+                     className="flex px-5 py-3 bg-brand-primary rounded-lg text-white font-medium border-none outline-none"
                      onClick={() => {
                        handleCheckPlans();
                      }}

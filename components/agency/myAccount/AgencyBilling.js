@@ -958,7 +958,7 @@ function AgencyBilling({ selectedAgency }) {
                 <div
                   className={`flex flex-row items-center gap-2 text-brand-primary ${
                     ScreenWidth < 1200 ? 'mt-4' : 'mt-6'
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  }bg-brand-primary/10 py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image

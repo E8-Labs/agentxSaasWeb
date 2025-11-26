@@ -1429,7 +1429,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             />
           </div>
           <div
-            className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
+            className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary`}
           >
             {from === 'agency' ? (
               <AgencyPlans
