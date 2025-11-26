@@ -104,24 +104,69 @@ const AppLogo = ({
       }
     }
 
-    // For subaccounts on localhost, try to fetch fresh branding from API if not found
-    if (!branding && isSubaccount && isAssignx) {
+    // Function to fetch branding from API (for custom domains or subaccounts)
+    const fetchBrandingFromAPI = async () => {
       try {
-        const userData = localStorage.getItem('User')
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          const authToken = parsedUser?.token || parsedUser?.user?.token
+        const baseUrl =
+          process.env.NEXT_PUBLIC_BASE_API_URL ||
+          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+            ? 'https://apimyagentx.com/agentx/'
+            : 'https://apimyagentx.com/agentxtest/')
 
-          if (authToken) {
-            // Fetch fresh branding from API
-            fetch(Apis.getAgencyBranding, {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-              },
-            })
-              .then((response) => response.json())
-              .then((data) => {
+        // Try domain lookup API first (works for custom domains without auth)
+        const lookupResponse = await fetch(
+          `${baseUrl}api/agency/lookup-by-domain`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customDomain: hostname,
+              subdomain: isAssignx && hostname.includes('.assignx.ai')
+                ? hostname.split('.')[0]
+                : null,
+            }),
+          },
+        )
+
+        if (lookupResponse.ok) {
+          const lookupData = await lookupResponse.json()
+          if (lookupData.status && lookupData.data?.branding) {
+            const freshBranding = lookupData.data.branding
+            if (freshBranding?.logoUrl) {
+              setLogoUrl(freshBranding.logoUrl)
+              // Update localStorage and cookie with fresh data
+              localStorage.setItem(
+                'agencyBranding',
+                JSON.stringify(freshBranding),
+              )
+              const cookieValue = encodeURIComponent(
+                JSON.stringify(freshBranding),
+              )
+              document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+              return
+            }
+          }
+        }
+
+        // Fallback: Try getAgencyBranding API if user is logged in (for subaccounts)
+        if (isSubaccount) {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const authToken = parsedUser?.token || parsedUser?.user?.token
+
+            if (authToken) {
+              const response = await fetch(Apis.getAgencyBranding, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+
+              if (response.ok) {
+                const data = await response.json()
                 if (data?.status === true && data?.data?.branding) {
                   const freshBranding = data.data.branding
                   if (freshBranding?.logoUrl) {
@@ -135,12 +180,11 @@ const AppLogo = ({
                       JSON.stringify(freshBranding),
                     )
                     document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+                    return
                   }
                 }
-              })
-              .catch((error) => {
-                console.log('Error fetching branding from API:', error)
-              })
+              }
+            }
           }
         }
       } catch (error) {
@@ -148,12 +192,83 @@ const AppLogo = ({
       }
     }
 
-    // Set logo URL if branding found
-    if (branding?.logoUrl) {
-      setLogoUrl(branding.logoUrl)
+    // For custom domains or subaccounts, fetch from API if branding not found
+    const isCustomDomain = !isAssignx
+    if (!branding && (isCustomDomain || isSubaccount)) {
+      // Fetch from API immediately
+      fetchBrandingFromAPI()
     } else {
-      // If no agency logo found, use assignx logo (null)
-      setLogoUrl(null)
+      // Set logo URL if branding found
+      if (branding?.logoUrl) {
+        setLogoUrl(branding.logoUrl)
+      } else {
+        // If no agency logo found, use assignx logo (null)
+        setLogoUrl(null)
+      }
+    }
+
+    // Also retry checking cookie after a short delay (in case middleware hasn't set it yet)
+    // This is especially important for custom domains on first load
+    if (!branding && isCustomDomain) {
+      const retryTimeout = setTimeout(() => {
+        const retryCookie = getCookie('agencyBranding')
+        if (retryCookie) {
+          try {
+            const retryBranding = JSON.parse(decodeURIComponent(retryCookie))
+            if (retryBranding?.logoUrl) {
+              setLogoUrl(retryBranding.logoUrl)
+            }
+          } catch (error) {
+            console.log('Error parsing retry cookie:', error)
+          }
+        }
+      }, 300) // Wait 300ms for middleware to set cookie
+
+      return () => clearTimeout(retryTimeout)
+    }
+
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      if (event.detail?.branding) {
+        const updatedBranding = event.detail.branding
+        if (updatedBranding?.logoUrl) {
+          setLogoUrl(updatedBranding.logoUrl)
+        } else {
+          setLogoUrl(null)
+        }
+      } else {
+        // Re-check branding sources
+        const retryCookie = getCookie('agencyBranding')
+        let updatedBranding = null
+        if (retryCookie) {
+          try {
+            updatedBranding = JSON.parse(decodeURIComponent(retryCookie))
+          } catch (error) {
+            console.log('Error parsing branding cookie:', error)
+          }
+        }
+        if (!updatedBranding) {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            try {
+              updatedBranding = JSON.parse(storedBranding)
+            } catch (error) {
+              console.log('Error parsing branding from localStorage:', error)
+            }
+          }
+        }
+        if (updatedBranding?.logoUrl) {
+          setLogoUrl(updatedBranding.logoUrl)
+        } else {
+          setLogoUrl(null)
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
   }, [])
 

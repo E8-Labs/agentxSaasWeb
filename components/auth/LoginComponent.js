@@ -72,6 +72,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   // Agency branding state
   const [agencyBranding, setAgencyBranding] = useState(null)
+  // Track if we've determined domain type (to prevent flash of Terms & Privacy)
+  const [domainTypeDetermined, setDomainTypeDetermined] = useState(false)
 
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState('')
@@ -182,7 +184,22 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
 
       // If no branding found, fetch from API
-      await fetchFromAPI()
+      const fetched = await fetchFromAPI()
+      
+      // Determine if we should show Terms & Privacy
+      // Only show if it's an assignx domain AND no branding was found
+      if (isAssignxDomain && !fetched) {
+        setDomainTypeDetermined(true)
+      } else if (isAssignxDomain) {
+        // It's assignx domain but we might have fetched branding (subaccount case)
+        // Wait a bit to check if branding was set
+        setTimeout(() => {
+          const currentBranding = getCookie('agencyBranding') || localStorage.getItem('agencyBranding')
+          if (!currentBranding) {
+            setDomainTypeDetermined(true)
+          }
+        }, 300)
+      }
     }
 
     fetchBranding()
@@ -1203,7 +1220,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           <div className="flex-shrink-0">
             Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
-          {!agencyBranding && (
+          {domainTypeDetermined && !agencyBranding && (
             <>
               <button
                 className="flex-shrink-0 outline-none"
@@ -1236,7 +1253,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         </div>
 
         <div className="h-[10%]  w-full flex flex-col items-center justify-center sm:hidden">
-          {!agencyBranding && (
+          {domainTypeDetermined && !agencyBranding && (
             <div
               className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
               style={{ fontWeight: '500', fontSize: 11.6 }}
