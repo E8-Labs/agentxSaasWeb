@@ -34,6 +34,7 @@ const CreatAgent3 = ({
 }) => {
   const router = useRouter()
   const [togglePlan, setTogglePlan] = useState(false)
+  const [isSubaccount, setIsSubaccount] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [paymentMethod, setPaymentMethod] = useState(false)
   const [addPaymentPopUp, setAddPaymentPopUp] = useState(false)
@@ -58,6 +59,21 @@ const CreatAgent3 = ({
   // Load plans on component mount
   useEffect(() => {
     loadOnboardingPlans()
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
   // Function to load plans for onboarding context
@@ -1012,8 +1028,11 @@ const CreatAgent3 = ({
               >
                 {/* Header Content */}
                 <div
-                  className="mt-6 w-11/12 sm:text-3xl text-lg font-[600]"
-                  style={{ textAlign: 'center' }}
+                  className="w-11/12 sm:text-3xl text-lg font-[600] mt-6"
+                  style={{
+                    textAlign: 'center',
+                    marginTop: isSubaccount ? '-40px' : undefined,
+                  }}
                 >
                   Select a plan that fits your needs
                 </div>

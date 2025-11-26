@@ -74,6 +74,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [addressValue, setAddressValue] = useState('')
 
   const [user, setUser] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
@@ -93,6 +94,21 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   useEffect(() => {
     refreshUserData()
     getSelectedUser()
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
   const getSelectedUser = () => {
@@ -856,8 +872,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           </div>
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <button
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: 'center' }}
+              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-40px' : undefined,
+              }}
               // onClick={handleContinue}
             >
               Get started with your AI agent
@@ -969,12 +988,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         alt="*"
                       />
                     ) : (
-                      <Image
-                        src={'/assets/callOut.png'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                        style={{ filter: 'var(--icon-filter)' }}
+                      <div
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/callOut.png)',
+                          maskImage: 'url(/assets/callOut.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     )}
                     <div
@@ -1006,12 +1033,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         alt="*"
                       />
                     ) : (
-                      <Image
-                        src={'/assets/callIn.png'}
-                        height={24}
-                        width={24}
-                        alt="*"
-                        style={{ filter: 'var(--icon-filter)' }}
+                      <div
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/callIn.png)',
+                          maskImage: 'url(/assets/callIn.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
                       />
                     )}
                     <div

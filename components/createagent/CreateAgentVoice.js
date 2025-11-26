@@ -25,6 +25,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
 
   const router = useRouter()
   const [toggleClick, setToggleClick] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
   const [voices, setVoices] = useState([])
   const [voicesLoader, setVoicesLoader] = useState(false)
   const [selectedVoiceId, setSelectedVoiceId] = useState('')
@@ -37,6 +38,21 @@ const CreateAgentVoice = ({ handleBack, user }) => {
 
   useEffect(() => {
     setVoices(voicesList)
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
   useEffect(() => {
@@ -291,8 +307,11 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: 'center' }}
+              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-40px' : undefined,
+              }}
             >
               Choose a voice for {agentDetails?.name}
             </div>

@@ -68,6 +68,7 @@ const Page = () => {
 
   const [windowSize, setWindowSize] = useState(null)
   const [subAccount, setSubaccount] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   let CurrentComp = components[index - 1] || EmptyPage
   useEffect(() => {
@@ -91,6 +92,28 @@ const Page = () => {
     if (user) {
       let parsed = JSON.parse(user)
       setUser(parsed)
+      // Check if user is subaccount
+      if (
+        parsed?.user?.userRole === 'AgencySubAccount' ||
+        parsed?.userRole === 'AgencySubAccount'
+      ) {
+        setIsSubaccount(true)
+      }
+    }
+    // Also check User localStorage
+    const userData = localStorage.getItem('User')
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData)
+        if (
+          parsedUser?.user?.userRole === 'AgencySubAccount' ||
+          parsedUser?.userRole === 'AgencySubAccount'
+        ) {
+          setIsSubaccount(true)
+        }
+      } catch (error) {
+        console.log('Error parsing User data:', error)
+      }
     }
     // //console.log;
   }, [])
@@ -252,12 +275,15 @@ const Page = () => {
                 zIndex: -1, // Ensure the video stays behind content
               }}
             >
-              {subAccount ? (
+              {isSubaccount ? (
                 <div
                   style={{
                     width: '100%',
                     height: '100%',
-                    background: `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`,
+                    background:
+                      process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+                        ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`
+                        : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`,
                   }}
                 />
               ) : (

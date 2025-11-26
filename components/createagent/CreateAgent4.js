@@ -43,6 +43,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
   const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   // Log current userData state
   console.log('🔥 CREATEAGENT4 - Current userData from Redux:', userData)
@@ -101,6 +102,21 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   useEffect(() => {
     getSubUserProfile()
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [userData])
 
   useEffect(() => {
@@ -618,8 +634,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             style={{ scrollbarWidth: 'none' }}
           >
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: 'center' }}
+              className="w-11/12 md:text-4xl text-lg font-[600] mt-6"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-40px' : undefined,
+              }}
               // onClick={handleContinue}
             >
               {`Let's talk digits`}
@@ -787,7 +806,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       >
                         <i>Get your own unique phone number.</i>{' '}
                         <button
-                          className="text-purple underline"
+                          className="text-brand-primary underline"
                           style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}
                           onClick={() => {
                             setShowClaimPopup(true)
@@ -1133,6 +1152,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         color: '#151515',
                         fontSize: 15,
                         fontWeight: '500',
+                        marginLeft: '8px',
                       }}
                     >
                       {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
 import AppLogo from '@/components/common/AppLogo'
@@ -15,6 +15,24 @@ const Header = ({
   user,
 }) => {
   const router = useRouter()
+  const [isSubaccount, setIsSubaccount] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   function getSkipPageForSellerKyc() {
     if (user && user.user.userType != UserTypes.RealEstateAgent) {
@@ -36,14 +54,16 @@ const Header = ({
           </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
-          <Image
-            className=""
-            src="/agentXOrb.gif"
-            style={{ height: '69px', width: '75px', resize: 'contain' }}
-            height={69}
-            width={69}
-            alt="*"
-          />
+          {!isSubaccount && (
+            <Image
+              className=""
+              src="/agentXOrb.gif"
+              style={{ height: '69px', width: '75px', resize: 'contain' }}
+              height={69}
+              width={69}
+              alt="*"
+            />
+          )}
         </div>
         <div className="w-4/12 flex felx-row items-start h-full justify-end">
           {skipSellerKYC && shouldContinue && (
