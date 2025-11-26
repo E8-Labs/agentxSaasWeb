@@ -232,8 +232,9 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         <Button
           variant="contained"
           onClick={() => setShowClaimPopup(true)}
-          className="bg-brand-primary text-white"
           style={{
+            backgroundColor: 'hsl(var(--brand-primary))',
+            color: '#fff',
             textTransform: 'none',
             minWidth: '150px',
           }}
@@ -391,8 +392,9 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       variant="contained"
                       onClick={() => handleSetGlobalNumber(number.id)}
                       disabled={isLoading}
-                      className="bg-brand-primary text-white"
                       style={{
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                        color: '#fff',
                         textTransform: 'none',
                         minWidth: '100px',
                       }}
