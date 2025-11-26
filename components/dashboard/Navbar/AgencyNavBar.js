@@ -273,7 +273,7 @@ const AgencyNavBar = () => {
         };
         setReduxUser(updatedUserData);
         
-        setUserDetails(agencyProfileData);
+        // setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
           const d = {
             subPlan: false

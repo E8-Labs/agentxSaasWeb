@@ -33,6 +33,8 @@ import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUp
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import GeneralAgentSignUp from "@/components/onboarding/otherAgentsSignUp/GeneralAgentSignUp";
+import { ShootingStarIcon } from "@phosphor-icons/react/dist/ssr";
+import ShootingStarLoading from "@/components/animations/ShootingStarLoading";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -289,6 +291,17 @@ const Page = ({ params }) => {
     overflow: "none",
   };
 
+  if (showredirectPopup) {
+    return (
+      <div>
+        <ShootingStarLoading
+          open={showredirectPopup}
+        />
+      </div>
+    )
+  }
+
+
   return (
     <ErrorBoundary>
       <div
@@ -338,10 +351,7 @@ const Page = ({ params }) => {
             setShowredirectPopup(true);
           }}
         />
-        <LoaderAnimation 
-          isOpen={showredirectPopup}
-          title="Redirecting to create agent..."
-        />
+
         <Modal
           open={congratsPopup}
           // onClose={() => setAddKYCQuestion(false)}

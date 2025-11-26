@@ -25,6 +25,7 @@ import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
+import { Input } from "@/components/ui/input";
 
 const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete, handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
@@ -497,15 +498,15 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
               style={{ scrollbarWidth: "none" }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 ref={(el) => (inputsFields.current[0] = el)}
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                 value={userName}
                 onChange={(e) => {
                   const input = e.target.value;
@@ -566,15 +567,15 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 </div>
               </div>
 
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[1] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                 value={userEmail}
                 onChange={(e) => {
                   let value = e.target.value;
@@ -696,7 +697,8 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   ref={(el) => (inputsFields.current[2] = el)}
-                  className="border outline-none bg-white"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-white focus:ring-0"
                   country={"us"} // restrict to US only
                   onlyCountries={["us", "mx", "ca"]}
                   disableDropdown={true}
@@ -710,18 +712,26 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       : "Enter Phone Number"
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: "7px" }}
+                  style={{
+                    borderRadius: "7px",
+                    border: "1px solid #00000020",
+                    outline: "none",
+                    boxShadow: "none",
+                  }}
                   inputStyle={{
                     width: "100%",
                     borderWidth: "0px",
                     backgroundColor: "transparent",
-                    paddingLeft: "60px",
+                    // paddingLeft: "30px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
+                    outline: "none",
+                    boxShadow: "none",
                   }}
                   buttonStyle={{
                     border: "none",
                     backgroundColor: "transparent",
+                    outline: "none",
                     // display: 'flex',
                     // alignItems: 'center',
                     // justifyContent: 'center',
@@ -740,17 +750,17 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                {`What’s the company name`}
+                {`What's the company name`}
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[3] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Company name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                 value={company}
                 onChange={(e) => {
                   setCompany(e.target.value);
@@ -763,17 +773,17 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                {`What’s your territory`}
+                {`What's your territory`}
               </div>
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[3] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Your territory"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
                 value={userFarm}
                 onChange={(e) => {
                   setUserFarm(e.target.value);
