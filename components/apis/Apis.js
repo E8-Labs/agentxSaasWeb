@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  // process.env.NEXT_PUBLIC_BASE_API_URL ||
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -42,6 +42,7 @@ const Apis = {
   updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
   createLead: `${BasePath}api/leads/addLeads`,
   getLeads: `${BasePath}api/leads/getLeads`,
+  searchLeadsForMessaging: `${BasePath}api/leads/searchLeadsForMessaging`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
   attachSmartList: `${BasePath}api/agent/attachSmartList`,
@@ -361,6 +362,12 @@ const Apis = {
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,
   setAgencyGlobalNumber: `${BasePath}api/agency/set-global-number`,
   unsetAgencyGlobalNumber: `${BasePath}api/agency/unset-global-number`,
+
+  // Messaging APIs
+  getMessageThreads: `${BasePath}api/user/messaging/threads`,
+  getThreadById: `${BasePath}api/user/messaging/threads`,
+  getMessagesForThread: `${BasePath}api/user/messaging/threads`,
+  markThreadAsRead: `${BasePath}api/user/messaging/threads`,
 }
 
 export default Apis

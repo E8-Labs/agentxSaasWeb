@@ -668,6 +668,13 @@ const ProfileNav = () => {
       uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
     },
     {
+      id: 8,
+      name: "Messages",
+      href: "/dashboard/messages",
+      selected: "/messaging/icons_chat_menu.svg",
+      uneselected: "/messaging/icons_chat_menu.svg",
+    },
+    {
       id: 5,
       name: "Activity",//"Call Log",
       href: "/dashboard/callLog",

@@ -1,0 +1,705 @@
+'use client'
+
+import { Box, CircularProgress, Modal } from '@mui/material'
+import { Check, PaperPlaneTilt, X } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
+
+import Apis from '@/components/apis/Apis'
+import RichTextEditor from '@/components/common/RichTextEditor'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { getUserLocalData } from '@/components/constants/constants'
+import { Input } from '@/components/ui/input'
+
+const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
+  const [selectedMode, setSelectedMode] = useState(mode)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredLeads, setFilteredLeads] = useState([])
+  const [selectedLeads, setSelectedLeads] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [phoneNumbers, setPhoneNumbers] = useState([])
+  const [emailAccounts, setEmailAccounts] = useState([])
+  const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
+  const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
+  const [selectedPhoneNumberObj, setSelectedPhoneNumberObj] = useState(null)
+  const [selectedEmailAccountObj, setSelectedEmailAccountObj] = useState(null)
+  const [messageBody, setMessageBody] = useState('')
+  const [emailSubject, setEmailSubject] = useState('')
+  const [showCC, setShowCC] = useState(false)
+  const [showBCC, setShowBCC] = useState(false)
+  const [cc, setCC] = useState('')
+  const [bcc, setBCC] = useState('')
+  const [userData, setUserData] = useState(null)
+  const [showLeadList, setShowLeadList] = useState(false)
+  const richTextEditorRef = useRef(null)
+  const searchTimeoutRef = useRef(null)
+  const leadSearchRef = useRef(null)
+
+  // SMS character limit
+  const SMS_CHAR_LIMIT = 160
+
+  // Search leads using the messaging search endpoint
+  const searchLeads = async (searchTerm = '') => {
+    try {
+      setLoading(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Only search if we have a search term (minimum 2 characters)
+      if (!searchTerm || searchTerm.trim().length < 2) {
+        setFilteredLeads([])
+        setLoading(false)
+        return
+      }
+
+      const apiPath = `${Apis.searchLeadsForMessaging}?search=${encodeURIComponent(searchTerm.trim())}&limit=50`
+
+      const response = await axios.get(apiPath, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status && response.data?.data) {
+        const leadsData = Array.isArray(response.data.data)
+          ? response.data.data
+          : []
+        setFilteredLeads(leadsData)
+      } else {
+        setFilteredLeads([])
+      }
+    } catch (error) {
+      console.error('Error searching leads:', error)
+      setFilteredLeads([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch phone numbers
+  const fetchPhoneNumbers = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const response = await axios.get(Apis.a2pNumbers, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status && response.data?.data) {
+        setPhoneNumbers(response.data.data)
+        if (response.data.data.length > 0) {
+          setSelectedPhoneNumber(response.data.data[0].id)
+          setSelectedPhoneNumberObj(response.data.data[0])
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching phone numbers:', error)
+    }
+  }
+
+  // Fetch email accounts
+  const fetchEmailAccounts = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const response = await axios.get(Apis.gmailAccount, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status && response.data?.data) {
+        setEmailAccounts(response.data.data)
+        if (response.data.data.length > 0) {
+          setSelectedEmailAccount(response.data.data[0].id)
+          setSelectedEmailAccountObj(response.data.data[0])
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching email accounts:', error)
+    }
+  }
+
+  // Search leads with debounce
+  useEffect(() => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+
+    if (!searchQuery.trim()) {
+      setFilteredLeads([])
+      setShowLeadList(false)
+      return
+    }
+
+    // Show list when user starts typing
+    setShowLeadList(true)
+
+    // Debounce search - wait 300ms after user stops typing
+    searchTimeoutRef.current = setTimeout(() => {
+      searchLeads(searchQuery)
+    }, 300)
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [searchQuery])
+
+  // Get user data from localStorage
+  useEffect(() => {
+    const user = getUserLocalData()
+    if (user) {
+      setUserData(user)
+    }
+  }, [open])
+
+  // Initial load
+  useEffect(() => {
+    if (open) {
+      // Don't fetch leads on initial load - wait for user to search
+      if (selectedMode === 'sms') {
+        fetchPhoneNumbers()
+      } else {
+        fetchEmailAccounts()
+      }
+    }
+  }, [open, selectedMode])
+
+  // Reset when modal closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedLeads([])
+      setSearchQuery('')
+      setMessageBody('')
+      setEmailSubject('')
+      setCC('')
+      setBCC('')
+      setShowCC(false)
+      setShowBCC(false)
+    }
+  }, [open])
+
+  // Toggle lead selection
+  const toggleLeadSelection = (lead) => {
+    setSelectedLeads((prev) => {
+      const exists = prev.find((l) => l.id === lead.id)
+      if (exists) {
+        return prev.filter((l) => l.id !== lead.id)
+      } else {
+        // Add lead and clear search
+        setSearchQuery('')
+        setShowLeadList(false)
+        return [...prev, lead]
+      }
+    })
+  }
+
+  // Remove lead from selection
+  const removeLead = (leadId) => {
+    setSelectedLeads((prev) => prev.filter((l) => l.id !== leadId))
+  }
+
+  // Handle click outside to hide lead list
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (leadSearchRef.current && !leadSearchRef.current.contains(event.target)) {
+        setShowLeadList(false)
+      }
+    }
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [open])
+
+  // Handle send
+  const handleSend = async () => {
+    if (selectedLeads.length === 0 || !messageBody.trim()) return
+    if (selectedMode === 'email' && !emailSubject.trim()) return
+
+    setSending(true)
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Send to each lead individually
+      const sendPromises = selectedLeads.map(async (lead) => {
+        if (selectedMode === 'sms') {
+          // Send SMS
+          const response = await axios.post(
+            Apis.sendSMSToLead,
+            {
+              leadId: lead.id,
+              content: messageBody,
+              smsPhoneNumberId: selectedPhoneNumber,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+          return response.data
+        } else {
+          // Send Email - TODO: Implement email sending API
+          console.log('Email sending not yet implemented')
+          return { status: false, message: 'Email sending not implemented' }
+        }
+      })
+
+      const results = await Promise.all(sendPromises)
+      const successCount = results.filter((r) => r?.status).length
+      const failedCount = selectedLeads.length - successCount
+
+      // Show success/error toast
+      if (successCount === selectedLeads.length) {
+        // All messages sent successfully
+        toast.success(
+          `Message${selectedLeads.length > 1 ? 's' : ''} sent successfully to ${successCount} lead${successCount > 1 ? 's' : ''}`
+        )
+      } else if (successCount > 0) {
+        // Partial success
+        toast.warning(
+          `Sent to ${successCount} of ${selectedLeads.length} lead${selectedLeads.length > 1 ? 's' : ''}${failedCount > 0 ? `. ${failedCount} failed.` : ''}`
+        )
+      } else {
+        // All failed
+        toast.error('Failed to send messages. Please try again.')
+      }
+
+      if (onSend) {
+        onSend({
+          success: successCount === selectedLeads.length,
+          sent: successCount,
+          total: selectedLeads.length,
+        })
+      }
+
+      // Close modal after a brief delay to show success (only if at least one succeeded)
+      if (successCount > 0) {
+        setTimeout(() => {
+          onClose()
+        }, 500)
+      }
+    } catch (error) {
+      console.error('Error sending messages:', error)
+      toast.error('An error occurred while sending messages. Please try again.')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="new-message-modal"
+      aria-describedby="new-message-description"
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 0,
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-xl font-semibold">New Message</h2>
+          <CloseBtn onClick={onClose} />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Mode Tabs */}
+          <div className="flex items-center gap-6 border-b">
+            <button
+              onClick={() => {
+                setSelectedMode('sms')
+                fetchPhoneNumbers()
+              }}
+              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                selectedMode === 'sms'
+                  ? 'text-brand-primary'
+                  : 'text-gray-600'
+              }`}
+            >
+              <Image
+                src="/messaging/sms toggle.svg"
+                width={20}
+                height={20}
+                alt="SMS"
+                className={selectedMode === 'sms' ? 'opacity-100' : 'opacity-60'}
+              />
+              <span>SMS</span>
+              {selectedMode === 'sms' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setSelectedMode('email')
+                fetchEmailAccounts()
+              }}
+              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                selectedMode === 'email'
+                  ? 'text-brand-primary'
+                  : 'text-gray-600'
+              }`}
+            >
+              <Image
+                src="/messaging/email toggle.svg"
+                width={20}
+                height={20}
+                alt="Email"
+                className={selectedMode === 'email' ? 'opacity-100' : 'opacity-60'}
+              />
+              <span>Email</span>
+              {selectedMode === 'email' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+              )}
+            </button>
+          </div>
+
+          {/* From Field */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium w-16">From:</label>
+            {selectedMode === 'sms' ? (
+              <div className="flex-1 relative">
+                <select
+                  value={selectedPhoneNumber || ''}
+                  onChange={(e) => {
+                    const phone = phoneNumbers.find((p) => p.id === parseInt(e.target.value))
+                    setSelectedPhoneNumber(e.target.value)
+                    setSelectedPhoneNumberObj(phone)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                >
+                  <option value="">Select phone number</option>
+                  {phoneNumbers.map((phone) => (
+                    <option key={phone.id} value={phone.id}>
+                      {phone.phone}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 relative">
+                <select
+                  value={selectedEmailAccount || ''}
+                  onChange={(e) => {
+                    const account = emailAccounts.find((a) => a.id === parseInt(e.target.value))
+                    setSelectedEmailAccount(e.target.value)
+                    setSelectedEmailAccountObj(account)
+                  }}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                >
+                  <option value="">Select email account</option>
+                  {emailAccounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.email || account.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* To Field - Lead Search with Tag Input */}
+          <div className="space-y-2" ref={leadSearchRef}>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">To:</label>
+              {/* CC and BCC buttons for Email mode */}
+              {selectedMode === 'email' && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowCC(!showCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${
+                      showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Cc
+                  </button>
+                  <button
+                    onClick={() => setShowBCC(!showBCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${
+                      showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Bcc
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="relative">
+              {/* Tag Input Container */}
+              <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                {/* Selected Lead Tags */}
+                {selectedLeads.map((lead) => (
+                  <div
+                    key={lead.id}
+                    className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                  >
+                    <span className="text-gray-700">
+                      {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeLead(lead.id)}
+                      className="text-gray-500 hover:text-gray-700 ml-1"
+                    >
+                      <X size={14} weight="bold" />
+                    </button>
+                  </div>
+                ))}
+                {/* Search Input */}
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim()) {
+                      setShowLeadList(true)
+                    }
+                  }}
+                  placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
+                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                />
+              </div>
+
+              {/* Leads List Dropdown - Only show when searching and list is visible */}
+              {showLeadList && searchQuery.trim() && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {loading ? (
+                    <div className="p-4 text-center">
+                      <CircularProgress size={24} />
+                    </div>
+                  ) : filteredLeads.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500 text-sm">
+                      No leads found
+                    </div>
+                  ) : (
+                    filteredLeads.map((lead) => {
+                      const isSelected = selectedLeads.find((l) => l.id === lead.id)
+                      return (
+                        <div
+                          key={lead.id}
+                          onClick={() => toggleLeadSelection(lead)}
+                          className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                            isSelected ? 'bg-brand-primary/5' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">
+                                {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {selectedMode === 'sms'
+                                  ? lead.phone || 'No phone'
+                                  : lead.email || 'No email'}
+                              </div>
+                            </div>
+                            {isSelected && (
+                              <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
+                                <Check size={14} className="text-white" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Email Fields */}
+          {selectedMode === 'email' && (
+            <>
+              {showCC && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium w-16">Cc:</label>
+                  <Input
+                    value={cc}
+                    onChange={(e) => setCC(e.target.value)}
+                    placeholder="Add CC recipients"
+                    className="flex-1"
+                  />
+                </div>
+              )}
+
+              {showBCC && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium w-16">Bcc:</label>
+                  <Input
+                    value={bcc}
+                    onChange={(e) => setBCC(e.target.value)}
+                    placeholder="Add BCC recipients"
+                    className="flex-1"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium w-16">Subject:</label>
+                <Input
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Email subject"
+                  className="flex-1"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Message Body */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Message:</label>
+            {selectedMode === 'email' ? (
+              <RichTextEditor
+                ref={richTextEditorRef}
+                value={messageBody}
+                onChange={setMessageBody}
+                placeholder="Type your message..."
+                availableVariables={[]}
+              />
+            ) : (
+              <textarea
+                value={messageBody}
+                onChange={(e) => {
+                  // Enforce max 160 characters for SMS
+                  if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                    setMessageBody(e.target.value)
+                  }
+                }}
+                placeholder="Type your message..."
+                maxLength={SMS_CHAR_LIMIT}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary min-h-[120px]"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Footer with char count, credits, and send button */}
+        <div className="flex items-center justify-end gap-4 p-4 border-t bg-gray-50">
+          {selectedMode === 'email' && (
+            <div className="flex-1 text-sm text-gray-500">
+              {selectedLeads.length} lead{selectedLeads.length !== 1 ? 's' : ''} selected
+            </div>
+          )}
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            {selectedMode === 'sms' && (
+              <>
+                <span>
+                  {messageBody.length}/{SMS_CHAR_LIMIT} char
+                </span>
+                <span className="text-gray-300">|</span>
+                <span>
+                  {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                </span>
+              </>
+            )}
+          </div>
+          <button
+            onClick={handleSend}
+            disabled={
+              sending ||
+              selectedLeads.length === 0 ||
+              !messageBody.trim() ||
+              (selectedMode === 'email' && !emailSubject.trim()) ||
+              (selectedMode === 'sms' && !selectedPhoneNumber) ||
+              (selectedMode === 'email' && !selectedEmailAccount)
+            }
+            className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+          >
+            {sending ? (
+              <>
+                <CircularProgress size={16} className="text-white" />
+                Sending...
+              </>
+            ) : (
+              <>
+                Send
+                <PaperPlaneTilt size={16} />
+              </>
+            )}
+          </button>
+        </div>
+      </Box>
+    </Modal>
+  )
+}
+
+export default NewMessageModal
+
