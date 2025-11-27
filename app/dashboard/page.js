@@ -489,18 +489,26 @@ const Page = () => {
                     </div>
 
                     <div
-                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
+                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
                       style={{
-                        backgroundImage: "url('/svgIcons/cardBg.svg')",
+                        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
                         backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center',
                         width: '40vw',
                         minHeight: '13vh',
                         borderRadius: 10,
                       }}
                     >
-                      <div className="flex flex-row gap-3 items-start">
+                      {/* Brand Color Overlay */}
+                      <div
+                        className="absolute inset-0 rounded-lg"
+                        style={{
+                          backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
+                          mixBlendMode: 'multiply',
+                        }}
+                      />
+                      {/* Content */}
+                      <div className="flex flex-row gap-3 items-start relative z-10">
                         <Image
                           src={'/svgIcons/timerIcon.svg'}
                           height={50}
@@ -534,7 +542,7 @@ const Page = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 relative z-10">
                         <div
                           style={{
                             fontSize: 15,
