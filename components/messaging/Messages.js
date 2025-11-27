@@ -825,80 +825,83 @@ const Messages = () => {
                 </button>
               </div>
 
-              {/* From Field */}
-              <div className="flex items-center gap-2 mb-4">
-                <label className="text-sm font-medium w-16">From:</label>
-                {composerMode === 'sms' ? (
-                  <div className="flex-1 relative">
-                    <select
-                      value={selectedPhoneNumber || ''}
-                      onChange={(e) => setSelectedPhoneNumber(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
-                    >
-                      <option value="">Select phone number</option>
-                      {phoneNumbers.map((phone) => (
-                        <option key={phone.id} value={phone.id}>
-                          {phone.phone}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+              {/* From and To Fields - Side by side */}
+              <div className="flex items-center gap-4 mb-4">
+                {/* From Field - Left side */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">From:</label>
+                  {composerMode === 'sms' ? (
+                    <div className="flex-1 relative min-w-0">
+                      <select
+                        value={selectedPhoneNumber || ''}
+                        onChange={(e) => setSelectedPhoneNumber(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                        <option value="">Select phone number</option>
+                        {phoneNumbers.map((phone) => (
+                          <option key={phone.id} value={phone.id}>
+                            {phone.phone}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex-1 relative">
-                    <select
-                      value={selectedEmailAccount || ''}
-                      onChange={(e) => setSelectedEmailAccount(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
-                    >
-                      <option value="">Select email account</option>
-                      {emailAccounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.email || account.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  ) : (
+                    <div className="flex-1 relative min-w-0">
+                      <select
+                        value={selectedEmailAccount || ''}
+                        onChange={(e) => setSelectedEmailAccount(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                        <option value="">Select email account</option>
+                        {emailAccounts.map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.email || account.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {/* To Field - Read-only */}
-              <div className="flex items-center gap-2 mb-4">
-                <label className="text-sm font-medium w-16">To:</label>
-                <Input
-                  value={composerData.to}
-                  readOnly
-                  className="flex-1 bg-gray-50 cursor-not-allowed"
-                />
+                {/* To Field - Right side */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
+                  <Input
+                    value={composerData.to}
+                    readOnly
+                    className="flex-1 bg-gray-50 cursor-not-allowed min-w-0"
+                  />
+                </div>
               </div>
 
               {/* Email Fields - Only show when email mode is selected */}
