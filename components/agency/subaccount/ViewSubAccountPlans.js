@@ -215,7 +215,12 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                   }}
                 >
                   {item.hasTrial && (
-                    <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                    <div 
+                      className="w-full rounded-t-lg px-4 py-2"
+                      style={{
+                        background: `linear-gradient(to right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))`,
+                      }}
+                    >
                       <div className="flex flex-row items-center gap-2">
                         <Image
                           src={'/otherAssets/batchIcon.png'}
@@ -243,10 +248,10 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                     style={{
                       ...styles.pricingBox,
                       border: selectedPlans.includes(item.id)
-                        ? '2px solid #7902DF'
+                        ? '2px solid hsl(var(--brand-primary))'
                         : '1px solid #15151520',
                       backgroundColor:
-                        item.id === selectedUser?.plan?.id ? '#402FFF05' : '',
+                        item.id === selectedUser?.plan?.id ? 'hsl(var(--brand-primary) / 0.05)' : '',
                     }}
                   >
                     <div
@@ -284,7 +289,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                       <div className="w-full">
                         {item.id === selectedUser?.plan?.id && (
                           <div
-                            className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                            className="-mt-[27px] flex px-2 py-1 bg-brand-primary rounded-full text-white"
                             style={{
                               fontSize: 11.6,
                               fontWeight: '500',
@@ -307,14 +312,14 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                               {item.title}
                             </div>
                             {item.tag && (
-                              <div className="bg-purple text-white px-2 py-1 rounded-full">
+                              <div className="bg-brand-primary text-white px-2 py-1 rounded-full">
                                 {item.tag}
                               </div>
                             )}
                           </div>
                           {item.status && (
                             <div
-                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
                               style={{ fontSize: 11.6, fontWeight: '500' }}
                             >
                               {item.status}
@@ -359,7 +364,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                 selectedPlans,
               ) && (
                 <button
-                  className="w-full text-center rounded-lg text-white bg-purple h-[49px]"
+                  className="w-full text-center rounded-lg text-white bg-brand-primary h-[49px]"
                   onClick={handleUpdateAgencyPlans}
                   disabled={updatePlansLoader}
                 >
@@ -452,7 +457,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -475,7 +480,7 @@ const styles = {
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary) / 0.4)',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: '10px',

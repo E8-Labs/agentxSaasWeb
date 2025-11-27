@@ -225,7 +225,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       right: '0',
       width: '0',
       height: '0',
-      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
       borderLeft: '50px solid transparent',
     },
     labelText: {
@@ -243,7 +243,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
     },
     originalPrice: {
       textDecoration: 'line-through',
-      color: '#7902DF65',
+      color: 'hsl(var(--brand-primary))65',
       fontSize: 18,
       fontWeight: '600',
     },
@@ -414,7 +414,12 @@ function TermsText() {
                           onClick={(e) => handleTogglePlanClick2(item)}
                         >
                           {item.hasTrial && (
-                            <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                            <div 
+                              className="w-full rounded-t-lg px-4 py-2"
+                              style={{
+                                background: `linear-gradient(to right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))`,
+                              }}
+                            >
                               <div className="flex flex-row items-center gap-2">
                                 <Image
                                   src={"/otherAssets/batchIcon.png"}
@@ -440,10 +445,10 @@ function TermsText() {
                               ...styles.pricingBox,
                               border:
                                 item.id === togglePlan
-                                  ? "2px solid #7902DF"
+                                  ? "2px solid hsl(var(--brand-primary))"
                                   : "1px solid #15151520",
                               backgroundColor:
-                                item.id === togglePlan ? "#402FFF05" : "",
+                                item.id === togglePlan ? "hsl(var(--brand-primary) / 0.05)" : "",
                               // borderRadius: item.hasTrial == true ? "" : "10px",
                               borderTopLeftRadius: item.hasTrial == true ? "" : "10px",
                               borderTopRightRadius: item.hasTrial == true ? "" : "10px",
@@ -487,7 +492,7 @@ function TermsText() {
   
                                 {item.status && (
                                   <div
-                                    className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                                    className="-mt-[27px] sm:hidden px-2 py-1 bg-brand-primary rounded-full text-white"
                                     style={{
                                       fontSize: 11.6,
                                       fontWeight: "500",
@@ -505,7 +510,7 @@ function TermsText() {
                                   }}
                                   className="flex flex-row items-center gap-1"
                                 >
-                                  {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
+                                  {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-brand-primary ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
                                 </div>
                                 <div className="flex flex-row items-center justify-between">
                                   <div
@@ -550,7 +555,7 @@ function TermsText() {
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
                       style={{ height: "24px", width: "24px" }}
                     >
                       <Image
@@ -575,7 +580,7 @@ function TermsText() {
                   ?
                   "bg-[#00000030] text-black"
                   :
-                  "bg-purple text-white"
+                  "bg-brand-primary text-white"
                   }`}
                 onClick={subscribePlanClick}
                 disabled={!canSubPlan || disableContinue}

@@ -174,7 +174,7 @@ export default function EnrichModal({
                     style={{
                       fontSize: 14,
                       fontWeight: '600',
-                      color: '#7902DF',
+                      color: 'hsl(var(--brand-primary))',
                       textAlign: 'center',
                       width: '30vw',
                       padding: '8px 12px',

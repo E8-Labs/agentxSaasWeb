@@ -892,7 +892,7 @@ export default function CreateSubAccountModal({
                                         color: 'white',
                                     },
                                     '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                        backgroundColor: '#7902DF',
+                                        backgroundColor: 'hsl(var(--brand-primary))',
                                     },
                                 }}
                             />
@@ -972,7 +972,7 @@ export default function CreateSubAccountModal({
                                     color: 'white',
                                 },
                                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
+                                    backgroundColor: 'hsl(var(--brand-primary))',
                                 },
                             }}
                             onChange={(e) => {

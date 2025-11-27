@@ -81,11 +81,20 @@ function NoPerplexity({
                 )
             } */}
 
-      <Image
-        src={'/otherAssets/starsIcon2.png'}
-        height={30}
-        width={30}
-        alt="*"
+      <div
+        style={{
+          width: 30,
+          height: 30,
+          backgroundColor: 'hsl(var(--brand-primary))',
+          maskImage: 'url(/otherAssets/starsIcon2.png)',
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          WebkitMaskImage: 'url(/otherAssets/starsIcon2.png)',
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+        }}
       />
 
       <div style={{ fontSize: 16, fontWeight: '600', color: '#000000' }}>

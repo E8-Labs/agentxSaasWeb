@@ -216,7 +216,7 @@ function AdminPhoneNumber({ selectedUser }) {
             style={{
               fontSize: 15,
               fontWeight: '500',
-              color: '#7902DF',
+              color: 'hsl(var(--brand-primary))',
               textDecorationLine: 'underline',
             }}
           >

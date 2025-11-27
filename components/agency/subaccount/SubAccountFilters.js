@@ -304,7 +304,7 @@ const SubAccountFilters = ({
               </div>
             ) : (
               <button
-                className="w-full h-[50px] rounded-lg bg-purple text-white"
+                className="w-full h-[50px] rounded-lg bg-brand-primary text-white"
                 style={{ fontSize: '15px', fontWeight: '500' }}
                 onClick={() => {
                   const filterData = {

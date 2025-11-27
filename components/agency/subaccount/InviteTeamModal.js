@@ -473,7 +473,7 @@ const InviteTeamModal = ({
                         ? '#00000020'
                         : '',
                   }}
-                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
                     let data = {
                       name: name,

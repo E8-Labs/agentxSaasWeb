@@ -742,7 +742,7 @@ function AdminActiveCalls({ selectedUser }) {
                           return (
                             <div key={index}>
                               <div
-                                className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 gap-4"
+                                className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[hsl(var(--brand-primary) / 0.05)] py-2 gap-4"
                                 key={index}
                               >
                                 <div className="min-w-[150px] flex-shrink-0">
@@ -777,7 +777,7 @@ function AdminActiveCalls({ selectedUser }) {
                                 <div className="min-w-[150px] flex-shrink-0 text-center">
                                   <button
                                     style={styles.text2}
-                                    className="text-purple underline outline-none"
+                                    className="text-brand-primary underline outline-none"
                                     onClick={() => {
                                       handleShowLeads(agent, item)
                                     }}
@@ -886,7 +886,7 @@ function AdminActiveCalls({ selectedUser }) {
                             <div className="w-1/12">
                               <button
                                 style={styles.text2}
-                                className="text-purple underline outline-none"
+                                className="text-brand-primary underline outline-none"
                                 onClick={() => {
                                   console.log('Item selected is', item)
                                   fetchLeadsInBatch(item)
@@ -1082,7 +1082,7 @@ function AdminActiveCalls({ selectedUser }) {
                                 {leadsLoading && (
                                   <CircularProgress
                                     size={35}
-                                    sx={{ color: '#7902DF' }}
+                                    sx={{ color: 'hsl(var(--brand-primary))' }}
                                   />
                                 )}
                               </div>
@@ -1130,14 +1130,14 @@ function AdminActiveCalls({ selectedUser }) {
                                           .map((tag, index) => (
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                              className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg text-brand-primary"
                                             >
                                               {tag}
                                             </div>
                                           ))}
                                         {item.tags.length > 1 && (
                                           <div
-                                            className="text-purple underline cursor-pointer"
+                                            className="text-brand-primary underline cursor-pointer"
                                             onClick={() => {
                                               setExtraTagsModal(true)
                                               setOtherTags(item.tags)
@@ -1225,9 +1225,9 @@ function AdminActiveCalls({ selectedUser }) {
                       key={index}
                       className="flex flex-row items-center gap-2"
                     >
-                      <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                      <div className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg">
                         <div
-                          className="text-purple" //1C55FF10
+                          className="text-brand-primary" //1C55FF10
                         >
                           {tag}
                         </div>
@@ -1245,7 +1245,7 @@ function AdminActiveCalls({ selectedUser }) {
                             <X
                               size={15}
                               weight="bold"
-                              color="#7902DF"
+                              color="hsl(var(--brand-primary))"
                             />
                           </button>
                         )} */}
@@ -1368,7 +1368,7 @@ export const ShowConfirmationPopup = ({
                   </div>
                 ) : (
                   <button
-                    className={`outline-none ${color ? 'bg-purple' : 'bg-red'}`}
+                    className={`outline-none ${color ? 'bg-brand-primary' : 'bg-red'}`}
                     style={{
                       color: 'white',
                       height: '50px',

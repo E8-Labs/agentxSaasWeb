@@ -67,7 +67,7 @@ function Page() {
               onClick={() => setActiveTab(tab)}
               className={`${
                 activeTab === tab
-                  ? 'text-purple border-b-2 border-purple outline-none'
+                  ? 'text-brand-primary border-b-2 border-brand-primary outline-none'
                   : ''
               }`}
               style={{ fontSize: 15, fontWeight: '500' }}

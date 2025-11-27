@@ -518,7 +518,7 @@ function AdminBasicInfo({ selectedUser }) {
           }}
           type="text"
           placeholder="Name"
-          style={{ border: '0px solid #7902DF', outline: 'none' }}
+          style={{ border: '0px solid hsl(var(--brand-primary))', outline: 'none' }}
         />
       </div>
 
@@ -1136,10 +1136,10 @@ function AdminBasicInfo({ selectedUser }) {
                           paddingInline: index === 2 && '40px',
                           border:
                             clientType === item.value
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            clientType === item.value ? '#402FFF20' : '',
+                            clientType === item.value ? 'hsl(var(--brand-primary) / 0.2)' : '',
                         }}
                       >
                         {item.title}
@@ -1179,11 +1179,11 @@ function AdminBasicInfo({ selectedUser }) {
                           paddingInline: index === 2 && '40px',
                           border:
                             collectionStratigy === item.value
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
                             collectionStratigy === item.value
-                              ? '#402FFF20'
+                              ? 'hsl(var(--brand-primary) / 0.2)'
                               : '',
                         }}
                       >
@@ -1219,10 +1219,10 @@ function AdminBasicInfo({ selectedUser }) {
                           paddingInline: index === 2 && '40px',
                           border:
                             clientType2 === item.title
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            clientType2 === item.title ? '#402FFF20' : '',
+                            clientType2 === item.title ? 'hsl(var(--brand-primary) / 0.2)' : '',
                         }}
                       >
                         {item.title}
@@ -1256,10 +1256,10 @@ function AdminBasicInfo({ selectedUser }) {
                           paddingInline: index === 2 && '40px',
                           border:
                             consoltation === item.title
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                           backgroundColor:
-                            consoltation === item.title ? '#402FFF20' : '',
+                            consoltation === item.title ? 'hsl(var(--brand-primary) / 0.2)' : '',
                         }}
                       >
                         {item.title}
@@ -1305,10 +1305,10 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: serviceId.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: serviceId.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary))05'
                       : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -1361,10 +1361,10 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedArea.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: selectedArea.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary))05'
                       : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -1400,10 +1400,10 @@ function AdminBasicInfo({ selectedUser }) {
                   style={{
                     borderWidth: 2,
                     borderColor: selectedIndustries.includes(item.id)
-                      ? '#7902DF'
+                      ? 'hsl(var(--brand-primary))'
                       : '#00000008',
                     backgroundColor: selectedIndustries.includes(item.id)
-                      ? '#7902DF05'
+                      ? 'hsl(var(--brand-primary))05'
                       : 'transparent',
                     cursor: 'pointer',
                   }}

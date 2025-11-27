@@ -1050,7 +1050,7 @@ const AdminLeads = ({
   //         case "More":
   //             return (
   //                 <button
-  //                     className="underline text-purple"
+  //                     className="underline text-brand-primary"
   //                     onClick={() => {
   //                         //////console.log
   //                         setSelectedLeadsDetails(item); // Pass selected lead data
@@ -1126,7 +1126,7 @@ const AdminLeads = ({
       case 'More':
         return (
           <button
-            className="underline text-purple"
+            className="underline text-brand-primary"
             onClick={() => {
               // //console.log;
               setSelectedLeadsDetails(item) // Pass selected lead data
@@ -1628,7 +1628,7 @@ const AdminLeads = ({
         <div className="flex fex-row items-center gap-6">
           <button
             style={{
-              backgroundColor: toggleClick.length > 0 ? '#7902DF' : '',
+              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
               color: toggleClick.length > 0 ? 'white' : '#000000',
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
@@ -1668,7 +1668,7 @@ const AdminLeads = ({
       <div className="w-[95%] pe-12 mt-2">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div>
@@ -1773,7 +1773,7 @@ const AdminLeads = ({
                     return (
                       <div className="flex-shrink-0" key={filter.key + index}>
                         <div
-                          className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
+                          className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
                           style={{ fontWeight: '500', fontSize: 15 }}
                         >
                           {getFilterTitle(filter)}
@@ -1839,7 +1839,7 @@ const AdminLeads = ({
                         {LeadsList.length > 0 && (
                           <div className="flex flex-row items-center gap-2">
                             <button
-                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                              className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                               onClick={() => {
                                 setToggleClick([])
                                 setSelectedAll(false)
@@ -1924,13 +1924,13 @@ const AdminLeads = ({
                       style={{
                         borderBottom:
                           SelectedSheetId === item.id
-                            ? '2px solid #7902DF'
+                            ? '2px solid hsl(var(--brand-primary))'
                             : '',
-                        color: SelectedSheetId === item.id ? '#7902DF' : '',
+                        color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                         whiteSpace: 'nowrap', // Prevent text wrapping
                       }}
                       // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -1981,7 +1981,7 @@ const AdminLeads = ({
                           style={{ fontWeight: '500', fontSize: 15 }}
                         >
                           {delSmartListLoader ? (
-                            <CircularProgress size={15} />
+                            <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
                           ) : (
                             <button
                               className="text-red flex flex-row items-center gap-1"
@@ -2008,14 +2008,14 @@ const AdminLeads = ({
                 })}
               </div>
               <button
-                className="flex flex-row items-center gap-1 text-purple flex-shrink-0"
+                className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
                 style={styles.paragraph}
                 // onClick={() => { setShowAddNewSheetModal(true) }}
                 onClick={() => {
                   handleShowAddLeadModal(true)
                 }}
               >
-                <Plus size={15} color="#7902DF" weight="bold" />
+                <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
                 <span>New Leads</span>
               </button>
             </div>
@@ -2035,7 +2035,7 @@ const AdminLeads = ({
 
             {sheetsLoader ? (
               <div className="w-full flex flex-row justify-center mt-12">
-                <CircularProgress size={30} />
+                <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <div>
@@ -2072,7 +2072,7 @@ const AdminLeads = ({
                       hasMore={hasMore} // Check if there's more data
                       loader={
                         <div className="w-full flex flex-row justify-center mt-8">
-                          {moreLeadsLoader && <CircularProgress size={35} />}
+                          {moreLeadsLoader && <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />}
                         </div>
                       }
                       style={{ overflow: 'unset' }}
@@ -2408,7 +2408,7 @@ const AdminLeads = ({
 
                     {stagesLoader ? (
                       <div className="w-full flex flex-row justify-center mt-8">
-                        <CircularProgress size={25} />
+                        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                       </div>
                     ) : (
                       <div className="w-full flex flex-wrap gap-4">
@@ -2458,7 +2458,7 @@ const AdminLeads = ({
                       Reset
                     </button>
                     {sheetsLoader ? (
-                      <CircularProgress size={25} />
+                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
                         className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
@@ -2546,7 +2546,7 @@ const AdminLeads = ({
                             <span>Inbound?</span>
                             <Switch
                               checked={isInbound}
-                              // color="#7902DF"
+                              // color="hsl(var(--brand-primary))"
                               // exclusive
                               onChange={(event) => {
                                 //console.log;
@@ -2554,11 +2554,11 @@ const AdminLeads = ({
                               }}
                               sx={{
                                 '& .MuiSwitch-switchBase.Mui-checked': {
-                                  color: '#7902DF',
+                                  color: 'hsl(var(--brand-primary))',
                                 },
                                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                                   {
-                                    backgroundColor: '#7902DF',
+                                    backgroundColor: 'hsl(var(--brand-primary))',
                                   },
                               }}
                             />
@@ -2625,7 +2625,7 @@ const AdminLeads = ({
                         <div style={{ height: '50px' }}>
                           {/*
                                                         inputs.length < 3 && (
-                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
                                                                 fontSize: 15,
                                                                 fontWeight: "700"
                                                             }}>
@@ -2635,7 +2635,7 @@ const AdminLeads = ({
                                                     */}
                           <button
                             onClick={handleAddInput}
-                            className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
+                            className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
                             style={styles.paragraph}
                           >
                             New Column
@@ -2647,7 +2647,7 @@ const AdminLeads = ({
                     <div className="w-full pb-8">
                       {showaddCreateListLoader ? (
                         <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                          <CircularProgress size={25} />
+                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                         </div>
                       ) : (
                         <button
@@ -2753,7 +2753,7 @@ const AdminLeads = ({
               </div>
               <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
                 {addLeadNoteLoader ? (
-                  <CircularProgress size={25} />
+                  <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 ) : (
                   <button
                     className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"

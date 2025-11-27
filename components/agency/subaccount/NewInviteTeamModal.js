@@ -435,7 +435,7 @@ const NewInviteTeamModal = ({
                   <div className="w-full flex flex-row items-center justify-end pe-4">
                     <button
                       onClick={handleAddMember}
-                      className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                      className="mt-3 text-brand-primary border-b boder-2 border-purple60 text-sm"
                     >
                       New Member
                     </button>
@@ -460,7 +460,7 @@ const NewInviteTeamModal = ({
                       ? '#00000020'
                       : '',
                   }}
-                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
                     inviteTeamMember()
                   }}

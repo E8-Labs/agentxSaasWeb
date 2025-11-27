@@ -206,7 +206,7 @@ function AdminIntegration({ selectedUser }) {
                 genrateApiKey()
               }}
             >
-              <div style={{ fontSize: 16, fontWeight: '500', color: '#7902df', textDecorationLine: 'underline' }}>
+              <div style={{ fontSize: 16, fontWeight: '500', color: 'hsl(var(--brand-primary))', textDecorationLine: 'underline' }}>
                 Create New Api Key
               </div>
             </button>

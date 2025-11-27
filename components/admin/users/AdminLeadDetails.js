@@ -1330,14 +1330,14 @@ const AdminLeadDetails = ({
                                                 alt="*"
                                               />
                                               <div>
-                                                <span className="text-purple">
+                                                <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
                                                 {email.email}
                                               </div>
                                             </div>
                                             <button
-                                              className="text-purple underline"
+                                              className="text-brand-primary underline"
                                               onClick={() => {
                                                 setShowAllEmails(true)
                                               }}
@@ -1357,7 +1357,7 @@ const AdminLeadDetails = ({
                               </div>
                                   {/* Send Email Button */}
                                           <button
-                                    className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
+                                    className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary/30 text-brand-primary rounded-lg  ml-4"
                                             onClick={() => {
                                       if (googleAccounts.length === 0) {
                                         setShowAuthSelectionPopup(true)
@@ -1367,13 +1367,22 @@ const AdminLeadDetails = ({
                                     }}
                                     disabled={sendEmailLoader}
                                   >
-                                    <Image
-                                      src="/otherAssets/sendEmailIcon.png"
-                                      height={18}
-                                      width={18}
-                                      alt="Send Email"
+                                    <div
+                                      style={{
+                                        width: 18,
+                                        height: 18,
+                                        backgroundColor: 'hsl(var(--brand-primary))',
+                                        maskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                        maskSize: 'contain',
+                                        maskRepeat: 'no-repeat',
+                                        maskPosition: 'center',
+                                        WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                        WebkitMaskSize: 'contain',
+                                        WebkitMaskRepeat: 'no-repeat',
+                                        WebkitMaskPosition: 'center',
+                                      }}
                                     />
-                                    <span className="text-purple text-[12px] font-[400]">
+                                    <span className="text-brand-primary text-[12px] font-[400]">
                                       Send Email
                                     </span>
                                           </button>
@@ -1420,7 +1429,7 @@ const AdminLeadDetails = ({
                                         <div className="flex flex-col items-start gap-1">
                                           <span>
                                             <button
-                                              className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
+                                              className="text-brand-primary underline hover:text-brand-primary-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
                                               onClick={() => {
                                                 setShowUpgradeModal(true)
                                               }}
@@ -1478,7 +1487,7 @@ const AdminLeadDetails = ({
                                       <CircularProgress size={20} />
                                     ) : (
                                       <button
-                                        className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
+                                        className={`flex flex-row border border-brand-primary/30 items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
                                         onClick={() => setShowSMSModal(true)}
                                         disabled={
                                           sendSMSLoader ||
@@ -1487,13 +1496,22 @@ const AdminLeadDetails = ({
                                           phoneNumbers.length == 0
                                         }
                                       >
-                                        <Image
-                                          src="/otherAssets/sendSmsIcon.png"
-                                          height={18}
-                                          width={18}
-                                          alt="Send SMS"
+                                        <div
+                                          style={{
+                                            width: 18,
+                                            height: 18,
+                                            backgroundColor: 'hsl(var(--brand-primary))',
+                                            maskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                            maskSize: 'contain',
+                                            maskRepeat: 'no-repeat',
+                                            maskPosition: 'center',
+                                            WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                            WebkitMaskSize: 'contain',
+                                            WebkitMaskRepeat: 'no-repeat',
+                                            WebkitMaskPosition: 'center',
+                                          }}
                                         />
-                                        <span className="text-[12px] font-[400]">
+                                        <span className="text-brand-primary text-[12px] font-[400]">
                                           Send Text
                                         </span>
                                       </button>
@@ -1536,8 +1554,8 @@ const AdminLeadDetails = ({
                                               key={index}
                                               className="flex flex-row items-center gap-2"
                                             >
-                                              <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                                              <div className="text-purple">
+                                              <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
+                                              <div className="text-brand-primary">
                                                   {tag}
                                                 </div>
                                                 {DelTagLoader &&
@@ -1554,7 +1572,7 @@ const AdminLeadDetails = ({
                                                     <X
                                                       size={15}
                                                       weight="bold"
-                                                      color="#7902DF"
+                                                      color="hsl(var(--brand-primary))"
                                                     />
                                                   </button>
                                                 )}
@@ -1569,7 +1587,7 @@ const AdminLeadDetails = ({
                                       }}
                                     >
                                       {selectedLeadsDetails?.tags.length > 2 && (
-                                        <div className="text-purple underline">
+                                        <div className="text-brand-primary underline">
                                           +
                                           {selectedLeadsDetails?.tags.length - 2}
                                         </div>
@@ -1765,7 +1783,7 @@ const AdminLeadDetails = ({
                                 <div>
                                   {getExtraColumsCount(columnsLength) > 0 ? (
                                     <div
-                                      className="text-purple underline"
+                                      className="text-brand-primary underline"
                                       style={{
                                         fontsize: 15,
                                         fontWeight: '500',
@@ -1949,7 +1967,7 @@ const AdminLeadDetails = ({
                                               alt="*"
                                             />
                                             <div>
-                                              <span className="text-purple">
+                                              <span className="text-brand-primary">
                                                 New
                                               </span>{' '}
                                               {email?.email}
@@ -2028,7 +2046,7 @@ const AdminLeadDetails = ({
                                         >
                                           <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
                                             <div
-                                              className="text-purple" //1C55FF10
+                                              className="text-brand-primary" //1C55FF10
                                             >
                                               {tag}
                                             </div>
@@ -2046,7 +2064,7 @@ const AdminLeadDetails = ({
                                                 <X
                                                   size={15}
                                                   weight="bold"
-                                                  color="#7902DF"
+                                                  color="hsl(var(--brand-primary))"
                                                 />
                                               </button>
                                             )}
@@ -2178,10 +2196,10 @@ const AdminLeadDetails = ({
                       className="outline-none p-2 flex flex-row gap-2"
                       style={{
                         borderBottom: showPerplexityDetails
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                         backgroundColor: showPerplexityDetails
-                              ? '#7902DF05'
+                              ? 'hsl(var(--brand-primary))05'
                               : '',
                       }}
                       onClick={() => {
@@ -2191,19 +2209,33 @@ const AdminLeadDetails = ({
                             setShowAcitivityDetails(false)
                       }}
                     >
-                      <Image
-                        src={
-                          showPerplexityDetails
-                                ? '/svgIcons/sparklesPurple.svg'
-                                : '/svgIcons/sparkles.svg'
-                        }
-                            width={20}
-                            height={20}
-                        alt="*"
-                      />
+                      {showPerplexityDetails ? (
+                        <div
+                          style={{
+                            width: 20,
+                            height: 20,
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                            maskImage: 'url(/svgIcons/sparklesPurple.svg)',
+                            maskSize: 'contain',
+                            maskRepeat: 'no-repeat',
+                            maskPosition: 'center',
+                            WebkitMaskImage: 'url(/svgIcons/sparklesPurple.svg)',
+                            WebkitMaskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          src="/svgIcons/sparkles.svg"
+                          width={20}
+                          height={20}
+                          alt="*"
+                        />
+                      )}
                       <div
                         style={{
-                              color: showPerplexityDetails ? '#7902DF' : 'black',
+                              color: showPerplexityDetails ? 'hsl(var(--brand-primary))' : 'black',
                         }}
                       >
                             Insights
@@ -2214,9 +2246,9 @@ const AdminLeadDetails = ({
                           className="outline-none p-2 flex flex-row gap-2"
                           style={{
                             borderBottom: showKYCDetails
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
-                            backgroundColor: showKYCDetails ? '#7902DF05' : '',
+                            backgroundColor: showKYCDetails ? 'hsl(var(--brand-primary))05' : '',
                           }}
                           onClick={() => {
                             setShowPerpelexityDetails(false)
@@ -2225,19 +2257,33 @@ const AdminLeadDetails = ({
                             setShowAcitivityDetails(false)
                           }}
                         >
-                          <Image
-                            src={
-                              showKYCDetails
-                                ? '/svgIcons/selectedKycIcon.svg'
-                                : '/svgIcons/unselectedKycIcon.svg'
-                            }
-                            width={24}
-                            height={24}
-                            alt="*"
-                          />
+                          {showKYCDetails ? (
+                            <div
+                              style={{
+                                width: 24,
+                                height: 24,
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                maskImage: 'url(/svgIcons/selectedKycIcon.svg)',
+                                maskSize: 'contain',
+                                maskRepeat: 'no-repeat',
+                                maskPosition: 'center',
+                                WebkitMaskImage: 'url(/svgIcons/selectedKycIcon.svg)',
+                                WebkitMaskSize: 'contain',
+                                WebkitMaskRepeat: 'no-repeat',
+                                WebkitMaskPosition: 'center',
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src="/svgIcons/unselectedKycIcon.svg"
+                              width={24}
+                              height={24}
+                              alt="*"
+                            />
+                          )}
                           <div
                             style={{
-                              color: showKYCDetails ? '#7902DF' : 'black',
+                              color: showKYCDetails ? 'hsl(var(--brand-primary))' : 'black',
                             }}
                           >
                             KYC
@@ -2248,10 +2294,10 @@ const AdminLeadDetails = ({
                           className="outline-none p-2 flex flex-row gap-2"
                           style={{
                             borderBottom: showAcitivityDetails
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                             backgroundColor: showAcitivityDetails
-                              ? '#7902DF05'
+                              ? 'hsl(var(--brand-primary))05'
                               : '',
                           }}
                           onClick={() => {
@@ -2261,19 +2307,33 @@ const AdminLeadDetails = ({
                             setShowAcitivityDetails(true)
                           }}
                         >
-                          <Image
-                            src={
-                              showAcitivityDetails
-                                ? '/svgIcons/selectedActivityIcon.svg'
-                                : '/svgIcons/unselectedActivityIcon.svg'
-                            }
-                            width={24}
-                            height={24}
-                            alt="*"
-                          />
+                          {showAcitivityDetails ? (
+                            <div
+                              style={{
+                                width: 24,
+                                height: 24,
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                maskImage: 'url(/svgIcons/selectedActivityIcon.svg)',
+                                maskSize: 'contain',
+                                maskRepeat: 'no-repeat',
+                                maskPosition: 'center',
+                                WebkitMaskImage: 'url(/svgIcons/selectedActivityIcon.svg)',
+                                WebkitMaskSize: 'contain',
+                                WebkitMaskRepeat: 'no-repeat',
+                                WebkitMaskPosition: 'center',
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src="/svgIcons/unselectedActivityIcon.svg"
+                              width={24}
+                              height={24}
+                              alt="*"
+                            />
+                          )}
                           <div
                             style={{
-                              color: showAcitivityDetails ? '#7902DF' : 'black',
+                              color: showAcitivityDetails ? 'hsl(var(--brand-primary))' : 'black',
                             }}
                           >
                             Activity
@@ -2284,10 +2344,10 @@ const AdminLeadDetails = ({
                           className="outline-none p-2 flex flex-row gap-2"
                           style={{
                             borderBottom: showNotesDetails
-                              ? '2px solid #7902DF'
+                              ? '2px solid hsl(var(--brand-primary))'
                               : '',
                             backgroundColor: showNotesDetails
-                              ? '#7902DF05'
+                              ? 'hsl(var(--brand-primary))05'
                               : '',
                           }}
                           onClick={() => {
@@ -2297,19 +2357,33 @@ const AdminLeadDetails = ({
                             setShowAcitivityDetails(false)
                           }}
                         >
-                          <Image
-                            src={
-                              showNotesDetails
-                                ? '/svgIcons/selectedNotesIcon.svg'
-                                : '/svgIcons/unselectedNotesIcon.svg'
-                            }
-                            width={24}
-                            height={24}
-                            alt="*"
-                          />
+                          {showNotesDetails ? (
+                            <div
+                              style={{
+                                width: 24,
+                                height: 24,
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                maskImage: 'url(/svgIcons/selectedNotesIcon.svg)',
+                                maskSize: 'contain',
+                                maskRepeat: 'no-repeat',
+                                maskPosition: 'center',
+                                WebkitMaskImage: 'url(/svgIcons/selectedNotesIcon.svg)',
+                                WebkitMaskSize: 'contain',
+                                WebkitMaskRepeat: 'no-repeat',
+                                WebkitMaskPosition: 'center',
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src="/svgIcons/unselectedNotesIcon.svg"
+                              width={24}
+                              height={24}
+                              alt="*"
+                            />
+                          )}
                           <div
                             style={{
-                              color: showNotesDetails ? '#7902DF' : 'black',
+                              color: showNotesDetails ? 'hsl(var(--brand-primary))' : 'black',
                             }}
                           >
                             Notes
@@ -2389,7 +2463,7 @@ const AdminLeadDetails = ({
                                         ></div>
                                         <div className="h-full w-full">
                                           {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-purple'>
+                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-brand-primary'>
                                                 {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
                                             </span>
                                         </div> */}
@@ -2465,10 +2539,10 @@ const AdminLeadDetails = ({
                                 >
                                   <Plus
                                     size={17}
-                                    color="#7902DF"
+                                    color="hsl(var(--brand-primary))"
                                     weight="bold"
                                   />
-                                  <div className="text-purple">Add Notes</div>
+                                  <div className="text-brand-primary">Add Notes</div>
                                 </button>
                               </div>
                             ) : (
@@ -2523,10 +2597,10 @@ const AdminLeadDetails = ({
                                   >
                                     <Plus
                                       size={17}
-                                      color="#7902DF"
+                                      color="hsl(var(--brand-primary))"
                                       weight="bold"
                                     />
-                                    <div className="text-purple">Add Notes</div>
+                                    <div className="text-brand-primary">Add Notes</div>
                                   </button>
                                 </div>
                               </div>

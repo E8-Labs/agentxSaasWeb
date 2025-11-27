@@ -564,7 +564,7 @@ function AdminAllCalls({ selectedUser }) {
             return (
               <div className="flex-shrink-0" key={filter.key + index}>
                 <div
-                  className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
+                  className="px-4 py-2 bg-[hsl(var(--brand-primary) / 0.1)] text-brand-primary  flex-shrink-0 [hsl(var(--brand-primary))10] rounded-[25px] flex flex-row items-center gap-2"
                   style={{ fontWeight: '500', fontSize: 15 }}
                 >
                   {getFilterTitle(filter)}
@@ -702,7 +702,7 @@ function AdminAllCalls({ selectedUser }) {
                   <div
                     key={item.id}
                     style={{ cursor: 'pointer' }}
-                    className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                    className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[hsl(var(--brand-primary) / 0.05)] py-2"
                   >
                     <div
                       className="w-2/12 truncate flex flex-row gap-3 items-center cursor-pointer"
@@ -784,7 +784,7 @@ function AdminAllCalls({ selectedUser }) {
                         <div
                           style={{
                             fontSize: 12,
-                            color: '#7902DF',
+                            color: 'hsl(var(--brand-primary))',
                             textDecorationLine: 'underline',
                           }}
                         >
@@ -1048,7 +1048,7 @@ function AdminAllCalls({ selectedUser }) {
                           }}
                           className={`p-2 border border-[#00000020] ${
                             selectedStageIds.includes(item.id)
-                              ? `bg-purple`
+                              ? `bg-brand-primary`
                               : 'bg-transparent'
                           } px-6
                                                                 ${
@@ -1098,7 +1098,7 @@ function AdminAllCalls({ selectedUser }) {
                             ? '#fff'
                             : '',
                           backgroundColor: selectedStatus.includes(item.status)
-                            ? '#7902df'
+                            ? 'hsl(var(--brand-primary))'
                             : '',
                         }}
                       >
@@ -1132,7 +1132,7 @@ function AdminAllCalls({ selectedUser }) {
                   <CircularProgress size={25} />
                 ) : (
                   <button
-                    className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
+                    className="bg-brand-primary h-[45px] w-full bg-brand-primary text-white rounded-xl outline-none"
                     style={{
                       fontSize: 16.8,
                       fontWeight: '600',

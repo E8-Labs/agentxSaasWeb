@@ -409,11 +409,11 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
               ></div>
             )}
           </div>
-          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 relative">
-            <div className="text-purple-600 text-sm font-medium">
+          <div className="bg-brand-primary/10 p-4 rounded-lg border border-brand-primary/20 relative">
+            <div className="text-brand-primary text-sm font-medium">
               Call Batches
             </div>
-            <div className="text-2xl font-bold text-purple-800">
+            <div className="text-2xl font-bold text-brand-primary">
               {pagination.counts.callBatches}
             </div>
             {cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION && (
@@ -450,7 +450,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         {loading && activityLogs.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 p-8">
             <div className="flex justify-center">
-              <CircularProgress size={50} sx={{ color: '#7902DF' }} />
+              <CircularProgress size={50} sx={{ color: 'hsl(var(--brand-primary))' }} />
             </div>
             <p className="text-center mt-4 text-gray-600">
               Loading activity logs...
@@ -477,7 +477,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                 hasMore={hasMore}
                 loader={
                   <div className="w-full flex justify-center py-4">
-                    <CircularProgress size={30} sx={{ color: '#7902DF' }} />
+                    <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 }
                 endMessage={

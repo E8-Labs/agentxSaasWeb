@@ -51,7 +51,7 @@ const styles = {
   },
   chip: {
     margin: 2,
-    backgroundColor: '#7902DF',
+    backgroundColor: 'hsl(var(--brand-primary))',
     color: 'white',
     padding: '10px 20px',
     borderRadius: '20px',
@@ -285,7 +285,7 @@ export function UserFilterModal({
               min={0}
               max={1000000}
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -307,7 +307,7 @@ export function UserFilterModal({
               }}
               valueLabelDisplay="auto"
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -331,7 +331,7 @@ export function UserFilterModal({
               min={0}
               max={1000000}
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -355,7 +355,7 @@ export function UserFilterModal({
               }}
               valueLabelDisplay="auto"
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -379,7 +379,7 @@ export function UserFilterModal({
               min={0}
               max={1000000}
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -403,7 +403,7 @@ export function UserFilterModal({
               }}
               valueLabelDisplay="auto"
               sx={{
-                color: '#7902DF',
+                color: 'hsl(var(--brand-primary))',
               }}
             />
 
@@ -506,7 +506,7 @@ export function UserFilterModal({
             </button>
 
             <button
-              className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+              className="bg-brand-primary h-[45px] w-[140px] bg-brand-primary text-white rounded-xl outline-none"
               style={{
                 fontSize: 16.8,
                 fontWeight: '600',

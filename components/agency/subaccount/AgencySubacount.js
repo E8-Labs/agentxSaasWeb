@@ -937,7 +937,7 @@ function AgencySubacount({ selectedAgency }) {
                           View Detail
                         </button>
                         <button
-                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setOpenInvitePopup(true)
                             handleClosePopover()
@@ -946,7 +946,7 @@ function AgencySubacount({ selectedAgency }) {
                           Invite Team
                         </button>
                         <button
-                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setShowPlans(true)
                             // handleClosePopover();
@@ -956,7 +956,7 @@ function AgencySubacount({ selectedAgency }) {
                         </button>
 
                         <button
-                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setShowXBarPlans(true)
                             handleClosePopover()
@@ -965,7 +965,7 @@ function AgencySubacount({ selectedAgency }) {
                           View XBar
                         </button>
                         <button
-                          className="px-4  hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4  hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setShowPauseConfirmationPopup(true)
                             // handleClosePopover();
@@ -976,7 +976,7 @@ function AgencySubacount({ selectedAgency }) {
                             : 'Pause'}
                         </button>
                         <button
-                          className="px-4 pb-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          className="px-4 pb-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
                             setShowDelConfirmationPopup(true)
                             // handleClosePopover();

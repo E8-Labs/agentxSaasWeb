@@ -2356,7 +2356,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             <div className="w-full flex justify-center mt-4 pb-12">
                               <CircularProgress
                                 size={30}
-                                sx={{ color: '#7902DF' }}
+                                sx={{ color: 'hsl(var(--brand-primary))' }}
                               />
                             </div>
                           }
@@ -2412,7 +2412,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                       alt="*"
                                     />
                                     <div
-                                      className="text-purple underline"
+                                      className="text-brand-primary underline"
                                       style={styles.agentName}
                                     >
                                       {/* lead.agent.name */}
@@ -2491,10 +2491,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                     />
                                   )}
                                   {/* <div className="flex flex-row items-center gap-3">
-                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                        <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
-                                                                        <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
+                                                                        <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
                                                                     </div> */}
@@ -2510,10 +2510,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                             // </div>
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
+                                              className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg"
                                             >
                                               <div
-                                                className="text-purple" //1C55FF10
+                                                className="text-brand-primary" //1C55FF10
                                               >
                                                 {tagVal.length > 2 ? (
                                                   <div>
@@ -2558,7 +2558,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                                   <X
                                                     size={15}
                                                     weight="bold"
-                                                    color="#7902DF"
+                                                    color="hsl(var(--brand-primary))"
                                                   />
                                                 </button>
                                               )}
@@ -2584,7 +2584,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
               </div>
               <div className="h-[36px] flex flex-row items-start justify-center">
                 <button
-                  className="h-[23px] text-purple outline-none mt-2"
+                  className="h-[23px] text-brand-primary outline-none mt-2"
                   style={{
                     width: '200px',
                     fontSize: '16.8',
@@ -2783,7 +2783,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 <ColorPicker setStageColor={setStageColor} />
               </div>
 
-              <div className="text-purple mt-4">
+              <div className="text-brand-primary mt-4">
                 <button
                   onClick={() => {
                     setShowAdvanceSettings(!showAdvanceSettings)
@@ -2936,7 +2936,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   {/* <div style={{ height: "50px" }}>
                                             {
                                                 inputs.length < 3 && (
-                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                    <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
                                                         fontSize: 15,
                                                         fontWeight: "700"
                                                     }}>
@@ -3059,7 +3059,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                         {/* <MenuItem value={myTeamAdmin?.name}>
                           <div className="w-full flex flex-row items-center gap-2">
                             <div>{myTeamAdmin.name}</div>
-                            <div className="bg-purple text-white text-sm px-2 rounded-full">
+                            <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                               Admin
                             </div>
                           </div>
@@ -3083,7 +3083,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                               {getAgentsListImage(item?.invitedUser, 42, 42)}
                               {item.invitedUser?.name}
                               {item.id === -1 && (
-                                <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                   Admin
                                 </div>
                               )}
@@ -3124,7 +3124,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                       <button
                         className="mt-4 outline-none"
                         style={{
-                          backgroundColor: '#7902DF',
+                          backgroundColor: 'hsl(var(--brand-primary))',
                           color: 'white',
                           height: '50px',
                           borderRadius: '10px',
@@ -3267,7 +3267,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
               <button
                 className="mt-4 outline-none"
                 style={{
-                  backgroundColor: '#402FFF',
+                  backgroundColor: 'hsl(var(--brand-primary))',
                   color: 'white',
                   height: '50px',
                   borderRadius: '10px',
@@ -3428,7 +3428,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   </div>
                 ) : (
                   <button
-                    className="mt-10 outline-none bg-purple"
+                    className="mt-10 outline-none bg-brand-primary"
                     disabled={!assignNextStage}
                     style={{
                       color: 'white',
@@ -3602,7 +3602,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
               <button
                 className="mt-4 outline-none"
                 style={{
-                  backgroundColor: '#7902DF',
+                  backgroundColor: 'hsl(var(--brand-primary))',
                   color: 'white',
                   height: '50px',
                   borderRadius: '10px',
@@ -3688,7 +3688,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                                 }}
                                                 style={{
                                                     border: "1px solid #15151520",
-                                                    backgroundColor: newPipelineStage === stage.stageTitle ? "#7902DF" : "",
+                                                    backgroundColor: newPipelineStage === stage.stageTitle ? "hsl(var(--brand-primary))" : "",
                                                     color: newPipelineStage === stage.stageTitle ? "white" : "",
                                                     fontSize: 15, fontWeight: "500"
                                                 }}
@@ -3711,7 +3711,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   </div>
                 ) : (
                   <button
-                    className="w-full h-[50px] rounded-xl bg-purple text-white mt-12"
+                    className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-12"
                     style={{
                       fontWeight: '600',
                       fontSize: 16.8,
@@ -3825,7 +3825,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   <div>
                     <button
                       disabled={!showReorderBtn}
-                      className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                      className="w-full bg-brand-primary text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
                       onClick={() => {
                         handleReorder()
                       }}
@@ -3888,7 +3888,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 Your browser does not support the audio element.
               </audio>
               <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
                 onClick={() => {
                   setShowAudioPlay(null)
                 }}
@@ -3931,7 +3931,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 Your browser does not support the audio element.
               </audio>
               <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
                 onClick={() => {
                   setShowNoAudioPlay(false)
                 }}
@@ -4011,7 +4011,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   <CircularProgress size={25} />
                 ) : (
                   <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                    className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-6/12"
                     style={{
                       fontWeight: '600',
                       fontsize: 16,
@@ -4081,7 +4081,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
               </button>
               <div className="flex flex-col items-start ml-[30px]">
                 <button
-                  className="text-purple mt-2"
+                  className="text-brand-primary mt-2"
                   onClick={() => {
                     setExpandSideView(false)
                   }}
@@ -4093,7 +4093,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 </button>
 
                 <button
-                  className="text-purple mt-2"
+                  className="text-brand-primary mt-2"
                   onClick={() => {
                     setExpandSideView(false)
                   }}

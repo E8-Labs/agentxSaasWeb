@@ -531,7 +531,7 @@ function AdminScheduledCalls({ selectedUser }) {
                               <div className="w-1/12 flex-shrink-0 text-center">
                                 <button
                                   style={styles.text2}
-                                  className="text-purple underline outline-none"
+                                  className="text-brand-primary underline outline-none"
                                   onClick={() => {
                                     handleShowLeads(agent, item)
                                   }}
@@ -829,7 +829,7 @@ function AdminScheduledCalls({ selectedUser }) {
                                 {leadsLoading && (
                                   <CircularProgress
                                     size={35}
-                                    sx={{ color: '#7902DF' }}
+                                    sx={{ color: 'hsl(var(--brand-primary))' }}
                                   />
                                 )}
                               </div>
@@ -874,14 +874,14 @@ function AdminScheduledCalls({ selectedUser }) {
                                           .map((tag, index) => (
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                              className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg text-brand-primary"
                                             >
                                               {tag}
                                             </div>
                                           ))}
                                         {item.tags.length > 1 && (
                                           <div
-                                            className="text-purple underline cursor-pointer"
+                                            className="text-brand-primary underline cursor-pointer"
                                             onClick={() => {
                                               setExtraTagsModal(true)
                                               setOtherTags(item.tags)

@@ -4263,7 +4263,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                                       />
                                                     ) : (
                                                       <button
-                                                        className="text-purple underline"
+                                                        className="text-brand-primary underline"
                                                         onClick={(e) => {
                                                           e.stopPropagation()
                                                           setShowConfirmationModal(
@@ -4332,7 +4332,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 >
                                   <i>Get your own unique phone number.</i>{' '}
                                   <button
-                                    className="text-purple underline"
+                                    className="text-brand-primary underline"
                                     onClick={() => {
                                       setShowClaimPopup(true)
                                     }}
@@ -4762,7 +4762,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 Close
               </button>
               <button
-                className="mt-4 outline-none bg-purple w-7/12"
+                className="mt-4 outline-none bg-brand-primary w-7/12"
                 style={{
                   color: 'white',
                   height: '50px',
@@ -4863,7 +4863,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               <button
                 className="mt-4 outline-none"
                 style={{
-                  backgroundColor: '#7902DF',
+                  backgroundColor: 'hsl(var(--brand-primary))',
                   color: 'white',
                   height: '50px',
                   borderRadius: '10px',
@@ -4948,7 +4948,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 }}
               >
                 Please confirm you would like to reassign{' '}
-                <span className="text-purple">
+                <span className="text-brand-primary">
                   {formatPhoneNumber(showConfirmationModal?.phoneNumber)}
                 </span>{' '}
                 to {showDrawerSelectedAgent?.name}.
@@ -4980,7 +4980,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 outline-none bg-purple w-full"
+                    className="mt-4 outline-none bg-brand-primary w-full"
                     style={{
                       color: 'white',
                       height: '50px',
@@ -5057,7 +5057,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <button
                   className="px-2 pb-1"
                   style={{
-                    borderBottom: showScript && '2px solid #7902DF',
+                    borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowScript}
                 >
@@ -5066,7 +5066,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <button
                   className="px-2 pb-1"
                   style={{
-                    borderBottom: SeledtedScriptKYC && '2px solid #7902DF',
+                    borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowKycs}
                 >
@@ -5076,7 +5076,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   className="px-2 pb-1"
                   style={{
                     borderBottom:
-                      SeledtedScriptAdvanceSetting && '2px solid #7902DF',
+                      SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
                   }}
                   onClick={handleShowAdvanceSeting}
                 >
@@ -5108,7 +5108,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         {/* <div className='flex flex-row items-center gap-2'> */}
                         <div
                           style={{ width: 'fit-content' }}
-                          className="text-purple flex flex-row gap-2"
+                          className="text-brand-primary flex flex-row gap-2"
                         >
                           {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
                           {/* {`{First Name}`}, {`{Email}`}, */}
@@ -5119,13 +5119,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             {uniqueColumns.map((item, index) => (
                               <div
                                 key={index}
-                                className="flex flex-row items-center gap-2 text-purple"
+                                className="flex flex-row items-center gap-2 text-brand-primary"
                               >
                                 {`{${item}}`},
                               </div>
                             ))}
                             <button
-                              className="text-purple outline-none"
+                              className="text-brand-primary outline-none"
                               onClick={handleShowUniqueCols}
                             >
                               show less
@@ -5135,7 +5135,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           <div>
                             {uniqueColumns?.length > 0 && (
                               <button
-                                className="text-purple flex flex-row items-center font-bold outline-none"
+                                className="text-brand-primary flex flex-row items-center font-bold outline-none"
                                 onClick={() => {
                                   handleShowUniqueCols()
                                 }}
@@ -5273,7 +5273,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjectives && '2px solid #7902DF',
+                        borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowObjectives}
                     >
@@ -5282,7 +5282,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showGuardrails && '2px solid #7902DF',
+                        borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowGuardrails}
                     >
@@ -5291,7 +5291,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <button
                       className="px-2 outline-none"
                       style={{
-                        borderBottom: showObjection && '2px solid #7902DF',
+                        borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
                       }}
                       onClick={handleShowObjection}
                     >

@@ -977,7 +977,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                 <div className="">
                   <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                     onClick={() => {
                       setShowAddLeadModal(true)
                     }}
@@ -993,7 +993,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
                 <div className="">
                   <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                     onClick={() => {
                       setShowAddNewSheetModal(true)
                     }}
@@ -1139,9 +1139,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     Works with only a CSV, TSV or Excel files
                   </p>
                   <button className="w-full flex flex-row justify-center mt-6 outline-none">
-                    <div className="border border-purple rounded-[10px]">
+                    <div className="border border-brand-primary rounded-[10px]">
                       <div
-                        className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
+                        className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
                         style={{
                           fontWeight: '500',
                           fontSize: 12,
@@ -1159,7 +1159,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 {SelectedFile && (
                   <div className="w-full mt-4 flex flex-row justify-center">
                     <button
-                      className="bg-purple text-white flex flex-row items-center justify-center rounded-lg gap-2"
+                      className="bg-brand-primary text-white flex flex-row items-center justify-center rounded-lg gap-2"
                       style={{
                         ...styles.subHeadingStyle,
                         height: "50px",
@@ -1205,7 +1205,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               >
                 <div className="w-full flex flex-row items-center justify-center">
                   <CircularProgress
-                    className="text-purple"
+                    className="text-brand-primary"
                     size={150}
                     weight=""
                     thickness={1}
@@ -1255,7 +1255,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   <div className="flex flex-row items-center gap-2 ">
                     <Switch
                       checked={isEnrichToggle}
-                      // color="#7902DF"
+                      // color="hsl(var(--brand-primary))"
                       // exclusive
                       onChange={(event) => {
                         //console.log;
@@ -1268,11 +1268,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       }}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7902DF',
+                          color: 'hsl(var(--brand-primary))',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                           {
-                            backgroundColor: '#7902DF',
+                            backgroundColor: 'hsl(var(--brand-primary))',
                           },
                       }}
                     />
@@ -1446,7 +1446,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
                         {item.matchedColumn || item.UserFacingName ? (
                           <button
-                            className="underline text-purple w-1/12 outline-none ps-4"
+                            className="underline text-brand-primary w-1/12 outline-none ps-4"
                             onClick={() => {
                               setUpdateHeader(item)
                               setShowDelCol(true)
@@ -1497,7 +1497,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     <CircularProgress size={27} />
                   ) : (
                     <button
-                      className="bg-purple text-white rounded-lg h-[50px] w-4/12"
+                      className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
                       onClick={() => {
                         // validateColumns();
                         let validated = validateColumns()
@@ -1655,7 +1655,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 {GetDefaultColumnsNotMatched().map((item, index) => {
                   return (
                     <button
-                      className="text-start hover:bg-[#402FFF10] p-2"
+                      className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
                       key={index}
                       onClick={() => {
                         ChangeColumnName(item.UserFacingName)
@@ -1668,7 +1668,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               </div>
             </div>
             <button
-              className="underline text-purple p-2 hover:bg-[#402fff10] w-full text-start"
+              className="underline text-brand-primary p-2 hover:bg-[hsl(var(--brand-primary) / 0.1)] w-full text-start"
               onClick={() => {
                 setShowPopUp(true)
               }}
@@ -1735,7 +1735,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 />
 
                 <button
-                  className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
+                  className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-8"
                   style={{
                     ...styles.subHeadingStyle,
                     backgroundColor: !updateColumnValue ? '#00000020' : '',
@@ -1797,7 +1797,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-full bg-brand-primary font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
                     onClick={() => {
                       setWarningModal(false)
                     }}
@@ -1876,7 +1876,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddLeadModal(true)
                       }}
@@ -1892,7 +1892,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddNewSheetModal(true)
                       }}
@@ -1985,7 +1985,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           <span>Inbound?</span>
                           <Switch
                             checked={isInbound}
-                            // color="#7902DF"
+                            // color="hsl(var(--brand-primary))"
                             // exclusive
                             onChange={(event) => {
                               //console.log;
@@ -1993,11 +1993,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                             }}
                             sx={{
                               '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#7902DF',
+                                color: 'hsl(var(--brand-primary))',
                               },
                               '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                                 {
-                                  backgroundColor: '#7902DF',
+                                  backgroundColor: 'hsl(var(--brand-primary))',
                                 },
                             }}
                           />
@@ -2007,18 +2007,18 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           <span>Enrich Lead?</span>
                           <Switch
                             checked={isEnrich}
-                            // color="#7902DF"
+                            // color="hsl(var(--brand-primary))"
                             // exclusive
                             onChange={(event) => {
                               handleToogleChange(event);
                             }}
                             sx={{
                               "& .MuiSwitch-switchBase.Mui-checked": {
-                                color: "#7902DF",
+                                color: "hsl(var(--brand-primary))",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
                                 {
-                                  backgroundColor: "#7902DF",
+                                  backgroundColor: "hsl(var(--brand-primary))",
                                 },
                             }}
                           />
@@ -2097,7 +2097,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     <div style={{ height: '50px' }}>
                       {/*
                                                         inputs.length < 3 && (
-                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
                                                                 fontSize: 15,
                                                                 fontWeight: "700"
                                                             }}>
@@ -2107,7 +2107,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                                                     */}
                       <button
                         onClick={handleAddInput}
-                        className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
+                        className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
                         style={styles.paragraph}
                       >
                         New Column
@@ -2125,7 +2125,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     <button
                       className={`h-[50px] rounded-xl w-full ${
                         newSheetName && newSheetName.length > 0
-                          ? 'bg-purple text-white'
+                          ? 'bg-brand-primary text-white'
                           : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
                       }`}
                       style={{

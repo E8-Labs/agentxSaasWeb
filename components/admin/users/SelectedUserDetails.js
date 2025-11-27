@@ -369,24 +369,38 @@ function SelectedUserDetails({
                       handleManuClick(item)
                     }}
                     className={`flex flex-row items-center gap-3 p-2 items-center 
-                                        ${selectedManu.id == item.id && 'border-b-[2px] border-purple'}`}
+                                        ${selectedManu.id == item.id && 'border-b-[2px] border-brand-primary'}`}
                   >
-                    <Image
-                      src={
-                        selectedManu.id == item.id
-                          ? item.selectedImage
-                          : item.unSelectedImage
-                      }
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
+                    {selectedManu.id == item.id ? (
+                      <div
+                        style={{
+                          width: 24,
+                          height: 24,
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          maskImage: `url(${item.selectedImage})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMaskImage: `url(${item.selectedImage})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        src={item.unSelectedImage}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    )}
 
                     <div
                       style={{
                         fontSize: 16,
                         fontWeight: 500,
-                        color: selectedManu.id == item.id ? '#7902df' : '#000',
+                        color: selectedManu.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
 
                       }}
                     >
@@ -408,7 +422,7 @@ function SelectedUserDetails({
                     <div>
                       {!agencyUser && from !== 'subaccount' && (
                         <button
-                          className="text-white bg-purple outline-none rounded-xl px-3"
+                          className="text-white bg-brand-primary outline-none rounded-xl px-3"
                           style={{ height: '50px' }}
                           onClick={() => {
                             setShowPauseConfirmationPopup(true)
@@ -425,7 +439,7 @@ function SelectedUserDetails({
                   <div>
                     {selectedUser.isTrial && (
                       <button
-                        className="text-white bg-purple outline-none rounded-xl px-3"
+                        className="text-white bg-brand-primary outline-none rounded-xl px-3"
                         style={{ height: '50px' }}
                         onClick={() => {
                           setShowResetTrialPopup(true)
@@ -461,7 +475,7 @@ function SelectedUserDetails({
 
                   {!agencyUser && from !== 'subaccount' && (
                     <button
-                      className="text-white bg-purple outline-none rounded-xl px-3"
+                      className="text-white bg-brand-primary outline-none rounded-xl px-3"
                       style={{ height: '50px' }}
                       onClick={() => {
                         setShowAddMinutesModal(true)
@@ -536,7 +550,7 @@ function SelectedUserDetails({
       {!hideViewDetails && (
         <div className="absolute bottom-4 left-4">
           <button
-            className="text-white bg-purple outline-none rounded-xl px-4 py-2 flex items-center gap-2"
+            className="text-white bg-brand-primary outline-none rounded-xl px-4 py-2 flex items-center gap-2"
             style={{ height: '40px' }}
             onClick={() => {
               setShowActivityLogs(true)
@@ -690,7 +704,7 @@ function SelectedUserDetails({
               <CircularProgress size={15} />
             ) : (
               <button
-                className="w-full outline-none bg-purple h-[52px] text-white rounded-lg"
+                className="w-full outline-none bg-brand-primary h-[52px] text-white rounded-lg"
                 onClick={handleAddMinutes}
               >
                 Add
