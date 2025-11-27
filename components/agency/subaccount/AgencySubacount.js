@@ -602,7 +602,7 @@ function AgencySubacount({ selectedAgency }) {
                 handleCheckPlans()
               }}
             >
-              {loading ? <CircularProgress size={20} /> : 'Create Sub Account'}
+              {loading ? <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} /> : 'Create Sub Account'}
             </button>
           </div>
         </div>
@@ -745,7 +745,7 @@ function AgencySubacount({ selectedAgency }) {
 
         {initialLoader ? (
           <div className="w-full h-[68vh] flex flex-row justify-center mt-4">
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div

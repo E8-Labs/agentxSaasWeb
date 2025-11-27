@@ -417,7 +417,7 @@ function SelectedUserDetails({
               <div className="w-full flex flex-row items-center justify-end">
                 <div className="flex flex-row items-center gap-4">
                   {pauseLoader ? (
-                    <CircularProgress size={25} />
+                    <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <div>
                       {!agencyUser && from !== 'subaccount' && (
@@ -633,7 +633,7 @@ function SelectedUserDetails({
               <div className="w-1/2">
                 {delLoader ? (
                   <div className="flex flex-row iems-center justify-center w-full mt-4">
-                    <CircularProgress size={25} />
+                    <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 ) : (
                   <button
@@ -701,7 +701,7 @@ function SelectedUserDetails({
             />
 
             {loading ? (
-              <CircularProgress size={15} />
+              <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
             ) : (
               <button
                 className="w-full outline-none bg-brand-primary h-[52px] text-white rounded-lg"

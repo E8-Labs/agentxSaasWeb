@@ -250,7 +250,7 @@ export default function EnrichModal({
 
                 <div className="flex flex-row items-center justify-between w-[60%]">
                   {Loader ? (
-                    <CircularProgress size={27} />
+                    <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
                       className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-brand-primary py-3 rounded-lg

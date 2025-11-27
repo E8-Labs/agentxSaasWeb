@@ -198,7 +198,7 @@ function AdminIntegration({ selectedUser }) {
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {
           genratekeyLoader ? (
-            <CircularProgress size={30} />
+            <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
           ) : (
             <button
               onClick={() => {
@@ -315,7 +315,7 @@ function AdminIntegration({ selectedUser }) {
                   )}
 
                   {genratekeyLoader2 ? (
-                    <CircularProgress style={{ margin: 10 }} size={20} />
+                    <CircularProgress style={{ margin: 10 }} size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
                       className="mt-5"

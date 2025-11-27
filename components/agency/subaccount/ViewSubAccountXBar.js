@@ -183,7 +183,7 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
         </div>
         {initialLoader ? (
           <div className="w-full flex flex-row items-center justify-center">
-            <CircularProgress size={25} />
+            <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div className="w-full">

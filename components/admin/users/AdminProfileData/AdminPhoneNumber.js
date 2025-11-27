@@ -167,7 +167,7 @@ function AdminPhoneNumber({ selectedUser }) {
           // onClick={handleMoreClose}
         >
           {delLoader ? (
-            <CircularProgress size={15} />
+            <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
           ) : (
             <button
               className="outline-none flex flex-row items-center gap-2"
@@ -239,7 +239,7 @@ function AdminPhoneNumber({ selectedUser }) {
 
       <div className="w-full flex flex-col items-start gap-4 mt-10">
         {loading ? (
-          <CircularProgress style={{ alignSelf: 'center' }} size={45} />
+          <CircularProgress style={{ alignSelf: 'center' }} size={45} sx={{ color: 'hsl(var(--brand-primary))' }} />
         ) : (
           numbers
             .slice()

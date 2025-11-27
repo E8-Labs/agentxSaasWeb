@@ -85,7 +85,7 @@ const ResetTrial = ({
           <div className="w-1/2">
             {loader ? (
               <div className="w-full flex flex-row items-center justify-center h-[50px]">
-                <CircularProgress size={35} />
+                <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <button

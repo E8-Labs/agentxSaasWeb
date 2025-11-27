@@ -199,7 +199,7 @@ const EmailConfig = () => {
 
             {loading ? (
               <div className="w-full flex justify-center py-8">
-                <CircularProgress size={24} />
+                <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : mailAccount ? (
               <div className="w-full">

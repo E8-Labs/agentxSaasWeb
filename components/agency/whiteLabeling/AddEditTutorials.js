@@ -334,7 +334,7 @@ const AddEditTutorials = ({
             </button>
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <CircularProgress size={20} />
+                <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 <span className="text-sm text-gray-600">Saving...</span>
               </div>
             ) : (

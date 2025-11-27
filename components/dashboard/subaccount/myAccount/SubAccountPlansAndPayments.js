@@ -1047,7 +1047,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
               marginTop: 20,
             }}
           >
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div className="w-full">
@@ -1442,7 +1442,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         <div className="w-full flex flex-row items-center justify-center">
           {subscribePlanLoader ? (
             <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
-              <CircularProgress size={25} />
+              <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
             </div>
           ) : (
             <button
@@ -1834,7 +1834,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                 </div>
                 {redeemLoader ? (
                   <div className="h-[50px] w-full flex flex-row items-center justify-center">
-                    <CircularProgress size={30} />
+                    <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 ) : (
                   <button
@@ -1945,7 +1945,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
               {cancelPlanLoader ? (
                 <div className="w-full flex flex-row items-center justify-center mt-8">
-                  <CircularProgress size={30} />
+                  <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 </div>
               ) : (
                 <button
@@ -2123,7 +2123,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   )}
                   {cancelReasonLoader ? (
                     <div className="flex flex-row items-center justify-center mt-10">
-                      <CircularProgress size={35} />
+                      <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     </div>
                   ) : (
                     <button

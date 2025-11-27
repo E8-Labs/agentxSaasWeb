@@ -328,7 +328,7 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
-          <CircularProgress size={45} />
+          <CircularProgress size={45} sx={{ color: 'hsl(var(--brand-primary))' }} />
         </div>
       ) : (
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">

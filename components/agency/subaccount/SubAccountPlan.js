@@ -401,7 +401,7 @@ function TermsText() {
               </div>
               {initialLoader ? (
                 <div className="mt-6 h-[95%] flex flex-row justify-center w-full">
-                  <CircularProgress size={35} />
+                  <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 </div>
               ) : (
                 <div className="h-[50vh] overflow-y-auto">

@@ -1234,7 +1234,7 @@ const AdminLeadDetails = ({
               <div className="w-full">
                 {initialLoader ? (
                   <div className="w-full flex flex-row items-center justify-center mt-24">
-                    <CircularProgress size={45} thickness={2} />
+                    <CircularProgress size={45} thickness={2} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 ) : (
                   <div
@@ -1484,7 +1484,7 @@ const AdminLeadDetails = ({
                                     }}
                                   >
                                     {sendSMSLoader ? (
-                                      <CircularProgress size={20} />
+                                      <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                                     ) : (
                                       <button
                                         className={`flex flex-row border border-brand-primary/30 items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
@@ -1561,7 +1561,7 @@ const AdminLeadDetails = ({
                                                 {DelTagLoader &&
                                                 tag.includes(DelTagLoader) ? (
                                                   <div>
-                                                  <CircularProgress size={15} />
+                                                  <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
                                                   </div>
                                                 ) : (
                                                   <button
@@ -1651,7 +1651,7 @@ const AdminLeadDetails = ({
                                 style={styles.paragraph}
                               >
                                 {stagesListLoader ? (
-                                  <CircularProgress size={25} />
+                                  <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                                 ) : (
                                   <>
                                     <div
@@ -1664,7 +1664,7 @@ const AdminLeadDetails = ({
                                     ></div>
 
                                     {updateLeadLoader ? (
-                                      <CircularProgress size={20} />
+                                      <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                                     ) : (
                                     <SelectStageDropdown
                                       selectedStage={selectedStage}
@@ -1689,7 +1689,7 @@ const AdminLeadDetails = ({
                                   />
                                 </div>
                               ) : globalLoader ? (
-                                <CircularProgress size={25} />
+                                <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                               ) : (
                               <div className="flex flex-col w-full max-w-full overflow-hidden">
                                 <button
@@ -2053,7 +2053,7 @@ const AdminLeadDetails = ({
                                             {DelTagLoader &&
                                             tag.includes(DelTagLoader) ? (
                                               <div>
-                                                <CircularProgress size={15} />
+                                                <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
                                               </div>
                                             ) : (
                                               <button
@@ -2976,7 +2976,7 @@ const AdminLeadDetails = ({
               </div>
               <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
                 {addLeadNoteLoader ? (
-                  <CircularProgress size={25} />
+                  <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 ) : (
                   <button
                     className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
@@ -3078,7 +3078,7 @@ const AdminLeadDetails = ({
                   Cancel
                 </button>
                 {delLeadLoader ? (
-                  <CircularProgress size={20} />
+                  <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 ) : (
                   <button
                     className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"

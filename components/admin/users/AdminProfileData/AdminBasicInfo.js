@@ -442,7 +442,7 @@ function AdminBasicInfo({ selectedUser }) {
         onDragLeave={handleDragLeave}
       >
         {loading5 ? (
-          <CircularProgress size={20} />
+          <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
         ) : (
           <div
             className="flex flex-row items-end"
@@ -711,7 +711,7 @@ function AdminBasicInfo({ selectedUser }) {
                 />
                 {isTeritorryChanged ? (
                   loading14 ? (
-                    <CircularProgress size={20} />
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
                       onClick={async () => {

@@ -615,7 +615,7 @@ function AdminActiveCalls({ selectedUser }) {
         >
           <div>
             {PauseLoader ? (
-              <CircularProgress size={18} />
+              <CircularProgress size={18} sx={{ color: 'hsl(var(--brand-primary))' }} />
             ) : (
               <button
                 className="text-start outline-none"
@@ -663,7 +663,7 @@ function AdminActiveCalls({ selectedUser }) {
       <div>
         {initialLoader ? (
           <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div
@@ -702,7 +702,7 @@ function AdminActiveCalls({ selectedUser }) {
               hasMore={hasMoreCalls} // Check if there's more data
               loader={
                 <div className="w-full flex flex-row justify-center mt-8">
-                  <CircularProgress size={35} />
+                  <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 </div>
               }
               style={{ overflow: 'unset' }}
@@ -847,7 +847,7 @@ function AdminActiveCalls({ selectedUser }) {
       <div>
         {initialLoader ? (
           <div className="flex flex-row items-center h-[50vh] justify-center mt-12">
-            <CircularProgress size={35} />
+            <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div
@@ -1008,7 +1008,7 @@ function AdminActiveCalls({ selectedUser }) {
               >
                 {AgentCallLogLoader ? (
                   <div className="flex flex-row items-center justify-center h-full">
-                    <CircularProgress size={35} />
+                    <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 ) : (
                   <div>

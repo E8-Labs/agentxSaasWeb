@@ -1205,8 +1205,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               >
                 <div className="w-full flex flex-row items-center justify-center">
                   <CircularProgress
-                    className="text-brand-primary"
                     size={150}
+                    sx={{ color: 'hsl(var(--brand-primary))' }}
                     weight=""
                     thickness={1}
                   />
@@ -1494,7 +1494,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   }}
                 >
                   {Loader ? (
-                    <CircularProgress size={27} />
+                    <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (
                     <button
                       className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
@@ -2119,7 +2119,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full pb-8">
                   {showaddCreateListLoader ? (
                     <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                      <CircularProgress size={25} />
+                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     </div>
                   ) : (
                     <button

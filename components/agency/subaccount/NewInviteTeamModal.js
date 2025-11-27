@@ -445,7 +445,7 @@ const NewInviteTeamModal = ({
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
-                  <CircularProgress size={30} />
+                  <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 </div>
               ) : (
                 <button

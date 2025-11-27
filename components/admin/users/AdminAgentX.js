@@ -2677,7 +2677,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
-            <CircularProgress size={45} />
+            <CircularProgress size={45} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <AgentsListPaginated
@@ -2933,7 +2933,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               <div className="w-full mt-6" style={{}}>
                 {testAIloader ? (
                   <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                    <CircularProgress size={30} />
+                    <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   </div>
                 ) : (
                   <div>

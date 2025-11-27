@@ -200,7 +200,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
         {/*selectedUser.plan.map((plan, index) => ())*/}
         {initialLoader ? (
           <div className="w-full flex flex-row items-center justify-center">
-            <CircularProgress size={25} />
+            <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div className="w-full">

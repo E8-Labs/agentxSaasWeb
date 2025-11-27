@@ -759,7 +759,7 @@ function Teams({ agencyData, selectedAgency, from }) {
       >
         {getTeamLoader ? (
           <div className="w-full pt-[100px] flex flex-col items-center">
-            <CircularProgress size={40} />
+            <CircularProgress size={40} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
@@ -1353,7 +1353,7 @@ function Teams({ agencyData, selectedAgency, from }) {
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
-                  <CircularProgress size={30} />
+                  <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 </div>
               ) : (
                 <button

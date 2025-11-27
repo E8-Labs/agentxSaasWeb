@@ -300,7 +300,7 @@ const SubAccountFilters = ({
           <div className="w-full h-[10%]">
             {initialLoader ? (
               <div className="flex flex-row items-center justify-center h-[50px] w-full">
-                <CircularProgress size={30} />
+                <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <button

@@ -150,7 +150,7 @@ function NoPerplexity({
       </div>
 
       {loading ? (
-        <CircularProgress size={27} />
+        <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
       ) : (
         <button
           className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-brand-primary items-center justify-center text-white"

@@ -145,7 +145,7 @@ function AgencySendFeedback() {
 
             {feedBackLoader ? (
               <div className="w-full flex flex-row items-ceter justify-center mt-10">
-                <CircularProgress size={35} />
+                <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
               <button
