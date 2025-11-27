@@ -1,7 +1,7 @@
 'use client'
 
 import { EnvelopeSimple, Paperclip, PaperPlaneTilt, Plus, Star } from '@phosphor-icons/react'
-import { Mail, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import axios from 'axios'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
@@ -15,6 +15,7 @@ import { agentImage, getAgentImageWithMemoji } from '@/utilities/agentUtilities'
 import { Input } from '@/components/ui/input'
 import NewMessageModal from './NewMessageModal'
 import { toast } from 'sonner'
+import voicesList from '@/components/createagent/Voices'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -222,7 +223,12 @@ const Messages = () => {
 
   // Get most recent message type
   const getRecentMessageType = (thread) => {
-    // This would need to come from the API - for now assume SMS
+    // Check the last message in the thread
+    if (thread.messages && thread.messages.length > 0) {
+      const lastMessage = thread.messages[0] // Most recent message is first in the array
+      return lastMessage.messageType || 'sms'
+    }
+    // Fallback to threadType if no messages
     return thread.threadType || 'sms'
   }
 
@@ -241,24 +247,64 @@ const Messages = () => {
     })
   }
 
-  // Get agent image for outbound messages
+  // Get agent/user avatar for outbound messages
   const getAgentAvatar = (message) => {
-    if (message.agent?.thumb_profile_image) {
+    // Priority 1: Agent image or bitmoji
+    if (message.agent) {
+      // Try agent image first
+      if (message.agent.thumb_profile_image) {
+        return (
+          <Image
+            src={message.agent.thumb_profile_image}
+            alt="Agent"
+            width={32}
+            height={32}
+            className="rounded-full"
+            style={{ objectFit: 'cover' }}
+          />
+        )
+      }
+      
+      // Try agent bitmoji (from voiceId)
+      if (message.agent.voiceId) {
+        const selectedVoice = voicesList.find(
+          (voice) => voice.voice_id === message.agent.voiceId,
+        )
+        if (selectedVoice && selectedVoice.img) {
+          return (
+            <Image
+              src={selectedVoice.img}
+              alt="Agent"
+              width={32}
+              height={32}
+              className="rounded-full"
+              style={{ objectFit: 'cover' }}
+            />
+          )
+        }
+      }
+    }
+    
+    // Priority 2: User profile image
+    if (userData?.user?.thumb_profile_image) {
       return (
         <Image
-          src={message.agent.thumb_profile_image}
-          alt="Agent"
-          width={40}
-          height={40}
+          src={userData.user.thumb_profile_image}
+          alt="User"
+          width={32}
+          height={32}
           className="rounded-full"
           style={{ objectFit: 'cover' }}
         />
       )
     }
-    // Fallback to default avatar
+    
+    // Priority 3: User profile letter
+    const userName = userData?.user?.name || userData?.user?.firstName || 'U'
+    const userLetter = userName.charAt(0).toUpperCase()
     return (
-      <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-        A
+      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-sm border-2 border-brand-primary">
+        {userLetter}
       </div>
     )
   }
@@ -592,10 +638,26 @@ const Messages = () => {
                       <div className="w-12 h-12 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-lg">
                         {getLeadName(thread)}
                       </div>
-                      {/* Email icon overlay for email threads */}
-                      {getRecentMessageType(thread) === 'email' && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center border border-gray-200">
-                          <Mail className="text-brand-primary" size={10} fill="currentColor" />
+                      {/* Message type icon overlay */}
+                      {getRecentMessageType(thread) === 'email' ? (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                          <Image
+                            src="/messaging/email message type icon.svg"
+                            width={12}
+                            height={12}
+                            alt="Email"
+                            className="object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                          <Image
+                            src="/messaging/text type message icon.svg"
+                            width={12}
+                            height={12}
+                            alt="SMS"
+                            className="object-contain"
+                          />
                         </div>
                       )}
                       {/* Unread count badge */}
@@ -698,32 +760,52 @@ const Messages = () => {
                           </div>
                         )}
                         <div
-                          className={`flex ${isOutbound ? 'justify-end' : 'justify-start'} ${
+                          className={`flex ${isOutbound ? 'justify-end me-4' : 'justify-start'} ${
                             isEmail ? 'mb-6' : 'mb-3'
-                          }`}
+                          } relative`}
                         >
                           <div
                             className={`flex items-start gap-3 max-w-[75%] ${
                               isOutbound ? 'flex-row-reverse' : 'flex-row'
-                            }`}
+                            } relative`}
                           >
-                            {/* Avatar */}
-                            {!isOutbound ? (
-                              <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold flex-shrink-0">
-                                {getLeadName(selectedThread)}
-                              </div>
-                            ) : (
-                              <div className="flex-shrink-0">
-                                {getAgentAvatar(message)}
+                            {/* Avatar for inbound messages */}
+                            {!isOutbound && (
+                              <div className="relative flex-shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                                  {getLeadName(selectedThread)}
+                                </div>
+                                {/* Message type icon overlay */}
+                                {isEmail ? (
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                    <Image
+                                      src="/messaging/email message type icon.svg"
+                                      width={12}
+                                      height={12}
+                                      alt="Email"
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                    <Image
+                                      src="/messaging/text type message icon.svg"
+                                      width={12}
+                                      height={12}
+                                      alt="SMS"
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                )}
                               </div>
                             )}
 
                             {/* Message Bubble */}
                             <div
-                              className={`rounded-2xl px-4 py-3 ${
+                              className={`px-4 py-3 ${
                                 isOutbound
-                                  ? 'bg-brand-primary text-white'
-                                  : 'bg-gray-100 text-gray-900'
+                                  ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+                                  : 'bg-gray-100 text-gray-900 rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                               }`}
                             >
                               {isEmail && message.subject && (
@@ -759,6 +841,13 @@ const Messages = () => {
                                 )}
                               </div>
                             </div>
+                            
+                            {/* Avatar for outbound messages - positioned outside bubble at bottom right */}
+                            {isOutbound && (
+                              <div className="absolute -bottom-1 -right-9 flex-shrink-0 z-10">
+                                {getAgentAvatar(message)}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </React.Fragment>
@@ -770,7 +859,8 @@ const Messages = () => {
             </div>
 
             {/* Composer */}
-            <div className={`border-t border-gray-200 px-6 py-4 bg-white ${composerMode === 'email' ? 'min-h-[400px]' : 'min-h-[180px]'}`}>
+            <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
+              <div className={`px-6 py-4 ${composerMode === 'email' ? 'min-h-[400px]' : 'min-h-[180px]'}`}>
               {/* Mode Tabs with Icons */}
               <div className="flex items-center gap-6 border-b mb-4">
                 <button
@@ -826,9 +916,9 @@ const Messages = () => {
               </div>
 
               {/* From and To Fields - Side by side */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center justify-between gap-4 mb-4">
                 {/* From Field - Left side */}
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 max-w-[35%]">
                   <label className="text-sm font-medium whitespace-nowrap">From:</label>
                   {composerMode === 'sms' ? (
                     <div className="flex-1 relative min-w-0">
@@ -894,7 +984,7 @@ const Messages = () => {
                 </div>
 
                 {/* To Field - Right side */}
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 max-w-[35%]">
                   <label className="text-sm font-medium whitespace-nowrap">To:</label>
                   <Input
                     value={composerData.to}
@@ -1035,6 +1125,7 @@ const Messages = () => {
                   Send
                   <PaperPlaneTilt size={18} />
                 </button>
+              </div>
               </div>
             </div>
           </>
