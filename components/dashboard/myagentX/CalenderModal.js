@@ -241,7 +241,7 @@ function CalendarModal(props) {
         'calendars/events.readonly',
         'calendars/resources.readonly',
         'contacts.readonly',
-        'lc-email.readonly',
+        // 'lc-email.readonly',
         'locations.readonly',
         'locations/customFields.readonly',
       ].join(' ')
