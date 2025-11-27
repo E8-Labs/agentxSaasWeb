@@ -711,14 +711,14 @@ const Messages = () => {
                 <p className="text-sm text-gray-500 mt-0.5">Click here for more info</p>
               </div>
               <div className="flex items-center gap-1">
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Star size={20} className="text-gray-600" />
+                <button className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors">
+                  <Star size={20} className="text-gray-600 hover:text-brand-primary" />
                 </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <EnvelopeSimple size={20} className="text-gray-600" />
+                <button className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors">
+                  <EnvelopeSimple size={20} className="text-gray-600 hover:text-brand-primary" />
                 </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <span className="text-gray-600 text-lg">🗑️</span>
+                <button className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors">
+                  <span className="text-gray-600 text-lg hover:text-brand-primary">🗑️</span>
                 </button>
               </div>
             </div>
@@ -824,7 +824,7 @@ const Messages = () => {
                                 <div className="whitespace-pre-wrap">{message.content}</div>
                               )}
                               {isEmail && (
-                                <button className="text-xs underline mt-2">
+                                <button className="text-xs underline mt-2 text-brand-primary hover:text-brand-primary/80">
                                   {isOutbound ? 'Load more' : 'Reply'}
                                 </button>
                               )}
@@ -989,7 +989,7 @@ const Messages = () => {
                   <Input
                     value={composerData.to}
                     readOnly
-                    className="flex-1 bg-gray-50 cursor-not-allowed min-w-0"
+                    className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 focus-visible:ring-brand-primary"
                   />
                 </div>
               </div>
@@ -1030,7 +1030,7 @@ const Messages = () => {
                           setComposerData({ ...composerData, cc: e.target.value })
                         }
                         placeholder="Add CC recipients"
-                        className="flex-1"
+                        className="flex-1 focus-visible:ring-brand-primary"
                       />
                     </div>
                   )}
@@ -1045,7 +1045,7 @@ const Messages = () => {
                           setComposerData({ ...composerData, bcc: e.target.value })
                         }
                         placeholder="Add BCC recipients"
-                        className="flex-1"
+                        className="flex-1 focus-visible:ring-brand-primary"
                       />
                     </div>
                   )}
@@ -1059,7 +1059,7 @@ const Messages = () => {
                         setComposerData({ ...composerData, subject: e.target.value })
                       }
                       placeholder="Email subject"
-                      className="flex-1"
+                      className="flex-1 focus-visible:ring-brand-primary"
                     />
                   </div>
                 </>
@@ -1095,8 +1095,8 @@ const Messages = () => {
               <div className="flex items-center justify-end gap-4 mt-4">
                 <div className="flex items-center gap-2">
                   {composerMode === 'email' && (
-                    <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                      <Paperclip size={20} className="text-gray-600" />
+                    <button className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors">
+                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
                     </button>
                   )}
                 </div>
