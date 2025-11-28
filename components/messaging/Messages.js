@@ -785,9 +785,18 @@ const Messages = () => {
                 <div
                   key={thread.id}
                   onClick={() => handleThreadSelect(thread)}
-                  className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                    selectedThread?.id === thread.id ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
+                  className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1 ${
+                    selectedThread?.id === thread.id 
+                      ? 'bg-brand-primary/10 text-brand-primary' 
+                      : 'hover:bg-gray-50'
                   }`}
+                  style={
+                    selectedThread?.id === thread.id
+                      ? {
+                          backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                        }
+                      : {}
+                  }
                 >
                   {/* Dotted line indicator */}
                   <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-full">
