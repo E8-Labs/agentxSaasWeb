@@ -52,13 +52,13 @@ const Messages = () => {
   const [imageAttachments, setImageAttachments] = useState([])
   
   // Helper function to get image URL for Next.js Image component
-  const getImageUrl = (attachment) => {
+  const getImageUrl = (attachment, message = null) => {
     const getApiBaseUrl = () => {
-      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        return 'http://localhost:8003/'
-      }
+      // if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      //   return 'http://localhost:8003/'
+      // }
       return (
-        process.env.NEXT_PUBLIC_BASE_API_URL ||
+        // process.env.NEXT_PUBLIC_BASE_API_URL ||
         (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
           ? 'https://apimyagentx.com/agentx/'
           : 'https://apimyagentx.com/agentxtest/')
@@ -66,34 +66,109 @@ const Messages = () => {
     }
     const apiBaseUrl = getApiBaseUrl()
     
-    // Direct URL from downloadData
+    // Direct URL from downloadData (for non-Gmail attachments)
     if (attachment.downloadData?.type === 'direct_url' && attachment.downloadData.url) {
       return attachment.downloadData.url
     }
     
-    // Direct URL from attachment
+    // Check if URL is the POST endpoint for Gmail attachments
+    const isGmailPostEndpoint = attachment.url && 
+      (attachment.url.includes('/api/agent/gmail-attachment') || 
+       attachment.url.endsWith('/gmail-attachment'))
+    
+    // If URL is the POST endpoint, we need to construct GET endpoint from downloadData
+    // For incoming emails, the URL will be like: https://apimyagentx.com/agentxtest/api/agent/gmail-attachment
+    if (isGmailPostEndpoint || attachment.url?.includes('gmail-attachment')) {
+      // Try to get messageId, attachmentId, and emailAccountId from various sources
+      let messageId = attachment.downloadData?.messageId || attachment.messageId
+      let attachmentId = attachment.downloadData?.attachmentId || attachment.attachmentId
+      let emailAccountId = attachment.downloadData?.emailAccountId || attachment.emailAccountId
+      
+      // Fallback to message-level fields if attachment doesn't have them
+      if (message) {
+        if (!messageId && message.emailMessageId) {
+          messageId = message.emailMessageId
+        }
+        if (!emailAccountId && message.emailAccountId) {
+          emailAccountId = message.emailAccountId
+        }
+      }
+      
+      // If we have all required fields, construct the GET endpoint URL
+      if (messageId && attachmentId && emailAccountId) {
+        // Use GET endpoint: /gmail-attachment/:messageId/:emailAccountId?attachmentId=...
+        // This is for images from our server, so Next.js Image can be used
+        return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(messageId)}/${encodeURIComponent(emailAccountId)}?attachmentId=${encodeURIComponent(attachmentId)}`
+      }
+      
+      console.warn('⚠️ Gmail attachment detected but missing required fields:', {
+        messageId,
+        attachmentId,
+        emailAccountId,
+        attachment: attachment.fileName,
+        downloadData: attachment.downloadData,
+      })
+      
+      return null
+    }
+    
+    // Direct URL from attachment (not Gmail attachment endpoint)
+    // This could be external URLs or other attachment types
     if (attachment.url && !attachment.url.includes('gmail-attachment')) {
       return attachment.url
     }
     
-    // Gmail attachment - use GET endpoint
-    const downloadData = attachment.downloadData || {
-      messageId: attachment.messageId,
-      attachmentId: attachment.attachmentId,
-      emailAccountId: attachment.emailAccountId,
+    // Fallback: Try to construct from downloadData even if URL doesn't indicate Gmail
+    if (attachment.downloadData) {
+      let messageId = attachment.downloadData.messageId || attachment.messageId
+      let attachmentId = attachment.downloadData.attachmentId || attachment.attachmentId
+      let emailAccountId = attachment.downloadData.emailAccountId || attachment.emailAccountId
+      
+      if (message) {
+        if (!messageId && message.emailMessageId) {
+          messageId = message.emailMessageId
+        }
+        if (!emailAccountId && message.emailAccountId) {
+          emailAccountId = message.emailAccountId
+        }
+      }
+      
+      if (messageId && attachmentId && emailAccountId) {
+        return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(messageId)}/${encodeURIComponent(emailAccountId)}?attachmentId=${encodeURIComponent(attachmentId)}`
+      }
     }
     
-    if (downloadData?.messageId && downloadData?.attachmentId && downloadData?.emailAccountId) {
-      // Use GET endpoint: /gmail-attachment/:messageId/:emailAccountId?attachmentId=...
-      return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(downloadData.messageId)}/${encodeURIComponent(downloadData.emailAccountId)}?attachmentId=${encodeURIComponent(downloadData.attachmentId)}`
-    }
-    
-    // Fallback to attachment downloadData URL
+    // Final fallback to attachment downloadData URL
     if (attachment.downloadData?.url) {
       return attachment.downloadData.url
     }
     
+    console.warn('⚠️ Cannot construct image URL - missing required fields:', {
+      url: attachment.url,
+      downloadData: attachment.downloadData,
+      attachment: attachment.fileName,
+    })
+    
     return null
+  }
+  
+  // Helper function to check if image is from our server (for Next.js Image optimization)
+  const isImageFromOurServer = (url) => {
+    if (!url) return false
+    
+    const ourDomains = [
+      'apimyagentx.com',
+      'localhost:8003',
+      'localhost',
+    ]
+    
+    try {
+      const urlObj = new URL(url)
+      return ourDomains.some(domain => urlObj.hostname.includes(domain))
+    } catch (e) {
+      // If URL parsing fails, check if it's a relative path or contains our API path
+      return url.includes('/api/agent/gmail-attachment') || url.startsWith('/')
+    }
   }
   const [snackbar, setSnackbar] = useState({
     isVisible: false,
@@ -1053,6 +1128,21 @@ const Messages = () => {
                                     const isImage = attachment.mimeType?.startsWith('image/') || 
                                                    attachment.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
                                     
+                                    // Enrich attachment with message-level fields if missing
+                                    const enrichedAttachment = {
+                                      ...attachment,
+                                      // Ensure downloadData exists and has all required fields
+                                      downloadData: attachment.downloadData || {
+                                        messageId: attachment.messageId || message.emailMessageId,
+                                        attachmentId: attachment.attachmentId,
+                                        emailAccountId: attachment.emailAccountId || message.emailAccountId,
+                                      },
+                                      // Also set direct properties for easier access
+                                      messageId: attachment.messageId || attachment.downloadData?.messageId || message.emailMessageId,
+                                      attachmentId: attachment.attachmentId || attachment.downloadData?.attachmentId,
+                                      emailAccountId: attachment.emailAccountId || attachment.downloadData?.emailAccountId || message.emailAccountId,
+                                    }
+                                    
                                     const handleAttachmentClick = (e) => {
                                       e.preventDefault()
                                       
@@ -1072,12 +1162,12 @@ const Messages = () => {
                                       const apiBaseUrl = getApiBaseUrl()
                                       
                                       // Extract download data - support both new format (downloadData) and old format (parse from URL)
-                                      let downloadData = attachment.downloadData
+                                      let downloadData = enrichedAttachment.downloadData
                                       
                                       if (!downloadData) {
                                         // Try to parse from old URL format: /gmail-attachment/:messageId/:attachmentId/:emailAccountId
-                                        if (attachment.url) {
-                                          const urlMatch = attachment.url.match(/gmail-attachment\/([^\/]+)\/(.+)\/(\d+)/)
+                                        if (enrichedAttachment.url) {
+                                          const urlMatch = enrichedAttachment.url.match(/gmail-attachment\/([^\/]+)\/(.+)\/(\d+)/)
                                           if (urlMatch) {
                                             downloadData = {
                                               messageId: urlMatch[1],
@@ -1087,13 +1177,22 @@ const Messages = () => {
                                           }
                                         }
                                         
-                                        // Fallback: use direct attachment properties
-                                        if (!downloadData && attachment.attachmentId) {
+                                        // Fallback: use direct attachment properties or message-level fields
+                                        if (!downloadData && enrichedAttachment.attachmentId) {
                                           downloadData = {
-                                            messageId: attachment.messageId,
-                                            attachmentId: attachment.attachmentId,
-                                            emailAccountId: attachment.emailAccountId,
+                                            messageId: enrichedAttachment.messageId || message.emailMessageId,
+                                            attachmentId: enrichedAttachment.attachmentId,
+                                            emailAccountId: enrichedAttachment.emailAccountId || message.emailAccountId,
                                           }
+                                        }
+                                      }
+                                      
+                                      // Ensure downloadData has all required fields using message as fallback
+                                      if (downloadData) {
+                                        downloadData = {
+                                          messageId: downloadData.messageId || enrichedAttachment.messageId || message.emailMessageId,
+                                          attachmentId: downloadData.attachmentId || enrichedAttachment.attachmentId,
+                                          emailAccountId: downloadData.emailAccountId || enrichedAttachment.emailAccountId || message.emailAccountId,
                                         }
                                       }
                                       
@@ -1107,12 +1206,13 @@ const Messages = () => {
                                         
                                         // Find current image index
                                         const currentIdx = allImages.findIndex(att => 
-                                          att.attachmentId === attachment.attachmentId ||
-                                          att.fileName === attachment.fileName
+                                          att.attachmentId === enrichedAttachment.attachmentId ||
+                                          att.fileName === enrichedAttachment.fileName
                                         )
                                         
-                                        // Set up image attachments with download data
+                                        // Set up image attachments with download data, enriching with message fields
                                         const imagesWithData = allImages.map((img) => {
+                                          // Enrich each image attachment with message-level fields
                                           let imgDownloadData = img.downloadData
                                           if (!imgDownloadData) {
                                             if (img.url) {
@@ -1126,16 +1226,27 @@ const Messages = () => {
                                               }
                                             }
                                             if (!imgDownloadData && img.attachmentId) {
+                                              // Use message-level fields as fallback
                                               imgDownloadData = {
-                                                messageId: img.messageId,
+                                                messageId: img.messageId || message.emailMessageId,
                                                 attachmentId: img.attachmentId,
-                                                emailAccountId: img.emailAccountId,
+                                                emailAccountId: img.emailAccountId || message.emailAccountId,
                                               }
                                             }
                                           }
+                                          // Ensure downloadData has all required fields, using message as fallback
+                                          const finalDownloadData = {
+                                            messageId: imgDownloadData?.messageId || img.messageId || message.emailMessageId,
+                                            attachmentId: imgDownloadData?.attachmentId || img.attachmentId,
+                                            emailAccountId: imgDownloadData?.emailAccountId || img.emailAccountId || message.emailAccountId,
+                                          }
                                           return {
                                             ...img,
-                                            downloadData: imgDownloadData || downloadData,
+                                            downloadData: finalDownloadData,
+                                            // Also set direct properties for easier access
+                                            messageId: finalDownloadData.messageId,
+                                            attachmentId: finalDownloadData.attachmentId,
+                                            emailAccountId: finalDownloadData.emailAccountId,
                                           }
                                         })
                                         
@@ -1145,11 +1256,11 @@ const Messages = () => {
                                         setImageModalOpen(true)
                                       } else {
                                         // For non-images, download directly
-                                        const imageUrl = getImageUrl({ ...attachment, downloadData })
+                                        const imageUrl = getImageUrl(enrichedAttachment, message)
                                         if (imageUrl) {
                                           const a = document.createElement('a')
                                           a.href = imageUrl
-                                          a.download = attachment.fileName || attachment.originalName || 'attachment'
+                                          a.download = enrichedAttachment.fileName || enrichedAttachment.originalName || 'attachment'
                                           a.target = '_blank'
                                           document.body.appendChild(a)
                                           a.click()
@@ -1175,11 +1286,11 @@ const Messages = () => {
                                       >
                                         <Paperclip size={14} />
                                         <span className="underline">
-                                          {attachment.fileName || attachment.originalName || `Attachment ${idx + 1}`}
+                                          {enrichedAttachment.fileName || enrichedAttachment.originalName || `Attachment ${idx + 1}`}
                                         </span>
-                                        {attachment.size && (
+                                        {enrichedAttachment.size && (
                                           <span className={`text-xs ${isOutbound ? 'text-white/70' : 'text-gray-500'}`}>
-                                            ({(attachment.size / 1024).toFixed(1)} KB)
+                                            ({(enrichedAttachment.size / 1024).toFixed(1)} KB)
                                           </span>
                                         )}
                                       </button>
@@ -1640,27 +1751,47 @@ const Messages = () => {
 
             {/* Image or Loading Placeholder */}
             <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
-              {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex]) ? (
+              {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
                 <>
-                  <Image
-                    src={getImageUrl(imageAttachments[currentImageIndex])}
-                    alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
-                    width={1920}
-                    height={1080}
-                    className="max-w-full max-h-[90vh] object-contain"
-                    unoptimized
-                  />
+                  {(() => {
+                    const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
+                    const isFromOurServer = isImageFromOurServer(imageUrl)
+                    
+                    // Use Next.js Image for images from our server (Gmail attachments)
+                    if (isFromOurServer) {
+                      return (
+                        <Image
+                          src={imageUrl}
+                          alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                          width={1920}
+                          height={1080}
+                          className="max-w-full max-h-[90vh] object-contain"
+                          unoptimized
+                        />
+                      )
+                    }
+                    
+                    // For external images, use regular img tag (Next.js Image requires domain configuration)
+                    return (
+                      <img
+                        src={imageUrl}
+                        alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                        className="max-w-full max-h-[90vh] object-contain"
+                        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                      />
+                    )
+                  })()}
                   
                   {/* Image Info & Download */}
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
                     <span className="text-sm">
-                      {imageAttachments[currentImageIndex]?.fileName || 'Image'} 
+                      {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'} 
                       {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
                     </span>
                     <button
                       onClick={() => {
                         const attachment = imageAttachments[currentImageIndex]
-                        const imageUrl = getImageUrl(attachment)
+                        const imageUrl = getImageUrl(attachment, null)
                         if (imageUrl) {
                           const a = document.createElement('a')
                           a.href = imageUrl
