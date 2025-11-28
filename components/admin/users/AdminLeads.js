@@ -1609,7 +1609,7 @@ const AdminLeads = ({
       />
       <div
         className="flex flex-row items-center justify-between w-full px-4"
-        style={{ paddingTop: !agencyUser ? '156px' : '0px' }}
+        style={{ paddingTop: !agencyUser ? '110px' : '0px' }}
         // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
@@ -1762,7 +1762,7 @@ const AdminLeads = ({
                 </button>
                 {/* Show filters here in a row*/}
                 <div
-                  className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
+                  className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[60%] "
                   style={{
                     scrollbarColor: '#00000000',
                     scrollbarWidth: 'none',
@@ -1831,7 +1831,7 @@ const AdminLeads = ({
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2 w-[30%]">
+              <div className="flex flex-row items-center gap-2 w-[40%]">
                 {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
@@ -1861,7 +1861,7 @@ const AdminLeads = ({
                             >
                               Select All
                             </div>
-                            <div style={{ fontSize: '15', fontWeight: '600' }}>
+                            <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
                               {/*getLeadSelectedCount()*/}
                               {totalLeads}
                             </div>
@@ -1877,7 +1877,7 @@ const AdminLeads = ({
                             setSelectedAll(true)
                           }}
                         ></button>
-                        <div style={{ fontSize: '15', fontWeight: '600' }}>
+                        <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
                           Select All
                         </div>
                       </div>
@@ -2683,6 +2683,7 @@ const AdminLeads = ({
           }}
         >
           <AdminLeadDetails
+            selectedUser={selectedUser}
             selectedLead={selectedLeadsDetails?.id}
             pipelineId={selectedLeadsDetails?.pipeline?.id}
             showDetailsModal={showDetailsModal}
@@ -2691,7 +2692,7 @@ const AdminLeads = ({
             leadStageUpdated={HandleUpdateStage}
           />
         </div>
-      )}
+      )} 
 
       {/* Modal to add notes */}
 

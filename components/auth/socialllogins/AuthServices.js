@@ -6,6 +6,7 @@ export const GoogleOAuth = ({
   setLoginLoader,
   setShowSnack,
   setShowEmailTempPopup,
+  selectedUser,
 }) => {
   const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
     process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
@@ -53,7 +54,7 @@ export const GoogleOAuth = ({
           }
           // setGoogleAuthDetails(googleLoginData);
           console.log('Google login details are', googleLoginData)
-          let res = await connectGmailAccount(googleLoginData)
+          let res = await connectGmailAccount(googleLoginData, selectedUser)
           // console.log('res', res)
           setLoginLoader(false)
           if (res.data.status == true) {

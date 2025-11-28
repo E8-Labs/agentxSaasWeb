@@ -571,6 +571,12 @@ const LeadDetails = ({
       : 'Invalid phone number'
   }
 
+  //function to truncate email to 11 characters
+  const truncateEmail = (email) => {
+    if (!email) return ''
+    return email.length > 11 ? email.slice(0, 11) + '...' : email
+  }
+
   //function to show the callStatus
   const checkCallStatus = (callActivity) => {
     let callStatus = null
@@ -1418,7 +1424,7 @@ const LeadDetails = ({
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
-                                  selectedLeadsDetails?.email
+                                  truncateEmail(selectedLeadsDetails?.email)
                                 ) : (
                                   <div>
                                     {selectedLeadsDetails?.emails
@@ -1443,7 +1449,7 @@ const LeadDetails = ({
                                                 <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
-                                                {email.email}
+                                                {truncateEmail(email.email)}
                                               </div>
                                             </div>
                                             <button
@@ -1524,7 +1530,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary text-[15px] font-[400]">
                                               New
                                             </span>{' '}
-                                            {email.email}
+                                            {truncateEmail(email.email)}
                                           </div>
                                         </div>
                                         <button
@@ -2121,7 +2127,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary">
                                               New
                                             </span>{' '}
-                                            {email?.email}
+                                            {truncateEmail(email?.email)}
                                           </div>
                                         </div>
                                       </div>
