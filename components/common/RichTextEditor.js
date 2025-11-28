@@ -15,16 +15,31 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false })
 
 // Normalize HTML content to ensure proper block structure
 const normalizeContent = (html) => {
-  if (!html || typeof html !== 'string') return ''
+  if (!html || typeof html !== 'string') {
+    // Always return at least an empty paragraph for empty content
+    // This ensures Quill has a block element to edit
+    return '<p><br></p>'
+  }
 
   // Trim whitespace but preserve structure
   let normalized = html.trim()
+
+  // If content is empty after trimming, ensure we have at least one paragraph
+  if (!normalized || normalized === '') {
+    return '<p><br></p>'
+  }
 
   // If content starts with a heading, add a leading paragraph to allow editing before it
   // This paragraph will be invisible/hidden but allows cursor positioning
   if (normalized.match(/^<h[2-4]/)) {
     // Add a zero-width paragraph at the start that can be edited
     normalized = '<p><br></p>' + normalized
+  }
+
+  // Ensure content doesn't start with a non-block element
+  // If it does, wrap it in a paragraph
+  if (!normalized.match(/^<(p|h[2-4]|ul|ol|li|div)/i)) {
+    normalized = '<p>' + normalized + '</p>'
   }
 
   return normalized
@@ -157,9 +172,20 @@ const RichTextEditor = forwardRef(
         ALLOWED_ATTR: ['href', 'target', 'rel'],
       })
 
-      // Remove the leading empty paragraph we added for editing if it's still empty
-      // This keeps the saved content clean
-      sanitized = sanitized.replace(/^<p><br><\/p>\s*/, '')
+      // Remove the leading empty paragraph we added for editing before headings
+      // But only if it's followed by a heading (not if it's the only content)
+      const hasHeadingAfter = sanitized.match(/^<p><br><\/p>\s*<h[2-4]/)
+      if (hasHeadingAfter) {
+        sanitized = sanitized.replace(/^<p><br><\/p>\s*/, '')
+      }
+
+      // If content is empty after cleaning, ensure we have at least an empty paragraph
+      // This is needed for the editor to remain editable
+      const trimmed = sanitized.trim()
+      if (!trimmed || trimmed === '' || trimmed === '<p></p>' || trimmed === '<p><br></p>') {
+        // Keep empty paragraph for editor functionality, but parent can handle empty state
+        sanitized = '<p><br></p>'
+      }
 
       // Always call onChange to ensure ReactQuill state stays in sync
       // The parent component should handle deduplication if needed
@@ -322,6 +348,73 @@ const RichTextEditor = forwardRef(
       return normalizeContent(value || '')
     }, [value])
 
+    // Ensure editor is properly initialized when it mounts or value changes
+    useEffect(() => {
+      if (!quillRef.current) return
+
+      const editor = quillRef.current.getEditor()
+      const editorElement = editor.root
+      
+      // Function to ensure editor has editable content
+      const ensureEditable = () => {
+        try {
+          const contents = editor.getContents()
+          const text = editor.getText().trim()
+          const html = editorElement.innerHTML.trim()
+          
+          // If editor appears empty, ensure it has at least one paragraph
+          const isEmpty = !contents.ops || 
+                         contents.ops.length === 0 || 
+                         (contents.ops.length === 1 && contents.ops[0].insert === '\n' && !text) ||
+                         html === '' ||
+                         html === '<p><br></p>' ||
+                         html === '<p></p>'
+          
+          if (isEmpty) {
+            // Ensure we have at least one paragraph block
+            editor.clipboard.dangerouslyPasteHTML('<p><br></p>')
+          }
+        } catch (error) {
+          console.warn('Error ensuring editor is editable:', error)
+        }
+      }
+      
+      // Small delay to ensure Quill is fully initialized
+      const timer = setTimeout(ensureEditable, 150)
+
+      // Handle clicks on the editor to ensure it's editable
+      const handleClick = (e) => {
+        // Only handle if clicking directly on the editor content area
+        if (e.target === editorElement || editorElement.contains(e.target)) {
+          setTimeout(() => {
+            try {
+              const selection = editor.getSelection()
+              const contents = editor.getContents()
+              
+              // If no selection and editor is empty, ensure it's editable
+              if (!selection && (!contents.ops || contents.ops.length === 0)) {
+                ensureEditable()
+                // Set cursor at the start
+                editor.setSelection(0, 'user')
+              } else if (selection && selection.index === 0) {
+                // If cursor is at start, ensure we can type
+                ensureEditable()
+              }
+            } catch (error) {
+              console.warn('Error handling editor click:', error)
+            }
+          }, 10)
+        }
+      }
+
+      editorElement.addEventListener('click', handleClick, true)
+
+      return () => {
+        clearTimeout(timer)
+        editorElement.removeEventListener('click', handleClick, true)
+      }
+    }, [normalizedValue])
+
     return (
       <div className="rich-text-editor-container">
         {/* Rich Text Editor */}
@@ -391,10 +484,19 @@ const RichTextEditor = forwardRef(
           }
 
           /* Hide leading empty paragraph that allows editing before headings */
-          .quill-editor-wrapper .ql-editor > p:first-child:empty,
+          /* Only hide if it's followed by a heading (not if it's the only content) */
+          .quill-editor-wrapper .ql-editor > p:first-child:empty:has(+ h2),
+          .quill-editor-wrapper .ql-editor > p:first-child:empty:has(+ h3),
+          .quill-editor-wrapper .ql-editor > p:first-child:empty:has(+ h4),
           .quill-editor-wrapper
             .ql-editor
-            > p:first-child:only-child:has(br:only-child) {
+            > p:first-child:has(br:only-child):has(+ h2),
+          .quill-editor-wrapper
+            .ql-editor
+            > p:first-child:has(br:only-child):has(+ h3),
+          .quill-editor-wrapper
+            .ql-editor
+            > p:first-child:has(br:only-child):has(+ h4) {
             min-height: 0 !important;
             height: 0 !important;
             margin: 0 !important;
@@ -404,9 +506,20 @@ const RichTextEditor = forwardRef(
             visibility: hidden !important;
           }
 
-          /* Fallback for browsers that don't support :has() */
-          .quill-editor-wrapper .ql-editor > p:first-child {
-            min-height: 0;
+          /* Ensure first paragraph is always visible and editable when it's the only content */
+          .quill-editor-wrapper .ql-editor > p:first-child:only-child {
+            min-height: 1.5em !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.5em !important;
+            overflow: visible !important;
+            visibility: visible !important;
+          }
+
+          /* Ensure first paragraph is editable even when empty (if no heading follows) */
+          .quill-editor-wrapper .ql-editor > p:first-child:not(:has(+ h2)):not(:has(+ h3)):not(:has(+ h4)) {
+            min-height: 1.5em;
           }
 
           .quill-editor-wrapper .ql-editor > p:first-child + h2,
