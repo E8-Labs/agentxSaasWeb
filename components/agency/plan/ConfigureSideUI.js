@@ -45,7 +45,7 @@ const ConfigureSideUI = ({
       style={
         isAgency
           ? {
-              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.6) 100%)`,
+              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
             }
           : {
               backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
@@ -75,7 +75,7 @@ const ConfigureSideUI = ({
           <div 
             className="w-full rounded-lg flex flex-col items-center"
             style={{
-              background: `linear-gradient(to bottom, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.7) 100%)`,
+              background: `linear-gradient(to bottom, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
             }}
           >
             <div className="flex flex-row items-center gap-2 pt-4">

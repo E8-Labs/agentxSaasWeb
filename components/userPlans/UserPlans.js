@@ -723,8 +723,8 @@ function UserPlans({
                     setHoverPlan(null)
                   }}
                   disabled={isDisabled}
-                  className={`flex flex-col items-center rounded-lg ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-t from-brand-primary to-brand-secondary'}
-                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-t from-brand-primary to-brand-secondary p-2' : 'border p-2'}
+                  className={`flex flex-col items-center rounded-lg ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-b from-brand-primary to-brand-primary/40'}
+                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-b from-brand-primary to-brand-primary/40 p-2' : 'border p-2'}
                                  ${isDisabled ? 'opacity-75 cursor-not-allowed' : ''}
                                 flex-shrink-0
                                  `}
@@ -790,7 +790,7 @@ function UserPlans({
                                 ${formatFractional2(item?.originalPrice) || ''}
                               </span>
                             )}
-                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-brand-secondary to-brand-primary bg-clip-text text-transparent">
+                          <span className="text-4xl mt-4 font-semibold text-black">
                             ${formatFractional2(item.discountedPrice || 0)}
                           </span>
                         </div>
@@ -979,7 +979,7 @@ function UserPlans({
                               >
                                 <Checkbox
                                   checked={true}
-                                  className="!rounded-full h-3.5 w-3.5 mt-1 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                  className="!rounded-full h-3.5 w-3.5 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                                 />
 
                                 <FeatureLine

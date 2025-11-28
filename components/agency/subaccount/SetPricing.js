@@ -113,7 +113,7 @@ export default function SetPricing({
               <div 
                 className="w-full overflow-hidden rounded-t-lg px-4 py-2"
                 style={{
-                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.8) 100%)`,
+                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
                 }}
               >
                 <div className="flex flex-row items-center gap-2">

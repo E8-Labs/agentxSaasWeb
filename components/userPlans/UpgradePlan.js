@@ -1704,7 +1704,7 @@ function UpgradePlanContent({
                                 ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
                                 : currentSelectedPlan?.id ===
                                   item.id
-                                  ? 'border-brand-primary bg-gradient-to-r from-brand-primary/5 to-brand-primary/10 shadow-lg shadow-brand-primary/20'
+                                  ? 'border-brand-primary bg-gradient-to-r from-brand-primary to-brand-primary/40 shadow-lg shadow-brand-primary/20'
                                   : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
                               }`}
                             key={item.id}

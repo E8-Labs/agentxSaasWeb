@@ -417,7 +417,7 @@ function TermsText() {
                             <div 
                               className="w-full rounded-t-lg px-4 py-2"
                               style={{
-                                background: `linear-gradient(to right, hsl(var(--brand-primary)), hsl(var(--brand-secondary)))`,
+                                background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
                               }}
                             >
                               <div className="flex flex-row items-center gap-2">

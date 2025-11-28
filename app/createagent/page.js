@@ -282,8 +282,8 @@ const Page = () => {
                     height: '100%',
                     background:
                       process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
-                        ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`
-                        : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.3) 100%)`,
+                        ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
+                        : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
                   }}
                 />
               ) : (
