@@ -271,9 +271,49 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
           )
           return response.data
         } else {
-          // Send Email - TODO: Implement email sending API
-          console.log('Email sending not yet implemented')
-          return { status: false, message: 'Email sending not implemented' }
+          // Send Email
+          if (!selectedEmailAccount) {
+            return {
+              status: false,
+              message: 'Please select an email account',
+            }
+          }
+
+          // Parse CC and BCC emails (comma-separated)
+          const parseEmailList = (emailString) => {
+            if (!emailString || !emailString.trim()) return []
+            return emailString
+              .split(',')
+              .map((email) => email.trim())
+              .filter((email) => email.length > 0)
+          }
+
+          const ccEmails = parseEmailList(cc)
+          const bccEmails = parseEmailList(bcc)
+
+          // Use FormData to match the API expectations (even without attachments)
+          const formData = new FormData()
+          formData.append('leadId', lead.id)
+          formData.append('subject', emailSubject)
+          formData.append('body', messageBody)
+          formData.append('emailAccountId', selectedEmailAccount)
+
+          if (ccEmails.length > 0) {
+            formData.append('cc', ccEmails.join(','))
+          }
+
+          if (bccEmails.length > 0) {
+            formData.append('bcc', bccEmails.join(','))
+          }
+
+          const response = await axios.post(Apis.sendEmailToLead, formData, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+
+          return response.data
         }
       })
 
