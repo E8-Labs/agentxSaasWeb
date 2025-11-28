@@ -27,6 +27,7 @@ function AuthSelectionPopup({
   setShowEmailTempPopup,
   showEmailTempPopup,
   setSelectedGoogleAccount,
+  selectedUser,
 }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -91,7 +92,7 @@ function AuthSelectionPopup({
             }
             setGoogleAuthDetails(googleLoginData)
             console.log('Google login details are', googleLoginData)
-            let res = await connectGmailAccount(googleLoginData)
+            let res = await connectGmailAccount(googleLoginData, selectedUser)
             // console.log('res', res)
             setLoginLoader(false)
             if (res.data.status == true) {

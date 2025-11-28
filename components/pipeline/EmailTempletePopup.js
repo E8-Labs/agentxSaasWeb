@@ -49,6 +49,7 @@ function EmailTempletePopup({
   onSendEmail = null,
   isLeadEmail = false,
   leadEmail = null,
+  selectedUser,
 }) {
   const richTextEditorRef = useRef(null)
   const [selectedVariable, setSelectedVariable] = useState('')
@@ -601,6 +602,7 @@ function EmailTempletePopup({
     let response = await GoogleOAuth({
       setLoginLoader,
       setShowSnackBar,
+      selectedUser,
     })
 
     if (response) {

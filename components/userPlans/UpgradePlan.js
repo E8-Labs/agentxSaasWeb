@@ -384,7 +384,7 @@ function UpgradePlanContent({
     return true
   }
 
-  useEffect(() => {}, [plan])
+  useEffect(() => { }, [plan])
 
   // useEffect(() => {
   //     console.log('currentSelectedPlan', currentSelectedPlan)
@@ -1630,11 +1630,16 @@ function UpgradePlanContent({
                   flexShrink: 0,
                 }}
               >
-                <AppLogo
+                <Image
+                  alt="*"
+                  src={"/otherAssets/paymentCircle2.png"}
                   height={240}
                   width={190}
-                  alt="logo"
-                  className="object-contain"
+                  style={{
+                    borderTopRightRadius: '200px',
+                    borderBottomRightRadius: '200px',
+                    boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
+                  }}
                 />
               </div>
 
@@ -1695,14 +1700,13 @@ function UpgradePlanContent({
                         return (
                           <button
                             className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
-                                                        ${
-                                                          isCurrentPlan
-                                                            ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
-                                                            : currentSelectedPlan?.id ===
-                                                                item.id
-                                                              ? 'border-brand-primary bg-gradient-to-r from-brand-primary/5 to-brand-primary/10 shadow-lg shadow-brand-primary/20'
-                                                              : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
-                                                        }`}
+                                                        ${isCurrentPlan
+                                ? `${currentSelectedPlan?.id === item.id ? 'border-brand-primary' : 'border-gray-300'} cursor-not-allowed opacity-60`
+                                : currentSelectedPlan?.id ===
+                                  item.id
+                                  ? 'border-brand-primary bg-gradient-to-r from-brand-primary/5 to-brand-primary/10 shadow-lg shadow-brand-primary/20'
+                                  : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
+                              }`}
                             key={item.id}
                             onClick={() => {
                               handleTogglePlanClick(item, index)
@@ -1728,11 +1732,10 @@ function UpgradePlanContent({
 
                             <div
                               className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
-                                                        ${
-                                                          isCurrentPlan
-                                                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                                                            : 'bg-brand-primary text-white'
-                                                        }`}
+                                                        ${isCurrentPlan
+                                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                                  : 'bg-brand-primary text-white'
+                                }`}
                             >
                               {isCurrentPlan ? 'Current Plan' : 'Select Plan'}
                             </div>
@@ -1748,7 +1751,7 @@ function UpgradePlanContent({
                       style={{ scrollbarWidth: 'none' }}
                     >
                       {(cards.length === 0 && !showAddCard) ||
-                      (showAddCard && cards.length > 0) ? (
+                        (showAddCard && cards.length > 0) ? (
                         <CardForm
                           onCardAdded={setCardAdded}
                           onCardExpiry={setCardExpiry}
@@ -1796,12 +1799,12 @@ function UpgradePlanContent({
                                   style={{
                                     backgroundColor:
                                       item.isDefault ||
-                                      selectedCard?.id === item.id
+                                        selectedCard?.id === item.id
                                         ? '#4011FA05'
                                         : 'transparent',
                                     borderColor:
                                       item.isDefault ||
-                                      selectedCard?.id === item.id
+                                        selectedCard?.id === item.id
                                         ? 'hsl(var(--brand-primary, 270 75% 50%))'
                                         : '#15151510',
                                   }}
@@ -1812,7 +1815,7 @@ function UpgradePlanContent({
                                       style={{
                                         borderWidth:
                                           item.isDefault ||
-                                          selectedCard?.id === item.id
+                                            selectedCard?.id === item.id
                                             ? 3
                                             : 1,
                                       }}
@@ -1886,14 +1889,14 @@ function UpgradePlanContent({
                         {(() => {
                           const discountCalculation = promoCodeDetails
                             ? calculateDiscountedPrice(
-                                currentSelectedPlan,
-                                promoCodeDetails,
-                              )
+                              currentSelectedPlan,
+                              promoCodeDetails,
+                            )
                             : null
 
                           const billingMonths = GetMonthCountFronBillingCycle(
                             currentSelectedPlan?.billingCycle ||
-                              currentSelectedPlan?.duration,
+                            currentSelectedPlan?.duration,
                           )
                           const monthlyPrice =
                             currentSelectedPlan?.discountPrice ||
@@ -1927,7 +1930,7 @@ function UpgradePlanContent({
                                       }}
                                     >
                                       {promoCodeDetails.discountType ===
-                                      'percentage'
+                                        'percentage'
                                         ? `${promoCodeDetails.discountValue}% off`
                                         : `$${promoCodeDetails.discountValue} off`}
                                       {promoCodeDetails.discountDurationMonths
@@ -1986,7 +1989,7 @@ function UpgradePlanContent({
                                           : ''}{' '}
                                         at{' '}
                                         {promoCodeDetails.discountType ===
-                                        'percentage'
+                                          'percentage'
                                           ? `${promoCodeDetails.discountValue}%`
                                           : `$${promoCodeDetails.discountValue}`}{' '}
                                         off
@@ -2103,9 +2106,9 @@ function UpgradePlanContent({
 
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(
-                              currentSelectedPlan,
-                              promoCodeDetails,
-                            )
+                            currentSelectedPlan,
+                            promoCodeDetails,
+                          )
                           : null
 
                         if (discountCalculation) {
@@ -2114,7 +2117,7 @@ function UpgradePlanContent({
 
                         const billingMonths = GetMonthCountFronBillingCycle(
                           currentSelectedPlan?.billingCycle ||
-                            currentSelectedPlan?.duration,
+                          currentSelectedPlan?.duration,
                         )
                         const monthlyPrice =
                           currentSelectedPlan?.discountPrice ||
@@ -2142,11 +2145,10 @@ function UpgradePlanContent({
                       ) : (
                         <button
                           className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${
-                                                      isUpgradeButtonEnabled()
-                                                        ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
-                                                        : 'text-black bg-[#00000050] cursor-not-allowed'
-                                                    }`}
+                                                    ${isUpgradeButtonEnabled()
+                              ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
+                              : 'text-black bg-[#00000050] cursor-not-allowed'
+                            }`}
                           disabled={!isUpgradeButtonEnabled()}
                           onClick={() => {
                             if (isUpgradeButtonEnabled()) {

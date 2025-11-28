@@ -218,11 +218,14 @@ export const deleteTemplete = async (temp) => {
   }
 }
 
-export const getGmailAccounts = async () => {
+export const getGmailAccounts = async (id) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = Apis.gmailAccount
+    if (id) {
+      path = path + '?userId=' + id
+    }
     console.log('path', path)
 
     const response = await axios.get(path, {
@@ -240,7 +243,7 @@ export const getGmailAccounts = async () => {
   }
 }
 
-export const connectGmailAccount = async (data) => {
+export const connectGmailAccount = async (data, selectedUser) => {
   try {
     let token = AuthToken()
     // console.log('data', data)
@@ -252,6 +255,9 @@ export const connectGmailAccount = async (data) => {
       refreshToken: data.refresh_token,
       scope: Scopes.join(' '),
       expiryDate: Date.now() + data.expires_in * 1000,
+    }
+    if (selectedUser) {
+      apiData.userId = selectedUser.id
     }
 
     console.log('apiData', apiData)

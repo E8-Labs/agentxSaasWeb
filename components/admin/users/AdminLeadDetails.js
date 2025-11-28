@@ -75,6 +75,7 @@ const AdminLeadDetails = ({
   noBackDrop = false,
   leadStageUpdated,
   leadAssignedTeam,
+  selectedUser,
 }) => {
   // //console.log;
   // //console.log;
@@ -252,7 +253,7 @@ const AdminLeadDetails = ({
   }
 
   const getGoogleAccounts = async () => {
-    let accounts = await getGmailAccounts()
+    let accounts = await getGmailAccounts(selectedUser?.id)
     setGoogleAccounts(accounts)
     setSelectedGoogleAccount(accounts[0] || null)
   }
@@ -537,6 +538,12 @@ const AdminLeadDetails = ({
     return phoneNumber
       ? phoneNumber.formatInternational()
       : 'Invalid phone number'
+  }
+
+  //function to truncate email to 11 characters
+  const truncateEmail = (email) => {
+    if (!email) return ''
+    return email.length > 11 ? email.slice(0, 11) + '...' : email
   }
 
   //function to show the callStatus
@@ -1308,7 +1315,7 @@ const AdminLeadDetails = ({
                                   />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
-                                  selectedLeadsDetails?.email
+                                  truncateEmail(selectedLeadsDetails?.email)
                                 ) : (
                                   <div>
                                     {selectedLeadsDetails?.emails
@@ -1333,7 +1340,7 @@ const AdminLeadDetails = ({
                                                 <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
-                                                {email.email}
+                                                {truncateEmail(email.email)}
                                               </div>
                                             </div>
                                             <button
@@ -1970,7 +1977,7 @@ const AdminLeadDetails = ({
                                               <span className="text-brand-primary">
                                                 New
                                               </span>{' '}
-                                              {email?.email}
+                                              {truncateEmail(email?.email)}
                                             </div>
                                           </div>
                                         </div>
@@ -3173,6 +3180,7 @@ const AdminLeadDetails = ({
         setSelectedGoogleAccount={(account) => {
           setSelectedGoogleAccount(account)
         }}
+        selectedUser={selectedUser}
       />
 
       <EmailTempletePopup
@@ -3192,6 +3200,7 @@ const AdminLeadDetails = ({
           selectedLeadsDetails?.emails?.[0]?.email
         }
         leadId={selectedLeadsDetails?.id}
+        selectedUser={selectedUser}
       />
 
       {/* SMS Template Modal */}
@@ -3209,6 +3218,7 @@ const AdminLeadDetails = ({
         isLeadSMS={true}
         leadPhone={selectedLeadsDetails?.phone}
         leadId={selectedLeadsDetails?.id}
+        selectedUser={selectedUser}
       />
 
       {/* Upgrade Plan Modal */}

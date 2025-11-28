@@ -36,6 +36,7 @@ const RichTextEditor = forwardRef(
     ref,
   ) => {
     const quillRef = useRef(null)
+    const lastSentValueRef = useRef('')
 
     // Quill modules configuration
     const modules = useMemo(
@@ -131,7 +132,6 @@ const RichTextEditor = forwardRef(
       'italic',
       'underline',
       'list',
-      'bullet',
       'link',
     ]
 
@@ -161,9 +161,12 @@ const RichTextEditor = forwardRef(
       // This keeps the saved content clean
       sanitized = sanitized.replace(/^<p><br><\/p>\s*/, '')
 
-      // Always call onChange to ensure ReactQuill state stays in sync
-      // The parent component should handle deduplication if needed
-      onChange(sanitized)
+      // Only call onChange if the value actually changed to prevent infinite loops
+      // Compare with the last value we sent to avoid unnecessary updates
+      if (sanitized !== lastSentValueRef.current) {
+        lastSentValueRef.current = sanitized
+        onChange(sanitized)
+      }
     }
 
     // Insert variable at cursor position
@@ -315,6 +318,12 @@ const RichTextEditor = forwardRef(
           capture: true,
         })
       }
+    }, [value])
+
+    // Update lastSentValueRef when value prop changes from parent
+    useEffect(() => {
+      const sanitized = (value || '').replace(/^<p><br><\/p>\s*/, '')
+      lastSentValueRef.current = sanitized
     }, [value])
 
     // Normalize value when it changes
