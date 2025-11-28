@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import AgencySignUp from '@/components/onboarding/agencyOnboarding/AgencySignUp'
+import AgencySignupMobile from '@/components/onboarding/agencyOnboarding/AgencySignupMobile'
 import AgencyPlans from '@/components/plan/AgencyPlans'
 import { PersistanceKeys } from '@/constants/Constants'
 import AppLogo from '@/components/common/AppLogo'
@@ -17,6 +18,7 @@ function Page() {
   // Get step from URL, default to 1
   const stepFromUrl = parseInt(searchParams.get('step') || '1', 10)
   const [currentIndex, setCurrentIndex] = useState(stepFromUrl)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     const D = localStorage.getItem('User')
@@ -68,13 +70,29 @@ function Page() {
     }
   }, [])
 
+  // Detect mobile/desktop
+  useEffect(() => {
+    const checkScreenSize = () => {
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth < 640) // Tailwind's sm breakpoint
+      }
+    }
+
+    // Check on mount
+    checkScreenSize()
+
+    // Listen for resize events
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
   const handleContinue = () => {
     setCurrentIndex((prev) => prev + 1)
   }
   return (
     <div className="flex flex-col w-full items-center justify-center py-5 overflow-y-auto">
       <div
-        className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
+        className="flex w-full px-4 flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
         style={{ backgroundColor: '' }}
       >
         <AppLogo
@@ -91,6 +109,8 @@ function Page() {
 
       {currentIndex > 1 ? (
         <AgencyPlans />
+      ) : isMobile ? (
+        <AgencySignupMobile handleContinue={handleContinue} />
       ) : (
         <AgencySignUp handleContinue={handleContinue} />
       )}

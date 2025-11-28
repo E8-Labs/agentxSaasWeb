@@ -419,7 +419,7 @@ function AgencyPlans({
               setFailedPlanId(actualPlanId)
               setErrorMsg(
                 response.data.message ||
-                  'Card payment failed. Please add a new payment method and try again.',
+                'Card payment failed. Please add a new payment method and try again.',
               )
               setSnackMsgType(SnackbarTypes.Error)
               // Show add card modal immediately
@@ -509,7 +509,7 @@ function AgencyPlans({
         )}
 
         <div className="flex flex-row w-full items-end justify-between">
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start mt-4">
             <div
               style={{
                 fontSize: 22,
@@ -533,25 +533,30 @@ function AgencyPlans({
             </div>
           </div>
 
-          <div>
-            <div className="flex flex-row items-center justify-end gap-2 px-2 me-[7px]">
-              {durationSaving.map((item) => {
-                return (
-                  <button
-                    key={item.id}
-                    className={`px-2 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple outline-none border-none' : 'text-[#8A8A8A]'} rounded-tl-lg rounded-tr-lg`}
-                    style={{ fontWeight: '600', fontSize: '13px' }}
-                    // onClick={() => {
-                    //     setSelectedDuration(item);
-                    //     getCurrentPlans();
-                    // }}
-                  >
-                    {item.title}
-                  </button>
-                )
-              })}
-            </div>
-            <div className="flex flex-row items-center gap-2 bg-[#F6F6F6] px-2 py-1 rounded-full border border-[#E8E8E8]">
+
+        </div>
+        <div className="flex flex-col items-end w-full mt-6">
+          <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
+            {durationSaving.map((item) => {
+              return (
+                <button
+                  key={item.id}
+                  className={`px-2 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple outline-none border-none' : 'text-[#8A8A8A]'} rounded-tl-lg rounded-tr-lg`}
+                  style={{ fontWeight: '600', fontSize: '13px' }}
+                // onClick={() => {
+                //     setSelectedDuration(item);
+                //     getCurrentPlans();
+                // }}
+                >
+                  {item.title}
+                </button>
+              )
+            })}
+          </div>
+          <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+            <div
+              className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
+            >
               {duration?.map((item) => (
                 <button
                   key={item.id}
@@ -566,39 +571,38 @@ function AgencyPlans({
               ))}
             </div>
           </div>
-          <SelectYearlypopup
-            showYearlyPlan={showYearlyPlan}
-            duration={selectedDuration?.title}
-            continueMonthly={continueMonthly}
-            continueYearlyPlan={() => {
-              continueYearlyPlan()
-            }}
-            handleClose={() => {
-              setSelectedPlanIndex(null)
-              setTogglePlan(null)
-              setSelectedPlan(null)
-              setShowYearlyPlan(false)
-            }}
-          />
         </div>
+        <SelectYearlypopup
+          showYearlyPlan={showYearlyPlan}
+          duration={selectedDuration?.title}
+          continueMonthly={continueMonthly}
+          continueYearlyPlan={() => {
+            continueYearlyPlan()
+          }}
+          handleClose={() => {
+            setSelectedPlanIndex(null)
+            setTogglePlan(null)
+            setSelectedPlan(null)
+            setShowYearlyPlan(false)
+          }}
+        />
 
         <div
-          className="flex flex-row items-start gap-6 h-auto w-full"
-          // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
+          className="flex flex-row gap-5 w-full h-auto mt-4 pb-8"
+          style={{
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            display: 'flex',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+            flexShrink: 0,
+            alignItems: 'stretch',
+            justifyContent:
+              getCurrentPlans()?.length * 300 > (typeof window !== 'undefined' ? window.innerWidth : 1200)
+                ? 'start'
+                : 'center',
+          }}
         >
-          <div
-            className="w-full flex flex-row items-start justify-center gap-3 mt-10 mb-12 h-[100%]"
-            style={{
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              // display: "flex",
-              scrollbarWidth: 'none',
-              WebkitOverflowScrolling: 'touch',
-              // marginTop: 20,
-              // flexShrink: 0,
-              // alignItems: "stretch", // This makes all cards the same height
-            }}
-          >
             {loading ? (
               <div className="mt-9">
                 <CircularProgress size={35} />
@@ -636,8 +640,15 @@ function AgencyPlans({
                     onMouseLeave={() => {
                       setHoverPlan(null)
                     }}
-                    className={`w-[370px] rounded-2xl p-2 ${isCurrentPlan && currentUserPlan?.status !== 'cancelled' ? 'border py-2 opacity-60 cursor-not-allowed' : selectedPlan?.id === item.id ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]' : 'border py-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]'}`}
-                    style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
+                    className={`flex flex-col items-center rounded-lg flex-shrink-0 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]' : ''}
+                                 ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2' : 'border p-2'}
+                                 ${isCurrentPlan && currentUserPlan?.status !== 'cancelled' ? 'opacity-75 cursor-not-allowed' : ''}
+                                `}
+                    style={{
+                      width: '280px',
+                      overflow: 'hidden',
+                      scrollbarWidth: 'none',
+                    }}
                   >
                     <div className="flex flex-col items-center h-auto w-full">
                       <div className="pb-2">
@@ -647,7 +658,7 @@ function AgencyPlans({
                               src={
                                 (selectedPlan?.id === item.id ||
                                   hoverPlan?.id === item.id) &&
-                                (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
+                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                   ? '/svgIcons/powerWhite.svg'
                                   : '/svgIcons/power.svg'
                               }
@@ -663,7 +674,7 @@ function AgencyPlans({
                                 color:
                                   (selectedPlan?.id === item.id ||
                                     hoverPlan?.id === item.id) &&
-                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
+                                    (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                     ? 'white'
                                     : '#7902df',
                               }}
@@ -674,7 +685,7 @@ function AgencyPlans({
                               src={
                                 (selectedPlan?.id === item.id ||
                                   hoverPlan?.id === item.id) &&
-                                (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
+                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
                                   ? '/svgIcons/enterArrowWhite.svg'
                                   : '/svgIcons/enterArrow.svg'
                               }
@@ -687,36 +698,24 @@ function AgencyPlans({
                           <div className="h-[4vh]"></div>
                         )}
                       </div>
-                      <div className="bg-white w-full rounded-2xl p-6 flex flex-col items-start gap-2">
-                        <div className="flex flex-col item-center justify-between w-full">
-                          <div>
-                            {/* Top section */}
-                            <div
-                              className="text-center"
-                              style={{ fontSize: 29, fontWeight: '700' }}
-                            >
-                              {item.title}
-                            </div>
+                      <div className="flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full">
+                        {/* Header section - fixed height */}
+                        <div className="flex flex-col items-center w-full flex-shrink-0">
+                          {/* Top section */}
+                          <div className="text-3xl font-semibold mt-2 capitalize">
+                            {item.title}
+                          </div>
 
-                            {/* Pricing */}
-                            <div
-                              className="text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]"
-                              style={{ fontSize: 34, fontWeight: '600' }}
-                            >
-                              ${formatDecimalValue(item.originalPrice)}
-                              {/*selectedDuration.title === "Monthly"
-                                                                ? formatDecimalValue(item.originalPrice)
-                                                                : selectedDuration.title === "Quarterly"
-                                                                    ? formatDecimalValue(item.originalPrice)
-                                                                    : selectedDuration.title === "Yearly"
-                                                                        ? formatDecimalValue(item.originalPrice)
-                                                                        : "-"*/}
-                            </div>
+                          {/* Pricing */}
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-[#7902DF] bg-clip-text text-transparent">
+                            </span>
+                          </div>
 
-                            <div
-                              className={`text-center mt-1 ${disAblePlans && 'w-full border-b border-[#00000040] pb-2'}`}
-                              style={{ fontSize: 15, fontWeight: '400' }}
-                            >
+                          <div
+                            className={`text-center mt-1 ${disAblePlans && 'w-full border-b border-[#00000040] pb-2'}`}
+                            style={{ fontSize: 15, fontWeight: '400' }}
+                          >
                               {selectedDuration.title === 'Monthly'
                                 ? 'Billed Monthly'
                                 : selectedDuration.title === 'Quarterly'
@@ -735,95 +734,62 @@ function AgencyPlans({
                                                             </div>
                                                         */}
 
-                            {!disAblePlans && (
-                              <div className="mt-3">
-                                {subPlanLoader === item.id ? (
-                                  <div>
-                                    <CircularProgress size={30} />
-                                  </div>
-                                ) : (
-                                  <button
-                                    disabled={isCurrentPlan && currentUserPlan?.status !== 'cancelled'}
-                                    className={`w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 rounded-lg flex items-center ${
-                                      isCurrentPlan && currentUserPlan?.status !== 'cancelled'
-                                        ? 'bg-gray-400 text-white cursor-not-allowed'
-                                        : 'bg-purple text-white'
-                                    }`}
-                                    style={{
-                                      fontSize: 16.8,
-                                      fontWeight: '600',
-                                      alignSelf: 'center',
-                                    }}
-                                    onClick={(e) => {
-                                      if (isCurrentPlan && currentUserPlan?.status !== 'cancelled') return
-                                      e.preventDefault()
-                                      e.stopPropagation()
-                                      const currentItem = item
-                                      const currentIndex = index
-                                      console.log(
-                                        'selected duration is',
-                                        selectedDuration,
-                                      )
-                                      console.log(
-                                        'currentItem:',
-                                        currentItem,
-                                        'currentIndex:',
-                                        currentIndex,
-                                      )
-                                      if (currentItem && currentItem.id) {
-                                        handleClaimEarlyAccess(
-                                          currentItem,
-                                          currentIndex,
-                                        )
-                                      } else {
-                                        console.error(
-                                          'Item or item.id is undefined:',
-                                          currentItem,
-                                        )
-                                      }
-                                    }}
-                                  >
-                                    {isCurrentPlan && currentUserPlan?.status === 'cancelled'
-                                      ? 'Current Plan'
-                                      : selectedPlan?.id === item.id
-                                        ? 'Continue'
-                                        : 'Get Started'}
-                                  </button>
-                                )}
+                          {!disAblePlans &&
+                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') &&
+                            (subPlanLoader === item.id ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <div
+                                className="w-[95%] py-3.5 h-[50px] mt-3 bg-purple rounded-lg text-white cursor-pointer"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  handleTogglePlanClick(item, index)
+                                  const currentItem = item
+                                  const currentIndex = index
+                                  if (currentItem && currentItem.id) {
+                                    handleClaimEarlyAccess(currentItem, currentIndex)
+                                  }
+                                }}
+                                style={{
+                                  fontSize: 16.8,
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                {selectedPlan?.id === item.id
+                                  ? 'Continue'
+                                  : 'Get Started'}
                               </div>
-                            )}
+                            ))
+                          }
 
-                            <div className="flex flex-col gap-2 mt-3">
-                              {item?.title?.toLowerCase() === 'growth' ? (
-                                <div
-                                  className="flex flex-row items-center gap-2"
-                                  style={styles.regularFont}
-                                >
-                                  Everything in Starter, and
+                          {/* Features container - scrollable */}
+                          <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
+                            <div className="flex flex-col items-start w-full flex-1 pr-2">
+                              {index > 0 && (
+                                <div className="w-full mb-3 flex-shrink-0">
+                                  <div className="text-sm font-semibold text-black mb-2 text-left">
+                                    Everything in{' '}
+                                    {getCurrentPlans()[index - 1]?.title}, and:
+                                  </div>
                                 </div>
-                              ) : item?.title?.toLowerCase() === 'scale' ? (
-                                <div
-                                  className="flex flex-row items-center gap-2"
-                                  style={styles.regularFont}
-                                >
-                                  Everything in Growth, and
-                                </div>
-                              ) : (
-                                ''
                               )}
-                              {/* Features */}
-                              {
-                                // planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
-                                item?.features?.map((item) => (
+
+                              {Array.isArray(item?.features) &&
+                                item?.features?.map((feature) => (
                                   <div
-                                    key={item.text}
-                                    className="flex flex-row items-center gap-2 mt-1"
+                                    key={feature.text}
+                                    className="flex flex-row items-start gap-3 mb-3 w-full"
                                   >
                                     <Image
-                                      src="/otherAssets/selectedTickBtn.png" //"/svgIcons/greenTick.svg"
+                                      src="/otherAssets/selectedTickBtn.png"
                                       height={16}
                                       width={16}
                                       alt="✓"
+                                      className="mt-1 flex-shrink-0"
                                     />
                                     <div
                                       className="flex flex-row items-center gap-2"
@@ -836,28 +802,16 @@ function AgencyPlans({
                                       }}
                                     >
                                       <div
-                                        // style={{
-                                        //     fontSize: 13,
-                                        //     fontWeight: '500',
-                                        //     textAlign: 'left',
-                                        //     borderWidth: 0,
-                                        // }}
                                         style={{
                                           ...styles.regularFont,
                                           textAlign: 'left',
                                           borderWidth: 0,
                                         }}
                                       >
-                                        {item.text}
+                                        {feature.text}
                                       </div>
-                                      {item?.subtext && (
+                                      {feature?.subtext && (
                                         <div
-                                          // style={{
-                                          //     fontSize: 13,
-                                          //     fontWeight: '500',
-                                          //     textAlign: 'left',
-                                          //     color: "#00000050"
-                                          // }}
                                           style={{
                                             ...styles.regularFont,
                                             textAlign: 'left',
@@ -865,32 +819,32 @@ function AgencyPlans({
                                             color: '#00000050',
                                           }}
                                         >
-                                          {item?.subtext?.toLowerCase() ===
-                                          'upsell' ? (
+                                          {feature?.subtext?.toLowerCase() ===
+                                            'upsell' ? (
                                             '(Upsell)'
-                                          ) : item?.subtext?.toLowerCase() ===
+                                          ) : feature?.subtext?.toLowerCase() ===
                                             'coming soon' ? (
                                             '(coming soon)'
                                           ) : (
                                             <Tooltip
-                                              title={item.subtext}
+                                              title={feature.subtext}
                                               placement="top"
                                               arrow
                                               componentsProps={{
                                                 tooltip: {
                                                   sx: {
-                                                    backgroundColor: '#ffffff', // Ensure white background
-                                                    color: '#333', // Dark text color
+                                                    backgroundColor: '#ffffff',
+                                                    color: '#333',
                                                     fontSize: '14px',
                                                     padding: '10px 15px',
                                                     borderRadius: '8px',
                                                     boxShadow:
-                                                      '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                                      '0px 4px 10px rgba(0, 0, 0, 0.2)',
                                                   },
                                                 },
                                                 arrow: {
                                                   sx: {
-                                                    color: '#ffffff', // Match tooltip background
+                                                    color: '#ffffff',
                                                   },
                                                 },
                                               }}
@@ -908,42 +862,7 @@ function AgencyPlans({
                                       )}
                                     </div>
                                   </div>
-                                ))
-                              }
-
-                              {/*
-                                                                planFeaturesUnavailable[selectedDuration.id][index]?.map((label, labelIndex) => (
-                                                                    <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
-                                                                        <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
-                                                                        <div
-                                                                            className='flex flex-row items-center gap-2'
-                                                                            style={{
-                                                                                whiteSpace: 'nowrap',
-                                                                                width: '100%',
-                                                                                borderWidth: 0,
-                                                                                overflow: 'hidden',
-                                                                                textOverflow: 'ellipsis',
-                                                                            }}
-                                                                        >
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                borderWidth: 0,
-                                                                            }}>
-                                                                                {label.main}
-                                                                            </div>
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                color: "#00000050"
-                                                                            }}>
-                                                                                {label.sub}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                ))*/}
+                                ))}
                             </div>
                           </div>
                         </div>
@@ -953,9 +872,9 @@ function AgencyPlans({
                 ) : null
               })
             )}
-          </div>
+        </div>
 
-          {/*
+        {/*
                         <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
     
                             <div style={{ fontSize: 24, fontWeight: '700' }}>
@@ -1000,7 +919,6 @@ function AgencyPlans({
     
                         </div>
                     */}
-        </div>
 
         {/* Code for add payment modal */}
         <Modal
@@ -1043,7 +961,7 @@ function AgencyPlans({
                   <AgencyAddCard
                     handleClose={handleClose}
                     selectedPlan={selectedPlan}
-                    // togglePlan={togglePlan}
+                  // togglePlan={togglePlan}
                   />
                 </Elements>
               </div>
