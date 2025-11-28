@@ -50,7 +50,51 @@ const Messages = () => {
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAttachments, setImageAttachments] = useState([])
-  const [currentImageUrl, setCurrentImageUrl] = useState(null)
+  
+  // Helper function to get image URL for Next.js Image component
+  const getImageUrl = (attachment) => {
+    const getApiBaseUrl = () => {
+      if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        return 'http://localhost:8003/'
+      }
+      return (
+        process.env.NEXT_PUBLIC_BASE_API_URL ||
+        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+          ? 'https://apimyagentx.com/agentx/'
+          : 'https://apimyagentx.com/agentxtest/')
+      )
+    }
+    const apiBaseUrl = getApiBaseUrl()
+    
+    // Direct URL from downloadData
+    if (attachment.downloadData?.type === 'direct_url' && attachment.downloadData.url) {
+      return attachment.downloadData.url
+    }
+    
+    // Direct URL from attachment
+    if (attachment.url && !attachment.url.includes('gmail-attachment')) {
+      return attachment.url
+    }
+    
+    // Gmail attachment - use GET endpoint
+    const downloadData = attachment.downloadData || {
+      messageId: attachment.messageId,
+      attachmentId: attachment.attachmentId,
+      emailAccountId: attachment.emailAccountId,
+    }
+    
+    if (downloadData?.messageId && downloadData?.attachmentId && downloadData?.emailAccountId) {
+      // Use GET endpoint: /gmail-attachment/:messageId/:emailAccountId?attachmentId=...
+      return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(downloadData.messageId)}/${encodeURIComponent(downloadData.emailAccountId)}?attachmentId=${encodeURIComponent(downloadData.attachmentId)}`
+    }
+    
+    // Fallback to attachment downloadData URL
+    if (attachment.downloadData?.url) {
+      return attachment.downloadData.url
+    }
+    
+    return null
+  }
   const [snackbar, setSnackbar] = useState({
     isVisible: false,
     message: null,
@@ -1053,120 +1097,7 @@ const Messages = () => {
                                         }
                                       }
                                       
-                                      // Check if it's a direct URL download (for outgoing emails with uploaded files)
-                                      if (downloadData && downloadData.type === 'direct_url' && downloadData.url) {
-                                        // For direct URLs, download directly
-                                        if (isImage) {
-                                          // Get all image attachments from this message
-                                          const allImages = message.metadata.attachments.filter(att => 
-                                            att.mimeType?.startsWith('image/') || 
-                                            att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
-                                          )
-                                          
-                                          const currentIdx = allImages.findIndex(att => 
-                                            att.attachmentId === attachment.attachmentId ||
-                                            att.fileName === attachment.fileName
-                                          )
-                                          
-                                          setImageAttachments(allImages.map(img => ({
-                                            ...img,
-                                            downloadData: img.downloadData || downloadData,
-                                            blobUrl: null,
-                                          })))
-                                          setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
-                                          setImageModalOpen(true)
-                                          
-                                          // Load image directly from URL
-                                          fetch(downloadData.url)
-                                            .then(response => {
-                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
-                                              return response.blob()
-                                            })
-                                            .then(blob => {
-                                              const imageUrl = window.URL.createObjectURL(blob)
-                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
-                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
-                                              ))
-                                            })
-                                            .catch(error => {
-                                              console.error('Error loading image:', error)
-                                              setSnackbar({
-                                                isVisible: true,
-                                                title: 'Failed to load image',
-                                                message: error.message,
-                                                type: SnackbarTypes.Error,
-                                              })
-                                            })
-                                        } else {
-                                          // For non-images, download directly
-                                          const a = document.createElement('a')
-                                          a.href = downloadData.url
-                                          a.download = attachment.fileName || attachment.originalName || 'attachment'
-                                          document.body.appendChild(a)
-                                          a.click()
-                                          document.body.removeChild(a)
-                                        }
-                                        return
-                                      }
-                                      
-                                      // For Gmail attachments, need messageId, attachmentId, and emailAccountId
-                                      if (!downloadData || !downloadData.messageId || !downloadData.attachmentId || !downloadData.emailAccountId) {
-                                        // If we have a direct URL, use it
-                                        if (attachment.url && !attachment.url.includes('gmail-attachment')) {
-                                          if (isImage) {
-                                            const allImages = message.metadata.attachments.filter(att => 
-                                              att.mimeType?.startsWith('image/') || 
-                                              att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
-                                            )
-                                            const currentIdx = allImages.findIndex(att => 
-                                              att.attachmentId === attachment.attachmentId ||
-                                              att.fileName === attachment.fileName
-                                            )
-                                            setImageAttachments(allImages.map(img => ({
-                                              ...img,
-                                              downloadData: { type: 'direct_url', url: img.url },
-                                              blobUrl: null,
-                                            })))
-                                            setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
-                                            setImageModalOpen(true)
-                                            fetch(attachment.url)
-                                              .then(response => response.blob())
-                                              .then(blob => {
-                                                const imageUrl = window.URL.createObjectURL(blob)
-                                                setImageAttachments(prev => prev.map((img, imgIdx) => 
-                                                  imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
-                                                ))
-                                              })
-                                              .catch(error => {
-                                                console.error('Error loading image:', error)
-                                                setSnackbar({
-                                                  isVisible: true,
-                                                  title: 'Failed to load image',
-                                                  message: error.message,
-                                                  type: SnackbarTypes.Error,
-                                                })
-                                              })
-                                            return
-                                          } else {
-                                            const a = document.createElement('a')
-                                            a.href = attachment.url
-                                            a.download = attachment.fileName || attachment.originalName || 'attachment'
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                            return
-                                          }
-                                        }
-                                        setSnackbar({
-                                          isVisible: true,
-                                          title: 'Missing attachment data',
-                                          message: 'Please refresh and try again.',
-                                          type: SnackbarTypes.Error,
-                                        })
-                                        return
-                                      }
-                                      
-                                      // If it's an image, open modal immediately (synchronously, before any async operations)
+                                      // If it's an image, open modal with Next.js Image
                                       if (isImage) {
                                         // Get all image attachments from this message
                                         const allImages = message.metadata.attachments.filter(att => 
@@ -1205,129 +1136,32 @@ const Messages = () => {
                                           return {
                                             ...img,
                                             downloadData: imgDownloadData || downloadData,
-                                            blobUrl: null, // Will be loaded
                                           }
                                         })
                                         
-                                        // Open modal immediately with placeholder (synchronously, before fetch)
+                                        // Open modal immediately - Next.js Image will handle loading
                                         setImageAttachments(imagesWithData)
                                         setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
                                         setImageModalOpen(true)
-                                        
-                                        // Load the clicked image in the background (async, after modal is open)
-                                        const currentImage = imagesWithData[currentIdx >= 0 ? currentIdx : 0]
-                                        
-                                        // Check if it's a direct URL
-                                        if (currentImage.downloadData?.type === 'direct_url' && currentImage.downloadData.url) {
-                                          fetch(currentImage.downloadData.url)
-                                            .then(response => {
-                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
-                                              return response.blob()
-                                            })
-                                            .then(blob => {
-                                              const imageUrl = window.URL.createObjectURL(blob)
-                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
-                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
-                                              ))
-                                            })
-                                            .catch(error => {
-                                              console.error('Error loading image:', error)
-                                              setSnackbar({
-                                                isVisible: true,
-                                                title: 'Failed to load image',
-                                                message: error.message,
-                                                type: SnackbarTypes.Error,
-                                              })
-                                            })
-                                        } else if (currentImage.url && !currentImage.url.includes('gmail-attachment')) {
-                                          // Direct URL from attachment
-                                          fetch(currentImage.url)
-                                            .then(response => {
-                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
-                                              return response.blob()
-                                            })
-                                            .then(blob => {
-                                              const imageUrl = window.URL.createObjectURL(blob)
-                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
-                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
-                                              ))
-                                            })
-                                            .catch(error => {
-                                              console.error('Error loading image:', error)
-                                              setSnackbar({
-                                                isVisible: true,
-                                                title: 'Failed to load image',
-                                                message: error.message,
-                                                type: SnackbarTypes.Error,
-                                              })
-                                            })
-                                        } else if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
-                                          // Gmail attachment
-                                          fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
-                                            method: 'POST',
-                                            headers: {
-                                              'Content-Type': 'application/json',
-                                            },
-                                            body: JSON.stringify(downloadData),
-                                          })
-                                            .then(response => {
-                                              if (!response.ok) {
-                                                throw new Error(`Failed to download attachment: ${response.status}`)
-                                              }
-                                              return response.blob()
-                                            })
-                                            .then(blob => {
-                                              const imageUrl = window.URL.createObjectURL(blob)
-                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
-                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
-                                              ))
-                                            })
-                                            .catch(error => {
-                                              console.error('Error loading image:', error)
-                                              setSnackbar({
-                                                isVisible: true,
-                                                title: 'Failed to load image',
-                                                message: error.message,
-                                                type: SnackbarTypes.Error,
-                                              })
-                                            })
-                                        }
                                       } else {
                                         // For non-images, download directly
-                                        fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json',
-                                          },
-                                          body: JSON.stringify(downloadData),
-                                        })
-                                          .then(response => {
-                                            if (!response.ok) {
-                                              const errorText = response.text()
-                                              console.error('❌ Attachment download failed:', response.status, errorText)
-                                              throw new Error(`Failed to download attachment: ${response.status}`)
-                                            }
-                                            return response.blob()
+                                        const imageUrl = getImageUrl({ ...attachment, downloadData })
+                                        if (imageUrl) {
+                                          const a = document.createElement('a')
+                                          a.href = imageUrl
+                                          a.download = attachment.fileName || attachment.originalName || 'attachment'
+                                          a.target = '_blank'
+                                          document.body.appendChild(a)
+                                          a.click()
+                                          document.body.removeChild(a)
+                                        } else {
+                                          setSnackbar({
+                                            isVisible: true,
+                                            title: 'Missing attachment data',
+                                            message: 'Please refresh and try again.',
+                                            type: SnackbarTypes.Error,
                                           })
-                                          .then(blob => {
-                                            const url = window.URL.createObjectURL(blob)
-                                            const a = document.createElement('a')
-                                            a.href = url
-                                            a.download = attachment.fileName || attachment.originalName || 'attachment'
-                                            document.body.appendChild(a)
-                                            a.click()
-                                            document.body.removeChild(a)
-                                            window.URL.revokeObjectURL(url)
-                                          })
-                                          .catch(error => {
-                                            console.error('Error downloading attachment:', error)
-                                            setSnackbar({
-                                              isVisible: true,
-                                              title: 'Failed to download attachment',
-                                              message: error.message,
-                                              type: SnackbarTypes.Error,
-                                            })
-                                          })
+                                        }
                                       }
                                     }
                                     
@@ -1772,11 +1606,6 @@ const Messages = () => {
             <button
               onClick={() => {
                 setImageModalOpen(false)
-                imageAttachments.forEach(img => {
-                  if (img.blobUrl) {
-                    window.URL.revokeObjectURL(img.blobUrl)
-                  }
-                })
                 setImageAttachments([])
                 setCurrentImageIndex(0)
               }}
@@ -1788,76 +1617,8 @@ const Messages = () => {
             {/* Previous Button */}
             {imageAttachments.length > 1 && currentImageIndex > 0 && (
               <button
-                onClick={async () => {
-                  const prevIndex = currentImageIndex - 1
-                  const prevAttachment = imageAttachments[prevIndex]
-                  
-                  // Load image if not already loaded
-                  if (!prevAttachment.blobUrl) {
-                    try {
-                      // Check if it's a direct URL
-                      if (prevAttachment.downloadData?.type === 'direct_url' && prevAttachment.downloadData.url) {
-                        const response = await fetch(prevAttachment.downloadData.url)
-                        if (response.ok) {
-                          const blob = await response.blob()
-                          const imageUrl = window.URL.createObjectURL(blob)
-                          setImageAttachments(prev => prev.map((img, idx) => 
-                            idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
-                          ))
-                        }
-                      } else if (prevAttachment.url && !prevAttachment.url.includes('gmail-attachment')) {
-                        // Direct URL from attachment
-                        const response = await fetch(prevAttachment.url)
-                        if (response.ok) {
-                          const blob = await response.blob()
-                          const imageUrl = window.URL.createObjectURL(blob)
-                          setImageAttachments(prev => prev.map((img, idx) => 
-                            idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
-                          ))
-                        }
-                      } else {
-                        // Gmail attachment
-                        const getApiBaseUrl = () => {
-                          if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-                            return 'http://localhost:8003/'
-                          }
-                          return (
-                            process.env.NEXT_PUBLIC_BASE_API_URL ||
-                            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-                              ? 'https://apimyagentx.com/agentx/'
-                              : 'https://apimyagentx.com/agentxtest/')
-                          )
-                        }
-                        
-                        const apiBaseUrl = getApiBaseUrl()
-                        const downloadData = prevAttachment.downloadData || {
-                          messageId: prevAttachment.messageId,
-                          attachmentId: prevAttachment.attachmentId,
-                          emailAccountId: prevAttachment.emailAccountId,
-                        }
-                        
-                        if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
-                          const response = await fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(downloadData),
-                          })
-                          
-                          if (response.ok) {
-                            const blob = await response.blob()
-                            const imageUrl = window.URL.createObjectURL(blob)
-                            setImageAttachments(prev => prev.map((img, idx) => 
-                              idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
-                            ))
-                          }
-                        }
-                      }
-                    } catch (error) {
-                      console.error('Error loading previous image:', error)
-                    }
-                  }
-                  
-                  setCurrentImageIndex(prevIndex)
+                onClick={() => {
+                  setCurrentImageIndex(currentImageIndex - 1)
                 }}
                 className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
               >
@@ -1868,76 +1629,8 @@ const Messages = () => {
             {/* Next Button */}
             {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
               <button
-                onClick={async () => {
-                  const nextIndex = currentImageIndex + 1
-                  const nextAttachment = imageAttachments[nextIndex]
-                  
-                  // Load image if not already loaded
-                  if (!nextAttachment.blobUrl) {
-                    try {
-                      // Check if it's a direct URL
-                      if (nextAttachment.downloadData?.type === 'direct_url' && nextAttachment.downloadData.url) {
-                        const response = await fetch(nextAttachment.downloadData.url)
-                        if (response.ok) {
-                          const blob = await response.blob()
-                          const imageUrl = window.URL.createObjectURL(blob)
-                          setImageAttachments(prev => prev.map((img, idx) => 
-                            idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
-                          ))
-                        }
-                      } else if (nextAttachment.url && !nextAttachment.url.includes('gmail-attachment')) {
-                        // Direct URL from attachment
-                        const response = await fetch(nextAttachment.url)
-                        if (response.ok) {
-                          const blob = await response.blob()
-                          const imageUrl = window.URL.createObjectURL(blob)
-                          setImageAttachments(prev => prev.map((img, idx) => 
-                            idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
-                          ))
-                        }
-                      } else {
-                        // Gmail attachment
-                        const getApiBaseUrl = () => {
-                          if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-                            return 'http://localhost:8003/'
-                          }
-                          return (
-                            process.env.NEXT_PUBLIC_BASE_API_URL ||
-                            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-                              ? 'https://apimyagentx.com/agentx/'
-                              : 'https://apimyagentx.com/agentxtest/')
-                          )
-                        }
-                        
-                        const apiBaseUrl = getApiBaseUrl()
-                        const downloadData = nextAttachment.downloadData || {
-                          messageId: nextAttachment.messageId,
-                          attachmentId: nextAttachment.attachmentId,
-                          emailAccountId: nextAttachment.emailAccountId,
-                        }
-                        
-                        if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
-                          const response = await fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(downloadData),
-                          })
-                          
-                          if (response.ok) {
-                            const blob = await response.blob()
-                            const imageUrl = window.URL.createObjectURL(blob)
-                            setImageAttachments(prev => prev.map((img, idx) => 
-                              idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
-                            ))
-                          }
-                        }
-                      }
-                    } catch (error) {
-                      console.error('Error loading next image:', error)
-                    }
-                  }
-                  
-                  setCurrentImageIndex(nextIndex)
+                onClick={() => {
+                  setCurrentImageIndex(currentImageIndex + 1)
                 }}
                 className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
               >
@@ -1947,12 +1640,15 @@ const Messages = () => {
 
             {/* Image or Loading Placeholder */}
             <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
-              {imageAttachments[currentImageIndex]?.blobUrl ? (
+              {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex]) ? (
                 <>
-                  <img
-                    src={imageAttachments[currentImageIndex].blobUrl}
+                  <Image
+                    src={getImageUrl(imageAttachments[currentImageIndex])}
                     alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                    width={1920}
+                    height={1080}
                     className="max-w-full max-h-[90vh] object-contain"
+                    unoptimized
                   />
                   
                   {/* Image Info & Download */}
@@ -1964,12 +1660,16 @@ const Messages = () => {
                     <button
                       onClick={() => {
                         const attachment = imageAttachments[currentImageIndex]
-                        const a = document.createElement('a')
-                        a.href = imageAttachments[currentImageIndex].blobUrl
-                        a.download = attachment.fileName || attachment.originalName || 'image'
-                        document.body.appendChild(a)
-                        a.click()
-                        document.body.removeChild(a)
+                        const imageUrl = getImageUrl(attachment)
+                        if (imageUrl) {
+                          const a = document.createElement('a')
+                          a.href = imageUrl
+                          a.download = attachment.fileName || attachment.originalName || 'image'
+                          a.target = '_blank'
+                          document.body.appendChild(a)
+                          a.click()
+                          document.body.removeChild(a)
+                        }
                       }}
                       className="p-1 hover:bg-white/20 rounded transition-colors"
                       title="Download image"
