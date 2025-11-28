@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import NewMessageModal from './NewMessageModal'
 import { toast } from 'sonner'
 import voicesList from '@/components/createagent/Voices'
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -50,6 +51,12 @@ const Messages = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAttachments, setImageAttachments] = useState([])
   const [currentImageUrl, setCurrentImageUrl] = useState(null)
+  const [snackbar, setSnackbar] = useState({
+    isVisible: false,
+    message: null,
+    title: null,
+    type: SnackbarTypes.Error,
+  })
 
   const MESSAGES_PER_PAGE = 30
   const SMS_CHAR_LIMIT = 160
@@ -705,7 +712,16 @@ const Messages = () => {
   }, [messages])
 
   return (
-    <div className="w-full h-screen flex flex-row bg-white">
+    <>
+      <AgentSelectSnackMessage
+        isVisible={snackbar.isVisible}
+        title={snackbar.title}
+        message={snackbar.message}
+        type={snackbar.type}
+        time={4000}
+        hide={() => setSnackbar({ ...snackbar, isVisible: false })}
+      />
+      <div className="w-full h-screen flex flex-row bg-white">
       {/* Left Sidebar - Thread List */}
       <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
         {/* Header */}
@@ -769,9 +785,18 @@ const Messages = () => {
                 <div
                   key={thread.id}
                   onClick={() => handleThreadSelect(thread)}
-                  className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 ${
-                    selectedThread?.id === thread.id ? 'bg-brand-primary/5' : 'hover:bg-gray-50'
+                  className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1 ${
+                    selectedThread?.id === thread.id 
+                      ? 'bg-brand-primary/10 text-brand-primary' 
+                      : 'hover:bg-gray-50'
                   }`}
+                  style={
+                    selectedThread?.id === thread.id
+                      ? {
+                          backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                        }
+                      : {}
+                  }
                 >
                   {/* Dotted line indicator */}
                   <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-full">
@@ -961,7 +986,14 @@ const Messages = () => {
                               )}
                               {isEmail ? (
                                 <div
-                                  className={`prose prose-sm max-w-none ${isOutbound ? 'text-white' : 'text-black'}`}
+                                  className={`prose prose-sm max-w-none ${
+                                    isOutbound 
+                                      ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white' 
+                                      : 'text-black'
+                                  }`}
+                                  style={isOutbound ? { 
+                                    color: 'white',
+                                  } : {}}
                                   dangerouslySetInnerHTML={{
                                     __html: sanitizeHTML(message.content),
                                   }}
@@ -1058,7 +1090,12 @@ const Messages = () => {
                                             })
                                             .catch(error => {
                                               console.error('Error loading image:', error)
-                                              alert(`Failed to load image: ${error.message}`)
+                                              setSnackbar({
+                                                isVisible: true,
+                                                title: 'Failed to load image',
+                                                message: error.message,
+                                                type: SnackbarTypes.Error,
+                                              })
                                             })
                                         } else {
                                           // For non-images, download directly
@@ -1102,7 +1139,12 @@ const Messages = () => {
                                               })
                                               .catch(error => {
                                                 console.error('Error loading image:', error)
-                                                alert(`Failed to load image: ${error.message}`)
+                                                setSnackbar({
+                                                  isVisible: true,
+                                                  title: 'Failed to load image',
+                                                  message: error.message,
+                                                  type: SnackbarTypes.Error,
+                                                })
                                               })
                                             return
                                           } else {
@@ -1115,7 +1157,12 @@ const Messages = () => {
                                             return
                                           }
                                         }
-                                        alert('Missing attachment data. Please refresh and try again.')
+                                        setSnackbar({
+                                          isVisible: true,
+                                          title: 'Missing attachment data',
+                                          message: 'Please refresh and try again.',
+                                          type: SnackbarTypes.Error,
+                                        })
                                         return
                                       }
                                       
@@ -1185,7 +1232,12 @@ const Messages = () => {
                                             })
                                             .catch(error => {
                                               console.error('Error loading image:', error)
-                                              alert(`Failed to load image: ${error.message}`)
+                                              setSnackbar({
+                                                isVisible: true,
+                                                title: 'Failed to load image',
+                                                message: error.message,
+                                                type: SnackbarTypes.Error,
+                                              })
                                             })
                                         } else if (currentImage.url && !currentImage.url.includes('gmail-attachment')) {
                                           // Direct URL from attachment
@@ -1202,7 +1254,12 @@ const Messages = () => {
                                             })
                                             .catch(error => {
                                               console.error('Error loading image:', error)
-                                              alert(`Failed to load image: ${error.message}`)
+                                              setSnackbar({
+                                                isVisible: true,
+                                                title: 'Failed to load image',
+                                                message: error.message,
+                                                type: SnackbarTypes.Error,
+                                              })
                                             })
                                         } else if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
                                           // Gmail attachment
@@ -1227,7 +1284,12 @@ const Messages = () => {
                                             })
                                             .catch(error => {
                                               console.error('Error loading image:', error)
-                                              alert(`Failed to load image: ${error.message}`)
+                                              setSnackbar({
+                                                isVisible: true,
+                                                title: 'Failed to load image',
+                                                message: error.message,
+                                                type: SnackbarTypes.Error,
+                                              })
                                             })
                                         }
                                       } else {
@@ -1259,7 +1321,12 @@ const Messages = () => {
                                           })
                                           .catch(error => {
                                             console.error('Error downloading attachment:', error)
-                                            alert(`Failed to download attachment: ${error.message}`)
+                                            setSnackbar({
+                                              isVisible: true,
+                                              title: 'Failed to download attachment',
+                                              message: error.message,
+                                              type: SnackbarTypes.Error,
+                                            })
                                           })
                                       }
                                     }
@@ -1922,6 +1989,7 @@ const Messages = () => {
         </div>
       )}
     </div>
+    </>
   )
 }
 
