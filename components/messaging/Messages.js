@@ -1,7 +1,7 @@
 'use client'
 
 import { EnvelopeSimple, Paperclip, PaperPlaneTilt, Plus, Star } from '@phosphor-icons/react'
-import { Search } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, X, Download } from 'lucide-react'
 import axios from 'axios'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
@@ -45,9 +45,60 @@ const Messages = () => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
   const [userData, setUserData] = useState(null)
+  const [sendingMessage, setSendingMessage] = useState(false)
+  const [imageModalOpen, setImageModalOpen] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [imageAttachments, setImageAttachments] = useState([])
+  const [currentImageUrl, setCurrentImageUrl] = useState(null)
 
   const MESSAGES_PER_PAGE = 30
   const SMS_CHAR_LIMIT = 160
+  const MAX_ATTACHMENTS = 5
+  const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024 // 10MB
+
+  // Handle file attachment changes
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files)
+    const maxSizeInBytes = MAX_ATTACHMENT_SIZE
+
+    // Check if adding new files would exceed the attachment count limit
+    if (composerData.attachments.length + files.length > MAX_ATTACHMENTS) {
+      toast.error(`Maximum ${MAX_ATTACHMENTS} attachments allowed`)
+      return
+    }
+
+    // Calculate current total size of existing attachments
+    const currentTotalSize = composerData.attachments.reduce(
+      (total, file) => total + file.size,
+      0,
+    )
+
+    // Check if adding new files would exceed the size limit
+    const newFilesTotalSize = files.reduce(
+      (total, file) => total + file.size,
+      0,
+    )
+    const wouldExceedLimit =
+      currentTotalSize + newFilesTotalSize > maxSizeInBytes
+
+    if (wouldExceedLimit) {
+      toast.error("Total file size can't be more than 10MB")
+      return
+    }
+
+    setComposerData((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, ...files],
+    }))
+  }
+
+  // Remove attachment
+  const removeAttachment = (index) => {
+    setComposerData((prev) => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index),
+    }))
+  }
 
   // Fetch threads
   const fetchThreads = useCallback(async () => {
@@ -117,6 +168,25 @@ const Messages = () => {
         if (response.data?.status && response.data?.data) {
           // API returns messages in ASC order, but we want them in DESC for display (newest at bottom)
           const fetchedMessages = response.data.data
+          
+          // Debug: Log messages with attachments and metadata structure
+          fetchedMessages.forEach((msg) => {
+            console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
+              hasMetadata: !!msg.metadata,
+              metadataType: typeof msg.metadata,
+              hasAttachments: !!msg.metadata?.attachments,
+              attachmentsCount: msg.metadata?.attachments?.length || 0,
+              metadataKeys: msg.metadata ? Object.keys(msg.metadata) : [],
+            })
+            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {
+              console.log(
+                `📎 Message ${msg.id} has ${msg.metadata.attachments.length} attachments:`,
+                msg.metadata.attachments,
+              )
+            } else if (msg.metadata && !msg.metadata.attachments) {
+              console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
+            }
+          })
           
           if (append) {
             // Prepend older messages
@@ -238,10 +308,66 @@ const Messages = () => {
     return count > 9 ? '9+' : count.toString()
   }
 
+  // Remove quoted reply text from email content
+  const removeQuotedText = (content) => {
+    if (!content || typeof window === 'undefined') return content
+    if (typeof content !== 'string') return content
+    
+    let text = content
+    
+    // Pattern 1: "On [date] [time] [sender] wrote:" and everything after
+    // Match patterns like "On Fri, Nov 28, 2025 at 7:18 AM Tech Connect wrote:"
+    const onDatePattern = /On\s+\w+,\s+\w+\s+\d+,\s+\d+\s+at\s+\d+:\d+\s+(?:AM|PM)\s+[^:]+:\s*/i
+    const onDateMatch = text.match(onDatePattern)
+    if (onDateMatch) {
+      const index = text.indexOf(onDateMatch[0])
+      if (index > 0) {
+        text = text.substring(0, index).trim()
+      }
+    }
+    
+    // Pattern 2: Remove lines starting with ">" (quoted lines)
+    if (text.includes('>')) {
+      const lines = text.split('\n')
+      const cleanedLines = []
+      let foundQuoteStart = false
+      
+      for (const line of lines) {
+        // Check if this line starts a quote block
+        const trimmedLine = line.trim()
+        if (trimmedLine.startsWith('>') || trimmedLine.match(/^On\s+\w+,\s+\w+\s+\d+/i)) {
+          foundQuoteStart = true
+          break
+        }
+        if (!foundQuoteStart) {
+          cleanedLines.push(line)
+        }
+      }
+      
+      text = cleanedLines.join('\n').trim()
+    }
+    
+    // Pattern 3: Remove "-----Original Message-----" and everything after
+    const originalMessagePattern = /-----Original Message-----/i
+    if (text.match(originalMessagePattern)) {
+      const index = text.toLowerCase().indexOf('-----original message-----')
+      if (index > 0) {
+        text = text.substring(0, index).trim()
+      }
+    }
+    
+    return text
+  }
+
   // Sanitize HTML for display
   const sanitizeHTML = (html) => {
     if (typeof window === 'undefined') return html
-    return DOMPurify.sanitize(html || '', {
+    if (!html) return ''
+    
+    // Remove quoted text first
+    const cleanedContent = removeQuotedText(html)
+    
+    return DOMPurify.sanitize(cleanedContent || '', {
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4'],
       ALLOWED_ATTR: ['href', 'target', 'rel'],
     })
@@ -313,10 +439,16 @@ const Messages = () => {
   const handleSendMessage = async () => {
     if (!selectedThread || !composerData.body.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
+    if (sendingMessage) return // Prevent double submission
+
+    setSendingMessage(true)
 
     try {
       const localData = localStorage.getItem('User')
-      if (!localData) return
+      if (!localData) {
+        setSendingMessage(false)
+        return
+      }
 
       const userData = JSON.parse(localData)
       const token = userData.token
@@ -359,21 +491,29 @@ const Messages = () => {
           toast.error('Failed to send message')
         }
       } else {
-        // Send Email
+        // Send Email with attachments
+        const formData = new FormData()
+        formData.append('leadId', selectedThread.leadId)
+        formData.append('subject', composerData.subject)
+        formData.append('body', composerData.body)
+        formData.append('cc', composerData.cc || '')
+        formData.append('bcc', composerData.bcc || '')
+        formData.append('emailAccountId', selectedEmailAccount || '')
+
+        // Add attachments
+        if (composerData.attachments && composerData.attachments.length > 0) {
+          composerData.attachments.forEach((file) => {
+            formData.append('attachments', file)
+          })
+        }
+
         const response = await axios.post(
           Apis.sendEmailToLead,
-          {
-            leadId: selectedThread.leadId,
-            subject: composerData.subject,
-            body: composerData.body,
-            cc: composerData.cc || null,
-            bcc: composerData.bcc || null,
-            emailAccountId: selectedEmailAccount || null,
-          },
+          formData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
+              'Content-Type': 'multipart/form-data',
             },
           }
         )
@@ -389,6 +529,9 @@ const Messages = () => {
             bcc: '',
             attachments: [],
           })
+          // Clear CC/BCC visibility
+          setShowCC(false)
+          setShowBCC(false)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -401,6 +544,9 @@ const Messages = () => {
       }
     } catch (error) {
       console.error('Error sending message:', error)
+      toast.error('Failed to send message')
+    } finally {
+      setSendingMessage(false)
     }
   }
 
@@ -805,40 +951,358 @@ const Messages = () => {
                               className={`px-4 py-3 ${
                                 isOutbound
                                   ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-                                  : 'bg-gray-100 text-gray-900 rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
+                                  : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                               }`}
                             >
                               {isEmail && message.subject && (
                                 <div className="font-semibold mb-2">
-                                  Email Subject: {message.subject}
+                                  Subject: {message.subject}
                                 </div>
                               )}
                               {isEmail ? (
                                 <div
-                                  className="prose prose-sm max-w-none"
+                                  className={`prose prose-sm max-w-none ${isOutbound ? 'text-white' : 'text-black'}`}
                                   dangerouslySetInnerHTML={{
                                     __html: sanitizeHTML(message.content),
                                   }}
                                 />
                               ) : (
-                                <div className="whitespace-pre-wrap">{message.content}</div>
+                                <div className={`whitespace-pre-wrap ${isOutbound ? 'text-white' : 'text-black'}`}>{message.content}</div>
                               )}
+                              
+                              {/* Attachments */}
+                              {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
+                                <div className={`mt-3 flex flex-col gap-2 ${isOutbound ? 'text-white' : 'text-black'}`}>
+                                  {message.metadata.attachments.map((attachment, idx) => {
+                                    const isImage = attachment.mimeType?.startsWith('image/') || 
+                                                   attachment.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+                                    
+                                    const handleAttachmentClick = (e) => {
+                                      e.preventDefault()
+                                      
+                                      // Get API base URL (use localhost for local dev, or from env)
+                                      const getApiBaseUrl = () => {
+                                        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                                          return 'http://localhost:8003/'
+                                        }
+                                        return (
+                                          process.env.NEXT_PUBLIC_BASE_API_URL ||
+                                          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+                                            ? 'https://apimyagentx.com/agentx/'
+                                            : 'https://apimyagentx.com/agentxtest/')
+                                        )
+                                      }
+                                      
+                                      const apiBaseUrl = getApiBaseUrl()
+                                      
+                                      // Extract download data - support both new format (downloadData) and old format (parse from URL)
+                                      let downloadData = attachment.downloadData
+                                      
+                                      if (!downloadData) {
+                                        // Try to parse from old URL format: /gmail-attachment/:messageId/:attachmentId/:emailAccountId
+                                        if (attachment.url) {
+                                          const urlMatch = attachment.url.match(/gmail-attachment\/([^\/]+)\/(.+)\/(\d+)/)
+                                          if (urlMatch) {
+                                            downloadData = {
+                                              messageId: urlMatch[1],
+                                              attachmentId: urlMatch[2],
+                                              emailAccountId: urlMatch[3],
+                                            }
+                                          }
+                                        }
+                                        
+                                        // Fallback: use direct attachment properties
+                                        if (!downloadData && attachment.attachmentId) {
+                                          downloadData = {
+                                            messageId: attachment.messageId,
+                                            attachmentId: attachment.attachmentId,
+                                            emailAccountId: attachment.emailAccountId,
+                                          }
+                                        }
+                                      }
+                                      
+                                      // Check if it's a direct URL download (for outgoing emails with uploaded files)
+                                      if (downloadData && downloadData.type === 'direct_url' && downloadData.url) {
+                                        // For direct URLs, download directly
+                                        if (isImage) {
+                                          // Get all image attachments from this message
+                                          const allImages = message.metadata.attachments.filter(att => 
+                                            att.mimeType?.startsWith('image/') || 
+                                            att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+                                          )
+                                          
+                                          const currentIdx = allImages.findIndex(att => 
+                                            att.attachmentId === attachment.attachmentId ||
+                                            att.fileName === attachment.fileName
+                                          )
+                                          
+                                          setImageAttachments(allImages.map(img => ({
+                                            ...img,
+                                            downloadData: img.downloadData || downloadData,
+                                            blobUrl: null,
+                                          })))
+                                          setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
+                                          setImageModalOpen(true)
+                                          
+                                          // Load image directly from URL
+                                          fetch(downloadData.url)
+                                            .then(response => {
+                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
+                                              return response.blob()
+                                            })
+                                            .then(blob => {
+                                              const imageUrl = window.URL.createObjectURL(blob)
+                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
+                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
+                                              ))
+                                            })
+                                            .catch(error => {
+                                              console.error('Error loading image:', error)
+                                              alert(`Failed to load image: ${error.message}`)
+                                            })
+                                        } else {
+                                          // For non-images, download directly
+                                          const a = document.createElement('a')
+                                          a.href = downloadData.url
+                                          a.download = attachment.fileName || attachment.originalName || 'attachment'
+                                          document.body.appendChild(a)
+                                          a.click()
+                                          document.body.removeChild(a)
+                                        }
+                                        return
+                                      }
+                                      
+                                      // For Gmail attachments, need messageId, attachmentId, and emailAccountId
+                                      if (!downloadData || !downloadData.messageId || !downloadData.attachmentId || !downloadData.emailAccountId) {
+                                        // If we have a direct URL, use it
+                                        if (attachment.url && !attachment.url.includes('gmail-attachment')) {
+                                          if (isImage) {
+                                            const allImages = message.metadata.attachments.filter(att => 
+                                              att.mimeType?.startsWith('image/') || 
+                                              att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+                                            )
+                                            const currentIdx = allImages.findIndex(att => 
+                                              att.attachmentId === attachment.attachmentId ||
+                                              att.fileName === attachment.fileName
+                                            )
+                                            setImageAttachments(allImages.map(img => ({
+                                              ...img,
+                                              downloadData: { type: 'direct_url', url: img.url },
+                                              blobUrl: null,
+                                            })))
+                                            setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
+                                            setImageModalOpen(true)
+                                            fetch(attachment.url)
+                                              .then(response => response.blob())
+                                              .then(blob => {
+                                                const imageUrl = window.URL.createObjectURL(blob)
+                                                setImageAttachments(prev => prev.map((img, imgIdx) => 
+                                                  imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
+                                                ))
+                                              })
+                                              .catch(error => {
+                                                console.error('Error loading image:', error)
+                                                alert(`Failed to load image: ${error.message}`)
+                                              })
+                                            return
+                                          } else {
+                                            const a = document.createElement('a')
+                                            a.href = attachment.url
+                                            a.download = attachment.fileName || attachment.originalName || 'attachment'
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                            return
+                                          }
+                                        }
+                                        alert('Missing attachment data. Please refresh and try again.')
+                                        return
+                                      }
+                                      
+                                      // If it's an image, open modal immediately (synchronously, before any async operations)
+                                      if (isImage) {
+                                        // Get all image attachments from this message
+                                        const allImages = message.metadata.attachments.filter(att => 
+                                          att.mimeType?.startsWith('image/') || 
+                                          att.fileName?.match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i)
+                                        )
+                                        
+                                        // Find current image index
+                                        const currentIdx = allImages.findIndex(att => 
+                                          att.attachmentId === attachment.attachmentId ||
+                                          att.fileName === attachment.fileName
+                                        )
+                                        
+                                        // Set up image attachments with download data
+                                        const imagesWithData = allImages.map((img) => {
+                                          let imgDownloadData = img.downloadData
+                                          if (!imgDownloadData) {
+                                            if (img.url) {
+                                              const urlMatch = img.url.match(/gmail-attachment\/([^\/]+)\/(.+)\/(\d+)/)
+                                              if (urlMatch) {
+                                                imgDownloadData = {
+                                                  messageId: urlMatch[1],
+                                                  attachmentId: urlMatch[2],
+                                                  emailAccountId: urlMatch[3],
+                                                }
+                                              }
+                                            }
+                                            if (!imgDownloadData && img.attachmentId) {
+                                              imgDownloadData = {
+                                                messageId: img.messageId,
+                                                attachmentId: img.attachmentId,
+                                                emailAccountId: img.emailAccountId,
+                                              }
+                                            }
+                                          }
+                                          return {
+                                            ...img,
+                                            downloadData: imgDownloadData || downloadData,
+                                            blobUrl: null, // Will be loaded
+                                          }
+                                        })
+                                        
+                                        // Open modal immediately with placeholder (synchronously, before fetch)
+                                        setImageAttachments(imagesWithData)
+                                        setCurrentImageIndex(currentIdx >= 0 ? currentIdx : 0)
+                                        setImageModalOpen(true)
+                                        
+                                        // Load the clicked image in the background (async, after modal is open)
+                                        const currentImage = imagesWithData[currentIdx >= 0 ? currentIdx : 0]
+                                        
+                                        // Check if it's a direct URL
+                                        if (currentImage.downloadData?.type === 'direct_url' && currentImage.downloadData.url) {
+                                          fetch(currentImage.downloadData.url)
+                                            .then(response => {
+                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
+                                              return response.blob()
+                                            })
+                                            .then(blob => {
+                                              const imageUrl = window.URL.createObjectURL(blob)
+                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
+                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
+                                              ))
+                                            })
+                                            .catch(error => {
+                                              console.error('Error loading image:', error)
+                                              alert(`Failed to load image: ${error.message}`)
+                                            })
+                                        } else if (currentImage.url && !currentImage.url.includes('gmail-attachment')) {
+                                          // Direct URL from attachment
+                                          fetch(currentImage.url)
+                                            .then(response => {
+                                              if (!response.ok) throw new Error(`Failed to load: ${response.status}`)
+                                              return response.blob()
+                                            })
+                                            .then(blob => {
+                                              const imageUrl = window.URL.createObjectURL(blob)
+                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
+                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
+                                              ))
+                                            })
+                                            .catch(error => {
+                                              console.error('Error loading image:', error)
+                                              alert(`Failed to load image: ${error.message}`)
+                                            })
+                                        } else if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
+                                          // Gmail attachment
+                                          fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
+                                            method: 'POST',
+                                            headers: {
+                                              'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify(downloadData),
+                                          })
+                                            .then(response => {
+                                              if (!response.ok) {
+                                                throw new Error(`Failed to download attachment: ${response.status}`)
+                                              }
+                                              return response.blob()
+                                            })
+                                            .then(blob => {
+                                              const imageUrl = window.URL.createObjectURL(blob)
+                                              setImageAttachments(prev => prev.map((img, imgIdx) => 
+                                                imgIdx === currentIdx ? { ...img, blobUrl: imageUrl } : img
+                                              ))
+                                            })
+                                            .catch(error => {
+                                              console.error('Error loading image:', error)
+                                              alert(`Failed to load image: ${error.message}`)
+                                            })
+                                        }
+                                      } else {
+                                        // For non-images, download directly
+                                        fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+                                          body: JSON.stringify(downloadData),
+                                        })
+                                          .then(response => {
+                                            if (!response.ok) {
+                                              const errorText = response.text()
+                                              console.error('❌ Attachment download failed:', response.status, errorText)
+                                              throw new Error(`Failed to download attachment: ${response.status}`)
+                                            }
+                                            return response.blob()
+                                          })
+                                          .then(blob => {
+                                            const url = window.URL.createObjectURL(blob)
+                                            const a = document.createElement('a')
+                                            a.href = url
+                                            a.download = attachment.fileName || attachment.originalName || 'attachment'
+                                            document.body.appendChild(a)
+                                            a.click()
+                                            document.body.removeChild(a)
+                                            window.URL.revokeObjectURL(url)
+                                          })
+                                          .catch(error => {
+                                            console.error('Error downloading attachment:', error)
+                                            alert(`Failed to download attachment: ${error.message}`)
+                                          })
+                                      }
+                                    }
+                                    
+                                    return (
+                                      <button
+                                        key={idx}
+                                        onClick={handleAttachmentClick}
+                                        className={`text-sm flex items-center gap-2 hover:opacity-80 text-left ${
+                                          isOutbound ? 'text-white/90' : 'text-brand-primary'
+                                        }`}
+                                      >
+                                        <Paperclip size={14} />
+                                        <span className="underline">
+                                          {attachment.fileName || attachment.originalName || `Attachment ${idx + 1}`}
+                                        </span>
+                                        {attachment.size && (
+                                          <span className={`text-xs ${isOutbound ? 'text-white/70' : 'text-gray-500'}`}>
+                                            ({(attachment.size / 1024).toFixed(1)} KB)
+                                          </span>
+                                        )}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                              
+                              {/* Load more button - show on all email messages */}
                               {isEmail && (
-                                <button className="text-xs underline mt-2 text-brand-primary hover:text-brand-primary/80">
-                                  {isOutbound ? 'Load more' : 'Reply'}
+                                <button className={`text-xs font-bold underline mt-2 ${
+                                  isOutbound 
+                                    ? 'text-white hover:text-white/80' 
+                                    : 'text-black hover:text-gray-800'
+                                }`}>
+                                  {'Load more'}
                                 </button>
                               )}
                               <div
                                 className={`text-xs mt-2 flex items-center gap-2 ${
-                                  isOutbound ? 'text-white/80' : 'text-gray-500'
+                                  isOutbound ? 'text-white' : 'text-black'
                                 }`}
                               >
                                 <span>{moment(message.createdAt).format('h:mm A')}</span>
-                                {isOutbound && (
-                                  <span className="text-white/70">
-                                    {message.status === 'delivered' ? '✓✓' : '✓'}
-                                  </span>
-                                )}
                               </div>
                             </div>
                             
@@ -861,58 +1325,81 @@ const Messages = () => {
             {/* Composer */}
             <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
               <div className={`px-6 py-4 ${composerMode === 'email' ? 'min-h-[400px]' : 'min-h-[180px]'}`}>
-              {/* Mode Tabs with Icons */}
-              <div className="flex items-center gap-6 border-b mb-4">
-                <button
-                  onClick={() => {
-                    setComposerMode('sms')
-                    const receiverPhone = selectedThread.receiverPhoneNumber || selectedThread.lead?.phone || ''
-                    setComposerData((prev) => ({ ...prev, to: receiverPhone }))
-                    fetchPhoneNumbers()
-                  }}
-                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
-                    composerMode === 'sms'
-                      ? 'text-brand-primary'
-                      : 'text-gray-600'
-                  }`}
-                >
-                  <Image
-                    src="/messaging/sms toggle.svg"
-                    width={20}
-                    height={20}
-                    alt="SMS"
-                    className={composerMode === 'sms' ? 'opacity-100' : 'opacity-60'}
-                  />
-                  <span>SMS</span>
-                  {composerMode === 'sms' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    setComposerMode('email')
-                    const receiverEmail = selectedThread.receiverEmail || selectedThread.lead?.email || ''
-                    setComposerData((prev) => ({ ...prev, to: receiverEmail }))
-                    fetchEmailAccounts()
-                  }}
-                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
-                    composerMode === 'email'
-                      ? 'text-brand-primary'
-                      : 'text-gray-600'
-                  }`}
-                >
-                  <Image
-                    src="/messaging/email toggle.svg"
-                    width={20}
-                    height={20}
-                    alt="Email"
-                    className={composerMode === 'email' ? 'opacity-100' : 'opacity-60'}
-                  />
-                  <span>Email</span>
-                  {composerMode === 'email' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                  )}
-                </button>
+              {/* Mode Tabs with Icons and CC/BCC buttons */}
+              <div className="flex items-center justify-between border-b mb-4">
+                <div className="flex items-center gap-6">
+                  <button
+                    onClick={() => {
+                      setComposerMode('sms')
+                      const receiverPhone = selectedThread.receiverPhoneNumber || selectedThread.lead?.phone || ''
+                      setComposerData((prev) => ({ ...prev, to: receiverPhone }))
+                      fetchPhoneNumbers()
+                    }}
+                    className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                      composerMode === 'sms'
+                        ? 'text-brand-primary'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    <Image
+                      src="/messaging/sms toggle.svg"
+                      width={20}
+                      height={20}
+                      alt="SMS"
+                      className={composerMode === 'sms' ? 'opacity-100' : 'opacity-60'}
+                    />
+                    <span>SMS</span>
+                    {composerMode === 'sms' && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setComposerMode('email')
+                      const receiverEmail = selectedThread.receiverEmail || selectedThread.lead?.email || ''
+                      setComposerData((prev) => ({ ...prev, to: receiverEmail }))
+                      fetchEmailAccounts()
+                    }}
+                    className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                      composerMode === 'email'
+                        ? 'text-brand-primary'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    <Image
+                      src="/messaging/email toggle.svg"
+                      width={20}
+                      height={20}
+                      alt="Email"
+                      className={composerMode === 'email' ? 'opacity-100' : 'opacity-60'}
+                    />
+                    <span>Email</span>
+                    {composerMode === 'email' && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                    )}
+                  </button>
+                </div>
+                {/* CC/BCC Toggle Buttons - Vertically centered with tabs */}
+                {composerMode === 'email' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowCC(!showCC)}
+                      className={`px-3 py-1 text-xs rounded transition-colors ${
+                        showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Cc
+                    </button>
+                    <button
+                      onClick={() => setShowBCC(!showBCC)}
+                      className={`px-3 py-1 text-xs rounded transition-colors ${
+                        showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Bcc
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* From and To Fields - Side by side */}
@@ -997,29 +1484,6 @@ const Messages = () => {
               {/* Email Fields - Only show when email mode is selected */}
               {composerMode === 'email' && (
                 <>
-                  {/* CC/BCC Toggle Buttons - Next to To label */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex-1"></div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setShowCC(!showCC)}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        Cc
-                      </button>
-                      <button
-                        onClick={() => setShowBCC(!showBCC)}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
-                          showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        Bcc
-                      </button>
-                    </div>
-                  </div>
-
                   {/* CC Field */}
                   {showCC && (
                     <div className="flex items-center gap-2 mb-4">
@@ -1068,13 +1532,39 @@ const Messages = () => {
               {/* Message Body */}
               <div className="mb-4">
                 {composerMode === 'email' ? (
-                  <RichTextEditor
-                    ref={richTextEditorRef}
-                    value={composerData.body}
-                    onChange={(html) => setComposerData({ ...composerData, body: html })}
-                    placeholder="Type your message..."
-                    availableVariables={[]}
-                  />
+                  <>
+                    {/* Attachments list */}
+                    {composerData.attachments.length > 0 && (
+                      <div className="mb-2 flex flex-col gap-1">
+                        {composerData.attachments.map((file, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm"
+                          >
+                            <Paperclip size={14} className="text-gray-500" />
+                            <span className="flex-1 truncate">{file.name}</span>
+                            <span className="text-xs text-gray-500">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
+                            <button
+                              onClick={() => removeAttachment(idx)}
+                              className="text-red-500 hover:text-red-700 text-lg leading-none"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <RichTextEditor
+                      ref={richTextEditorRef}
+                      value={composerData.body}
+                      onChange={(html) => setComposerData({ ...composerData, body: html })}
+                      placeholder="Type your message..."
+                      availableVariables={[]}
+                    />
+                  </>
                 ) : (
                   <textarea
                     value={composerData.body}
@@ -1093,13 +1583,6 @@ const Messages = () => {
 
               {/* Action Buttons */}
               <div className="flex items-center justify-end gap-4 mt-4">
-                <div className="flex items-center gap-2">
-                  {composerMode === 'email' && (
-                    <button className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors">
-                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
-                    </button>
-                  )}
-                </div>
                 {/* Char count and credits for SMS */}
                 {composerMode === 'sms' && (
                   <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -1112,9 +1595,30 @@ const Messages = () => {
                     </span>
                   </div>
                 )}
+                {/* Attachment button - only for email mode */}
+                {composerMode === 'email' && (
+                  <label className="cursor-pointer">
+                    <button
+                      type="button"
+                      className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors"
+                      onClick={() => document.getElementById('attachment-input')?.click()}
+                    >
+                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                    </button>
+                    <input
+                      id="attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                )}
                 <button
                   onClick={handleSendMessage}
                   disabled={
+                    sendingMessage ||
                     !composerData.body.trim() ||
                     (composerMode === 'email' && !composerData.subject.trim()) ||
                     (composerMode === 'sms' && !selectedPhoneNumber) ||
@@ -1122,8 +1626,36 @@ const Messages = () => {
                   }
                   className="px-6 py-2.5 bg-brand-primary text-white rounded-lg flex items-center gap-2 hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  Send
-                  <PaperPlaneTilt size={18} />
+                  {sendingMessage ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      Send
+                      <PaperPlaneTilt size={18} />
+                    </>
+                  )}
                 </button>
               </div>
               </div>
@@ -1164,6 +1696,231 @@ const Messages = () => {
         }}
         mode="sms"
       />
+
+      {/* Image Viewer Modal */}
+      {imageModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setImageModalOpen(false)
+                imageAttachments.forEach(img => {
+                  if (img.blobUrl) {
+                    window.URL.revokeObjectURL(img.blobUrl)
+                  }
+                })
+                setImageAttachments([])
+                setCurrentImageIndex(0)
+              }}
+              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+
+            {/* Previous Button */}
+            {imageAttachments.length > 1 && currentImageIndex > 0 && (
+              <button
+                onClick={async () => {
+                  const prevIndex = currentImageIndex - 1
+                  const prevAttachment = imageAttachments[prevIndex]
+                  
+                  // Load image if not already loaded
+                  if (!prevAttachment.blobUrl) {
+                    try {
+                      // Check if it's a direct URL
+                      if (prevAttachment.downloadData?.type === 'direct_url' && prevAttachment.downloadData.url) {
+                        const response = await fetch(prevAttachment.downloadData.url)
+                        if (response.ok) {
+                          const blob = await response.blob()
+                          const imageUrl = window.URL.createObjectURL(blob)
+                          setImageAttachments(prev => prev.map((img, idx) => 
+                            idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
+                          ))
+                        }
+                      } else if (prevAttachment.url && !prevAttachment.url.includes('gmail-attachment')) {
+                        // Direct URL from attachment
+                        const response = await fetch(prevAttachment.url)
+                        if (response.ok) {
+                          const blob = await response.blob()
+                          const imageUrl = window.URL.createObjectURL(blob)
+                          setImageAttachments(prev => prev.map((img, idx) => 
+                            idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
+                          ))
+                        }
+                      } else {
+                        // Gmail attachment
+                        const getApiBaseUrl = () => {
+                          if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                            return 'http://localhost:8003/'
+                          }
+                          return (
+                            process.env.NEXT_PUBLIC_BASE_API_URL ||
+                            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+                              ? 'https://apimyagentx.com/agentx/'
+                              : 'https://apimyagentx.com/agentxtest/')
+                          )
+                        }
+                        
+                        const apiBaseUrl = getApiBaseUrl()
+                        const downloadData = prevAttachment.downloadData || {
+                          messageId: prevAttachment.messageId,
+                          attachmentId: prevAttachment.attachmentId,
+                          emailAccountId: prevAttachment.emailAccountId,
+                        }
+                        
+                        if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
+                          const response = await fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(downloadData),
+                          })
+                          
+                          if (response.ok) {
+                            const blob = await response.blob()
+                            const imageUrl = window.URL.createObjectURL(blob)
+                            setImageAttachments(prev => prev.map((img, idx) => 
+                              idx === prevIndex ? { ...img, blobUrl: imageUrl } : img
+                            ))
+                          }
+                        }
+                      }
+                    } catch (error) {
+                      console.error('Error loading previous image:', error)
+                    }
+                  }
+                  
+                  setCurrentImageIndex(prevIndex)
+                }}
+                className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+              >
+                <ChevronLeft size={24} />
+              </button>
+            )}
+
+            {/* Next Button */}
+            {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
+              <button
+                onClick={async () => {
+                  const nextIndex = currentImageIndex + 1
+                  const nextAttachment = imageAttachments[nextIndex]
+                  
+                  // Load image if not already loaded
+                  if (!nextAttachment.blobUrl) {
+                    try {
+                      // Check if it's a direct URL
+                      if (nextAttachment.downloadData?.type === 'direct_url' && nextAttachment.downloadData.url) {
+                        const response = await fetch(nextAttachment.downloadData.url)
+                        if (response.ok) {
+                          const blob = await response.blob()
+                          const imageUrl = window.URL.createObjectURL(blob)
+                          setImageAttachments(prev => prev.map((img, idx) => 
+                            idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
+                          ))
+                        }
+                      } else if (nextAttachment.url && !nextAttachment.url.includes('gmail-attachment')) {
+                        // Direct URL from attachment
+                        const response = await fetch(nextAttachment.url)
+                        if (response.ok) {
+                          const blob = await response.blob()
+                          const imageUrl = window.URL.createObjectURL(blob)
+                          setImageAttachments(prev => prev.map((img, idx) => 
+                            idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
+                          ))
+                        }
+                      } else {
+                        // Gmail attachment
+                        const getApiBaseUrl = () => {
+                          if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                            return 'http://localhost:8003/'
+                          }
+                          return (
+                            process.env.NEXT_PUBLIC_BASE_API_URL ||
+                            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+                              ? 'https://apimyagentx.com/agentx/'
+                              : 'https://apimyagentx.com/agentxtest/')
+                          )
+                        }
+                        
+                        const apiBaseUrl = getApiBaseUrl()
+                        const downloadData = nextAttachment.downloadData || {
+                          messageId: nextAttachment.messageId,
+                          attachmentId: nextAttachment.attachmentId,
+                          emailAccountId: nextAttachment.emailAccountId,
+                        }
+                        
+                        if (downloadData.messageId && downloadData.attachmentId && downloadData.emailAccountId) {
+                          const response = await fetch(`${apiBaseUrl}api/agent/gmail-attachment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(downloadData),
+                          })
+                          
+                          if (response.ok) {
+                            const blob = await response.blob()
+                            const imageUrl = window.URL.createObjectURL(blob)
+                            setImageAttachments(prev => prev.map((img, idx) => 
+                              idx === nextIndex ? { ...img, blobUrl: imageUrl } : img
+                            ))
+                          }
+                        }
+                      }
+                    } catch (error) {
+                      console.error('Error loading next image:', error)
+                    }
+                  }
+                  
+                  setCurrentImageIndex(nextIndex)
+                }}
+                className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+              >
+                <ChevronRight size={24} />
+              </button>
+            )}
+
+            {/* Image or Loading Placeholder */}
+            <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+              {imageAttachments[currentImageIndex]?.blobUrl ? (
+                <>
+                  <img
+                    src={imageAttachments[currentImageIndex].blobUrl}
+                    alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                    className="max-w-full max-h-[90vh] object-contain"
+                  />
+                  
+                  {/* Image Info & Download */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
+                    <span className="text-sm">
+                      {imageAttachments[currentImageIndex]?.fileName || 'Image'} 
+                      {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const attachment = imageAttachments[currentImageIndex]
+                        const a = document.createElement('a')
+                        a.href = imageAttachments[currentImageIndex].blobUrl
+                        a.download = attachment.fileName || attachment.originalName || 'image'
+                        document.body.appendChild(a)
+                        a.click()
+                        document.body.removeChild(a)
+                      }}
+                      className="p-1 hover:bg-white/20 rounded transition-colors"
+                      title="Download image"
+                    >
+                      <Download size={16} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 text-white">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                  <span className="text-sm">Loading image...</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
