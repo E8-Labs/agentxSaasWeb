@@ -979,7 +979,7 @@ function UserPlans({
                               >
                                 <Checkbox
                                   checked={true}
-                                  className="!rounded-full h-3.5 w-3.5 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                  className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                                 />
 
                                 <FeatureLine
