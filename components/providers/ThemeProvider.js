@@ -98,6 +98,9 @@ const ThemeProvider = ({ children }) => {
 
       // For custom domains OR subaccounts/agencies on assignx.ai domains, check agency branding
       const getCookie = (name) => {
+        if(name === 'agencyBranding') {
+          return null
+        }
         const value = `; ${document.cookie}`
         const parts = value.split(`; ${name}=`)
         if (parts.length === 2) return parts.pop().split(';').shift()
@@ -197,7 +200,7 @@ const ThemeProvider = ({ children }) => {
                   const cookieValue = encodeURIComponent(
                     JSON.stringify(freshBranding),
                   )
-                  document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+                  // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
 
                   console.log('✅ [ThemeProvider] Fetched and cached fresh branding from API')
                 }

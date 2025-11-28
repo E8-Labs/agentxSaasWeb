@@ -1100,7 +1100,7 @@ const Messages = () => {
                             >
                               {isEmail && message.subject && (
                                 <div className="font-semibold mb-2">
-                                  Subject: {message.subject}
+                                   <span className="font-normal">Subject: </span> {message.subject}
                                 </div>
                               )}
                               {isEmail ? (

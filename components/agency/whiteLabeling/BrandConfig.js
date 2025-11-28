@@ -410,7 +410,7 @@ const BrandConfig = () => {
             const cookieValue = encodeURIComponent(
               JSON.stringify(freshBranding),
             )
-            document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+            // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
             localStorage.setItem(
               'agencyBranding',
               JSON.stringify(freshBranding),
@@ -442,7 +442,7 @@ const BrandConfig = () => {
           const cookieValue = encodeURIComponent(
             JSON.stringify(updatedBranding),
           )
-          document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+          // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
           localStorage.setItem(
             'agencyBranding',
             JSON.stringify(updatedBranding),

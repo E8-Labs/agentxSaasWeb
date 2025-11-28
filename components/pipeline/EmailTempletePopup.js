@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import ChipInput from '@/constants/ChipsInput'
 import { PersistanceKeys } from '@/constants/Constants'
+import { Input } from '@/components/ui/input'
 
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData'
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices'
@@ -31,8 +32,6 @@ import {
   getTempletes,
   updateTemplete,
 } from './TempleteServices'
-import { GreetingTagInput } from './tagInputs/GreetingTagInput'
-import { PromptTagInput } from './tagInputs/PromptTagInput'
 
 function EmailTempletePopup({
   open,
@@ -83,11 +82,6 @@ function EmailTempletePopup({
   const [templetes, setTempletes] = useState([])
   const [loginLoader, setLoginLoader] = useState(false)
 
-  const [scrollOffset, setScrollOffset] = useState({
-    scrollTop: 0,
-    scrollLeft: 0,
-  })
-
   // above return
   // disable save if any field is missing or while saving
 
@@ -123,10 +117,28 @@ function EmailTempletePopup({
   }
 
   const getColumns = async () => {
-    let res = await getUniquesColumn()
+    // Default columns that should always be available
+    const defaultColumns = [
+      '{First Name}',
+      '{Last Name}',
+      '{Email}',
+      '{Phone}',
+      '{Address}',
+    ]
+
+    let res = await getUniquesColumn(selectedUser?.id)
     console.log('uniqueColumns', res)
-    if (res) {
-      setUniqueColumns(res)
+    
+    // Merge default columns with API response, removing duplicates
+    if (res && Array.isArray(res)) {
+      const mergedColumns = [
+        ...defaultColumns,
+        ...res.filter((col) => !defaultColumns.includes(col)),
+      ]
+      setUniqueColumns(mergedColumns)
+    } else {
+      // If API fails or returns null, use default columns
+      setUniqueColumns(defaultColumns)
     }
   }
 
@@ -144,7 +156,7 @@ function EmailTempletePopup({
         'Loading accounts for editing. editingRow emailAccountId:',
         editingRow.emailAccountId,
       )
-      getAccounts() // Always load accounts regardless of existing emailAccountId
+      getAccounts(selectedUser?.id) // Always load accounts regardless of existing emailAccountId
     } else if (!isEditing) {
       // Reset form when not editing
       setTempName('')
@@ -200,7 +212,7 @@ function EmailTempletePopup({
   console.log('ccEmails', ccEmails)
 
   useEffect(() => {
-    if (showChangeManu) getAccounts()
+    if (showChangeManu) getAccounts(selectedUser?.id)
   }, [showChangeManu])
 
   // Restore selected account when editing and accounts are loaded
@@ -591,9 +603,10 @@ function EmailTempletePopup({
     setSaveEmailLoader(false)
   }
 
-  const getAccounts = async () => {
+  const getAccounts = async (id) => {
+    console.log('getAccounts called with id:', id)
     setGoogleAccountLoader(true)
-    let acc = await getGmailAccounts()
+    let acc = await getGmailAccounts(id)
     setGoogleAccounts(acc)
     setGoogleAccountLoader(false)
   }
@@ -607,7 +620,7 @@ function EmailTempletePopup({
 
     if (response) {
       console.log('response', response)
-      await getAccounts()
+      await getAccounts(selectedUser?.id)
       setShowChangeManu(null)
       setSelectedGoogleAccount(response)
     }
@@ -625,7 +638,7 @@ function EmailTempletePopup({
             style={{ scrollbarWidth: 'none' }}
           >
             <AgentSelectSnackMessage
-              isVisible={showSnackBar.message}
+              isVisible={true}
               message={showSnackBar.message}
               type={showSnackBar.type}
               hide={() => {
@@ -835,33 +848,68 @@ function EmailTempletePopup({
               </>
             )}
 
-            <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-              Subject
-            </div>
-
-            <div className=" mt-2">
-              <GreetingTagInput
-                // promptTag={subject}
-                // isSubject={true}
-                // placeholder="Subject"
-                // // kycsList={kycsData}
-                // uniqueColumns={uniqueColumns}
-                // tagValue={setSubject}
-                // showSaveChangesBtn={subject}
-                // // from={"Template"}
-                // saveUpdates={async () => {
-
-                // }}
-                // limit={343}
-                greetTag={subject}
-                // kycsList={kycsData}
-                uniqueColumns={uniqueColumns}
-                tagValue={(text) => {
-                  setSubject(text)
+            <div className="space-y-2 mt-4">
+              <div className="flex flex-row items-center justify-between">
+                <label className="text-[15px] font-[400] text-[#00000080]">
+                  Subject
+                </label>
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 180 }}>
+                    <Select
+                      value={selectedVariable}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSelectedVariable('')
+                        if (value) {
+                          // Insert variable into subject field
+                          // Handle both formats: with or without curly braces
+                          const variableText = value.startsWith('{') && value.endsWith('}') 
+                            ? value 
+                            : `{${value}}`
+                          const currentSubject = subject || ''
+                          const newSubject = currentSubject + (currentSubject ? ' ' : '') + variableText
+                          setSubject(newSubject)
+                          setSubjectChanged(true)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '36px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Insert Variable...</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => (
+                        <MenuItem key={index} value={variable}>
+                          {variable}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              </div>
+              <Input
+                placeholder="Subject"
+                value={subject}
+                onChange={(e) => {
+                  setSubject(e.target.value)
                   setSubjectChanged(true)
                 }}
-                scrollOffset={scrollOffset}
-                placeholder="Subject"
+                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
+                style={{
+                  border: '1px solid #00000020',
+                }}
               />
             </div>
 

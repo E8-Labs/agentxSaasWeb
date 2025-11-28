@@ -131,7 +131,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             if (lookupData.status && lookupData.data?.branding) {
               const brandingData = lookupData.data.branding
               // Store in both cookie and localStorage
-              document.cookie = `agencyBranding=${encodeURIComponent(JSON.stringify(brandingData))}; path=/; max-age=${60 * 60 * 24}`
+              // document.cookie = `agencyBranding=${encodeURIComponent(JSON.stringify(brandingData))}; path=/; max-age=${60 * 60 * 24}`
               localStorage.setItem(
                 'agencyBranding',
                 JSON.stringify(brandingData),
@@ -151,23 +151,23 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
 
       // Try cookie first for immediate display (if available)
-      const brandingCookie = getCookie('agencyBranding')
-      if (brandingCookie) {
-        try {
-          const brandingData = JSON.parse(decodeURIComponent(brandingCookie))
-          // Store in localStorage for persistence
-          localStorage.setItem('agencyBranding', JSON.stringify(brandingData))
-          setAgencyBranding(brandingData)
-          console.log('✅ [LoginComponent] Using branding from cookie')
+      // const brandingCookie = getCookie('agencyBranding')
+      // if (brandingCookie) {
+      //   try {
+      //     const brandingData = JSON.parse(decodeURIComponent(brandingCookie))
+      //     // Store in localStorage for persistence
+      //     localStorage.setItem('agencyBranding', JSON.stringify(brandingData))
+      //     setAgencyBranding(brandingData)
+      //     console.log('✅ [LoginComponent] Using branding from cookie')
 
-          // Still fetch from API in background to ensure we have latest data
-          // This handles the case where branding was just updated
-          fetchFromAPI()
-          return
-        } catch (error) {
-          console.log('Error parsing agencyBranding cookie:', error)
-        }
-      }
+      //     // Still fetch from API in background to ensure we have latest data
+      //     // This handles the case where branding was just updated
+      //     fetchFromAPI()
+      //     return
+      //   } catch (error) {
+      //     console.log('Error parsing agencyBranding cookie:', error)
+      //   }
+      // }
 
       // Fallback to localStorage if cookie not found
       const storedBranding = localStorage.getItem('agencyBranding')
@@ -196,7 +196,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         // It's assignx domain but we might have fetched branding (subaccount case)
         // Wait a bit to check if branding was set
         setTimeout(() => {
-          const currentBranding = getCookie('agencyBranding') || localStorage.getItem('agencyBranding')
+          const currentBranding = localStorage.getItem('agencyBranding')
           if (!currentBranding) {
             setDomainTypeDetermined(true)
           }
@@ -216,7 +216,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // Update cookie and localStorage
       if (updatedBranding) {
         const cookieValue = encodeURIComponent(JSON.stringify(updatedBranding))
-        document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+        // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
         localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
         setAgencyBranding(updatedBranding)
       }

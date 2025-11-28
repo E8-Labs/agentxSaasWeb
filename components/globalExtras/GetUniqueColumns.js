@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import Apis from '../apis/Apis'
 
-export const getUniquesColumn = async () => {
+export const getUniquesColumn = async (id) => {
   try {
     // setColumnloader(true);
     const localData = localStorage.getItem('User')
@@ -15,7 +15,10 @@ export const getUniquesColumn = async () => {
 
     ////////console.log;
 
-    const ApiPath = Apis.uniqueColumns
+    let ApiPath = Apis.uniqueColumns
+    if (id) {
+      ApiPath = ApiPath + '?userId=' + id
+    }
     ////////console.log;
 
     const response = await axios.get(ApiPath, {
