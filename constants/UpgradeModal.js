@@ -153,127 +153,127 @@ const UpgradeModal = ({
                 // borderRadius:'20px'
               }}
             >
-              <div className="w-full flex flex-row items-start justify-end p-5">
-                <CloseBtn onClick={handleClose} />
-              </div>
+                <div className="w-full flex flex-row items-start justify-end p-5">
+                  <CloseBtn onClick={handleClose} />
+                </div>
 
-              <div className="flex flex-row items-center justify-center gap-4">
+                <div className="flex flex-row items-center justify-center gap-4">
+                  <div
+                    style={{ 
+                      fontSize: '29px', 
+                      fontWeight: '700',
+                      color: `hsl(var(--brand-primary))`,
+                    }}
+                  >
+                    {title}
+                  </div>
+                  <Image
+                    alt="*"
+                    src={'/otherAssets/starsIcon2.png'}
+                    height={28}
+                    width={26}
+                    className="filter-brand-primary"
+                  />
+                </div>
                 <div
-                  style={{ 
-                    fontSize: '29px', 
-                    fontWeight: '700',
-                    color: `hsl(var(--brand-primary))`,
+                  className=""
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: '400',
+                    color: '#00000050',
                   }}
                 >
-                  {title}
+                  {subTitle}
                 </div>
-                <Image
-                  alt="*"
-                  src={'/otherAssets/starsIcon2.png'}
-                  height={28}
-                  width={26}
-                  className="filter-brand-primary"
-                />
-              </div>
-              <div
-                className=""
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '400',
-                  color: '#00000050',
-                }}
-              >
-                {subTitle}
-              </div>
-              <div
-                className="mt-4 w-full text-start px-8 "
-                style={{ fontSize: '18px', fontWeight: '700' }}
-              >
-                {`What You’ll Get`}
-              </div>
-              <div className="w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[50vh]">
-                <div className="w-full flex flex-row items-start mt-4">
-                  <div className="w-1/2 flex flex-col gap-4">
-                    {benifits1.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex flex-row items-center gap-4"
-                      >
-                        <Image
-                          alt="*"
-                          src={'/otherAssets/simpleTick.png'}
-                          height={16}
-                          width={16}
-                        />
-                        <div style={{ fontSize: '15px', fontWeight: '500' }}>
-                          {item.title}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="w-1/2 flex flex-col gap-4">
-                    {benifits2.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex flex-row items-center gap-4"
-                      >
-                        <Image
-                          alt="*"
-                          src={'/otherAssets/simpleTick.png'}
-                          height={16}
-                          width={16}
-                        />
-                        <div style={{ fontSize: '15px', fontWeight: '500' }}>
-                          {item.title}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full flex flex-col items-center justify-center">
-                <button
-                  className="h-[54px] w-[20vw] rounded-xl text-white text-center flex flex-row items-center justify-center transition-colors"
-                  style={{ 
-                    fontSize: '15px', 
-                    fontWeight: '500',
-                    backgroundColor: `hsl(var(--brand-primary))`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
-                  }}
-                  onClick={() => {
-                    if (featureTitle) {
-                      handleRequestFeature(featureTitle)
-                    } else {
-                      setShowUpgradePlanPopup(true)
-                    }
-                  }}
+                <div
+                  className="mt-4 w-full text-start px-8 "
+                  style={{ fontSize: '18px', fontWeight: '700' }}
                 >
-                  {featureTitle ? 'Request Feature' : 'Upgrade'}
-                </button>
+                  {`What You'll Get`}
+                </div>
+                <div className="w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[50vh]">
+                  <div className="w-full flex flex-row items-start mt-4">
+                    <div className="w-1/2 flex flex-col gap-4">
+                      {benifits1.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex flex-row items-center gap-4"
+                        >
+                          <Image
+                            alt="*"
+                            src={'/otherAssets/simpleTick.png'}
+                            height={16}
+                            width={16}
+                          />
+                          <div style={{ fontSize: '15px', fontWeight: '500' }}>
+                            {item.title}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="w-1/2 flex flex-col gap-4">
+                      {benifits2.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex flex-row items-center gap-4"
+                        >
+                          <Image
+                            alt="*"
+                            src={'/otherAssets/simpleTick.png'}
+                            height={16}
+                            width={16}
+                          />
+                          <div style={{ fontSize: '15px', fontWeight: '500' }}>
+                            {item.title}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full flex flex-col items-center justify-center">
+                  <button
+                    className="h-[54px] w-[20vw] rounded-xl text-white text-center flex flex-row items-center justify-center transition-colors"
+                    style={{ 
+                      fontSize: '15px', 
+                      fontWeight: '500',
+                      backgroundColor: `hsl(var(--brand-primary))`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
+                    }}
+                    onClick={() => {
+                      if (featureTitle) {
+                        handleRequestFeature(featureTitle)
+                      } else {
+                        setShowUpgradePlanPopup(true)
+                      }
+                    }}
+                  >
+                    {featureTitle ? 'Request Feature' : 'Upgrade'}
+                  </button>
 
-                <button
-                  className="mt-4 transition-colors"
-                  style={{ 
-                    fontSize: '15px', 
-                    fontWeight: '500',
-                    color: `hsl(var(--brand-primary))`,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = `hsl(var(--brand-primary) / 0.8)`
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = `hsl(var(--brand-primary))`
-                  }}
-                  onClick={handleClose}
-                >
-                  {buttonTitle}
-                </button>
-              </div>
+                  <button
+                    className="mt-4 transition-colors"
+                    style={{ 
+                      fontSize: '15px', 
+                      fontWeight: '500',
+                      color: `hsl(var(--brand-primary))`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = `hsl(var(--brand-primary) / 0.8)`
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = `hsl(var(--brand-primary))`
+                    }}
+                    onClick={handleClose}
+                  >
+                    {buttonTitle}
+                  </button>
+                </div>
             </div>
           </div>
         </Box>
