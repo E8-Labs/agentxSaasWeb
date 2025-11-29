@@ -47,18 +47,17 @@ export const PromptTagInput = ({
         arr.push(item);
       }
     });
-    kycsList?.map((item) => {
-      if (!arr.includes(item.question)) {
-        arr.push(item.question);
-      }
-    });
+
+    if(Array.isArray(kycsList)) {
+      kycsList?.map((item) => {
+        if (!arr.includes(item.question)) {
+          arr.push(item.question);
+        }
+      });
+    }
     console.log("kycs list is:", kycsList);
     console.log("arr is:", arr);
     setOptions(arr);
-
-    // setOptions((prev) => {
-    //   return [...prev, ...uniqueColumns];
-    // });
   }, [uniqueColumns,kycsList]);
 
   useEffect(() => {
