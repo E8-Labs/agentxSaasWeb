@@ -402,4 +402,9 @@ a.text-red:hover {
   pointer-events: none;
 }
 
+/* Brand primary filter for icons */
+.filter-brand-primary {
+  filter: var(--icon-filter, brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(260deg) brightness(99%) contrast(93%));
+}
+
 

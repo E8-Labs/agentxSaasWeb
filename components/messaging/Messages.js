@@ -1564,20 +1564,12 @@ const Messages = () => {
                         : 'text-gray-600'
                     }`}
                   >
-                    <div
-                      style={{
-                        width: 20,
-                        height: 20,
-                        backgroundColor: composerMode === 'sms' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
-                        WebkitMaskImage: 'url(/messaging/sms toggle.svg)',
-                        maskImage: 'url(/messaging/sms toggle.svg)',
-                        WebkitMaskSize: 'contain',
-                        maskSize: 'contain',
-                        WebkitMaskRepeat: 'no-repeat',
-                        maskRepeat: 'no-repeat',
-                        WebkitMaskPosition: 'center',
-                        maskPosition: 'center',
-                      }}
+                    <Image
+                      src="/messaging/sms toggle.svg"
+                      width={20}
+                      height={20}
+                      alt="SMS"
+                      className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
                     />
                     <span>SMS</span>
                     {composerMode === 'sms' && (
@@ -1597,20 +1589,12 @@ const Messages = () => {
                         : 'text-gray-600'
                     }`}
                   >
-                    <div
-                      style={{
-                        width: 20,
-                        height: 20,
-                        backgroundColor: composerMode === 'email' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
-                        WebkitMaskImage: 'url(/messaging/email toggle.svg)',
-                        maskImage: 'url(/messaging/email toggle.svg)',
-                        WebkitMaskSize: 'contain',
-                        maskSize: 'contain',
-                        WebkitMaskRepeat: 'no-repeat',
-                        maskRepeat: 'no-repeat',
-                        WebkitMaskPosition: 'center',
-                        maskPosition: 'center',
-                      }}
+                    <Image
+                      src="/messaging/email toggle.svg"
+                      width={20}
+                      height={20}
+                      alt="Email"
+                      className={composerMode === 'email' ? 'filter-brand-primary' : 'opacity-60'}
                     />
                     <span>Email</span>
                     {composerMode === 'email' && (

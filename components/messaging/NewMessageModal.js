@@ -691,6 +691,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         onChange={(e) => setCC(e.target.value)}
                         placeholder="Add CC recipients"
                         className="flex-1 focus-visible:ring-brand-primary"
+                        style={{ height: '42px', minHeight: '42px', paddingTop: '8px', paddingBottom: '8px' }}
                       />
                     </div>
                   )}
@@ -702,6 +703,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         onChange={(e) => setBCC(e.target.value)}
                         placeholder="Add BCC recipients"
                         className="flex-1 focus-visible:ring-brand-primary"
+                        style={{ height: '42px', minHeight: '42px', paddingTop: '8px', paddingBottom: '8px' }}
                       />
                     </div>
                   )}

@@ -1,6 +1,5 @@
 import 'react-quill-new/dist/quill.snow.css'
 
-import DOMPurify from 'dompurify'
 import dynamic from 'next/dynamic'
 import React, {
   forwardRef,
@@ -13,45 +12,13 @@ import React, {
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false })
 
-// Normalize HTML content to ensure proper block structure
-const normalizeContent = (html) => {
-  if (!html || typeof html !== 'string') {
-    // Always return at least an empty paragraph for empty content
-    // This ensures Quill has a block element to edit
-    return '<p><br></p>'
-  }
-
-  // Trim whitespace but preserve structure
-  let normalized = html.trim()
-
-  // If content is empty after trimming, ensure we have at least one paragraph
-  if (!normalized || normalized === '') {
-    return '<p><br></p>'
-  }
-
-  // If content starts with a heading, add a leading paragraph to allow editing before it
-  // This paragraph will be invisible/hidden but allows cursor positioning
-  if (normalized.match(/^<h[2-4]/)) {
-    // Add a zero-width paragraph at the start that can be edited
-    normalized = '<p><br></p>' + normalized
-  }
-
-  // Ensure content doesn't start with a non-block element
-  // If it does, wrap it in a paragraph
-  if (!normalized.match(/^<(p|h[2-4]|ul|ol|li|div)/i)) {
-    normalized = '<p>' + normalized + '</p>'
-  }
-
-  return normalized
-}
-
 const RichTextEditor = forwardRef(
   (
     { value, onChange, placeholder = 'Enter text...', availableVariables = [] },
     ref,
   ) => {
     const quillRef = useRef(null)
-    const lastSentValueRef = useRef('')
+    const lastHtmlRef = useRef(value || '')
 
     // Quill modules configuration
     const modules = useMemo(
@@ -63,115 +30,6 @@ const RichTextEditor = forwardRef(
           ['link'],
           ['clean'], // remove formatting
         ],
-        keyboard: {
-          bindings: {
-            // Custom handler for space key at document start
-            'space-at-start': {
-              key: ' ',
-              handler: function (range, context) {
-                const editor = this.quill
-                
-                try {
-                  // CRITICAL: Check for list items FIRST - before any other processing
-                  const format = editor.getFormat(range.index)
-                  if (format && (format.list === 'bullet' || format.list === 'ordered')) {
-                    return true // Allow default behavior for lists - DO NOT INTERFERE
-                  }
-                  
-                  // Also check line format as a fallback
-                  const [line] = editor.getLine(range.index)
-                  if (line) {
-                    const lineIndex = editor.getIndex(line)
-                    const lineFormat = editor.getFormat(lineIndex)
-                    if (lineFormat && (lineFormat.list === 'bullet' || lineFormat.list === 'ordered')) {
-                      return true // Allow default behavior for lists
-                    }
-                  }
-                } catch (error) {
-                  // If format check fails, allow default behavior
-                  console.warn('Error checking format in space-at-start:', error)
-                }
-                
-                // If at the very beginning of the document
-                if (range.index === 0) {
-                  const delta = editor.getContents()
-
-                  // Check if first block is a heading
-                  if (delta.ops && delta.ops.length > 0) {
-                    const firstOp = delta.ops[0]
-                    if (firstOp.attributes && firstOp.attributes.header) {
-                      // Insert space at the beginning of the heading
-                      editor.insertText(0, ' ', 'user')
-                      editor.setSelection(1, 'user')
-                      return false // Prevent default behavior
-                    }
-                  }
-                }
-                return true // Allow default behavior
-              },
-            },
-            // Prevent space from creating new line at end of blocks (especially headings)
-            'prevent-space-newline': {
-              key: ' ',
-              handler: function (range, context) {
-                const editor = this.quill
-                
-                try {
-                  // CRITICAL: Check for list items FIRST - before any other processing
-                  // This must be the first check to ensure spaces work in lists
-                  const format = editor.getFormat(range.index)
-                  if (format && (format.list === 'bullet' || format.list === 'ordered')) {
-                    return true // Allow default behavior for lists - DO NOT INTERFERE
-                  }
-                  
-                  // Also check line format as a fallback
-                  const [line] = editor.getLine(range.index)
-                  if (line) {
-                    const lineIndex = editor.getIndex(line)
-                    const lineFormat = editor.getFormat(lineIndex)
-                    if (lineFormat && (lineFormat.list === 'bullet' || lineFormat.list === 'ordered')) {
-                      return true // Allow default behavior for lists
-                    }
-                  }
-                  
-                  // Check if we're in a heading
-                  const isHeading = format && (format.header === 2 || 
-                                   format.header === 3 || 
-                                   format.header === 4)
-                  
-                  // Get the line/block we're in (re-declare since we used it above)
-                  const [lineBlock, offset] = editor.getLine(range.index)
-                  
-                  if (lineBlock) {
-                    // Get the text content of the current line
-                    const lineStart = editor.getIndex(lineBlock)
-                    const lineLength = lineBlock.length()
-                    const lineText = editor.getText(lineStart, lineLength)
-                    
-                    // Check if cursor is at or near the end of the line
-                    const isAtEnd = offset >= lineText.length
-                    
-                    // If at end of a block (especially headings), insert space instead of creating new line
-                    if (isAtEnd && isHeading) {
-                      // Insert space at current position
-                      editor.insertText(range.index, ' ', 'user')
-                      // Move cursor after the space
-                      setTimeout(() => {
-                        editor.setSelection(range.index + 1, 'user')
-                      }, 0)
-                      return false // Prevent default behavior
-                    }
-                  }
-                } catch (error) {
-                  // If there's an error, allow default behavior
-                  console.warn('Error in prevent-space-newline handler:', error)
-                }
-                
-                return true // Allow default behavior
-              },
-            },
-          },
-        },
       }),
       [],
     )
@@ -186,50 +44,23 @@ const RichTextEditor = forwardRef(
       'link',
     ]
 
-    // Handle content change with sanitization
-    const handleChange = (content) => {
-      // Sanitize HTML to prevent XSS
-      let sanitized = DOMPurify.sanitize(content, {
-        ALLOWED_TAGS: [
-          'p',
-          'br',
-          'strong',
-          'em',
-          'u',
-          'ol',
-          'ul',
-          'li',
-          'a',
-          'span',
-          'h2',
-          'h3',
-          'h4',
-        ],
-        ALLOWED_ATTR: ['href', 'target', 'rel'],
-      })
+    // Handle content change with sanitization (only for outgoing value)
+    const handleChange = (content, _delta, _source, editor) => {
+      // Use Quill's HTML output directly to avoid reformatting loops
+      const html = editor.getHTML()
+      const outgoing = html && html.trim() ? html : '<p><br></p>'
 
-      // Remove the leading empty paragraph we added for editing before headings
-      // But only if it's followed by a heading (not if it's the only content)
-      const hasHeadingAfter = sanitized.match(/^<p><br><\/p>\s*<h[2-4]/)
-      if (hasHeadingAfter) {
-        sanitized = sanitized.replace(/^<p><br><\/p>\s*/, '')
-      }
-
-      // If content is empty after cleaning, ensure we have at least an empty paragraph
-      // This is needed for the editor to remain editable
-      const trimmed = sanitized.trim()
-      if (!trimmed || trimmed === '' || trimmed === '<p></p>' || trimmed === '<p><br></p>') {
-        // Keep empty paragraph for editor functionality, but parent can handle empty state
-        sanitized = '<p><br></p>'
-      }
-
-      // Only call onChange if the value actually changed to prevent infinite loops
-      // Compare with the last value we sent to avoid unnecessary updates
-      if (sanitized !== lastSentValueRef.current) {
-        lastSentValueRef.current = sanitized
-        onChange(sanitized)
+      // Avoid sending the same value repeatedly (prevents render loops when toggling formats)
+      if (outgoing !== lastHtmlRef.current) {
+        lastHtmlRef.current = outgoing
+        onChange(outgoing)
       }
     }
+
+    // Keep lastHtmlRef in sync with external value changes
+    React.useEffect(() => {
+      lastHtmlRef.current = value || ''
+    }, [value])
 
     // Insert variable at cursor position
     const insertVariable = (variable) => {
@@ -247,219 +78,6 @@ const RichTextEditor = forwardRef(
       insertVariable,
     }))
 
-    // Set up keyboard handler to prevent space from creating new lines/blocks
-    useEffect(() => {
-      if (!quillRef.current) return
-
-      const editor = quillRef.current.getEditor()
-      const editorElement = editor.root
-
-      const handleBeforeInput = (e) => {
-        // Only handle space input
-        if (e.data !== ' ') return
-
-        const selection = window.getSelection()
-        if (!selection || selection.rangeCount === 0) return
-
-        const range = selection.getRangeAt(0)
-        const container = range.startContainer
-
-        // Find the block element (p, h2, h3, h4, li, etc.)
-        let blockElement =
-          container.nodeType === Node.TEXT_NODE
-            ? container.parentElement
-            : container
-
-        // Traverse up to find block element
-        while (blockElement && blockElement !== editorElement) {
-          const tagName = blockElement.tagName
-          // Check if we're inside a block element
-          if (
-            tagName &&
-            ['P', 'H2', 'H3', 'H4', 'LI', 'DIV'].includes(tagName)
-          ) {
-            // Check if cursor is at the end of the block text
-            const textLength =
-              container.nodeType === Node.TEXT_NODE
-                ? container.textContent.length
-                : blockElement.textContent.length
-            const isAtEnd = range.startOffset >= textLength
-
-            if (isAtEnd) {
-              e.preventDefault()
-              e.stopPropagation()
-              e.stopImmediatePropagation()
-
-              // Get Quill selection
-              const quillSelection = editor.getSelection()
-              if (quillSelection) {
-                // Insert space at current position
-                editor.insertText(quillSelection.index, ' ')
-                // Keep cursor after the space
-                setTimeout(() => {
-                  editor.setSelection(quillSelection.index + 1)
-                }, 0)
-              }
-              return false
-            }
-            break
-          }
-          blockElement = blockElement.parentElement
-        }
-      }
-
-      const handleKeyDown = (e) => {
-        // Only handle space key
-        if (e.key !== ' ' && e.keyCode !== 32) return
-
-        const selection = window.getSelection()
-        if (!selection || selection.rangeCount === 0) return
-
-        const range = selection.getRangeAt(0)
-        const container = range.startContainer
-
-        // Find the block element (p, h2, h3, h4, li, etc.)
-        let blockElement =
-          container.nodeType === Node.TEXT_NODE
-            ? container.parentElement
-            : container
-
-        // Traverse up to find block element
-        while (blockElement && blockElement !== editorElement) {
-          const tagName = blockElement.tagName
-          // Check if we're inside a block element
-          if (
-            tagName &&
-            ['P', 'H2', 'H3', 'H4', 'LI', 'DIV'].includes(tagName)
-          ) {
-            // Check if cursor is at the end of the block text
-            const textLength =
-              container.nodeType === Node.TEXT_NODE
-                ? container.textContent.length
-                : blockElement.textContent.length
-            const isAtEnd = range.startOffset >= textLength
-
-            if (isAtEnd) {
-              e.preventDefault()
-              e.stopPropagation()
-              e.stopImmediatePropagation()
-
-              // Get Quill selection
-              const quillSelection = editor.getSelection()
-              if (quillSelection) {
-                // Insert space at current position
-                editor.insertText(quillSelection.index, ' ')
-                // Keep cursor after the space
-                setTimeout(() => {
-                  editor.setSelection(quillSelection.index + 1)
-                }, 0)
-              }
-              return false
-            }
-            break
-          }
-          blockElement = blockElement.parentElement
-        }
-      }
-
-      // Use both beforeinput (modern) and keydown (fallback)
-      editorElement.addEventListener('beforeinput', handleBeforeInput, {
-        capture: true,
-        passive: false,
-      })
-      editorElement.addEventListener('keydown', handleKeyDown, {
-        capture: true,
-        passive: false,
-      })
-
-      return () => {
-        editorElement.removeEventListener('beforeinput', handleBeforeInput, {
-          capture: true,
-        })
-        editorElement.removeEventListener('keydown', handleKeyDown, {
-          capture: true,
-        })
-      }
-    }, [value])
-
-    // Update lastSentValueRef when value prop changes from parent
-    useEffect(() => {
-      const sanitized = (value || '').replace(/^<p><br><\/p>\s*/, '')
-      lastSentValueRef.current = sanitized
-    }, [value])
-
-    // Normalize value when it changes
-    const normalizedValue = useMemo(() => {
-      return normalizeContent(value || '')
-    }, [value])
-
-    // Ensure editor is properly initialized when it mounts or value changes
-    useEffect(() => {
-      if (!quillRef.current) return
-
-      const editor = quillRef.current.getEditor()
-      const editorElement = editor.root
-      
-      // Function to ensure editor has editable content
-      const ensureEditable = () => {
-        try {
-          const contents = editor.getContents()
-          const text = editor.getText().trim()
-          const html = editorElement.innerHTML.trim()
-          
-          // If editor appears empty, ensure it has at least one paragraph
-          const isEmpty = !contents.ops || 
-                         contents.ops.length === 0 || 
-                         (contents.ops.length === 1 && contents.ops[0].insert === '\n' && !text) ||
-                         html === '' ||
-                         html === '<p><br></p>' ||
-                         html === '<p></p>'
-          
-          if (isEmpty) {
-            // Ensure we have at least one paragraph block
-            editor.clipboard.dangerouslyPasteHTML('<p><br></p>')
-          }
-        } catch (error) {
-          console.warn('Error ensuring editor is editable:', error)
-        }
-      }
-      
-      // Small delay to ensure Quill is fully initialized
-      const timer = setTimeout(ensureEditable, 150)
-
-      // Handle clicks on the editor to ensure it's editable
-      const handleClick = (e) => {
-        // Only handle if clicking directly on the editor content area
-        if (e.target === editorElement || editorElement.contains(e.target)) {
-          setTimeout(() => {
-            try {
-              const selection = editor.getSelection()
-              const contents = editor.getContents()
-              
-              // If no selection and editor is empty, ensure it's editable
-              if (!selection && (!contents.ops || contents.ops.length === 0)) {
-                ensureEditable()
-                // Set cursor at the start
-                editor.setSelection(0, 'user')
-              } else if (selection && selection.index === 0) {
-                // If cursor is at start, ensure we can type
-                ensureEditable()
-              }
-            } catch (error) {
-              console.warn('Error handling editor click:', error)
-            }
-          }, 10)
-        }
-      }
-
-      editorElement.addEventListener('click', handleClick, true)
-
-      return () => {
-        clearTimeout(timer)
-        editorElement.removeEventListener('click', handleClick, true)
-      }
-    }, [normalizedValue])
-
     return (
       <div className="rich-text-editor-container">
         {/* Rich Text Editor */}
@@ -467,7 +85,7 @@ const RichTextEditor = forwardRef(
           <ReactQuill
             ref={quillRef}
             theme="snow"
-            value={normalizedValue}
+            value={value || ''}
             onChange={handleChange}
             modules={modules}
             formats={formats}
