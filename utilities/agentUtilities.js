@@ -93,6 +93,82 @@ export const getAgentImage = (item) => {
   )
 }
 
+// Helper function to get initials from a lead
+const getLeadInitials = (lead) => {
+  if (!lead) return 'L'
+  
+  const firstName = lead.firstName || ''
+  const lastName = lead.lastName || ''
+  const name = lead.name || ''
+  
+  if (firstName && lastName) {
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
+  } else if (firstName) {
+    return firstName.charAt(0).toUpperCase()
+  } else if (name) {
+    const nameParts = name.trim().split(/\s+/)
+    if (nameParts.length >= 2) {
+      return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase()
+    } else if (nameParts.length === 1) {
+      return nameParts[0].charAt(0).toUpperCase()
+    }
+  }
+  
+  return 'L'
+}
+
+// Function to get lead profile picture with initials fallback
+export const getLeadProfileImage = (lead, imgHeight = 27, imgWidth = 27) => {
+  if (lead?.thumb_profile_image) {
+    return (
+      <div
+        className="flex flex-row items-center justify-center"
+        style={{
+          height: `${imgHeight}px`,
+          width: `${imgWidth}px`,
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          overflow: 'hidden',
+        }}
+      >
+        <img
+          src={lead.thumb_profile_image}
+          alt="*"
+          className="rounded-full"
+          style={{
+            height: '100%',
+            width: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </div>
+    )
+  }
+
+  // Fallback to initials in a rounded circle
+  const initials = getLeadInitials(lead)
+  const bgColor = lead?.firstName 
+    ? `hsl(${(lead.firstName.charCodeAt(0) * 137.508) % 360}, 70%, 50%)`
+    : 'hsl(var(--brand-primary))'
+
+  return (
+    <div
+      className="flex flex-row items-center justify-center rounded-full"
+      style={{
+        height: `${imgHeight}px`,
+        width: `${imgWidth}px`,
+        borderRadius: '50%',
+        backgroundColor: bgColor,
+        color: 'white',
+        fontSize: `${Math.max(10, imgHeight * 0.4)}px`,
+        fontWeight: '600',
+      }}
+    >
+      {initials}
+    </div>
+  )
+}
+
 export const getAgentsListImage = (
   subAgent,
   imgHeight,

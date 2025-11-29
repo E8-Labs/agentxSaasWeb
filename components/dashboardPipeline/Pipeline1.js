@@ -38,7 +38,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { PersistanceKeys } from '@/constants/Constants'
 import UpgradeModal from '@/constants/UpgradeModal'
-import { getAgentsListImage } from '@/utilities/agentUtilities'
+import { getAgentsListImage, getLeadProfileImage } from '@/utilities/agentUtilities'
 import {
   GetFormattedDateString,
   GetFormattedTimeString,
@@ -2518,12 +2518,8 @@ const Pipeline1 = () => {
                                           setNoteDetails(lead.lead.notes)
                                         }}
                                       >
-                                        {/* T is center aligned */}
-                                        {getAgentsListImage(
-                                          lead.lead,
-                                          27,
-                                          27,
-                                        )}
+                                        {/* Lead profile picture with initials fallback */}
+                                        {getLeadProfileImage(lead.lead, 27, 27)}
                                         <div style={styles.paragraph}>
                                           {lead.lead.firstName}
                                         </div>
@@ -2557,7 +2553,7 @@ const Pipeline1 = () => {
                                             '...'
                                           : '') || ''}
                                       </div>
-                                      <div className="flex flex-row items-center gap-4">
+                                      <div className="flex flex-row items-center gap-0.5">
                                         {getAgentsListImage(
                                           lead.agent?.agents[0]?.agentType ===
                                             'outbound'
@@ -2643,12 +2639,7 @@ const Pipeline1 = () => {
                                           maxVisibleUsers={1}
                                         />
                                       ) : (
-                                        <Image
-                                          src={'/assets/manIcon.png'}
-                                          height={32}
-                                          width={32}
-                                          alt="*"
-                                        />
+                                        <div className="w-8 h-8" />
                                       )}
                                       {/* <div className="flex flex-row items-center gap-3">
                                                                             <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
