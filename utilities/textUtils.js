@@ -62,15 +62,20 @@ export function formatFileSize(size) {
   }
 
   // Determine if size is in bytes or KB
-  // If size > 1,000,000, it's likely already in KB (since files rarely exceed 1GB in bytes)
-  // Otherwise, assume it's in bytes
+  // If size < 10000, it's likely already in KB (common file sizes in KB are usually < 10000)
+  // If size >= 10000, it could be bytes (for larger files) or KB (for very large files)
+  // We'll use a more reliable threshold: if size > 1GB in bytes (1073741824), it's likely in KB
+  // Otherwise, if size > 10000, check if dividing by 1024 gives a reasonable KB value
   let sizeInKB
   
-  if (size > 1000000) {
-    // Already in KB (e.g., 384094 KB)
+  if (size < 10000) {
+    // Small values are likely already in KB (e.g., 9428.3 KB, 621 KB)
+    sizeInKB = size
+  } else if (size > 1073741824) {
+    // Very large values (> 1GB) are likely already in KB
     sizeInKB = size
   } else {
-    // Assume it's in bytes, convert to KB
+    // For values between 10000 and 1GB, assume bytes and convert to KB
     sizeInKB = size / 1024
   }
 

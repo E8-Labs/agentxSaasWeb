@@ -642,6 +642,9 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     >
                       <span className="text-gray-700">
                         {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
+                        {lead.smartListName && (
+                          <span className="ml-1 text-brand-primary">• {lead.smartListName}</span>
+                        )}
                       </span>
                       <button
                         type="button"
