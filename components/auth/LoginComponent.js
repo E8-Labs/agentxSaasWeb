@@ -650,6 +650,42 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // let routeTo = ""
 
             localStorage.setItem('User', JSON.stringify(response.data.data))
+            
+            // Extract and store agency branding immediately after login
+            const userData = response.data.data
+            const agencyBranding = 
+              userData?.user?.agencyBranding || 
+              userData?.agencyBranding ||
+              userData?.user?.agency?.agencyBranding
+            
+            if (agencyBranding) {
+              localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
+              }
+            } else {
+              const authToken = userData?.token || userData?.user?.token
+              const userRole = userData?.user?.userRole
+              if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
+                fetch(Apis.getAgencyBranding, {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data?.status === true && data?.data?.branding) {
+                      localStorage.setItem('agencyBranding', JSON.stringify(data.data.branding))
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
+                      }
+                    }
+                  })
+                  .catch(err => console.log('Error fetching branding after login:', err))
+              }
+            }
+            
             //set cokie on locastorage to run middle ware
             if (typeof document !== 'undefined') {
               // //console.log;
@@ -755,6 +791,50 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // let routeTo = ""
 
             localStorage.setItem('User', JSON.stringify(response.data.data))
+            
+            // Extract and store agency branding immediately after login
+            // This ensures branding is applied right away without requiring a page refresh
+            const userData = response.data.data
+            const agencyBranding = 
+              userData?.user?.agencyBranding || 
+              userData?.agencyBranding ||
+              userData?.user?.agency?.agencyBranding
+            
+            if (agencyBranding) {
+              localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
+              console.log('✅ [LoginComponent] Stored agency branding from login response')
+              
+              // Dispatch event to trigger ThemeProvider to apply branding immediately
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
+                console.log('✅ [LoginComponent] Dispatched agencyBrandingUpdated event')
+              }
+            } else {
+              // If branding not in response, try to fetch it from API for subaccounts/agencies
+              const authToken = userData?.token || userData?.user?.token
+              const userRole = userData?.user?.userRole
+              if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
+                // Fetch branding in background - don't block navigation
+                fetch(Apis.getAgencyBranding, {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                  },
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data?.status === true && data?.data?.branding) {
+                      localStorage.setItem('agencyBranding', JSON.stringify(data.data.branding))
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
+                        console.log('✅ [LoginComponent] Fetched and applied branding from API')
+                      }
+                    }
+                  })
+                  .catch(err => console.log('Error fetching branding after login:', err))
+              }
+            }
+            
             //set cokie on locastorage to run middle ware
             if (typeof document !== 'undefined') {
               // //console.log;
