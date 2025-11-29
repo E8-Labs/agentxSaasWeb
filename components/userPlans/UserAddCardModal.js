@@ -71,6 +71,7 @@ const UserAddCard = ({
   const cardNumberRef = useRef(null)
   const cardExpiryRef = useRef(null)
   const cardCvcRef = useRef(null)
+  const isSubscribingRef = useRef(false) // Prevent duplicate subscription calls
 
   //check for button
   const [CardAdded, setCardAdded] = useState(false)
@@ -269,8 +270,12 @@ const UserAddCard = ({
       setAddCardLoader(false)
       if (result2.status) {
         setAddCardSuccess(true)
-        if (!selectedPlan) handleClose(result)
-        if (selectedPlan) handleSubscribePlan()
+        if (!selectedPlan) {
+          handleClose(result)
+        } else if (selectedPlan && !isSubscribingRef.current) {
+          // Only call subscribe if not already subscribing
+          handleSubscribePlan()
+        }
       } else {
         setAddCardFailure(true)
         setAddCardErrtxt(result2.message)
@@ -318,7 +323,15 @@ const UserAddCard = ({
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
+    // Prevent duplicate calls
+    if (isSubscribingRef.current) {
+      console.log('⚠️ Subscription already in progress, skipping duplicate call')
+      return
+    }
+
     try {
+      isSubscribingRef.current = true // Set flag to prevent duplicate calls
+      
       let planType = selectedPlan?.planType
 
       console.log('selected plan isnnnhhhhh', selectedPlan)
@@ -377,11 +390,12 @@ const UserAddCard = ({
       }
     } catch (error) {
       console.error(
-        'Error occured in subacribe plan api on user add card is:',
+        'Error occurred in subscribe plan api on user add card is:',
         error,
       )
     } finally {
       setAddCardLoader(false)
+      isSubscribingRef.current = false // Reset flag after completion
     }
   }
 
@@ -774,7 +788,8 @@ const UserAddCard = ({
                     {CardAdded && CardExpiry && CVC ? (
                       <button
                         onClick={handleAddCard}
-                        className="w-full h-[50px] rounded-xl px-8 text-white py-3"
+                        disabled={addCardLoader || disableContinue || isSubscribingRef.current}
+                        className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{
                           backgroundColor: '#7902DF',
                           fontWeight: '600',
