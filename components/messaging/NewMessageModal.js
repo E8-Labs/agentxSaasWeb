@@ -14,8 +14,51 @@ import { getUserLocalData } from '@/components/constants/constants'
 import { Input } from '@/components/ui/input'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 
+// Helper function to get brand primary color as hex
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF'
+}
+
 const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [selectedMode, setSelectedMode] = useState(mode)
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredLeads, setFilteredLeads] = useState([])
   const [selectedLeads, setSelectedLeads] = useState([])
@@ -42,6 +85,20 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
   // SMS character limit
   const SMS_CHAR_LIMIT = 160
+
+  // Update brand color on branding changes
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    updateBrandColor()
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
@@ -422,21 +479,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                 }`}
               >
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    backgroundColor: selectedMode === 'sms' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
-                    WebkitMaskImage: 'url(/messaging/sms toggle.svg)',
-                    maskImage: 'url(/messaging/sms toggle.svg)',
-                    WebkitMaskSize: 'contain',
-                    maskSize: 'contain',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskPosition: 'center',
-                    maskPosition: 'center',
-                  }}
-                />
+                <img
+                src="/messaging/sms toggle.svg"
+                width={20}
+                height={20}
+                alt="SMS"
+                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
+              />
                 <span>SMS</span>
                 {selectedMode === 'sms' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
@@ -453,21 +502,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                 }`}
               >
-                <div
-                  style={{
-                    width: 20,
-                    height: 20,
-                    backgroundColor: selectedMode === 'email' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
-                    WebkitMaskImage: 'url(/messaging/email toggle.svg)',
-                    maskImage: 'url(/messaging/email toggle.svg)',
-                    WebkitMaskSize: 'contain',
-                    maskSize: 'contain',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskPosition: 'center',
-                    maskPosition: 'center',
-                  }}
-                />
+                <img
+                src="/messaging/email toggle.svg"
+                width={20}
+                height={20}
+                alt="SMS"
+                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
+              />
                 <span>Email</span>
                 {selectedMode === 'email' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
@@ -511,7 +552,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                       setSelectedPhoneNumber(e.target.value)
                       setSelectedPhoneNumberObj(phone)
                     }}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                    style={{ height: '42px' }}
                   >
                     <option value="">Select phone number</option>
                     {phoneNumbers.map((phone) => (
@@ -539,12 +581,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
               ) : (
                 <div className="flex-1 relative">
                   {emailAccounts.length === 0 ? (
-                    <button
-                      onClick={() => setShowAuthSelectionPopup(true)}
-                      className="w-full px-3 py-2 border border-brand-primary rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium"
-                    >
-                      Connect Gmail
-                    </button>
+                  <button
+                    onClick={() => setShowAuthSelectionPopup(true)}
+                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                    style={{ height: '42px' }}
+                  >
+                    Connect Gmail
+                  </button>
                   ) : (
                     <>
                       <select
@@ -554,7 +597,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           setSelectedEmailAccount(e.target.value)
                           setSelectedEmailAccountObj(account)
                         }}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                        style={{ height: '42px' }}
                       >
                         <option value="">Select email account</option>
                         {emailAccounts.map((account) => (
@@ -589,7 +633,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
               <label className="text-sm font-medium whitespace-nowrap">To:</label>
               <div className="relative flex-1 min-w-0">
                 {/* Tag Input Container */}
-                <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
                   {/* Selected Lead Tags */}
                   {selectedLeads.map((lead) => (
                     <div
@@ -625,7 +669,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 
                 {/* Leads List Dropdown - Only show when searching and list is visible */}
                 {showLeadList && searchQuery.trim() && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                     {loading ? (
                       <div className="p-4 text-center">
                         <CircularProgress size={24} />
@@ -686,25 +730,25 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   {showCC && (
                     <div className="flex items-center gap-2 flex-1">
                       <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
-                      <Input
-                        value={cc}
-                        onChange={(e) => setCC(e.target.value)}
-                        placeholder="Add CC recipients"
-                        className="flex-1 focus-visible:ring-brand-primary"
-                        style={{ height: '42px', minHeight: '42px', paddingTop: '8px', paddingBottom: '8px' }}
-                      />
+                  <Input
+                    value={cc}
+                    onChange={(e) => setCC(e.target.value)}
+                    placeholder="Add CC recipients"
+                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                    style={{ height: '42px', minHeight: '42px' }}
+                  />
                     </div>
                   )}
                   {showBCC && (
                     <div className="flex items-center gap-2 flex-1">
                       <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
-                      <Input
-                        value={bcc}
-                        onChange={(e) => setBCC(e.target.value)}
-                        placeholder="Add BCC recipients"
-                        className="flex-1 focus-visible:ring-brand-primary"
-                        style={{ height: '42px', minHeight: '42px', paddingTop: '8px', paddingBottom: '8px' }}
-                      />
+                  <Input
+                    value={bcc}
+                    onChange={(e) => setBCC(e.target.value)}
+                    placeholder="Add BCC recipients"
+                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                    style={{ height: '42px', minHeight: '42px' }}
+                  />
                     </div>
                   )}
                 </div>
@@ -716,7 +760,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Email subject"
-                  className="flex-1 focus-visible:ring-brand-primary"
+                  className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                  style={{ height: '42px' }}
                 />
               </div>
             </>
@@ -744,7 +789,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 }}
                 placeholder="Type your message..."
                 maxLength={SMS_CHAR_LIMIT}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary min-h-[120px]"
+                className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px]"
               />
             )}
           </div>

@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import { Drawer } from '@mui/material'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -64,6 +65,7 @@ const Messages = () => {
   const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -1196,6 +1198,7 @@ const Messages = () => {
                 handleFileChange={handleFileChange}
                 handleSendMessage={handleSendMessage}
                 sendingMessage={sendingMessage}
+                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
               />
           </>
         ) : (
@@ -1488,6 +1491,19 @@ const Messages = () => {
           </div>
         </div>
       </Drawer>
+
+      {/* Auth Selection Popup for Gmail Connection */}
+      <AuthSelectionPopup
+        open={showAuthSelectionPopup}
+        onClose={() => setShowAuthSelectionPopup(false)}
+        onSuccess={() => {
+          setShowAuthSelectionPopup(false)
+          fetchEmailAccounts()
+        }}
+        setShowEmailTempPopup={() => {}}
+        showEmailTempPopup={false}
+        setSelectedGoogleAccount={() => {}}
+      />
     </div>
     </>
   )

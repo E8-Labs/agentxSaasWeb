@@ -1,8 +1,49 @@
-import React from 'react'
-import Image from 'next/image'
+import React, { useState, useEffect } from 'react'
 import { Paperclip, X } from '@phosphor-icons/react'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+
+// Helper function to get brand primary color as hex
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF'
+}
 
 const MessageComposer = ({
   composerMode,
@@ -41,7 +82,23 @@ const MessageComposer = ({
   handleFileChange,
   handleSendMessage,
   sendingMessage,
+  onOpenAuthPopup,
 }) => {
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
+
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    updateBrandColor()
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
+
   return (
     <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
       <div className={`px-6 py-4 ${composerMode === 'email' ? 'min-h-[400px]' : 'min-h-[180px]'}`}>
@@ -58,12 +115,27 @@ const MessageComposer = ({
                 composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >
-              <Image
+              {/* <div
+                style={{
+                  width: 20,
+                  height: 20,
+                  backgroundColor: '#9CA3AF',
+                  WebkitMaskImage: 'url(/messaging/sms toggle.svg)',
+                  maskImage: 'url(/messaging/sms toggle.svg)',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
+                }}
+              /> */}
+              <img
                 src="/messaging/sms toggle.svg"
                 width={20}
                 height={20}
                 alt="SMS"
-                className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
+                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
               />
               <span>SMS</span>
               {composerMode === 'sms' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
@@ -79,12 +151,12 @@ const MessageComposer = ({
                 composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >
-              <Image
+              <img
                 src="/messaging/email toggle.svg"
                 width={20}
                 height={20}
-                alt="Email"
-                className={composerMode === 'email' ? 'filter-brand-primary' : 'opacity-60'}
+                alt="SMS"
+                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
               />
               <span>Email</span>
               {composerMode === 'email' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
@@ -120,7 +192,8 @@ const MessageComposer = ({
                 <select
                   value={selectedPhoneNumber || ''}
                   onChange={(e) => setSelectedPhoneNumber(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                  className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                  style={{ height: '42px' }}
                 >
                   <option value="">Select phone number</option>
                   {phoneNumbers.map((phone) => (
@@ -137,30 +210,48 @@ const MessageComposer = ({
               </div>
             ) : (
               <div className="flex-1 relative min-w-0">
-                <select
-                  value={selectedEmailAccount || ''}
-                  onChange={(e) => setSelectedEmailAccount(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
-                >
-                  <option value="">Select email account</option>
-                  {emailAccounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.email || account.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+                {emailAccounts.length === 0 ? (
+                  <button
+                    onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
+                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                    style={{ height: '42px' }}
+                  >
+                    Connect Gmail
+                  </button>
+                ) : (
+                  <>
+                    <select
+                      value={selectedEmailAccount || ''}
+                      onChange={(e) => setSelectedEmailAccount(e.target.value)}
+                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                      style={{ height: '42px' }}
+                    >
+                      <option value="">Select email account</option>
+                      {emailAccounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.email || account.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
 
           <div className="flex items-center gap-2 flex-1 max-w-[35%]">
             <label className="text-sm font-medium whitespace-nowrap">To:</label>
-            <Input value={composerData.to} readOnly className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 focus-visible:ring-brand-primary" />
+            <Input 
+              value={composerData.to} 
+              readOnly 
+              className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary" 
+              style={{ height: '42px' }}
+            />
           </div>
         </div>
 
@@ -170,7 +261,7 @@ const MessageComposer = ({
               <div className="flex items-center gap-2 mb-4">
                 <label className="text-sm font-medium w-16">Cc:</label>
                 <div className="relative flex-1">
-                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
                     {ccEmails.map((email, index) => (
                       <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
                         <span className="text-gray-700">{email}</span>
@@ -197,7 +288,7 @@ const MessageComposer = ({
               <div className="flex items-center gap-2 mb-4">
                 <label className="text-sm font-medium w-16">Bcc:</label>
                 <div className="relative flex-1">
-                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                  <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
                     {bccEmails.map((email, index) => (
                       <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
                         <span className="text-gray-700">{email}</span>
@@ -226,7 +317,7 @@ const MessageComposer = ({
                 value={composerData.subject}
                 onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
                 placeholder="Email subject"
-                className="flex-1 focus-visible:ring-brand-primary"
+                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
               />
             </div>
           </>
@@ -268,7 +359,7 @@ const MessageComposer = ({
               }}
               placeholder="Type your message..."
               maxLength={SMS_CHAR_LIMIT}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary min-h-[100px] resize-none"
+              className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
             />
           )}
         </div>
