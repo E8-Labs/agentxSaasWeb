@@ -89,6 +89,7 @@ const AgencyAddCard = ({
   const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] =
     useState(false)
   const [loading, setLoading] = useState(false)
+  const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
   useEffect(() => {
     // //console.log;
@@ -96,7 +97,20 @@ const AgencyAddCard = ({
       // //console.log;
       cardNumberRef.current.focus()
     }
+    getCurrentUserPlan()
   }, [])
+
+  const getCurrentUserPlan = () => {
+    const localData = localStorage.getItem('User')
+    if (localData) {
+      const userData = JSON.parse(localData)
+      const plan = userData.user?.plan
+      console.log('Current user plan from localStorage:', plan)
+      setCurrentUserPlan(plan)
+      return plan
+    }
+    return null
+  }
 
   useEffect(() => {
     if (!inviteCode || inviteCode.trim().length === 0) {
@@ -898,9 +912,20 @@ const AgencyAddCard = ({
                       className=""
                       style={{ fontWeight: '600', fontSize: 15 }}
                     >
-                      {discountCalculation
-                        ? `$${formatFractional2(finalTotal)}`
-                        : `$${formatFractional2(originalTotal)}`}
+                      {(() => {
+                        // Check if plan has trial and user is subscribing for the first time
+                        const hasTrial = selectedPlan?.hasTrial === true
+                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                        
+                        // If plan has trial and user has no previous plan, show $0
+                        if (hasTrial && isFirstTimeSubscription) {
+                          return '$0'
+                        }
+                        
+                        return discountCalculation
+                          ? `$${formatFractional2(finalTotal)}`
+                          : `$${formatFractional2(originalTotal)}`
+                      })()}
                     </div>
                   </div>
 
@@ -939,6 +964,15 @@ const AgencyAddCard = ({
                 <div style={{ fontWeight: '600', fontSize: 22 }}>
                   {(() => {
                     if (!selectedPlan) return '$0'
+
+                    // Check if plan has trial and user is subscribing for the first time (no previous plan)
+                    const hasTrial = selectedPlan?.hasTrial === true
+                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                    
+                    // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
+                    if (hasTrial && isFirstTimeSubscription) {
+                      return '$0'
+                    }
 
                     const discountCalculation = promoCodeDetails
                       ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)

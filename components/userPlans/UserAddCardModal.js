@@ -82,6 +82,7 @@ const UserAddCard = ({
 
   //disable continue btn after the card added
   const [disableContinue, setDisableContinue] = useState(false)
+  const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -90,7 +91,20 @@ const UserAddCard = ({
       // //console.log;
       cardNumberRef.current.focus()
     }
+    getCurrentUserPlan()
   }, [])
+
+  const getCurrentUserPlan = () => {
+    const localData = localStorage.getItem('User')
+    if (localData) {
+      const userData = JSON.parse(localData)
+      const plan = userData.user?.plan
+      console.log('Current user plan from localStorage:', plan)
+      setCurrentUserPlan(plan)
+      return plan
+    }
+    return null
+  }
 
   //handle agree terms toggle btn
   const handleToggleTermsClick = () => {
@@ -674,9 +688,20 @@ const UserAddCard = ({
                   </div>
                 </div>
                 <div className="" style={{ fontWeight: '600', fontSize: 15 }}>
-                  {selectedPlan
-                    ? `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}`
-                    : '$0'}
+                  {(() => {
+                    if (!selectedPlan) return '$0'
+
+                    // Check if plan has trial and user is subscribing for the first time
+                    const hasTrial = selectedPlan?.hasTrial === true
+                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                    
+                    // If plan has trial and user has no previous plan, show $0
+                    if (hasTrial && isFirstTimeSubscription) {
+                      return '$0'
+                    }
+
+                    return `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}`
+                  })()}
                 </div>
               </div>
 
@@ -712,7 +737,20 @@ const UserAddCard = ({
                 <div className=" text-3xl font-semibold  ">Total:</div>
                 <div className="flex flex-col items-end ">
                   <div className=" text-3xl font-semibold  ">
-                    ${getTotalPrice(selectedPlan)}
+                    {(() => {
+                      if (!selectedPlan) return '$0'
+
+                      // Check if plan has trial and user is subscribing for the first time (no previous plan)
+                      const hasTrial = selectedPlan?.hasTrial === true
+                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                      
+                      // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
+                      if (hasTrial && isFirstTimeSubscription) {
+                        return '$0'
+                      }
+
+                      return `$${getTotalPrice(selectedPlan)}`
+                    })()}
                   </div>
                   <div
                     style={{
