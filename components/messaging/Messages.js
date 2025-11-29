@@ -61,6 +61,71 @@ const Messages = () => {
   const [emailTimelineLeadId, setEmailTimelineLeadId] = useState(null)
   const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
+  const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
+
+  // Close email detail popover when clicking outside
+  useEffect(() => {
+    if (!openEmailDetailId) return
+    const handleClickOutside = () => setOpenEmailDetailId(null)
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [openEmailDetailId])
+
+  // Normalize email header details for the popover
+  const getEmailDetails = useCallback(
+    (message) => {
+      const headers =
+        message.metadata?.headers ||
+        message.metadata?.emailHeaders ||
+        message.metadata?.rawHeaders ||
+        {}
+
+      const getHeader = (key) => {
+        if (!headers) return ''
+        const direct = headers[key] ?? headers[key.toLowerCase()] ?? headers[key.toUpperCase()]
+        if (direct) return direct
+        const foundKey = Object.keys(headers).find(
+          (k) => k && k.toString().toLowerCase() === key.toLowerCase(),
+        )
+        return foundKey ? headers[foundKey] : ''
+      }
+
+      const ensureString = (val) => {
+        if (!val) return ''
+        if (Array.isArray(val)) return val.filter(Boolean).join(', ')
+        return String(val)
+      }
+
+      return {
+        from:
+          ensureString(
+            message.from ||
+              message.sender ||
+              message.senderEmail ||
+              message.metadata?.from ||
+              getHeader('from') ||
+              // fallback to lead email (treat the thread lead as sender for inbound)
+              selectedThread?.lead?.email,
+          ) || 'Unknown sender',
+        to: ensureString(
+          message.to ||
+            message.toEmail ||
+            message.receiverEmail ||
+            message.metadata?.to ||
+            getHeader('to') ||
+            // fallback to current user email if available
+            userData?.user?.email,
+        ),
+        cc: ensureString(message.metadata?.cc || message.cc || getHeader('cc')),
+        subject: ensureString(message.subject || getHeader('subject')),
+        date: message.createdAt ? moment(message.createdAt).format('MMM D, YYYY, h:mm A') : '',
+        mailedBy: ensureString(message.metadata?.mailedBy || getHeader('mailed-by')),
+        signedBy: ensureString(message.metadata?.signedBy || getHeader('signed-by')),
+        security: ensureString(message.metadata?.security || getHeader('security')),
+      }
+    },
+    [selectedThread?.lead?.email],
+  )
   
   // Helper function to get image URL for Next.js Image component
   const getImageUrl = (attachment, message = null) => {
@@ -1512,13 +1577,77 @@ const Messages = () => {
                               
                               {/* Load more button - show on all email messages */}
                               {isEmail && (
-                                <button className={`text-xs font-bold underline mt-2 ${
-                                  isOutbound 
-                                    ? 'text-white hover:text-white/80' 
-                                    : 'text-black hover:text-gray-800'
-                                }`}>
-                                  {'Load more'}
-                                </button>
+                                <div className="relative inline-block">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setOpenEmailDetailId((prev) => (prev === message.id ? null : message.id))
+                                    }}
+                                    type="button"
+                                    className={`text-xs font-bold underline mt-2 ${
+                                      isOutbound
+                                        ? 'text-white hover:text-white/80'
+                                        : 'text-black hover:text-gray-800'
+                                    }`}
+                                  >
+                                    {'Load more'}
+                                  </button>
+
+                                  {openEmailDetailId === message.id && (
+                                    <div
+                                      className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded-2xl shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
+                                        isOutbound ? 'right-0' : 'left-0'
+                                      }`}
+                                      onClick={(e) => e.stopPropagation()}
+                                      onMouseDown={(e) => e.stopPropagation()}
+                                    >
+                                      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-gray-800">
+                                          Message details
+                                        </span>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            setOpenEmailDetailId(null)
+                                          }}
+                                          className="text-xs text-gray-500 hover:text-gray-700"
+                                        >
+                                          Close
+                                        </button>
+                                      </div>
+                                      {(() => {
+                                        const details = getEmailDetails(message)
+                                        const rows = [
+                                          { label: 'from', value: details.from },
+                                          { label: 'to', value: details.to },
+                                          { label: 'cc', value: details.cc },
+                                          { label: 'date', value: details.date },
+                                          { label: 'subject', value: details.subject },
+                                          { label: 'mailed-by', value: details.mailedBy },
+                                          { label: 'signed-by', value: details.signedBy },
+                                          { label: 'security', value: details.security },
+                                        ].filter((row) => row.value)
+
+                                        return (
+                                          <div className="px-4 py-3 text-sm text-gray-700 space-y-2">
+                                            {rows.length === 0 ? (
+                                              <div className="text-xs text-gray-500">No metadata available.</div>
+                                            ) : (
+                                              rows.map((row) => (
+                                                <div key={row.label} className="flex gap-3">
+                                                  <span className="w-24 text-right text-gray-500 capitalize">
+                                                    {row.label}:
+                                                  </span>
+                                                  <span className="flex-1 font-medium break-words">{row.value}</span>
+                                                </div>
+                                              ))
+                                            )}
+                                          </div>
+                                        )
+                                      })()}
+                                    </div>
+                                  )}
+                                </div>
                               )}
                               <div
                                 className={`text-xs mt-2 flex items-center gap-2 ${
@@ -2226,4 +2355,3 @@ const Messages = () => {
 }
 
 export default Messages
-
