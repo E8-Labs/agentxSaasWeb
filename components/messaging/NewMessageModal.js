@@ -12,6 +12,7 @@ import RichTextEditor from '@/components/common/RichTextEditor'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { getUserLocalData } from '@/components/constants/constants'
 import { Input } from '@/components/ui/input'
+import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 
 const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [selectedMode, setSelectedMode] = useState(mode)
@@ -34,6 +35,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [bcc, setBCC] = useState('')
   const [userData, setUserData] = useState(null)
   const [showLeadList, setShowLeadList] = useState(false)
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
@@ -51,8 +53,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      // Only search if we have a search term (minimum 2 characters)
-      if (!searchTerm || searchTerm.trim().length < 2) {
+      // Only search if we have a search term (minimum 1 character)
+      if (!searchTerm || searchTerm.trim().length < 1) {
         setFilteredLeads([])
         setLoading(false)
         return
@@ -136,6 +138,21 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       }
     } catch (error) {
       console.error('Error fetching email accounts:', error)
+    }
+  }
+
+  // Get selected user for AuthSelectionPopup
+  const getSelectedUser = () => {
+    try {
+      const selectedUserData = localStorage.getItem('selectedUser')
+      if (selectedUserData && selectedUserData !== 'undefined') {
+        return JSON.parse(selectedUserData)
+      }
+      const user = getUserLocalData()
+      return user?.user || null
+    } catch (error) {
+      console.error('Error getting selected user:', error)
+      return null
     }
   }
 
@@ -360,6 +377,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   }
 
   return (
+    <>
     <Modal
       open={open}
       onClose={onClose}
@@ -391,263 +409,302 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {/* Mode Tabs */}
-          <div className="flex items-center gap-6 border-b">
-            <button
-              onClick={() => {
-                setSelectedMode('sms')
-                fetchPhoneNumbers()
-              }}
-              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
-                selectedMode === 'sms'
-                  ? 'text-brand-primary'
-                  : 'text-gray-600'
-              }`}
-            >
-              <Image
-                src="/messaging/sms toggle.svg"
-                width={20}
-                height={20}
-                alt="SMS"
-                className={selectedMode === 'sms' ? 'opacity-100' : 'opacity-60'}
-              />
-              <span>SMS</span>
-              {selectedMode === 'sms' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-              )}
-            </button>
-            <button
-              onClick={() => {
-                setSelectedMode('email')
-                fetchEmailAccounts()
-              }}
-              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
-                selectedMode === 'email'
-                  ? 'text-brand-primary'
-                  : 'text-gray-600'
-              }`}
-            >
-              <Image
-                src="/messaging/email toggle.svg"
-                width={20}
-                height={20}
-                alt="Email"
-                className={selectedMode === 'email' ? 'opacity-100' : 'opacity-60'}
-              />
-              <span>Email</span>
-              {selectedMode === 'email' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-              )}
-            </button>
-          </div>
-
-          {/* From Field */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium w-16">From:</label>
-            {selectedMode === 'sms' ? (
-              <div className="flex-1 relative">
-                <select
-                  value={selectedPhoneNumber || ''}
-                  onChange={(e) => {
-                    const phone = phoneNumbers.find((p) => p.id === parseInt(e.target.value))
-                    setSelectedPhoneNumber(e.target.value)
-                    setSelectedPhoneNumberObj(phone)
+          <div className="flex items-center justify-between border-b">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={() => {
+                  setSelectedMode('sms')
+                  fetchPhoneNumbers()
+                }}
+                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                  selectedMode === 'sms'
+                    ? 'text-brand-primary'
+                    : 'text-gray-600'
+                }`}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    backgroundColor: selectedMode === 'sms' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
+                    WebkitMaskImage: 'url(/messaging/sms toggle.svg)',
+                    maskImage: 'url(/messaging/sms toggle.svg)',
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
                   }}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
-                >
-                  <option value="">Select phone number</option>
-                  {phoneNumbers.map((phone) => (
-                    <option key={phone.id} value={phone.id}>
-                      {phone.phone}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 relative">
-                <select
-                  value={selectedEmailAccount || ''}
-                  onChange={(e) => {
-                    const account = emailAccounts.find((a) => a.id === parseInt(e.target.value))
-                    setSelectedEmailAccount(e.target.value)
-                    setSelectedEmailAccountObj(account)
+                />
+                <span>SMS</span>
+                {selectedMode === 'sms' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedMode('email')
+                  fetchEmailAccounts()
+                }}
+                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                  selectedMode === 'email'
+                    ? 'text-brand-primary'
+                    : 'text-gray-600'
+                }`}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    backgroundColor: selectedMode === 'email' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
+                    WebkitMaskImage: 'url(/messaging/email toggle.svg)',
+                    maskImage: 'url(/messaging/email toggle.svg)',
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
                   }}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                />
+                <span>Email</span>
+                {selectedMode === 'email' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                )}
+              </button>
+            </div>
+            {/* CC and BCC buttons for Email mode - on top right */}
+            {selectedMode === 'email' && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => setShowCC(!showCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
-                  <option value="">Select email account</option>
-                  {emailAccounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.email || account.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
+                  Cc
+                </button>
+                <button
+                  onClick={() => setShowBCC(!showBCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Bcc
+                </button>
               </div>
             )}
           </div>
 
-          {/* To Field - Lead Search with Tag Input */}
-          <div className="space-y-2" ref={leadSearchRef}>
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">To:</label>
-              {/* CC and BCC buttons for Email mode */}
-              {selectedMode === 'email' && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowCC(!showCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${
-                      showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+          {/* From and To Fields - Same Line */}
+          <div className="flex items-center gap-4" ref={leadSearchRef}>
+            {/* From Field */}
+            <div className="flex items-center gap-2 flex-1">
+              <label className="text-sm font-medium whitespace-nowrap">From:</label>
+              {selectedMode === 'sms' ? (
+                <div className="flex-1 relative">
+                  <select
+                    value={selectedPhoneNumber || ''}
+                    onChange={(e) => {
+                      const phone = phoneNumbers.find((p) => p.id === parseInt(e.target.value))
+                      setSelectedPhoneNumber(e.target.value)
+                      setSelectedPhoneNumberObj(phone)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
                   >
-                    Cc
-                  </button>
-                  <button
-                    onClick={() => setShowBCC(!showBCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${
-                      showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Bcc
-                  </button>
-                </div>
-              )}
-            </div>
-            <div className="relative">
-              {/* Tag Input Container */}
-              <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
-                {/* Selected Lead Tags */}
-                {selectedLeads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    <span className="text-gray-700">
-                      {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeLead(lead.id)}
-                      className="text-gray-500 hover:text-gray-700 ml-1"
+                    <option value="">Select phone number</option>
+                    {phoneNumbers.map((phone) => (
+                      <option key={phone.id} value={phone.id}>
+                        {phone.phone}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <X size={14} weight="bold" />
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
                   </div>
-                ))}
-                {/* Search Input */}
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => {
-                    if (searchQuery.trim()) {
-                      setShowLeadList(true)
-                    }
-                  }}
-                  placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
-                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                />
-              </div>
-
-              {/* Leads List Dropdown - Only show when searching and list is visible */}
-              {showLeadList && searchQuery.trim() && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                  {loading ? (
-                    <div className="p-4 text-center">
-                      <CircularProgress size={24} />
-                    </div>
-                  ) : filteredLeads.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500 text-sm">
-                      No leads found
-                    </div>
+                </div>
+              ) : (
+                <div className="flex-1 relative">
+                  {emailAccounts.length === 0 ? (
+                    <button
+                      onClick={() => setShowAuthSelectionPopup(true)}
+                      className="w-full px-3 py-2 border border-brand-primary rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium"
+                    >
+                      Connect Gmail
+                    </button>
                   ) : (
-                    filteredLeads.map((lead) => {
-                      const isSelected = selectedLeads.find((l) => l.id === lead.id)
-                      return (
-                        <div
-                          key={lead.id}
-                          onClick={() => toggleLeadSelection(lead)}
-                          className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                            isSelected ? 'bg-brand-primary/5' : ''
-                          }`}
+                    <>
+                      <select
+                        value={selectedEmailAccount || ''}
+                        onChange={(e) => {
+                          const account = emailAccounts.find((a) => a.id === parseInt(e.target.value))
+                          setSelectedEmailAccount(e.target.value)
+                          setSelectedEmailAccountObj(account)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary appearance-none pr-8"
+                      >
+                        <option value="">Select email account</option>
+                        {emailAccounts.map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.email || account.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">
-                                {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {selectedMode === 'sms'
-                                  ? lead.phone || 'No phone'
-                                  : lead.email || 'No email'}
-                              </div>
-                            </div>
-                            {isSelected && (
-                              <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
-                                <Check size={14} className="text-white" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
+            </div>
+
+            {/* To Field */}
+            <div className="flex items-center gap-2 flex-1">
+              <label className="text-sm font-medium whitespace-nowrap">To:</label>
+              <div className="relative flex-1 min-w-0">
+                {/* Tag Input Container */}
+                <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                  {/* Selected Lead Tags */}
+                  {selectedLeads.map((lead) => (
+                    <div
+                      key={lead.id}
+                      className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                    >
+                      <span className="text-gray-700">
+                        {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeLead(lead.id)}
+                        className="text-gray-500 hover:text-gray-700 ml-1"
+                      >
+                        <X size={14} weight="bold" />
+                      </button>
+                    </div>
+                  ))}
+                  {/* Search Input */}
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => {
+                      if (searchQuery.trim()) {
+                        setShowLeadList(true)
+                      }
+                    }}
+                    placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
+                    className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                  />
+                </div>
+                
+                {/* Leads List Dropdown - Only show when searching and list is visible */}
+                {showLeadList && searchQuery.trim() && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {loading ? (
+                      <div className="p-4 text-center">
+                        <CircularProgress size={24} />
+                      </div>
+                    ) : filteredLeads.length === 0 ? (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        No leads found
+                      </div>
+                    ) : (
+                      filteredLeads.map((lead) => {
+                        const isSelected = selectedLeads.find((l) => l.id === lead.id)
+                        return (
+                          <div
+                            key={lead.id}
+                            onClick={() => toggleLeadSelection(lead)}
+                            className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                              isSelected ? 'bg-brand-primary/5' : ''
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-medium text-sm">
+                                  {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {selectedMode === 'sms'
+                                    ? lead.phone || 'No phone'
+                                    : lead.email || 'No email'}
+                                  {lead.smartListName && (
+                                    <span className="ml-2 text-brand-primary">
+                                      • {lead.smartListName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {isSelected && (
+                                <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
+                                  <Check size={14} className="text-white" />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Email Fields */}
           {selectedMode === 'email' && (
             <>
-              {showCC && (
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium w-16">Cc:</label>
-                  <Input
-                    value={cc}
-                    onChange={(e) => setCC(e.target.value)}
-                    placeholder="Add CC recipients"
-                    className="flex-1"
-                  />
-                </div>
-              )}
-
-              {showBCC && (
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium w-16">Bcc:</label>
-                  <Input
-                    value={bcc}
-                    onChange={(e) => setBCC(e.target.value)}
-                    placeholder="Add BCC recipients"
-                    className="flex-1"
-                  />
+              {/* CC and BCC on same line when both are shown */}
+              {(showCC || showBCC) && (
+                <div className="flex items-center gap-4">
+                  {showCC && (
+                    <div className="flex items-center gap-2 flex-1">
+                      <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
+                      <Input
+                        value={cc}
+                        onChange={(e) => setCC(e.target.value)}
+                        placeholder="Add CC recipients"
+                        className="flex-1 focus-visible:ring-brand-primary"
+                      />
+                    </div>
+                  )}
+                  {showBCC && (
+                    <div className="flex items-center gap-2 flex-1">
+                      <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
+                      <Input
+                        value={bcc}
+                        onChange={(e) => setBCC(e.target.value)}
+                        placeholder="Add BCC recipients"
+                        className="flex-1 focus-visible:ring-brand-primary"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -657,7 +714,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   value={emailSubject}
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Email subject"
-                  className="flex-1"
+                  className="flex-1 focus-visible:ring-brand-primary"
                 />
               </div>
             </>
@@ -738,6 +795,31 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         </div>
       </Box>
     </Modal>
+
+    {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
+    <AuthSelectionPopup
+      open={showAuthSelectionPopup}
+      onClose={() => setShowAuthSelectionPopup(false)}
+      onSuccess={() => {
+        fetchEmailAccounts()
+        setShowAuthSelectionPopup(false)
+      }}
+      setShowEmailTempPopup={() => {}}
+      showEmailTempPopup={false}
+      setSelectedGoogleAccount={(account) => {
+        if (account) {
+          setSelectedEmailAccount(account.id)
+          setSelectedEmailAccountObj(account)
+          setEmailAccounts((prev) => {
+            const exists = prev.find((a) => a.id === account.id)
+            if (exists) return prev
+            return [...prev, account]
+          })
+        }
+      }}
+      selectedUser={getSelectedUser()}
+    />
+  </>
   )
 }
 

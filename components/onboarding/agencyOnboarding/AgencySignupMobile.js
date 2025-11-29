@@ -26,6 +26,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 const AgencySignupMobile = ({
   handleContinue,
@@ -338,6 +339,12 @@ const AgencySignupMobile = ({
           // Clear agency UUID after successful registration
           if (agencyUuid) {
             clearAgencyUUID()
+          }
+
+          // Force apply branding after registration (for agencies/subaccounts)
+          const user = response.data.data.user
+          if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
           }
 
           setCongratsPopup(true)

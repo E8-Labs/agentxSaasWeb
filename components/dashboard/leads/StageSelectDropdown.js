@@ -26,9 +26,15 @@ const SelectStageDropdown = ({
         }}
         sx={{
           border: 'none',
-          '&:hover': { border: 'none' },
+          '&:hover': { 
+            border: 'none',
+            backgroundColor: '#f5f5f5',
+          },
           '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+          '&.Mui-focused': {
+            backgroundColor: '#f5f5f5',
+          },
           '& .MuiSelect-select': {
             padding: '0 24px 0 8px',
             lineHeight: 1,
@@ -40,6 +46,7 @@ const SelectStageDropdown = ({
             right: '4px',
             top: '50%',
             transform: 'translateY(-50%)',
+            color: '#666',
           },
         }}
         MenuProps={{
@@ -58,7 +65,19 @@ const SelectStageDropdown = ({
             <MenuItem
               value={item.stageTitle}
               key={index}
-              className="hover:bg-lightBlue hover:text-[#000000]"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#f5f5f5',
+                  color: '#000000',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#f5f5f5',
+                  color: '#000000',
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                },
+              }}
             >
               <button
                 className="outline-none border-none w-full text-start"

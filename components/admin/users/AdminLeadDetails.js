@@ -56,6 +56,7 @@ import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import ConfirmPerplexityModal from '@/components/dashboard/leads/extras/CofirmPerplexityModal'
@@ -1101,8 +1102,8 @@ const AdminLeadDetails = ({
               Content
             </div>
 
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentContent}
+            <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
+              {htmlToPlainText(item.sentContent)}
             </div>
           </div>
         )}
@@ -1125,7 +1126,7 @@ const AdminLeadDetails = ({
                   {attachment.fileName}
                 </div>
 
-                <div>{attachment.size}KB</div>
+                <div>{formatFileSize(attachment.size)}</div>
               </div>
             ))}
           </div>

@@ -24,6 +24,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
@@ -381,6 +382,12 @@ const SalesDevAgent = ({
               JSON.stringify(response.data.data),
             )
           }
+
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
+          }
+
           //console.log;
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true)

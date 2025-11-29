@@ -69,9 +69,31 @@ const RichTextEditor = forwardRef(
             'space-at-start': {
               key: ' ',
               handler: function (range, context) {
+                const editor = this.quill
+                
+                try {
+                  // CRITICAL: Check for list items FIRST - before any other processing
+                  const format = editor.getFormat(range.index)
+                  if (format && (format.list === 'bullet' || format.list === 'ordered')) {
+                    return true // Allow default behavior for lists - DO NOT INTERFERE
+                  }
+                  
+                  // Also check line format as a fallback
+                  const [line] = editor.getLine(range.index)
+                  if (line) {
+                    const lineIndex = editor.getIndex(line)
+                    const lineFormat = editor.getFormat(lineIndex)
+                    if (lineFormat && (lineFormat.list === 'bullet' || lineFormat.list === 'ordered')) {
+                      return true // Allow default behavior for lists
+                    }
+                  }
+                } catch (error) {
+                  // If format check fails, allow default behavior
+                  console.warn('Error checking format in space-at-start:', error)
+                }
+                
                 // If at the very beginning of the document
                 if (range.index === 0) {
-                  const editor = this.quill
                   const delta = editor.getContents()
 
                   // Check if first block is a heading
@@ -95,28 +117,42 @@ const RichTextEditor = forwardRef(
                 const editor = this.quill
                 
                 try {
-                  // Get the format at the current position
+                  // CRITICAL: Check for list items FIRST - before any other processing
+                  // This must be the first check to ensure spaces work in lists
                   const format = editor.getFormat(range.index)
+                  if (format && (format.list === 'bullet' || format.list === 'ordered')) {
+                    return true // Allow default behavior for lists - DO NOT INTERFERE
+                  }
+                  
+                  // Also check line format as a fallback
+                  const [line] = editor.getLine(range.index)
+                  if (line) {
+                    const lineIndex = editor.getIndex(line)
+                    const lineFormat = editor.getFormat(lineIndex)
+                    if (lineFormat && (lineFormat.list === 'bullet' || lineFormat.list === 'ordered')) {
+                      return true // Allow default behavior for lists
+                    }
+                  }
                   
                   // Check if we're in a heading
-                  const isHeading = format.header === 2 || 
+                  const isHeading = format && (format.header === 2 || 
                                    format.header === 3 || 
-                                   format.header === 4
+                                   format.header === 4)
                   
-                  // Get the line/block we're in
-                  const [line, offset] = editor.getLine(range.index)
+                  // Get the line/block we're in (re-declare since we used it above)
+                  const [lineBlock, offset] = editor.getLine(range.index)
                   
-                  if (line) {
+                  if (lineBlock) {
                     // Get the text content of the current line
-                    const lineStart = editor.getIndex(line)
-                    const lineLength = line.length()
+                    const lineStart = editor.getIndex(lineBlock)
+                    const lineLength = lineBlock.length()
                     const lineText = editor.getText(lineStart, lineLength)
                     
                     // Check if cursor is at or near the end of the line
                     const isAtEnd = offset >= lineText.length
                     
                     // If at end of a block (especially headings), insert space instead of creating new line
-                    if (isAtEnd) {
+                    if (isAtEnd && isHeading) {
                       // Insert space at current position
                       editor.insertText(range.index, ' ', 'user')
                       // Move cursor after the space

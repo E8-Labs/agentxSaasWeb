@@ -23,6 +23,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import Apis from '../apis/Apis'
 import VerificationCodeInput from '../test/VerificationCodeInput'
@@ -394,6 +395,12 @@ const SignUpForm = ({
             clearAgencyUUID()
           }
 
+          let user = response.data.data.user
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
+          }
+
           let screenWidth = 1000
           if (typeof window !== 'undefined') {
             screenWidth = window.innerWidth // Get current screen width
@@ -407,7 +414,6 @@ const SignUpForm = ({
             //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            let user = response.data.data.user
             console.log('user', user)
             // return
             if (user.userRole === 'AgencySubAccount') {

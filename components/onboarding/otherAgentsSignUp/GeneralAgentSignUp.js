@@ -389,12 +389,17 @@ const GeneralAgentSignUp = ({
             clearAgencyUUID()
           }
 
+          let user = response.data.data.user
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
+          }
+
           let screenWidth = 1000
           if (typeof window !== 'undefined') {
             screenWidth = window.innerWidth // Get current screen width
           }
           const SM_SCREEN_SIZE = 640 // Tailwind's sm breakpoint is typically 640px
-          let user = response.data.data.user
           // return
           if (user.userRole === 'AgencySubAccount') {
             localStorage.setItem(

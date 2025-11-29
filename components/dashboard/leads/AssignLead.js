@@ -679,7 +679,7 @@ const AssignLead = ({
 
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
-        <div className="text-purple" style={styles.paragraph}>
+        <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
           {getLeadSelectedCount()} Contacts Selected
         </div>
       </div>
@@ -851,7 +851,7 @@ const AssignLead = ({
                       className="flex-shrink-0 flex flex-row items-center gap-1"
                       style={styles.paragraph}
                     >
-                      <span className="text-purple">Active in | </span>{' '}
+                      <span style={{ color: brandPrimaryColor }}>Active in | </span>{' '}
                       {item.pipeline?.title || 'No Pipeline'}
                     </div>
 
@@ -994,8 +994,7 @@ const AssignLead = ({
                 </div>
                 <div className="flex flex-col items-start">
                   <div
-                    className="text-purple"
-                    style={{ fontSize: 12, fontWeight: '600' }}
+                    style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
                   >
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
@@ -1469,7 +1468,7 @@ const AssignLead = ({
               )}
 
               {/* <div className='mt-4 w-full'>
-                                  <button className="text-white bg-purple rounded-xl w-full h-[50px]" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
+                                  <button className="text-white rounded-xl w-full h-[50px]" style={{ ...styles.heading, backgroundColor: brandPrimaryColor }} onClick={() => { setLastStepModal(false) }}>
                                       Continue
                                   </button>
                               </div> */}

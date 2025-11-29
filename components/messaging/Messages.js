@@ -17,6 +17,9 @@ import NewMessageModal from './NewMessageModal'
 import { toast } from 'sonner'
 import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { Drawer } from '@mui/material'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -35,6 +38,10 @@ const Messages = () => {
     bcc: '',
     attachments: [],
   })
+  const [ccEmails, setCcEmails] = useState([])
+  const [bccEmails, setBccEmails] = useState([])
+  const [ccInput, setCcInput] = useState('')
+  const [bccInput, setBccInput] = useState('')
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
   const [messageOffset, setMessageOffset] = useState(0)
   const messagesEndRef = useRef(null)
@@ -50,6 +57,10 @@ const Messages = () => {
   const [imageModalOpen, setImageModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAttachments, setImageAttachments] = useState([])
+  const [showEmailTimeline, setShowEmailTimeline] = useState(false)
+  const [emailTimelineLeadId, setEmailTimelineLeadId] = useState(null)
+  const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
+  const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
   
   // Helper function to get image URL for Next.js Image component
   const getImageUrl = (attachment, message = null) => {
@@ -251,18 +262,13 @@ const Messages = () => {
           return dateB - dateA
         })
         setThreads(sortedThreads)
-        
-        // Auto-select first thread if none selected
-        if (!selectedThread && sortedThreads.length > 0) {
-          setSelectedThread(sortedThreads[0])
-        }
       }
     } catch (error) {
       console.error('Error fetching threads:', error)
     } finally {
       setLoading(false)
     }
-  }, [selectedThread])
+  }, [])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
@@ -401,6 +407,98 @@ const Messages = () => {
       subject: '',
       body: '',
     }))
+  }
+
+  // Email validation helper
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email.trim())
+  }
+
+  // Handle CC email input
+  const handleCcInputChange = (e) => {
+    const value = e.target.value
+    setCcInput(value)
+  }
+
+  const handleCcInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(email => email.trim() && isValidEmail(email.trim()))
+    const newEmails = emails.filter(email => !ccEmails.includes(email.trim()))
+    if (newEmails.length > 0) {
+      setCcEmails([...ccEmails, ...newEmails.map(e => e.trim())])
+    }
+    // Set remaining text as input if there's invalid content
+    const remaining = pastedText.split(/[,\s]+/).filter(email => email.trim() && !isValidEmail(email.trim())).join(' ')
+    if (remaining.trim()) {
+      setCcInput(remaining)
+    } else {
+      setCcInput('')
+    }
+  }
+
+  const handleCcInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || (e.key === ' ' && ccInput.trim())) {
+      e.preventDefault()
+      const email = ccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email)) {
+        if (!ccEmails.includes(email)) {
+          setCcEmails([...ccEmails, email])
+        }
+        setCcInput('')
+      }
+    } else if (e.key === 'Backspace' && ccInput === '' && ccEmails.length > 0) {
+      // Remove last email if backspace pressed on empty input
+      setCcEmails(ccEmails.slice(0, -1))
+    }
+  }
+
+  const removeCcEmail = (emailToRemove) => {
+    setCcEmails(ccEmails.filter((email) => email !== emailToRemove))
+  }
+
+  // Handle BCC email input
+  const handleBccInputChange = (e) => {
+    const value = e.target.value
+    setBccInput(value)
+  }
+
+  const handleBccInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(email => email.trim() && isValidEmail(email.trim()))
+    const newEmails = emails.filter(email => !bccEmails.includes(email.trim()))
+    if (newEmails.length > 0) {
+      setBccEmails([...bccEmails, ...newEmails.map(e => e.trim())])
+    }
+    // Set remaining text as input if there's invalid content
+    const remaining = pastedText.split(/[,\s]+/).filter(email => email.trim() && !isValidEmail(email.trim())).join(' ')
+    if (remaining.trim()) {
+      setBccInput(remaining)
+    } else {
+      setBccInput('')
+    }
+  }
+
+  const handleBccInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || (e.key === ' ' && bccInput.trim())) {
+      e.preventDefault()
+      const email = bccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email)) {
+        if (!bccEmails.includes(email)) {
+          setBccEmails([...bccEmails, email])
+        }
+        setBccInput('')
+      }
+    } else if (e.key === 'Backspace' && bccInput === '' && bccEmails.length > 0) {
+      // Remove last email if backspace pressed on empty input
+      setBccEmails(bccEmails.slice(0, -1))
+    }
+  }
+
+  const removeBccEmail = (emailToRemove) => {
+    setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
   }
 
   // Get lead name for avatar
@@ -622,8 +720,11 @@ const Messages = () => {
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', composerData.subject)
         formData.append('body', composerData.body)
-        formData.append('cc', composerData.cc || '')
-        formData.append('bcc', composerData.bcc || '')
+        // Join CC and BCC arrays into comma-separated strings
+        const ccString = ccEmails.join(', ')
+        const bccString = bccEmails.join(', ')
+        formData.append('cc', ccString || '')
+        formData.append('bcc', bccString || '')
         formData.append('emailAccountId', selectedEmailAccount || '')
 
         // Add attachments
@@ -655,6 +756,11 @@ const Messages = () => {
             bcc: '',
             attachments: [],
           })
+          // Clear CC/BCC arrays and inputs
+          setCcEmails([])
+          setBccEmails([])
+          setCcInput('')
+          setBccInput('')
           // Clear CC/BCC visibility
           setShowCC(false)
           setShowBCC(false)
@@ -807,6 +913,101 @@ const Messages = () => {
     }
   }, [selectedThread, composerMode])
 
+  // Auto-select first thread when threads are loaded
+  useEffect(() => {
+    if (!selectedThread && threads.length > 0) {
+      const firstThread = threads[0]
+      setSelectedThread(firstThread)
+      setMessageOffset(0)
+      setHasMoreMessages(true)
+      setMessages([])
+      fetchMessages(firstThread.id, 0, false)
+      if (firstThread.unreadCount > 0) {
+        markThreadAsRead(firstThread.id)
+      }
+    }
+  }, [threads, selectedThread, fetchMessages, markThreadAsRead])
+
+  // Fetch email timeline messages
+  const fetchEmailTimeline = useCallback(async (leadId) => {
+    if (!leadId) return
+    
+    try {
+      setEmailTimelineLoading(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Fetch all threads for this lead, then filter for email messages
+      const threadsResponse = await axios.get(Apis.getMessageThreads, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (threadsResponse.data?.status && threadsResponse.data?.data) {
+        // Find threads for this lead
+        const leadThreads = threadsResponse.data.data.filter(
+          (thread) => thread.lead?.id === leadId
+        )
+
+        // Fetch messages for each thread and filter for emails only
+        const allEmailMessages = []
+        for (const thread of leadThreads) {
+          try {
+            const messagesResponse = await axios.get(
+              `${Apis.getMessagesForThread}/${thread.id}/messages`,
+              {
+                params: {
+                  limit: 1000, // Get all messages
+                  offset: 0,
+                },
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+
+            if (messagesResponse.data?.status && messagesResponse.data?.data) {
+              // Filter for email messages only
+              const emailMessages = messagesResponse.data.data.filter(
+                (msg) => msg.messageType === 'email'
+              )
+              allEmailMessages.push(...emailMessages)
+            }
+          } catch (error) {
+            console.error(`Error fetching messages for thread ${thread.id}:`, error)
+          }
+        }
+
+        // Sort by date descending (newest first)
+        allEmailMessages.sort((a, b) => {
+          const dateA = new Date(a.createdAt)
+          const dateB = new Date(b.createdAt)
+          return dateB - dateA
+        })
+
+        setEmailTimelineMessages(allEmailMessages)
+      }
+    } catch (error) {
+      console.error('Error fetching email timeline:', error)
+      setEmailTimelineMessages([])
+    } finally {
+      setEmailTimelineLoading(false)
+    }
+  }, [])
+
+  // Fetch email timeline when modal opens
+  useEffect(() => {
+    if (showEmailTimeline && emailTimelineLeadId) {
+      fetchEmailTimeline(emailTimelineLeadId)
+    }
+  }, [showEmailTimeline, emailTimelineLeadId, fetchEmailTimeline])
+
   // Initial load
   useEffect(() => {
     fetchThreads()
@@ -890,7 +1091,7 @@ const Messages = () => {
                 />
               </div> */}
               <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-                {`You don't have any<br />messages`}
+                {`You don't have any messages`}
               </h3>
               <p className="text-sm text-gray-600 text-center max-w-sm">
                 Looks like your inbox is empty, your<br />
@@ -930,21 +1131,21 @@ const Messages = () => {
                       </div>
                       {/* Message type icon overlay */}
                       {getRecentMessageType(thread) === 'email' ? (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                           <Image
                             src="/messaging/email message type icon.svg"
-                            width={12}
-                            height={12}
+                            width={16}
+                            height={16}
                             alt="Email"
                             className="object-contain"
                           />
                         </div>
                       ) : (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                           <Image
                             src="/messaging/text type message icon.svg"
-                            width={12}
-                            height={12}
+                            width={16}
+                            height={16}
                             alt="SMS"
                             className="object-contain"
                           />
@@ -964,7 +1165,7 @@ const Messages = () => {
                         <h3 className="font-bold text-sm text-black truncate">
                           {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
                         </h3>
-                        <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                        <span className="text-xs text-gray-500 ml-2 flex-shrink-0 pr-2">
                           {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
                         </span>
                       </div>
@@ -1067,21 +1268,21 @@ const Messages = () => {
                                 </div>
                                 {/* Message type icon overlay */}
                                 {isEmail ? (
-                                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                                     <Image
                                       src="/messaging/email message type icon.svg"
-                                      width={12}
-                                      height={12}
+                                      width={16}
+                                      height={16}
                                       alt="Email"
                                       className="object-contain"
                                     />
                                   </div>
                                 ) : (
-                                  <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                                     <Image
                                       src="/messaging/text type message icon.svg"
-                                      width={12}
-                                      height={12}
+                                      width={16}
+                                      height={16}
                                       alt="SMS"
                                       className="object-contain"
                                     />
@@ -1100,7 +1301,17 @@ const Messages = () => {
                             >
                               {isEmail && message.subject && (
                                 <div className="font-semibold mb-2">
-                                   <span className="font-normal">Subject: </span> {message.subject}
+                                   <span className="font-normal">Subject: </span>
+                                   <button
+                                     onClick={(e) => {
+                                       e.stopPropagation()
+                                       setShowEmailTimeline(true)
+                                       setEmailTimelineLeadId(selectedThread.lead?.id)
+                                     }}
+                                     className="hover:underline cursor-pointer"
+                                   >
+                                     {message.subject}
+                                   </button>
                                 </div>
                               )}
                               {isEmail ? (
@@ -1286,7 +1497,7 @@ const Messages = () => {
                                       >
                                         <Paperclip size={14} />
                                         <span className="underline">
-                                          {enrichedAttachment.fileName || enrichedAttachment.originalName || `Attachment ${idx + 1}`}
+                                          {enrichedAttachment.originalName || enrichedAttachment.fileName || `Attachment ${idx + 1}`}
                                         </span>
                                         {enrichedAttachment.size && (
                                           <span className={`text-xs ${isOutbound ? 'text-white/70' : 'text-gray-500'}`}>
@@ -1353,12 +1564,20 @@ const Messages = () => {
                         : 'text-gray-600'
                     }`}
                   >
-                    <Image
-                      src="/messaging/sms toggle.svg"
-                      width={20}
-                      height={20}
-                      alt="SMS"
-                      className={composerMode === 'sms' ? 'opacity-100' : 'opacity-60'}
+                    <div
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: composerMode === 'sms' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
+                        WebkitMaskImage: 'url(/messaging/sms toggle.svg)',
+                        maskImage: 'url(/messaging/sms toggle.svg)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
                     />
                     <span>SMS</span>
                     {composerMode === 'sms' && (
@@ -1378,12 +1597,20 @@ const Messages = () => {
                         : 'text-gray-600'
                     }`}
                   >
-                    <Image
-                      src="/messaging/email toggle.svg"
-                      width={20}
-                      height={20}
-                      alt="Email"
-                      className={composerMode === 'email' ? 'opacity-100' : 'opacity-60'}
+                    <div
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: composerMode === 'email' ? 'hsl(var(--brand-primary))' : '#9CA3AF',
+                        WebkitMaskImage: 'url(/messaging/email toggle.svg)',
+                        maskImage: 'url(/messaging/email toggle.svg)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
                     />
                     <span>Email</span>
                     {composerMode === 'email' && (
@@ -1500,14 +1727,37 @@ const Messages = () => {
                   {showCC && (
                     <div className="flex items-center gap-2 mb-4">
                       <label className="text-sm font-medium w-16">Cc:</label>
-                      <Input
-                        value={composerData.cc}
-                        onChange={(e) =>
-                          setComposerData({ ...composerData, cc: e.target.value })
-                        }
-                        placeholder="Add CC recipients"
-                        className="flex-1 focus-visible:ring-brand-primary"
-                      />
+                      <div className="relative flex-1">
+                        {/* Tag Input Container */}
+                        <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                          {/* CC Email Tags */}
+                          {ccEmails.map((email, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                            >
+                              <span className="text-gray-700">{email}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeCcEmail(email)}
+                                className="text-gray-500 hover:text-gray-700 ml-1"
+                              >
+                                <X size={14} weight="bold" />
+                              </button>
+                            </div>
+                          ))}
+                          {/* CC Input */}
+                          <input
+                            type="text"
+                            value={ccInput}
+                            onChange={handleCcInputChange}
+                            onKeyDown={handleCcInputKeyDown}
+                            onPaste={handleCcInputPaste}
+                            placeholder={ccEmails.length === 0 ? "Add CC recipients" : ""}
+                            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -1515,14 +1765,37 @@ const Messages = () => {
                   {showBCC && (
                     <div className="flex items-center gap-2 mb-4">
                       <label className="text-sm font-medium w-16">Bcc:</label>
-                      <Input
-                        value={composerData.bcc}
-                        onChange={(e) =>
-                          setComposerData({ ...composerData, bcc: e.target.value })
-                        }
-                        placeholder="Add BCC recipients"
-                        className="flex-1 focus-visible:ring-brand-primary"
-                      />
+                      <div className="relative flex-1">
+                        {/* Tag Input Container */}
+                        <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border border-gray-200 rounded-lg focus-within:border-brand-primary">
+                          {/* BCC Email Tags */}
+                          {bccEmails.map((email, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                            >
+                              <span className="text-gray-700">{email}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeBccEmail(email)}
+                                className="text-gray-500 hover:text-gray-700 ml-1"
+                              >
+                                <X size={14} weight="bold" />
+                              </button>
+                            </div>
+                          ))}
+                          {/* BCC Input */}
+                          <input
+                            type="text"
+                            value={bccInput}
+                            onChange={handleBccInputChange}
+                            onKeyDown={handleBccInputKeyDown}
+                            onPaste={handleBccInputPaste}
+                            placeholder={bccEmails.length === 0 ? "Add BCC recipients" : ""}
+                            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -1819,6 +2092,150 @@ const Messages = () => {
           </div>
         </div>
       )}
+
+      {/* Email Timeline Modal */}
+      <Drawer
+        open={showEmailTimeline}
+        anchor="right"
+        onClose={() => {
+          setShowEmailTimeline(false)
+          setEmailTimelineLeadId(null)
+          setEmailTimelineMessages([])
+        }}
+        PaperProps={{
+          sx: {
+            width: '45%',
+            borderRadius: '20px',
+            padding: '0px',
+            boxShadow: 3,
+            margin: '1%',
+            backgroundColor: 'white',
+            height: '96.5vh',
+            overflow: 'hidden',
+            scrollbarWidth: 'none',
+          },
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <div className="flex flex-col w-full h-full py-2 px-5 rounded-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between pb-4 border-b">
+            <h2 className="text-xl font-semibold">Email Timeline</h2>
+            <CloseBtn onClick={() => {
+              setShowEmailTimeline(false)
+              setEmailTimelineLeadId(null)
+              setEmailTimelineMessages([])
+            }} />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto py-4">
+            {emailTimelineLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading emails...</p>
+                </div>
+              </div>
+            ) : emailTimelineMessages.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500">No emails found</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {emailTimelineMessages.map((message, index) => {
+                  const showDateSeparator =
+                    index === 0 ||
+                    moment(message.createdAt).format('YYYY-MM-DD') !==
+                      moment(emailTimelineMessages[index - 1].createdAt).format('YYYY-MM-DD')
+                  
+                  const isOutbound = message.direction === 'outbound'
+                  const senderName = isOutbound 
+                    ? 'You' 
+                    : (selectedThread?.lead?.firstName || selectedThread?.lead?.name || 'Unknown')
+
+                  return (
+                    <React.Fragment key={message.id}>
+                      {showDateSeparator && (
+                        <div className="flex items-center justify-center my-6">
+                          <div className="border-t border-gray-200 flex-1"></div>
+                          <span className="px-4 text-xs text-gray-400">
+                            {moment(message.createdAt).format('MMMM DD, YYYY')}
+                          </span>
+                          <div className="border-t border-gray-200 flex-1"></div>
+                        </div>
+                      )}
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                            {senderName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                            <Image
+                              src="/messaging/email message type icon.svg"
+                              width={16}
+                              height={16}
+                              alt="Email"
+                              className="object-contain"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Message Content */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-sm">{senderName}</span>
+                            <span className="text-xs text-gray-500">
+                              {moment(message.createdAt).format('h:mm A')}
+                            </span>
+                          </div>
+                          
+                          {message.subject && (
+                            <div className="font-semibold mb-2 text-sm">
+                              Subject: {message.subject}
+                            </div>
+                          )}
+
+                          <div className="bg-gray-100 rounded-lg px-4 py-3 mb-2">
+                            <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                              {htmlToPlainText(message.content || '')}
+                            </div>
+                          </div>
+
+                          {/* Attachments */}
+                          {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
+                            <div className="flex flex-col gap-2 mt-2">
+                              {message.metadata.attachments.map((attachment, idx) => (
+                                <div key={idx} className="flex items-center gap-2 text-sm text-brand-primary">
+                                  <Paperclip size={14} />
+                                  <span className="underline">
+                                    {attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`}
+                                  </span>
+                                  {attachment.size && (
+                                    <span className="text-xs text-gray-500">
+                                      ({formatFileSize(attachment.size)})
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </Drawer>
     </div>
     </>
   )

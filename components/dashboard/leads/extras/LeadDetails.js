@@ -57,6 +57,7 @@ import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
 import NoVoicemailView from '../../myagentX/NoVoicemailView'
 import AgentSelectSnackMessage, {
@@ -1243,8 +1244,8 @@ const LeadDetails = ({
               Content
             </div>
 
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentContent}
+            <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
+              {htmlToPlainText(item.sentContent)}
             </div>
           </div>
         )}
@@ -1268,7 +1269,7 @@ const LeadDetails = ({
                   {attachment.fileName}
                 </div>
 
-                <div>{attachment.size}KB</div>
+                <div>{formatFileSize(attachment.size)}</div>
               </div>
             ))}
           </div>
@@ -1731,7 +1732,12 @@ const LeadDetails = ({
                                               key={index}
                                               className="flex flex-row items-center gap-2"
                                             >
-                                              <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
+                                              <div 
+                                                className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                                style={{
+                                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
+                                                }}
+                                              >
                                                 <div
                                                   className="text-brand-primary" //1C55FF10
                                                 >
@@ -2201,7 +2207,12 @@ const LeadDetails = ({
                                         key={index}
                                         className="flex flex-row items-center gap-2"
                                       >
-                                        <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
+                                        <div 
+                                          className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                          style={{
+                                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
+                                          }}
+                                        >
                                           <div
                                             className="text-brand-primary" //1C55FF10
                                           >

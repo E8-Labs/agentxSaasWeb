@@ -1,30 +1,61 @@
 import Apis from '@/components/apis/Apis'
+import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 /**
  * Apply agency branding after registration or login
  * Extracts branding from response data, stores it, and dispatches event
  */
 export const applyBrandingFromResponse = (responseData) => {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return false
 
   try {
     // Extract branding from various possible locations in response
+    // Registration response structure: response.data.data.agencyBranding (from userProfileFullResource)
+    // Login response structure: response.data.data.user.agencyBranding or response.data.data.agencyBranding
     let agencyBranding =
       responseData?.agencyBranding ||
       responseData?.user?.agencyBranding ||
       responseData?.data?.agencyBranding ||
       responseData?.data?.user?.agencyBranding ||
-      responseData?.data?.data?.agencyBranding
+      responseData?.data?.data?.agencyBranding ||
+      responseData?.data?.data?.user?.agencyBranding
 
     // If branding found, store and dispatch
-    if (agencyBranding) {
-      console.log('✅ [applyBranding] Found branding in response, applying...')
+    if (agencyBranding && typeof agencyBranding === 'object' && Object.keys(agencyBranding).length > 0) {
+      console.log('✅ [applyBranding] Found branding in response, applying...', agencyBranding)
       localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
       
-      // Dispatch event to trigger ThemeProvider update
-      window.dispatchEvent(
-        new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding })
-      )
+      // Apply branding immediately by directly setting CSS variables
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        try {
+          const primaryColor = agencyBranding.primaryColor || '#7902DF'
+          const secondaryColor = agencyBranding.secondaryColor || '#8B5CF6'
+          
+          // Convert hex to HSL
+          const primaryHsl = hexToHsl(primaryColor)
+          const secondaryHsl = hexToHsl(secondaryColor)
+          
+          // Set CSS variables immediately
+          document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+          document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+          document.documentElement.style.setProperty('--primary', primaryHsl)
+          document.documentElement.style.setProperty('--secondary', secondaryHsl)
+          
+          // Calculate and set icon filter
+          const iconFilter = calculateIconFilter(primaryColor)
+          document.documentElement.style.setProperty('--icon-filter', iconFilter)
+          
+          console.log('✅ [applyBranding] Applied branding CSS variables immediately')
+        } catch (error) {
+          console.error('Error applying branding CSS variables:', error)
+        }
+        
+        // Also dispatch event for ThemeProvider to handle any additional logic
+        window.dispatchEvent(
+          new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding })
+        )
+        console.log('✅ [applyBranding] Dispatched agencyBrandingUpdated event')
+      }
       
       return true
     }
@@ -76,10 +107,38 @@ export const fetchAndApplyBranding = async () => {
         
         localStorage.setItem('agencyBranding', JSON.stringify(branding))
         
+        // Apply branding immediately by directly setting CSS variables
+        if (typeof document !== 'undefined') {
+          try {
+            const primaryColor = branding.primaryColor || '#7902DF'
+            const secondaryColor = branding.secondaryColor || '#8B5CF6'
+            
+            // Convert hex to HSL
+            const primaryHsl = hexToHsl(primaryColor)
+            const secondaryHsl = hexToHsl(secondaryColor)
+            
+            // Set CSS variables immediately
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+            document.documentElement.style.setProperty('--primary', primaryHsl)
+            document.documentElement.style.setProperty('--secondary', secondaryHsl)
+            
+            // Calculate and set icon filter
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+            
+            console.log('✅ [applyBranding] Applied branding CSS variables from API')
+          } catch (error) {
+            console.error('Error applying branding CSS variables from API:', error)
+          }
+        }
+        
         // Dispatch event to trigger ThemeProvider update
-        window.dispatchEvent(
-          new CustomEvent('agencyBrandingUpdated', { detail: branding })
-        )
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('agencyBrandingUpdated', { detail: branding })
+          )
+        }
         
         return true
       }
@@ -97,17 +156,26 @@ export const fetchAndApplyBranding = async () => {
  * This is the main function to call after registration/login
  */
 export const forceApplyBranding = async (responseData = null) => {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return false
 
-  // First try to get branding from response
-  if (responseData) {
-    const applied = applyBrandingFromResponse(responseData)
-    if (applied) {
-      return true
+  try {
+    // First try to get branding from response
+    if (responseData) {
+      const applied = applyBrandingFromResponse(responseData)
+      if (applied) {
+        return true
+      }
     }
-  }
 
-  // If not in response, fetch from API
-  return await fetchAndApplyBranding()
+    // Small delay to ensure localStorage User is set before fetching
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    // If not in response, fetch from API
+    const fetched = await fetchAndApplyBranding()
+    return fetched
+  } catch (error) {
+    console.error('Error in forceApplyBranding:', error)
+    return false
+  }
 }
 

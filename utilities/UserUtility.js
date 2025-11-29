@@ -20,19 +20,35 @@ export function logout(reason = 'Unknown reason') {
     `🚪 USER LOGOUT TRIGGERED - Time: ${timestamp}, Reason: ${reason}`,
   )
 
-  // localStorage.removeItem("User");
-  // localStorage.removeItem("localAgentDetails");
   if (typeof document !== 'undefined') {
+    // Preserve user location if needed
     let userLocation = localStorage.getItem(
       PersistanceKeys.LocalStorageUserLocation,
     )
-    //console.log;
+    
+    // Clear all localStorage
     localStorage.clear()
-    //console.log;
-
-    localStorage.setItem(PersistanceKeys.LocalStorageUserLocation, userLocation)
+    
+    // Restore only user location (non-authentication data)
+    if (userLocation) {
+      localStorage.setItem(PersistanceKeys.LocalStorageUserLocation, userLocation)
+    }
+    
+    // Clear all cookies related to authentication
+    // Clear User cookie
     document.cookie = 'User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-    window.location.href = '/'
+    // Clear cookie for all possible paths
+    document.cookie = 'User=; path=/; domain=' + window.location.hostname + '; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    // Clear cookie without domain (for current domain)
+    document.cookie = 'User=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    
+    // Clear sessionStorage as well
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear()
+    }
+    
+    // Force redirect to home page with cache busting
+    window.location.href = '/?logout=' + Date.now()
   }
 }
 

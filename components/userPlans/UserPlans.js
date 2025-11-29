@@ -178,17 +178,47 @@ function UserPlans({
   const handleClose = async (data) => {
     console.log('Card added details are here', data)
     if (data) {
-      // Refresh user data to get updated cards
+      // Check if this is a subscription completion (from AgencyAddCard)
+      const isSubscriptionComplete = data.subscriptionHandled === true || data.status === true
+
+      // Refresh user data to get updated cards/plan
       await refreshUserData()
 
       // If we should auto-subscribe after adding card, do it now
-      if (shouldAutoSubscribe && selectedPlan) {
+      if (shouldAutoSubscribe && selectedPlan && !isSubscriptionComplete) {
         setAddPaymentPopUp(false)
         setShouldAutoSubscribe(false)
         await handleSubscribePlan()
         return
       }
 
+      // Close the payment modal
+      setAddPaymentPopUp(false)
+      setShouldAutoSubscribe(false)
+
+      // If subscription was completed, handle routing
+      if (isSubscriptionComplete) {
+        // If from Agency, route to dashboard
+        if (isFrom == 'Agency' || routedFrom == 'Agency') {
+          router.push('/agency/dashboard')
+          //show routing loader animation
+          setShowRoutingLoader(true)
+          setTimeout(() => {
+            setShowRoutingLoader(false)
+          }, 3000)
+        } else if (from === 'dashboard') {
+          // If from dashboard, route back to dashboard
+          router.push('/dashboard')
+        } else {
+          // Otherwise, continue to next step (for createagent flow)
+          if (handleContinue) {
+            handleContinue()
+          }
+        }
+        return
+      }
+
+      // For card addition (not subscription), handle routing
       // const userProfile = await getProfileDetails();
       if (isFrom == 'Agency' || routedFrom == 'Agency') {
         router.push('/agency/dashboard')
@@ -202,8 +232,6 @@ function UserPlans({
           handleContinue()
         }
       }
-      setAddPaymentPopUp(false)
-      setShouldAutoSubscribe(false)
       // handleSubscribePlan()
     }
   }
@@ -283,6 +311,11 @@ function UserPlans({
         console.log('Response of subscribe plan api is', response.data)
         if (response.data.status === true) {
           await refreshUserData()
+          
+          // Close payment modal if it's open
+          setAddPaymentPopUp(false)
+          setShouldAutoSubscribe(false)
+          
           if (reduxUser?.userRole === 'Agency') {
             router.push('/agency/dashboard')
             return

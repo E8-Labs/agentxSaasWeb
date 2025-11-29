@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import Apis from './Apis'
+import { applyBrandingFromResponse } from '@/utilities/applyBranding'
 
 const getProfileDetails = async (selectedAgency) => {
   const maxRetries = 10
@@ -58,6 +59,34 @@ const getProfileDetails = async (selectedAgency) => {
           })
           if (!selectedAgency) {
             localStorage.setItem('User', JSON.stringify(localDetails))
+            
+            // Check if agencyBranding has changed and update localStorage
+            // This ensures subaccounts get updated branding when agency changes colors
+            const userData = response.data.data // This is the user object directly
+            
+            // Extract branding from user object (response.data.data is the user)
+            const agencyBranding = 
+              userData?.agencyBranding ||
+              userData?.agency?.agencyBranding
+            
+            if (agencyBranding) {
+              console.log('🔄 [GET-PROFILE] Agency branding found in profile, updating localStorage...', agencyBranding)
+              // Use applyBrandingFromResponse to update branding and dispatch event
+              // Pass response.data which has structure: { status: true, data: { ...userData with agencyBranding } }
+              applyBrandingFromResponse(response.data)
+            } else {
+              // If branding not in profile, check if user is subaccount/agency and fetch from API
+              const userRole = userData?.userRole
+              if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+                console.log('🔄 [GET-PROFILE] User is subaccount/agency but no branding in profile, fetching from API...')
+                // Import dynamically to avoid circular dependencies
+                import('@/utilities/applyBranding').then(({ fetchAndApplyBranding }) => {
+                  fetchAndApplyBranding()
+                }).catch(err => {
+                  console.error('Error fetching branding after profile update:', err)
+                })
+              }
+            }
           }
           return response
         }
