@@ -201,8 +201,7 @@ const SmartRefillCard = ({
         className="ms-2 w-8/12 text-[13px] font-normal"
         style={{ color: isSubaccount ? textColor : '#fff' }}
       >
-        Refill your AI credits when they run low. Keeps your calls going without
-        interruption.
+        Refill AI credits when it runs low. Keeps your AI active.
       </div>
     </div>
   )

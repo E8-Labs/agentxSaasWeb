@@ -135,13 +135,14 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           status: T?.leadCreated,
           route: '/dashboard/leads',
         },
+        { id: 6, label: 'Claim a number', status: T?.numberClaimed, route: '' },
         {
-          id: 6,
-          label: 'Start calling',
+          id: 7,
+          label: 'Start campaign',
           status: T?.callsCreated,
           route: '/dashboard/leads',
         },
-        { id: 7, label: 'Claim a number', status: T?.numberClaimed, route: '' },
+        
       ])
     }
   }
