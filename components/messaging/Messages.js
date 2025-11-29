@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, ChevronRight, X, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Download, Paperclip } from 'lucide-react'
 import axios from 'axios'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
@@ -128,7 +128,7 @@ const Messages = () => {
         security: ensureString(message.metadata?.security || getHeader('security')),
       }
     },
-    [selectedThread?.lead?.email],
+    [selectedThread?.lead?.email, userData?.user?.email],
   )
   
   // Helper function to get image URL for Next.js Image component
@@ -1299,13 +1299,16 @@ const Messages = () => {
                       )
                     }
                     
-                    // For external images, use regular img tag (Next.js Image requires domain configuration)
+                    // For external images, use Next.js Image with unoptimized prop
                     return (
-                      <img
+                      <Image
                         src={imageUrl}
                         alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                        width={1920}
+                        height={1080}
                         className="max-w-full max-h-[90vh] object-contain"
                         style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                        unoptimized
                       />
                     )
                   })()}
