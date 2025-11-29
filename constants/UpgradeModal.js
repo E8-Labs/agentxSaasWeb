@@ -4,7 +4,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -31,6 +31,64 @@ const UpgradeModal = ({
   features = null, // Dynamic features array for different functionalities
   functionality = 'default', // Functionality type to determine which features to use
 }) => {
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
+
+  // Update brand color on branding changes
+  useEffect(() => {
+    const updateBrandColor = () => {
+      if (typeof window !== 'undefined') {
+        const root = document.documentElement
+        const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+        if (brandPrimary) {
+          // Convert HSL to hex for inline styles
+          const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+          if (hslMatch) {
+            const h = parseInt(hslMatch[1]) / 360
+            const s = parseInt(hslMatch[2]) / 100
+            const l = parseInt(hslMatch[3]) / 100
+            
+            const c = (1 - Math.abs(2 * l - 1)) * s
+            const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+            const m = l - c / 2
+            
+            let r = 0, g = 0, b = 0
+            
+            if (0 <= h && h < 1/6) {
+              r = c; g = x; b = 0
+            } else if (1/6 <= h && h < 2/6) {
+              r = x; g = c; b = 0
+            } else if (2/6 <= h && h < 3/6) {
+              r = 0; g = c; b = x
+            } else if (3/6 <= h && h < 4/6) {
+              r = 0; g = x; b = c
+            } else if (4/6 <= h && h < 5/6) {
+              r = x; g = 0; b = c
+            } else if (5/6 <= h && h < 1) {
+              r = c; g = 0; b = x
+            }
+            
+            r = Math.round((r + m) * 255)
+            g = Math.round((g + m) * 255)
+            b = Math.round((b + m) * 255)
+            
+            setBrandPrimaryColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`)
+            return
+          }
+        }
+      }
+      setBrandPrimaryColor('#7902DF') // Default fallback
+    }
+    
+    // Set initial color
+    updateBrandColor()
+    
+    // Listen for branding updates
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
   console.log('SelectedPlan in UpgradeModal is ', selectedPlan)
   let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
@@ -101,8 +159,11 @@ const UpgradeModal = ({
 
               <div className="flex flex-row items-center justify-center gap-4">
                 <div
-                  className="text-purple"
-                  style={{ fontSize: '29px', fontWeight: '700' }}
+                  style={{ 
+                    fontSize: '29px', 
+                    fontWeight: '700',
+                    color: `hsl(var(--brand-primary))`,
+                  }}
                 >
                   {title}
                 </div>
@@ -111,6 +172,7 @@ const UpgradeModal = ({
                   src={'/otherAssets/starsIcon2.png'}
                   height={28}
                   width={26}
+                  className="filter-brand-primary"
                 />
               </div>
               <div
@@ -171,8 +233,18 @@ const UpgradeModal = ({
               </div>
               <div className="w-full flex flex-col items-center justify-center">
                 <button
-                  className="h-[54px] w-[20vw] rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
-                  style={{ fontSize: '15px', fontWeight: '500' }}
+                  className="h-[54px] w-[20vw] rounded-xl text-white text-center flex flex-row items-center justify-center transition-colors"
+                  style={{ 
+                    fontSize: '15px', 
+                    fontWeight: '500',
+                    backgroundColor: `hsl(var(--brand-primary))`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
+                  }}
                   onClick={() => {
                     if (featureTitle) {
                       handleRequestFeature(featureTitle)
@@ -185,8 +257,18 @@ const UpgradeModal = ({
                 </button>
 
                 <button
-                  className="text-purple mt-4"
-                  style={{ fontSize: '15px', fontWeight: '500' }}
+                  className="mt-4 transition-colors"
+                  style={{ 
+                    fontSize: '15px', 
+                    fontWeight: '500',
+                    color: `hsl(var(--brand-primary))`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = `hsl(var(--brand-primary) / 0.8)`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = `hsl(var(--brand-primary))`
+                  }}
                   onClick={handleClose}
                 >
                   {buttonTitle}

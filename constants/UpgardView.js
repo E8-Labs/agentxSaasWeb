@@ -9,6 +9,49 @@ import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatur
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { useUser } from '@/hooks/redux-hooks'
 
+// Helper function to get brand primary color as hex (for inline styles)
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    // Convert HSL to hex for inline styles
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF' // Default fallback
+}
+
 function UpgardView({
   title,
   subTitle,
@@ -17,6 +60,7 @@ function UpgardView({
   setShowSnackMsg,
   // handleContinue
 }) {
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
@@ -32,6 +76,23 @@ function UpgardView({
   const { user: reduxUser, setUser: setReduxUser } = useUser()
   //store local user data
   let localUserData = null
+
+  // Update brand color on branding changes
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    // Set initial color
+    updateBrandColor()
+    
+    // Listen for branding updates
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
 
   useEffect(() => {
     fetchLocalUserData()
@@ -218,10 +279,17 @@ function UpgardView({
 
           {showUnlockPremiumFeaturesBtn ? (
             <button
-              className="flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4"
+              className="flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl mt-4"
               style={{
                 height: 'clamp(35px, 45px, 55px)',
                 fontSize: 'clamp(10px, 13px, 16px)',
+                backgroundColor: `hsl(var(--brand-primary))`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
               }}
               onClick={() => {
                 setShowUnlockPremiumFeaturesPopup(true)
@@ -231,10 +299,17 @@ function UpgardView({
             </button>
           ) : (
             <button
-              className="flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4"
+              className="flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl mt-4"
               style={{
                 height: 'clamp(35px, 45px, 55px)',
                 fontSize: 'clamp(10px, 13px, 16px)',
+                backgroundColor: `hsl(var(--brand-primary))`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
               }}
               onClick={() => {
                 setShowUpgradePlanPopup(true)
