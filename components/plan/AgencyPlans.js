@@ -231,10 +231,21 @@ function AgencyPlans({
       // Clear failure state when card is successfully added
       setSubscriptionPaymentFailed(false)
       setFailedPlanId(null)
+      
+      // Check if subscription was already handled by AgencyAddCard component
+      // If data has a status indicating subscription was already processed, don't call again
+      if (data.status && data.subscriptionHandled) {
+        console.log('✅ Subscription already handled by AgencyAddCard, skipping duplicate call')
+        setAddPaymentPopUp(false)
+        return
+      }
     }
     setAddPaymentPopUp(false)
-    // Retry subscription after card is added
-    handleSubscribePlan()
+    // Only retry subscription if it wasn't already handled
+    // This prevents duplicate calls when AgencyAddCard already called handleSubscribePlan
+    if (!data?.subscriptionHandled) {
+      handleSubscribePlan()
+    }
   }
 
   //show the selected plans list

@@ -306,9 +306,11 @@ const AgencyAddCard = ({
       if (result2.status) {
         setAddCardSuccess(true)
         if (!togglePlan) {
+          // No plan to subscribe, just close
           handleClose(result)
         } else if (togglePlan && !isSubscribingRef.current) {
           // Only call subscribe if not already subscribing
+          // handleSubscribePlan will call handleClose with subscriptionHandled flag
           handleSubscribePlan()
         }
       } else {
@@ -375,7 +377,12 @@ const AgencyAddCard = ({
       if (response) {
         console.log('Response of subscribe plan api is', response.data)
         if (response.data.status === true) {
-          handleClose(response.data)
+          // Mark that subscription was handled to prevent duplicate calls
+          const responseWithFlag = {
+            ...response.data,
+            subscriptionHandled: true,
+          }
+          handleClose(responseWithFlag)
           if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true)
         }
       }

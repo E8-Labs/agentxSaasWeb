@@ -30,6 +30,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import SolarRepAgentSignUp from '../otherAgentsSignUp/SolarRepAgentSignUp'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
@@ -636,6 +637,11 @@ const OtherDetails = ({
               PersistanceKeys.SubaccoutDetails,
               JSON.stringify(response.data.data),
             )
+          }
+
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user.userRole === 'AgencySubAccount' || user.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
           }
 
           if (screenWidth <= SM_SCREEN_SIZE) {

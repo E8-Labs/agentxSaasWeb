@@ -24,6 +24,7 @@ import VerificationCodeInput from '@/components/test/VerificationCodeInput'
 import { PersistanceKeys } from '@/constants/Constants'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
@@ -349,6 +350,11 @@ const BasicDetails = ({
 
           if (typeof document !== 'undefined') {
             setCookie(response.data.data.user, document)
+          }
+
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user.userRole === 'AgencySubAccount' || user.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
           }
 
           // handleContinue();
