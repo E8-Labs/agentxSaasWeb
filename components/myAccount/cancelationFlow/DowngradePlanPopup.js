@@ -6,6 +6,48 @@ import React, { useEffect, useState } from 'react'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { next30Days } from '@/constants/Constants'
 
+// Helper function to get brand primary color as hex
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF'
+}
+
 function DowngradePlanPopup({
   open,
   handleClose,
@@ -20,6 +62,22 @@ function DowngradePlanPopup({
 
   const [confirmChecked, setConfirmChecked] = useState(false)
   const [nxtCharge, setNxtChage] = useState(null)
+  
+  // Get brand primary color for styling
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
+  
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    updateBrandColor()
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
 
   useEffect(() => {
     getUserData()
@@ -176,8 +234,12 @@ function DowngradePlanPopup({
               >
                 {confirmChecked ? (
                   <div
-                    className="bg-purple flex flex-row items-center justify-center rounded"
-                    style={{ height: '17px', width: '17px' }}
+                    className="flex flex-row items-center justify-center rounded"
+                    style={{ 
+                      height: '17px', 
+                      width: '17px',
+                      backgroundColor: brandPrimaryColor
+                    }}
                   >
                     <Image
                       src={'/assets/whiteTick.png'}
@@ -204,11 +266,12 @@ function DowngradePlanPopup({
               </div>
             ) : (
               <button
-                className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[40px] ${!confirmChecked ? 'bg-btngray text-black' : 'bg-purple text-white'}`}
+                className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[40px] ${!confirmChecked ? 'bg-btngray text-black' : 'text-white'}`}
                 style={{
                   fontWeight: '400',
                   fontSize: 15.8,
                   outline: 'none',
+                  backgroundColor: confirmChecked ? brandPrimaryColor : undefined,
                 }}
                 disabled={!confirmChecked}
                 onClick={() => {

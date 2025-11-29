@@ -45,6 +45,49 @@ import DncConfirmationPopup from '../DncConfirmationPopup'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+// Helper function to get brand primary color as hex (for MUI sx props)
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    // Convert HSL to hex for inline styles
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF' // Default fallback
+}
+
 const AssignLead = ({
   leadIs,
   handleCloseAssignLeadModal,
@@ -672,7 +715,7 @@ const AssignLead = ({
             scrollableTarget="scrollableAgentDiv"
             loader={
               <div className="w-full flex justify-center mt-4">
-                <CircularProgress size={30} sx={{ color: '#7902DF' }} />
+                <CircularProgress size={30} sx={{ color: brandPrimaryColor }} />
               </div>
             }
             endMessage={
@@ -738,12 +781,12 @@ const AssignLead = ({
                   className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`} //
                   style={{
                     border: SelectedAgents.some((a) => a.id === item.id)
-                      ? '2px solid #7902DF'
+                      ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000020',
                     backgroundColor: SelectedAgents.some(
                       (a) => a.id === item.id,
                     )
-                      ? '#402FFF05'
+                      ? `${brandPrimaryColor}08`
                       : '',
                   }}
                   onClick={() => {
@@ -855,7 +898,7 @@ const AssignLead = ({
           className="rounded-lg mt-4 w-full h-[50px]"
           style={{
             ...styles.heading,
-            backgroundColor: ShouldContinue ? '#00000020' : '#7902DF',
+            backgroundColor: ShouldContinue ? '#00000020' : brandPrimaryColor,
             color: ShouldContinue ? '#00000080' : 'white',
           }} //onClick={handleAssigLead}
           disabled={ShouldContinue}
@@ -1006,11 +1049,11 @@ const AssignLead = ({
                       }}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7902DF',
+                          color: brandPrimaryColor,
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                           {
-                            backgroundColor: '#7902DF',
+                            backgroundColor: brandPrimaryColor,
                           },
                         margin: 0,
                       }}
@@ -1029,7 +1072,7 @@ const AssignLead = ({
                   style={{
                     border: `${
                       isFocustedCustomLeads
-                        ? '2px solid #7902Df'
+                        ? `2px solid ${brandPrimaryColor}`
                         : '1px solid #00000040'
                     }`,
                     height: '50px',
@@ -1050,7 +1093,7 @@ const AssignLead = ({
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
                   style={{
                     border: NoOfLeadsToSend
-                      ? '2px solid #7902DF'
+                      ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000040',
                     height: '50px',
                   }}
@@ -1073,7 +1116,7 @@ const AssignLead = ({
                   className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
                   style={{
                     border: CallNow
-                      ? '2px solid #7902DF'
+                      ? `2px solid ${brandPrimaryColor}`
                       : '1px solid #00000040',
                     height: '119px',
                   }}
@@ -1113,7 +1156,7 @@ const AssignLead = ({
                     className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
                     style={{
                       border: CallLater
-                        ? '2px solid #7902DF'
+                        ? `2px solid ${brandPrimaryColor}`
                         : '1px solid #00000040',
                       height: '119px',
                     }}
@@ -1185,53 +1228,53 @@ const AssignLead = ({
                                   sx={{
                                     // Date Picker (Large Screen)
                                     '& .MuiPickersDay-root.Mui-selected': {
-                                      backgroundColor: '#7902DF !important', // Purple background for selected date
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
                                     },
                                     '& .MuiPickersDay-root:hover': {
-                                      backgroundColor: '#a352df !important', // Lighter purple on hover
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
                                     },
                                     '& .Mui-selected': {
-                                      backgroundColor: '#7902DF !important',
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                       color: '#fff !important',
                                     },
 
                                     // Time Picker (Large Screen)
                                     '& .MuiClock-pin': {
-                                      backgroundColor: '#7902DF !important', // Change clock pin color
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
                                     '& .MuiClockPointer-root': {
-                                      backgroundColor: '#7902DF !important', // Change clock pointer color
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
                                     '& .MuiClockPointer-thumb': {
-                                      borderColor: '#7902DF !important', // Change pointer thumb color
+                                      borderColor: `${brandPrimaryColor} !important`,
                                     },
                                     '& .MuiPickersToolbar-root': {
-                                      backgroundColor: '#7902DF !important', // Toolbar background purple
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
                                     '& .MuiTypography-root': {
-                                      color: '#7902DF !important', // Header text color
+                                      color: `${brandPrimaryColor} !important`,
                                     },
 
                                     // Time Selection List (Large Screen)
                                     '& .MuiPickersTimeClock-root .Mui-selected':
                                       {
-                                        backgroundColor: '#7902DF !important', // Purple selected time
+                                        backgroundColor: `${brandPrimaryColor} !important`,
                                         color: 'white !important',
                                       },
                                     '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
                                       {
-                                        backgroundColor: '#a352df !important', // Lighter purple on hover
+                                        backgroundColor: `${brandPrimaryColor}CC !important`,
                                       },
 
                                     // Time Picker List (Dropdown List)
                                     '& .MuiTimeClock-root .Mui-selected': {
-                                      backgroundColor: '#7902DF !important',
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
                                     },
                                     '& .MuiTimeClock-root .MuiButtonBase-root:hover':
                                       {
-                                        backgroundColor: '#a352df !important',
+                                        backgroundColor: `${brandPrimaryColor}CC !important`,
                                       },
                                   }}
                                   onChange={handleDateChange}
@@ -1267,7 +1310,8 @@ const AssignLead = ({
                             </div>
                             <div className="w-full flex flex-row justify-center mt-6">
                               <button
-                                className="w-7/12 h-[50px] bg-purple rounded-xl text-white font-bold"
+                                className="w-7/12 h-[50px] rounded-xl text-white font-bold"
+                                style={{ backgroundColor: brandPrimaryColor }}
                                 onClick={() => {
                                   setShowFromDatePicker(false)
                                 }}
@@ -1311,18 +1355,18 @@ const AssignLead = ({
                                 borderRadius: '10px',
                                 '& fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? '#7902df'
-                                    : '#00000050', // Purple if selected, red otherwise
+                                    ? brandPrimaryColor
+                                    : '#00000050',
                                   borderWidth: '2px',
                                 },
                                 '&:hover fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? '#7902df'
+                                    ? brandPrimaryColor
                                     : '#00000050',
                                 },
                                 '&.Mui-focused fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? '#7902df'
+                                    ? brandPrimaryColor
                                     : '#00000050',
                                 },
                               },
@@ -1331,28 +1375,28 @@ const AssignLead = ({
                         }}
                         sx={{
                           '& .MuiPickersDay-root.Mui-selected': {
-                            backgroundColor: '#7902DF !important', // Change selected date color to purple
+                            backgroundColor: `${brandPrimaryColor} !important`,
                             color: 'white !important',
                           },
                           '& .MuiPickersDay-root:hover': {
-                            backgroundColor: '#a352df !important', // Lighter purple on hover
+                            backgroundColor: `${brandPrimaryColor}CC !important`,
                           },
                           '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
                             {
-                              color: '#333 !important', // Default color for unselected dates
+                              color: '#333 !important',
                             },
                           '& .Mui-selected': {
-                            backgroundColor: '#7902DF !important',
+                            backgroundColor: `${brandPrimaryColor} !important`,
                             color: '#fff !important',
                           },
                           '& .MuiClock-pin': {
-                            backgroundColor: '#7902DF !important', // Change clock pin color
+                            backgroundColor: `${brandPrimaryColor} !important`,
                           },
                           '& .MuiClockPointer-root': {
-                            backgroundColor: '#7902DF !important', // Change clock pointer color
+                            backgroundColor: `${brandPrimaryColor} !important`,
                           },
                           '& .MuiClockPointer-thumb': {
-                            borderColor: '#7902DF !important', // Change pointer thumb color
+                            borderColor: `${brandPrimaryColor} !important`,
                           },
                         }}
                         renderInput={(params) => (
@@ -1398,7 +1442,8 @@ const AssignLead = ({
                   (CallNow ||
                     (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
-                      className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                      className="text-white w-full h-[50px] rounded-lg mt-4"
+                      style={{ backgroundColor: brandPrimaryColor }}
                       onClick={() => {
                         const localData = localStorage.getItem('User')
                         if (localData) {
