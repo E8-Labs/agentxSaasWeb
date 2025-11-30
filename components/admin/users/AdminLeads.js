@@ -181,6 +181,21 @@ const AdminLeads = ({
   //pipelines dropdown
   // const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedPipeline, setSelectedPipeline] = useState('')
+  const [userDetails, setUserDetails] = useState(null)
+
+  useEffect(() => {
+    const getUserDetails = async () => {
+      if (selectedUser?.id) {
+        const user = await AdminGetProfileDetails(selectedUser.id)
+        if (user) {
+          console.log('user', user)
+          setUserDetails(user)
+        }
+      }
+    }
+    getUserDetails()
+  }, [selectedUser?.id])
+
 
   const handleChange = (event) => {
     const selectedValue = event.target.value
@@ -1590,7 +1605,7 @@ const AdminLeads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center h-full justify-start">
       {/* Slider code */}
       <div
         style={{
@@ -1599,7 +1614,7 @@ const AdminLeads = ({
           bottom: 0,
         }}
       >
-        <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        <DashboardSlider needHelp={false} selectedUser={userDetails} />
       </div>
       <AgentSelectSnackMessage
         isVisible={showsnackMessage}
@@ -1609,18 +1624,18 @@ const AdminLeads = ({
       />
       <div
         className="flex flex-row items-center justify-between w-full px-4"
-        style={{ paddingTop: !agencyUser ? '110px' : '0px' }}
+        style={{ }}
         // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
           <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
-          {selectedUser?.currentUsage?.maxLeads &&
-            selectedUser?.planCapabilities?.maxLeads < 10000000 &&
-            selectedUser?.plan?.planId != null && (
+          {userDetails?.currentUsage?.maxLeads &&
+            userDetails?.planCapabilities?.maxLeads < 10000000 &&
+            userDetails?.plan?.planId != null && (
               <div
                 style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
               >
-                {`${formatFractional2(selectedUser?.currentUsage?.maxLeads)}/${formatFractional2(selectedUser?.planCapabilities?.maxLeads) || 0} used`}
+                {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads) || 0} used`}
               </div>
             )}
         </div>
@@ -2041,7 +2056,7 @@ const AdminLeads = ({
               <div>
                 {LeadsList.length > 0 ? (
                   <div
-                    className="h-[50vh] overflow-auto pb-[100px] mt-6" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                    className={`overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]':'h-[50vh]'}`} //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                     id="scrollableDiv1"
                     style={{ scrollbarWidth: 'none' }}
                   >

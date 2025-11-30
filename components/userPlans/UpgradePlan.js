@@ -1707,13 +1707,6 @@ function UpgradePlanContent({
                                   ? 'border-brand-primary shadow-md'
                                   : 'border-gray-200 hover:border-brand-primary hover:shadow-md'
                               }`}
-                            style={
-                              currentSelectedPlan?.id === item.id && !isCurrentPlan
-                                ? {
-                                    backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%) / 0.1)',
-                                  }
-                                : undefined
-                            }
                             key={item.id}
                             onClick={() => {
                               handleTogglePlanClick(item, index)

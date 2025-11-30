@@ -292,7 +292,8 @@ const WhiteLabel = () => {
               </div>
             </div>
             <button
-              className="flex flex-row items-center justify-center gap-2 bg-brand-primary/10 rounded-lg px-4 py-2 hover:bg-brand-primary/20 transition-colors flex-shrink-0"
+              className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0"
+              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
               onClick={async () => {
                 if (!reduxUser?.twilio?.twilAuthToken) {
                   setShowSnackMessage({
@@ -319,12 +320,21 @@ const WhiteLabel = () => {
                 }
               }}
             >
-              <Image
-                alt="*"
-                src={'/assets/copyIconPurple.png'}
-                height={16}
-                width={16}
-              />
+              <div
+                className="icon-brand-primary"
+                style={{
+                  '--icon-mask-image': `url(/assets/copyIconPurple.png)`,
+                  width: '16px',
+                  height: '16px',
+                }}
+              >
+                <Image
+                  alt="*"
+                  src={'/assets/copyIconPurple.png'}
+                  height={16}
+                  width={16}
+                />
+              </div>
               <div
                 className="text-brand-primary"
                 style={{ fontSize: '14px', fontWeight: '500' }}

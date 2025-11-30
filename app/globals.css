@@ -399,6 +399,8 @@ a.text-red:hover {
   mask-repeat: no-repeat;
   -webkit-mask-position: center;
   mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
   pointer-events: none;
 }
 

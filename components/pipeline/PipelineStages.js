@@ -1098,7 +1098,11 @@ const PipelineStages = ({
                                               className="ml-2"
                                               style={{ fontWeight: '600' }}
                                             >
-                                              <div className="flex flex-row bg-brand-primary/10 items-cetner gap-2 p-2 rounded">
+                                              <div className="flex flex-row items-cetner gap-2 p-2 rounded"
+                                              style={{
+                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                              }}
+                                              >
                                                 <div className="text-brand-primary text-[12px]">
                                                   {(row.communicationType &&
                                                     row.communicationType !=

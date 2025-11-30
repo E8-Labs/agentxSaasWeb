@@ -1,13 +1,14 @@
-import { Box, CircularProgress, Modal, Switch, Tooltip } from '@mui/material'
+import { Box, CircularProgress, Modal, Switch, Tooltip, Typography } from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Input } from '@/components/ui/input'
 import { isValidUrl } from '@/constants/Constants'
 
 import { AuthToken } from '../plan/AuthDetails'
@@ -79,6 +80,11 @@ const AgencySupportAndWidget = () => {
   const [showEditModalLoader, setShowEditModalLoader] = useState(false)
   //edit title index
   const [editTitleIndex, setEditTitleIndex] = useState(null)
+  //logo and button label
+  const [logoPreview, setLogoPreview] = useState(null)
+  const [buttonLabel, setButtonLabel] = useState('Get Help')
+  const fileInputRef = useRef(null)
+  const textInputRef = useRef(null)
 
   //get user settings
   useEffect(() => {
@@ -306,6 +312,37 @@ const AgencySupportAndWidget = () => {
     setDelResourceHubLoader(false)
   }
 
+  //handle logo change
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setShowSnackMessage('Please select a valid image file')
+        setShowSnackType(SnackbarTypes.Error)
+        return
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setShowSnackMessage('Image size should be less than 5MB')
+        setShowSnackType(SnackbarTypes.Error)
+        return
+      }
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setLogoPreview(reader.result)
+        // TODO: Upload to API when API is ready
+        // For now, just store the preview locally
+      }
+      reader.onerror = () => {
+        setShowSnackMessage('Error reading image file')
+        setShowSnackType(SnackbarTypes.Error)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   return (
     <div className="flex flex-row justify-center h-[73vh] w-full overflow-y-auto">
       <div className="w-11/12 pt-4">
@@ -328,6 +365,117 @@ const AgencySupportAndWidget = () => {
             >
               Support Widget
             </div>
+
+            <div className="border-b">
+              <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
+                <div className="flex flex-row items-center justify-between w-full">
+                  {/* Logo Section */}
+                  <Box sx={{ mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          backgroundImage: logoPreview
+                            ? `url(${logoPreview})`
+                            : 'url(/thumbOrbSmall.png)',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
+                          marginRight: 12,
+                          border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                        }}
+                      />
+                      <button
+                        className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Image
+                          className="transition-all duration-200 hover:hidden"
+                          src={'/otherAssets/uploadIcon.png'}
+                          height={24}
+                          width={24}
+                          alt="Upload"
+                        />
+                        <Image
+                          className="transition-all duration-200 hidden hover:inline"
+                          src={'/otherAssets/uploadIconPurple.png'}
+                          height={24}
+                          width={24}
+                          alt="Upload Hover"
+                        />
+                        <span className="ml-1">Change Logo</span>
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoChange}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ display: 'none' }}
+                      />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ width: 40, marginRight: 12 }}></div>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: '12px',
+                          marginLeft: -6,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          display: 'flex',
+                        }}
+                      >
+                        <Image
+                          src={'/assets/infoIcon.png'}
+                          height={12}
+                          width={12}
+                          alt="*"
+                          className="mr-1"
+                        />
+                        Ensure Image is a 1:1 dimension for better quality
+                      </Typography>
+                    </Box>
+                  </Box>
+
+
+                  {/* Button Label */}
+                  <Box sx={{ mb: 3 }}>
+                    <div className="flex flex-row justify-between items-center mb-1">
+                      <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                        Button Label
+                      </Typography>
+                      <div
+                        style={{
+                          marginLeft: '16px',
+                          fontSize: '12px',
+                          color: '#666',
+                        }}
+                      >
+                        {buttonLabel ? buttonLabel.length : 0}/10
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        ref={textInputRef}
+                        type="text"
+                        value={buttonLabel}
+                        onChange={(e) => setButtonLabel(e.target.value)}
+                        placeholder="Get Help"
+                        maxLength={10}
+                        className="w-[120px] h-[40px] border border-[#00000020] focus-within:ring-1 focus-within:ring-black focus-within:border-black rounded-lg"
+                      />
+                    </div>
+                  </Box>
+
+
+                </div>
+              </div>
+            </div>
+
             <div className="border-b">
               <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
                 <div className="flex flex-row items-center justify-between w-full">
@@ -415,9 +563,9 @@ const AgencySupportAndWidget = () => {
                               color: 'white',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                              {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              },
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
                           }}
                         />
                       )
@@ -712,9 +860,9 @@ const AgencySupportAndWidget = () => {
                               color: 'white',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                              {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              },
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
                           }}
                         />
                       )
@@ -887,9 +1035,9 @@ const AgencySupportAndWidget = () => {
                               color: 'white',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                              {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              },
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
                           }}
                         />
                       )
@@ -1061,9 +1209,9 @@ const AgencySupportAndWidget = () => {
                               color: 'white',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                              {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              },
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
                           }}
                         />
                       )
@@ -1254,9 +1402,9 @@ const AgencySupportAndWidget = () => {
                               color: 'white',
                             },
                             '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                              {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                              },
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
                           }}
                         />
                       )

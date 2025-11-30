@@ -44,6 +44,7 @@ import {
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 import AdminLeads from './AdminLeads'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
 
 const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const addColRef = useRef(null)
@@ -117,6 +118,20 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false)
 
   const [isEnrichToggle, setIsEnrichToggle] = useState(false)
+  const [userDetails, setUserDetails] = useState(null)
+
+  useEffect(() => {
+    const getUserDetails = async () => {
+      if (selectedUser?.id) {
+        const user = await AdminGetProfileDetails(selectedUser.id)
+        if (user) {
+          console.log('user', user)
+          setUserDetails(user)
+        }
+      }
+    }
+    getUserDetails()
+  }, [selectedUser?.id])
 
   useEffect(() => {
     //console.log;
@@ -909,7 +924,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {/* {
         initialLoader ? (
           // <LeadLoading />
@@ -931,7 +946,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
         {/* <EnrichConfirmModal /> */}
 
-        <div className="w-full">
+        <div className="w-full  flex flex-col items-center justify-start h-full">
           {userLeads ? (
             <div className="h-[95vh] w-full">
               <AdminLeads
@@ -945,28 +960,36 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               />
             </div>
           ) : (
-            <div className={`h-[95vh]`}>
-              {selectedUser?.planCapabilities?.maxLeads < 10000000 &&
-                selectedUser?.plan?.planId != null && (
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: '400',
-                      color: '#0000080',
-                      padding: 20,
-                    }}
-                  >
-                    {`${formatFractional2(selectedUser?.currentUsage?.maxLeads)}/${formatFractional2(selectedUser?.planCapabilities?.maxLeads || 0)} used`}
-                  </div>
-                )}
-              <div className={`flex flex-row items-start justify-center ${agencyUser ? 'mt-10' : 'mt-48'} w-full`}>
-                <Image
-                  src={'/assets/placeholder.png'}
-                  height={145}
-                  width={710}
-                  alt="*"
-                />
+            <div className={`${agencyUser ? 'h-[75vh]' : 'h-[50vh]'} w-full flex flex-col  items-center justify-between`}>
+              <div className={`flex flex-row  items-center self-start gap-3 px-4}`}>
+                <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
+
+                {userDetails?.planCapabilities?.maxLeads < 10000000 &&
+                  userDetails?.plan?.planId != null && (
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: '400',
+                        color: '#0000080',
+                        padding: 20,
+                      }}
+                    >
+                      {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads || 0)} used`}
+                    </div>
+                  )}
               </div>
+              <div className={`flex flex-row items-start justify-start bg-blue mt-3 w-full px-4`}>
+                <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
+                  <Image
+                    src={'/assets/placeholder.png'}
+                    fill
+                    alt="*"
+                    className="object-contain"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 710px"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center">
               <div
                 className="mt-12 ms-8 text-center"
                 style={{ fontSize: 30, fontWeight: '700' }}
@@ -1013,7 +1036,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 style={{
                   position: 'absolute',
                   bottom: '70px',
-                  left: '50%',
+                  left: '60%',
                   transform: 'translateX(-50%)',
                 }}
               >
@@ -1035,7 +1058,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 />
               </div>
             </div>
-            // </div>
+            </div>
           )}
         </div>
 
@@ -1122,7 +1145,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       alt="Upload Icon"
                       height={30}
                       width={30}
-                      // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                     />
                   </div>
                   <p style={{ ...styles.subHeadingStyle }}>
@@ -1271,9 +1294,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           color: 'hsl(var(--brand-primary))',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                          {
-                            backgroundColor: 'hsl(var(--brand-primary))',
-                          },
+                        {
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                        },
                       }}
                     />
 
@@ -1996,9 +2019,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                                 color: 'hsl(var(--brand-primary))',
                               },
                               '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                                {
-                                  backgroundColor: 'hsl(var(--brand-primary))',
-                                },
+                              {
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                              },
                             }}
                           />
                         </div>
@@ -2123,11 +2146,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   ) : (
                     <button
-                      className={`h-[50px] rounded-xl w-full ${
-                        newSheetName && newSheetName.length > 0
+                      className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
                           ? 'bg-brand-primary text-white'
                           : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
-                      }`}
+                        }`}
                       style={{
                         fontWeight: '600',
                         fontSize: 16.8,

@@ -244,6 +244,15 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     // Update state
     setPlansList(updatedPlans)
     setFilteredList(updatedPlans)
+
+    // Show success snack message
+    const isEdit = existingIndex !== -1
+    const planTypeName = planType === 'monthly' ? 'Subscription' : 'XBar'
+    const message = isEdit
+      ? `${planTypeName} plan updated successfully`
+      : `${planTypeName} plan created successfully`
+    setSnackMsg(message)
+    setSnackMsgType(SnackbarTypes.Success)
   }
 
   //code to get the monthly plans
@@ -407,6 +416,12 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       }
     } catch (error) {
       console.log('Error found in del plan api is', error)
+      setSnackMsg(
+        error?.response?.data?.message ||
+          'Failed to delete plan. Please try again.',
+      )
+      setSnackMsgType(SnackbarTypes.Error)
+      setShowDeleteModal(false)
     } finally {
       setDelLoading(false)
     }

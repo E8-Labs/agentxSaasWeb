@@ -480,12 +480,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 }`}
               >
                 <img
-                src="/messaging/sms toggle.svg"
-                width={20}
-                height={20}
-                alt="SMS"
-                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
-              />
+                  src="/messaging/sms toggle.svg"
+                  width={20}
+                  height={20}
+                  alt="SMS"
+                  className={selectedMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
+                />
                 <span>SMS</span>
                 {selectedMode === 'sms' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
@@ -503,12 +503,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 }`}
               >
                 <img
-                src="/messaging/email toggle.svg"
-                width={20}
-                height={20}
-                alt="SMS"
-                // className={composerMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
-              />
+                  src="/messaging/email toggle.svg"
+                  width={20}
+                  height={20}
+                  alt="Email"
+                  className={selectedMode === 'email' ? 'filter-brand-primary' : 'opacity-60'}
+                />
                 <span>Email</span>
                 {selectedMode === 'email' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />

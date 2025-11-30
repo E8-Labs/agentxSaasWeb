@@ -3,7 +3,6 @@ import {
   Button,
   CircularProgress,
   FormControl,
-  Menu,
   MenuItem,
   Modal,
   Select,
@@ -65,13 +64,17 @@ function EmailTempletePopup({
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [ccEmails, setccEmails] = useState([])
+  const [bccEmails, setBccEmails] = useState([])
   const [attachments, setAttachments] = useState([])
   const [subjectChanged, setSubjectChanged] = useState(false)
   const [bodyChanged, setBodyChanged] = useState(false)
   const [ccEmailsChanged, setccEmailsChanged] = useState(false)
+  const [bccEmailsChanged, setBccEmailsChanged] = useState(false)
   const [attachmentsChanged, setAttachmentsChanged] = useState(false)
   const [accountChanged, setAccountChanged] = useState(false)
   const [tempNameChanged, setTempNameChanged] = useState(false)
+  const [showCC, setShowCC] = useState(false)
+  const [showBCC, setShowBCC] = useState(false)
 
   const [selectedTemp, setSelectedTemp] = useState(null)
   const [saveEmailLoader, setSaveEmailLoader] = useState(false)
@@ -91,10 +94,9 @@ function EmailTempletePopup({
   })
   const [tempName, setTempName] = useState(null)
 
-  const [showChangeManu, setShowChangeManu] = useState(null)
 
   const [googleAccounts, setGoogleAccounts] = useState([])
-  const [googleAccountLoader, setGoogleAccountLoader] = useState([])
+  const [googleAccountLoader, setGoogleAccountLoader] = useState(false)
   const [uniqueColumns, setUniqueColumns] = useState([])
 
   const [shouldUpdate, setShouldUpdate] = useState(false)
@@ -109,6 +111,10 @@ function EmailTempletePopup({
     )
     console.log('isDefault', isDefault)
     setIsdefaultCadence(isDefault)
+    // Load accounts when modal opens
+    if (open) {
+      getAccounts(selectedUser?.id)
+    }
   }, [open])
 
   const templatesForSelectedType = async () => {
@@ -128,7 +134,7 @@ function EmailTempletePopup({
 
     let res = await getUniquesColumn(selectedUser?.id)
     console.log('uniqueColumns', res)
-    
+
     // Merge default columns with API response, removing duplicates
     if (res && Array.isArray(res)) {
       const mergedColumns = [
@@ -163,8 +169,11 @@ function EmailTempletePopup({
       setSubject('')
       setBody('')
       setccEmails([])
+      setBccEmails([])
       setAttachments([])
       setSelectedTemp(null)
+      setShowCC(false)
+      setShowBCC(false)
       // setSelectedGoogleAccount(null); // Reset selected account too
     }
   }, [isEditing, editingRow, open])
@@ -179,7 +188,15 @@ function EmailTempletePopup({
         setSubject(details.subject || '')
         setBody(details.content || '')
         setccEmails(details.ccEmails || [])
+        setBccEmails(details.bccEmails || [])
         setAttachments(details.attachments || [])
+        // Show CC/BCC fields if they have values
+        if (details.ccEmails && details.ccEmails.length > 0) {
+          setShowCC(true)
+        }
+        if (details.bccEmails && details.bccEmails.length > 0) {
+          setShowBCC(true)
+        }
       }
     } catch (error) {
       console.error('Error loading template details:', error)
@@ -189,31 +206,30 @@ function EmailTempletePopup({
   }
 
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
-  const invalidEmails = ccEmails.filter(
-    (e) => !emailRegex.test(String(e).trim()),
-  )
+
+  const invalidEmails = [
+    ...ccEmails.filter((e) => !emailRegex.test(String(e).trim())),
+    ...bccEmails.filter((e) => !emailRegex.test(String(e).trim())),
+  ]
 
   // console.log("template",templetes)
 
   const isSaveDisabled = isLeadEmail
     ? // For lead emails, only require subject and content if no template is selected
-      (!selectedTemp && (!subject?.trim() || !body?.trim())) ||
-      saveEmailLoader ||
-      invalidEmails.length > 0
+    (!selectedTemp && (!subject?.trim() || !body?.trim())) ||
+    saveEmailLoader ||
+    invalidEmails.length > 0
     : // Original validation for pipeline cadence
-      !tempName?.trim() ||
-      !subject?.trim() ||
-      !body?.trim() ||
-      //    (!ccEmails || ccEmails.length === 0) ||
-      saveEmailLoader ||
-      invalidEmails.length > 0 ||
-      !selectedGoogleAccount?.id
+    !tempName?.trim() ||
+    !subject?.trim() ||
+    !body?.trim() ||
+    //    (!ccEmails || ccEmails.length === 0) ||
+    saveEmailLoader ||
+    invalidEmails.length > 0 ||
+    !selectedGoogleAccount?.id
 
   console.log('ccEmails', ccEmails)
 
-  useEffect(() => {
-    if (showChangeManu) getAccounts(selectedUser?.id)
-  }, [showChangeManu])
 
   // Restore selected account when editing and accounts are loaded
   useEffect(() => {
@@ -285,7 +301,15 @@ function EmailTempletePopup({
     setSubject(t.subject || '')
     setBody(t.content || '')
     setccEmails(t.ccEmails || [])
+    setBccEmails(t.bccEmails || [])
     setAttachments(t.attachments || [])
+    // Show CC/BCC fields if they have values
+    if (t.ccEmails && t.ccEmails.length > 0) {
+      setShowCC(true)
+    }
+    if (t.bccEmails && t.bccEmails.length > 0) {
+      setShowBCC(true)
+    }
 
     // if (!isEditing && addRow) {
     //     addRow({
@@ -407,6 +431,7 @@ function EmailTempletePopup({
     subjectChanged,
     bodyChanged,
     ccEmailsChanged,
+    bccEmailsChanged,
     attachmentsChanged,
     accountChanged,
   ])
@@ -418,6 +443,7 @@ function EmailTempletePopup({
       subject: subject,
       content: body,
       ccEmails: ccEmails,
+      bccEmails: bccEmails,
       attachments: attachments,
       templateName: tempName,
     }
@@ -429,9 +455,11 @@ function EmailTempletePopup({
         selectedTemp.subject !== subject ||
         selectedTemp.content !== body ||
         JSON.stringify(selectedTemp.ccEmails || []) !==
-          JSON.stringify(ccEmails) ||
+        JSON.stringify(ccEmails) ||
+        JSON.stringify(selectedTemp.bccEmails || []) !==
+        JSON.stringify(bccEmails) ||
         JSON.stringify(selectedTemp.attachments || []) !==
-          JSON.stringify(attachments))
+        JSON.stringify(attachments))
 
     console.log('Template selection state:', {
       selectedTemp: selectedTemp?.id,
@@ -451,6 +479,7 @@ function EmailTempletePopup({
         subject: subject,
         content: body,
         ccEmails: ccEmails,
+        bccEmails: bccEmails,
         attachments: attachments,
       }
       onSendEmail(emailData)
@@ -547,6 +576,7 @@ function EmailTempletePopup({
           subject: subject,
           content: body,
           ccEmails: ccEmails,
+          bccEmails: bccEmails,
           attachments: attachments,
           communicationType: 'email',
           emailAccountId: accountId,
@@ -606,9 +636,16 @@ function EmailTempletePopup({
   const getAccounts = async (id) => {
     console.log('getAccounts called with id:', id)
     setGoogleAccountLoader(true)
-    let acc = await getGmailAccounts(id)
-    setGoogleAccounts(acc)
-    setGoogleAccountLoader(false)
+    try {
+      let acc = await getGmailAccounts(id)
+      console.log('acc', acc)
+      setGoogleAccounts(acc || [])
+    } catch (error) {
+      console.error('Error fetching accounts:', error)
+      setGoogleAccounts([])
+    } finally {
+      setGoogleAccountLoader(false)
+    }
   }
 
   const addNewAccount = async () => {
@@ -621,7 +658,6 @@ function EmailTempletePopup({
     if (response) {
       console.log('response', response)
       await getAccounts(selectedUser?.id)
-      setShowChangeManu(null)
       setSelectedGoogleAccount(response)
     }
   }
@@ -647,7 +683,7 @@ function EmailTempletePopup({
                 })
               }}
             />
-            <div className="flex flex-row items-center justify-between ">
+            <div className="flex flex-row items-center justify-between border-b pb-3">
               <div className="text-xl font-semibold color-black">
                 {isLeadEmail
                   ? `Send Email to ${leadEmail}`
@@ -658,7 +694,6 @@ function EmailTempletePopup({
 
               <FormControl>
                 <Select
-                  Select
                   value={selectedTemp || ''}
                   onChange={(e) => handleSelect(e.target.value)}
                   displayEmpty
@@ -735,93 +770,136 @@ function EmailTempletePopup({
               </FormControl>
             </div>
 
-            <div className="flex flex-row items-center justify-between ">
-              <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-                From:{' '}
-                <span className="text-[#00000050] ml-2">
-                  {selectedGoogleAccount?.email}
-                </span>
-              </div>
-
-              {/*{isLeadEmail && leadEmail && (
-                                <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-                                    To: <span className="text-[#00000050] ml-2">
-                                        {leadEmail}
-                                    </span>
-                                </div>
-                            )}*/}
-
+            {/* CC and BCC toggle buttons - above From field */}
+            <div className="flex items-center gap-2 mt-4">
               <button
-                onClick={(event) => setShowChangeManu(event.currentTarget)}
+                onClick={() => setShowCC(!showCC)}
+                className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
-                <div className="text-15 font-[700] underline text-brand-primary">
-                  Change Account
-                </div>
+                Cc
               </button>
-              <Menu
-                anchorEl={showChangeManu}
-                open={Boolean(showChangeManu)}
-                onClose={() => setShowChangeManu(null)}
+              <button
+                onClick={() => setShowBCC(!showBCC)}
+                className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
               >
+                Bcc
+              </button>
+            </div>
+
+            {/* From Field with Dropdown */}
+            <div className="flex items-center gap-2 mt-2">
+              <label className="text-sm font-medium whitespace-nowrap">From:</label>
+              <div className="flex-1 relative">
                 {googleAccountLoader ? (
-                  <div className="w-[10vw] ml-2">
+                  <div className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg flex items-center justify-center">
                     <CircularProgress size={20} />
                   </div>
+                ) : googleAccounts.length === 0 ? (
+                  <button
+                    onClick={addNewAccount}
+                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-black rounded-lg text-brand-primary hover:bg-gray-100 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+                    style={{ height: '42px' }}
+                  >
+                    Connect Gmail
+                  </button>
                 ) : (
-                  googleAccounts.map((a) => (
-                    <MenuItem
-                      key={a.id}
-                      sx={{
-                        '&:hover .action-icon': {
-                          display: 'none',
-                        },
-                        '&:hover .action-icon-hover': {
-                          display: 'block',
-                        },
+                  <FormControl fullWidth>
+                    <Select
+                      value={selectedGoogleAccount?.id || ''}
+                      onChange={(e) => {
+                        const account = googleAccounts.find((a) => a.id === parseInt(e.target.value))
+                        if (account) {
+                          setAccountChanged(true)
+                          setSelectedGoogleAccount(account)
+                        } else if (e.target.value === 'add-account') {
+                          addNewAccount()
+                        }
                       }}
-                      onClick={() => {
-                        setAccountChanged(true)
-                        setSelectedGoogleAccount(a)
-                        setShowChangeManu(null)
+                      displayEmpty
+                      renderValue={(selected) => {
+                        if (!selected) {
+                          return <span style={{ color: '#9ca3af' }}>Select email account</span>
+                        }
+                        const account = googleAccounts.find((a) => a.id === parseInt(selected))
+                        return account?.email || 'Select email account'
+                      }}
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#00000020',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#000000',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#000000',
+                        },
                       }}
                     >
-                      <div className="text-[15] font-[500]">{a.email}</div>
-                    </MenuItem>
-                  ))
+                      <MenuItem value="" disabled>
+                        <em>Select email account</em>
+                      </MenuItem>
+                      {googleAccounts.map((account) => (
+                        <MenuItem key={account.id} value={account.id}>
+                          {account.email || account.name}
+                        </MenuItem>
+                      ))}
+                      <MenuItem
+                        value="add-account"
+                        sx={{
+                          color: 'hsl(var(--brand-primary))',
+                          fontWeight: 500,
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Plus size={16} />
+                          Add Account
+                        </div>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
                 )}
-
-                <MenuItem
-                  onClick={addNewAccount}
-                  // key={a.id}
-                  sx={{
-                    '&:hover .action-icon': {
-                      display: 'none',
-                    },
-                    '&:hover .action-icon-hover': {
-                      display: 'block',
-                    },
-                  }}
-                >
-                  <div className="flex flex-row gap-2 text-brand-primary">
-                    <Plus weight="bold" size={22} className="text-brand-primary" />
-                    Add Account
-                  </div>
-                </MenuItem>
-              </Menu>
-            </div>
-
-            <div className="h-12 mt-2 rounded-xl px-[10px] py-7 border rounded-lg border-[#00000020] flex flex-row items-center">
-              <div className="text-[#00000070] text-[15px] font-normal">
-                CC:
               </div>
-              <ChipInput
-                ccEmails={ccEmails}
-                setccEmails={(text) => {
-                  setccEmails(text)
-                  setccEmailsChanged(true)
-                }}
-              />
             </div>
+
+            {/* CC and BCC fields - shown when toggled */}
+            {(showCC || showBCC) && (
+              <div className="flex flex-col items-start w-full gap-4 mt-2">
+                {showCC && (
+                  <div className="flex items-center gap-2 flex-1 w-full">
+                    <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
+                    <div className="flex-1 ml-2 h-[42px] border border-[#00000020] focus-within:mr-1 rounded-lg px-2 flex items-center overflow-hidden w-full ml-2 focus-within:ring-1 focus-within:ring-black focus-within:border-black transition-colors">
+                      <ChipInput
+                        ccEmails={ccEmails}
+                        setccEmails={(emails) => {
+                          setccEmails(emails)
+                          setccEmailsChanged(true)
+                        }}
+                        placeholder="Add CC recipients"
+                      />
+                    </div>
+                  </div>
+                )}
+                {showBCC && (
+                  <div className="flex items-center gap-2 flex-1 w-full">
+                    <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
+                    <div className="flex-1 ml-2 focus-within:mr-1 h-[42px] border border-[#00000020] rounded-lg px-2 flex items-center overflow-hidden w-full focus-within:ring-1 focus-within:ring-black focus-within:border-black transition-colors">
+                      <ChipInput
+                        ccEmails={bccEmails}
+                        setccEmails={(emails) => {
+                          setBccEmails(emails)
+                          setBccEmailsChanged(true)
+                        }}
+                        placeholder="Add BCC recipients"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {invalidEmails.length > 0 && (
               <div className="mt-1 text-red text-xs">
@@ -836,15 +914,18 @@ function EmailTempletePopup({
                   Template Name
                 </div>
 
-                <input
-                  className="w-full h-12 px-[10px] py-7 mt-2 border-1 rounded-xl border-[#00000020]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  "
-                  placeholder="Template Name"
-                  value={tempName}
-                  onChange={(event) => {
-                    setTempName(event.target.value)
-                    setTempNameChanged(true)
-                  }}
-                />
+                <div className="w-full px-[0.5%] mt-2">
+                  <Input
+                    placeholder="Template Name"
+                    value={tempName || ''}
+                    onChange={(event) => {
+                      setTempName(event.target.value)
+                      setTempNameChanged(true)
+                    }}
+                    className="w-full h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
+                    style={{ height: '42px' }}
+                  />
+                </div>
               </>
             )}
 
@@ -863,8 +944,8 @@ function EmailTempletePopup({
                         if (value) {
                           // Insert variable into subject field
                           // Handle both formats: with or without curly braces
-                          const variableText = value.startsWith('{') && value.endsWith('}') 
-                            ? value 
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
                             : `{${value}}`
                           const currentSubject = subject || ''
                           const newSubject = currentSubject + (currentSubject ? ' ' : '') + variableText
@@ -880,10 +961,10 @@ function EmailTempletePopup({
                           borderColor: '#d1d5db',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
+                          borderColor: '#000000',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
+                          borderColor: '#000000',
                         },
                       }}
                     >
@@ -899,18 +980,18 @@ function EmailTempletePopup({
                   </FormControl>
                 )}
               </div>
-              <Input
-                placeholder="Subject"
-                value={subject}
-                onChange={(e) => {
-                  setSubject(e.target.value)
-                  setSubjectChanged(true)
-                }}
-                className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-                style={{
-                  border: '1px solid #00000020',
-                }}
-              />
+              <div className="w-full px-[0.5%]">
+                <Input
+                  placeholder="Subject"
+                  value={subject}
+                  onChange={(e) => {
+                    setSubject(e.target.value)
+                    setSubjectChanged(true)
+                  }}
+                  className="w-full h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
+                  style={{ height: '42px' }}
+                />
+              </div>
             </div>
 
             <div className="space-y-2 mt-4">
@@ -937,10 +1018,10 @@ function EmailTempletePopup({
                           borderColor: '#d1d5db',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
+                          borderColor: '#000000',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
+                          borderColor: '#000000',
                         },
                       }}
                     >
@@ -1026,9 +1107,8 @@ function EmailTempletePopup({
               ))}
             </div>
           </div>
-          <div className="w-full flex flex-row items-center w-full gap-6 mt-4 h-[20%]">
-            <button
-              className="w-1/2 h-[53px] text-[15px] font-[700]"
+          <div className="w-full flex flex-row items-center justify-between w-full gap-6 mt-4 h-[20%]">
+            <button className="text-[#6b7280] outline-none  h-[50px] outline-none"
               onClick={onClose}
             >
               Cancel

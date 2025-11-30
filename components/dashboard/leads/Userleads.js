@@ -2079,7 +2079,7 @@ const Userleads = ({
                   </button>
                   {/* Show filters here in a row*/}
                   <div
-                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto border"
+                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[65%]"
                     style={{
                       scrollbarColor: '#00000000',
                       scrollbarWidth: 'none',
@@ -2154,7 +2154,7 @@ const Userleads = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center justify-end gap-2 w-[30%]">
                   {exportLoading ? (
                     <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
                   ) : (

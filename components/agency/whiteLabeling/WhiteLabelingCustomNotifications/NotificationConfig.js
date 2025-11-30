@@ -94,10 +94,18 @@ const NotificationConfig = () => {
                 />
               )}
               {selectedNotificationTab === 2 && (
-                <TrialPeriodNot notificationsListArray={'TrialPeriod'} />
+                <TrialPeriodNot
+                  notificationsListArray={'TrialPeriod'}
+                  notificationsData={notificationsData}
+                  onRefresh={fetchNotifications}
+                />
               )}
               {selectedNotificationTab === 3 && (
-                <TrialPeriodNot notificationsListArray={'PostTrialPeriod'} />
+                <TrialPeriodNot
+                  notificationsListArray={'PostTrialPeriod'}
+                  notificationsData={notificationsData}
+                  onRefresh={fetchNotifications}
+                />
               )}
               {selectedNotificationTab === 4 && (
                 <StandardNot
