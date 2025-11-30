@@ -1318,7 +1318,11 @@ const LeadDetails = ({
     )
   }
 
-
+  //function to truncate email to 11 characters
+  const truncateEmail = (email) => {
+    if (!email) return ''
+    return email.length > 11 ? email.slice(0, 11) + '...' : email
+  }
 
   return (
     <div className="h-[100svh]">
@@ -1428,14 +1432,18 @@ const LeadDetails = ({
                             )}
                           </div>
                           {/* Email Field */}
-                          {
-                            (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
-
+                          {(selectedLeadsDetails?.email ||
+                            selectedLeadsDetails?.emails?.length > 0) && (
                               <div className="flex flex-row items-center gap-2">
-                                <Image src="/otherAssets/email.png" height={16} width={16} alt="email" />
+                                <Image
+                                  src="/otherAssets/email.png"
+                                  height={16}
+                                  width={16}
+                                  alt="email"
+                                />
                                 <div style={styles.heading2}>
                                   {selectedLeadsDetails?.email ? (
-                                    selectedLeadsDetails?.email
+                                    truncateEmail(selectedLeadsDetails?.email)
                                   ) : (
                                     <div>
                                       {selectedLeadsDetails?.emails
@@ -1451,22 +1459,22 @@ const LeadDetails = ({
                                                 style={styles.paragraph}
                                               >
                                                 <Image
-                                                  src={"/assets/power.png"}
+                                                  src={'/assets/power.png'}
                                                   height={9}
                                                   width={7}
                                                   alt="*"
                                                 />
                                                 <div>
-                                                  <span className="text-purple">
+                                                  <span className="text-brand-primary">
                                                     New
-                                                  </span>{" "}
-                                                  {email.email}
+                                                  </span>{' '}
+                                                  {truncateEmail(email.email)}
                                                 </div>
                                               </div>
                                               <button
-                                                className="text-purple underline"
+                                                className="text-brand-primary underline"
                                                 onClick={() => {
-                                                  setShowAllEmails(true);
+                                                  setShowAllEmails(true)
                                                 }}
                                               >
                                                 {selectedLeadsDetails?.emails
@@ -1474,17 +1482,17 @@ const LeadDetails = ({
                                                   ? `+${selectedLeadsDetails?.emails
                                                     ?.length - 1
                                                   }`
-                                                  : ""}
+                                                  : ''}
                                               </button>
                                             </div>
-                                          );
+                                          )
                                         })}
                                     </div>
                                   )}
                                 </div>
                                 {/* Send Email Button */}
                                 <button
-                                  className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
+                                  className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary text-brand-primary rounded-lg  ml-4"
                                   onClick={() => {
                                     if (googleAccounts.length === 0) {
                                       setShowAuthSelectionPopup(true)
@@ -1494,65 +1502,28 @@ const LeadDetails = ({
                                   }}
                                   disabled={sendEmailLoader}
                                 >
-                                  <Image
-                                    src="/otherAssets/sendEmailIcon.png"
-                                    height={18}
-                                    width={18}
-                                    alt="Send Email"
+                                  <div
+                                    style={{
+                                      width: 18,
+                                      height: 18,
+                                      backgroundColor: 'hsl(var(--brand-primary))',
+                                      WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                      maskImage: 'url(/otherAssets/sendEmailIcon.png)',
+                                      WebkitMaskSize: 'contain',
+                                      maskSize: 'contain',
+                                      WebkitMaskRepeat: 'no-repeat',
+                                      maskRepeat: 'no-repeat',
+                                      WebkitMaskPosition: 'center',
+                                      maskPosition: 'center',
+                                    }}
                                   />
-                                  <span className="text-purple text-[12px] font-[400]">
+                                  <span className="text-brand-primary text-[12px] font-[400]">
                                     Send Email
                                   </span>
                                 </button>
                               </div>
                             )}
-                          <div>
-                            {selectedLeadsDetails?.email && (
-                              <div className="flex flex-row w-full justify-end">
-                                {selectedLeadsDetails?.emails
-                                  ?.slice(0, 1)
-                                  .map((email, emailIndex) => {
-                                    return (
-                                      <div
-                                        key={emailIndex}
-                                        className="flex flex-row items-center gap-2"
-                                      >
-                                        <div
-                                          className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
-                                          style={styles.paragraph}
-                                        >
-                                          <Image
-                                            src={"/assets/power.png"}
-                                            height={9}
-                                            width={7}
-                                            alt="*"
-                                          />
-                                          <div className="text-[12px] font-[400]">
-                                            <span className="text-purple text-[15px] font-[400]">
-                                              New
-                                            </span>{" "}
-                                            {email.email}
-                                          </div>
-                                        </div>
-                                        <button
-                                          className="text-purple underline"
-                                          onClick={() => {
-                                            setShowAllEmails(true);
-                                          }}
-                                        >
-                                          {selectedLeadsDetails?.emails
-                                            ?.length > 1
-                                            ? `+${selectedLeadsDetails?.emails
-                                              ?.length - 1
-                                            }`
-                                            : ""}
-                                        </button>
-                                      </div>
-                                    );
-                                  })}
-                              </div>
-                            )}
-                          </div>
+
                           {
                             selectedLeadsDetails?.phone && (
                               <div className="flex flex-row gap-2 justify-center items-center -mt-2">
@@ -1639,27 +1610,27 @@ const LeadDetails = ({
                                       },
                                     }}
                                   >
-                                  {
-                                    sendSMSLoader ? (
-                                      <CircularProgress size={20} />
-                                    ) : (
-                                      <button
-                                        className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
-                                        onClick={() => setShowSMSModal(true)}
-                                        disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
-                                      >
-                                        <Image
-                                          src="/otherAssets/sendSmsIcon.png"
-                                          height={18}
-                                          width={18}
-                                          alt="Send SMS"
-                                        />
-                                        <span className="text-[12px] font-[400]">
-                                          Send Text
-                                        </span>
-                                      </button>
-                                    )
-                                  }
+                                    {
+                                      sendSMSLoader ? (
+                                        <CircularProgress size={20} />
+                                      ) : (
+                                        <button
+                                          className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
+                                          onClick={() => setShowSMSModal(true)}
+                                          disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
+                                        >
+                                          <Image
+                                            src="/otherAssets/sendSmsIcon.png"
+                                            height={18}
+                                            width={18}
+                                            alt="Send SMS"
+                                          />
+                                          <span className="text-[12px] font-[400]">
+                                            Send Text
+                                          </span>
+                                        </button>
+                                      )
+                                    }
                                   </Tooltip>
                                 </div>
 

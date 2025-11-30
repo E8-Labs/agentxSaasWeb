@@ -550,7 +550,8 @@ export default function AddMonthlyPlan({
       title?.trim() &&
       planDescription?.trim() &&
       discountedPrice && //no need to replace here
-      minutes;
+      minutes&&selectedPlanDuration;
+      
 
     let trialValid = true
 

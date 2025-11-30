@@ -144,6 +144,12 @@ const AdminLeadDetails = ({
     getMyteam();
   }, [selectedLead]);
 
+    //function to truncate email to 11 characters
+    const truncateEmail = (email) => {
+      if (!email) return ''
+      return email.length > 11 ? email.slice(0, 11) + '...' : email
+    }
+
   //code for getting teammebers
   const getMyteam = async () => {
     //console.log;

@@ -2,12 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import moment from "moment";
 import Apis from "@/components/apis/Apis";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Modal } from "@mui/material";
 import { CalendarDots, CaretDown, CaretUp } from "@phosphor-icons/react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./CalendarOverrides.css";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import SelectedUserDetails from "../users/SelectedUserDetails";
 
 // Hook to handle clicks outside element
 function useClickOutside(ref, handler) {
@@ -29,7 +30,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialLoader, setInitialLoader] = useState(true);
-  
+
   // Date filter states
   const [selectedFromDate, setSelectedFromDate] = useState(() => {
     // Default to 30 days ago
@@ -42,9 +43,11 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
   const [showToDatePicker, setShowToDatePicker] = useState(false);
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false);
 
+  const [selectedUser, setSelectedUser] = useState(null);
+
   // Use ref to track initial mount
   const isInitialMount = useRef(true);
-  
+
   // Refs for date pickers to handle click outside
   const fromDatePickerRef = useRef(null);
   const toDatePickerRef = useRef(null);
@@ -85,11 +88,11 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
       if (!token) return;
 
       // Format dates as YYYY-MM-DD
-      const startDate = selectedFromDate 
+      const startDate = selectedFromDate
         ? moment(selectedFromDate).format("YYYY-MM-DD")
         : moment().subtract(30, 'days').format("YYYY-MM-DD");
-      
-      const endDate = selectedToDate 
+
+      const endDate = selectedToDate
         ? moment(selectedToDate).format("YYYY-MM-DD")
         : moment().format("YYYY-MM-DD");
 
@@ -158,7 +161,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
             Summary & Filters
           </div>
           {isSummaryCollapsed && (
-            <div 
+            <div
               className="px-3 py-1 bg-purple10 text-purple rounded-full"
               style={{ fontSize: 12, fontWeight: "500" }}
             >
@@ -192,105 +195,105 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
         <>
           {/* Date Filter Section */}
           <div className="flex flex-row items-start gap-4 pl-10 mb-6 relative">
-        <div className="w-1/2 relative" ref={fromDatePickerRef}>
-          <div
-            style={{
-              fontWeight: "500",
-              fontSize: 12,
-              color: "#00000060",
-              marginBottom: 8,
-            }}
-          >
-            From Date
-          </div>
-          <button
-            style={{ border: "1px solid #00000020" }}
-            className="flex flex-row items-center justify-between p-2 rounded-lg w-full"
-            onClick={() => {
-              setShowFromDatePicker(!showFromDatePicker);
-              setShowToDatePicker(false);
-            }}
-          >
-            <p>
-              {selectedFromDate
-                ? moment(selectedFromDate).format("MMM DD, YYYY")
-                : "Select Date"}
-            </p>
-            <CalendarDots weight="regular" size={25} />
-          </button>
-          {showFromDatePicker && (
-            <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-              <Calendar
-                onChange={handleFromDateChange}
-                value={selectedFromDate}
-                locale="en-US"
-                maxDate={selectedToDate || new Date()}
-                tileClassName={({ date, view }) => {
-                  const today = new Date();
-                  if (
-                    date.getDate() === today.getDate() &&
-                    date.getMonth() === today.getMonth() &&
-                    date.getFullYear() === today.getFullYear()
-                  ) {
-                    return "current-date";
-                  }
-                  return null;
+            <div className="w-1/2 relative" ref={fromDatePickerRef}>
+              <div
+                style={{
+                  fontWeight: "500",
+                  fontSize: 12,
+                  color: "#00000060",
+                  marginBottom: 8,
                 }}
-              />
+              >
+                From Date
+              </div>
+              <button
+                style={{ border: "1px solid #00000020" }}
+                className="flex flex-row items-center justify-between p-2 rounded-lg w-full"
+                onClick={() => {
+                  setShowFromDatePicker(!showFromDatePicker);
+                  setShowToDatePicker(false);
+                }}
+              >
+                <p>
+                  {selectedFromDate
+                    ? moment(selectedFromDate).format("MMM DD, YYYY")
+                    : "Select Date"}
+                </p>
+                <CalendarDots weight="regular" size={25} />
+              </button>
+              {showFromDatePicker && (
+                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                  <Calendar
+                    onChange={handleFromDateChange}
+                    value={selectedFromDate}
+                    locale="en-US"
+                    maxDate={selectedToDate || new Date()}
+                    tileClassName={({ date, view }) => {
+                      const today = new Date();
+                      if (
+                        date.getDate() === today.getDate() &&
+                        date.getMonth() === today.getMonth() &&
+                        date.getFullYear() === today.getFullYear()
+                      ) {
+                        return "current-date";
+                      }
+                      return null;
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="w-1/2 relative" ref={toDatePickerRef}>
-          <div
-            style={{
-              fontWeight: "500",
-              fontSize: 12,
-              color: "#00000060",
-              marginBottom: 8,
-            }}
-          >
-            To Date
-          </div>
-          <button
-            style={{ border: "1px solid #00000020" }}
-            className="flex flex-row items-center justify-between p-2 rounded-lg w-full"
-            onClick={() => {
-              setShowToDatePicker(!showToDatePicker);
-              setShowFromDatePicker(false);
-            }}
-          >
-            <p>
-              {selectedToDate
-                ? moment(selectedToDate).format("MMM DD, YYYY")
-                : "Select Date"}
-            </p>
-            <CalendarDots weight="regular" size={25} />
-          </button>
-          {showToDatePicker && (
-            <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-              <Calendar
-                onChange={handleToDateChange}
-                value={selectedToDate}
-                locale="en-US"
-                minDate={selectedFromDate}
-                maxDate={new Date()}
-                tileClassName={({ date, view }) => {
-                  const today = new Date();
-                  if (
-                    date.getDate() === today.getDate() &&
-                    date.getMonth() === today.getMonth() &&
-                    date.getFullYear() === today.getFullYear()
-                  ) {
-                    return "current-date";
-                  }
-                  return null;
+            <div className="w-1/2 relative" ref={toDatePickerRef}>
+              <div
+                style={{
+                  fontWeight: "500",
+                  fontSize: 12,
+                  color: "#00000060",
+                  marginBottom: 8,
                 }}
-              />
+              >
+                To Date
+              </div>
+              <button
+                style={{ border: "1px solid #00000020" }}
+                className="flex flex-row items-center justify-between p-2 rounded-lg w-full"
+                onClick={() => {
+                  setShowToDatePicker(!showToDatePicker);
+                  setShowFromDatePicker(false);
+                }}
+              >
+                <p>
+                  {selectedToDate
+                    ? moment(selectedToDate).format("MMM DD, YYYY")
+                    : "Select Date"}
+                </p>
+                <CalendarDots weight="regular" size={25} />
+              </button>
+              {showToDatePicker && (
+                <div className="absolute z-50 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                  <Calendar
+                    onChange={handleToDateChange}
+                    value={selectedToDate}
+                    locale="en-US"
+                    minDate={selectedFromDate}
+                    maxDate={new Date()}
+                    tileClassName={({ date, view }) => {
+                      const today = new Date();
+                      if (
+                        date.getDate() === today.getDate() &&
+                        date.getMonth() === today.getMonth() &&
+                        date.getFullYear() === today.getFullYear()
+                      ) {
+                        return "current-date";
+                      }
+                      return null;
+                    }}
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
           {/* Summary Cards */}
           {analyticsData && (
@@ -312,7 +315,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     {formatNumber(analyticsData.summary?.totalCalls)}
                   </div>
                 </div>
-                 <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total Messages
                   </div>
@@ -320,7 +323,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                     {formatNumber(analyticsData.summary?.totalTexts)}
                   </div>
                 </div>
-                 <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total Emails
                   </div>
@@ -347,7 +350,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                   </div>
                 </div>
 
-                 <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
                     Total Batches
                   </div>
@@ -357,7 +360,7 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
                   <div style={{ fontSize: 12, color: "#00000060", fontWeight: "500" }}>
-                   Nurtured Leads
+                    Nurtured Leads
                   </div>
                   <div style={{ fontSize: 20, fontWeight: "600", marginTop: 8 }}>
                     {formatNumber(analyticsData.summary?.uniqueLeadsCalled)}
@@ -432,11 +435,11 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                 User Analytics ({analyticsData.userList?.length || 0} users)
               </div>
             </div>
-            <div 
-              className="overflow-x-auto" 
-              style={{ 
-                maxHeight: isSummaryCollapsed ? "75vh" : "50vh", 
-                scrollbarWidth: "none" 
+            <div
+              className="overflow-x-auto"
+              style={{
+                maxHeight: isSummaryCollapsed ? "75vh" : "50vh",
+                scrollbarWidth: "none"
               }}
             >
               <table className="w-full" style={{ borderCollapse: "collapse" }}>
@@ -469,18 +472,26 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
                           <div
                             className="text-purple underline cursor-pointer"
                             onClick={() => {
+
                               if (user.userId) {
-                                window.open(`/admin/users?userId=${user.userId}`, "_blank");
+                                // Create user object with id and name for SelectedUserDetails
+                                setSelectedUser({
+                                  id: user.userId,
+                                  name: user.userName || '-',
+                                  email: user.userEmail || '-',
+                                })
                               }
+
+
                             }}
                           >
                             {user.userName || "-"}
                           </div>
                         </td>
                         <td style={styles.tableCell}>{user.userEmail || "-"}</td>
-                        <td style={styles.tableCell}>{formatNumber(user.totalCalls)||"-"}</td>
-                        <td style={styles.tableCell}>{formatNumber(user.totalEmails)||"-"}</td>
-                        <td style={styles.tableCell}>{formatNumber(user.totalTexts)||"-"}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalCalls) || "-"}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalEmails) || "-"}</td>
+                        <td style={styles.tableCell}>{formatNumber(user.totalTexts) || "-"}</td>
                         <td style={styles.tableCell}>
                           {formatNumber(user.totalMinutes?.toFixed(2))}
                         </td>
@@ -520,28 +531,85 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
           </div>
         </div>
       )}
+
+
+
+      {/* User Details Modal */}
+      <Modal
+        open={selectedUser ? true : false}
+        onClose={() => {
+          setSelectedUser(null)
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: '#00000020',
+            zIndex: 1200,
+          },
+        }}
+        sx={{
+          zIndex: 1300,
+        }}
+      >
+        <Box
+          className="w-11/12 p-8 rounded-[15px]"
+          sx={{
+            ...styles.modalsStyle,
+            backgroundColor: 'white',
+            position: 'relative',
+            zIndex: 1301,
+          }}
+        >
+          <SelectedUserDetails
+            selectedUser={selectedUser}
+            handleDel={() => {
+              setSelectedUser(null)
+            }}
+            handlePauseUser={(d) => {
+              // Optionally refresh analytics data after pause/unpause
+              fetchCallAnalytics()
+            }}
+            handleClose={() => {
+              setSelectedUser(null)
+            }}
+            from="agency"
+          />
+        </Box>
+      </Modal>
     </div>
+
+
   );
 }
 
 export default AdminCallAnalytics;
-
 const styles = {
   tableHeader: {
-    padding: "12px 16px",
-    textAlign: "left",
+    padding: '12px 16px',
+    textAlign: 'left',
     fontSize: 13,
-    fontWeight: "600",
-    color: "#00000090",
-    backgroundColor: "#f9fafb",
-    borderBottom: "1px solid #e5e7eb",
+    fontWeight: '600',
+    color: '#00000090',
+    backgroundColor: '#f9fafb',
+    borderBottom: '1px solid #e5e7eb',
   },
   tableCell: {
-    padding: "12px 16px",
+    padding: '12px 16px',
     fontSize: 14,
-    fontWeight: "500",
-    color: "#000000",
-    borderBottom: "1px solid #f0f0f0",
+    fontWeight: '500',
+    color: '#000000',
+    borderBottom: '1px solid #f0f0f0',
   },
-};
+  modalsStyle: {
+    height: 'auto',
+    bgcolor: 'transparent',
+    p: 2,
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
+    borderRadius: 2,
+    border: 'none',
+    outline: 'none',
+  },
+}
 
