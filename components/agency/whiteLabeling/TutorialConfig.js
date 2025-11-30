@@ -90,7 +90,7 @@ const TutorialConfig = () => {
     {
       id: 7,
       title: 'Learn about phone numbers',
-      description: '0:00',
+      description: '01:52',
       videoUrl: HowtoVideos.LetsTalkDigits,
       enabled: true,
       videoType: HowToVideoTypes.PhoneNumbers,
@@ -100,7 +100,7 @@ const TutorialConfig = () => {
     {
       id: 8,
       title: 'Learn how to add Tools',
-      description: '0:00',
+      description: '05:56',
       videoUrl: HowtoVideos.Tools,
       enabled: true,
       videoType: HowToVideoTypes.Tools,
@@ -110,7 +110,7 @@ const TutorialConfig = () => {
     {
       id: 9,
       title: 'Learn how to add Twilio Trust Hub',
-      description: '0:00',
+      description: '14:31',
       videoUrl: HowtoVideos.TwilioTrustHub,
       enabled: true,
       videoType: HowToVideoTypes.TwilioTrustHub,
@@ -120,7 +120,7 @@ const TutorialConfig = () => {
     {
       id: 10,
       title: 'Learn how to add a calendar',
-      description: '0:00',
+      description: '02:42',
       videoUrl: HowtoVideos.Calendar,
       enabled: true,
       videoType: HowToVideoTypes.Calendar,
@@ -130,7 +130,7 @@ const TutorialConfig = () => {
     {
       id: 11,
       title: 'Welcome to AgentX',
-      description: '0:00',
+      description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
       enabled: true,
       videoType: HowToVideoTypes.Walkthrough,
