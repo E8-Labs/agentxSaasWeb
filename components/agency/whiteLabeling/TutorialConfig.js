@@ -71,13 +71,64 @@ const TutorialConfig = () => {
     },
     {
       id: 6,
-      title: "Analytics and Reporting",
-      description: "6:10",
+      title: 'Learn about creating a script',
+      description: '6:10',
       videoUrl: HowtoVideos.script,
       enabled: true,
-      videoType: HowToVideoTypes.Analytics,
-      thumbnailSrc: "/assets/youtubeplay.png"
-    }
+      videoType: HowToVideoTypes.Script,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/pipeline/Pipeline2.js, app/dashboard/myAgentX/page.js, components/admin/users/AdminAgentX.js
+    },
+    {
+      id: 7,
+      title: 'Learn about phone numbers',
+      description: '01:52',
+      videoUrl: HowtoVideos.LetsTalkDigits,
+      enabled: true,
+      videoType: HowToVideoTypes.PhoneNumbers,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/createagent/CreateAgent4.js
+    },
+    {
+      id: 8,
+      title: 'Learn how to add Tools',
+      description: '05:56',
+      videoUrl: HowtoVideos.Tools,
+      enabled: true,
+      videoType: HowToVideoTypes.Tools,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/dashboard/myagentX/mcp/MCPView.js
+    },
+    {
+      id: 9,
+      title: 'Learn how to add Twilio Trust Hub',
+      description: '14:31',
+      videoUrl: HowtoVideos.TwilioTrustHub,
+      enabled: true,
+      videoType: HowToVideoTypes.TwilioTrustHub,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/twiliohub/getProfile/CustomerProfile.js
+    },
+    {
+      id: 10,
+      title: 'Learn how to add a calendar',
+      description: '02:42',
+      videoUrl: HowtoVideos.Calendar,
+      enabled: true,
+      videoType: HowToVideoTypes.Calendar,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: app/dashboard/myAgentX/page.js, components/dashboard/myagentX/UserCallender.js, components/pipeline/AddCalender.js
+    },
+    {
+      id: 11,
+      title: 'Welcome to AgentX',
+      description: '05:02',
+      videoUrl: HowtoVideos.WalkthroughWatched,
+      enabled: true,
+      videoType: HowToVideoTypes.Walkthrough,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/dashboard/Navbar/ProfileNav.js
+    },
   ]
 
 

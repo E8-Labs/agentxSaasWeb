@@ -74,13 +74,19 @@ export const HowtoVideos = {
 };
 
 export const HowToVideoTypes = {
-  GettingStarted:"GettingStarted",
-  FirstCampaign:"FirstCampaign",
-  LeadsAndContacts:"LeadsAndContacts",
-  AgentConfiguration:"AgentConfiguration",
-  CRMIntegration:"CRMIntegration",
-  Analytics:"Analytics",
-  Generic:"Generic"
+  GettingStarted: 'GettingStarted',
+  FirstCampaign: 'FirstCampaign',
+  LeadsAndContacts: 'LeadsAndContacts',
+  AgentConfiguration: 'AgentConfiguration',
+  CRMIntegration: 'CRMIntegration',
+  Analytics: 'Analytics',
+  Script: 'Script',
+  PhoneNumbers: 'PhoneNumbers',
+  Tools: 'Tools',
+  TwilioTrustHub: 'TwilioTrustHub',
+  Calendar: 'Calendar',
+  Walkthrough: 'Walkthrough',
+  Generic: 'Generic',
 }
 
 export const Constants = {

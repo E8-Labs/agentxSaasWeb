@@ -775,14 +775,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           >
             <VideoCard
               duration={(() => {
-                const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
+                const tutorial = getTutorialByType(HowToVideoTypes.Script);
                 return tutorial?.description || "13:56";
               })()}
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal(true);
               }}
-              title={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn about creating a script"}
+              title={getTutorialByType(HowToVideoTypes.Script)?.title || "Learn about creating a script"}
             />
           </div>
           <div
@@ -793,8 +793,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             <IntroVideoModal
               open={introVideoModal}
               onClose={() => setIntroVideoModal(false)}
-              videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn about creating a script"}
-              videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
+              videoTitle={getTutorialByType(HowToVideoTypes.Script)?.title || "Learn about creating a script"}
+              videoUrl={getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script}
             />
 
             <div

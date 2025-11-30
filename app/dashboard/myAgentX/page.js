@@ -6244,8 +6244,8 @@ function Page() {
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
-        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Script)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script}
       />
 
       <IntroVideoModal

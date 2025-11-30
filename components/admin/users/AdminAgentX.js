@@ -5082,7 +5082,7 @@ const [featureTitle, setFeatureTitle] = useState("");
                       <div className="w-5/12">
                         <VideoCard
                           duration={(() => {
-                            const tutorial = getTutorialByType(HowToVideoTypes.Analytics);
+                            const tutorial = getTutorialByType(HowToVideoTypes.Script);
                             return tutorial?.description || "13:56";
                           })()}
                           width="80"
@@ -5091,7 +5091,7 @@ const [featureTitle, setFeatureTitle] = useState("");
                           playVideo={() => {
                             setIntroVideoModal(true);
                           }}
-                          title={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
+                          title={getTutorialByType(HowToVideoTypes.Script)?.title || "Learn how to customize your script"}
                         />
                       </div>
 
@@ -5327,8 +5327,8 @@ const [featureTitle, setFeatureTitle] = useState("");
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
-        videoTitle={getTutorialByType(HowToVideoTypes.Analytics)?.title || "Learn how to customize your script"}
-        videoUrl={getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script}
+        videoTitle={getTutorialByType(HowToVideoTypes.Script)?.title || "Learn how to customize your script"}
+        videoUrl={getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script}
       />
 
       {showClaimPopup && (
