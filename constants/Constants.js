@@ -82,6 +82,11 @@ export const HowToVideoTypes = {
   AgentConfiguration: 'AgentConfiguration',
   CRMIntegration: 'CRMIntegration',
   Analytics: 'Analytics',
+  PhoneNumbers: 'PhoneNumbers',
+  Tools: 'Tools',
+  TwilioTrustHub: 'TwilioTrustHub',
+  Calendar: 'Calendar',
+  Walkthrough: 'Walkthrough',
   Generic: 'Generic',
 }
 

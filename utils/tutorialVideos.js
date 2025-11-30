@@ -12,6 +12,11 @@ const getDefaultVideoUrl = (videoType) => {
     [HowToVideoTypes.AgentConfiguration]: HowtoVideos.KycQuestions,
     [HowToVideoTypes.CRMIntegration]: HowtoVideos.Pipeline,
     [HowToVideoTypes.Analytics]: HowtoVideos.script,
+    [HowToVideoTypes.PhoneNumbers]: HowtoVideos.LetsTalkDigits,
+    [HowToVideoTypes.Tools]: HowtoVideos.Tools,
+    [HowToVideoTypes.TwilioTrustHub]: HowtoVideos.TwilioTrustHub,
+    [HowToVideoTypes.Calendar]: HowtoVideos.Calendar,
+    [HowToVideoTypes.Walkthrough]: HowtoVideos.WalkthroughWatched,
     [HowToVideoTypes.Generic]: HowtoVideos.GettingStarted, // Fallback
   }
 
@@ -49,9 +54,34 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Pipeline,
     },
     [HowToVideoTypes.Analytics]: {
-      title: 'Learn how to customize your script',
+      title: 'Analytics and Reporting',
       description: '6:10',
       videoUrl: HowtoVideos.script,
+    },
+    [HowToVideoTypes.PhoneNumbers]: {
+      title: 'Learn about phone numbers',
+      description: '0:00',
+      videoUrl: HowtoVideos.LetsTalkDigits,
+    },
+    [HowToVideoTypes.Tools]: {
+      title: 'Learn how to add Tools',
+      description: '0:00',
+      videoUrl: HowtoVideos.Tools,
+    },
+    [HowToVideoTypes.TwilioTrustHub]: {
+      title: 'Learn how to add Twilio Trust Hub',
+      description: '0:00',
+      videoUrl: HowtoVideos.TwilioTrustHub,
+    },
+    [HowToVideoTypes.Calendar]: {
+      title: 'Learn how to add a calendar',
+      description: '0:00',
+      videoUrl: HowtoVideos.Calendar,
+    },
+    [HowToVideoTypes.Walkthrough]: {
+      title: 'Welcome to AgentX',
+      description: '0:00',
+      videoUrl: HowtoVideos.WalkthroughWatched,
     },
   }
 
@@ -137,11 +167,56 @@ export const getTutorialVideos = () => {
       },
       {
         id: 6,
-        title: 'Learn about creating a script',
+        title: 'Analytics and Reporting',
         description: '6:10',
         videoUrl: HowtoVideos.script,
         enabled: true,
         videoType: HowToVideoTypes.Analytics,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 7,
+        title: 'Learn about phone numbers',
+        description: '0:00',
+        videoUrl: HowtoVideos.LetsTalkDigits,
+        enabled: true,
+        videoType: HowToVideoTypes.PhoneNumbers,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 8,
+        title: 'Learn how to add Tools',
+        description: '0:00',
+        videoUrl: HowtoVideos.Tools,
+        enabled: true,
+        videoType: HowToVideoTypes.Tools,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 9,
+        title: 'Learn how to add Twilio Trust Hub',
+        description: '0:00',
+        videoUrl: HowtoVideos.TwilioTrustHub,
+        enabled: true,
+        videoType: HowToVideoTypes.TwilioTrustHub,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 10,
+        title: 'Learn how to add a calendar',
+        description: '0:00',
+        videoUrl: HowtoVideos.Calendar,
+        enabled: true,
+        videoType: HowToVideoTypes.Calendar,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 11,
+        title: 'Welcome to AgentX',
+        description: '0:00',
+        videoUrl: HowtoVideos.WalkthroughWatched,
+        enabled: true,
+        videoType: HowToVideoTypes.Walkthrough,
         thumbnailSrc: '/assets/youtubeplay.png',
       },
     ]
