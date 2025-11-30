@@ -33,15 +33,16 @@ const TutorialConfig = () => {
       videoType: HowToVideoTypes.GettingStarted,
       thumbnailSrc: "/assets/youtubeplay.png"
     },
-    {
-      id: 2,
-      title: "Setting Up Your First Campaign",
-      description: "11:27",
-      videoUrl: HowtoVideos.Leads,
-      enabled: true,
-      videoType: HowToVideoTypes.FirstCampaign,
-      thumbnailSrc: "/assets/youtubeplay.png"
-    },
+    // {
+    //   id: 2,
+    //   title: 'Setting Up Your First Campaign',
+    //   description: '11:27',
+    //   videoUrl: HowtoVideos.Leads,
+    //   enabled: true,
+    //   videoType: HowToVideoTypes.FirstCampaign,
+    //   thumbnailSrc: '/assets/youtubeplay.png',
+    //   // Used in: (First Campaign tutorial - uses Leads video URL)
+    // },
     {
       id: 3,
       title: "Managing Leads and Contacts",

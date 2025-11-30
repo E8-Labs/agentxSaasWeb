@@ -128,15 +128,6 @@ export const getTutorialVideos = () => {
         thumbnailSrc: "/assets/youtubeplay.png"
       },
       {
-        id: 2,
-        title: "Setting Up Your First Campaign",
-        description: "11:27",
-        videoUrl: HowtoVideos.Leads,
-        enabled: true,
-        videoType: HowToVideoTypes.FirstCampaign,
-        thumbnailSrc: "/assets/youtubeplay.png"
-      },
-      {
         id: 3,
         title: "Managing Leads and Contacts",
         description: "7:15",
