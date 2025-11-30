@@ -6100,14 +6100,14 @@ function Page() {
                     <div className="w-full">
                       <div className="w-5/12">
                         <VideoCard
-                          duration={getTutorialByType(HowToVideoTypes.Analytics)?.description || '13:56'}
+                          duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
                           width="60"
                           height="40"
                           horizontal={false}
                           playVideo={() => {
                             setIntroVideoModal(true)
                           }}
-                          title={getTutorialByType(HowToVideoTypes.Analytics)?.title || 'Learn how to customize your script'}
+                          title={getTutorialByType(HowToVideoTypes.Script)?.title || 'Learn how to customize your script'}
                         />
                       </div>
 
@@ -6386,11 +6386,11 @@ function Page() {
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
         videoTitle={
-          getTutorialByType(HowToVideoTypes.Analytics)?.title ||
+          getTutorialByType(HowToVideoTypes.Script)?.title ||
           'Learn how to customize your script'
         }
         videoUrl={
-          getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script
+          getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script
         }
       />
 

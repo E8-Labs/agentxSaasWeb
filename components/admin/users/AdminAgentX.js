@@ -5162,7 +5162,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         <VideoCard
                           duration={(() => {
                             const tutorial = getTutorialByType(
-                              HowToVideoTypes.Analytics,
+                              HowToVideoTypes.Script,
                             )
                             return tutorial?.description || '13:56'
                           })()}
@@ -5173,7 +5173,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             setIntroVideoModal(true)
                           }}
                           title={
-                            getTutorialByType(HowToVideoTypes.Analytics)
+                            getTutorialByType(HowToVideoTypes.Script)
                               ?.title || 'Learn how to customize your script'
                           }
                         />
@@ -5412,11 +5412,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
         videoTitle={
-          getTutorialByType(HowToVideoTypes.Analytics)?.title ||
+          getTutorialByType(HowToVideoTypes.Script)?.title ||
           'Learn how to customize your script'
         }
         videoUrl={
-          getVideoUrlByType(HowToVideoTypes.Analytics) || HowtoVideos.script
+          getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script
         }
       />
 
