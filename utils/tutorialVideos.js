@@ -12,6 +12,7 @@ const getDefaultVideoUrl = (videoType) => {
     [HowToVideoTypes.AgentConfiguration]: HowtoVideos.KycQuestions,
     [HowToVideoTypes.CRMIntegration]: HowtoVideos.Pipeline,
     [HowToVideoTypes.Analytics]: HowtoVideos.script,
+    [HowToVideoTypes.Script]: HowtoVideos.script,
     [HowToVideoTypes.PhoneNumbers]: HowtoVideos.LetsTalkDigits,
     [HowToVideoTypes.Tools]: HowtoVideos.Tools,
     [HowToVideoTypes.TwilioTrustHub]: HowtoVideos.TwilioTrustHub,
@@ -55,6 +56,11 @@ const getDefaultTutorial = (videoType) => {
     },
     [HowToVideoTypes.Analytics]: {
       title: 'Analytics and Reporting',
+      description: '6:10',
+      videoUrl: HowtoVideos.script,
+    },
+    [HowToVideoTypes.Script]: {
+      title: 'Learn about creating a script',
       description: '6:10',
       videoUrl: HowtoVideos.script,
     },
@@ -176,6 +182,15 @@ export const getTutorialVideos = () => {
       },
       {
         id: 7,
+        title: 'Learn about creating a script',
+        description: '6:10',
+        videoUrl: HowtoVideos.script,
+        enabled: true,
+        videoType: HowToVideoTypes.Script,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 8,
         title: 'Learn about phone numbers',
         description: '0:00',
         videoUrl: HowtoVideos.LetsTalkDigits,
@@ -184,7 +199,7 @@ export const getTutorialVideos = () => {
         thumbnailSrc: '/assets/youtubeplay.png',
       },
       {
-        id: 8,
+        id: 9,
         title: 'Learn how to add Tools',
         description: '0:00',
         videoUrl: HowtoVideos.Tools,
@@ -193,7 +208,7 @@ export const getTutorialVideos = () => {
         thumbnailSrc: '/assets/youtubeplay.png',
       },
       {
-        id: 9,
+        id: 10,
         title: 'Learn how to add Twilio Trust Hub',
         description: '0:00',
         videoUrl: HowtoVideos.TwilioTrustHub,

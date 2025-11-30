@@ -37,16 +37,16 @@ const TutorialConfig = () => {
       thumbnailSrc: '/assets/youtubeplay.png',
       // Used in: components/createagent/CreateAgent1.js
     },
-    {
-      id: 2,
-      title: 'Setting Up Your First Campaign',
-      description: '11:27',
-      videoUrl: HowtoVideos.Leads,
-      enabled: true,
-      videoType: HowToVideoTypes.FirstCampaign,
-      thumbnailSrc: '/assets/youtubeplay.png',
-      // Used in: (First Campaign tutorial - uses Leads video URL)
-    },
+    // {
+    //   id: 2,
+    //   title: 'Setting Up Your First Campaign',
+    //   description: '11:27',
+    //   videoUrl: HowtoVideos.Leads,
+    //   enabled: true,
+    //   videoType: HowToVideoTypes.FirstCampaign,
+    //   thumbnailSrc: '/assets/youtubeplay.png',
+    //   // Used in: (First Campaign tutorial - uses Leads video URL)
+    // },
     {
       id: 3,
       title: 'Managing Leads and Contacts',
@@ -79,11 +79,11 @@ const TutorialConfig = () => {
     },
     {
       id: 6,
-      title: 'Analytics and Reporting',
+      title: 'Learn about creating a script',
       description: '6:10',
       videoUrl: HowtoVideos.script,
       enabled: true,
-      videoType: HowToVideoTypes.Analytics,
+      videoType: HowToVideoTypes.Script,
       thumbnailSrc: '/assets/youtubeplay.png',
       // Used in: components/pipeline/Pipeline2.js, app/dashboard/myAgentX/page.js, components/admin/users/AdminAgentX.js
     },

@@ -87,6 +87,7 @@ export const HowToVideoTypes = {
   TwilioTrustHub: 'TwilioTrustHub',
   Calendar: 'Calendar',
   Walkthrough: 'Walkthrough',
+  Script: 'Script',
   Generic: 'Generic',
 }
 
