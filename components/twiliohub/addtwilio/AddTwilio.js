@@ -105,7 +105,11 @@ const AddTwilio = ({
             if (axios.isAxiosError(error)) {
                 if (error.response) {
                     // Server responded with a status other than 2xx
-                    errorMessage = error.response.data?.message || JSON.stringify(error.response.data);
+                    errorMessage =
+                        error.response.data?.message || 
+                        error.response.data?.error ||
+                        JSON.stringify(error.response.data) ||
+                        "An error occurred while connecting Twilio";
                 } else if (error.request) {
                     // Request was made but no response received
                     errorMessage = "No response received from server.";

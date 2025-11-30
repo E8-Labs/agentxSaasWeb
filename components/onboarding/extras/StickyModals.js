@@ -217,6 +217,31 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
     } catch (error) {
       console.error("Error occured in twillio api is", error);
       setTwillioLoader(false);
+      
+      // Extract error message from response
+      let errorMessage = "An unexpected error occurred";
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with a status other than 2xx
+          errorMessage =
+            error.response.data?.message || 
+            error.response.data?.error ||
+            JSON.stringify(error.response.data) ||
+            "An error occurred while connecting Twilio";
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage = "No response received from server.";
+        } else {
+          // Something happened in setting up the request
+          errorMessage = error.message;
+        }
+      } else {
+        errorMessage = error.message || String(error);
+      }
+      
+      setShowSnackMessage(errorMessage);
+      setShowSnackType(SnackbarTypes.Error);
     }
   };
 
