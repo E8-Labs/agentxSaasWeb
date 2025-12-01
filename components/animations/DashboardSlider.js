@@ -40,6 +40,47 @@ const DashboardSlider = ({
   // initial loder for user settings
   const [initialLoader, setInitialLoader] = useState(false)
 
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+    
+    if (!brandColor || !brandColor.trim()) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor.trim()})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   const [buttons, setButtons] = useState([
     {
       id: 1,
@@ -88,7 +129,7 @@ const DashboardSlider = ({
     {
       id: 6,
       label: 'Billing Support',
-      image: '/otherAssets/billingIcon.jpg',
+      image: '/otherAssets/billingIcon.png',
       image2: '/otherAssets/billingIconBlue.png',
       url: PersistanceKeys.BillingSupportUrl,
     },
@@ -244,7 +285,7 @@ const DashboardSlider = ({
           id: crypto.randomUUID(),
           label: Data.billingAndSupportTitle || 'Billing Support',
           url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
-          image: '/otherAssets/billingIcon.jpg',
+          image: '/otherAssets/billingIcon.png',
           image2: '/otherAssets/billingIconBlue.png',
         })
       }
@@ -334,15 +375,11 @@ const DashboardSlider = ({
                           className="w-full flex flex-row items-center gap-2 "
                           onClick={() => handleOnClick(item, index)}
                         >
-                          <Image
-                            className=""
-                            src={
-                              index === hoverIndex ? item.image2 : item.image
-                            }
-                            width={item.height || 24}
-                            height={item.width || 24}
-                            alt="*"
-                          />
+                          {renderBrandedIcon(
+                            index === hoverIndex ? item.image2 : item.image,
+                            item.width || item.height || 24,
+                            item.height || item.width || 24,
+                          )}
                           <div
                             className="text-black hover:text-brand-primary whitespace-nowrap"
                             style={{ fontSize: 15, fontWeight: '500' }}
@@ -393,12 +430,11 @@ const DashboardSlider = ({
                       className="w-full flex flex-row items-center gap-2"
                       onClick={() => handleOnClick(item, index)}
                     >
-                      <Image
-                        src={index === hoverIndex ? item.image2 : item.image}
-                        width={item.width || 24}
-                        height={item.height || 24}
-                        alt="*"
-                      />
+                      {renderBrandedIcon(
+                        index === hoverIndex ? item.image2 : item.image,
+                        item.width || 24,
+                        item.height || 24,
+                      )}
                       <div
                         className="text-black hover:text-brand-primary whitespace-nowrap"
                         style={{ fontSize: 15, fontWeight: '500' }}
@@ -491,7 +527,21 @@ const DashboardSlider = ({
               outline: 'none',
             }}
           >
-            <GetHelpBtn handleReopen={handleReopen} />
+            <GetHelpBtn
+              handleReopen={handleReopen}
+              customLogo={
+                userDetails?.userRole === 'AgencySubAccount' &&
+                userDetails?.agencyBranding?.supportWidgetLogoUrl
+                  ? userDetails.agencyBranding.supportWidgetLogoUrl
+                  : null
+              }
+              customTitle={
+                userDetails?.userRole === 'AgencySubAccount' &&
+                userDetails?.agencyBranding?.supportWidgetTitle
+                  ? userDetails.agencyBranding.supportWidgetTitle
+                  : null
+              }
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -578,7 +628,14 @@ export const GetHelpBtn = ({
   text = 'Get Help',
   avatar = null,
   handleReopen,
+  customLogo = null,
+  customTitle = null,
 }) => {
+  // Use custom logo if provided, otherwise use avatar, otherwise default
+  const logoUrl = customLogo || avatar || '/agentXOrb.gif'
+  // Use custom title if provided, otherwise use text prop
+  const displayText = customTitle || text
+
   return (
     <button
       className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
@@ -596,7 +653,7 @@ export const GetHelpBtn = ({
       {/* Orb */}
       <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
         <Image
-          src={avatar || '/agentXOrb.gif'}
+          src={logoUrl}
           fill
           alt="Orb"
           className="object-cover"
@@ -605,7 +662,7 @@ export const GetHelpBtn = ({
 
       {/* Text */}
       <p className="text-[16px] font-bold text-brand-primary cursor-pointer ms-2">
-        {text}
+        {displayText}
       </p>
     </button>
   )

@@ -409,4 +409,10 @@ a.text-red:hover {
   filter: var(--icon-filter, brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(260deg) brightness(99%) contrast(93%));
 }
 
+/* Icon brand filter class for Next.js Image components */
+.icon-brand-filter {
+  filter: var(--icon-filter);
+  transition: filter 0.2s ease-in-out;
+}
+
 

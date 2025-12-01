@@ -126,6 +126,23 @@ const AgencySupportAndWidget = () => {
         setAllowResourceHub(Data?.resourceHub || false)
         setResourceHub(Data?.resourceHubUrl || '')
         setResourceHubTitle(Data?.resourceHubTitle)
+        
+        // Load support widget logo and title from agency branding
+        const brandingResponse = await axios.get(Apis.getAgencyBranding, {
+          headers: {
+            Authorization: 'Bearer ' + AuthToken(),
+            'Content-Type': 'application/json',
+          },
+        })
+        if (brandingResponse?.data?.status === true) {
+          const branding = brandingResponse?.data?.data?.branding
+          if (branding?.supportWidgetLogoUrl) {
+            setLogoPreview(branding.supportWidgetLogoUrl)
+          }
+          if (branding?.supportWidgetTitle) {
+            setButtonLabel(branding.supportWidgetTitle)
+          }
+        }
       }
     } catch (err) {
       console.log('Error occured in api is', err)
@@ -313,7 +330,7 @@ const AgencySupportAndWidget = () => {
   }
 
   //handle logo change
-  const handleLogoChange = (e) => {
+  const handleLogoChange = async (e) => {
     const file = e.target.files?.[0]
     if (file) {
       // Validate file type
@@ -330,16 +347,85 @@ const AgencySupportAndWidget = () => {
       }
       // Create preview
       const reader = new FileReader()
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         setLogoPreview(reader.result)
-        // TODO: Upload to API when API is ready
-        // For now, just store the preview locally
+        // Upload to API
+        try {
+          const formData = new FormData()
+          formData.append('logo', file)
+          const Auth = AuthToken()
+          const response = await axios.post(
+            Apis.uploadSupportWidgetLogo,
+            formData,
+            {
+              headers: {
+                Authorization: 'Bearer ' + Auth,
+                'Content-Type': 'multipart/form-data',
+              },
+            },
+          )
+          if (response?.data?.status === true) {
+            setShowSnackMessage('Logo uploaded successfully')
+            setShowSnackType(SnackbarTypes.Success)
+            // Update preview with the uploaded URL
+            if (response.data.data?.logoUrl) {
+              setLogoPreview(response.data.data.logoUrl)
+            }
+          } else {
+            setShowSnackMessage(
+              response?.data?.message || 'Failed to upload logo',
+            )
+            setShowSnackType(SnackbarTypes.Error)
+          }
+        } catch (error) {
+          console.error('Error uploading logo:', error)
+          setShowSnackMessage(
+            error.response?.data?.message || 'Error uploading logo',
+          )
+          setShowSnackType(SnackbarTypes.Error)
+        }
       }
       reader.onerror = () => {
         setShowSnackMessage('Error reading image file')
         setShowSnackType(SnackbarTypes.Error)
       }
       reader.readAsDataURL(file)
+    }
+  }
+
+  // Handle button label change (save to API)
+  const handleButtonLabelSave = async () => {
+    if (!buttonLabel || buttonLabel.trim() === '') {
+      return
+    }
+    // Save to API
+    try {
+      const Auth = AuthToken()
+      const response = await axios.put(
+        Apis.updateSupportWidgetTitle,
+        { supportWidgetTitle: buttonLabel },
+        {
+          headers: {
+            Authorization: 'Bearer ' + Auth,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      if (response?.data?.status === true) {
+        setShowSnackMessage('Button label updated successfully')
+        setShowSnackType(SnackbarTypes.Success)
+      } else {
+        setShowSnackMessage(
+          response?.data?.message || 'Failed to update button label',
+        )
+        setShowSnackType(SnackbarTypes.Error)
+      }
+    } catch (error) {
+      console.error('Error updating button label:', error)
+      setShowSnackMessage(
+        error.response?.data?.message || 'Error updating button label',
+      )
+      setShowSnackType(SnackbarTypes.Error)
     }
   }
 
@@ -388,22 +474,15 @@ const AgencySupportAndWidget = () => {
                         }}
                       />
                       <button
-                        className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2"
+                        className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2 group"
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Image
-                          className="transition-all duration-200 hover:hidden"
+                          className="transition-all duration-200 group-hover:invert group-hover:brightness-0"
                           src={'/otherAssets/uploadIcon.png'}
                           height={24}
                           width={24}
                           alt="Upload"
-                        />
-                        <Image
-                          className="transition-all duration-200 hidden hover:inline"
-                          src={'/otherAssets/uploadIconPurple.png'}
-                          height={24}
-                          width={24}
-                          alt="Upload Hover"
                         />
                         <span className="ml-1">Change Logo</span>
                       </button>
@@ -464,6 +543,7 @@ const AgencySupportAndWidget = () => {
                         type="text"
                         value={buttonLabel}
                         onChange={(e) => setButtonLabel(e.target.value)}
+                        onBlur={handleButtonLabelSave}
                         placeholder="Get Help"
                         maxLength={10}
                         className="w-[120px] h-[40px] border border-[#00000020] focus-within:ring-1 focus-within:ring-black focus-within:border-black rounded-lg"

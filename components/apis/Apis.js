@@ -348,6 +348,8 @@ const Apis = {
   updateAgencyBrandingColors: `${BasePath}api/agency/branding/colors`,
   uploadBrandingLogo: `${BasePath}api/agency/branding/logo`,
   uploadBrandingFavicon: `${BasePath}api/agency/branding/favicon`,
+  uploadSupportWidgetLogo: `${BasePath}api/agency/branding/support-widget-logo`,
+  updateSupportWidgetTitle: `${BasePath}api/agency/branding/support-widget-title`,
   addCustomDomain: `${BasePath}api/agency/branding/domain`,
   verifyCustomDomain: `${BasePath}api/agency/branding/domain/verify`,
   getDomainStatus: `${BasePath}api/agency/branding/domain`,

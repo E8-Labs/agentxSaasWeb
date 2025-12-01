@@ -36,6 +36,47 @@ function NotficationsDrawer({ close }) {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [hasMore, setHasMore] = useState(true)
 
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+    
+    if (!brandColor || !brandColor.trim()) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor.trim()})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   useEffect(() => {
     getUserData()
   }, [])
@@ -152,32 +193,11 @@ function NotficationsDrawer({ close }) {
 
   const getNotificationImage = (item) => {
     if (item.type === NotificationTypes.RedeemedAgentXCode) {
-      return (
-        <Image
-          src={'/svgIcons/minsNotIcon.svg'}
-          height={32}
-          width={32}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.RedeemedAgentXCodeMine) {
-      return (
-        <Image
-          src={'/svgIcons/minsNotIcon.svg'}
-          height={32}
-          width={32}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.NoCallsIn3Days) {
-      return (
-        <Image
-          src={'/svgIcons/callsNotIcon.svg'}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/callsNotIcon.svg', 37, 37)
     } else if (item.type === NotificationTypes.InviteAccepted) {
       return (
         <div
@@ -192,14 +212,7 @@ function NotficationsDrawer({ close }) {
       item.type === NotificationTypes.FirstLeadUpload ||
       item.type === NotificationTypes.SocialProof
     ) {
-      return (
-        <Image
-          src={'/svgIcons/hotLeadNotIcon.svg'}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/hotLeadNotIcon.svg', 37, 37)
     } else if (item.type === NotificationTypes.TotalHotlead) {
       return (
         <div
@@ -219,18 +232,9 @@ function NotficationsDrawer({ close }) {
         </div>
       )
     } else if (item.type === NotificationTypes.PaymentFailed) {
-      return (
-        <Image
-          src={'/svgIcons/urgentNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/urgentNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
-      return (
-        <Image src={'/svgIcons/aiNotIcon.svg'} height={40} width={40} alt="*" />
-      )
+      return renderBrandedIcon('/svgIcons/aiNotIcon.svg', 40, 40)
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
         <div
@@ -241,197 +245,70 @@ function NotficationsDrawer({ close }) {
         </div>
       )
     } else if (item.type === NotificationTypes.Trial30MinTicking) {
-      return (
-        <Image
-          src={'/svgIcons/Trial30MinTickingNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/Trial30MinTickingNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.X3MoreLikeyToWin ||
       item.type === NotificationTypes.ThousandCalls ||
       item.type === NotificationTypes.CompetitiveEdge
     ) {
-      return (
-        <Image
-          src={'/svgIcons/3xMoreLikeyToWinNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/3xMoreLikeyToWinNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.NeedHand ||
       item.type === NotificationTypes.NeedHelpDontMissOut ||
       item.type === NotificationTypes.TrainingReminder ||
       item.type === NotificationTypes.Inactive5Days
     ) {
-      return (
-        <Image
-          src={'/svgIcons/NeedHandNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/NeedHandNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.TrialReminder) {
-      return (
-        <Image
-          src={'/svgIcons/TrialReminderNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/TrialReminderNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.LastChanceToAct ||
       item.type === NotificationTypes.FOMOAlert
     ) {
-      return (
-        <Image
-          src={'/svgIcons/LastChanceToActNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/LastChanceToActNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
-      return (
-        <Image
-          src={'/svgIcons/LastDayToMakeItCountNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/LastDayToMakeItCountNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.TrialTime2MinLeft ||
       item.type === NotificationTypes.TwoThousandCalls
     ) {
-      return (
-        <Image
-          src={'/svgIcons/TrialTime2MinLeftNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/TrialTime2MinLeftNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.PlanRenewed ||
       NotificationTypes.SubscriptionRenewed === item.type
     ) {
-      return (
-        <Image
-          src={'/svgIcons/PlanRenewedNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/PlanRenewedNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.FirstAppointment) {
-      return (
-        <Image
-          src={'/svgIcons/FirstAppointmentNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/FirstAppointmentNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.ThreeAppointments) {
-      return (
-        <Image
-          src={'/svgIcons/SevenAppointmentsNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/SevenAppointmentsNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.SevenAppointments) {
-      return (
-        <Image
-          src={'/svgIcons/SevenAppointmentsNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/SevenAppointmentsNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.Day14FeedbackRequest) {
-      return (
-        <Image
-          src={'/svgIcons/Day14FeedbackRequestNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/Day14FeedbackRequestNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan
     ) {
-      return (
-        <Image
-          src={'/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.TestAINotification) {
-      return (
-        <Image
-          src={'/svgIcons/TestAINotificationNotIcon.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/TestAINotificationNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.Exclusivity) {
-      return (
-        <Image
-          src={'/svgIcons/TeritaryTraining.svg'}
-          height={22}
-          width={18}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/TeritaryTraining.svg', 18, 22)
     } else if (item.type === NotificationTypes.TerritoryUpdate) {
-      return (
-        <Image src={'/svgIcons/2Listings.svg'} height={22} width={22} alt="*" />
-      )
+      return renderBrandedIcon('/svgIcons/2Listings.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.PlanUpgraded ||
       item.type === NotificationTypes.PlanSubscribed
     ) {
-      return (
-        <Image
-          src={'/svgIcons/chevrons-up.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/chevrons-up.svg', 22, 22)
     } else if (item.type === NotificationTypes.PlanDowngraded) {
-      return (
-        <Image
-          src={'/svgIcons/chevrons-down.svg'}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      )
+      return renderBrandedIcon('/svgIcons/chevrons-down.svg', 22, 22)
     } else if (item.type === NotificationTypes.PlanCancelled) {
-      return (
-        <Image src={'/svgIcons/cancel.svg'} height={22} width={22} alt="*" />
-      )
+      return renderBrandedIcon('/svgIcons/cancel.svg', 22, 22)
     } else if (item.type === NotificationTypes.AccountPaused) {
-      return (
-        <Image src={'/svgIcons/pause.svg'} height={22} width={22} alt="*" />
-      )
+      return renderBrandedIcon('/svgIcons/pause.svg', 22, 22)
     } else if (item.type === NotificationTypes.AccountResumed) {
-      return (
-        <Image src={'/svgIcons/resume.svg'} height={22} width={22} alt="*" />
-      )
+      return renderBrandedIcon('/svgIcons/resume.svg', 22, 22)
     }
 
     //2Listings
