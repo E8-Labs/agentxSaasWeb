@@ -65,7 +65,7 @@ export default function AgencyDashboard({
         </div>
         {/* Tabs for navigation */}
         <Tabs defaultValue="user-activity" className="mb-6 w-full">
-          <TabsList className="flex flex-row items-center justify-start gap-4 border-b pb-2 w-full pl-10 bg-transparent">
+          <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent">
             <TabsTrigger value="user-activity">User Activity</TabsTrigger>
             {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
             <TabsTrigger value="revenue" className="outline-none">Revenue</TabsTrigger>

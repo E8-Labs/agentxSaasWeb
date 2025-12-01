@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserTypes } from "@/constants/UserTypes";
+import AppLogo from "../common/AppLogo";
 
 const Header = ({
   skipSellerKYC,
