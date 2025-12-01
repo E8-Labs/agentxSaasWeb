@@ -208,26 +208,27 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const getImageHeight = (item) => {
+    console.log('item is', item.name)
     if (item.name === 'Ava') {
       return 50
     } else if (item.name === 'Zane') {
       return 50
     } else if (item.name === 'Trinity') {
-      return 30
+      return 36 // Increased from 30
     } else if (item.name === 'Dax') {
-      return 70
+      return 75 // Increased from 70
     } else if (item.name === 'Mia') {
       return 30
     } else if (item.name === 'Kaia') {
       return 30
     } else if (item.name === 'Axel') {
-      return 30
+      return 28 // Reduced by 20% from 30
     } else if (item.name === 'Aria') {
       return 60
     } else if (item.name === 'Luna') {
       return 50
     } else if (item.name === 'Max') {
-      return 30
+      return 26 // Reduced by 20% from 30
     }
 
     return 70
@@ -238,21 +239,21 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     } else if (item.name === 'Zane') {
       return 50
     } else if (item.name === 'Trinity') {
-      return 55
+      return 62 // Increased from 55
     } else if (item.name === 'Dax') {
-      return 60
+      return 65 // Increased from 60
     } else if (item.name === 'Mia') {
       return 55
     } else if (item.name === 'Kaia') {
       return 50
     } else if (item.name === 'Axel') {
-      return 35
+      return 28 // Reduced by 20% from 35
     } else if (item.name === 'Aria') {
       return 58
     } else if (item.name === 'Luna') {
       return 50
     } else if (item.name === 'Max') {
-      return 40
+      return 32 // Reduced by 20% from 40
     }
 
     return 60
@@ -317,7 +318,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             </div>
             <div className="w-full flex flex-row justify-center">
               <div
-                className="mt-8 w-6/12 gap-2 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="mt-8 w-6/12 gap-1 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: 'none' }}
               >
                 {voices.map((item, index) => (
@@ -331,7 +332,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                       backgroundColor:
                         item.name === selectedVoiceId ? 'hsl(var(--brand-primary) / 0.1)' : '',
                     }}
-                    className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none"
+                    className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-2 rounded-xl outline-none"
                     onClick={(e) => {
                       handleToggleClick(index, item)
                       // playVoice(item.preview);
@@ -341,13 +342,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                       <div
                         className="flex flex-row items-center justify-center"
                         style={{
-                          height: '62px',
-                          width: '62px',
+                          height: '50px',
+                          width: '50px',
                           borderRadius: '50%',
-                          backgroundColor:
-                            item.name === selectedVoiceId
-                              ? 'white'
-                              : '#d3d3d380',
+                          // backgroundColor:
+                          //   item.name === selectedVoiceId
+                          //     ? 'white'
+                          //     : '#d3d3d380',
                         }}
                       >
                         {/* <Image src={"/assets/warning.png"} height={40} width={35} alt='*' /> */}

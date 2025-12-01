@@ -20,8 +20,8 @@ const BrandConfig = () => {
 
   const [logoPreview, setLogoPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
-  const [primaryColor, setPrimaryColor] = useState('#C90202')
-  const [secondaryColor, setSecondaryColor] = useState('#2302C9')
+  const [primaryColor, setPrimaryColor] = useState('#7902DF')
+  const [secondaryColor, setSecondaryColor] = useState('#8B5CF6')
 
   // File states for uploads
   const [logoFile, setLogoFile] = useState(null)
@@ -44,8 +44,8 @@ const BrandConfig = () => {
   const [originalValues, setOriginalValues] = useState({
     logoUrl: null,
     faviconUrl: null,
-    primaryColor: '#C90202',
-    secondaryColor: '#2302C9',
+    primaryColor: '#7902DF',
+    secondaryColor: '#8B5CF6',
   })
 
   // Fetch branding data on mount
@@ -84,9 +84,11 @@ const BrandConfig = () => {
       if (response?.data?.status === true && response?.data?.data) {
         const branding = response.data.data.branding || {}
 
-        // Set form values
-        setPrimaryColor(branding.primaryColor || '#C90202')
-        setSecondaryColor(branding.secondaryColor || '#2302C9')
+        // Set form values - use defaults if no branding exists
+        const defaultPrimary = '#7902DF'
+        const defaultSecondary = '#8B5CF6'
+        setPrimaryColor(branding.primaryColor || defaultPrimary)
+        setSecondaryColor(branding.secondaryColor || defaultSecondary)
 
         // Set preview images if URLs exist
         if (branding.logoUrl) {
@@ -96,18 +98,41 @@ const BrandConfig = () => {
           setFaviconPreview(branding.faviconUrl)
         }
 
-        // Store original values
+        // Store original values - use defaults if no branding exists
         setOriginalValues({
           logoUrl: branding.logoUrl || null,
           faviconUrl: branding.faviconUrl || null,
-          primaryColor: branding.primaryColor || '#C90202',
-          secondaryColor: branding.secondaryColor || '#2302C9',
+          primaryColor: branding.primaryColor || defaultPrimary,
+          secondaryColor: branding.secondaryColor || defaultSecondary,
+        })
+      } else {
+        // No branding data exists - set to defaults
+        const defaultPrimary = '#7902DF'
+        const defaultSecondary = '#8B5CF6'
+        setPrimaryColor(defaultPrimary)
+        setSecondaryColor(defaultSecondary)
+        setOriginalValues({
+          logoUrl: null,
+          faviconUrl: null,
+          primaryColor: defaultPrimary,
+          secondaryColor: defaultSecondary,
         })
       }
     } catch (error) {
       console.error('Error fetching branding data:', error)
-      // Don't show error if it's a 404 (no branding data yet)
-      if (error.response?.status !== 404) {
+      // If 404, no branding exists yet - set to defaults
+      if (error.response?.status === 404) {
+        const defaultPrimary = '#7902DF'
+        const defaultSecondary = '#8B5CF6'
+        setPrimaryColor(defaultPrimary)
+        setSecondaryColor(defaultSecondary)
+        setOriginalValues({
+          logoUrl: null,
+          faviconUrl: null,
+          primaryColor: defaultPrimary,
+          secondaryColor: defaultSecondary,
+        })
+      } else {
         setShowSnackMessage({
           type: SnackbarTypes.Error,
           message:
@@ -248,14 +273,67 @@ const BrandConfig = () => {
     return colorsChanged || logoChanged || faviconChanged
   }
 
-  //reset all the values to original
-  const handleReset = () => {
-    setPrimaryColor(originalValues.primaryColor)
-    setSecondaryColor(originalValues.secondaryColor)
+  //reset all the values to original and save defaults
+  const handleReset = async () => {
+    // Reset to default AssignX colors
+    const defaultPrimary = '#7902DF'
+    const defaultSecondary = '#8B5CF6'
+    
+    // Reset UI state to defaults
+    setPrimaryColor(defaultPrimary)
+    setSecondaryColor(defaultSecondary)
     setLogoPreview(originalValues.logoUrl)
     setFaviconPreview(originalValues.faviconUrl)
     setLogoFile(null)
     setFaviconFile(null)
+
+    // Save the default colors to agency branding
+    try {
+      const localData = localStorage.getItem('User')
+      let authToken = null
+
+      if (localData) {
+        const userData = JSON.parse(localData)
+        authToken = userData.token
+      }
+
+      if (authToken) {
+        const colorsData = {
+          primaryColor: defaultPrimary,
+          secondaryColor: defaultSecondary,
+        }
+
+        await axios.put(Apis.updateAgencyBrandingColors, colorsData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        // Update original values after successful save
+        setOriginalValues({
+          ...originalValues,
+          primaryColor: defaultPrimary,
+          secondaryColor: defaultSecondary,
+        })
+
+        // Refresh data to get latest from server
+        await fetchBrandingData()
+
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: 'Brand colors reset to defaults',
+          isVisible: true,
+        })
+      }
+    } catch (error) {
+      console.error('Error resetting colors:', error)
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: 'Failed to reset colors. Please try again.',
+        isVisible: true,
+      })
+    }
   }
 
   // Upload logo file
@@ -626,18 +704,20 @@ const BrandConfig = () => {
                 </div>
               </div>
             )}
-            <div
-              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
-                loading
-                  ? 'bg-brand-primary/60 cursor-not-allowed'
-                  : 'bg-brand-primary hover:bg-brand-primary/90'
-              } ${!hasChanges() ? 'ml-auto' : ''}`}
-              onClick={loading ? undefined : handleSave}
-            >
-              <div className="text-white text-base font-normal leading-relaxed">
-                {loading ? 'Saving...' : 'Save Changes'}
+            {hasChanges() && (
+              <div
+                className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
+                  loading
+                    ? 'bg-brand-primary/60 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
+                }`}
+                onClick={loading ? undefined : handleSave}
+              >
+                <div className="text-white text-base font-normal leading-relaxed">
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -843,7 +843,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           </div>
           {/* Body */}
           <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
             style={{
               position: 'absolute',
               // left: "18%",

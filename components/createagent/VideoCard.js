@@ -13,6 +13,11 @@ const formatDuration = (duration) => {
     return duration || '0:00'
   }
 
+  // If already in mm:ss format, return as is
+  if (/^\d+:\d{2}$/.test(duration)) {
+    return duration
+  }
+
   // Extract minutes and seconds using regex
   const minMatch = duration.match(/(\d+)\s*(?:min|mins|minute|minutes)/i)
   const secMatch = duration.match(/(\d+)\s*(?:sec|secs|second|seconds)/i)
@@ -38,13 +43,13 @@ const VideoCard = ({
       className={`flex ${
         horizontal ? 'flex-row items-center' : 'flex-col items-start'
       } 
-    p-4 rounded-lg border border-brand-primary max-w-md cursor-pointer bg-white`}
+    p-4 rounded-lg border border-brand-primary max-w-[280px] cursor-pointer bg-white`}
       onClick={() => {
         playVideo()
       }}
     >
       {/* Video Thumbnail */}
-      <div className="flex flex-row items-start justify-between w-full">
+      <div className="flex flex-row items-start w-full">
         <div className="flex flex-row items-end gap-2">
           <div className="relative flex-shrink-0">
             <Image
@@ -75,14 +80,15 @@ const VideoCard = ({
             </div>
           </div>
         </div>
-
-        <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
-          <p className="text-sm md:text-xs text-gray-600">{duration}</p>
-        </div>
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-col items-start gap-3 mt-2 w-full">
+        <div className="flex flex-row justify-end w-full">
+          <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor">
+            <p className="text-sm md:text-xs text-gray-600">{formattedDuration}</p>
+          </div>
+        </div>
         <h3
           className="font-medium text-gray-800 pt-1"
           style={{ fontSize: '15px' }}

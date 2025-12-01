@@ -516,7 +516,7 @@ function AgencySubacount({ selectedAgency }) {
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
           style={{
-            fontSize: 29,
+            fontSize: 22,
             fontWeight: '700',
             color: 'black',
           }}
@@ -564,7 +564,7 @@ function AgencySubacount({ selectedAgency }) {
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
         <div
-          className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
+          className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
         >
           {/* Texture Background */}
           <div
