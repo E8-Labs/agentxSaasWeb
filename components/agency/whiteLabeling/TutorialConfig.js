@@ -217,7 +217,8 @@ const TutorialConfig = () => {
   }
 
   const handleSaveTutorial = async (updatedData) => {
-    if(updatedData.title === selectedTutorial.title &&  !updatedData.media ) {
+    // Early return if nothing changed (title same and no new media)
+    if (selectedTutorial && updatedData.title === selectedTutorial.title && !updatedData.media) {
       return
     }
     setIsSaving(true)
@@ -233,18 +234,39 @@ const TutorialConfig = () => {
 
       // Check if this is an uploaded video (has database properties like uploadStatus, userId, or videoUrl from uploads)
       // Default tutorials have IDs like 1, 2, 3 and videoUrl from HowtoVideos constants
+      // IMPORTANT: Default tutorials have numeric IDs (1-11) but are NOT uploaded videos
+      // Uploaded videos have database IDs (typically > 100) and uploadStatus/userId properties
       const isUploadedVideo =
         selectedTutorial &&
+        // Must have uploadStatus OR userId (database properties) OR uploaded videoUrl
         (selectedTutorial.uploadStatus !== undefined ||
           selectedTutorial.userId !== undefined ||
           (selectedTutorial.videoUrl &&
             (selectedTutorial.videoUrl.includes('/uploads/') ||
               selectedTutorial.videoUrl.includes('/agentx/uploads/') ||
-              selectedTutorial.videoUrl.includes('/agentxtest/uploads/'))))
+              selectedTutorial.videoUrl.includes('/agentxtest/uploads/')))) &&
+        // AND the ID must be a database ID (not a default tutorial ID 1-11)
+        selectedTutorial.id &&
+        typeof selectedTutorial.id === 'number' &&
+        selectedTutorial.id > 11 // Database IDs are > 11, default tutorial IDs are 1-11
 
-      // If editing an existing uploaded video, include videoId
-      if (isEditMode && isUploadedVideo && selectedTutorial.id) {
+      console.log('isUploadedVideo check:', {
+        id: selectedTutorial?.id,
+        idType: typeof selectedTutorial?.id,
+        idGreaterThan11: selectedTutorial?.id > 11,
+        uploadStatus: selectedTutorial?.uploadStatus,
+        userId: selectedTutorial?.userId,
+        videoUrl: selectedTutorial?.videoUrl,
+        isUploadedVideo: isUploadedVideo,
+      })
+
+      // Only append videoId if this is an existing uploaded video (not a default tutorial)
+      // Default tutorials have IDs 1-11, uploaded videos have database IDs > 11
+      if (isEditMode && isUploadedVideo && selectedTutorial.id && selectedTutorial.id > 11) {
         formData.append('videoId', selectedTutorial.id)
+        console.log('Appending videoId:', selectedTutorial.id)
+      } else {
+        console.log('NOT appending videoId - using upload endpoint for default tutorial or new upload')
       }
 
       // Only append media if a new file is selected
