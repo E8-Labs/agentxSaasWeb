@@ -17,6 +17,10 @@ import AddScoringModal from '@/components/modals/add-scoring-modal'
 import { fetchTemplates } from '@/services/leadScoringSerevices/FetchTempletes'
 
 import NoActionView from './NoActionView'
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import VideoCard from '@/components/createagent/VideoCard'
+import { HowToVideoTypes, HowtoVideos  } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 function LeadScoring({
   showDrawerSelectedAgent,
@@ -25,6 +29,7 @@ function LeadScoring({
   setShowDrawerSelectedAgent,
   selectedUser,
 }) {
+  const [introVideoModal, setIntroVideoModal] = useState(false)
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState('')
@@ -308,6 +313,41 @@ function LeadScoring({
                   ))}
                 </Select>
               </FormControl>
+
+              <div className="w-full mt-4 flex flex-col items-center justify-center">
+                <div className="w-6/12">
+                  <VideoCard
+                    duration={(() => {
+                      const tutorial = getTutorialByType(HowToVideoTypes.Scoring)
+                      return tutorial?.description || '1:47'
+                    })()}
+                    width="80"
+                    height="100"
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal(true)
+                    }}
+                    title={
+                      getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+                      'Learn how to add Scoring'
+                    }
+
+                  />
+                  {/* Intro modal */}
+                  <IntroVideoModal
+                    open={introVideoModal}
+                    onClose={() => setIntroVideoModal(false)}
+                    videoTitle={
+                      getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+                      'Learn how to add Scoring'
+                    }
+                    videoUrl={
+                      getVideoUrlByType(HowToVideoTypes.Scoring) ||
+                      HowtoVideos.Scoring
+                    }
+                  />
+                </div>
+              </div>
             </Box>
           </div>
         ) : (

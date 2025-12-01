@@ -478,7 +478,7 @@ const AgencySupportAndWidget = () => {
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Image
-                          className="transition-all duration-200 group-hover:invert group-hover:brightness-0"
+                          className="transition-all duration-200 group-hover:[filter:brightness(0)_invert(1)]"
                           src={'/otherAssets/uploadIcon.png'}
                           height={24}
                           width={24}

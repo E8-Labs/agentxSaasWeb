@@ -64,6 +64,7 @@ import DeleteCallLogConfimation from '@/components/dashboard/leads/extras/Delete
 import NoPerplexity from '@/components/dashboard/leads/extras/NoPerplexity'
 import Perplexity from '@/components/dashboard/leads/extras/Perplexity'
 import { Tooltip } from '@mui/material'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
 
 const AdminLeadDetails = ({
   showDetailsModal,
@@ -197,9 +198,9 @@ const AdminLeadDetails = ({
 
   useEffect(() => {
     const getData = async () => {
-      let user = await getProfileDetails()
+      let user = await AdminGetProfileDetails(selectedUser?.id)
       if (user) {
-        setUserLocalData(user.data.data)
+        setUserLocalData(user)
       }
     }
 
@@ -247,6 +248,7 @@ const AdminLeadDetails = ({
     setPhoneLoading(true)
     let id = selectedUser?.id
     let num = await getA2PNumbers(id)
+    
     if (num) {
       setPhoneNumbers(num)
     }
@@ -3235,9 +3237,9 @@ const AdminLeadDetails = ({
             setShowUpgradeModal(false)
             if (upgradeResult) {
               const getData = async () => {
-                let user = await getProfileDetails()
+                let user = await AdminGetProfileDetails(selectedUser?.id)
                 if (user) {
-                  setUserLocalData(user.data.data)
+                  setUserLocalData(user)
                 }
               }
               await getData()

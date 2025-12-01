@@ -23,7 +23,7 @@ import { MUICustomIcon } from '@/components/globalExtras/MUICustomIcon'
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
-import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import { HowtoVideos, HowToVideoTypes, PersistanceKeys } from '@/constants/Constants'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
 import CircularLoader from '@/utilities/CircularLoader'
@@ -35,6 +35,7 @@ import AgentSelectSnackMessage, {
 import NoCalendarView from './NoCalendarView'
 import { Scopes } from './Scopes'
 import MCPView from './mcp/MCPView'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 const UserCalender = ({
   calendarDetails,
@@ -118,6 +119,8 @@ const UserCalender = ({
     token: reduxToken,
   } = useUser()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+  const [introVideoModal, setIntroVideoModal] = useState(false)
 
   useEffect(() => {
     let data = getUserLocalData()
@@ -829,6 +832,41 @@ const UserCalender = ({
                       </Select>
                     </FormControl>
                   )}
+
+                  <div className="w-full mt-4 flex flex-col items-center justify-center">
+                    <div className="w-6/12">
+                      <VideoCard
+                        duration={(() => {
+                          const tutorial = getTutorialByType(HowToVideoTypes.Calendar)
+                          return tutorial?.description || '1:47'
+                        })()}
+                        width="80"
+                        height="100"
+                        horizontal={false}
+                        playVideo={() => {
+                          setIntroVideoModal(true)
+                        }}
+                        title={
+                          getTutorialByType(HowToVideoTypes.Calendar)?.title ||
+                          'Learn how to add Calendar'
+                        }
+
+                      />
+                      {/* Intro modal */}
+                      <IntroVideoModal
+                        open={introVideoModal}
+                        onClose={() => setIntroVideoModal(false)}
+                        videoTitle={
+                          getTutorialByType(HowToVideoTypes.Calendar)?.title ||
+                          'Learn how to add Calendar'
+                        }
+                        videoUrl={
+                          getVideoUrlByType(HowToVideoTypes.Calendar) ||
+                          HowtoVideos.Calendar
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <UpgradeModal

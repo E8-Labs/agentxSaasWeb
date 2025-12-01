@@ -127,13 +127,12 @@ export default function EnrichModal({
           sx={{
             height: 'auto',
             bgcolor: 'transparent',
-            // p: 2,
-            mx: 'auto',
-            my: '50vh',
-            transform: 'translateY(-50%)',
             borderRadius: 2,
             border: 'none',
             outline: 'none',
+            mx: 'auto',
+            my: '50vh',
+            transform: 'translateY(-50%)',
           }}
         >
           <div className="flex flex-row justify-center w-full ">
@@ -143,7 +142,7 @@ export default function EnrichModal({
                 backgroundColor: '#ffffff',
                 padding: 20,
                 borderRadius: '13px',
-                height: '60vh',
+                height: 'auto',
               }}
             >
               <div className="flex flex-row justify-between w-full">

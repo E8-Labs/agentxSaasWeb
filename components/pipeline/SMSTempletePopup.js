@@ -7,6 +7,7 @@ import {
   MenuItem,
   Modal,
   Select,
+  Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
 import { Plus } from '@phosphor-icons/react'
@@ -71,9 +72,9 @@ function SMSTempletePopup({
   // Check if save button should be disabled
   const isSaveDisabled = isLeadSMS
     ? // For lead SMS, only require body content
-      !body?.trim() || saveSmsLoader
+    !body?.trim() || saveSmsLoader
     : // Original validation for pipeline cadence
-      !body?.trim() || saveSmsLoader || !selectedPhone
+    !body?.trim() || saveSmsLoader || !selectedPhone
 
   // Auto-fill form when editing
   useEffect(() => {
@@ -275,7 +276,11 @@ function SMSTempletePopup({
               <CloseBtn onClick={onClose} />
             </div>
 
-            <div className="w-full flex flex-col items-ceter  p-2 bg-brand-primary/10 rounded-lg mb-2">
+            <div className="w-full flex flex-col items-ceter  p-2 rounded-lg mb-2"
+              style={{
+                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+              }}
+            >
               <div className="flex flex-row items-center justify-between w-full">
                 <div className="text-brand-primary text-[14] font-[700]">Note</div>
               </div>
@@ -389,7 +394,7 @@ function SMSTempletePopup({
                 editTitle={
                   isEditing && !IsDefaultCadence ? 'Edit Text' : 'Create Text'
                 }
-                saveUpdates={async () => {}}
+                saveUpdates={async () => { }}
                 limit={160}
               />
             </div>
@@ -402,11 +407,32 @@ function SMSTempletePopup({
             >
               {body.length}/160
               <br />
-              10 text messages equal 1 credit. Balance:
-              <span className="text-brand-primary">
-                {' '}
+            </div>
+
+            <div className="flex flex-row items-center w-full justify-end gap-1"
+              style={{
+                textAlign: 'end',
+              }}
+            >
+              <div className="flex flex-row items-center text-black gap-1 text-[10px] font-[500]">Balance
+                <Tooltip title="10 text messages equal 1 credit"
+                  arrow
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#ffffff',
+                        color: '#333',
+                      },
+                    },
+                  }}
+                >
+                  <Image src="/agencyIcons/InfoIcon.jpg" alt="jpg" width={10} height={10} />
+                </Tooltip>
+              </div>
+              <div className="text-brand-primary text-[10px] font-[500]">
+                <span className="text-black text-[10px] font-[500]">:{"  "}</span>
                 {(user?.totalSecondsAvailable / 60).toFixed(2)}
-              </span>
+              </div>
             </div>
           </div>
           <div className="w-full flex  flex-row items-center w-full gap-6 mt-4">
@@ -421,11 +447,10 @@ function SMSTempletePopup({
               <CircularProgress size={30} />
             ) : (
               <button
-                className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${
-                  isSaveDisabled
-                    ? 'bg-[#00000050]'
-                    : 'bg-brand-primary hover:bg-brand-primary/90'
-                }`}
+                className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${isSaveDisabled
+                  ? 'bg-[#00000050]'
+                  : 'bg-brand-primary hover:bg-brand-primary/90'
+                  }`}
                 disabled={isSaveDisabled}
                 onClick={handleSave}
               >

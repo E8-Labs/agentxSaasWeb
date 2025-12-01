@@ -500,167 +500,208 @@ function MCPView({
         ) : (
           <div className="w-full">
             {mcpTools.length > 0 ? (
-              <FormControl sx={{ m: 1 }} className="w-[97%]">
-                <button
-                  className="flex items-center justify-between border rounded px-2 py-1 cursor-pointer outline-none"
-                  style={{
-                    border: '1px solid #00000020',
-                    minHeight: '57px',
-                  }}
-                  onClick={() => setOpen((prev) => !prev)}
-                >
-                  <div className="flex flex-wrap gap-2">
-                    {selectedMcpIds.length === 0 ? (
-                      <div
-                        className="border-none outline-none bg-transparent w-full"
-                        style={{ color: '#aaa' }}
-                        // onClick={() => setOpen((prev) => !prev)}
-                      >
-                        Select
-                      </div>
-                    ) : (
-                      <span className="text-[15px] font-[500] cursor-pointer">
-                        <div className="flex flex-wrap gap-2 py-2">
-                          {mcpTools
-                            .filter((item) => selectedMcpIds.includes(item.id))
-                            .map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center gap-2 bg-brand-primary text-white rounded-[15px] px-2 py-1" //bg-btngray
-                              >
-                                <span className="text-[15px] font-[500]">
-                                  {item.name}
-                                </span>
-                              </div>
-                            ))}
-                        </div>
-                      </span>
-                    )}
-                  </div>
-
-                  <div
-                    // onClick={() => setOpen((prev) => !prev)}
-                    className="ml-2"
+              <div className="w-full flex flex-col items-center justify-center">
+                <FormControl sx={{ m: 1 }} className="w-[97%]">
+                  <button
+                    className="flex items-center justify-between border rounded px-2 py-1 cursor-pointer outline-none"
+                    style={{
+                      border: '1px solid #00000020',
+                      minHeight: '57px',
+                    }}
+                    onClick={() => setOpen((prev) => !prev)}
                   >
-                    {open ? (
-                      <ArrowDropUpIcon size={16} sx={{ color: '#00000080' }} />
-                    ) : (
-                      <ArrowDropDownIcon
-                        size={16}
-                        sx={{ color: '#00000080' }}
-                      />
-                    )}
-                  </div>
-                </button>
-
-                <Select
-                  multiple
-                  open={open}
-                  onClose={() => setOpen(false)}
-                  onOpen={() => setOpen(true)}
-                  value={selectedMcpIds}
-                  onChange={handleSelectChange}
-                  displayEmpty
-                  IconComponent={() => null}
-                  input={<InputBase sx={{ height: 0 }} />}
-                  renderValue={() => null}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: '30vh',
-                        overflow: 'auto',
-                        scrollbarWidth: 'none',
-                      },
-                    },
-                  }}
-                >
-                  {mcpTools.map((item) => (
-                    <MenuItem
-                      value={item.id}
-                      key={item.id}
-                      disabled={attachMcpLoader}
-                      sx={MenuItemHoverStyles}
-                    >
-                      {attachMcpLoader === item.id ? (
-                        <CircularProgress size={24} />
-                      ) : (
-                        <div className="flex flex-row items-center justify-between w-full">
-                          <div className="flex flex-row items-center gap-3">
-                            {selectedMcpIds.includes(item.id) ? (
-                              <div
-                                className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                                style={{ height: '24px', width: '24px' }}
-                              >
-                                <Image
-                                  src={'/assets/whiteTick.png'}
-                                  height={8}
-                                  width={10}
-                                  alt="*"
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                className="bg-none border-2 rounded"
-                                style={{ height: '24px', width: '24px' }}
-                              ></div>
-                            )}
-                            <div className="text-[15px] font-[500]">
-                              {item.name}
-                            </div>
-                          </div>
-                          <button
-                            className="text-[16px] font-[500] text-black underline"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              setShowEditMcpPopup(true)
-                              setSelectedMcpTool(item)
-                            }}
-                          >
-                            Edit
-                          </button>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedMcpIds.length === 0 ? (
+                        <div
+                          className="border-none outline-none bg-transparent w-full"
+                          style={{ color: '#aaa' }}
+                        // onClick={() => setOpen((prev) => !prev)}
+                        >
+                          Select
                         </div>
+                      ) : (
+                        <span className="text-[15px] font-[500] cursor-pointer">
+                          <div className="flex flex-wrap gap-2 py-2">
+                            {mcpTools
+                              .filter((item) => selectedMcpIds.includes(item.id))
+                              .map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-2 bg-brand-primary text-white rounded-[15px] px-2 py-1" //bg-btngray
+                                >
+                                  <span className="text-[15px] font-[500]">
+                                    {item.name}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </span>
                       )}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    </div>
+
+                    <div
+                      // onClick={() => setOpen((prev) => !prev)}
+                      className="ml-2"
+                    >
+                      {open ? (
+                        <ArrowDropUpIcon size={16} sx={{ color: '#00000080' }} />
+                      ) : (
+                        <ArrowDropDownIcon
+                          size={16}
+                          sx={{ color: '#00000080' }}
+                        />
+                      )}
+                    </div>
+                  </button>
+
+                  <Select
+                    multiple
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    onOpen={() => setOpen(true)}
+                    value={selectedMcpIds}
+                    onChange={handleSelectChange}
+                    displayEmpty
+                    IconComponent={() => null}
+                    input={<InputBase sx={{ height: 0 }} />}
+                    renderValue={() => null}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
+                        },
+                      },
+                    }}
+                  >
+                    {mcpTools.map((item) => (
+                      <MenuItem
+                        value={item.id}
+                        key={item.id}
+                        disabled={attachMcpLoader}
+                        sx={MenuItemHoverStyles}
+                      >
+                        {attachMcpLoader === item.id ? (
+                          <CircularProgress size={24} />
+                        ) : (
+                          <div className="flex flex-row items-center justify-between w-full">
+                            <div className="flex flex-row items-center gap-3">
+                              {selectedMcpIds.includes(item.id) ? (
+                                <div
+                                  className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                                  style={{ height: '24px', width: '24px' }}
+                                >
+                                  <Image
+                                    src={'/assets/whiteTick.png'}
+                                    height={8}
+                                    width={10}
+                                    alt="*"
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="bg-none border-2 rounded"
+                                  style={{ height: '24px', width: '24px' }}
+                                ></div>
+                              )}
+                              <div className="text-[15px] font-[500]">
+                                {item.name}
+                              </div>
+                            </div>
+                            <button
+                              className="text-[16px] font-[500] text-black underline"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                e.preventDefault()
+                                setShowEditMcpPopup(true)
+                                setSelectedMcpTool(item)
+                              }}
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        )}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+
+                <div className="w-full mt-4 flex flex-col items-center justify-center">
+                  <div className="w-6/12">
+                    <VideoCard
+                      duration={(() => {
+                        const tutorial = getTutorialByType(HowToVideoTypes.Tools)
+                        return tutorial?.description || '1:47'
+                      })()}
+                      width="80"
+                      height="100"
+                      horizontal={false}
+                      playVideo={() => {
+                        setIntroVideoModal2(true)
+                      }}
+                      title={
+                        getTutorialByType(HowToVideoTypes.Tools)?.title ||
+                        'Learn how to add Tools'
+                      }
+
+                    />
+                    {/* Intro modal */}
+                    <IntroVideoModal
+                      open={introVideoModal2}
+                      onClose={() => setIntroVideoModal2(false)}
+                      videoTitle={
+                        getTutorialByType(HowToVideoTypes.Tools)?.title ||
+                        'Learn how to add Tools'
+                      }
+                      videoUrl={
+                        getVideoUrlByType(HowToVideoTypes.Tools) ||
+                        HowtoVideos.Tools
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
             ) : (
               noMcpView({
                 setShowAddMcpPopup,
               })
             )}
           </div>
-        )}
+        )
+        }
 
-        {showEditMcpPopup && (
-          <EditMcpPopup
-            open={showEditMcpPopup}
-            handleClose={() => {
-              setShowEditMcpPopup(false)
-              setMcpName('')
-              setMcpUrl('')
-              setMcpDescription('')
-            }}
-            selectedMcpTool={selectedMcpTool}
-            setSelectedMcpTool={setSelectedMcpTool}
-            mcpTools={mcpTools}
-            setMcpTools={setMcpTools}
-            setShowEditMcpPopup={setShowEditMcpPopup}
-            setShowAddMcpPopup={setShowAddMcpPopup}
-            setMcpName={setMcpName}
-            setMcpUrl={setMcpUrl}
-            setMcpDescription={setMcpDescription}
-            mcpName={mcpName}
-            mcpUrl={mcpUrl}
-            mcpDescription={mcpDescription}
-            editMcpLoader={editMcpLoader}
-            handleEditMcp={editMcp}
-            handleDeleteMcp={deleteMcp}
-            deleteMcpLoader={deleteMcpLoader}
-          />
-        )}
-      </div>
+        {
+          showEditMcpPopup && (
+            <EditMcpPopup
+              open={showEditMcpPopup}
+              handleClose={() => {
+                setShowEditMcpPopup(false)
+                setMcpName('')
+                setMcpUrl('')
+                setMcpDescription('')
+              }}
+              selectedMcpTool={selectedMcpTool}
+              setSelectedMcpTool={setSelectedMcpTool}
+              mcpTools={mcpTools}
+              setMcpTools={setMcpTools}
+              setShowEditMcpPopup={setShowEditMcpPopup}
+              setShowAddMcpPopup={setShowAddMcpPopup}
+              setMcpName={setMcpName}
+              setMcpUrl={setMcpUrl}
+              setMcpDescription={setMcpDescription}
+              mcpName={mcpName}
+              mcpUrl={mcpUrl}
+              mcpDescription={mcpDescription}
+              editMcpLoader={editMcpLoader}
+              handleEditMcp={editMcp}
+              handleDeleteMcp={deleteMcp}
+              deleteMcpLoader={deleteMcpLoader}
+            />
+          )
+        }
+      </div >
     )
   }
 
