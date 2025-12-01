@@ -188,7 +188,32 @@ function NotficationsDrawer({ close }) {
   }
 
   function giveFeedback() {
-    router.push('/dashboard/myAccount?tab=5')
+    // Get user data from localStorage
+    const userData = localStorage.getItem('User')
+    let feedbackUrl = '/dashboard/myAccount?tab=5' // Default fallback
+
+    if (userData) {
+      try {
+        const user = JSON.parse(userData)
+        // Check agency settings first (for subaccounts)
+        if (user?.user?.agencySettings?.giveFeedbackUrl) {
+          feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+        }
+        // Then check user's own settings
+        else if (user?.user?.userSettings?.giveFeedbackUrl) {
+          feedbackUrl = user.user.userSettings.giveFeedbackUrl
+        }
+      } catch (error) {
+        console.error('Error parsing user data for feedback URL:', error)
+      }
+    }
+
+    // If it's an external URL, open in new tab, otherwise use router
+    if (feedbackUrl.startsWith('http://') || feedbackUrl.startsWith('https://')) {
+      window.open(feedbackUrl, '_blank')
+    } else {
+      router.push(feedbackUrl)
+    }
   }
 
   const getNotificationImage = (item) => {
@@ -359,6 +384,20 @@ function NotficationsDrawer({ close }) {
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Resolve Now
+          </div>
+        </button>
+      )
+    } else if (item.type === NotificationTypes.NoCallsIn3Days) {
+      return (
+        <button
+          className="outline-none"
+          onClick={() => {
+            router.push('/dashboard/myAgentX')
+            setShowNotificationDrawer(false)
+          }}
+        >
+          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+            View Agents
           </div>
         </button>
       )
