@@ -44,7 +44,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Leads,
     },
     [HowToVideoTypes.AgentConfiguration]: {
-      title: 'Advanced Agent Configuration',
+      title: 'Learn about asking questions (KYC)',
       description: '12:20',
       videoUrl: HowtoVideos.KycQuestions,
     },
@@ -149,7 +149,7 @@ export const getTutorialVideos = () => {
       },
       {
         id: 4,
-        title: 'Advanced Agent Configuration',
+        title: 'Learn about asking questions (KYC)',
         description: '12:20',
         videoUrl: HowtoVideos.KycQuestions,
         enabled: true,

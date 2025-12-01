@@ -59,7 +59,7 @@ const TutorialConfig = () => {
     },
     {
       id: 4,
-      title: 'Advanced Agent Configuration',// old title = Learn about asking questions (KYC) 
+      title: 'Learn about asking questions (KYC)',// old title = Learn about asking questions (KYC) 
       description: '12:20',
       videoUrl: HowtoVideos.KycQuestions,
       enabled: true,
@@ -69,7 +69,7 @@ const TutorialConfig = () => {
     },
     {
       id: 5,
-      title: 'Integrating with CRM Systems',
+      title: 'Learn about pipeline and stages',
       description: '8:50',
       videoUrl: HowtoVideos.Pipeline,
       enabled: false,
