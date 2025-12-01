@@ -647,7 +647,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {`Let's talk digits`}
             </div>
             <div
-              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
+              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-auto overflow-auto"
               // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
               style={{ scrollbarWidth: 'none' }}
             >
@@ -1023,7 +1023,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {userData?.userRole === 'AgencySubAccount' &&
               userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
                 // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center bg-green">
                   <UpgardView
                     setShowSnackMsg={setShowSnackMsg}
                     title={'Enable Live Transfer'}
@@ -1076,7 +1076,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 (!isFromAgencyOrAdmin &&
                   userData?.planCapabilities?.allowLiveCallTransfer ===
                     true) ? (
-                <div>
+                <div className="">
                   <div className="w-full">
                     <div style={styles.headingStyle}>
                       What number should we forward live transfers to when a
