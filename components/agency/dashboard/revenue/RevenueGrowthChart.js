@@ -88,8 +88,8 @@ function RevenueGrowthChart({
   const yTicks = generateYTicks(maxValue)
 
   const formatYAxis = (tick) => {
-    if (tick >= 1000) return `${tick / 1000}k`
-    return tick.toString()
+    if (tick >= 1000) return `$${tick / 1000}k`
+    return `$${tick}`
   }
 
   const handlePeriodSelect = (value) => {
