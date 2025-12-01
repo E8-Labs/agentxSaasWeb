@@ -328,7 +328,7 @@ const AdminDashboard = ({ selectedUser }) => {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col items-center w-full h-[100%]">
+        <div className="flex flex-col items-center w-full h-[100%] mt-4">
           <div className="w-full flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
