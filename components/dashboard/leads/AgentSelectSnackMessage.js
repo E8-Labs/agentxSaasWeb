@@ -80,16 +80,19 @@ export default function AgentSelectSnackMessage({
       const currentMessage = title || message
       const messageKey = `${currentMessage}-${type}`
 
+      // Always dismiss any existing toast before showing a new one
+      // This prevents stacking when messages appear quickly
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current)
+        toastIdRef.current = null
+      }
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
+
       // Only show new toast if message or type changed
       if (lastMessageRef.current !== messageKey) {
-        // Dismiss previous toast if it exists
-        if (toastIdRef.current) {
-          toast.dismiss(toastIdRef.current)
-        }
-        if (timerRef.current) {
-          clearTimeout(timerRef.current)
-        }
-
         const toastMessage = title || message
         const toastDescription = title ? message : null
 
@@ -107,6 +110,7 @@ export default function AgentSelectSnackMessage({
             transform: 'translateX(-50%)',
             marginLeft: 'auto',
             marginRight: 'auto',
+            whiteSpace: 'nowrap',
           },
         }
 
