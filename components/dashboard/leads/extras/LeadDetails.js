@@ -1074,8 +1074,9 @@ const LeadDetails = ({
       }
     } catch (error) {
       console.error("Error sending email:", error);
-      setShowErrorSnack("Failed to send email. Please try again.");
+      setShowErrorSnack(error?.response?.data?.error||"Failed to send email");
       setShowErrorSnack2(true);
+      setSendEmailLoader(false)
     } finally {
       setSendEmailLoader(false);
     }

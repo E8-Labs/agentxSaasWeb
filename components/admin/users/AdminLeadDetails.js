@@ -45,6 +45,9 @@ import { callStatusColors } from "@/constants/Constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { UpgradeTagWithModal } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
+import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
+import { getGmailAccounts } from "@/components/pipeline/TempleteServices";
+import AuthSelectionPopup from "@/components/pipeline/AuthSelectionPopup";
 
 const AdminLeadDetails = ({
   showDetailsModal,
@@ -57,6 +60,7 @@ const AdminLeadDetails = ({
   noBackDrop = false,
   leadStageUpdated,
   leadAssignedTeam,
+  selectedUser,
 }) => {
   // //console.log;
   // //console.log;
@@ -89,6 +93,9 @@ const AdminLeadDetails = ({
   const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
   const [expandedCustomFields, setExpandedCustomFields] = useState([]); // check if the custom fields Read More or Read less should show
+
+  const [showEmailModal, setShowEmailModal] = useState(false)
+
 
   //code for audio play popup
   const [showAudioPlay, setShowAudioPlay] = useState(null);
@@ -126,6 +133,15 @@ const AdminLeadDetails = ({
 
   //variable for gtteam loader
   const [getTeamLoader, setGetTeamLoader] = useState(false);
+  const [sendEmailLoader, setSendEmailLoader] = useState(false);
+
+  // Email functionality states
+  const [googleAccounts, setGoogleAccounts] = useState([]);
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null);
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false);
+  
+  // Selected user state
+
 
   // Redux user hook for upgrade tag
   const { user: reduxUser, setUser: setReduxUser } = useUser();
@@ -142,6 +158,9 @@ const AdminLeadDetails = ({
       getStagesList(selectedLead);
     }
     getMyteam();
+    getGoogleAccounts();
+    
+  
   }, [selectedLead]);
 
     //function to truncate email to 11 characters
@@ -149,6 +168,17 @@ const AdminLeadDetails = ({
       if (!email) return ''
       return email.length > 11 ? email.slice(0, 11) + '...' : email
     }
+
+  //function to get Google accounts
+  const getGoogleAccounts = async () => {
+    try {
+      const accounts = await getGmailAccounts();
+      setGoogleAccounts(accounts);
+      setSelectedGoogleAccount(accounts[0] || null);
+    } catch (error) {
+      console.error("Error fetching Google accounts:", error);
+    }
+  };
 
   //code for getting teammebers
   const getMyteam = async () => {
@@ -666,6 +696,60 @@ const AdminLeadDetails = ({
     }
   };
 
+    // Send email API function
+    const sendEmailToLead = async (emailData) => {
+      try {
+        setSendEmailLoader(true)
+  
+        const localData = localStorage.getItem('User')
+        if (!localData) {
+          throw new Error('User not found')
+        }
+  
+        const userData = JSON.parse(localData)
+        const formData = new FormData()
+  
+        formData.append('leadId', selectedLeadsDetails?.id)
+        formData.append('subject', emailData.subject || '')
+        formData.append('content', emailData.content || '')
+        formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []))
+        formData.append(
+          'emailAccountId',
+          JSON.stringify(selectedGoogleAccount?.id || []),
+        )
+  
+        if (emailData.attachments && emailData.attachments.length > 0) {
+          emailData.attachments.forEach((file) => {
+            formData.append('attachments', file)
+          })
+        }
+  
+        const response = await axios.post(Apis.sendEmailToLead, formData, {
+          headers: {
+            Authorization: `Bearer ${userData.token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+  
+        if (response.data.status === true) {
+          setShowSuccessSnack('Email sent successfully!')
+          setShowSuccessSnack2(true)
+          setShowEmailModal(false)
+        } else {
+          setShowErrorSnack(response.data.message || 'Failed to send email')
+          setShowErrorSnack2(true)
+        }
+      } catch (error) {
+        console.error('Error sending email:', error)
+        setShowErrorSnack(error?.response?.data?.error||"Failed to send email")
+        setShowErrorSnack2(true)
+        setSendEmailLoader(false)
+      } finally {
+        setSendEmailLoader(false)
+      }
+    }
+
+
   const handleCopy = async (id) => {
     try {
       await navigator.clipboard.writeText(id);
@@ -819,13 +903,11 @@ const AdminLeadDetails = ({
                             <div className="flex flex-row items-center gap-4">
                               <div
                                 className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                onClick={() => handleToggleClick(item.id)}
                               >
                                 {selectedLeadsDetails?.firstName.slice(0, 1)}
                               </div>
                               <div
                                 className="truncate"
-                                onClick={() => handleToggleClick(item.id)}
                               >
                                 {selectedLeadsDetails?.firstName}{" "}
                                 {selectedLeadsDetails?.lastName}
@@ -1572,7 +1654,6 @@ const AdminLeadDetails = ({
                                 ) : (
                                   <div
                                     className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                    onClick={() => handleToggleClick(item.id)}
                                   >
                                     {myTeamAdmin?.name.slice(0, 1)}
                                   </div>
@@ -1613,9 +1694,6 @@ const AdminLeadDetails = ({
                                       ) : (
                                         <div
                                           className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
                                           {item?.name.slice(0, 1)}
                                         </div>
@@ -2419,6 +2497,46 @@ const AdminLeadDetails = ({
           </div>
         </Box>
       </Modal>
+
+        <EmailTempletePopup
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        communicationType="email"
+        addRow={null}
+        isEditing={false}
+        editingRow={null}
+        onUpdateRow={null}
+        selectedGoogleAccount={selectedGoogleAccount}
+        setSelectedGoogleAccount={setSelectedGoogleAccount}
+        onSendEmail={sendEmailToLead}
+        isLeadEmail={true}
+        leadEmail={
+          selectedLeadsDetails?.email ||
+          selectedLeadsDetails?.emails?.[0]?.email
+        }
+        leadId={selectedLeadsDetails?.id}
+        selectedUser={selectedUser}
+      />
+
+      <AuthSelectionPopup
+        open={showAuthSelectionPopup}
+        onClose={() => setShowAuthSelectionPopup(false)}
+        onSuccess={() => {
+          getGoogleAccounts();
+          setShowEmailModal(true);
+          setShowAuthSelectionPopup(false);
+        }}
+        setShowEmailTempPopup={(value) => {
+          setShowEmailModal(value);
+          setShowAuthSelectionPopup(false);
+        }}
+        showEmailTempPopup={showEmailModal}
+        selectedGoogleAccount={selectedGoogleAccount}
+        setSelectedGoogleAccount={(account) => {
+          setSelectedGoogleAccount(account);
+        }}
+      />
+
 
       {/* Modal to add notes */}
 
