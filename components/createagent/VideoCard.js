@@ -42,9 +42,20 @@ const VideoCard = ({
         playVideo();
       }}
     >
+
+      {/* Content Section */}
+      <div className="flex flex-col items-start gap-3">
+        <h3
+          className="font-medium text-gray-800 pb-2"
+          style={{ fontSize: "15px" }}
+        >
+          {title}
+        </h3>
+
+      </div>
       {/* Video Thumbnail */}
-      <div className="flex flex-row items-end justify-between w-full">
-        <div className="flex flex-row items-start gap-2">
+      <div className="flex flex-row items-start justify-between w-full">
+        <div className="flex flex-row items-end gap-2">
           <div className="relative flex-shrink-0">
             <Image
               src="/assets/youtubeplay.png"
@@ -62,7 +73,7 @@ const VideoCard = ({
             />
 
             <div style={{
-              fontSize: 12, fontWeight: 500, color: "black",whiteSpace:'nowrap'
+              fontSize: 12, fontWeight: 500, color: "black", whiteSpace: 'nowrap'
             }}>
               Show me how!
             </div>
@@ -75,16 +86,7 @@ const VideoCard = ({
         </div>
       </div>
 
-      {/* Content Section */}
-      <div className="flex flex-col items-start gap-3">
-        <h3
-          className="font-medium text-gray-800 pt-1"
-          style={{ fontSize: "15px" }}
-        >
-          {title}
-        </h3>
 
-      </div>
     </div>
   );
 };
