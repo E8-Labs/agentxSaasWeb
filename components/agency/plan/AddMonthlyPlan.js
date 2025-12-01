@@ -56,6 +56,7 @@ export default function AddMonthlyPlan({
   const [snackBannerMsg, setSnackBannerMsg] = useState(null);
   const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
   const [minCostErr, setMinCostErr] = useState(false);
+  const [profitMarginErr, setProfitMarginErr] = useState(false);
 
   //plan passed is
   const [planPassed, setPlanPassed] = useState(null);
@@ -338,6 +339,30 @@ export default function AddMonthlyPlan({
     }
   }, [minutes, discountedPrice]);
 
+  // Check profit margin
+  useEffect(() => {
+    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      setProfitMarginErr(false);
+      return;
+    }
+    const margin =
+      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100;
+    if (margin < 10) {
+      setProfitMarginErr(true);
+      setSnackBannerMsg(
+        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+      );
+      setSnackBannerMsgType(SnackbarTypes.Error);
+    } else {
+      setProfitMarginErr(false);
+      if (snackBannerMsg && snackBannerMsg.includes('Profit margin')) {
+        setSnackBannerMsg(null);
+      }
+    }
+  }, [discountedPrice, agencyPlanCost, minutes, snackBannerMsg]);
+
   //check percentage calculation
   const checkCalulations = () => {
     if (originalPrice > 0) {
@@ -347,6 +372,18 @@ export default function AddMonthlyPlan({
       console.log("Percenage of addmonthly plan is", percentage)
     }
   }
+
+  // Calculate profit margin percentage
+  const calculateProfitMargin = () => {
+    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      return null;
+    }
+    const margin =
+      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100;
+    return margin;
+  };
 
   //sets the addition data
   const setFeaturesData = () => {
@@ -398,6 +435,7 @@ export default function AddMonthlyPlan({
     setDiscountedPrice("")
     setMinutes("")
     setMinCostErr(false)
+    setProfitMarginErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
     setAllowTrial(false)
@@ -445,6 +483,16 @@ export default function AddMonthlyPlan({
 
   //handle next
   const handleNext = () => {
+    // Validate profit margin before continuing
+    const margin = calculateProfitMargin();
+    if (margin !== null && margin < 10) {
+      setSnackMsg(
+        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+      );
+      setSnackMsgType(SnackbarTypes.Error);
+      return;
+    }
+
     console.log(`value of original price is${originalPrice} && is default value is ${Boolean(isDefault)}`)
     const planData = {
       title: title,
@@ -560,7 +608,11 @@ export default function AddMonthlyPlan({
       trialValid = trialDays > 0 && trialDays <= 14;
     }
 
-    return requiredFieldsFilled && trialValid && !minCostErr;
+    // Check profit margin
+    const margin = calculateProfitMargin();
+    const marginValid = margin === null || margin >= 10;
+
+    return requiredFieldsFilled && trialValid && !minCostErr && !profitMarginErr && marginValid;
   };
 
 
