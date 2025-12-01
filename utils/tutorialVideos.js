@@ -44,13 +44,13 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Leads,
     },
     [HowToVideoTypes.AgentConfiguration]: {
-      title: "Advanced Agent Configuration",
-      description: "12:20",
+      title: 'Learn about asking questions (KYC)',
+      description: '12:20',
       videoUrl: HowtoVideos.KycQuestions,
     },
     [HowToVideoTypes.CRMIntegration]: {
-      title: "Integrating with CRM Systems",
-      description: "8:50",
+      title: 'Integrating with CRM Systems',
+      description: '8:50',
       videoUrl: HowtoVideos.Pipeline,
     },
     [HowToVideoTypes.Script]: {
@@ -138,21 +138,21 @@ export const getTutorialVideos = () => {
       },
       {
         id: 4,
-        title: "Advanced Agent Configuration",
-        description: "12:20",
+        title: 'Learn about asking questions (KYC)',
+        description: '12:20',
         videoUrl: HowtoVideos.KycQuestions,
         enabled: true,
         videoType: HowToVideoTypes.AgentConfiguration,
-        thumbnailSrc: "/assets/youtubeplay.png"
+        thumbnailSrc: '/assets/youtubeplay.png',
       },
       {
         id: 5,
-        title: "Integrating with CRM Systems",
-        description: "8:50",
+        title: 'Integrating with CRM Systems',
+        description: '8:50',
         videoUrl: HowtoVideos.Pipeline,
         enabled: true,
         videoType: HowToVideoTypes.CRMIntegration,
-        thumbnailSrc: "/assets/youtubeplay.png"
+        thumbnailSrc: '/assets/youtubeplay.png',
       },
       {
         id: 6,

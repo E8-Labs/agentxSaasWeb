@@ -26,12 +26,13 @@ const TutorialConfig = () => {
   let defaultTutorials = [
     {
       id: 1,
-      title: "Get Started with Creating Agents",
-      description: "1:41",
+      title: 'Get Started with Creating Agents',
+      description: '1:41',
       videoUrl: HowtoVideos.GettingStarted,
       enabled: true,
       videoType: HowToVideoTypes.GettingStarted,
-      thumbnailSrc: "/assets/youtubeplay.png"
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/createagent/CreateAgent1.js
     },
     // {
     //   id: 2,
@@ -45,30 +46,33 @@ const TutorialConfig = () => {
     // },
     {
       id: 3,
-      title: "Managing Leads and Contacts",
-      description: "7:15",
+      title: 'Managing Leads and Contacts',
+      description: '7:15',
       videoUrl: HowtoVideos.Leads,
       enabled: false,
       videoType: HowToVideoTypes.LeadsAndContacts,
-      thumbnailSrc: "/assets/youtubeplay.png"
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/dashboard/leads/Leads1.js, components/admin/users/AdminLeads1.js
     },
     {
       id: 4,
-      title: "Advanced Agent Configuration",
-      description: "12:20",
+      title: 'Learn about asking questions (KYC)',// old title = Learn about asking questions (KYC) 
+      description: '12:20',
       videoUrl: HowtoVideos.KycQuestions,
       enabled: true,
       videoType: HowToVideoTypes.AgentConfiguration,
-      thumbnailSrc: "/assets/youtubeplay.png"
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/kycQuestions/buyerKyc/BuyerKycs.js, components/kycQuestions/SellerKycs.js, components/pipeline/KYCs.js
     },
     {
       id: 5,
-      title: "Integrating with CRM Systems",
-      description: "8:50",
+      title: 'Learn about pipeline and stages',
+      description: '8:50',
       videoUrl: HowtoVideos.Pipeline,
       enabled: false,
       videoType: HowToVideoTypes.CRMIntegration,
-      thumbnailSrc: "/assets/youtubeplay.png"
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/pipeline/Pipeline1.js
     },
     {
       id: 6,
@@ -223,19 +227,39 @@ const TutorialConfig = () => {
       
       // Check if this is an uploaded video (has database properties like uploadStatus, userId, or videoUrl from uploads)
       // Default tutorials have IDs like 1, 2, 3 and videoUrl from HowtoVideos constants
-      const isUploadedVideo = selectedTutorial && (
-        selectedTutorial.uploadStatus !== undefined || 
-        selectedTutorial.userId !== undefined ||
-        (selectedTutorial.videoUrl && (
-          selectedTutorial.videoUrl.includes('/uploads/') || 
-          selectedTutorial.videoUrl.includes('/agentx/uploads/') ||
-          selectedTutorial.videoUrl.includes('/agentxtest/uploads/')
-        ))
-      );
-      
-      // If editing an existing uploaded video, include videoId
-      if (isEditMode && isUploadedVideo && selectedTutorial.id) {
-        formData.append("videoId", selectedTutorial.id);
+      // IMPORTANT: Default tutorials have numeric IDs (1-11) but are NOT uploaded videos
+      // Uploaded videos have database IDs (typically > 11) and uploadStatus/userId properties
+      const isUploadedVideo =
+        selectedTutorial &&
+        // Must have uploadStatus OR userId (database properties) OR uploaded videoUrl
+        (selectedTutorial.uploadStatus !== undefined ||
+          selectedTutorial.userId !== undefined ||
+          (selectedTutorial.videoUrl &&
+            (selectedTutorial.videoUrl.includes('/uploads/') ||
+              selectedTutorial.videoUrl.includes('/agentx/uploads/') ||
+              selectedTutorial.videoUrl.includes('/agentxtest/uploads/')))) &&
+        // AND the ID must be a database ID (not a default tutorial ID 1-11)
+        selectedTutorial.id &&
+        typeof selectedTutorial.id === 'number' &&
+        selectedTutorial.id > 11 // Database IDs are > 11, default tutorial IDs are 1-11
+
+      console.log('isUploadedVideo check:', {
+        id: selectedTutorial?.id,
+        idType: typeof selectedTutorial?.id,
+        idGreaterThan11: selectedTutorial?.id > 11,
+        uploadStatus: selectedTutorial?.uploadStatus,
+        userId: selectedTutorial?.userId,
+        videoUrl: selectedTutorial?.videoUrl,
+        isUploadedVideo: isUploadedVideo,
+      })
+
+      // Only append videoId if this is an existing uploaded video (not a default tutorial)
+      // Default tutorials have IDs 1-11, uploaded videos have database IDs > 11
+      if (isEditMode && isUploadedVideo && selectedTutorial.id && selectedTutorial.id > 11) {
+        formData.append('videoId', selectedTutorial.id)
+        console.log('Appending videoId:', selectedTutorial.id)
+      } else {
+        console.log('NOT appending videoId - using upload endpoint for default tutorial or new upload')
       }
       
       // Only append media if a new file is selected
@@ -258,12 +282,13 @@ const TutorialConfig = () => {
 
       // Use update endpoint only if editing an existing uploaded video
       // Use upload endpoint for default tutorials (even in "edit" mode) or new uploads
-      const apiEndpoint = (isEditMode && isUploadedVideo && selectedTutorial.id) 
-        ? Apis.updateHowToVideo 
-        : Apis.uploadHowToVideo;
+      const apiEndpoint =
+        isEditMode && isUploadedVideo && selectedTutorial.id
+          ? Apis.updateHowToVideo
+          : Apis.uploadHowToVideo
 
-      console.log("Using API endpoint:", apiEndpoint);
-      console.log("isUploadedVideo:", isUploadedVideo);
+      console.log('Using API endpoint:', apiEndpoint)
+      console.log('isUploadedVideo:', isUploadedVideo)
 
       response = await axios.post(apiEndpoint, formData, {
         headers: {
