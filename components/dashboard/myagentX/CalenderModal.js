@@ -232,10 +232,13 @@ function CalendarModal(props) {
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(async () => {
     const currentPath = window.location.origin + window.location.pathname
-    // Use assignx.ai redirect handler (registered in GHL console)
-    const GHL_REDIRECT_URI =
-      process.env.NEXT_PUBLIC_GHL_REDIRECT_URI ||
-      `${window.location.protocol}//${window.location.host}/api/oauth/redirect`
+    
+    // Construct redirect URI dynamically based on environment
+    // Always use /api/oauth/redirect path, but determine base URL from environment
+    const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+    const GHL_REDIRECT_URI = isProduction
+      ? 'https://app.assignx.ai/api/oauth/redirect'
+      : 'https://dev.assignx.ai/api/oauth/redirect'
 
     // Get agency custom domain from API
     const { agencyId, customDomain } = await getAgencyCustomDomain()
