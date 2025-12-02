@@ -119,16 +119,41 @@ export default function AddGHLBtn() {
     // Get agency custom domain from API
     const { agencyId, customDomain } = await getAgencyCustomDomain()
 
-    // Generate state parameter only if we have custom domain
+    // Also check if current hostname is a custom domain or subdomain
+    const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
+    const isCustomDomain = currentHostname && 
+      !currentHostname.includes('app.assignx.ai') && 
+      !currentHostname.includes('dev.assignx.ai') &&
+      !currentHostname.includes('localhost') &&
+      !currentHostname.includes('127.0.0.1')
+
+    // Use custom domain from API, or fallback to current hostname if it's a custom domain
+    const domainToUse = customDomain || (isCustomDomain ? currentHostname : null)
+
+    // Debug logging
+    console.log('GHL OAuth Initiation (AddGHLBtn) - Debug Info:')
+    console.log('- Current hostname:', currentHostname)
+    console.log('- Current path:', currentPath)
+    console.log('- Agency ID:', agencyId)
+    console.log('- Custom Domain from API:', customDomain)
+    console.log('- Is custom domain/subdomain:', isCustomDomain)
+    console.log('- Domain to use:', domainToUse)
+
+    // Generate state parameter if we have a domain to redirect back to
     let stateParam = null
-    if (customDomain && agencyId) {
+    if (domainToUse && agencyId) {
       stateParam = generateOAuthState({
         agencyId,
-        customDomain: customDomain,
+        customDomain: domainToUse,
         provider: 'ghl',
         subaccountId: null,
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
+      console.log('Generated state parameter for custom domain:', stateParam)
+    } else {
+      console.log('No custom domain or agencyId - state parameter will not be included')
+      console.log('- domainToUse:', domainToUse)
+      console.log('- agencyId:', agencyId)
     }
 
     // Build scopes as a space-separated string

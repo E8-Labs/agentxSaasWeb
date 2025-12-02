@@ -70,8 +70,16 @@ export async function GET(req) {
   // Parse state if present
   const stateData = state ? parseOAuthState(state) : null
 
+  // Debug logging
+  console.log('OAuth Redirect Handler - Debug Info:')
+  console.log('- Has code:', !!code)
+  console.log('- Has state:', !!state)
+  console.log('- State data:', stateData)
+  console.log('- Custom domain in state:', stateData?.customDomain)
+
   // Backward compatibility: If no state or no custom domain, use existing flow
   if (!stateData || !stateData.customDomain) {
+    console.log('No custom domain in state - using existing flow')
     // Determine provider from state or default to google
     const provider = stateData?.provider || 'google'
     
@@ -107,6 +115,8 @@ export async function GET(req) {
   // Custom domain flow: Verify domain and redirect
   try {
     const { customDomain, agencyId, provider } = stateData
+
+    console.log('Custom domain flow - verifying domain:', customDomain, 'for agency:', agencyId)
 
     // Verify custom domain exists and is active
     const baseUrl =
