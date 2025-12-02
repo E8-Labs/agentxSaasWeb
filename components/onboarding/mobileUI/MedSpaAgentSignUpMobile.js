@@ -701,7 +701,7 @@ const MedSpaAgentSignUpMobile = ({
                 <div>
                   {locationLoader && (
                     <p
-                      className="text-purple"
+                      className="text-brand-primary"
                       style={{ ...styles.errmsg, height: '20px' }}
                     >
                       Getting location ...
@@ -934,7 +934,7 @@ const MedSpaAgentSignUpMobile = ({
                           <CircularProgress size={17} />
                         ) : (
                           <button
-                            className="outline-none border-none text-purple"
+                            className="outline-none border-none text-brand-primary"
                             onClick={handleVerifyPopup}
                           >
                             Resend
@@ -947,7 +947,7 @@ const MedSpaAgentSignUpMobile = ({
                         </div>
                       ) : (
                         <button
-                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          className="text-white bg-brand-primary outline-none rounded-xl w-full mt-8"
                           style={{ height: '50px' }}
                           onClick={handleVerifyCode}
                         >

@@ -468,22 +468,35 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                       }}
                     >
                       <div className="flex flex-row items-center w-full justify-between">
-                        <div>
-                          {item.id === toggleClick ? (
-                            <Image
-                              src={item.focusIcn}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={item.unFocusIcon}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          )}
+                        <div
+                          className={
+                            item.id === toggleClick
+                              ? 'icon-brand-primary'
+                              : 'icon-black'
+                          }
+                          style={
+                            item.id === toggleClick
+                              ? {
+                                  '--icon-mask-image': `url(${item.focusIcn})`,
+                                  width: 30,
+                                  height: 30,
+                                }
+                              : {
+                                  width: 30,
+                                  height: 30,
+                                }
+                          }
+                        >
+                          <Image
+                            src={
+                              item.id === toggleClick
+                                ? item.focusIcn
+                                : item.unFocusIcon
+                            }
+                            height={30}
+                            width={30}
+                            alt="*"
+                          />
                         </div>
                         <div>
                           {item.id === toggleClick ? (

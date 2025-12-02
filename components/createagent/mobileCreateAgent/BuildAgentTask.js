@@ -403,21 +403,36 @@ const BuildAgentTask = ({
                   }}
                   onClick={handleOutBoundCallClick}
                 >
-                  {OutBoundCalls ? (
+                  <div
+                    className={
+                      OutBoundCalls
+                        ? 'icon-brand-primary'
+                        : 'icon-black'
+                    }
+                    style={
+                      OutBoundCalls
+                        ? {
+                            '--icon-mask-image': `url(/svgIcons/callOutFocus.svg)`,
+                            width: 24,
+                            height: 24,
+                          }
+                        : {
+                            width: 24,
+                            height: 24,
+                          }
+                    }
+                  >
                     <Image
-                      src={'/svgIcons/callOutFocus.svg'}
+                      src={
+                        OutBoundCalls
+                          ? '/svgIcons/callOutFocus.svg'
+                          : '/svgIcons/callOut.svg'
+                      }
                       height={24}
                       width={24}
                       alt="*"
                     />
-                  ) : (
-                    <Image
-                      src={'/svgIcons/callOut.svg'}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  )}
+                  </div>
                   <div
                     className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
                     style={{
@@ -437,21 +452,36 @@ const BuildAgentTask = ({
                   }}
                   onClick={handleInboundCallClick}
                 >
-                  {InBoundCalls ? (
+                  <div
+                    className={
+                      InBoundCalls
+                        ? 'icon-brand-primary'
+                        : 'icon-black'
+                    }
+                    style={
+                      InBoundCalls
+                        ? {
+                            '--icon-mask-image': `url(/svgIcons/callInFocus.svg)`,
+                            width: 24,
+                            height: 24,
+                          }
+                        : {
+                            width: 24,
+                            height: 24,
+                          }
+                    }
+                  >
                     <Image
-                      src={'/svgIcons/callInFocus.svg'}
-                      height={29}
-                      width={29}
-                      alt="*"
-                    />
-                  ) : (
-                    <Image
-                      src={'/assets/callIn.png'}
+                      src={
+                        InBoundCalls
+                          ? '/svgIcons/callInFocus.svg'
+                          : '/assets/callIn.png'
+                      }
                       height={24}
                       width={24}
                       alt="*"
                     />
-                  )}
+                  </div>
                   <div
                     className="text-start ms-2 sm:text-center sm:ms-0"
                     style={styles.inputStyle}
