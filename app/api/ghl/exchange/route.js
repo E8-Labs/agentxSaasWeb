@@ -74,25 +74,39 @@
 // }
 // app/api/ghl/exchange/route.js
 import { NextResponse } from 'next/server'
+import { parseOAuthState } from '@/utils/oauthState'
 
 export async function GET(req) {
   console.log('Trigered the Exchange token file')
   const { searchParams } = new URL(req.url)
-  const redirectUri = searchParams.get('redirect_uri') ?? '' //process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
+  const redirectUri = searchParams.get('redirect_uri') ?? '' // This is the custom domain redirect URI
   console.log('Redirect url of GHL calendar is', redirectUri)
   const code = searchParams.get('code')
+  const state = searchParams.get('state')
+  
   if (!code)
     return NextResponse.json({ error: 'Missing code' }, { status: 400 })
-  if (!redirectUri)
-    return NextResponse.json({ error: 'Missing redirect url' }, { status: 400 })
+
+  // Parse state to get the approved redirect URI (the one registered in GHL console)
+  const stateData = state ? parseOAuthState(state) : null
+  
+  // For GHL token exchange, we MUST use the approved redirect URI (dev.assignx.ai or app.assignx.ai)
+  // NOT the custom domain redirect URI
+  // The approved redirect URI is what was used in the initial OAuth authorization request
+  const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+  const approvedRedirectUri = isProduction
+    ? 'https://app.assignx.ai/dashboard/myAgentX'
+    : 'https://dev.assignx.ai/dashboard/myAgentX'
+  
+  console.log('Using approved redirect URI for GHL token exchange:', approvedRedirectUri)
+  console.log('Custom domain redirect URI (for redirect back):', redirectUri)
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
     client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
     client_secret: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
-    redirect_uri: redirectUri,
-    // redirect_uri: process.env.GHL_REDIRECT_URI,
+    redirect_uri: approvedRedirectUri, // Use approved URI for token exchange
   })
 
   const r = await fetch('https://services.leadconnectorhq.com/oauth/token', {
@@ -108,14 +122,42 @@ export async function GET(req) {
   const json = await r.json()
   console.log('R of GHL Auth api in json is', json)
   console.log('R of GHL Auth api simple is', r)
-  if (!r.ok) return NextResponse.json(json, { status: r.status })
+  console.log('GHL Token Exchange Response Status:', r.status)
+  console.log('GHL Token Exchange Response Body:', JSON.stringify(json, null, 2))
+  
+  if (!r.ok) {
+    console.error('❌ GHL Token Exchange Failed:')
+    console.error('- Status:', r.status)
+    console.error('- Response:', json)
+    console.error('- Request redirect_uri used:', approvedRedirectUri)
+    return NextResponse.json(json, { status: r.status })
+  }
 
   const isProd = process.env.NODE_ENV === 'production'
-  const res = NextResponse.json({
-    ok: true,
-    locationId: json.locationId ?? null,
-  }) // return locationId for UI
   const maxAge = Math.max(60, (json.expires_in ?? 3600) - 60)
+
+  // Build redirect URL back to original page (custom domain)
+  // Use originalRedirectUri from state if available, otherwise use the redirectUri param
+  const originalRedirectUri = stateData?.originalRedirectUri || redirectUri
+  
+  let redirectBackUrl = originalRedirectUri
+  if (!redirectBackUrl) {
+    // Fallback: use current origin + /dashboard/myAgentX
+    const currentUrl = new URL(req.url)
+    redirectBackUrl = `${currentUrl.origin}/dashboard/myAgentX`
+  }
+  
+  console.log('Redirecting back to:', redirectBackUrl)
+
+  // Add success parameter to indicate OAuth completed
+  const redirectUrl = new URL(redirectBackUrl)
+  redirectUrl.searchParams.set('ghl_oauth', 'success')
+  if (json.locationId) {
+    redirectUrl.searchParams.set('locationId', json.locationId)
+  }
+
+  // Create redirect response with cookies
+  const res = NextResponse.redirect(redirectUrl.toString())
 
   res.cookies.set('ghl_access_token', json.access_token, {
     httpOnly: true,
@@ -143,5 +185,6 @@ export async function GET(req) {
     })
   }
 
+  console.log('✅ GHL OAuth exchange successful, redirecting to:', redirectUrl.toString())
   return res
 }

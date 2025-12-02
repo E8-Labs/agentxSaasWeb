@@ -135,6 +135,7 @@ function Page() {
   const [hasInitialized, setHasInitialized] = useState(false)
 
   // Handle OAuth callbacks - redirect to handler if OAuth parameters are present
+  // Also handle GHL OAuth success redirect from exchange route
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -143,8 +144,29 @@ function Page() {
     const state = params.get('state')
     const error = params.get('error')
     const redirectUri = params.get('redirect_uri')
+    const ghlOauthSuccess = params.get('ghl_oauth')
+    const locationId = params.get('locationId')
 
-    // If OAuth parameters are present, redirect to the OAuth handler
+    // Handle GHL OAuth success redirect (after token exchange)
+    if (ghlOauthSuccess === 'success') {
+      console.log('✅ GHL OAuth successful, triggering calendar refresh')
+      
+      // Clean up URL by removing OAuth parameters
+      const cleanUrl = new URL(window.location.href)
+      cleanUrl.searchParams.delete('ghl_oauth')
+      cleanUrl.searchParams.delete('locationId')
+      window.history.replaceState({}, '', cleanUrl.toString())
+
+      // Trigger calendar refresh by dispatching a custom event
+      // The CalendarModal component listens for this event
+      window.dispatchEvent(new CustomEvent('ghl-oauth-success', { 
+        detail: { locationId } 
+      }))
+      
+      return
+    }
+
+    // If OAuth parameters are present (but not from exchange route), redirect to the OAuth handler
     if (code || error) {
       // Build redirect URL to the OAuth handler
       const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)

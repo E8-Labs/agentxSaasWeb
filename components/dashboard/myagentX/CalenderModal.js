@@ -100,6 +100,39 @@ function CalendarModal(props) {
     }
   }, [])
 
+  // Function to handle GHL OAuth success (shared between popup and redirect flows)
+  const handleGHLSuccess = async (locationId = null) => {
+    setShowAddNewGHLCalender(true)
+    setStatus('Connected! Loading calendars...')
+
+    try {
+      const calRes = await fetch(`/api/ghl/calendars/`)
+      if (!calRes.ok) {
+        setStatus(`Failed to load calendars (${calRes.status})`)
+        setShowSnack({
+          message: `Failed to load calendars (${calRes.status})`,
+          type: SnackbarTypes.Error,
+          isVisible: true,
+        })
+        console.error(await calRes.text())
+        return
+      }
+      const calendars = await calRes.json()
+      console.log('Calendars fetched are', calendars)
+      setStatus('')
+      let ghlCalendars = calendars?.calendars
+      setGHLCalendars(ghlCalendars)
+    } catch (error) {
+      console.error('Error loading calendars:', error)
+      setStatus('Failed to load calendars')
+      setShowSnack({
+        message: 'Failed to load calendars',
+        type: SnackbarTypes.Error,
+        isVisible: true,
+      })
+    }
+  }
+
   // Main window: listen for the popup's message
   useEffect(() => {
     function onMessage(e) {
@@ -123,12 +156,6 @@ function CalendarModal(props) {
       ;(async () => {
         setShowAddNewGHLCalender(true)
         setStatus('Exchanging code...')
-        // setShowSnack({
-        //   message: "Exchanging code...",
-        //   type: "",
-        //   isVisible: true
-        // })
-        // const res = await fetch(`/api/ghl/exchange?code=${encodeURIComponent(code)}`);
         const res = await fetch(
           `/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`,
         )
@@ -144,68 +171,26 @@ function CalendarModal(props) {
           console.error(json)
           return
         }
-        // setStatus("Connected!");
         console.log('Token recieving are', json)
         setTokens(json)
-        // setStatus("Connected! Loading calendars...");
-        // const calRes = await fetch("/api/ghl/calendars");
-        // const calendars = await calRes.json();
-        // if (!calRes.ok) {
-        //   setStatus("Failed to load calendars");
-        //   console.log(calendars);
-        // } else {
-        //   setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
-        //   setTokens(calendars); // or keep separate state like setCalendars(calendars)
-        // }
-
-        setStatus('Connected! Loading locations...')
-        // const locRes = await fetch("/api/ghl/locations");
-        // if (!locRes.ok) {
-        //   setStatus(`Failed to load locations (${locRes.status})`);
-        //   console.error(await locRes.text());
-        //   return;
-        // }
-        // const locs = await locRes.json();
-        // const locationId = locs?.locations?.[0]?.id; // pick one or show a selector
-        // const locationId = cookieStore.get("ghl_location_id")?.value;
-        // if (!locationId) {
-        //   setStatus("No locations found for this token");
-        //   return;
-        // }else{
-        // console.log("Location id fetched is", locationId);
-        // }
-
-        setStatus('Loading calendars...')
-        // setShowSnack({
-        //   message: "Loading calendars...",
-        //   type: "",
-        //   isVisible: true
-        // })
-        const calRes = await fetch(`/api/ghl/calendars/`) //?locationId=${encodeURIComponent(locationId)}
-        if (!calRes.ok) {
-          setStatus(`Failed to load calendars (${calRes.status})`)
-          setShowSnack({
-            message: `Failed to load calendars (${calRes.status})`,
-            type: SnackbarTypes.Error,
-            isVisible: true,
-          })
-          console.error(await calRes.text())
-          return
-        }
-        const calendars = await calRes.json()
-        console.log('Calendars fetched are', calendars)
-        setStatus('')
-        // setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
-        // const { userId } = await fetch("/api/ghl/user-id/", { cache: "no-store" }).then(r => r.json());
-        // console.log("Stored user id:", userId);
-
-        // setTokens(calendars); // or setCalendars(calendars)
-        // localStorage.setItem(PersistanceKeys.localGHLs, JSON.stringify(calendars.calendars));
-        let ghlCalendars = calendars?.calendars
-        // setGHLCalendars(ghlCalendars.filter((ghlCal) => { ghlCal.isActive === true }));
-        // setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
-        setGHLCalendars(ghlCalendars)
+        
+        // Load calendars after successful exchange
+        await handleGHLSuccess(json.locationId)
       })()
+    }
+
+    // Listen for custom event from full-page redirect flow
+    function onGHLSuccess(e) {
+      const { locationId } = e.detail || {}
+      handleGHLSuccess(locationId)
+    }
+
+    window.addEventListener('message', onMessage)
+    window.addEventListener('ghl-oauth-success', onGHLSuccess)
+
+    return () => {
+      window.removeEventListener('message', onMessage)
+      window.removeEventListener('ghl-oauth-success', onGHLSuccess)
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
