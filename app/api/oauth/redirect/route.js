@@ -29,7 +29,8 @@ export async function GET(req) {
       try {
         const stateData = parseOAuthState(state)
         if (stateData?.customDomain) {
-          const protocol = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production' ? 'https' : 'https'
+          const isLocalhost = stateData.customDomain.includes('localhost') || stateData.customDomain.includes('127.0.0.1')
+          const protocol = isLocalhost ? 'http' : 'https'
           const redirectUrl = new URL(
             stateData.provider === 'google' 
               ? '/google-auth/callback' 
@@ -137,7 +138,9 @@ export async function GET(req) {
     }
 
     // Build redirect URL to custom domain
-    const protocol = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production' ? 'https' : 'https'
+    // Use http for localhost, https for production
+    const isLocalhost = customDomain.includes('localhost') || customDomain.includes('127.0.0.1')
+    const protocol = isLocalhost ? 'http' : 'https'
     const redirectUrl = new URL(
       provider === 'google' 
         ? '/google-auth/callback' 
