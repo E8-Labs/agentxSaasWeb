@@ -147,18 +147,38 @@ function Page() {
     const ghlOauthSuccess = params.get('ghl_oauth')
     const locationId = params.get('locationId')
 
+    // Check if we're in a popup window
+    const isPopup = window.opener !== null
+
     // Handle GHL OAuth success redirect (after token exchange)
     if (ghlOauthSuccess === 'success') {
       console.log('✅ GHL OAuth successful, triggering calendar refresh')
+      console.log('- Is popup:', isPopup)
       
-      // Clean up URL by removing OAuth parameters
+      // If in popup, send message to parent and close
+      if (isPopup) {
+        try {
+          window.opener.postMessage(
+            { 
+              type: 'GHL_OAUTH_SUCCESS', 
+              locationId: locationId || null 
+            },
+            window.location.origin,
+          )
+        } catch (e) {
+          console.error('Error sending message to parent:', e)
+        } finally {
+          window.close()
+        }
+        return
+      }
+      
+      // If not in popup, trigger calendar refresh via event
       const cleanUrl = new URL(window.location.href)
       cleanUrl.searchParams.delete('ghl_oauth')
       cleanUrl.searchParams.delete('locationId')
       window.history.replaceState({}, '', cleanUrl.toString())
 
-      // Trigger calendar refresh by dispatching a custom event
-      // The CalendarModal component listens for this event
       window.dispatchEvent(new CustomEvent('ghl-oauth-success', { 
         detail: { locationId } 
       }))
@@ -168,10 +188,51 @@ function Page() {
 
     // If OAuth parameters are present (but not from exchange route), redirect to the OAuth handler
     if (code || error) {
-      // Build redirect URL to the OAuth handler
-      const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
+      // If in popup, handle redirect client-side to preserve popup context
+      if (isPopup) {
+        console.log('🔄 OAuth callback in popup, handling client-side redirect')
+        // Parse state to determine custom domain
+        let stateData = null
+        if (state) {
+          try {
+            // Use browser-compatible base64 decoding
+            const decoded = atob(state)
+            stateData = JSON.parse(decoded)
+          } catch (e) {
+            console.error('Error parsing state:', e)
+          }
+        }
+        
+        // If custom domain in state, redirect to custom domain exchange route
+        if (stateData?.customDomain && stateData?.provider === 'ghl') {
+          const isLocalhost = stateData.customDomain.includes('localhost') || stateData.customDomain.includes('127.0.0.1')
+          const protocol = isLocalhost ? 'http' : 'https'
+          const exchangeUrl = new URL('/api/ghl/exchange', `${protocol}://${stateData.customDomain}`)
+          exchangeUrl.searchParams.set('code', code)
+          if (state) exchangeUrl.searchParams.set('state', state)
+          if (redirectUri) exchangeUrl.searchParams.set('redirect_uri', redirectUri)
+          
+          console.log('🔄 Redirecting popup to custom domain exchange:', exchangeUrl.toString())
+          window.location.href = exchangeUrl.toString()
+          return
+        }
+        
+        // Fallback: redirect to OAuth handler
+        const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
+        if (code) oauthHandlerUrl.searchParams.set('code', code)
+        if (state) oauthHandlerUrl.searchParams.set('state', state)
+        if (error) oauthHandlerUrl.searchParams.set('error', error)
+        if (params.get('error_description')) {
+          oauthHandlerUrl.searchParams.set('error_description', params.get('error_description'))
+        }
+        if (redirectUri) oauthHandlerUrl.searchParams.set('redirect_uri', redirectUri)
+        
+        window.location.href = oauthHandlerUrl.toString()
+        return
+      }
       
-      // Preserve all OAuth parameters
+      // Not in popup - use normal redirect
+      const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
       if (code) oauthHandlerUrl.searchParams.set('code', code)
       if (state) oauthHandlerUrl.searchParams.set('state', state)
       if (error) oauthHandlerUrl.searchParams.set('error', error)
@@ -180,7 +241,6 @@ function Page() {
       }
       if (redirectUri) oauthHandlerUrl.searchParams.set('redirect_uri', redirectUri)
 
-      // Redirect immediately (this prevents the page from rendering)
       window.location.href = oauthHandlerUrl.toString()
       return
     }
