@@ -337,24 +337,32 @@ function CalendarModal(props) {
     const y = window.top.outerHeight / 2 + window.top.screenY - h / 2
     const x = window.top.outerWidth / 2 + window.top.screenX - w / 2
     console.log('GHL Check 4')
-    popupRef.current = window.open(
-      authUrl,
-      'ghl_oauth',
-      `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`,
-    )
-    console.log('GHL Check 5')
+    // Use a consistent window name to ensure the same popup is reused
+    const popupName = 'ghl_oauth_popup'
+    
+    // Check if popup already exists and is still open
+    if (popupRef.current && !popupRef.current.closed) {
+      // Popup already exists, navigate it to the new URL
+      console.log('Reusing existing popup window')
+      popupRef.current.location.href = authUrl
+      popupRef.current.focus()
+    } else {
+      // Open new popup
+      popupRef.current = window.open(
+        authUrl,
+        popupName, // Use consistent name so browser reuses the same window
+        `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`,
+      )
+      console.log('GHL Check 5 - Popup opened:', popupRef.current)
+    }
+    
     if (!popupRef.current) {
       // Popup blocked → fallback to full redirect
-      console.log('GHL Check 6')
+      console.log('GHL Check 6 - Popup blocked, using full redirect')
       window.location.href = authUrl
     } else {
       console.log('Waiting for GHL authorization')
       setStatus('Waiting for authorization...')
-      // setShowSnack({
-      //   message: "Waiting for authorization...",
-      //   type: "",
-      //   isVisible: true
-      // })
       // Optional: poll if user closes popup without completing
       const timer = setInterval(() => {
         if (popupRef.current && popupRef.current.closed) {
@@ -362,13 +370,6 @@ function CalendarModal(props) {
           setStatus((prev) =>
             prev === 'Waiting for authorization...' ? 'Popup closed' : prev,
           )
-          // setShowSnack({
-          //   message: ((prev) =>
-          //     prev === "Waiting for authorization..." ? "Popup closed" : prev
-          //   ),
-          //   type: "",
-          //   isVisible: true
-          // })
         }
       }, 500)
     }
