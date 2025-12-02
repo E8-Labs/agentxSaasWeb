@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { parseOAuthState } from '@/utils/oauthState'
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl
@@ -236,6 +237,103 @@ export async function middleware(request) {
       }
     }
     return publicResponse
+  }
+
+  // ---- Handle OAuth callbacks before user check ----
+  // If this is an OAuth callback (has code or error param), handle redirect directly
+  const searchParams = request.nextUrl.searchParams
+  const oauthCode = searchParams.get('code')
+  const oauthState = searchParams.get('state')
+  const oauthError = searchParams.get('error')
+  const oauthErrorDescription = searchParams.get('error_description')
+  const redirectUri = searchParams.get('redirect_uri')
+
+  if (oauthCode || oauthError) {
+    console.log('🔄 OAuth callback detected in middleware')
+    
+    // Parse state to determine if we need to redirect to custom domain
+    const stateData = oauthState ? parseOAuthState(oauthState) : null
+    const provider = stateData?.provider || (oauthCode ? 'google' : 'ghl')
+    
+    // If state has customDomain, redirect to custom domain
+    if (stateData?.customDomain) {
+      const { customDomain } = stateData
+      console.log('🔄 Redirecting OAuth callback to custom domain:', customDomain)
+      
+      // Determine protocol (http for localhost, https for production)
+      const isLocalhost = customDomain.includes('localhost') || customDomain.includes('127.0.0.1')
+      const protocol = isLocalhost ? 'http' : 'https'
+      
+      // Build redirect URL to custom domain
+      let callbackPath = '/oauth/callback'
+      if (provider === 'google') {
+        callbackPath = '/google-auth/callback'
+      } else if (provider === 'ghl') {
+        callbackPath = '/api/ghl/exchange'
+      }
+      
+      const redirectUrl = new URL(callbackPath, `${protocol}://${customDomain}`)
+      
+      // Preserve all OAuth parameters
+      if (oauthCode) redirectUrl.searchParams.set('code', oauthCode)
+      if (oauthState) redirectUrl.searchParams.set('state', oauthState)
+      if (oauthError) redirectUrl.searchParams.set('error', oauthError)
+      if (oauthErrorDescription) redirectUrl.searchParams.set('error_description', oauthErrorDescription)
+      if (redirectUri) redirectUrl.searchParams.set('redirect_uri', redirectUri)
+      
+      // For GHL, preserve originalRedirectUri from state
+      if (provider === 'ghl' && stateData.originalRedirectUri) {
+        redirectUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
+      }
+      
+      console.log('🔄 Redirecting to:', redirectUrl.toString())
+      return NextResponse.redirect(redirectUrl.toString())
+    }
+    
+    // No custom domain in state - redirect to callback on same domain
+    console.log('🔄 No custom domain in state - redirecting to callback on same domain')
+    const baseUrl = new URL(request.url).origin
+    
+    if (oauthError) {
+      // Handle OAuth errors
+      const errorUrl = new URL('/google-auth/callback', baseUrl)
+      errorUrl.searchParams.set('error', oauthError)
+      if (oauthErrorDescription) {
+        errorUrl.searchParams.set('error_description', oauthErrorDescription)
+      }
+      if (oauthState) {
+        errorUrl.searchParams.set('state', oauthState)
+      }
+      return NextResponse.redirect(errorUrl.toString())
+    }
+    
+    // Handle success - redirect to appropriate callback
+    if (provider === 'google') {
+      const callbackUrl = new URL('/google-auth/callback', baseUrl)
+      callbackUrl.searchParams.set('code', oauthCode)
+      if (oauthState) {
+        callbackUrl.searchParams.set('state', oauthState)
+      }
+      return NextResponse.redirect(callbackUrl.toString())
+    } else if (provider === 'ghl') {
+      const exchangeUrl = new URL('/api/ghl/exchange', baseUrl)
+      exchangeUrl.searchParams.set('code', oauthCode)
+      if (redirectUri) {
+        exchangeUrl.searchParams.set('redirect_uri', redirectUri)
+      }
+      if (oauthState) {
+        exchangeUrl.searchParams.set('state', oauthState)
+      }
+      return NextResponse.redirect(exchangeUrl.toString())
+    }
+    
+    // Default fallback
+    const callbackUrl = new URL('/google-auth/callback', baseUrl)
+    callbackUrl.searchParams.set('code', oauthCode)
+    if (oauthState) {
+      callbackUrl.searchParams.set('state', oauthState)
+    }
+    return NextResponse.redirect(callbackUrl.toString())
   }
 
   // ---- Require login for everything else ----
