@@ -76,27 +76,51 @@ function CalendarModal(props) {
 
   // console.log("Props passed in calendar modal are", props);
 
-  // If we are the popup landing back at "/" with ?code=..., send it to the opener, then close.
+  // If we are the popup landing back with OAuth parameters, send it to the opener, then close.
   useEffect(() => {
     const qs = new URLSearchParams(window.location.search)
     const code = qs.get('code')
     const error = qs.get('error')
+    const ghlOauthSuccess = qs.get('ghl_oauth')
+    const locationId = qs.get('locationId')
 
-    console.log('Code sent by authorization popup', code)
-    console.log('Error sent by authorization popup', error)
-    console.log('QS sent by authorization popup', qs)
+    console.log('Popup OAuth detection:')
+    console.log('- Code:', code)
+    console.log('- Error:', error)
+    console.log('- GHL OAuth Success:', ghlOauthSuccess)
+    console.log('- Location ID:', locationId)
 
     // If this window was opened by another window (popup case)
-    if (window.opener && (code || error)) {
-      try {
-        window.opener.postMessage(
-          { type: 'GHL_OAUTH_CODE', code, error },
-          window.location.origin, // only our own origin
-        )
-      } finally {
-        window.close()
+    if (window.opener) {
+      // Case 1: Direct OAuth callback with code/error (normal flow)
+      if (code || error) {
+        try {
+          window.opener.postMessage(
+            { type: 'GHL_OAUTH_CODE', code, error },
+            window.location.origin, // only our own origin
+          )
+        } finally {
+          window.close()
+        }
+        return // Don't run the rest in the popup
       }
-      return // Don't run the rest in the popup
+      
+      // Case 2: Success redirect from exchange route (custom domain flow)
+      if (ghlOauthSuccess === 'success') {
+        console.log('✅ GHL OAuth successful in popup, sending success message to parent')
+        try {
+          window.opener.postMessage(
+            { 
+              type: 'GHL_OAUTH_SUCCESS', 
+              locationId: locationId || null 
+            },
+            window.location.origin, // only our own origin
+          )
+        } finally {
+          window.close()
+        }
+        return // Don't run the rest in the popup
+      }
     }
   }, [])
 
@@ -138,45 +162,55 @@ function CalendarModal(props) {
     function onMessage(e) {
       // Security: ensure it came from our own origin
       if (e.origin !== window.location.origin) return
-      const { type, code, error } = e.data || {}
-      if (type !== 'GHL_OAUTH_CODE') return
-
-      if (error) {
-        setStatus(`OAuth error: ${error}`)
-        setShowSnack({
-          message: `OAuth error: ${error}`,
-          type: SnackbarTypes.Error,
-          isVisible: true,
-        })
-        return
-      }
-      if (!code) return
-
-      // Got the code from the popup → exchange on server
-      ;(async () => {
-        setShowAddNewGHLCalender(true)
-        setStatus('Exchanging code...')
-        const res = await fetch(
-          `/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`,
-        )
-
-        const json = await res.json()
-        if (!res.ok) {
-          setStatus('Exchange failed')
+      const { type, code, error, locationId } = e.data || {}
+      
+      // Handle direct OAuth code from popup (normal flow)
+      if (type === 'GHL_OAUTH_CODE') {
+        if (error) {
+          setStatus(`OAuth error: ${error}`)
           setShowSnack({
-            message: 'Exchange failed',
+            message: `OAuth error: ${error}`,
             type: SnackbarTypes.Error,
             isVisible: true,
           })
-          console.error(json)
           return
         }
-        console.log('Token recieving are', json)
-        setTokens(json)
-        
-        // Load calendars after successful exchange
-        await handleGHLSuccess(json.locationId)
-      })()
+        if (!code) return
+
+        // Got the code from the popup → exchange on server
+        ;(async () => {
+          setShowAddNewGHLCalender(true)
+          setStatus('Exchanging code...')
+          const res = await fetch(
+            `/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`,
+          )
+
+          const json = await res.json()
+          if (!res.ok) {
+            setStatus('Exchange failed')
+            setShowSnack({
+              message: 'Exchange failed',
+              type: SnackbarTypes.Error,
+              isVisible: true,
+            })
+            console.error(json)
+            return
+          }
+          console.log('Token recieving are', json)
+          setTokens(json)
+          
+          // Load calendars after successful exchange
+          await handleGHLSuccess(json.locationId)
+        })()
+        return
+      }
+      
+      // Handle success message from popup (custom domain flow - token already exchanged)
+      if (type === 'GHL_OAUTH_SUCCESS') {
+        console.log('✅ Received GHL OAuth success from popup, loading calendars')
+        handleGHLSuccess(locationId || null)
+        return
+      }
     }
 
     // Listen for custom event from full-page redirect flow
