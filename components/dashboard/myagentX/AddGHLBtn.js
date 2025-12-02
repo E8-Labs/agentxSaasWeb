@@ -117,7 +117,7 @@ export default function AddGHLBtn() {
       : 'https://dev.assignx.ai/dashboard/myAgentX'
 
     // Get agency custom domain from API
-    const { agencyId, customDomain } = await getAgencyCustomDomain()
+    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
@@ -135,6 +135,7 @@ export default function AddGHLBtn() {
     console.log('- Current hostname:', currentHostname)
     console.log('- Current path:', currentPath)
     console.log('- Agency ID:', agencyId)
+    console.log('- Subaccount ID:', subaccountId)
     console.log('- Custom Domain from API:', customDomain)
     console.log('- Is custom domain/subdomain:', isCustomDomain)
     console.log('- Domain to use:', domainToUse)
@@ -146,7 +147,7 @@ export default function AddGHLBtn() {
         agencyId,
         customDomain: domainToUse,
         provider: 'ghl',
-        subaccountId: null,
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
       console.log('Generated state parameter for custom domain:', stateParam)

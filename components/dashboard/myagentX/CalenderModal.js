@@ -241,7 +241,7 @@ function CalendarModal(props) {
       : 'https://dev.assignx.ai/dashboard/myAgentX'
 
     // Get agency custom domain from API
-    const { agencyId, customDomain } = await getAgencyCustomDomain()
+    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
@@ -259,6 +259,7 @@ function CalendarModal(props) {
     console.log('- Current hostname:', currentHostname)
     console.log('- Current path:', currentPath)
     console.log('- Agency ID:', agencyId)
+    console.log('- Subaccount ID:', subaccountId)
     console.log('- Custom Domain from API:', customDomain)
     console.log('- Is custom domain/subdomain:', isCustomDomain)
     console.log('- Domain to use:', domainToUse)
@@ -270,7 +271,7 @@ function CalendarModal(props) {
         agencyId,
         customDomain: domainToUse,
         provider: 'ghl',
-        subaccountId: null,
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
       console.log('Generated state parameter for custom domain:', stateParam)
@@ -361,16 +362,27 @@ function CalendarModal(props) {
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
 
     // Get agency custom domain from API
-    const { agencyId, customDomain } = await getAgencyCustomDomain()
+    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
 
-    // Generate state parameter only if we have custom domain
+    // Also check if current hostname is a custom domain or subdomain
+    const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
+    const isCustomDomain = currentHostname && 
+      !currentHostname.includes('app.assignx.ai') && 
+      !currentHostname.includes('dev.assignx.ai') &&
+      !currentHostname.includes('localhost') &&
+      !currentHostname.includes('127.0.0.1')
+
+    // Use custom domain from API, or fallback to current hostname if it's a custom domain
+    const domainToUse = customDomain || (isCustomDomain ? currentHostname : null)
+
+    // Generate state parameter if we have a domain to redirect back to
     let stateParam = null
-    if (customDomain && agencyId) {
+    if (domainToUse && agencyId) {
       stateParam = generateOAuthState({
         agencyId,
-        customDomain: customDomain,
+        customDomain: domainToUse,
         provider: 'google',
-        subaccountId: null,
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
         originalRedirectUri: null,
       })
     }
