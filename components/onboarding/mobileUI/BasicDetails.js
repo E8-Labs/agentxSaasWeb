@@ -323,6 +323,8 @@ const BasicDetails = ({
         }
       }
 
+      let agentTitle = userData?.userTypeTitle
+
       formData.append('name', userName)
       formData.append('email', userEmail)
       formData.append('phone', userPhoneNumber)
@@ -331,6 +333,9 @@ const BasicDetails = ({
       formData.append('averageTransactionPerYear', userTransaction)
       formData.append('agentService', JSON.stringify(userData.serviceID))
       formData.append('areaOfFocus', JSON.stringify(userData.focusAreaId))
+      if (agentTitle) {
+        formData.append('userType', agentTitle)
+      }
       formData.append('login', false)
       formData.append(
         'timeZone',
