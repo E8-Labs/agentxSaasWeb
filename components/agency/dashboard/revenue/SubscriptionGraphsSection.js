@@ -78,7 +78,7 @@ const PlansChartTooltip = ({ active, payload }) => {
           <div
             style={{ color: '#6b7280', fontSize: '13px', marginBottom: '4px' }}
           >
-            Count: {userCount}
+            Users: {userCount}
           </div>
         )}
         <div style={{ color: '#6b7280', fontSize: '13px' }}>
@@ -720,7 +720,7 @@ function SubscriptionGraphsSection({
                         fill: '#6b7280',
                       },
                     }}
-                    tickFormatter={(value) => formatNumberWithK(value)}
+                    tickFormatter={(value) => `$${formatNumberWithK(value)}`}
                   />
                   <Tooltip content={<PlansChartTooltip />} />
                   <Bar

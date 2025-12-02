@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import {
   Line,
   LineChart,
@@ -34,6 +34,31 @@ import AgencyRevenueDashboard from './revenue/AgencyRevenueDashboard'
 export default function AgencyDashboard({ selectedAgency }) {
   const [user, setUser] = useState(null)
   const [linkCopied, setLinkCopied] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Get initial tab from URL or default to 'user-activity'
+  const getInitialTab = () => {
+    try {
+      const tab = searchParams?.get('tab')
+      return tab === 'revenue' ? 'revenue' : 'user-activity'
+    } catch (e) {
+      // Fallback if searchParams not available
+      return 'user-activity'
+    }
+  }
+
+  const [activeTab, setActiveTab] = useState(getInitialTab)
+
+  // Sync tab with URL on mount and when searchParams change
+  useEffect(() => {
+    const tab = searchParams?.get('tab')
+    if (tab === 'revenue') {
+      setActiveTab('revenue')
+    } else if (tab === null || tab === 'user-activity') {
+      setActiveTab('user-activity')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     console.log('check 1')
@@ -48,6 +73,23 @@ export default function AgencyDashboard({ selectedAgency }) {
     }
   }, [])
 
+  // Handle tab change and update URL
+  const handleTabChange = (value) => {
+    setActiveTab(value)
+    try {
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      if (value === 'revenue') {
+        params.set('tab', 'revenue')
+      } else {
+        params.delete('tab') // Remove tab param for user-activity (default)
+      }
+      const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname
+      router.push(newUrl, { scroll: false })
+    } catch (e) {
+      console.error('Error updating URL:', e)
+    }
+  }
+
   return (
     <div className="flex w-full items-center flex-row justify-start">
       <div className="py-6 w-full">
@@ -61,7 +103,7 @@ export default function AgencyDashboard({ selectedAgency }) {
           </div>
         </div>
         {/* Tabs for navigation */}
-        <Tabs defaultValue="user-activity" className="mb-6 w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 w-full">
           <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
             <TabsTrigger value="user-activity" className="outline-none">
               User Activity

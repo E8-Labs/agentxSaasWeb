@@ -27,17 +27,104 @@ import TransactionTable from './TransactionTable'
  * @param {Object} props.payoutMetrics - Metrics for payout section
  */
 function AgencyRevenueDashboard({ selectedAgency }) {
-  const [loading, setLoading] = useState(true)
+  // Cache keys for revenue dashboard data
+  const getCacheKey = (key) => {
+    const agencyId = selectedAgency?.id || 'all'
+    return `revenue_dashboard_${key}_${agencyId}`
+  }
+
+  // Load data from cache
+  const loadFromCache = (key) => {
+    try {
+      const cached = localStorage.getItem(getCacheKey(key))
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        // Check if cache is less than 5 minutes old
+        const cacheAge = Date.now() - (parsed.timestamp || 0)
+        if (cacheAge < 5 * 60 * 1000) {
+          return parsed.data
+        }
+      }
+    } catch (e) {
+      console.error('Error loading from cache:', e)
+    }
+    return null
+  }
+
+  // Save data to cache
+  const saveToCache = (key, data) => {
+    try {
+      const cacheData = {
+        data,
+        timestamp: Date.now(),
+      }
+      localStorage.setItem(getCacheKey(key), JSON.stringify(cacheData))
+    } catch (e) {
+      console.error('Error saving to cache:', e)
+    }
+  }
+
+  // Load cached data - recalculate when selectedAgency changes
+  const initialCache = useMemo(() => {
+    const cachedSummary = loadFromCache('summary')
+    const cachedLeaderboard = loadFromCache('leaderboard')
+    const cachedPayouts = loadFromCache('payouts')
+    const cachedSubscription = loadFromCache('subscription')
+    
+    // Load cached transactions for default filters
+    const defaultTxFilters = {
+      type: 'all',
+      status: 'all',
+      dateFilter: 'all',
+      startDate: '',
+      endDate: '',
+    }
+    const cacheKey = `transactions_${JSON.stringify(defaultTxFilters)}`
+    const cachedTransactions = loadFromCache(cacheKey)
+    
+    const hasCachedData = !!(cachedSummary || cachedLeaderboard || cachedPayouts || cachedSubscription)
+    const hasCachedTransactions = !!cachedTransactions
+    
+    return {
+      summary: cachedSummary,
+      leaderboard: cachedLeaderboard,
+      payouts: cachedPayouts,
+      subscription: cachedSubscription,
+      transactions: cachedTransactions?.transactions || [],
+      hasMoreTransactions: cachedTransactions?.hasMore ?? true,
+      hasCachedData,
+      hasCachedTransactions,
+    }
+  }, [selectedAgency?.id])
+
+  const [initialDataLoading, setInitialDataLoading] = useState(!initialCache.hasCachedData)
+  const [transactionsLoading, setTransactionsLoading] = useState(!initialCache.hasCachedTransactions)
+  const [loading, setLoading] = useState(!initialCache.hasCachedData || !initialCache.hasCachedTransactions)
   const [error, setError] = useState(null)
 
-  const [summary, setSummary] = useState(null)
+  // Initialize state with cached data if available
+  const [summary, setSummary] = useState(initialCache.summary)
   const [growth, setGrowth] = useState(null)
-  const [leaderboard, setLeaderboard] = useState([])
-  const [payouts, setPayouts] = useState(null)
-  const [transactions, setTransactions] = useState([])
-  const [hasMoreTransactions, setHasMoreTransactions] = useState(true)
+  const [leaderboard, setLeaderboard] = useState(initialCache.leaderboard || [])
+  const [payouts, setPayouts] = useState(initialCache.payouts)
+  const [transactions, setTransactions] = useState(initialCache.transactions)
+  const [hasMoreTransactions, setHasMoreTransactions] = useState(initialCache.hasMoreTransactions)
   const [txLoadingMore, setTxLoadingMore] = useState(false)
-  const [subscriptionData, setSubscriptionData] = useState(null)
+  const [subscriptionData, setSubscriptionData] = useState(initialCache.subscription)
+
+  // Update state when cache changes (e.g., when selectedAgency changes)
+  useEffect(() => {
+    if (initialCache.summary) setSummary(initialCache.summary)
+    if (initialCache.leaderboard) setLeaderboard(initialCache.leaderboard)
+    if (initialCache.payouts) setPayouts(initialCache.payouts)
+    if (initialCache.subscription) setSubscriptionData(initialCache.subscription)
+    if (initialCache.transactions.length > 0) {
+      setTransactions(initialCache.transactions)
+      setHasMoreTransactions(initialCache.hasMoreTransactions)
+    }
+    setInitialDataLoading(!initialCache.hasCachedData)
+    setTransactionsLoading(!initialCache.hasCachedTransactions)
+  }, [initialCache])
 
   const [txPage, setTxPage] = useState(1)
   const [txLimit] = useState(50)
@@ -89,8 +176,17 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   }
 
   // Fetch revenue growth data based on filter
-  const fetchRevenueGrowth = async (filter, startDateParam, endDateParam) => {
+  const fetchRevenueGrowth = async (filter, startDateParam, endDateParam, useCache = true) => {
     try {
+      // Try to load from cache first
+      if (useCache) {
+        const cacheKey = `growth_${filter}_${startDateParam || ''}_${endDateParam || ''}`
+        const cachedGrowth = loadFromCache(cacheKey)
+        if (cachedGrowth) {
+          setGrowth(cachedGrowth)
+        }
+      }
+
       const userStr = localStorage.getItem('User')
       const token = userStr ? JSON.parse(userStr)?.token : null
       const headers = token
@@ -109,7 +205,12 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         headers,
       })
 
-      setGrowth(growthRes?.data?.data || null)
+      const growthData = growthRes?.data?.data || null
+      setGrowth(growthData)
+      
+      // Save to cache
+      const cacheKey = `growth_${filter}_${startDateParam || ''}_${endDateParam || ''}`
+      saveToCache(cacheKey, growthData)
     } catch (e) {
       console.error('Failed to fetch revenue growth data', e)
     }
@@ -127,11 +228,29 @@ function AgencyRevenueDashboard({ selectedAgency }) {
     fetchRevenueGrowth(newFilter, startDateParam, endDateParam)
   }
 
+  // Load cached growth data on mount
+  useEffect(() => {
+    const cachedGrowth = loadFromCache(`growth_${revenueGrowthFilter}_`)
+    if (cachedGrowth) {
+      setGrowth(cachedGrowth)
+    }
+  }, [revenueGrowthFilter])
+
   // Fetch initial data (summary, growth, leaderboard, payouts, subscriptions)
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        setLoading(true)
+        // Check current cache state - only show loading if we don't have cached data
+        // If we have cache, fetch silently in background
+        const hasCachedSummary = !!loadFromCache('summary')
+        const hasCachedLeaderboard = !!loadFromCache('leaderboard')
+        const hasCachedPayouts = !!loadFromCache('payouts')
+        const hasCachedSubscription = !!loadFromCache('subscription')
+        const hasCachedData = hasCachedSummary || hasCachedLeaderboard || hasCachedPayouts || hasCachedSubscription
+        
+        if (!hasCachedData) {
+          setInitialDataLoading(true)
+        }
         setError(null)
 
         const userStr = localStorage.getItem('User')
@@ -171,33 +290,66 @@ function AgencyRevenueDashboard({ selectedAgency }) {
             subscriptionReq,
           ])
 
-        setSummary(summaryRes?.data?.data || null)
-        setLeaderboard(leaderboardRes?.data?.data?.accounts || [])
-        setPayouts(payoutsRes?.data?.data || null)
-        setSubscriptionData(subscriptionRes?.data?.data || null)
+        const summaryData = summaryRes?.data?.data || null
+        const leaderboardData = leaderboardRes?.data?.data?.accounts || []
+        const payoutsData = payoutsRes?.data?.data || null
+        const subscriptionData = subscriptionRes?.data?.data || null
+
+        // Update state with fresh data
+        setSummary(summaryData)
+        setLeaderboard(leaderboardData)
+        setPayouts(payoutsData)
+        setSubscriptionData(subscriptionData)
+
+        // Save to cache
+        saveToCache('summary', summaryData)
+        saveToCache('leaderboard', leaderboardData)
+        saveToCache('payouts', payoutsData)
+        saveToCache('subscription', subscriptionData)
 
         // Fetch initial revenue growth with default filter
-        await fetchRevenueGrowth(revenueGrowthFilter, null, null)
+        await fetchRevenueGrowth(revenueGrowthFilter, null, null, false)
       } catch (e) {
         console.error('Failed to fetch revenue data', e)
         setError('Failed to load revenue data')
       } finally {
-        setLoading(false)
+        setInitialDataLoading(false)
       }
     }
 
     fetchInitialData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [selectedAgency])
+
+  // Load cached transactions when filters change (only for page 1)
+  useEffect(() => {
+    if (txPage === 1) {
+      const cacheKey = `transactions_${JSON.stringify(txFilters)}`
+      const cachedTransactions = loadFromCache(cacheKey)
+      if (cachedTransactions) {
+        setTransactions(cachedTransactions.transactions || [])
+        setHasMoreTransactions(cachedTransactions.hasMore ?? true)
+        setTransactionsLoading(false)
+      } else {
+        // If no cache for these filters, show loading
+        setTransactionsLoading(true)
+      }
+    }
+  }, [txFilters, txPage])
 
   // Fetch transactions separately (responds to filters and pagination)
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        // Show loading only for first page, otherwise show "loading more"
-        if (txPage === 1) {
-          setLoading(true)
-        } else {
+        // Check if we have cached data for current filters
+        const cacheKey = `transactions_${JSON.stringify(txFilters)}`
+        const hasCachedTx = !!loadFromCache(cacheKey)
+        
+        // Show loading only for first page and only if no cached data
+        // Otherwise fetch silently in background
+        if (txPage === 1 && !hasCachedTx) {
+          setTransactionsLoading(true)
+        } else if (txPage > 1) {
           setTxLoadingMore(true)
         }
 
@@ -211,12 +363,14 @@ function AgencyRevenueDashboard({ selectedAgency }) {
           : {}
 
         // Build transaction query parameters
+        // Map "Promo" to "ReferralCode" for backend API
+        const typeParam = txFilters.type === 'Promo' ? 'ReferralCode' : txFilters.type
         const txParams = new URLSearchParams({
           page: txPage,
           limit: txLimit,
           sortBy: 'createdAt',
           sortOrder: 'DESC',
-          type: txFilters.type,
+          type: typeParam,
           status: txFilters.status,
           dateFilter: txFilters.dateFilter,
         })
@@ -246,6 +400,13 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         const newTransactions = txRes?.data?.data?.transactions || []
         if (txPage === 1) {
           setTransactions(newTransactions)
+          // Cache transactions for page 1 only
+          const cacheKey = `transactions_${JSON.stringify(txFilters)}`
+          const hasMore = newTransactions.length === txLimit
+          saveToCache(cacheKey, {
+            transactions: newTransactions,
+            hasMore,
+          })
         } else {
           setTransactions((prev) => [...prev, ...newTransactions])
         }
@@ -257,7 +418,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         console.error('Failed to fetch transactions', e)
       } finally {
         if (txPage === 1) {
-          setLoading(false)
+          setTransactionsLoading(false)
         } else {
           setTxLoadingMore(false)
         }
@@ -267,6 +428,11 @@ function AgencyRevenueDashboard({ selectedAgency }) {
     fetchTransactions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txPage, txFilters])
+
+  // Combined loading state - only show loading if either initial data or transactions are loading
+  useEffect(() => {
+    setLoading(initialDataLoading || transactionsLoading)
+  }, [initialDataLoading, transactionsLoading])
 
   const handleTxFilterChange = (key, value) => {
     setTxFilters((prev) => ({ ...prev, [key]: value }))
@@ -320,7 +486,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
       accountIcon: String((idx % 9) + 1),
       revenue: `$${Number(row.revenue || 0).toLocaleString()}`,
       mrr: `$${Number(row.mrr || 0).toLocaleString()}`,
-      netRevenue: `$${Number(row.netRevenue || 0).toLocaleString()}`,
+      netEarnings: `$${Number(row.netEarnings || row.netRevenue || 0).toLocaleString()}`,
     }))
   }, [leaderboard])
 
@@ -388,7 +554,13 @@ function AgencyRevenueDashboard({ selectedAgency }) {
   }, [payouts, subscriptionData])
 
   // Helper function to check if there's no meaningful revenue data
+  // Only check when loading is complete
   const hasNoData = useMemo(() => {
+    // Don't show "no data" while still loading
+    if (loading || initialDataLoading || transactionsLoading) {
+      return false
+    }
+
     // If subscriptionData is null/undefined, show placeholder
     if (!subscriptionData) {
       return true
@@ -404,7 +576,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
 
     // Show placeholder if all metrics are zero/empty
     return !hasSubscriptions && !hasMRR && !hasARR && !hasTotalRevenue
-  }, [subscriptionData, summary])
+  }, [subscriptionData, summary, loading, initialDataLoading, transactionsLoading])
 
   return loading ? (
     <div className="flex flex-col justify-center items-center h-[90svh]">

@@ -37,7 +37,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
       accountIcon: '5',
       revenue: '$3,018.88',
       mrr: '$3,670.73',
-      netRevenue: '$3,018.88',
+      netEarnings: '$3,018.88',
     },
     {
       rank: 2,
@@ -140,7 +140,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                         MRR
                       </TableHead>
                       <TableHead className="text-gray-600 font-medium">
-                        Net Revenue
+                        Net Earnings
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -177,7 +177,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                           {item.mrr || '-'}
                         </TableCell>
                         <TableCell className="text-sm text-gray-700">
-                          {item.netRevenue || '-'}
+                          {item.netEarnings || item.netRevenue || '-'}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -201,7 +201,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
               </TableHead>
               <TableHead className="text-gray-600 font-medium">MRR</TableHead>
               <TableHead className="text-gray-600 font-medium">
-                Net Revenue
+                Net Earnings
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -240,7 +240,7 @@ function LeaderBoardTable({ data = [], onSeeAll }) {
                   {item.mrr || '-'}
                 </TableCell>
                 <TableCell className="text-sm text-gray-700">
-                  {item.netRevenue || '-'}
+                  {item.netEarnings || item.netRevenue || '-'}
                 </TableCell>
               </TableRow>
             ))}

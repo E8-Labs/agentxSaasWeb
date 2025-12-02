@@ -48,7 +48,7 @@ function TransactionTable({
 }) {
   const [searchQuery, setSearchQuery] = useState('')
 
-  const typeOptions = ['all', 'Plan', 'Other', 'Xbar', 'Phone', 'Enrichment', 'DNC', 'Seat', 'Agent'];
+  const typeOptions = ['all', 'Agent', 'DNC', 'Enrichment', 'Phone', 'Plan', 'Promo', 'Seat', 'Xbar'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
