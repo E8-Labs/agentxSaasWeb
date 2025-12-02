@@ -15,6 +15,8 @@ import Apis from '@/components/apis/Apis'
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
 import timeZones, { timeDuration } from '@/utilities/Timezones'
+import { generateOAuthState } from '@/utils/oauthState'
+import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -228,11 +230,28 @@ function CalendarModal(props) {
   }
 
   //ghl calendar popup click
-  const startGHLAuthPopup = useCallback(() => {
-    const currentPath = window.location.origin + window.location.pathname //process.env.NEXT_PUBLIC_GHL_REDIRECT_URI;
-    let p = currentPath + 'Hamza'
-    console.log('Path to redirect is', currentPath)
-    console.log('Testing the P', p)
+  const startGHLAuthPopup = useCallback(async () => {
+    const currentPath = window.location.origin + window.location.pathname
+    // Use assignx.ai redirect handler (registered in GHL console)
+    const GHL_REDIRECT_URI =
+      process.env.NEXT_PUBLIC_GHL_REDIRECT_URI ||
+      `${window.location.protocol}//${window.location.host}/api/oauth/redirect`
+
+    // Get agency custom domain from API
+    const { agencyId, customDomain } = await getAgencyCustomDomain()
+
+    // Generate state parameter only if we have custom domain
+    let stateParam = null
+    if (customDomain && agencyId) {
+      stateParam = generateOAuthState({
+        agencyId,
+        customDomain: customDomain,
+        provider: 'ghl',
+        subaccountId: null,
+        originalRedirectUri: currentPath, // Store original for GHL flow
+      })
+    }
+
     // Build scopes as a space-separated string
     const scope =
       (process.env.NEXT_PUBLIC_GHL_SCOPE || '').trim() ||
@@ -249,11 +268,16 @@ function CalendarModal(props) {
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
-      redirect_uri: currentPath, //process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
+      redirect_uri: GHL_REDIRECT_URI, // Always use assignx.ai redirect handler
       scope,
       // keep auth in the same popup window
       loginWindowOpenMode: 'self',
     })
+
+    // Add state parameter only if we have it (custom domain flow)
+    if (stateParam) {
+      params.set('state', stateParam)
+    }
     console.log('GHL Check 2 param are', params)
     const authUrl =
       'https://marketplace.gohighlevel.com/oauth/chooselocation?' +
@@ -303,21 +327,42 @@ function CalendarModal(props) {
   }, [])
 
   //google calendar click
-  const handleGoogleOAuthClick = () => {
+  const handleGoogleOAuthClick = async () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
 
+    // Get agency custom domain from API
+    const { agencyId, customDomain } = await getAgencyCustomDomain()
+
+    // Generate state parameter only if we have custom domain
+    let stateParam = null
+    if (customDomain && agencyId) {
+      stateParam = generateOAuthState({
+        agencyId,
+        customDomain: customDomain,
+        provider: 'google',
+        subaccountId: null,
+        originalRedirectUri: null,
+      })
+    }
+
+    const params = new URLSearchParams({
+      client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'code',
+      scope: Scopes.join(' '), //"openid email profile https://www.googleapis.com/auth/calendar",
+      access_type: 'offline',
+      prompt: 'consent',
+    })
+
+    // Add state parameter only if we have it (custom domain flow)
+    if (stateParam) {
+      params.set('state', stateParam)
+    }
+
     const oauthUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      new URLSearchParams({
-        client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        response_type: 'code',
-        scope: Scopes.join(' '), //"openid email profile https://www.googleapis.com/auth/calendar",
-        access_type: 'offline',
-        prompt: 'consent',
-      }).toString()
+      `https://accounts.google.com/o/oauth2/v2/auth?` + params.toString()
 
     const popup = window.open(oauthUrl, '_blank', 'width=500,height=600')
 

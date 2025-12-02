@@ -19,6 +19,8 @@ import {
 } from '../../pipeline/TempleteServices'
 import { AuthToken } from '../plan/AuthDetails'
 import LabelingHeader from './LabelingHeader'
+import { generateOAuthState } from '@/utils/oauthState'
+import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
 const EmailConfig = () => {
   // Mail account state
@@ -67,21 +69,42 @@ const EmailConfig = () => {
   }
 
   // Google OAuth handler
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
 
+    // Get agency custom domain from API
+    const { agencyId, customDomain } = await getAgencyCustomDomain()
+
+    // Generate state parameter only if we have custom domain
+    let stateParam = null
+    if (customDomain && agencyId) {
+      stateParam = generateOAuthState({
+        agencyId,
+        customDomain: customDomain,
+        provider: 'google',
+        subaccountId: null,
+        originalRedirectUri: null,
+      })
+    }
+
+    const params = new URLSearchParams({
+      client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'code',
+      scope: Scopes.join(' '),
+      access_type: 'offline',
+      prompt: 'consent',
+    })
+
+    // Add state parameter only if we have it (custom domain flow)
+    if (stateParam) {
+      params.set('state', stateParam)
+    }
+
     const oauthUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      new URLSearchParams({
-        client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        response_type: 'code',
-        scope: Scopes.join(' '),
-        access_type: 'offline',
-        prompt: 'consent',
-      }).toString()
+      `https://accounts.google.com/o/oauth2/v2/auth?` + params.toString()
 
     const popup = window.open(oauthUrl, '_blank', 'width=500,height=600')
 

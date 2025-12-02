@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { generateOAuthState } from '@/utils/oauthState'
+import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
 export default function AddGHLBtn() {
   const [status, setStatus] = useState(null)
@@ -104,7 +106,28 @@ export default function AddGHLBtn() {
     return () => window.removeEventListener('message', onMessage)
   }, [])
 
-  const startAuthPopup = useCallback(() => {
+  const startAuthPopup = useCallback(async () => {
+    const currentPath = window.location.origin + window.location.pathname
+    // Use assignx.ai redirect handler (registered in GHL console)
+    const GHL_REDIRECT_URI =
+      process.env.NEXT_PUBLIC_GHL_REDIRECT_URI ||
+      `${window.location.protocol}//${window.location.host}/api/oauth/redirect`
+
+    // Get agency custom domain from API
+    const { agencyId, customDomain } = await getAgencyCustomDomain()
+
+    // Generate state parameter only if we have custom domain
+    let stateParam = null
+    if (customDomain && agencyId) {
+      stateParam = generateOAuthState({
+        agencyId,
+        customDomain: customDomain,
+        provider: 'ghl',
+        subaccountId: null,
+        originalRedirectUri: currentPath, // Store original for GHL flow
+      })
+    }
+
     // Build scopes as a space-separated string
     const scope =
       (process.env.NEXT_PUBLIC_GHL_SCOPE || '').trim() ||
@@ -121,11 +144,16 @@ export default function AddGHLBtn() {
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID ?? '',
-      redirect_uri: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI ?? '',
+      redirect_uri: GHL_REDIRECT_URI, // Always use assignx.ai redirect handler
       scope,
       // keep auth in the same popup window
       loginWindowOpenMode: 'self',
     })
+
+    // Add state parameter only if we have it (custom domain flow)
+    if (stateParam) {
+      params.set('state', stateParam)
+    }
 
     const authUrl =
       'https://marketplace.gohighlevel.com/oauth/chooselocation?' +
