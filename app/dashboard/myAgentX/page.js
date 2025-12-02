@@ -113,6 +113,7 @@ import {
 } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import { parseOAuthState } from '@/utils/oauthState'
 
 import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
 
@@ -132,6 +133,36 @@ function Page() {
   // Add flags to prevent infinite loops
   const [isInitializing, setIsInitializing] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
+
+  // Handle OAuth callbacks - redirect to handler if OAuth parameters are present
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    const state = params.get('state')
+    const error = params.get('error')
+    const redirectUri = params.get('redirect_uri')
+
+    // If OAuth parameters are present, redirect to the OAuth handler
+    if (code || error) {
+      // Build redirect URL to the OAuth handler
+      const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
+      
+      // Preserve all OAuth parameters
+      if (code) oauthHandlerUrl.searchParams.set('code', code)
+      if (state) oauthHandlerUrl.searchParams.set('state', state)
+      if (error) oauthHandlerUrl.searchParams.set('error', error)
+      if (params.get('error_description')) {
+        oauthHandlerUrl.searchParams.set('error_description', params.get('error_description'))
+      }
+      if (redirectUri) oauthHandlerUrl.searchParams.set('redirect_uri', redirectUri)
+
+      // Redirect immediately (this prevents the page from rendering)
+      window.location.href = oauthHandlerUrl.toString()
+      return
+    }
+  }, []) // Run only once on mount
 
   // useEffect(() => {
   //   console.log("reduxUser on myAgentX page", reduxUser)

@@ -109,12 +109,12 @@ export default function AddGHLBtn() {
   const startAuthPopup = useCallback(async () => {
     const currentPath = window.location.origin + window.location.pathname
     
-    // Construct redirect URI dynamically based on environment
-    // Always use /api/oauth/redirect path, but determine base URL from environment
+    // Use existing approved redirect URI (no approval needed)
+    // Use /dashboard/myAgentX which is already approved in GHL console
     const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     const GHL_REDIRECT_URI = isProduction
-      ? 'https://app.assignx.ai/api/oauth/redirect'
-      : 'https://dev.assignx.ai/api/oauth/redirect'
+      ? 'https://app.assignx.ai/dashboard/myAgentX'
+      : 'https://dev.assignx.ai/dashboard/myAgentX'
 
     // Get agency custom domain from API
     const { agencyId, customDomain } = await getAgencyCustomDomain()
