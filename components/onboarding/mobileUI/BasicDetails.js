@@ -22,6 +22,7 @@ import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import VerificationCodeInput from '@/components/test/VerificationCodeInput'
 import { PersistanceKeys } from '@/constants/Constants'
+import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
@@ -302,6 +303,26 @@ const BasicDetails = ({
         formData.append('campaignee', campainee)
       }
 
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI()
+      if (agencyUuid) {
+        formData.append('agencyUuid', agencyUuid)
+      }
+
+      // Add hostname for auto-detecting agency from custom domain/subdomain
+      let hostname = null
+      if (typeof window !== 'undefined') {
+        hostname = window.location.hostname
+        // Only send if not localhost/127.0.0.1
+        if (
+          hostname &&
+          !hostname.includes('localhost') &&
+          !hostname.includes('127.0.0.1')
+        ) {
+          formData.append('hostname', hostname)
+        }
+      }
+
       formData.append('name', userName)
       formData.append('email', userEmail)
       formData.append('phone', userPhoneNumber)
@@ -350,6 +371,11 @@ const BasicDetails = ({
 
           if (typeof document !== 'undefined') {
             setCookie(response.data.data.user, document)
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID()
           }
 
           // Force apply branding after registration (for subaccounts/agencies)
