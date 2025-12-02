@@ -660,37 +660,6 @@ const BrandConfig = () => {
               </div>
             </div>
           </div>
-          <div className="self-stretch inline-flex justify-start items-center gap-[3px]">
-            <div className="flex-1 flex justify-start items-center gap-[3px]">
-              <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                Secondary color
-              </div>
-
-            </div>
-            <div className="w-32 self-stretch bg-white/80 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-900/10 inline-flex flex-col justify-start items-start gap-[5px] overflow-hidden">
-              <div
-                className="self-stretch h-12 p-2.5 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-white inline-flex justify-start items-center gap-2"
-                onClick={() =>
-                  document.getElementById('secondary-color-picker').click()
-                }
-              >
-                <div
-                  className="w-6 h-6 rounded-full shadow-[0px_5.591172695159912px_12.160799980163574px_0px_rgba(0,0,0,0.20)] border-[2.80px] border-white cursor-pointer"
-                  style={{ backgroundColor: secondaryColor }}
-                ></div>
-                <div className="flex-1 justify-start text-black text-base font-medium font-['Inter'] leading-snug">
-                  {secondaryColor}
-                </div>
-                <input
-                  id="secondary-color-picker"
-                  type="color"
-                  value={secondaryColor}
-                  onChange={(e) => handleSecondaryColorChange(e.target.value)}
-                  className="absolute opacity-0 pointer-events-none"
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Save Buttons */}
           <div className="self-stretch inline-flex justify-between items-center mt-4">

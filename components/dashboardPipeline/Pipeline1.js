@@ -2499,8 +2499,8 @@ const Pipeline1 = () => {
                                 (lead) => lead.lead.stage === stage.id,
                               ).map((lead, leadIndex) => (
                                 <div
-                                  className="px-3 mt-4 h-full"
-                                  style={{ width: '300px', height: 200 }}
+                                  className="px-3 pt-2 mt-4 h-full"
+                                  style={{ width: '300px', height:'auto' }}
                                   key={leadIndex}
                                 >
                                   <div className="border rounded-xl px-4 py-2 h-full">
@@ -2543,7 +2543,7 @@ const Pipeline1 = () => {
                                           />
                                         )}
                                     </div>
-                                    <div className="flex flex-row items-center justify-between w-full mt-2">
+                                    <div className="flex flex-row items-center justify-between w-full mt-1">
                                       <div
                                         className="text-[#00000060]"
                                         style={styles.agentName}
@@ -2632,7 +2632,7 @@ const Pipeline1 = () => {
                                       </div>
                                     )}
 
-                                    <div className="w-full flex flex-row items-center justify-between mt-12">
+                                    <div className="w-full flex flex-row items-center justify-between">
                                       {lead?.lead?.teamsAssigned?.length > 0 ? (
                                         <LeadTeamsAssignedList
                                           users={lead?.lead?.teamsAssigned}
@@ -2746,7 +2746,7 @@ const Pipeline1 = () => {
                                           )}
                                         </div>
                                       ) : (
-                                        '-'
+                                        ''
                                       )}
                                     </div>
                                   </div>

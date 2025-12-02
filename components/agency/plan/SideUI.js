@@ -44,7 +44,7 @@ const SideUI = ({
       style={
         isAgency
           ? {
-              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
+              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) 100%)`,
             }
           : {
               backgroundImage: "url('/otherAssets/monthlyplansbg.png')",

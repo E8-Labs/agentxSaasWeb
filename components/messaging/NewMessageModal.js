@@ -13,6 +13,8 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { getUserLocalData } from '@/components/constants/constants'
 import { Input } from '@/components/ui/input'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
+import UpgardView from '@/constants/UpgardView'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -83,8 +85,23 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
 
+  // Plan capabilities
+  const { planCapabilities } = usePlanCapabilities()
+
   // SMS character limit
   const SMS_CHAR_LIMIT = 160
+
+  // Check if user can send messages/emails
+  // For SMS: check allowTextMessages capability
+  // For Email: check allowTextMessages capability (email is part of messaging)
+  const canSendSMS = planCapabilities?.allowTextMessages === true
+  const canSendEmail = planCapabilities?.allowTextMessages === true
+
+  // Determine if upgrade view should be shown
+  const shouldShowUpgradeView = open && (
+    (selectedMode === 'sms' && !canSendSMS) ||
+    (selectedMode === 'email' && !canSendEmail)
+  )
 
   // Update brand color on branding changes
   useEffect(() => {
@@ -431,6 +448,59 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     } finally {
       setSending(false)
     }
+  }
+
+  // If upgrade view should be shown, render it instead of the modal
+  if (shouldShowUpgradeView) {
+    return (
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="new-message-modal"
+        aria-describedby="new-message-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 0,
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-xl font-semibold">New Message</h2>
+            <CloseBtn onClick={onClose} />
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <UpgardView
+              title={selectedMode === 'sms' ? 'Unlock Text Messages' : 'Unlock Email Messaging'}
+              subTitle={
+                selectedMode === 'sms'
+                  ? 'Upgrade to unlock this feature and start sending SMS messages to your leads.'
+                  : 'Upgrade to unlock this feature and start sending emails to your leads.'
+              }
+              userData={userData}
+              onUpgradeSuccess={(updatedUserData) => {
+                // Refresh user data after upgrade
+                if (updatedUserData) {
+                  setUserData({ user: updatedUserData })
+                }
+              }}
+              setShowSnackMsg={() => {}}
+            />
+          </div>
+        </Box>
+      </Modal>
+    )
   }
 
   return (

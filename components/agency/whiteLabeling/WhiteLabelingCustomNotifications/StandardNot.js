@@ -268,28 +268,7 @@ const StandardNot = ({
               </div>
               <div className="flex items-center gap-3">
                 {/* Toggle Switch */}
-                {item.isCustomized && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600">
-                      {item.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                    <Switch
-                      checked={item.isActive}
-                      onChange={() => handleToggle(item)}
-                      disabled={toggling === item.notificationType}
-                      size="small"
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7c3aed',
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                          {
-                            backgroundColor: '#7c3aed',
-                          },
-                      }}
-                    />
-                  </div>
-                )}
+
                 {/* Delete Button */}
                 {item.isCustomized && (
                   <button
