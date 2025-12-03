@@ -1226,7 +1226,6 @@ const Messages = () => {
                 removeAttachment={removeAttachment}
                 richTextEditorRef={richTextEditorRef}
                 SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
-                userData={userData}
                 handleFileChange={handleFileChange}
                 handleSendMessage={handleSendMessage}
                 sendingMessage={sendingMessage}

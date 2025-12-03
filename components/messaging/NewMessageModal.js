@@ -447,13 +447,6 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     }
   }
 
-  // Auto-switch to email mode if SMS is not allowed and modal opens with SMS mode
-  useEffect(() => {
-    if (open && selectedMode === 'sms' && !canSendSMS) {
-      setSelectedMode('email')
-      fetchEmailAccounts()
-    }
-  }, [open, selectedMode, canSendSMS])
 
   return (
     <>
@@ -487,40 +480,21 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* Upgrade View for SMS Tab */}
-          {shouldShowUpgradeView ? (
-            <div className="py-8">
-              <UpgardView
-                title="Unlock Text Messages"
-                subTitle="Upgrade to unlock this feature and start sending SMS messages to your leads."
-                userData={userData}
-                onUpgradeSuccess={(updatedUserData) => {
-                  // Refresh user data after upgrade
-                  if (updatedUserData) {
-                    setUserData({ user: updatedUserData })
-                  }
-                }}
-                setShowSnackMsg={() => {}}
-              />
-            </div>
-          ) : (
-            <>
           {/* Mode Tabs */}
           <div className="flex items-center justify-between border-b">
             <div className="flex items-center gap-6">
               <button
                 onClick={() => {
+                  setSelectedMode('sms')
                   if (canSendSMS) {
-                    setSelectedMode('sms')
                     fetchPhoneNumbers()
                   }
                 }}
-                disabled={!canSendSMS}
-                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative cursor-pointer ${
                   selectedMode === 'sms'
                     ? 'text-brand-primary'
                     : 'text-gray-600'
-                } ${!canSendSMS ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                }`}
               >
                 <img
                   src="/messaging/sms toggle.svg"
@@ -581,6 +555,24 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
             )}
           </div>
 
+          {/* Upgrade View for SMS Tab */}
+          {shouldShowUpgradeView ? (
+            <div className="py-8">
+              <UpgardView
+                title="Unlock Text Messages"
+                subTitle="Upgrade to unlock this feature and start sending SMS messages to your leads."
+                userData={userData}
+                onUpgradeSuccess={(updatedUserData) => {
+                  // Refresh user data after upgrade
+                  if (updatedUserData) {
+                    setUserData({ user: updatedUserData })
+                  }
+                }}
+                setShowSnackMsg={() => {}}
+              />
+            </div>
+          ) : (
+            <>
           {/* From and To Fields - Same Line */}
           <div className="flex items-center gap-4" ref={leadSearchRef}>
             {/* From Field */}

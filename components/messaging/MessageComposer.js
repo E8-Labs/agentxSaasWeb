@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { Paperclip, X, CaretDown, CaretUp } from '@phosphor-icons/react'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
+import UpgardView from '@/constants/UpgardView'
+import { getUserLocalData } from '@/components/constants/constants'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -78,7 +81,6 @@ const MessageComposer = ({
   removeAttachment,
   richTextEditorRef,
   SMS_CHAR_LIMIT,
-  userData,
   handleFileChange,
   handleSendMessage,
   sendingMessage,
@@ -86,6 +88,12 @@ const MessageComposer = ({
 }) => {
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
+  const [userData, setUserData] = useState(null)
+
+  // Plan capabilities
+  const { planCapabilities } = usePlanCapabilities()
+  const canSendSMS = planCapabilities?.allowTextMessages === true
+  const shouldShowUpgradeView = composerMode === 'sms' && !canSendSMS
 
   useEffect(() => {
     const updateBrandColor = () => {
@@ -97,6 +105,14 @@ const MessageComposer = ({
     
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
+
+  // Get user data from localStorage
+  useEffect(() => {
+    const user = getUserLocalData()
+    if (user) {
+      setUserData(user)
     }
   }, [])
 
@@ -161,6 +177,24 @@ const MessageComposer = ({
 
         {isExpanded && (
           <>
+            {/* Upgrade View for SMS Tab */}
+            {shouldShowUpgradeView ? (
+              <div className="py-8">
+                <UpgardView
+                  title="Unlock Text Messages"
+                  subTitle="Upgrade to unlock this feature and start sending SMS messages to your leads."
+                  userData={userData}
+                  onUpgradeSuccess={(updatedUserData) => {
+                    // Refresh user data after upgrade
+                    if (updatedUserData) {
+                      setUserData({ user: updatedUserData })
+                    }
+                  }}
+                  setShowSnackMsg={() => {}}
+                />
+              </div>
+            ) : (
+              <>
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-2 flex-1">
                 <label className="text-sm font-medium whitespace-nowrap">From:</label>
@@ -319,91 +353,90 @@ const MessageComposer = ({
                   />
                 </div>
               </>
-            )}
-          </>
-        )}
-
-        {isExpanded && (
-          <>
-            <div className="mb-4">
-              {composerMode === 'email' ? (
-                <>
-                  {composerData.attachments.length > 0 && (
-                    <div className="mb-2 flex flex-col gap-1">
-                      {composerData.attachments.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                          <Paperclip size={14} className="text-gray-500" />
-                          <span className="flex-1 truncate">{file.name}</span>
-                          <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
-                          <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <RichTextEditor
-                    ref={richTextEditorRef}
-                    value={composerData.body}
-                    onChange={(html) => setComposerData({ ...composerData, body: html })}
-                    placeholder="Type your message..."
-                    availableVariables={[]}
-                  />
-                </>
-              ) : (
-                <textarea
-                  value={composerData.body}
-                  onChange={(e) => {
-                    if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                      setComposerData({ ...composerData, body: e.target.value })
-                    }
-                  }}
-                  placeholder="Type your message..."
-                  maxLength={SMS_CHAR_LIMIT}
-                  className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                />
               )}
-            </div>
 
-            <div className="flex items-center justify-end gap-4 mt-4">
-          {composerMode === 'sms' && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span>
-                {composerData.body.length}/{SMS_CHAR_LIMIT} char
-              </span>
-              <span className="text-gray-300">|</span>
-              <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
-            </div>
+              {/* Message Body and Send Button */}
+              <div className="mb-4">
+                {composerMode === 'email' ? (
+                  <>
+                    {composerData.attachments.length > 0 && (
+                      <div className="mb-2 flex flex-col gap-1">
+                        {composerData.attachments.map((file, idx) => (
+                          <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                            <Paperclip size={14} className="text-gray-500" />
+                            <span className="flex-1 truncate">{file.name}</span>
+                            <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
+                            <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <RichTextEditor
+                      ref={richTextEditorRef}
+                      value={composerData.body}
+                      onChange={(html) => setComposerData({ ...composerData, body: html })}
+                      placeholder="Type your message..."
+                      availableVariables={[]}
+                    />
+                  </>
+                ) : (
+                  <textarea
+                    value={composerData.body}
+                    onChange={(e) => {
+                      if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                        setComposerData({ ...composerData, body: e.target.value })
+                      }
+                    }}
+                    placeholder="Type your message..."
+                    maxLength={SMS_CHAR_LIMIT}
+                    className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
+                  />
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-4 mt-4">
+                {composerMode === 'sms' && (
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <span>
+                      {composerData.body.length}/{SMS_CHAR_LIMIT} char
+                    </span>
+                    <span className="text-gray-300">|</span>
+                    <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
+                  </div>
+                )}
+                {composerMode === 'email' && (
+                  <label className="cursor-pointer">
+                    <button type="button" className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors" onClick={() => document.getElementById('attachment-input')?.click()}>
+                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                    </button>
+                    <input
+                      id="attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                )}
+                <button
+                  onClick={handleSendMessage}
+                  disabled={
+                    sendingMessage ||
+                    !composerData.body.trim() ||
+                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                    (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                  }
+                  className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {sendingMessage ? 'Sending...' : 'Send'}
+                </button>
+              </div>
+            </>
           )}
-          {composerMode === 'email' && (
-            <label className="cursor-pointer">
-              <button type="button" className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors" onClick={() => document.getElementById('attachment-input')?.click()}>
-                <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
-              </button>
-              <input
-                id="attachment-input"
-                type="file"
-                accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </label>
-          )}
-          <button
-            onClick={handleSendMessage}
-            disabled={
-              sendingMessage ||
-              !composerData.body.trim() ||
-              (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-              (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
-            }
-            className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {sendingMessage ? 'Sending...' : 'Send'}
-          </button>
-            </div>
           </>
         )}
       </div>
