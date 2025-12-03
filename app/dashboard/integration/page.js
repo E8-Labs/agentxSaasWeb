@@ -209,8 +209,10 @@ function Page() {
       !currentHostname.includes('localhost') &&
       !currentHostname.includes('127.0.0.1')
 
-    // Use custom domain from API, or fallback to current hostname if it's a custom domain
-    const domainToUse = customDomain || (isCustomDomain ? currentHostname : null)
+    // Only use custom domain if user is currently on it
+    // This prevents cross-domain redirects when agency uses dev/app.assignx.ai
+    // Subaccounts on custom domain will still work (isCustomDomain = true)
+    const domainToUse = isCustomDomain ? currentHostname : null
 
     // Generate state parameter if we have a domain to redirect back to
     let stateParam = null
