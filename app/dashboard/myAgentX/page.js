@@ -127,6 +127,84 @@ const DuplicateButton = dynamic(
   },
 )
 function Page() {
+  // IMMEDIATE POPUP HANDLING - Run before React renders to preserve popup context
+  // This must run synchronously when component loads, before any state updates
+  let shouldClosePopup = false
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search)
+    const ghlOauthSuccess = params.get('ghl_oauth')
+    const locationId = params.get('locationId')
+    const code = params.get('code')
+    const error = params.get('error')
+    
+    // Check if we're in a popup window
+    const isPopup = window.opener !== null && window.opener !== window
+    const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
+    
+    // If in popup and GHL OAuth success, close immediately
+    if (ghlOauthSuccess === 'success' && (isPopup || hasOpener)) {
+      shouldClosePopup = true
+      console.log('🚨 IMMEDIATE: GHL OAuth success detected in popup, closing immediately')
+      try {
+        // Send message to parent window
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(
+            { 
+              type: 'GHL_OAUTH_SUCCESS', 
+              locationId: locationId || null 
+            },
+            window.location.origin,
+          )
+          console.log('🚨 IMMEDIATE: Message sent to parent')
+        }
+      } catch (e) {
+        console.error('🚨 IMMEDIATE: Error sending message:', e)
+      }
+      
+      // Close popup immediately - try multiple times
+      const closePopup = () => {
+        try {
+          window.close()
+          console.log('🚨 IMMEDIATE: Popup close attempted')
+          // If close doesn't work, focus parent
+          setTimeout(() => {
+            if (!window.closed && window.opener && !window.opener.closed) {
+              try {
+                window.opener.focus()
+                console.log('🚨 IMMEDIATE: Focused parent as fallback')
+              } catch (e) {
+                console.error('🚨 IMMEDIATE: Error focusing parent:', e)
+              }
+            }
+          }, 50)
+        } catch (e) {
+          console.error('🚨 IMMEDIATE: Error closing popup:', e)
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.focus()
+            }
+          } catch (e2) {
+            console.error('🚨 IMMEDIATE: Error focusing parent:', e2)
+          }
+        }
+      }
+      
+      // Try closing immediately
+      closePopup()
+      
+      // Try again after a short delay (some browsers need this)
+      setTimeout(closePopup, 100)
+      setTimeout(closePopup, 300)
+    }
+    
+    // Also handle initial OAuth callback in popup (code parameter)
+    if ((code || error) && (isPopup || hasOpener)) {
+      console.log('🚨 IMMEDIATE: OAuth callback detected in popup')
+      // Don't close here - let the useEffect handle the redirect
+      // But ensure we're in popup mode
+    }
+  }
+
   // Redux hooks for plan management
   const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser()
 
