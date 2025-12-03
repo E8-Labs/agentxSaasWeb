@@ -352,33 +352,54 @@ function CalendarModal(props) {
       console.log('Reusing existing popup window')
       popupRef.current.location.href = authUrl
       popupRef.current.focus()
-    } else {
-      // Open new popup
-      popupRef.current = window.open(
-        authUrl,
-        popupName, // Use consistent name so browser reuses the same window
-        `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`,
-      )
-      console.log('GHL Check 5 - Popup opened:', popupRef.current)
+      setStatus('Waiting for authorization...')
+      return // Exit early - don't try to open another popup or redirect
     }
     
+    // Open new popup
+    popupRef.current = window.open(
+      authUrl,
+      popupName, // Use consistent name so browser reuses the same window
+      `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`,
+    )
+    console.log('GHL Check 5 - Popup opened:', popupRef.current)
+    
+    // Check if popup was blocked (window.open returns null)
     if (!popupRef.current) {
       // Popup blocked → fallback to full redirect
       console.log('GHL Check 6 - Popup blocked, using full redirect')
       window.location.href = authUrl
-    } else {
-      console.log('Waiting for GHL authorization')
-      setStatus('Waiting for authorization...')
-      // Optional: poll if user closes popup without completing
-      const timer = setInterval(() => {
-        if (popupRef.current && popupRef.current.closed) {
-          clearInterval(timer)
-          setStatus((prev) =>
-            prev === 'Waiting for authorization...' ? 'Popup closed' : prev,
-          )
-        }
-      }, 500)
+      return
     }
+    
+    // Check if popup was immediately closed (some browsers do this when blocked)
+    try {
+      if (popupRef.current.closed) {
+        console.log('GHL Check 6 - Popup was immediately closed, using full redirect')
+        popupRef.current = null
+        window.location.href = authUrl
+        return
+      }
+    } catch (e) {
+      // Cross-origin or blocked popup - use redirect
+      console.log('GHL Check 6 - Popup access error, using full redirect:', e)
+      popupRef.current = null
+      window.location.href = authUrl
+      return
+    }
+    
+    // Popup opened successfully
+    console.log('Waiting for GHL authorization')
+    setStatus('Waiting for authorization...')
+    // Optional: poll if user closes popup without completing
+    const timer = setInterval(() => {
+      if (popupRef.current && popupRef.current.closed) {
+        clearInterval(timer)
+        setStatus((prev) =>
+          prev === 'Waiting for authorization...' ? 'Popup closed' : prev,
+        )
+      }
+    }, 500)
   }, [selectedUser])
 
   //google calendar click
