@@ -100,6 +100,56 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   // Determine if upgrade view should be shown (only for SMS tab)
   const shouldShowUpgradeView = selectedMode === 'sms' && !canSendSMS
 
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height, isActive) => {
+    if (typeof window === 'undefined') {
+      return (
+        <div
+          style={{
+            width: width,
+            height: height,
+            minWidth: width,
+            minHeight: height,
+          }}
+        />
+      )
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+    
+    // Use brand color when active, muted gray when inactive
+    const iconColor = isActive
+      ? `hsl(${brandColor.trim() || '270 75% 50%'})`
+      : 'hsl(0 0% 60%)' // Muted gray for inactive state
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: iconColor,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   // Update brand color on branding changes
   useEffect(() => {
     const updateBrandColor = () => {
@@ -496,13 +546,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                 }`}
               >
-                <img
-                  src="/messaging/sms toggle.svg"
-                  width={20}
-                  height={20}
-                  alt="SMS"
-                  className={selectedMode === 'sms' ? 'filter-brand-primary' : 'opacity-60'}
-                />
+                {renderBrandedIcon(
+                  '/messaging/sms toggle.png',
+                  20,
+                  20,
+                  selectedMode === 'sms',
+                )}
                 <span>SMS</span>
                 {selectedMode === 'sms' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
@@ -519,13 +568,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                 }`}
               >
-                <img
-                  src="/messaging/email toggle.svg"
-                  width={20}
-                  height={20}
-                  alt="Email"
-                  className={selectedMode === 'email' ? 'filter-brand-primary' : 'opacity-60'}
-                />
+                {renderBrandedIcon(
+                  '/messaging/email toggle.png',
+                  20,
+                  20,
+                  selectedMode === 'email',
+                )}
                 <span>Email</span>
                 {selectedMode === 'email' && (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />

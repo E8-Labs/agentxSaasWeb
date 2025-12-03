@@ -1,11 +1,6 @@
-import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-
-import { AuthToken } from '@/components/agency/plan/AuthDetails'
-import Apis from '@/components/apis/Apis'
-import { getFeaturesToLose } from '@/utilities/PlanComparisonUtils'
 
 function AgencyCancelConfirmation({
   handleContinue,
@@ -35,54 +30,16 @@ function AgencyCancelConfirmation({
       setLoading(true)
 
       if (currentPlanDetails) {
-        // Get all plans to find the free plan
-        const Token = AuthToken()
-        let ApiPath = Apis.getPlansForAgency
-        if (selectedAgency) {
-          ApiPath = ApiPath + `?userId=${selectedAgency.id}`
-        }
+        // Extract features directly from current plan details
+        if (currentPlanDetails.features && Array.isArray(currentPlanDetails.features)) {
+          // Filter features where thumb is true and extract the text
+          const featuresToLose = currentPlanDetails.features
+            .filter((feature) => feature.thumb === true)
+            .map((feature) => feature.text)
+            .filter((text) => text) // Remove any undefined/null values
 
-        const response = await axios.get(ApiPath, {
-          headers: {
-            Authorization: 'Bearer ' + Token,
-            'Content-Type': 'application/json',
-          },
-        })
-
-        if (response && response.data.status === true) {
-          const allPlans = response.data.data
-
-          // Get free plan for comparison (cancellation means going to free)
-          let freePlan = allPlans.find(
-            (plan) => plan.name === 'Free' || plan.isFree === 1,
-          )
-
-          // If free plan doesn't have proper capabilities, create a fallback
-          if (freePlan && !freePlan.capabilities) {
-            freePlan = {
-              ...freePlan,
-              capabilities: {
-                maxAgents: 0,
-                maxLeads: 0,
-                maxTeamMembers: 0,
-                maxSubAccounts: 0,
-                allowPrioritySupport: false,
-                allowZoomSupport: false,
-                allowGHLSubaccounts: false,
-                allowLeadSource: false,
-                allowKnowledgeBases: false,
-                allowSuccessManager: false,
-              },
-            }
-          }
-
-          // Use getFeaturesToLose function to get actual features that will be lost
-          const featuresToLose = currentPlanDetails.features.map((feature) => {
-            if (feature.thumb == true) {
-              return feature.text
-            }
-          }) //getFeaturesToLose(currentPlanDetails, freePlan)
           console.log('🔍 [CANCELATION FLOW] Features to lose:', featuresToLose)
+          
           // Convert to the format expected by the UI
           const planFeatures = featuresToLose.map((feature, index) => ({
             id: index + 1,
@@ -93,7 +50,7 @@ function AgencyCancelConfirmation({
 
           setFeatures(planFeatures)
         } else {
-          // Fallback to default features if plan details not found
+          // Fallback to default features if plan features not found
           setFeatures(getDefaultFeatures())
         }
       } else {

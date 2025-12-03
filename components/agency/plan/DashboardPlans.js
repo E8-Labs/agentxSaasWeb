@@ -456,6 +456,56 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     }
   }
 
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height, isActive) => {
+    if (typeof window === 'undefined') {
+      return (
+        <div
+          style={{
+            width: width,
+            height: height,
+            minWidth: width,
+            minHeight: height,
+          }}
+        />
+      )
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+    
+    // Use brand color when active, muted gray when inactive
+    const iconColor = isActive
+      ? `hsl(${brandColor.trim() || '270 75% 50%'})`
+      : 'hsl(0 0% 50%)' // Muted gray for inactive state
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: iconColor,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="w-full flex flex-col items-center ">
       {/* Code for snack msg */}
@@ -540,20 +590,13 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
             <div
               className={`pb-2 flex flex-row items-center px-4 ${planType === 'monthly' ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} gap-4`}
             >
-              {planType === 'monthly' ? (
-                <Image
-                  alt="focusMonthlyPln"
-                  src={'/agencyIcons/focusMonthlyPln.jpg'}
-                  width={23}
-                  height={25}
-                />
-              ) : (
-                <Image
-                  alt="unFocusMonthlyPln"
-                  src={'/agencyIcons/unFocusMonthlyPln.jpg'}
-                  width={23}
-                  height={25}
-                />
+              {renderBrandedIcon(
+                planType === 'monthly'
+                  ? '/agencyIcons/focusMonthlyPln.png'
+                  : '/agencyIcons/unFocusMonthlyPln.png',
+                23,
+                25,
+                planType === 'monthly',
               )}
               <button
                 className={`${planType === 'monthly' ? 'text-brand-primary' : 'text-black'}`}
@@ -565,22 +608,15 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
               </button>
             </div>
             <div
-              className={`pb-4 ${planType === 'Xbar' ? 'text-brand-primary border-b-2 border-brand-primary px-2' : 'text-black'} flex flex-row items-center gap-4`}
+              className={`pb-2 ${planType === 'Xbar' ? 'text-brand-primary border-b-2 border-brand-primary px-2' : 'text-black'} flex flex-row items-center gap-4`}
             >
-              {planType === 'Xbar' ? (
-                <Image
-                  alt="focusXBar"
-                  src={'/agencyIcons/focusXBar.jpg'}
-                  width={14}
-                  height={15}
-                />
-              ) : (
-                <Image
-                  alt="UnFocusXBar"
-                  src={'/agencyIcons/UnFocusXBar.jpg'}
-                  width={14}
-                  height={15}
-                />
+              {renderBrandedIcon(
+                planType === 'Xbar'
+                  ? '/agencyIcons/focusXBar.png'
+                  : '/agencyIcons/UnFocusXBar.png',
+                24,
+                24,
+                planType === 'Xbar',
               )}
               <button
                 className={`${planType === 'Xbar' ? 'text-brand-primary' : 'text-black'}`}

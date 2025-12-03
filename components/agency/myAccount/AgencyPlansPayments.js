@@ -621,7 +621,16 @@ function AgencyPlansPayments({ selectedAgency }) {
           getProfile()
           setSuccessSnack('Account canceled')
           await getProfileDetails()
-          window.location.href = '/agency/plan'
+
+          // Check if next charge date is in the past
+          const chargeDate = moment(userLocalData?.nextChargeDate)
+          const now = moment()
+
+          if (chargeDate.isBefore(now)) {
+            // Redirect to agency plans page
+            window.location.href = '/agency/plan'
+
+          }
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message)
         }
@@ -1754,7 +1763,7 @@ function AgencyPlansPayments({ selectedAgency }) {
                 if (
                   selectedPlan?.capabilities?.maxSubAccounts !== undefined &&
                   selectedPlan?.capabilities?.maxSubAccounts <
-                    currentSubAccounts?.length
+                  currentSubAccounts?.length
                 ) {
                   setShowDowngradePlanWarning(true)
                 } else {
@@ -1967,8 +1976,8 @@ function AgencyPlansPayments({ selectedAgency }) {
                   //selectedPlan={selectedPlan}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  // togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // togglePlan={""}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -2038,7 +2047,7 @@ function AgencyPlansPayments({ selectedAgency }) {
 
                 <button
                   className="text-xs font-normal"
-                  // onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
+                // onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
                 >
                   I understand and agree
                 </button>
@@ -2222,12 +2231,12 @@ function AgencyPlansPayments({ selectedAgency }) {
                         outline: 'none',
                         backgroundColor:
                           selectReason &&
-                          (selectReason !== 'Others' || otherReasonInput)
+                            (selectReason !== 'Others' || otherReasonInput)
                             ? 'hsl(var(--brand-primary))'
                             : '#00000050',
                         color:
                           selectReason &&
-                          (selectReason !== 'Others' || otherReasonInput)
+                            (selectReason !== 'Others' || otherReasonInput)
                             ? '#ffffff'
                             : '#000000',
                       }}

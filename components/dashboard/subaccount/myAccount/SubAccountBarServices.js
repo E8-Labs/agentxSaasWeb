@@ -86,6 +86,10 @@ function SubAccountBarServices({ selectedUser }) {
   const [isSubaccount, setIsSubaccount] = useState(true) // This is already a subaccount component
   const [textColor, setTextColor] = useState('#fff') // Default to white text
 
+  //variables for hireTeamUrl
+  const [hireTeamUrl, setHireTeamUrl] = useState(null)
+  const [hireTeamTitle, setHireTeamTitle] = useState(null)
+
   //variables for cancel plan
   const [giftPopup, setGiftPopup] = useState(false)
   const [ScreenWidth, setScreenWidth] = useState(null)
@@ -107,6 +111,7 @@ function SubAccountBarServices({ selectedUser }) {
     getPlans()
     getProfile()
     getCardsList()
+    getUserSettings()
     
     // Calculate text color based on background
     if (typeof window !== 'undefined') {
@@ -151,53 +156,67 @@ function SubAccountBarServices({ selectedUser }) {
     try {
       const localData = localStorage.getItem('User')
       let response = null
+      let profileData = null
       console.log('selectedUser', selectedUser)
       let togglePlan = null
       if (selectedUser) {
-        const Token = AuthToken()
-        let ApiPath = Apis.getProfileFromId
-        ApiPath = ApiPath + '?id=' + selectedUser.id
-
-        //console.log
-
-        response = await axios.get(ApiPath, {
-          headers: {
-            Authorization: 'Bearer ' + Token,
-          },
-        })
-      } else {
-        if (selectedUser) {
-          response = await AdminGetProfileDetails(selectedUser.id)
-          if (response) {
-            setSelectedUserDetails(response?.data?.data)
+          profileData = await AdminGetProfileDetails(selectedUser.id)
+          console.log('response of admin get profile details', profileData)
+          if (profileData) {
+            // AdminGetProfileDetails returns data directly, not wrapped in response.data.data
+            setSelectedUserDetails(profileData)
+            response = { data: { data: profileData } } // Create response-like object for consistency
           }
         } else {
           response = await getProfileDetails()
-          setUserDetails(response?.data?.data)
-          setSelectedUserDetails(response?.data?.data)
+          console.log('response of get profile details', response)
+          if (response) {
+            profileData = response?.data?.data
+            setUserDetails(profileData)
+            setSelectedUserDetails(profileData)
+          }
         }
-      }
-      if (response) {
-        console.log('Respone for setting xbar plan', response)
-        togglePlan = response?.data?.data?.supportPlan
-        // let togglePlan = plan?.type;
-        // let planType = null;
-        // // if (plan.status == "active") {
-        // if (togglePlan === "Starter") {
-        //   planType = 1;
-        // } else if (togglePlan === "Professional") {
-        //   planType = 2;
-        // } else if (togglePlan === "Enterprise") {
-        //   planType = 3;
-        // }
-        // }
-        setUserLocalData(response?.data?.data)
+
+      if (profileData || response) {
+        const data = profileData || response?.data?.data
+        console.log('Respone for setting xbar plan', data)
+        togglePlan = data?.supportPlan
+        setUserLocalData(data)
       }
       console.log('Plan id is', togglePlan)
       setTogglePlan(togglePlan)
       setCurrentPlan(togglePlan)
     } catch (error) {
-      // console.error("Error in getprofile api is", error);
+      console.error("Error in getprofile api is", error)
+    }
+  }
+
+  //function to get user settings (including hireTeamUrl)
+  const getUserSettings = async () => {
+    try {
+      const Token = AuthToken()
+      let ApiPath = Apis.getUserSettings
+      if (selectedUser) {
+        ApiPath = ApiPath + `?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response && response.data?.status === true) {
+        const settingsData = response.data.data
+        console.log('User settings response:', settingsData)
+        if (settingsData?.hireTeam && settingsData?.hireTeamUrl) {
+          setHireTeamUrl(settingsData.hireTeamUrl)
+          setHireTeamTitle(settingsData.hireTeamTitle || 'Speak to a Genius')
+        }
+      }
+    } catch (error) {
+      console.error('Error occurred in getting user settings:', error)
     }
   }
 
@@ -370,11 +389,9 @@ function SubAccountBarServices({ selectedUser }) {
   }
 
   const handleSpeakToAGenius = () => {
-    console.log('selectedUserDetails', selectedUserDetails)
-    if (selectedUserDetails?.agencySettings?.hireTeamUrl) {
-      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
+    if (hireTeamUrl) {
       if (typeof window !== 'undefined') {
-        window.open(url, '_blank')
+        window.open(hireTeamUrl, '_blank')
       }
     }
   }
@@ -478,7 +495,7 @@ function SubAccountBarServices({ selectedUser }) {
             <div className="flex flex-row justify-between">
               <div></div>
               <Tooltip
-                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
+                title={!hireTeamUrl ? 'Unavailable' : ''}
                 placement="top"
                 arrow
                 componentsProps={{
@@ -496,12 +513,13 @@ function SubAccountBarServices({ selectedUser }) {
                 }}
               >
                 <button
-                  className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium"
+                  className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={(e) => {
                     handleSpeakToAGenius()
                   }}
+                  disabled={!hireTeamUrl}
                 >
-                  Speak to a Genius
+                  {hireTeamTitle || 'Speak to a Genius'}
                 </button>
               </Tooltip>
             </div>
@@ -732,7 +750,6 @@ function SubAccountBarServices({ selectedUser }) {
               <Elements stripe={stripePromise}>
                 <AddCardDetails
                   //selectedPlan={selectedPlan}
-                  stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={''}

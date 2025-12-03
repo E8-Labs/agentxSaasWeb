@@ -264,7 +264,7 @@ const AgencyNavBar = () => {
           'agencyProfileData.plan?.status',
           agencyProfileData.plan?.status,
         )
-        if (agencyProfileData.plan?.status === 'cancelled') {
+        if (agencyProfileData.plan?.status === 'cancelled'  && (agencyProfileData.nextChargeDate || moment(agencyProfileData.nextChargeDate).isBefore(moment()))) {
           router.push('/agency/plan')
           return
         }
