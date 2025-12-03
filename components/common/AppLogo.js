@@ -27,7 +27,7 @@ const AppLogo = ({
     const hostname = window.location.hostname
 
     // Check if hostname is assignx.ai domain
-    const isAssignx = hostname.includes('.assignx.ai') || hostname === 'assignx.ai' || hostname.includes('localhost')
+    const isAssignx = hostname == "dev.assignx.ai" || hostname == "app.assignx.ai" || hostname.includes('localhost')
 
     setIsAssignxDomain(isAssignx)
 
@@ -66,14 +66,14 @@ const AppLogo = ({
     let branding = null
 
     // Try to get agency branding from cookie (set by middleware)
-    const brandingCookie = getCookie('agencyBranding')
-    if (brandingCookie) {
-      try {
-        branding = JSON.parse(decodeURIComponent(brandingCookie))
-      } catch (error) {
-        console.log('Error parsing agencyBranding cookie:', error)
-      }
-    }
+    // const brandingCookie = getCookie('agencyBranding')
+    // if (brandingCookie) {
+    //   try {
+    //     branding = JSON.parse(decodeURIComponent(brandingCookie))
+    //   } catch (error) {
+    //     console.log('Error parsing agencyBranding cookie:', error)
+    //   }
+    // }
 
     // Fallback to localStorage
     if (!branding) {

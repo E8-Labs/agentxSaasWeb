@@ -556,35 +556,34 @@ function AgencySubacount({ selectedAgency }) {
         setRortingLoader={(d) => {
           setRortingLoader(d)
         }}
-        // showSuccess={(d) => {
-        //   setShowSnackMessage(d);
-        //   setShowSnackType(SnackbarTypes.Success);
-        // }}
+      // showSuccess={(d) => {
+      //   setShowSnackMessage(d);
+      //   setShowSnackType(SnackbarTypes.Success);
+      // }}
       />
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
+     
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
+          style={{
+            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         >
-          {/* Texture Background */}
-          <div
-            className="absolute inset-0 rounded-lg"
-            style={{
-              backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
           {/* Brand Color Overlay */}
-          <div
-            className="absolute inset-0 rounded-lg"
-            style={{
-              backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-              mixBlendMode: 'multiply',
-            }}
-          />
+       
+            <div
+              className="absolute inset-0 rounded-lg"
+              style={{
+                backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
+                mixBlendMode: 'multiply',
+              }}
+            />
+
           {/* Content */}
-          <div className="relative z-10 w-full flex flex-row items-center justify-between">
+          <div className="relative z-10 flex flex-row items-center justify-between w-full">
             <div
               style={{
                 fontSize: 29,
@@ -606,6 +605,9 @@ function AgencySubacount({ selectedAgency }) {
             </button>
           </div>
         </div>
+
+
+
         <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
           <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
             <input
@@ -760,22 +762,22 @@ function AgencySubacount({ selectedAgency }) {
                     key={item.id}
                     style={{ cursor: 'pointer' }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-brand-primary/5 py-2 cursor-pointer cursor-pointer"
-                    // onClick={(e) => handleTogglePopover(e, item)}
-                    // onClick={(event) => {
-                    //   if (activeAccount === item.id) {
-                    //     // same row clicked again → close
-                    //     setAnchorEl(null);
-                    //     setActiveAccount(null);
-                    //   } else {
-                    //     // open for this row
-                    //     setAnchorEl(event.currentTarget);
-                    //     setActiveAccount(item.id);
-                    //     setUserData(item);
-                    //     setSelectedItem(item);
-                    //     setmoreDropdown(item.id);
-                    //     setSelectedUser(item);
-                    //   }
-                    // }}
+                  // onClick={(e) => handleTogglePopover(e, item)}
+                  // onClick={(event) => {
+                  //   if (activeAccount === item.id) {
+                  //     // same row clicked again → close
+                  //     setAnchorEl(null);
+                  //     setActiveAccount(null);
+                  //   } else {
+                  //     // open for this row
+                  //     setAnchorEl(event.currentTarget);
+                  //     setActiveAccount(item.id);
+                  //     setUserData(item);
+                  //     setSelectedItem(item);
+                  //     setmoreDropdown(item.id);
+                  //     setSelectedUser(item);
+                  //   }
+                  // }}
                   >
                     <div
                       className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -885,13 +887,13 @@ function AgencySubacount({ selectedAgency }) {
                         disabled={twililoConectedStatus}
                         id={`account-popover-toggle-${item.id}`}
                         onClick={(e) => handleTogglePopover(e, item)}
-                        // onClick={() => {
-                        //   setUserData(item);
-                        //   setmoreDropdown(
-                        //     moreDropdown === item.id ? null : item.id
-                        //   );
-                        //   setSelectedItem(item);
-                        // }}
+                      // onClick={() => {
+                      //   setUserData(item);
+                      //   setmoreDropdown(
+                      //     moreDropdown === item.id ? null : item.id
+                      //   );
+                      //   setSelectedItem(item);
+                      // }}
                       >
                         <Image
                           src={'/svgIcons/threeDotsIcon.svg'}
@@ -1117,7 +1119,7 @@ function AgencySubacount({ selectedAgency }) {
             setShowModal(false)
           }}
           selectedAgency={selectedAgency}
-          // handleCloseModal={() => { handleCloseModal() }}
+        // handleCloseModal={() => { handleCloseModal() }}
         />
 
         {/* Code for filters modal */}

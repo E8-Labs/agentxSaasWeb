@@ -151,7 +151,7 @@ function SubAccountBarServices({ selectedUser }) {
     try {
       const localData = localStorage.getItem('User')
       let response = null
-      //console.log;
+      console.log('selectedUser', selectedUser)
       let togglePlan = null
       if (selectedUser) {
         const Token = AuthToken()
@@ -370,8 +370,9 @@ function SubAccountBarServices({ selectedUser }) {
   }
 
   const handleSpeakToAGenius = () => {
-    if (selectedUser?.userRole !== 'AgencySubAccount') {
-      let url = PersistanceKeys.HireTeamUrl
+    console.log('selectedUserDetails', selectedUserDetails)
+    if (selectedUserDetails?.agencySettings?.hireTeamUrl) {
+      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
@@ -477,7 +478,7 @@ function SubAccountBarServices({ selectedUser }) {
             <div className="flex flex-row justify-between">
               <div></div>
               <Tooltip
-                title={`${!selectedUserDetails?.userSettings?.hireTeamTitle && 'Unavailable'}`}
+                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
                 placement="top"
                 arrow
                 componentsProps={{

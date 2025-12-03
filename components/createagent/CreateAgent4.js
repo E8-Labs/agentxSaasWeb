@@ -1023,7 +1023,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {userData?.userRole === 'AgencySubAccount' &&
               userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
                 // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
-                <div className="w-full h-full flex items-center justify-center bg-green">
+                <div className="w-full h-[35vh]  flex items-center justify-center">
                   <UpgardView
                     setShowSnackMsg={setShowSnackMsg}
                     title={'Enable Live Transfer'}
@@ -1163,8 +1163,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   </div>
                 </div>
               ) : (
-                <div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
-                  <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full  flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                  <div className="w-full h-[35vh] flex items-center justify-center">
                     <UpgardView
                       setShowSnackMsg={setShowSnackMsg}
                       title={'Enable Live Transfer'}

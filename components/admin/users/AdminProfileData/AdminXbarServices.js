@@ -364,7 +364,7 @@ function AdminXbarServices({ selectedUser }) {
         window.open(url, '_blank')
       }
     } else {
-      let url = selectedUserDetails?.userSettings?.hireTeamUrl
+      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
@@ -469,7 +469,7 @@ function AdminXbarServices({ selectedUser }) {
               <div></div>
 
               <Tooltip
-                title={`${!selectedUserDetails?.userSettings?.hireTeamTitle && 'Unavailable'}`}
+                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
                 placement="top"
                 arrow
                 componentsProps={{
