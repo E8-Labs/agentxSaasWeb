@@ -161,9 +161,14 @@ function CalendarModal(props) {
   // Main window: listen for the popup's message
   useEffect(() => {
     function onMessage(e) {
-      // Security: ensure it came from our own origin
-      if (e.origin !== window.location.origin) return
+      // Accept messages from any origin (needed for cross-domain popups: dev.assignx.ai <-> custom domain)
+      // But validate the message structure for security
       const { type, code, error, locationId } = e.data || {}
+      
+      // Only process messages with expected types
+      if (!type || (type !== 'GHL_OAUTH_CODE' && type !== 'GHL_OAUTH_SUCCESS')) {
+        return
+      }
       
       // Handle direct OAuth code from popup (normal flow)
       if (type === 'GHL_OAUTH_CODE') {

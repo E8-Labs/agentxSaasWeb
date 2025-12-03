@@ -156,16 +156,137 @@ export async function GET(req) {
     redirectUrl.searchParams.set('locationId', json.locationId)
   }
   
-  // Check if this request came from a popup by checking the referer or a custom header
-  // If we can detect it's from a popup, add a flag to help client-side detection
-  const referer = req.headers.get('referer') || ''
-  const isLikelyPopup = referer.includes('marketplace.gohighlevel.com') || referer.includes('oauth')
-  if (isLikelyPopup) {
-    redirectUrl.searchParams.set('_popup', '1')
+  // ALWAYS return HTML instead of server-side redirect
+  // This preserves window.opener context for popups (works on dev.assignx.ai and custom domains)
+  // The client-side script will detect if it's a popup and handle accordingly
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>GHL OAuth Success</title>
+  <script>
+    (function() {
+      console.log('🚨 [GHL Exchange] Popup handler script running');
+      var locationId = ${json.locationId ? `'${json.locationId}'` : 'null'};
+      var redirectUrl = '${redirectUrl.toString().replace(/'/g, "\\'")}';
+      
+      // Check if we're in a popup (this works regardless of domain)
+      var isPopup = window.opener !== null && window.opener !== window;
+      var hasOpener = typeof window.opener !== 'undefined' && window.opener !== null;
+      
+      if (isPopup || hasOpener) {
+        console.log('🚨 [GHL Exchange] In popup, sending message and closing');
+        
+        // Send message to parent window
+        // Use '*' as origin to work across dev.assignx.ai and custom domains
+        try {
+          if (window.opener && !window.opener.closed) {
+            // Try same origin first
+            try {
+              window.opener.postMessage({
+                type: 'GHL_OAUTH_SUCCESS',
+                locationId: locationId
+              }, window.location.origin);
+              console.log('🚨 [GHL Exchange] Message sent to parent (same origin)');
+            } catch (e) {
+              // If same origin fails, try wildcard (for cross-domain scenarios)
+              console.log('🚨 [GHL Exchange] Same origin failed, trying wildcard:', e);
+              window.opener.postMessage({
+                type: 'GHL_OAUTH_SUCCESS',
+                locationId: locationId
+              }, '*');
+              console.log('🚨 [GHL Exchange] Message sent to parent (wildcard)');
+            }
+          }
+        } catch (e) {
+          console.error('🚨 [GHL Exchange] Error sending message:', e);
+        }
+        
+        // Close popup immediately
+        var closeAttempts = 0;
+        var tryClose = function() {
+          closeAttempts++;
+          try {
+            window.close();
+            console.log('🚨 [GHL Exchange] Popup close attempted (' + closeAttempts + ')');
+            
+            // If close doesn't work, focus parent
+            setTimeout(function() {
+              if (!window.closed && window.opener && !window.opener.closed) {
+                try {
+                  window.opener.focus();
+                  console.log('🚨 [GHL Exchange] Focused parent as fallback');
+                } catch (e) {
+                  console.error('🚨 [GHL Exchange] Error focusing parent:', e);
+                }
+              }
+            }, 50);
+          } catch (e) {
+            console.error('🚨 [GHL Exchange] Error closing popup:', e);
+            try {
+              if (window.opener && !window.opener.closed) {
+                window.opener.focus();
+              }
+            } catch (e2) {
+              console.error('🚨 [GHL Exchange] Error focusing parent:', e2);
+            }
+          }
+        };
+        
+        // Try closing multiple times
+        tryClose();
+        setTimeout(tryClose, 100);
+        setTimeout(tryClose, 300);
+        setTimeout(tryClose, 500);
+        setTimeout(tryClose, 1000);
+      } else {
+        // Not a popup, redirect normally
+        console.log('🚨 [GHL Exchange] Not a popup, redirecting normally');
+        window.location.href = redirectUrl;
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p>Completing authentication...</p>
+</body>
+</html>`
+  
+  const res = new NextResponse(html, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html',
+    },
+  })
+  
+  // Set cookies
+  res.cookies.set('ghl_access_token', json.access_token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge,
+  })
+  if (json.refresh_token) {
+    res.cookies.set('ghl_refresh_token', json.refresh_token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+    })
   }
-
-  // Create redirect response with cookies
-  const res = NextResponse.redirect(redirectUrl.toString())
+  if (json.locationId) {
+    res.cookies.set('ghl_location_id', json.locationId, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/',
+      maxAge,
+    })
+  }
+  
+  console.log('✅ GHL OAuth exchange successful, returning HTML (popup detection on client-side)')
+  return res
 
   res.cookies.set('ghl_access_token', json.access_token, {
     httpOnly: true,

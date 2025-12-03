@@ -124,6 +124,103 @@ export default function RootLayout({ children }) {
             })();`,
           }}
         />
+
+        {/* GHL OAuth Popup Handler - Must run before React to preserve popup context */}
+        <Script
+          id="ghl-oauth-popup-handler"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function() {
+              // Run immediately when script loads
+              (function checkAndClosePopup() {
+                try {
+                  // Check if we're in a popup window
+                  var isPopup = window.opener !== null && window.opener !== window;
+                  var hasOpener = typeof window.opener !== 'undefined' && window.opener !== null;
+                  
+                  if (!isPopup && !hasOpener) {
+                    return; // Not a popup, exit early
+                  }
+                  
+                  // Get URL parameters
+                  var params = new URLSearchParams(window.location.search);
+                  var ghlOauthSuccess = params.get('ghl_oauth');
+                  var locationId = params.get('locationId');
+                  
+                  // If GHL OAuth success detected in popup, close immediately
+                  if (ghlOauthSuccess === 'success') {
+                    console.log('🚨 [GHL Popup Handler] GHL OAuth success detected in popup, closing immediately');
+                    
+                    // Send message to parent window
+                    try {
+                      if (window.opener && !window.opener.closed) {
+                        window.opener.postMessage({
+                          type: 'GHL_OAUTH_SUCCESS',
+                          locationId: locationId || null
+                        }, window.location.origin);
+                        console.log('🚨 [GHL Popup Handler] Message sent to parent');
+                      }
+                    } catch (e) {
+                      console.error('🚨 [GHL Popup Handler] Error sending message:', e);
+                    }
+                    
+                    // Close popup immediately - try multiple times
+                    var closeAttempts = 0;
+                    var maxAttempts = 5;
+                    
+                    var tryClose = function() {
+                      closeAttempts++;
+                      try {
+                        window.close();
+                        console.log('🚨 [GHL Popup Handler] Popup close attempted (' + closeAttempts + ')');
+                        
+                        // If close doesn't work, focus parent as fallback
+                        setTimeout(function() {
+                          if (!window.closed && window.opener && !window.opener.closed) {
+                            try {
+                              window.opener.focus();
+                              console.log('🚨 [GHL Popup Handler] Focused parent as fallback');
+                            } catch (e) {
+                              console.error('🚨 [GHL Popup Handler] Error focusing parent:', e);
+                            }
+                          }
+                        }, 50);
+                      } catch (e) {
+                        console.error('🚨 [GHL Popup Handler] Error closing popup:', e);
+                        try {
+                          if (window.opener && !window.opener.closed) {
+                            window.opener.focus();
+                          }
+                        } catch (e2) {
+                          console.error('🚨 [GHL Popup Handler] Error focusing parent:', e2);
+                        }
+                      }
+                    };
+                    
+                    // Try closing immediately
+                    tryClose();
+                    
+                    // Try again with delays (some browsers need this)
+                    if (closeAttempts < maxAttempts) {
+                      setTimeout(tryClose, 100);
+                    }
+                    if (closeAttempts < maxAttempts) {
+                      setTimeout(tryClose, 300);
+                    }
+                    if (closeAttempts < maxAttempts) {
+                      setTimeout(tryClose, 500);
+                    }
+                    if (closeAttempts < maxAttempts) {
+                      setTimeout(tryClose, 1000);
+                    }
+                  }
+                } catch (e) {
+                  console.error('🚨 [GHL Popup Handler] Error:', e);
+                }
+              })();
+            })();`,
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
