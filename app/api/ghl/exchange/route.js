@@ -155,6 +155,14 @@ export async function GET(req) {
   if (json.locationId) {
     redirectUrl.searchParams.set('locationId', json.locationId)
   }
+  
+  // Check if this request came from a popup by checking the referer or a custom header
+  // If we can detect it's from a popup, add a flag to help client-side detection
+  const referer = req.headers.get('referer') || ''
+  const isLikelyPopup = referer.includes('marketplace.gohighlevel.com') || referer.includes('oauth')
+  if (isLikelyPopup) {
+    redirectUrl.searchParams.set('_popup', '1')
+  }
 
   // Create redirect response with cookies
   const res = NextResponse.redirect(redirectUrl.toString())

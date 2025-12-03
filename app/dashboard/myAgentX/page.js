@@ -147,29 +147,70 @@ function Page() {
     const ghlOauthSuccess = params.get('ghl_oauth')
     const locationId = params.get('locationId')
 
-    // Check if we're in a popup window
-    const isPopup = window.opener !== null
-
+    // Check if we're in a popup window - check multiple ways
+    const isPopup = window.opener !== null && window.opener !== window
+    const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
+    
     // Handle GHL OAuth success redirect (after token exchange)
     if (ghlOauthSuccess === 'success') {
       console.log('✅ GHL OAuth successful, triggering calendar refresh')
       console.log('- Is popup:', isPopup)
+      console.log('- Has opener:', hasOpener)
+      console.log('- window.opener:', window.opener)
       
-      // If in popup, send message to parent and close
-      if (isPopup) {
-        try {
-          window.opener.postMessage(
-            { 
-              type: 'GHL_OAUTH_SUCCESS', 
-              locationId: locationId || null 
-            },
-            window.location.origin,
-          )
-        } catch (e) {
-          console.error('Error sending message to parent:', e)
-        } finally {
-          window.close()
+      // If in popup, send message to parent and close immediately
+      if (isPopup || hasOpener) {
+        console.log('✅ Detected popup context, sending message to parent and closing')
+        
+        // Function to close popup and notify parent
+        const closePopupAndNotify = () => {
+          try {
+            // Send message to parent window first
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(
+                { 
+                  type: 'GHL_OAUTH_SUCCESS', 
+                  locationId: locationId || null 
+                },
+                window.location.origin,
+              )
+              console.log('✅ Message sent to parent window')
+            }
+          } catch (e) {
+            console.error('Error sending message to parent:', e)
+          }
+          
+          // Close popup
+          try {
+            window.close()
+            console.log('✅ Popup close attempted')
+            
+            // If window didn't close (some browsers block it), focus parent as fallback
+            setTimeout(() => {
+              if (!window.closed && window.opener && !window.opener.closed) {
+                try {
+                  window.opener.focus()
+                  console.log('✅ Focused parent window as fallback')
+                } catch (e) {
+                  console.error('Error focusing parent:', e)
+                }
+              }
+            }, 200)
+          } catch (e) {
+            console.error('Error closing popup:', e)
+            // Fallback: try to focus parent window
+            try {
+              if (window.opener && !window.opener.closed) {
+                window.opener.focus()
+              }
+            } catch (e2) {
+              console.error('Error focusing parent:', e2)
+            }
+          }
         }
+        
+        // Close immediately (don't wait)
+        closePopupAndNotify()
         return
       }
       
