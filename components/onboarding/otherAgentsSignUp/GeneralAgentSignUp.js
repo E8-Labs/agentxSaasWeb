@@ -1059,8 +1059,35 @@ const GeneralAgentSignUp = ({
                             fontSize: 15,
                             fontWeight: '700',
                           }}
-                          onClick={() => {
-                            router.push('/createagent')
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            
+                            // Check if user is on mobile - use both screen width and user agent
+                            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+                            const SM_SCREEN_SIZE = 640
+                            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+                            )
+                            
+                            console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
+                            
+                            // If mobile device OR small screen, navigate to continue to desktop screen
+                            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                              // Mobile: Navigate to continue to desktop screen
+                              console.log('Mobile detected - navigating to continue to desktop screen')
+                              router.push('/createagent/desktop')
+                            } else {
+                              // Desktop: Navigate to createagent
+                              console.log('Desktop detected - navigating to createagent')
+                              if (handleShowRedirectPopup) {
+                                handleShowRedirectPopup()
+                              }
+                              // Small delay to ensure popup shows before navigation
+                              setTimeout(() => {
+                                router.push('/createagent')
+                              }, 100)
+                            }
                           }}
                         >
                           Get Started

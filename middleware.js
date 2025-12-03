@@ -385,7 +385,8 @@ export async function middleware(request) {
     pathname.startsWith('/createagent') ||
     pathname.startsWith('/pipeline') ||
     pathname.startsWith('/plan') ||
-    pathname.startsWith('/web-agent')
+    pathname.startsWith('/web-agent') ||
+    pathname.startsWith('/embedCalendar')
   ) {
     return NextResponse.next()
   }

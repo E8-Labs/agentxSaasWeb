@@ -38,6 +38,7 @@ const BasicDetails = ({
   onComplete,
   handleDetails,
   userDetails,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([])
   const timerRef = useRef(null)
@@ -401,7 +402,10 @@ const BasicDetails = ({
             // //console.log;
           } else {
             // //console.log;
-            handleContinue()
+            if (handleShowRedirectPopup) {
+              handleShowRedirectPopup()
+            }
+            router.push('/createagent')
           }
         }
       }

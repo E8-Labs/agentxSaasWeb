@@ -1,7 +1,6 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 
 import AppLogo from '@/components/common/AppLogo'
 
@@ -18,7 +17,21 @@ const Congrats = () => {
 
   const handleNext = (e) => {
     e.preventDefault()
-    router.push('/createagent')
+    
+    // Check if user is on mobile
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+    const SM_SCREEN_SIZE = 640
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      typeof navigator !== 'undefined' ? navigator.userAgent : ''
+    )
+    
+    if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+      // Mobile: Navigate to continue to desktop screen
+      router.push('/createagent/desktop')
+    } else {
+      // Desktop: Navigate to createagent
+      router.push('/createagent')
+    }
   }
 
   return (
@@ -59,19 +72,21 @@ const Congrats = () => {
             Your account is created!
           </div>
           <div className="rounded-xl text-white bg-purple mt-8 flex justify-center items-center">
-            <Link
-              href="/createagent"
-              className=" text-white flex justify-center items-center"
+            <button
+              className="text-white flex justify-center items-center rounded-xl"
               style={{
                 fontWeight: '700',
                 fontSize: '16',
                 height: '50px',
                 width: '191px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
               }}
               onClick={handleNext}
             >
               Get Started
-            </Link>
+            </button>
           </div>
         </div>
       </div>

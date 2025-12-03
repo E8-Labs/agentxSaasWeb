@@ -85,6 +85,13 @@ const Page = () => {
     if (typeof window !== 'undefined') {
       size = window.innerWidth
       setWindowSize(size)
+      
+      // Redirect mobile users (including subaccounts) to desktop page on initial load
+      // Only redirect if we're on step 1 (initial landing after registration)
+      if (size < 640 && stepFromUrl === 1) {
+        router.push('/createagent/desktop')
+        return
+      }
     } else {
       // //console.log;
     }
@@ -116,6 +123,7 @@ const Page = () => {
       }
     }
     // //console.log;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

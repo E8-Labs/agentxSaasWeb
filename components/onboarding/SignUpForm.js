@@ -1092,7 +1092,23 @@ const SignUpForm = ({
                             fontWeight: '700',
                           }}
                           onClick={() => {
-                            router.push('/createagent')
+                            // Check if user is on mobile
+                            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+                            const SM_SCREEN_SIZE = 640
+                            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+                            )
+                            
+                            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                              // Mobile: Navigate to continue to desktop screen
+                              router.push('/createagent/desktop')
+                            } else {
+                              // Desktop: Navigate to createagent
+                              if (handleShowRedirectPopup) {
+                                handleShowRedirectPopup()
+                              }
+                              router.push('/createagent')
+                            }
                           }}
                         >
                           Get Started
