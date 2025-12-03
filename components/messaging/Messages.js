@@ -62,6 +62,7 @@ const Messages = () => {
   const [imageAttachments, setImageAttachments] = useState([])
   const [showEmailTimeline, setShowEmailTimeline] = useState(false)
   const [emailTimelineLeadId, setEmailTimelineLeadId] = useState(null)
+  const [emailTimelineSubject, setEmailTimelineSubject] = useState(null)
   const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
@@ -998,7 +999,7 @@ const Messages = () => {
   }, [threads, selectedThread, fetchMessages, markThreadAsRead])
 
   // Fetch email timeline messages
-  const fetchEmailTimeline = useCallback(async (leadId) => {
+  const fetchEmailTimeline = useCallback(async (leadId, subject = null) => {
     if (!leadId) return
     
     try {
@@ -1009,7 +1010,39 @@ const Messages = () => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      // Fetch all threads for this lead, then filter for email messages
+      // If subject is provided, use the new endpoint to get emails by subject
+      if (subject) {
+        try {
+          const response = await axios.get(Apis.getEmailsBySubject, {
+            params: {
+              leadId: leadId,
+              subject: subject,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (response.data?.status && response.data?.data) {
+            // Sort by date descending (newest first)
+            const sortedMessages = [...response.data.data].sort((a, b) => {
+              const dateA = new Date(a.createdAt)
+              const dateB = new Date(b.createdAt)
+              return dateB - dateA
+            })
+            setEmailTimelineMessages(sortedMessages)
+          } else {
+            setEmailTimelineMessages([])
+          }
+        } catch (error) {
+          console.error('Error fetching emails by subject:', error)
+          setEmailTimelineMessages([])
+        }
+        return
+      }
+
+      // Fallback to original behavior: fetch all threads for this lead, then filter for email messages
       const threadsResponse = await axios.get(Apis.getMessageThreads, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1073,9 +1106,9 @@ const Messages = () => {
   // Fetch email timeline when modal opens
   useEffect(() => {
     if (showEmailTimeline && emailTimelineLeadId) {
-      fetchEmailTimeline(emailTimelineLeadId)
+      fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
     }
-  }, [showEmailTimeline, emailTimelineLeadId, fetchEmailTimeline])
+  }, [showEmailTimeline, emailTimelineLeadId, emailTimelineSubject, fetchEmailTimeline])
 
   // Initial load
   useEffect(() => {
@@ -1158,6 +1191,7 @@ const Messages = () => {
                 getEmailDetails={getEmailDetails}
                 setShowEmailTimeline={setShowEmailTimeline}
                 setEmailTimelineLeadId={setEmailTimelineLeadId}
+                setEmailTimelineSubject={setEmailTimelineSubject}
               />
 
               {/* Composer */}
@@ -1358,6 +1392,7 @@ const Messages = () => {
         onClose={() => {
           setShowEmailTimeline(false)
           setEmailTimelineLeadId(null)
+          setEmailTimelineSubject(null)
           setEmailTimelineMessages([])
         }}
         PaperProps={{

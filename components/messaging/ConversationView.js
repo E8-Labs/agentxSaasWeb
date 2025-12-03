@@ -23,6 +23,7 @@ const ConversationView = ({
   getEmailDetails,
   setShowEmailTimeline,
   setEmailTimelineLeadId,
+  setEmailTimelineSubject,
 }) => {
   if (!selectedThread) return null
 
@@ -184,6 +185,9 @@ const ConversationView = ({
                               if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
                                 setShowEmailTimeline(true)
                                 setEmailTimelineLeadId(selectedThread.lead.id)
+                                if (setEmailTimelineSubject && message.subject) {
+                                  setEmailTimelineSubject(message.subject)
+                                }
                               }
                             }}
                             className="hover:underline cursor-pointer"
