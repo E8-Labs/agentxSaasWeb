@@ -65,6 +65,8 @@ const Messages = () => {
   const [emailTimelineSubject, setEmailTimelineSubject] = useState(null)
   const [emailTimelineMessages, setEmailTimelineMessages] = useState([])
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
+  const [emailTimelineReplyBody, setEmailTimelineReplyBody] = useState('')
+  const [emailTimelineSending, setEmailTimelineSending] = useState(false)
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
@@ -1394,6 +1396,7 @@ const Messages = () => {
           setEmailTimelineLeadId(null)
           setEmailTimelineSubject(null)
           setEmailTimelineMessages([])
+          setEmailTimelineReplyBody('')
         }}
         PaperProps={{
           sx: {
@@ -1422,7 +1425,9 @@ const Messages = () => {
             <CloseBtn onClick={() => {
               setShowEmailTimeline(false)
               setEmailTimelineLeadId(null)
+              setEmailTimelineSubject(null)
               setEmailTimelineMessages([])
+              setEmailTimelineReplyBody('')
             }} />
           </div>
 
@@ -1440,7 +1445,7 @@ const Messages = () => {
                 <p className="text-gray-500">No emails found</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 pb-4">
                 {emailTimelineMessages.map((message, index) => {
                   const showDateSeparator =
                     index === 0 ||
@@ -1527,6 +1532,147 @@ const Messages = () => {
               </div>
             )}
           </div>
+
+          {/* Reply Composer */}
+          {emailTimelineMessages.length > 0 && emailTimelineSubject && emailTimelineLeadId && (
+            <div className="border-t pt-4 mt-4 bg-white">
+              <div className="space-y-3">
+                {/* From and To fields */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-1">
+                    <label className="text-sm font-medium whitespace-nowrap">From:</label>
+                    <select
+                      value={selectedEmailAccount || ''}
+                      onChange={(e) => setSelectedEmailAccount(e.target.value)}
+                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg px-3 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white"
+                      style={{ height: '42px' }}
+                    >
+                      <option value="">Select email account</option>
+                      {emailAccounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1">
+                    <label className="text-sm font-medium whitespace-nowrap">To:</label>
+                    <Input
+                      value={
+                        (() => {
+                          // Get recipient email from the first message
+                          const firstMessage = emailTimelineMessages[0]
+                          if (firstMessage.direction === 'outbound') {
+                            return firstMessage.toEmail || selectedThread?.lead?.email || ''
+                          } else {
+                            return firstMessage.fromEmail || selectedThread?.lead?.email || ''
+                          }
+                        })()
+                      }
+                      readOnly
+                      className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                      style={{ height: '42px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Subject field */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium whitespace-nowrap">Subject:</label>
+                  <Input
+                    value={emailTimelineSubject}
+                    readOnly
+                    className="flex-1 bg-gray-50 cursor-not-allowed h-[42px] border-[0.5px] border-gray-200 rounded-lg"
+                    style={{ height: '42px' }}
+                  />
+                </div>
+
+                {/* Message body */}
+                <div className="border border-gray-200 rounded-lg">
+                  <RichTextEditor
+                    ref={richTextEditorRef}
+                    value={emailTimelineReplyBody}
+                    onChange={(content) => setEmailTimelineReplyBody(content)}
+                    placeholder="Type your message..."
+                    className="min-h-[150px]"
+                  />
+                </div>
+
+                {/* Send button */}
+                <div className="flex items-center justify-end gap-4">
+                  <button
+                    onClick={async () => {
+                      if (!emailTimelineReplyBody.trim() || !selectedEmailAccount || !emailTimelineLeadId) {
+                        toast.error('Please fill in all required fields')
+                        return
+                      }
+
+                      try {
+                        setEmailTimelineSending(true)
+                        const localData = localStorage.getItem('User')
+                        if (!localData) {
+                          toast.error('Please log in')
+                          return
+                        }
+
+                        const userData = JSON.parse(localData)
+                        const token = userData.token
+
+                        const formData = new FormData()
+                        formData.append('leadId', emailTimelineLeadId)
+                        formData.append('subject', emailTimelineSubject)
+                        formData.append('body', emailTimelineReplyBody)
+                        formData.append('emailAccountId', selectedEmailAccount)
+
+                        const response = await axios.post(Apis.sendEmailToLead, formData, {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data',
+                          },
+                        })
+
+                        if (response.data?.status) {
+                          toast.success('Email sent successfully')
+                          setEmailTimelineReplyBody('')
+                          // Refresh email timeline
+                          await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                          // Refresh threads
+                          fetchThreads()
+                        } else {
+                          toast.error(response.data?.message || 'Failed to send email')
+                        }
+                      } catch (error) {
+                        console.error('Error sending email:', error)
+                        toast.error(error.response?.data?.message || 'Failed to send email')
+                      } finally {
+                        setEmailTimelineSending(false)
+                      }
+                    }}
+                    disabled={emailTimelineSending || !emailTimelineReplyBody.trim() || !selectedEmailAccount}
+                    className={`px-6 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2 ${
+                      emailTimelineSending || !emailTimelineReplyBody.trim() || !selectedEmailAccount
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-brand-primary hover:bg-brand-primary/90'
+                    }`}
+                  >
+                    {emailTimelineSending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1.5 8.5L14.5 1.5M14.5 1.5L9.5 14.5M14.5 1.5L1.5 8.5L6.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </Drawer>
 
