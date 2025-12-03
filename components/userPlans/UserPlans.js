@@ -210,9 +210,23 @@ function UserPlans({
           // If from dashboard, route back to dashboard
           router.push('/dashboard')
         } else {
-          // Otherwise, continue to next step (for createagent flow)
-          if (handleContinue) {
-            handleContinue()
+          // Check if user is on mobile (for normal users and subaccounts)
+          const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+          const SM_SCREEN_SIZE = 640
+          const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          )
+          
+          // For mobile normal users and subaccounts, redirect to continue to desktop screen
+          if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
+              (isFrom === 'SubAccount' || routedFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
+            console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
+            router.push('/createagent/desktop')
+          } else {
+            // Otherwise, continue to next step (for createagent flow)
+            if (handleContinue) {
+              handleContinue()
+            }
           }
         }
         return
@@ -324,10 +338,23 @@ function UserPlans({
             router.push('/dashboard')
             console.log('route to dashboard')
           } else {
-            console.log('handle continue ')
-
-            if (handleContinue) {
-              handleContinue()
+            // Check if user is on mobile (for normal users and subaccounts)
+            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+            const SM_SCREEN_SIZE = 640
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            )
+            
+            // For mobile normal users and subaccounts, redirect to continue to desktop screen
+            if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
+                (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
+              console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
+              router.push('/createagent/desktop')
+            } else {
+              console.log('handle continue ')
+              if (handleContinue) {
+                handleContinue()
+              }
             }
           }
         }

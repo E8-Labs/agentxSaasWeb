@@ -175,7 +175,19 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           if (D) {
             localStorage.removeItem('fromDashboard')
           }
-          if (subaccount) {
+          // Check if user is on mobile
+          const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+          const SM_SCREEN_SIZE = 640
+          const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            typeof navigator !== 'undefined' ? navigator.userAgent : ''
+          )
+          
+          // For mobile subaccounts, redirect to continue to desktop screen
+          if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+            console.log('Mobile subaccount - redirecting to continue to desktop screen')
+            setPlanSubscribed(true)
+            router.push('/createagent/desktop')
+          } else if (subaccount) {
             handleContinue()
           } else {
             setPlanSubscribed(true)
@@ -285,11 +297,25 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           // alert("This is working function")
           if (isFrom === 'UpgradePlanForTeam') {
             handleClose()
-          } else if (handleContinue && subaccount) {
-            handleContinue()
           } else {
-            setPlanSubscribed(true)
-            router.push('/dashboard')
+            // Check if user is on mobile
+            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+            const SM_SCREEN_SIZE = 640
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            )
+            
+            // For mobile subaccounts, redirect to continue to desktop screen
+            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+              console.log('Mobile subaccount - redirecting to continue to desktop screen')
+              setPlanSubscribed(true)
+              router.push('/createagent/desktop')
+            } else if (handleContinue && subaccount) {
+              handleContinue()
+            } else {
+              setPlanSubscribed(true)
+              router.push('/dashboard')
+            }
           }
         }}
         subPlanLoader={subPlanLoader}

@@ -1187,13 +1187,9 @@ const AgencySignUp = ({
                                 typeof navigator !== 'undefined' ? navigator.userAgent : ''
                               )
                               
-                              if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                                // Mobile: Navigate to continue to desktop screen
-                                router.push('/createagent/desktop')
-                              } else {
-                                // Desktop: Navigate to agency plans
-                                router.push('/onboarding/agencyOnboarding/plans')
-                              }
+                              // For agencies, always go to plans step first
+                              // After subscribing to a plan, then redirect to desktop
+                              router.push('/agency/onboarding?step=2')
                             }}
                           >
                             Continue

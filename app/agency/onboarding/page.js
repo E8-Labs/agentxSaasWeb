@@ -108,7 +108,7 @@ function Page() {
       </div>
 
       {currentIndex > 1 ? (
-        <AgencyPlans />
+        <AgencyPlans isMobile={isMobile} />
       ) : isMobile ? (
         <AgencySignupMobile handleContinue={handleContinue} />
       ) : (

@@ -1041,18 +1041,9 @@ const AgencySignupMobile = ({
                     fontWeight: '700',
                   }}
                   onClick={() => {
-                    // Check if user is on mobile
-                    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
-                    const SM_SCREEN_SIZE = 640
-                    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-                      typeof navigator !== 'undefined' ? navigator.userAgent : ''
-                    )
-                    
-                    if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                      // Mobile: Navigate to continue to desktop screen
-                      router.push('/createagent/desktop')
-                    } else {
-                      // Desktop: Use handleContinue
+                    // For agencies, always go to plans step (step 2) first
+                    // After subscribing to a plan, then redirect to desktop
+                    if (handleContinue) {
                       handleContinue()
                     }
                   }}

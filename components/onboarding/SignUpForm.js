@@ -1100,8 +1100,8 @@ const SignUpForm = ({
                             )
                             
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                              // Mobile: Navigate to continue to desktop screen
-                              router.push('/createagent/desktop')
+                              // Mobile: Navigate to payment step (step 4) to allow subscription
+                              router.push('/createagent?step=4')
                             } else {
                               // Desktop: Navigate to createagent
                               if (handleShowRedirectPopup) {

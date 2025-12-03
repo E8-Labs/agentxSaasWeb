@@ -129,9 +129,17 @@ const UserAddCard = ({
 
     setReferralStatus('loading')
     setReferralMessage('')
+    const currentSeq = ++referralRequestSeqRef.current
     const timer = setTimeout(async () => {
       try {
+        // Check if this is still the latest request
+        if (currentSeq !== referralRequestSeqRef.current) return
+        
         const resp = await checkReferralCode(inviteCode.trim())
+        
+        // Double-check after async call
+        if (currentSeq !== referralRequestSeqRef.current) return
+        
         if (resp && resp.status) {
           setReferralStatus('valid')
           setReferralMessage(resp.message || 'Referral code applied')
@@ -150,15 +158,6 @@ const UserAddCard = ({
       clearTimeout(timer)
     }
   }, [inviteCode])
-
-  if (!stripeReact || !elements) {
-    ////console.log;
-    ////console.log
-    ////console.log
-    return <div>Loading stripe</div>
-  } else {
-    ////console.log;
-  }
 
   const elementOptions = {
     style: {
@@ -424,36 +423,88 @@ const UserAddCard = ({
     Plan720Min: 'Plan720',
   }
 
+  // Detect mobile screen - use useMemo to avoid hook order issues
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640
+    }
+    return false
+  })
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Show loading state if Stripe is not ready - but after all hooks are called
+  if (!stripeReact || !elements) {
+    return (
+      <div className="flex items-center justify-center p-8 min-h-[200px]">
+        <div className="text-center">
+          <CircularProgress />
+          <p className="mt-4 text-gray-600">Loading payment form...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="-mt-10" style={{ width: '100%' }}>
+    <div className={`${isMobile ? 'py-4' : '-mt-10'}`} style={{ width: '100%' }}>
       <div
-        className="w-full flex flex-row items-center"
+        className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} ${isMobile ? 'items-stretch' : 'items-center'}`}
         style={{ backgroundColor: 'transparent' }}
       >
-        <div
-          className="flex w-[55%] flex-row LeftDiv"
-          style={{ backgroundColor: 'transparent' }}
-        >
+        {/* Left side with orb - Hidden on mobile */}
+        {!isMobile && (
           <div
-            className="LeftInnerDiv1"
-            style={{ backgroundColor: 'transparent', flexShrink: 0 }}
+            className="flex w-[55%] flex-row LeftDiv"
+            style={{ backgroundColor: 'transparent' }}
           >
-            <Image
-              alt="*"
-              src={'/otherAssets/paymentCircle.png'}
-              height={320}
-              width={320}
-            />
-          </div>
-          <div
-            className="mt-[7vh]"
-            style={{ width: '75%', marginLeft: '-100px' }}
-          >
-            <div className="flex w-full flex-col items-start">
-              <div style={{ fontWeight: '600', fontSize: 28 }}>
-                Continue to Payment
+            <div
+              className="LeftInnerDiv1"
+              style={{ backgroundColor: 'transparent', flexShrink: 0 }}
+            >
+              <Image
+                alt="*"
+                src={'/otherAssets/paymentCircle.png'}
+                height={320}
+                width={320}
+              />
+            </div>
+            <div
+              className="mt-[7vh]"
+              style={{ width: '75%', marginLeft: '-100px' }}
+            >
+              <div className="flex w-full flex-col items-start">
+                <div style={{ fontWeight: '600', fontSize: 28 }}>
+                  Continue to Payment
+                </div>
               </div>
             </div>
+          </div>
+        )}
+        
+        {/* Right side - Full width on mobile */}
+        <div
+          className={`${isMobile ? 'w-full px-0' : 'w-[45%]'} flex flex-col`}
+        >
+          {/* Mobile header */}
+          {isMobile && (
+            <div className="mb-6 px-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Continue to Payment
+              </h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Add your payment method to continue
+              </p>
+            </div>
+          )}
+          
+          {/* Desktop Form Fields */}
+          {!isMobile && (
             <div className="flex w-full flex-col items-start mt-4">
               <div
                 style={{
@@ -652,16 +703,165 @@ const UserAddCard = ({
                 `}</style>
               </div>
             </div>
-          </div>
+          )}
+          
+          {/* Mobile Form Fields */}
+          {isMobile && (
+            <div className="flex w-full flex-col items-start mb-4 space-y-4 px-4">
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Card Number
+                </label>
+                <div
+                  className="px-4 py-3.5 border-2 relative flex items-center bg-white"
+                  style={{
+                    borderRadius: '12px',
+                    borderColor: '#E5E7EB',
+                  }}
+                >
+                  <div className="flex-1">
+                    <CardNumberElement
+                      options={elementOptions}
+                      autoFocus={true}
+                      onChange={(event) => {
+                        handleFieldChange(event, cardExpiryRef)
+                        if (event.complete) {
+                          setCardAdded(true)
+                        } else {
+                          setCardAdded(false)
+                        }
+                      }}
+                      ref={cardNumberRef}
+                      onReady={(element) => {
+                        cardNumberRef.current = element
+                        cardNumberRef.current.focus()
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 ml-2">
+                    <Image
+                      src="/svgIcons/Visa.svg"
+                      alt="Visa"
+                      width={24}
+                      height={15}
+                    />
+                    <Image
+                      src="/svgIcons/Mastercard.svg"
+                      alt="Mastercard"
+                      width={24}
+                      height={15}
+                    />
+                    <Image
+                      src="/svgIcons/Amex.svg"
+                      alt="American Express"
+                      width={24}
+                      height={15}
+                    />
+                    <Image
+                      src="/svgIcons/Discover.svg"
+                      alt="Discover"
+                      width={24}
+                      height={15}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-row gap-3 w-full">
+                <div className="flex-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Exp Date
+                  </label>
+                  <div
+                    className="px-4 py-3.5 border-2 bg-white"
+                    style={{
+                      borderRadius: '12px',
+                      borderColor: '#E5E7EB',
+                    }}
+                  >
+                    <CardExpiryElement
+                      options={elementOptions}
+                      onChange={(event) => {
+                        handleFieldChange(event, cardCvcRef)
+                        if (event.complete) {
+                          setCardExpiry(true)
+                        } else {
+                          setCardExpiry(false)
+                        }
+                      }}
+                      ref={cardExpiryRef}
+                      onReady={(element) => {
+                        cardExpiryRef.current = element
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    CVV
+                  </label>
+                  <div
+                    className="px-4 py-3.5 border-2 bg-white"
+                    style={{
+                      borderRadius: '12px',
+                      borderColor: '#E5E7EB',
+                    }}
+                  >
+                    <CardCvcElement
+                      options={{
+                        ...elementOptions,
+                        placeholder: 'CVV',
+                      }}
+                      ref={cardCvcRef}
+                      onReady={(element) => {
+                        cardCvcRef.current = element
+                      }}
+                      onChange={(event) => {
+                        if (event.complete) {
+                          setCVC(true)
+                        } else {
+                          setCVC(false)
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Referral Code (optional)
+                </label>
+                <input
+                  value={inviteCode}
+                  onChange={(e) => {
+                    setInviteCode(e.target.value)
+                  }}
+                  className="outline-none focus:ring-2 focus:ring-brand-primary w-full h-[50px] px-4 bg-white"
+                  style={{
+                    color: '#000000',
+                    borderRadius: '12px',
+                    border: '2px solid #E5E7EB',
+                    fontSize: 15,
+                    fontWeight: '500',
+                  }}
+                  placeholder="Enter Referral code"
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <div
-          className="w-[45%] flex flex-col justify-start items-center pe-4 rounded-lg h-full"
-          style={{ backgroundColor: 'transparent' }}
-        >
+        
+        {/* Order Summary - Desktop */}
+        {!isMobile && (
           <div
-            className="rounded-lg p-2 w-[90%] flex flex-col justify-start"
-            style={{ backgroundColor: '#ffffff' }}
+            className="w-[45%] flex flex-col justify-start items-center pe-4 rounded-lg h-full"
+            style={{ backgroundColor: 'transparent' }}
           >
+            <div
+              className="rounded-lg p-2 w-[90%] flex flex-col justify-start"
+              style={{ backgroundColor: '#ffffff' }}
+            >
             <div className={`w-full flex flex-col items-start text-[#000]`}>
               <div className=" text-xl font-semibold ">Order Summary</div>
               <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -829,7 +1029,125 @@ const UserAddCard = ({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        )}
+        
+        {/* Order Summary - Mobile */}
+        {isMobile && (
+          <div className="w-full bg-white rounded-2xl p-5 shadow-lg mb-4 mx-4">
+            <div className="w-full flex flex-col text-gray-900">
+              <div className="text-xl font-bold mb-5">Order Summary</div>
+              <div className="flex flex-row items-start justify-between w-full mb-4">
+                <div>
+                  <div className="text-lg font-semibold">
+                    {selectedPlan
+                      ? `${selectedPlan?.name || selectedPlan?.title}`
+                      : 'No Plan Selected'}
+                  </div>
+                  <div className="text-xs font-regular capitalize text-gray-600">
+                    {selectedPlan
+                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription`
+                      : ''}
+                  </div>
+                </div>
+                <div className="font-semibold text-lg">
+                  {selectedPlan
+                    ? `$${formatFractional2(selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)}`
+                    : ''}
+                </div>
+              </div>
+
+              <div className="flex flex-row items-start justify-between w-full mb-4">
+                <div>
+                  <div className="capitalize font-semibold text-sm">
+                    {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">
+                    Next Charge Date {getNextChargeDate(selectedPlan)}
+                  </div>
+                </div>
+                <div className="font-semibold text-sm">
+                  {(() => {
+                    if (!selectedPlan) return '$0'
+                    const hasTrial = selectedPlan?.hasTrial === true
+                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                    if (hasTrial && isFirstTimeSubscription) {
+                      return '$0'
+                    }
+                    return `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}`
+                  })()}
+                </div>
+              </div>
+
+              {inviteCode && (
+                <div className="mb-4">
+                  <div className="font-semibold text-sm mb-1">Referral Code</div>
+                  <div className="text-xs text-gray-600">{referralMessage}</div>
+                </div>
+              )}
+
+              <div className="w-full h-[1px] bg-gray-200 my-4"></div>
+
+              <div className="flex flex-row items-start justify-between w-full mb-4">
+                <div className="text-2xl font-semibold">Total:</div>
+                <div className="flex flex-col items-end">
+                  <div className="text-2xl font-semibold">
+                    {(() => {
+                      if (!selectedPlan) return '$0'
+                      const hasTrial = selectedPlan?.hasTrial === true
+                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                      if (hasTrial && isFirstTimeSubscription) {
+                        return '$0'
+                      }
+                      return `$${getTotalPrice(selectedPlan)}`
+                    })()}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Due Today</div>
+                </div>
+              </div>
+              
+              <div className="w-full">
+                {addCardLoader ? (
+                  <div className="flex flex-row justify-center items-center w-full py-4">
+                    <CircularProgress size={30} />
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    {CardAdded && CardExpiry && CVC ? (
+                      <button
+                        onClick={handleAddCard}
+                        disabled={addCardLoader || disableContinue || isSubscribingRef.current}
+                        className="w-full h-[52px] rounded-xl text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed bg-brand-primary font-bold text-base shadow-lg active:scale-98 transition-all"
+                      >
+                        Continue
+                      </button>
+                    ) : (
+                      <button
+                        disabled={true}
+                        className="bg-gray-200 w-full h-[50px] rounded-xl text-gray-500 py-3"
+                        style={{ fontWeight: '600', fontSize: 17 }}
+                      >
+                        Continue
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex flex-row items-center gap-1 w-full justify-center mt-4 text-xs text-gray-600">
+                <div>By continuing you agree to our</div>
+                <a
+                  href="https://www.myagentx.com/terms-and-condition"
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Terms & Conditions
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

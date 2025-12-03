@@ -37,6 +37,7 @@ function AgencyPlans({
   handleCloseModal,
   disAblePlans = false,
   hideProgressBar = true,
+  isMobile = false,
 }) {
   const router = useRouter()
   const duration = [
@@ -403,18 +404,39 @@ function AgencyPlans({
             setErrorMsg(response.data.message)
             setSnackMsgType(SnackbarTypes.Success)
             localStorage.removeItem('subPlan')
-            // router.push("/agency/dashboard");
+            
+            // Check if user is on mobile
+            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+            const SM_SCREEN_SIZE = 640
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+            )
+            
             if (isFrom === 'addPlan') {
               console.log('call handleCloseModal')
               handleCloseModal(response.data.message)
             } else if (isFrom === 'page') {
-              console.log('call router.push to dashboard')
-              setIsRedirecting(true)
-              router.push('/agency/dashboard')
+              // For mobile agencies, redirect to continue to desktop screen
+              if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                console.log('Mobile agency - redirecting to continue to desktop screen')
+                setIsRedirecting(true)
+                router.push('/createagent/desktop')
+              } else {
+                console.log('Desktop agency - redirecting to dashboard')
+                setIsRedirecting(true)
+                router.push('/agency/dashboard')
+              }
             } else {
-              console.log('call router.push to verify')
-              setIsRedirecting(true)
-              router.push('/agency/verify')
+              // For mobile agencies, redirect to continue to desktop screen
+              if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                console.log('Mobile agency - redirecting to continue to desktop screen')
+                setIsRedirecting(true)
+                router.push('/createagent/desktop')
+              } else {
+                console.log('Desktop agency - redirecting to verify')
+                setIsRedirecting(true)
+                router.push('/agency/verify')
+              }
             }
           } else if (response.data.status === false) {
             // Check if this is a subscription payment failure (not renewal)
@@ -478,6 +500,311 @@ function AgencyPlans({
     }
   }
 
+  // Helper functions for mobile layout
+  const getMonthlyPrice = (plan) => {
+    if (!plan) return 0
+    return plan.originalPrice || plan.discountedPrice || 0
+  }
+
+  const getTotalPrice = (plan) => {
+    if (!plan) return 0
+    const monthlyPrice = getMonthlyPrice(plan)
+    if (selectedDuration.id === 1) return monthlyPrice
+    if (selectedDuration.id === 2) return monthlyPrice * 3
+    if (selectedDuration.id === 3) return monthlyPrice * 12
+    return monthlyPrice
+  }
+
+  const handlePlanSelect = (plan) => {
+    if (disAblePlans) return
+    setSelectedPlan(plan)
+    setTogglePlan(plan.id)
+  }
+
+  const handleContinueClick = async () => {
+    if (!selectedPlan) return
+    
+    const hasPM = () => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const userData = JSON.parse(localData)
+          const cards = userData?.data?.user?.cards || userData?.user?.cards
+          if (Array.isArray(cards) && cards.length > 0) {
+            return true
+          }
+        }
+        return false
+      } catch (error) {
+        return false
+      }
+    }
+
+    const isFreePlan = getTotalPrice(selectedPlan) === 0
+
+    if (isFreePlan) {
+      await handleSubscribePlan(selectedPlan.id)
+    } else {
+      if (hasPM()) {
+        await handleSubscribePlan(selectedPlan.id)
+      } else {
+        setAddPaymentPopUp(true)
+      }
+    }
+  }
+
+  // Mobile layout
+  if (isMobile) {
+    const currentPlans = getCurrentPlans()
+    const monthlyPrice = selectedPlan ? getMonthlyPrice(selectedPlan) : 0
+    const totalPrice = selectedPlan ? getTotalPrice(selectedPlan) : 0
+
+    return (
+      <div className="h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 relative overflow-hidden flex flex-col w-full">
+        {/* Background blur effect */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <div className="absolute -left-1/4 -top-1/4 w-96 h-96 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
+          <div className="absolute -right-1/4 -bottom-1/4 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
+        </div>
+
+        {/* Scrollable Container */}
+        <div className="relative z-10 flex-1 flex flex-col overflow-hidden min-h-0">
+          {/* Main Card - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
+            <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+              {/* Header */}
+              <div className="bg-brand-primary px-6 py-8">
+                <h1 className="text-2xl font-bold text-white mb-2">Order Summary</h1>
+                <p className="text-white/80 text-sm">Choose your plan and continue</p>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 py-6 space-y-6">
+                {/* Duration Selector - Horizontally Scrollable */}
+                {duration.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+                    <div className="flex gap-2 min-w-max">
+                      {duration.map((dur) => (
+                        <button
+                          key={dur.id}
+                          onClick={() => {
+                            setSelectedDuration(dur)
+                            setSelectedPlan(null)
+                          }}
+                          className={`flex-shrink-0 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
+                            selectedDuration.id === dur.id
+                              ? 'bg-brand-primary text-white shadow-lg'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {dur.title}
+                          {durationSaving.find(s => s.id === dur.id) && (
+                            <span className="ml-1 text-xs opacity-90">
+                              ({durationSaving.find(s => s.id === dur.id).title})
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Plan Selection */}
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <CircularProgress size={35} />
+                  </div>
+                ) : currentPlans.length > 0 ? (
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold text-gray-700">
+                      Select Plan
+                    </label>
+                    {currentPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        onClick={() => handlePlanSelect(plan)}
+                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                          selectedPlan?.id === plan.id
+                            ? 'border-brand-primary bg-brand-primary/5'
+                            : 'border-gray-200 hover:border-brand-primary/30'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-bold text-lg text-gray-900 capitalize">
+                                {plan.title}
+                              </h3>
+                              {selectedPlan?.id === plan.id && (
+                                <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
+                                  <svg
+                                    className="w-3 h-3 text-white"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={3}
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-baseline gap-2 mt-2">
+                              <span className="text-2xl font-bold text-gray-900">
+                                ${formatDecimalValue(getMonthlyPrice(plan))}
+                              </span>
+                              <span className="text-sm text-gray-500">
+                                /{selectedDuration.title.toLowerCase()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    No plans available
+                  </div>
+                )}
+
+                {/* Order Summary */}
+                {selectedPlan && (
+                  <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                    <h3 className="font-semibold text-gray-900 mb-3">Plan Details</h3>
+                    
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-gray-900 capitalize">
+                          {selectedPlan.title}
+                        </p>
+                        <p className="text-sm text-gray-600 capitalize">
+                          {selectedDuration.title} Subscription
+                        </p>
+                      </div>
+                      <p className="font-semibold text-gray-900">
+                        ${formatDecimalValue(getMonthlyPrice(selectedPlan))}
+                      </p>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-3">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Total Billed</span>
+                        <span className="font-semibold text-gray-900">
+                          ${formatDecimalValue(totalPrice)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Total Due */}
+                {selectedPlan && (
+                  <div className="bg-brand-primary rounded-xl p-4 text-white">
+                    <div className="flex items-baseline justify-between">
+                      <div>
+                        <p className="text-3xl font-bold">${formatDecimalValue(totalPrice)}</p>
+                        <p className="text-sm text-purple-100 mt-1">Due Today</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Fixed Bottom Section with Continue Button */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
+            <div className="max-w-md mx-auto px-6 pt-4 pb-6 space-y-3">
+              {/* Terms and Conditions */}
+              <p className="text-xs text-center text-gray-500">
+                By continuing you agree to{' '}
+                <span className="text-brand-primary font-semibold">Terms & Conditions</span>
+              </p>
+
+              {/* Continue Button */}
+              <button
+                onClick={handleContinueClick}
+                disabled={!selectedPlan || subPlanLoader}
+                className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all ${
+                  !selectedPlan || subPlanLoader
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                }`}
+              >
+                {subPlanLoader ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CircularProgress size={20} color="inherit" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Add Payment Modal */}
+        <Modal
+          open={addPaymentPopUp}
+          onClose={() => {
+            setAddPaymentPopUp(false)
+          }}
+          className="flex items-center justify-center p-0"
+          sx={{
+            '& .MuiBackdrop-root': {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(4px)',
+            },
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
+              maxWidth: { xs: '100%', sm: '500px' },
+              height: { xs: '100vh', sm: 'auto' },
+              maxHeight: { xs: '100vh', sm: '90vh' },
+              bgcolor: 'background.paper',
+              borderRadius: { xs: '0', sm: '16px' },
+              boxShadow: 24,
+              p: 0,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            key="payment-modal"
+          >
+            <Elements stripe={stripePromise} key="stripe-elements">
+              <AgencyAddCard
+                key="agency-add-card"
+                handleClose={handleClose}
+                selectedPlan={selectedPlan}
+              />
+            </Elements>
+          </Box>
+        </Modal>
+
+        {/* Error Snackbar */}
+        <AgentSelectSnackMessage
+          isVisible={errorMsg !== null}
+          message={errorMsg}
+          hide={() => setErrorMsg(null)}
+          type={snackMsgType}
+        />
+      </div>
+    )
+  }
+
+  // Desktop layout (existing code)
   return (
     <div
       // style={backgroundImage}

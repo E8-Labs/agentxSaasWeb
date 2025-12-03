@@ -22,6 +22,9 @@ const CreatAgent3 = dynamic(
 const UserPlans = dynamic(
   () => import('../../components/userPlans/UserPlans.js'),
 )
+const UserPlansMobile = dynamic(
+  () => import('../../components/userPlans/UserPlansMobile.js'),
+)
 const CreateAgent4 = dynamic(
   () => import('../../components/createagent/CreateAgent4.js'),
 )
@@ -166,25 +169,15 @@ const Page = () => {
           }
         } else {
           if (windowSize < 640) {
-            if (subAccount) {
-              setComponents([
-                BuildAgentName,
-                BuildAgentTask,
-                BuildAgentObjective,
-                SubAccountPlan,
-                // CreateAgent4,
-                // CreateAgentVoice,
-              ])
-            } else {
-              setComponents([
-                BuildAgentName,
-                BuildAgentTask,
-                BuildAgentObjective,
-                UserPlans,
-                // CreateAgent4,
-                // CreateAgentVoice,
-              ])
-            }
+            // Use UserPlansMobile for all users (normal, subaccounts, and agencies) on mobile
+            setComponents([
+              BuildAgentName,
+              BuildAgentTask,
+              BuildAgentObjective,
+              UserPlansMobile,
+              // CreateAgent4,
+              // CreateAgentVoice,
+            ])
             // setIndex(3)
           } else {
             if (subAccount) {
@@ -307,6 +300,15 @@ const Page = () => {
             AgentDetails={AgentDetails}
             user={user}
             screenWidth={windowSize}
+            isFrom={
+              subAccount 
+                ? 'SubAccount' 
+                : isSubaccount 
+                  ? 'SubAccount' 
+                  : user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+                    ? 'Agency'
+                    : undefined
+            }
           />
         </div>
       </Suspense>

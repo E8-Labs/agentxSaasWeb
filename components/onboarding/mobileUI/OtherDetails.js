@@ -1226,11 +1226,11 @@ const OtherDetails = ({
                             
                             console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
                             
-                            // If mobile device OR small screen, navigate to continue to desktop screen
+                            // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                              // Mobile: Navigate to continue to desktop screen
-                              console.log('Mobile detected - navigating to continue to desktop screen')
-                              router.push('/createagent/desktop')
+                              // Mobile: Navigate to payment step (step 4) to allow subscription
+                              console.log('Mobile detected - navigating to payment step')
+                              router.push('/createagent?step=4')
                             } else {
                               // Desktop: Navigate to createagent
                               console.log('Desktop detected - navigating to createagent')

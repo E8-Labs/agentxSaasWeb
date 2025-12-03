@@ -86,7 +86,12 @@ const AgencyAddCard = ({
   const [referralStatus, setReferralStatus] = useState('idle') // idle | loading | valid | invalid
   const [referralMessage, setReferralMessage] = useState('')
   const [promoCodeDetails, setPromoCodeDetails] = useState(null) // Store promo code discount details
-  const [isSmallScreen, setIsSmallScreen] = useState(false)
+  const [isSmallScreen, setIsSmallScreen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640
+    }
+    return false
+  })
   const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] =
     useState(false)
   const [loading, setLoading] = useState(false)
@@ -99,6 +104,14 @@ const AgencyAddCard = ({
       cardNumberRef.current.focus()
     }
     getCurrentUserPlan()
+    
+    // Check screen size on mount and resize
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 640)
+    }
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
 
   const getCurrentUserPlan = () => {
@@ -557,42 +570,58 @@ const AgencyAddCard = ({
       />
 
       <div
-        className="w-full flex flex-row items-center "
+        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-center`}
         style={{ backgroundColor: 'transparent' }}
       >
-        <div
-          className="flex w-[55%] flex-row items-center LeftDiv"
-          style={{ backgroundColor: 'transparent' }}
-        >
+        {/* Left side with orb - Hidden on mobile */}
+        {!isSmallScreen && (
           <div
-            className="LeftInnerDiv1"
-            style={{
-              backgroundColor: 'transparent',
-              flexShrink: 0,
-              width: '320px',
-            }}
+            className="flex w-[55%] flex-row items-center LeftDiv"
+            style={{ backgroundColor: 'transparent' }}
           >
-            <Image
-              alt="*"
-              src={'/otherAssets/paymentCircle2.png'}
-              height={240}
-              width={190}
+            <div
+              className="LeftInnerDiv1"
               style={{
-                borderTopRightRadius: '200px',
-                borderBottomRightRadius: '200px',
-                boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
+                backgroundColor: 'transparent',
+                flexShrink: 0,
+                width: '320px',
               }}
-            />
+            >
+              <Image
+                alt="*"
+                src={'/otherAssets/paymentCircle2.png'}
+                height={240}
+                width={190}
+                style={{
+                  borderTopRightRadius: '200px',
+                  borderBottomRightRadius: '200px',
+                  boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
+                }}
+              />
+            </div>
           </div>
-          <div
-            className="flex flex-col justify-start -mt-[22vh]"
-            style={{ width: '75%', marginLeft: '-100px' }}
-          >
+        )}
+        <div
+          className={`flex flex-col justify-start ${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : '-mt-[22vh]'}`}
+          style={isSmallScreen ? {} : { width: '75%', marginLeft: '-100px' }}
+        >
+            {isSmallScreen && (
+              <div className="mb-6">
+                <div style={{ fontWeight: '600', fontSize: 24 }}>
+                  Continue to Payment
+                </div>
+                <div style={{ fontWeight: '400', fontSize: 14, color: '#4F5B76', marginTop: 8 }}>
+                  Add your payment method to continue
+                </div>
+              </div>
+            )}
+            {!isSmallScreen && (
             <div className="flex w-full flex-col items-start">
               <div style={{ fontWeight: '600', fontSize: 28 }}>
                 Continue to Payment
               </div>
             </div>
+            )}
             <div className="flex w-full flex-col items-start mt-4">
               <div
                 style={{
@@ -660,8 +689,8 @@ const AgencyAddCard = ({
                 </div>
               </div>
             </div>
-            <div className="flex flex-row gap-2 w-full mt-4">
-              <div className="w-6/12">
+            <div className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}>
+              <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
                 <div
                   style={{
                     fontWeight: '400',
@@ -705,7 +734,7 @@ const AgencyAddCard = ({
                   />
                 </div>
               </div>
-              <div className="w-6/12">
+              <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
                 <div
                   style={{
                     fontWeight: '400',
@@ -821,11 +850,51 @@ const AgencyAddCard = ({
               </div>
             ) : null}
           </div>
-        </div>
-        <div
-          className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg"
-          style={{ backgroundColor: 'transparent' }}
-        >
+        
+        {/* Mobile Continue Button - Fixed at bottom */}
+        {isSmallScreen && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
+            <div className="max-w-md mx-auto px-4 py-4">
+              <button
+                onClick={handleAddCard}
+                disabled={!CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current}
+                className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
+                  !CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                }`}
+              >
+                {addCardLoader ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CircularProgress size={20} color="inherit" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+              <p className="text-xs text-center text-gray-500 mt-2">
+                By continuing you agree to{' '}
+                <a
+                  href="https://www.myagentx.com/terms-and-condition"
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold"
+                >
+                  Terms & Conditions
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {/* Order Summary - Desktop only */}
+        {!isSmallScreen && (
+          <div
+            className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg"
+            style={{ backgroundColor: 'transparent' }}
+          >
           <div
             className=" rounded-lg p-4 w-[85%]"
             style={{ backgroundColor: '#ffffffcc' }}
@@ -1085,6 +1154,7 @@ const AgencyAddCard = ({
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   )
