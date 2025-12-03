@@ -110,6 +110,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               ? 'https://apimyagentx.com/agentx/'
               : 'https://apimyagentx.com/agentxtest/')
 
+          const bodyData = {
+            customDomain: window.location.hostname,
+            subdomain: window.location.hostname == "dev.assignx.ai" || window.location.hostname == "assignx.ai" ? null : window.location.hostname,
+          }
+
+          console.log("bodyData", bodyData)
+
           const lookupResponse = await fetch(
             `${baseUrl}api/agency/lookup-by-domain`,
             {
@@ -117,14 +124,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                customDomain: window.location.hostname,
-                subdomain: window.location.hostname.includes('.assignx.ai')
-                  ? window.location.hostname.split('.')[0]
-                  : null,
-              }),
+              body: JSON.stringify(bodyData),
             },
           )
+
+          console.log("lookupResponse", lookupResponse)
 
           if (lookupResponse.ok) {
             const lookupData = await lookupResponse.json()

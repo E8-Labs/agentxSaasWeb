@@ -27,6 +27,8 @@ import TransactionTable from './TransactionTable'
  * @param {Object} props.payoutMetrics - Metrics for payout section
  */
 function AgencyRevenueDashboard({ selectedAgency }) {
+
+  // console.log("window.location.hostname", window.location.hostname)
   // Cache keys for revenue dashboard data
   const getCacheKey = (key) => {
     const agencyId = selectedAgency?.id || 'all'

@@ -63,12 +63,8 @@ function TopMetricsSection({ metrics = {} }) {
       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       <div
-        className="flex flex-row gap-4 p-6 rounded-lg"
+        className="flex flex-row gap-4 p-6 rounded-lg bg-gradient-to-r from-brand-primary to-brand-primary/40"
         style={{
-          backgroundImage: "url('/otherAssets/revenueBg.svg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          minWidth: 'fit-content',
         }}
       >
         <MetricCard label="Total Revenue" value={totalRevenue} />
