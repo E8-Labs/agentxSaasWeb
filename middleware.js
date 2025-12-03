@@ -258,36 +258,60 @@ export async function middleware(request) {
     // If state has customDomain, redirect to custom domain
     if (stateData?.customDomain) {
       const { customDomain } = stateData
-      console.log('🔄 Redirecting OAuth callback to custom domain:', customDomain)
       
-      // Determine protocol (http for localhost, https for production)
-      const isLocalhost = customDomain.includes('localhost') || customDomain.includes('127.0.0.1')
-      const protocol = isLocalhost ? 'http' : 'https'
-      
-      // Build redirect URL to custom domain
-      let callbackPath = '/oauth/callback'
-      if (provider === 'google') {
-        callbackPath = '/google-auth/callback'
-      } else if (provider === 'ghl') {
-        callbackPath = '/api/ghl/exchange'
+      // Check if custom domain is the same as current hostname
+      // If so, redirect to exchange route on same domain (preserves popup context better)
+      if (customDomain === hostname) {
+        console.log('🔄 Custom domain matches current hostname - redirecting to exchange on same domain (preserving popup context)')
+        // Still redirect to exchange route, but on same domain
+        // The exchange route returns HTML (not a redirect), which preserves window.opener
+        const baseUrl = new URL(request.url).origin
+        const exchangeUrl = new URL('/api/ghl/exchange', baseUrl)
+        exchangeUrl.searchParams.set('code', oauthCode)
+        if (oauthState) {
+          exchangeUrl.searchParams.set('state', oauthState)
+        }
+        if (redirectUri) {
+          exchangeUrl.searchParams.set('redirect_uri', redirectUri)
+        }
+        if (provider === 'ghl' && stateData.originalRedirectUri) {
+          exchangeUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
+        }
+        console.log('🔄 Redirecting to exchange on same domain:', exchangeUrl.toString())
+        return NextResponse.redirect(exchangeUrl.toString())
+      } else {
+        // Cross-domain redirect (existing logic)
+        console.log('🔄 Redirecting OAuth callback to custom domain:', customDomain)
+        
+        // Determine protocol (http for localhost, https for production)
+        const isLocalhost = customDomain.includes('localhost') || customDomain.includes('127.0.0.1')
+        const protocol = isLocalhost ? 'http' : 'https'
+        
+        // Build redirect URL to custom domain
+        let callbackPath = '/oauth/callback'
+        if (provider === 'google') {
+          callbackPath = '/google-auth/callback'
+        } else if (provider === 'ghl') {
+          callbackPath = '/api/ghl/exchange'
+        }
+        
+        const redirectUrl = new URL(callbackPath, `${protocol}://${customDomain}`)
+        
+        // Preserve all OAuth parameters
+        if (oauthCode) redirectUrl.searchParams.set('code', oauthCode)
+        if (oauthState) redirectUrl.searchParams.set('state', oauthState)
+        if (oauthError) redirectUrl.searchParams.set('error', oauthError)
+        if (oauthErrorDescription) redirectUrl.searchParams.set('error_description', oauthErrorDescription)
+        if (redirectUri) redirectUrl.searchParams.set('redirect_uri', redirectUri)
+        
+        // For GHL, preserve originalRedirectUri from state
+        if (provider === 'ghl' && stateData.originalRedirectUri) {
+          redirectUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
+        }
+        
+        console.log('🔄 Redirecting to:', redirectUrl.toString())
+        return NextResponse.redirect(redirectUrl.toString())
       }
-      
-      const redirectUrl = new URL(callbackPath, `${protocol}://${customDomain}`)
-      
-      // Preserve all OAuth parameters
-      if (oauthCode) redirectUrl.searchParams.set('code', oauthCode)
-      if (oauthState) redirectUrl.searchParams.set('state', oauthState)
-      if (oauthError) redirectUrl.searchParams.set('error', oauthError)
-      if (oauthErrorDescription) redirectUrl.searchParams.set('error_description', oauthErrorDescription)
-      if (redirectUri) redirectUrl.searchParams.set('redirect_uri', redirectUri)
-      
-      // For GHL, preserve originalRedirectUri from state
-      if (provider === 'ghl' && stateData.originalRedirectUri) {
-        redirectUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
-      }
-      
-      console.log('🔄 Redirecting to:', redirectUrl.toString())
-      return NextResponse.redirect(redirectUrl.toString())
     }
     
     // No custom domain in state - redirect to callback on same domain
