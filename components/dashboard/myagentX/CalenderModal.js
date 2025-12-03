@@ -28,6 +28,7 @@ function CalendarModal(props) {
     open,
     onClose,
     selectedAgent,
+    selectedUser = null,
     calendarSelected,
     calenderLoader,
     gHLCalenderLoader,
@@ -260,7 +261,10 @@ function CalendarModal(props) {
       : 'https://dev.assignx.ai/dashboard/myAgentX'
 
     // Get agency custom domain from API
-    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
+    const { agencyId, customDomain, subaccountId: apiSubaccountId } = await getAgencyCustomDomain()
+
+    // Priority: selectedUser?.id (if agency managing subaccount) > apiSubaccountId (if logged-in user is subaccount)
+    const subaccountId = selectedUser?.id || apiSubaccountId
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
@@ -278,7 +282,9 @@ function CalendarModal(props) {
     console.log('- Current hostname:', currentHostname)
     console.log('- Current path:', currentPath)
     console.log('- Agency ID:', agencyId)
-    console.log('- Subaccount ID:', subaccountId)
+    console.log('- Subaccount ID (from selectedUser):', selectedUser?.id)
+    console.log('- Subaccount ID (from API):', apiSubaccountId)
+    console.log('- Subaccount ID (final):', subaccountId)
     console.log('- Custom Domain from API:', customDomain)
     console.log('- Is custom domain/subdomain:', isCustomDomain)
     console.log('- Domain to use:', domainToUse)
@@ -290,7 +296,7 @@ function CalendarModal(props) {
         agencyId,
         customDomain: domainToUse,
         provider: 'ghl',
-        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount or agency is managing one
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
       console.log('Generated state parameter for custom domain:', stateParam)
@@ -373,7 +379,7 @@ function CalendarModal(props) {
         }
       }, 500)
     }
-  }, [])
+  }, [selectedUser])
 
   //google calendar click
   const handleGoogleOAuthClick = async () => {
@@ -382,7 +388,10 @@ function CalendarModal(props) {
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
 
     // Get agency custom domain from API
-    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
+    const { agencyId, customDomain, subaccountId: apiSubaccountId } = await getAgencyCustomDomain()
+
+    // Priority: selectedUser?.id (if agency managing subaccount) > apiSubaccountId (if logged-in user is subaccount)
+    const subaccountId = selectedUser?.id || apiSubaccountId
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
@@ -402,7 +411,7 @@ function CalendarModal(props) {
         agencyId,
         customDomain: domainToUse,
         provider: 'google',
-        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount or agency is managing one
         originalRedirectUri: null,
       })
     }

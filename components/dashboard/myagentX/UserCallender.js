@@ -895,6 +895,7 @@ const UserCalender = ({
         <CalendarModal
           open={showCalendarConfirmation}
           selectedAgent={selectedAgent}
+          selectedUser={selectedUser}
           onClose={() => {
             setShowCalendarConfirmation(false)
           }}
