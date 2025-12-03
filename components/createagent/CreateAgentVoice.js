@@ -18,6 +18,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar'
 import { UserTypes } from '@/constants/UserTypes'
 
 import Apis from '../apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
 import voicesList from './Voices'
 
 const CreateAgentVoice = ({ handleBack, user }) => {
@@ -130,7 +131,23 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           //   router.push("/customerkycquestions");
           // }
 
-          router.push('/pipeline')
+          // Check if we came from admin/agency and have a return URL
+          const isFromAdminOrAgency = localStorage.getItem(
+            PersistanceKeys.isFromAdminOrAgency,
+          )
+          const returnUrl = localStorage.getItem(
+            PersistanceKeys.returnUrlAfterAgentCreation,
+          )
+
+          if (isFromAdminOrAgency && returnUrl) {
+            // Clean up the stored data
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+            localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+            // Redirect back to the saved URL
+            window.location.href = returnUrl
+          } else {
+            router.push('/pipeline')
+          }
 
           localStorage.removeItem('claimNumberData')
         } else {

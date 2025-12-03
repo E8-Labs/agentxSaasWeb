@@ -19,6 +19,7 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
 import CloseBtn from '../globalExtras/CloseBtn'
+import { useUser } from '@/hooks/redux-hooks'
 
 function NotficationsDrawer({ close }) {
   const router = useRouter()
@@ -36,6 +37,8 @@ function NotficationsDrawer({ close }) {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [hasMore, setHasMore] = useState(true)
 
+  const { user: reduxUser } = useUser()
+
   // Function to render icon with branding using mask-image
   const renderBrandedIcon = (iconPath, width, height) => {
     if (typeof window === 'undefined') {
@@ -45,7 +48,7 @@ function NotficationsDrawer({ close }) {
     // Get brand color from CSS variable
     const root = document.documentElement
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-    
+
     if (!brandColor || !brandColor.trim()) {
       return <Image src={iconPath} width={width} height={height} alt="*" />
     }
@@ -469,8 +472,7 @@ function NotficationsDrawer({ close }) {
       NotificationTypes.LastChanceToAct === item.type ||
       NotificationTypes.FirstAppointment === item.type ||
       NotificationTypes.ThreeAppointments === item.type ||
-      NotificationTypes.SevenAppointments === item.type ||
-      NotificationTypes.Day14FeedbackRequest === item.type
+      NotificationTypes.SevenAppointments === item.type
     ) {
       return (
         <button
@@ -486,7 +488,26 @@ function NotficationsDrawer({ close }) {
           </div>
         </button>
       )
-    } else if (
+    } else if (NotificationTypes.Day14FeedbackRequest === item.type) {
+      return (
+        <button
+          className="outline-none"
+          onClick={() => {
+            if (reduxUser?.userSettings?.giveFeedbackUrl) {
+              router.push(reduxUser?.userSettings?.giveFeedbackUrl)
+            } else {
+              giveFeedback()
+            }
+          }}
+        >
+          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+            Get Live Help
+          </div>
+        </button>
+      )
+    }
+
+    else if (
       item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan
     ) {
       return (

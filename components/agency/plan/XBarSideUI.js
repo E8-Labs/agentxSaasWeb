@@ -12,16 +12,22 @@ const XBarSideUI = ({
   discountedPrice,
   minutes,
   from,
+  isAgency,
 }) => {
   return (
     <div
       className={`${from === 'dashboard' ? 'w-full' : 'w-5/12'} h-full ${from === 'dashboard' ? 'rounded-xl' : 'rounded-tr-xl rounded-br-xl'} shadow-lg`}
-      style={{
-        // backgroundImage: "url('/agencyIcons/addPlanBg4.png')",
-        backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      style={
+        isAgency
+          ? {
+              background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) 100%)`,
+            }
+          : {
+              backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+      }
     >
       <div className="p-4 flex flex-col items-center h-[100%]">
         <div className="flex justify-end w-full items-center h-[5%]">
@@ -204,7 +210,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -227,7 +233,7 @@ const styles = {
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#000000',
+    color: 'hsl(var(--brand-primary))',
     fontWeight: '700',
     fontSize: 22,
     // marginLeft: "10px",

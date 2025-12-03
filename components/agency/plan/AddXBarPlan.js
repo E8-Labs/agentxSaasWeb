@@ -22,6 +22,8 @@ export default function AddXBarPlan({
   agencyPlanCost,
   isEditPlan,
   selectedPlan,
+  selectedAgency,
+  isAgency,
 }) {
   const [title, setTitle] = useState('')
   const [tag, setTag] = useState('')
@@ -401,7 +403,7 @@ export default function AddXBarPlan({
       right: '0',
       width: '0',
       height: '0',
-      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
       borderLeft: '50px solid transparent',
     },
     labelText: {
@@ -644,7 +646,7 @@ export default function AddXBarPlan({
                   handleResetValues()
                   handleClose('')
                 }}
-                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
+                className="text-brand-primary font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
               >
                 Cancel
               </button>
@@ -652,7 +654,7 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${shouldContinue() ? 'bg-[#00000050]' : 'bg-purple '} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
+                  className={` ${shouldContinue() ? 'bg-[#00000050]' : 'bg-brand-primary'} w-[12vw] hover:bg-brand-primary/90 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
                   // onClick={handleAddPlanClick}
                   onClick={() => {
                     if (isEditPlan) {
@@ -679,6 +681,7 @@ export default function AddXBarPlan({
             discountedPrice={discountedPrice}
             minutes={minutes}
             isDefaultPlan={isDefaultPlan}
+            isAgency={isAgency}
           />
         </div>
       </Box>

@@ -111,8 +111,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               : 'https://apimyagentx.com/agentxtest/')
 
           const bodyData = {
+            // customDomain: window.location.hostname,
             customDomain: window.location.hostname,
-            subdomain: window.location.hostname == "dev.assignx.ai" || window.location.hostname == "assignx.ai" ? null : window.location.hostname,
           }
 
           console.log("bodyData", bodyData)
@@ -191,7 +191,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
       // If no branding found, fetch from API
       const fetched = await fetchFromAPI()
-      
+
       // Determine if we should show Terms & Privacy
       // Only show if it's an assignx domain AND no branding was found
       if (isAssignxDomain && !fetched) {
@@ -207,9 +207,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         }, 300)
       }
     }
-
-    fetchBranding()
-
+    if (window.location.hostname !== "dev.assignx.ai" && window.location.hostname !== "app.assignx.ai") {
+      fetchBranding()
+    }
     // Listen for branding updates from other components (e.g., BrandConfig)
     const handleBrandingUpdate = (event) => {
       console.log(
@@ -654,14 +654,14 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // let routeTo = ""
 
             localStorage.setItem('User', JSON.stringify(response.data.data))
-            
+
             // Extract and store agency branding immediately after login
             const userData = response.data.data
-            const agencyBranding = 
-              userData?.user?.agencyBranding || 
+            const agencyBranding =
+              userData?.user?.agencyBranding ||
               userData?.agencyBranding ||
               userData?.user?.agency?.agencyBranding
-            
+
             if (agencyBranding) {
               localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
               if (typeof window !== 'undefined') {
@@ -689,7 +689,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   .catch(err => console.log('Error fetching branding after login:', err))
               }
             }
-            
+
             //set cokie on locastorage to run middle ware
             if (typeof document !== 'undefined') {
               // //console.log;
@@ -795,19 +795,19 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // let routeTo = ""
 
             localStorage.setItem('User', JSON.stringify(response.data.data))
-            
+
             // Extract and store agency branding immediately after login
             // This ensures branding is applied right away without requiring a page refresh
             const userData = response.data.data
-            const agencyBranding = 
-              userData?.user?.agencyBranding || 
+            const agencyBranding =
+              userData?.user?.agencyBranding ||
               userData?.agencyBranding ||
               userData?.user?.agency?.agencyBranding
-            
+
             if (agencyBranding) {
               localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
               console.log('✅ [LoginComponent] Stored agency branding from login response')
-              
+
               // Dispatch event to trigger ThemeProvider to apply branding immediately
               if (typeof window !== 'undefined') {
                 window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
@@ -838,7 +838,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   .catch(err => console.log('Error fetching branding after login:', err))
               }
             }
-            
+
             //set cokie on locastorage to run middle ware
             if (typeof document !== 'undefined') {
               // //console.log;

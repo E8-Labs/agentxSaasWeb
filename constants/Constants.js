@@ -23,6 +23,7 @@ export const PersistanceKeys = {
   ObjectionsList: 'ObjectionsList',
   //moving from admin to creat agent
   isFromAdminOrAgency: 'isFromAdminOrAgency',
+  returnUrlAfterAgentCreation: 'returnUrlAfterAgentCreation',
   leadUploadState: 'leadUploadState',
   adminDashboardData: 'aadminDashboardData',
   SelectedAgent: 'SelectedAgent',

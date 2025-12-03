@@ -7,6 +7,7 @@ import React, { useState } from 'react'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
+import { PersistanceKeys } from '@/constants/Constants'
 
 function NoAgent({
   showBtn = true,
@@ -30,6 +31,28 @@ function NoAgent({
           status: true,
         }
         localStorage.setItem('fromDashboard', JSON.stringify(data))
+        
+        // If coming from admin/agency, save context and return URL
+        if (from === 'Admin' || from === 'Agency') {
+          const d = {
+            subAccountData: selectedUser,
+            isFromAgency: from === 'Agency',
+          }
+          localStorage.setItem(
+            PersistanceKeys.isFromAdminOrAgency,
+            JSON.stringify(d),
+          )
+          
+          // Save current URL for redirect after agent creation
+          if (typeof window !== 'undefined') {
+            const currentUrl = window.location.href
+            localStorage.setItem(
+              PersistanceKeys.returnUrlAfterAgentCreation,
+              currentUrl,
+            )
+          }
+        }
+        
         // router.push("/createagent");
         window.location.href = '/createagent'
       } else {

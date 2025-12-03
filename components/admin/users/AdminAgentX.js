@@ -2088,6 +2088,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         JSON.stringify(d),
       )
 
+      // Save current URL for redirect after agent creation
+      if (typeof window !== 'undefined') {
+        const currentUrl = window.location.href
+        localStorage.setItem(
+          PersistanceKeys.returnUrlAfterAgentCreation,
+          currentUrl,
+        )
+      }
+
       // router.push("/createagent");
       window.location.href = '/createagent'
     } else {

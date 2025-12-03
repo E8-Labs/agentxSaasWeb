@@ -881,6 +881,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
             isEditPlan={isEditPlan}
             selectedPlan={selectedPlan}
             selectedAgency={selectedAgency}
+            isAgency={isAgency}
           />
         )}
 
@@ -937,6 +938,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                   discountedPrice={selectedPlanDetails?.originalPrice}
                   minutes={selectedPlanDetails?.minutes}
                   from={'dashboard'}
+                  isAgency={isAgency}
                 />
               )}
             </Box>
