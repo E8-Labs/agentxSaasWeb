@@ -93,15 +93,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
   // Check if user can send messages/emails
   // For SMS: check allowTextMessages capability
-  // For Email: check allowTextMessages capability (email is part of messaging)
+  // For Email: always allow (emails are separate from SMS capability)
   const canSendSMS = planCapabilities?.allowTextMessages === true
-  const canSendEmail = planCapabilities?.allowTextMessages === true
+  const canSendEmail = true // Emails are always allowed
 
-  // Determine if upgrade view should be shown
-  const shouldShowUpgradeView = open && (
-    (selectedMode === 'sms' && !canSendSMS) ||
-    (selectedMode === 'email' && !canSendEmail)
-  )
+  // Determine if upgrade view should be shown (only for SMS tab)
+  const shouldShowUpgradeView = selectedMode === 'sms' && !canSendSMS
 
   // Update brand color on branding changes
   useEffect(() => {
@@ -450,58 +447,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     }
   }
 
-  // If upgrade view should be shown, render it instead of the modal
-  if (shouldShowUpgradeView) {
-    return (
-      <Modal
-        open={open}
-        onClose={onClose}
-        aria-labelledby="new-message-modal"
-        aria-describedby="new-message-description"
-      >
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 0,
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-semibold">New Message</h2>
-            <CloseBtn onClick={onClose} />
-          </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <UpgardView
-              title={selectedMode === 'sms' ? 'Unlock Text Messages' : 'Unlock Email Messaging'}
-              subTitle={
-                selectedMode === 'sms'
-                  ? 'Upgrade to unlock this feature and start sending SMS messages to your leads.'
-                  : 'Upgrade to unlock this feature and start sending emails to your leads.'
-              }
-              userData={userData}
-              onUpgradeSuccess={(updatedUserData) => {
-                // Refresh user data after upgrade
-                if (updatedUserData) {
-                  setUserData({ user: updatedUserData })
-                }
-              }}
-              setShowSnackMsg={() => {}}
-            />
-          </div>
-        </Box>
-      </Modal>
-    )
-  }
+  // Auto-switch to email mode if SMS is not allowed and modal opens with SMS mode
+  useEffect(() => {
+    if (open && selectedMode === 'sms' && !canSendSMS) {
+      setSelectedMode('email')
+      fetchEmailAccounts()
+    }
+  }, [open, selectedMode, canSendSMS])
 
   return (
     <>
@@ -535,19 +487,40 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Upgrade View for SMS Tab */}
+          {shouldShowUpgradeView ? (
+            <div className="py-8">
+              <UpgardView
+                title="Unlock Text Messages"
+                subTitle="Upgrade to unlock this feature and start sending SMS messages to your leads."
+                userData={userData}
+                onUpgradeSuccess={(updatedUserData) => {
+                  // Refresh user data after upgrade
+                  if (updatedUserData) {
+                    setUserData({ user: updatedUserData })
+                  }
+                }}
+                setShowSnackMsg={() => {}}
+              />
+            </div>
+          ) : (
+            <>
           {/* Mode Tabs */}
           <div className="flex items-center justify-between border-b">
             <div className="flex items-center gap-6">
               <button
                 onClick={() => {
-                  setSelectedMode('sms')
-                  fetchPhoneNumbers()
+                  if (canSendSMS) {
+                    setSelectedMode('sms')
+                    fetchPhoneNumbers()
+                  }
                 }}
+                disabled={!canSendSMS}
                 className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
                   selectedMode === 'sms'
                     ? 'text-brand-primary'
                     : 'text-gray-600'
-                }`}
+                } ${!canSendSMS ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <img
                   src="/messaging/sms toggle.svg"
@@ -866,53 +839,57 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
               />
             )}
           </div>
+            </>
+          )}
         </div>
 
         {/* Footer with char count, credits, and send button */}
-        <div className="flex items-center justify-end gap-4 p-4 border-t bg-gray-50">
-          {selectedMode === 'email' && (
-            <div className="flex-1 text-sm text-gray-500">
-              {selectedLeads.length} lead{selectedLeads.length !== 1 ? 's' : ''} selected
+        {!shouldShowUpgradeView && (
+          <div className="flex items-center justify-end gap-4 p-4 border-t bg-gray-50">
+            {selectedMode === 'email' && (
+              <div className="flex-1 text-sm text-gray-500">
+                {selectedLeads.length} lead{selectedLeads.length !== 1 ? 's' : ''} selected
+              </div>
+            )}
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              {selectedMode === 'sms' && (
+                <>
+                  <span>
+                    {messageBody.length}/{SMS_CHAR_LIMIT} char
+                  </span>
+                  <span className="text-gray-300">|</span>
+                  <span>
+                    {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                  </span>
+                </>
+              )}
             </div>
-          )}
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            {selectedMode === 'sms' && (
-              <>
-                <span>
-                  {messageBody.length}/{SMS_CHAR_LIMIT} char
-                </span>
-                <span className="text-gray-300">|</span>
-                <span>
-                  {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                </span>
-              </>
-            )}
+            <button
+              onClick={handleSend}
+              disabled={
+                sending ||
+                selectedLeads.length === 0 ||
+                !messageBody.trim() ||
+                (selectedMode === 'email' && !emailSubject.trim()) ||
+                (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                (selectedMode === 'email' && !selectedEmailAccount)
+              }
+              className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+            >
+              {sending ? (
+                <>
+                  <CircularProgress size={16} className="text-white" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  Send
+                  <PaperPlaneTilt size={16} />
+                </>
+              )}
+            </button>
           </div>
-          <button
-            onClick={handleSend}
-            disabled={
-              sending ||
-              selectedLeads.length === 0 ||
-              !messageBody.trim() ||
-              (selectedMode === 'email' && !emailSubject.trim()) ||
-              (selectedMode === 'sms' && !selectedPhoneNumber) ||
-              (selectedMode === 'email' && !selectedEmailAccount)
-            }
-            className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-          >
-            {sending ? (
-              <>
-                <CircularProgress size={16} className="text-white" />
-                Sending...
-              </>
-            ) : (
-              <>
-                Send
-                <PaperPlaneTilt size={16} />
-              </>
-            )}
-          </button>
-        </div>
+        )}
       </Box>
     </Modal>
 
