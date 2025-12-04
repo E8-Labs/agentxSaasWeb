@@ -133,11 +133,22 @@ const StandardNot = ({
       setSaving(true)
 
       // Prepare data for API with push notification fields
+      // Only include fields that are explicitly provided (not undefined)
+      // Allow null and empty strings to clear fields, but don't send undefined fields
       const apiData = {
-        customPushTitle: updatedData.pushTitle,
-        customPushBody: updatedData.pushBody,
-        customEmailCTA: updatedData.cta,
         isActive: true,
+      }
+
+      if (updatedData.pushTitle !== undefined) {
+        apiData.customPushTitle = updatedData.pushTitle || null
+      }
+
+      if (updatedData.pushBody !== undefined) {
+        apiData.customPushBody = updatedData.pushBody || null
+      }
+
+      if (updatedData.cta !== undefined) {
+        apiData.customEmailCTA = updatedData.cta || null
       }
 
       // Call API to save customization
@@ -166,11 +177,22 @@ const StandardNot = ({
       setSaving(true)
 
       // Prepare data for API with email fields
+      // Only include fields that are explicitly provided (not undefined)
+      // Allow null and empty strings to clear fields, but don't send undefined fields
       const apiData = {
-        customEmailSubject: updatedData.emailSubject,
-        customEmailBody: updatedData.emailBody,
-        customEmailCTA: updatedData.cta,
         isActive: true,
+      }
+
+      if (updatedData.emailSubject !== undefined) {
+        apiData.customEmailSubject = updatedData.emailSubject || null
+      }
+
+      if (updatedData.emailBody !== undefined) {
+        apiData.customEmailBody = updatedData.emailBody || null
+      }
+
+      if (updatedData.cta !== undefined) {
+        apiData.customEmailCTA = updatedData.cta || null
       }
 
       // Call API to save customization
