@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { Paperclip, X, CaretDown, CaretUp } from '@phosphor-icons/react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Paperclip, X, CaretDown, CaretUp, Plus } from '@phosphor-icons/react'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUserLocalData } from '@/components/constants/constants'
+import { useRouter } from 'next/navigation'
+import { UserRole } from '@/constants/UserRole'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -89,11 +91,30 @@ const MessageComposer = ({
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
   const [userData, setUserData] = useState(null)
+  const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
+  const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
+  const phoneDropdownRef = useRef(null)
+  const emailDropdownRef = useRef(null)
+  const router = useRouter()
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
   const canSendSMS = planCapabilities?.allowTextMessages === true
   const shouldShowUpgradeView = composerMode === 'sms' && !canSendSMS
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
+        setPhoneDropdownOpen(false)
+      }
+      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
+        setEmailDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     const updateBrandColor = () => {
@@ -199,28 +220,73 @@ const MessageComposer = ({
               <div className="flex items-center gap-2 flex-1">
                 <label className="text-sm font-medium whitespace-nowrap">From:</label>
                 {composerMode === 'sms' ? (
-                  <div className="flex-1 relative min-w-0">
-                    <select
-                      value={selectedPhoneNumber || ''}
-                      onChange={(e) => setSelectedPhoneNumber(e.target.value)}
-                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                  <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
+                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                       style={{ height: '42px' }}
                     >
-                      <option value="">Select phone number</option>
-                      {phoneNumbers.map((phone) => (
-                        <option key={phone.id} value={phone.id}>
-                          {phone.phone}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                      <span className="text-sm text-gray-700 truncate">
+                        {selectedPhoneNumber
+                          ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
+                          : 'Select phone number'}
+                      </span>
+                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    </button>
+                    {phoneDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                        {phoneNumbers.length === 0 ? (
+                          <div className="p-3">
+                            <p className="text-sm text-gray-600 mb-2">No A2P verified numbers available</p>
+                            <button
+                              onClick={() => {
+                                const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
+                                router.push(`/dashboard/myAccount?tab=${tab}`)
+                                setPhoneDropdownOpen(false)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Connect Twilio & Get A2P Number
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            {phoneNumbers.map((phone) => (
+                              <button
+                                key={phone.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedPhoneNumber(phone.id.toString())
+                                  setPhoneDropdownOpen(false)
+                                }}
+                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                                  selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                }`}
+                              >
+                                {phone.phone}
+                              </button>
+                            ))}
+                            <div className="border-t border-gray-200 p-2">
+                              <button
+                                onClick={() => {
+                                  router.push('/dashboard/myAccount?tab=7')
+                                  setPhoneDropdownOpen(false)
+                                }}
+                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Get A2P Verified Number
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="flex-1 relative min-w-0">
+                  <div className="flex-1 relative min-w-0" ref={emailDropdownRef}>
                     {emailAccounts.length === 0 ? (
                       <button
                         onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
@@ -231,24 +297,52 @@ const MessageComposer = ({
                       </button>
                     ) : (
                       <>
-                        <select
-                          value={selectedEmailAccount || ''}
-                          onChange={(e) => setSelectedEmailAccount(e.target.value)}
-                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                        <button
+                          type="button"
+                          onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                           style={{ height: '42px' }}
                         >
-                          <option value="">Select email account</option>
-                          {emailAccounts.map((account) => (
-                            <option key={account.id} value={account.id}>
-                              {account.email || account.name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedEmailAccount
+                              ? emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.email || emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.name || 'Select email account'
+                              : 'Select email account'}
+                          </span>
+                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        </button>
+                        {emailDropdownOpen && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                            {emailAccounts.map((account) => (
+                              <button
+                                key={account.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedEmailAccount(account.id.toString())
+                                  setEmailDropdownOpen(false)
+                                }}
+                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                                  selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                }`}
+                              >
+                                {account.email || account.name}
+                              </button>
+                            ))}
+                            <div className="border-t border-gray-200 p-2">
+                              <button
+                                onClick={() => {
+                                  if (onOpenAuthPopup) {
+                                    onOpenAuthPopup()
+                                  }
+                                  setEmailDropdownOpen(false)
+                                }}
+                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Connect New Gmail
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>

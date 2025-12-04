@@ -1405,6 +1405,7 @@ const Messages = () => {
           }
         }}
         fetchThreads={fetchThreads}
+        onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
       />
 
       {/* Auth Selection Popup for Gmail Connection */}

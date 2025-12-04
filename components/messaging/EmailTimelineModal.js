@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import { Paperclip } from '@phosphor-icons/react'
+import { Paperclip, CaretDown, Plus } from '@phosphor-icons/react'
 import { Drawer } from '@mui/material'
 import { toast } from 'sonner'
 
@@ -27,10 +27,24 @@ const EmailTimelineModal = ({
   setSelectedEmailAccount,
   onSendSuccess,
   fetchThreads,
+  onOpenAuthPopup,
 }) => {
   const [replyBody, setReplyBody] = useState('')
   const [sending, setSending] = useState(false)
   const richTextEditorRef = useRef(null)
+  const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
+  const emailDropdownRef = useRef(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
+        setEmailDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleClose = () => {
     setReplyBody('')
@@ -243,21 +257,56 @@ const EmailTimelineModal = ({
             <div className="space-y-3">
               {/* From and To fields */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex items-center gap-2 flex-1" ref={emailDropdownRef}>
                   <label className="text-sm font-medium whitespace-nowrap">From:</label>
-                  <select
-                    value={selectedEmailAccount || ''}
-                    onChange={(e) => setSelectedEmailAccount(e.target.value)}
-                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg px-3 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white"
-                    style={{ height: '42px' }}
-                  >
-                    <option value="">Select email account</option>
-                    {emailAccounts && emailAccounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.email}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex-1 relative">
+                    <button
+                      type="button"
+                      onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
+                      style={{ height: '42px' }}
+                    >
+                      <span className="text-sm text-gray-700 truncate">
+                        {selectedEmailAccount
+                          ? emailAccounts?.find((a) => a.id === parseInt(selectedEmailAccount))?.email || 'Select email account'
+                          : 'Select email account'}
+                      </span>
+                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    </button>
+                    {emailDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                        {emailAccounts && emailAccounts.map((account) => (
+                          <button
+                            key={account.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedEmailAccount(account.id.toString())
+                              setEmailDropdownOpen(false)
+                            }}
+                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                              selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                            }`}
+                          >
+                            {account.email}
+                          </button>
+                        ))}
+                        {onOpenAuthPopup && (
+                          <div className="border-t border-gray-200 p-2">
+                            <button
+                              onClick={() => {
+                                onOpenAuthPopup()
+                                setEmailDropdownOpen(false)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Connect New Gmail
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 flex-1">
                   <label className="text-sm font-medium whitespace-nowrap">To:</label>

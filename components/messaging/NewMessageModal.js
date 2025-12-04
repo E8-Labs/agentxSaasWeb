@@ -1,11 +1,12 @@
 'use client'
 
 import { Box, CircularProgress, Modal } from '@mui/material'
-import { Check, PaperPlaneTilt, X } from '@phosphor-icons/react'
+import { Check, PaperPlaneTilt, X, CaretDown, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -81,9 +82,14 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [userData, setUserData] = useState(null)
   const [showLeadList, setShowLeadList] = useState(false)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+  const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
+  const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
+  const phoneDropdownRef = useRef(null)
+  const emailDropdownRef = useRef(null)
+  const router = useRouter()
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -325,6 +331,20 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     }
   }, [open, selectedMode])
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(event.target)) {
+        setPhoneDropdownOpen(false)
+      }
+      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
+        setEmailDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   // Reset when modal closes
   useEffect(() => {
     if (!open) {
@@ -336,6 +356,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       setBCC('')
       setShowCC(false)
       setShowBCC(false)
+      setPhoneDropdownOpen(false)
+      setEmailDropdownOpen(false)
     }
   }, [open])
 
@@ -627,42 +649,74 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
             <div className="flex items-center gap-2 flex-1">
               <label className="text-sm font-medium whitespace-nowrap">From:</label>
               {selectedMode === 'sms' ? (
-                <div className="flex-1 relative">
-                  <select
-                    value={selectedPhoneNumber || ''}
-                    onChange={(e) => {
-                      const phone = phoneNumbers.find((p) => p.id === parseInt(e.target.value))
-                      setSelectedPhoneNumber(e.target.value)
-                      setSelectedPhoneNumberObj(phone)
-                    }}
-                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                <div className="flex-1 relative" ref={phoneDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
+                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                     style={{ height: '42px' }}
                   >
-                    <option value="">Select phone number</option>
-                    {phoneNumbers.map((phone) => (
-                      <option key={phone.id} value={phone.id}>
-                        {phone.phone}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
+                    <span className="text-sm text-gray-700 truncate">
+                      {selectedPhoneNumber
+                        ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
+                        : 'Select phone number'}
+                    </span>
+                    <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  </button>
+                  {phoneDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                      {phoneNumbers.length === 0 ? (
+                        <div className="p-3">
+                          <p className="text-sm text-gray-600 mb-2">No A2P verified numbers available</p>
+                          <button
+                            onClick={() => {
+                              router.push('/dashboard/myAccount?tab=7')
+                              setPhoneDropdownOpen(false)
+                            }}
+                            className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Connect Twilio & Get A2P Number
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {phoneNumbers.map((phone) => (
+                            <button
+                              key={phone.id}
+                              type="button"
+                              onClick={() => {
+                                const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
+                                setSelectedPhoneNumber(phone.id.toString())
+                                setSelectedPhoneNumberObj(phoneObj)
+                                setPhoneDropdownOpen(false)
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                                selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                              }`}
+                            >
+                              {phone.phone}
+                            </button>
+                          ))}
+                          <div className="border-t border-gray-200 p-2">
+                            <button
+                              onClick={() => {
+                                router.push('/dashboard/myAccount?tab=7')
+                                setPhoneDropdownOpen(false)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Get A2P Verified Number
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="flex-1 relative">
+                <div className="flex-1 relative" ref={emailDropdownRef}>
                   {emailAccounts.length === 0 ? (
                   <button
                     onClick={() => setShowAuthSelectionPopup(true)}
@@ -673,38 +727,52 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   </button>
                   ) : (
                     <>
-                      <select
-                        value={selectedEmailAccount || ''}
-                        onChange={(e) => {
-                          const account = emailAccounts.find((a) => a.id === parseInt(e.target.value))
-                          setSelectedEmailAccount(e.target.value)
-                          setSelectedEmailAccountObj(account)
-                        }}
-                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary appearance-none pr-8"
+                      <button
+                        type="button"
+                        onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px' }}
                       >
-                        <option value="">Select email account</option>
-                        {emailAccounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {account.email || account.name}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg
-                          className="w-4 h-4 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </div>
+                        <span className="text-sm text-gray-700 truncate">
+                          {selectedEmailAccount
+                            ? emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.email || emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.name || 'Select email account'
+                            : 'Select email account'}
+                        </span>
+                        <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      </button>
+                      {emailDropdownOpen && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          {emailAccounts.map((account) => (
+                            <button
+                              key={account.id}
+                              type="button"
+                              onClick={() => {
+                                const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                setSelectedEmailAccount(account.id.toString())
+                                setSelectedEmailAccountObj(accountObj)
+                                setEmailDropdownOpen(false)
+                              }}
+                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
+                                selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                              }`}
+                            >
+                              {account.email || account.name}
+                            </button>
+                          ))}
+                          <div className="border-t border-gray-200 p-2">
+                            <button
+                              onClick={() => {
+                                setShowAuthSelectionPopup(true)
+                                setEmailDropdownOpen(false)
+                              }}
+                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Connect New Gmail
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

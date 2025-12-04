@@ -1,4 +1,5 @@
 import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
+import { UserRole } from '@/constants/UserRole'
 
 /**
  * Get the default video URL for a given videoType
@@ -222,7 +223,7 @@ export const getTutorialVideos = () => {
     ]
 
     // Check if user is a subaccount
-    if (user?.userRole === 'AgencySubAccount') {
+    if (user?.userRole === UserRole.AgencySubAccount) {
       // Get agency videos from profile
       const agencyVideos = user?.agencyVideos || []
 

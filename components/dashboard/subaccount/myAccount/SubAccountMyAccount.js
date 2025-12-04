@@ -15,10 +15,6 @@ import SendFeedback from '@/components/myAccount/SendFeedback'
 import Support from '@/components/myAccount/Support'
 import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
-import {
-  CancellationAndRefundUrl,
-  termsAndConditionUrl,
-} from '@/constants/Constants'
 
 import SubAccountBarServices from './SubAccountBarServices'
 import SubAccountBasicInfo from './SubAccountBasicInfo'
@@ -30,6 +26,8 @@ import SubAccountPrivacy from './SubAccountPrivacy'
 import SubAccountSendFeedback from './SubAccountSendFeedback'
 import SubAccountSupport from './SubAccountSupport'
 import SubAccountTerms from './SubAccountTerms'
+import SubAccountCancellationRefund from './SubAccountCancellationRefund'
+import { UserRole } from '@/constants/UserRole'
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams()
@@ -153,6 +151,12 @@ function SubAccountMyAccount() {
     //   icon: "/otherAssets/inviteAgentIcon.png",
     // },
     {
+      id: 6,
+      heading: 'Twilio Trust Hub',
+      subHeading: 'Caller ID & compliance for trusted calls',
+      icon: '/svgIcons/twilioHub.svg',
+    },
+    {
       id: 7,
       heading: 'Terms & Conditions',
       subHeading: '',
@@ -195,7 +199,7 @@ function SubAccountMyAccount() {
         `user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`,
       )
       if (
-        D.userRole === 'AgencySubAccount' &&
+        D.userRole === UserRole.AgencySubAccount &&
         D.allowSubaccountTwilio === false
       ) {
         setNavBar(manuBar2)
@@ -264,30 +268,20 @@ function SubAccountMyAccount() {
       case 5: // My Phone Numbers
         return <SubAccountMyPhoneNumber />
       case 6: // Invite Agents (if enabled)
-        return (
-          <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />
-        )
+      return <TwilioTrustHub />
       case 7: // Terms & Conditions
         return <SubAccountTerms />
       case 8: // Privacy Policy
         return <SubAccountPrivacy />
-      case 9: // Twilio Trust Hub
-        return <TwilioTrustHub />
-      // ID 10 is external link (Cancellation & Refund) handled in handleTabSelect
+      case 9: // Cancellation & Refund
+        return <SubAccountCancellationRefund />
       default:
         return <div>Please select an option.</div>
     }
   }
 
   const handleTabSelect = async (item) => {
-    // Handle external links (these don't render components)
-    if (item.heading === 'Cancellation & Refund') {
-      window.open(CancellationAndRefundUrl, '_blank')
-      return
-    }
-
-    // For regular menu items (including Terms & Conditions and Privacy Policy),
-    // set the selected tab using menu ID to display in the right panel
+    // For all menu items, set the selected tab using menu ID to display in the right panel
     setTabSelected(item.id)
     setParamsInSearchBar(item.id)
   }

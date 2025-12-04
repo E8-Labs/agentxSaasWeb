@@ -1,3 +1,5 @@
+import { UserRole } from '@/constants/UserRole'
+
 /**
  * Get agency custom domain, agencyId, and subaccountId for OAuth redirect
  * 
@@ -20,7 +22,7 @@ export async function getAgencyCustomDomain() {
           // Get token
           token = userData.token
           // Check if user is a subaccount and get their ID
-          if (userData?.user?.userRole === 'AgencySubAccount' && userData?.user?.id) {
+          if (userData?.user?.userRole === UserRole.AgencySubAccount && userData?.user?.id) {
             subaccountId = userData.user.id
           }
         } catch (error) {

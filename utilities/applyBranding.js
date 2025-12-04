@@ -1,5 +1,6 @@
 import Apis from '@/components/apis/Apis'
 import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
+import { UserRole } from '@/constants/UserRole'
 
 /**
  * Apply agency branding after registration or login
@@ -84,8 +85,7 @@ export const fetchAndApplyBranding = async () => {
 
     // Check if user is subaccount or agency
     const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
-    const isSubaccount = userRole === 'AgencySubAccount'
-    const isAgency = userRole === 'Agency'
+
 
     if (!isSubaccount && !isAgency) {
       return false // Not an agency or subaccount, no branding to apply
