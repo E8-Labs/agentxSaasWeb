@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Paperclip, X, CaretDown, CaretUp, Plus } from '@phosphor-icons/react'
+import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
@@ -196,7 +196,49 @@ const MessageComposer = ({
           </button>
         </div>
 
-        {isExpanded && (
+        {!isExpanded ? (
+          // Collapsed view - show text input with send button
+          <div className="mt-4 flex items-center gap-2">
+            <Input
+              value={composerData.body}
+              onChange={(e) => {
+                if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
+                  setComposerData({ ...composerData, body: e.target.value })
+                } else if (composerMode === 'email') {
+                  setComposerData({ ...composerData, body: e.target.value })
+                }
+              }}
+              onFocus={() => setIsExpanded(true)}
+              onClick={() => setIsExpanded(true)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  if (composerData.body.trim() && 
+                      ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
+                       (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                    handleSendMessage()
+                  }
+                }
+              }}
+              placeholder={composerMode === 'sms' ? 'Type your message...' : 'Type your message...'}
+              className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+              style={{ height: '42px' }}
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={
+                sendingMessage ||
+                !composerData.body.trim() ||
+                (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+              }
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              style={{ height: '42px' }}
+            >
+              <PaperPlaneTilt size={20} weight="fill" />
+            </button>
+          </div>
+        ) : (
           <>
             {/* Upgrade View for SMS Tab */}
             {shouldShowUpgradeView ? (
