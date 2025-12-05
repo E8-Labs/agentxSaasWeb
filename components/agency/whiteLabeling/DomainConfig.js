@@ -444,7 +444,7 @@ const DomainConfig = () => {
 
       {/* Domain Configuration Card */}
       <div className="w-full flex flex-row justify-center pt-8">
-        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col gap-6 overflow-hidden">
+        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col gap-6">
           {/* Auto Subdomain Display (Always visible, read-only) */}
           {/* {subdomain && (
             <div className="w-full">
@@ -481,7 +481,7 @@ const DomainConfig = () => {
                 disabled={loading || !!domainStatus}
               />
               <button
-                className="bg-brand-primary text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px]"
+                className="bg-purple-600 text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px] flex-shrink-0"
                 onClick={handleAddDomain}
                 disabled={loading || !!domainStatus}
               >
