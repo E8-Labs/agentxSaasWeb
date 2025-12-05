@@ -421,9 +421,9 @@ const ConversationView = ({
                     )}
                   </div>
                   
-                  {/* Reply Button - Below bubble, right-aligned */}
-                  {isEmail && onReplyClick && (
-                    <div className="mt-1 text-right" style={{ width: '75%', maxWidth: '75%' }}>
+                  {/* Reply Button - Below bubble, only for inbound messages (gray bubbles) */}
+                  {isEmail && !isOutbound && onReplyClick && (
+                    <div className="mt-1 text-right" style={{width: 'auto', maxWidth: '75%' }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()

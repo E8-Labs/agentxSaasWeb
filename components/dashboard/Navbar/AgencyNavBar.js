@@ -17,6 +17,7 @@ import { initializeApp } from 'firebase/app'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import moment from 'moment'
 
 import EditAgencyName from '@/components/agency/agencyExtras.js/EditAgencyName'
 import { CheckStripe } from '@/components/agency/agencyServices/CheckAgencyData'
@@ -32,6 +33,7 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys, userType } from '@/constants/Constants'
 import { useUser } from '@/hooks/redux-hooks'
 import { logout } from '@/utilities/UserUtility'
+import { cn } from '@/lib/utils'
 
 // const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
 //   ssr: false,
@@ -92,6 +94,9 @@ const AgencyNavBar = () => {
   const [showAgencyWalkThrough, setShowAgencyWalkThrough] = useState(false)
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+
+  // Branding state for powered by icon
+  const [poweredByIconUrl, setPoweredByIconUrl] = useState('/agencyIcons/poweredByIcon.png')
 
   //check stripe
   useEffect(() => {
@@ -264,7 +269,11 @@ const AgencyNavBar = () => {
           'agencyProfileData.plan?.status',
           agencyProfileData.plan?.status,
         )
-        if (agencyProfileData.plan?.status === 'cancelled'  && (agencyProfileData.nextChargeDate || moment(agencyProfileData.nextChargeDate).isBefore(moment()))) {
+        if (
+          agencyProfileData.plan?.status === 'cancelled' &&
+          (agencyProfileData.nextChargeDate &&
+            moment(agencyProfileData.nextChargeDate).isBefore(moment()))
+        ) {
           router.push('/agency/plan')
           return
         }
@@ -345,6 +354,111 @@ const AgencyNavBar = () => {
       window.removeEventListener('UpdateProfile', handleUpdateProfile)
     }
   }, [setReduxUser])
+
+  // Listen for branding updates and update powered by icon
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const updateBranding = () => {
+      // Check if user is a subaccount or agency (for exception rule)
+      let isSubaccount = false
+      let isAgency = false
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          isSubaccount = userRole === 'AgencySubAccount'
+          isAgency = userRole === 'Agency'
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+
+      const hostname = window.location.hostname
+      const isAssignxDomain =
+        hostname.includes('.assignx.ai') ||
+        hostname === 'assignx.ai' ||
+        hostname.includes('localhost')
+
+      // If assignx domain AND not a subaccount AND not an agency, use default icon
+      if (isAssignxDomain && !isSubaccount && !isAgency) {
+        setPoweredByIconUrl('/agencyIcons/poweredByIcon.png')
+        return
+      }
+
+      // For custom domains OR subaccounts/agencies on assignx.ai domains, check agency branding
+      const getCookie = (name) => {
+        if (name === 'agencyBranding') {
+          return null
+        }
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) return parts.pop().split(';').shift()
+        return null
+      }
+
+      let branding = null
+
+      // Try to get agency branding from cookie (set by middleware)
+      const brandingCookie = getCookie('agencyBranding')
+      if (brandingCookie) {
+        try {
+          branding = JSON.parse(decodeURIComponent(brandingCookie))
+        } catch (error) {
+          console.log('Error parsing agencyBranding cookie:', error)
+        }
+      }
+
+      // Fallback to localStorage
+      if (!branding) {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+      }
+
+      // Additional fallback: Check user data for agencyBranding (for subaccounts and agencies)
+      if (!branding && (isSubaccount || isAgency)) {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          }
+        } catch (error) {
+          console.log('Error parsing user data for agencyBranding:', error)
+        }
+      }
+
+      // Use default icon if no branding found or no custom powered by icon
+      setPoweredByIconUrl('/agencyIcons/poweredByIcon.png')
+    }
+
+    // Initial update
+    updateBranding()
+
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      updateBranding()
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
 
   //code for verify now
 
@@ -505,7 +619,7 @@ const AgencyNavBar = () => {
       fontWeight: '600',
     },
     discountedPrice: {
-      color: '#000000',
+      color: 'hsl(var(--foreground))',
       fontWeight: 'bold',
       fontSize: 18,
       marginLeft: '10px',
@@ -536,10 +650,7 @@ const AgencyNavBar = () => {
         >
           <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
             <CircularProgress size={20} />
-            <div
-              className="text-black"
-              style={{ fontSize: 14, fontWeight: 500 }}
-            >
+            <div className="text-foreground text-sm font-medium">
               {`Connecting to Stripe...`}
             </div>
           </div>
@@ -561,18 +672,17 @@ const AgencyNavBar = () => {
                 height={30}
                 width={30}
               />
-              <div
-                className="text-black"
-                style={{ fontSize: 14, fontWeight: 500 }}
-              >
+              <div className="text-foreground text-sm font-medium">
                 {`You're Stripe account has not been connected.`}
               </div>
               {loader ? (
                 <CircularProgress size={20} />
               ) : (
                 <button
-                  style={{ fontSize: 12, fontWeight: 500 }}
-                  className="bg-brand-primary text-white rounded-md p-2 outline-none border-none"
+                  className={cn(
+                    'bg-brand-primary text-white rounded-md p-2 outline-none border-none',
+                    'text-xs font-medium hover:bg-brand-primary/90 transition-colors',
+                  )}
                   onClick={() => {
                     handleVerifyClick()
                   }}
@@ -632,15 +742,16 @@ const AgencyNavBar = () => {
                   // }}
                 >
                   <div
-                    className="w-full flex flex-row gap-2 items-center py-1 rounded-full"
-                    style={{}}
+                    className={cn(
+                      'w-full flex flex-row gap-2 items-center py-1 rounded-full',
+                    )}
                   >
                     <div
-                      className={
+                      className={cn(
                         pathname === item.href
-                          ? "icon-brand-primary"
-                          : "icon-black"
-                      }
+                          ? 'icon-brand-primary'
+                          : 'icon-black',
+                      )}
                       style={
                         pathname === item.href
                           ? {
@@ -665,13 +776,12 @@ const AgencyNavBar = () => {
                       />
                     </div>
                     <div
-                      className={
-                        pathname === item.href ? 'text-brand-primary' : 'text-black'
-                      }
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                      }}
+                      className={cn(
+                        'text-sm font-medium',
+                        pathname === item.href
+                          ? 'text-brand-primary'
+                          : 'text-black',
+                      )}
                     >
                       {item.name}
                     </div>
@@ -694,12 +804,7 @@ const AgencyNavBar = () => {
 
         <div className="w-full flex flex-col items-center pt-2">
           {/* Code for Check list menu bar */}
-          <div
-            // className="w-full"
-            style={{
-              borderBottom: '1px solid #00000010',
-            }}
-          >
+          <div className="w-full border-b border-border">
             {reduxUser && <AgencyChecklist userDetails={reduxUser} />}
           </div>
           <Link
@@ -729,35 +834,18 @@ const AgencyNavBar = () => {
                 />
               </div>
             ) : (
-              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {reduxUser?.name.slice(0, 1).toUpperCase()}
+              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-foreground text-primary-foreground flex flex-row items-center justify-center">
+                {reduxUser?.name?.slice(0, 1).toUpperCase()}
               </div>
             )}
 
             <div>
-              <div
-                className="truncate"
-                style={{
-                  fontSize: 15,
-                  fontWeight: '500',
-                  color: '',
-                  width: '100px',
-                  color: 'black',
-                }}
-              >
-                {reduxUser?.name?.split(' ')[0]}
-              </div>
-              <div
-                className="truncate w-[120px]"
-                style={{
-                  fontSize: 15,
-                  fontWeight: '500',
-                  color: '#15151560',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {reduxUser?.email}
-              </div>
+            <div className="truncate text-[15px] font-medium text-foreground w-[100px]">
+              {reduxUser?.name?.split(' ')[0]}
+            </div>
+            <div className="truncate w-[120px] text-[15px] font-medium text-muted-foreground">
+              {reduxUser?.email}
+            </div>
             </div>
           </Link>
         </div>
@@ -780,21 +868,14 @@ const AgencyNavBar = () => {
         }}
       >
         <Box className="flex justify-center items-center w-full h-full">
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+          <div className="bg-card rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
             <div className="flex flex-row justify-between items-center w-full">
-              <div style={{ fontWeight: '600', fontSize: 22 }}>
+              <div className="text-[22px] font-semibold text-foreground">
                 Payment Failed
               </div>
               <CloseBtn onClick={() => setShowPaymentFailedPopup(false)} />
             </div>
-            <div
-              className="mt-4"
-              style={{
-                fontSize: 16,
-                fontWeight: 400,
-                color: '#000000',
-              }}
-            >
+            <div className="mt-4 text-base font-normal text-foreground">
               Your subscription payment has failed, please update your payment
               method to prevent service interruption. Your account is at risk of
               being canceled.
@@ -802,7 +883,10 @@ const AgencyNavBar = () => {
 
             <div className="w-full">
               <button
-                className={`bg-brand-primary text-white px-4 h-[40px] rounded-lg mt-4 w-full`}
+                className={cn(
+                  'bg-brand-primary text-white px-4 h-[40px] rounded-lg mt-4 w-full',
+                  'hover:bg-brand-primary/90 transition-colors',
+                )}
                 onClick={() => {
                   setShowAddPaymentPopup(true)
                   setShowPaymentFailedPopup(false)
@@ -830,20 +914,12 @@ const AgencyNavBar = () => {
         <Box className="lg:w-8/12  sm:w-full w-full" sx={styles.paymentModal}>
           <div className="flex flex-row justify-center items-center w-full h-full">
             <div
-              className="sm:w-7/12 w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
+              className={cn(
+                'sm:w-7/12 w-full bg-white p-5 rounded-[13px]',
+              )}
             >
               <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: '600',
-                  }}
-                >
+                <div className="text-[22px] font-semibold text-foreground">
                   Payment Details
                 </div>
                 <CloseBtn onClick={() => setShowAddPaymentPopup(false)} />

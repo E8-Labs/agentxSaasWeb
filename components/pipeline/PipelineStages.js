@@ -248,6 +248,8 @@ const PipelineStages = ({
       setShowEmailTempPopup(true)
     } else if (row.communicationType === 'sms') {
       setShowSmsTempPopup(true)
+    }else if (row.communicationType === 'call') {
+      openAddMenu(stageIndex, e)
     }
   }
 

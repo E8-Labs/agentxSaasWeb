@@ -280,7 +280,6 @@ const MessageComposer = ({
                       <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
                         {phoneNumbers.length === 0 ? (
                           <div className="p-3">
-                            <p className="text-sm text-gray-600 mb-2">No A2P verified numbers available</p>
                             <button
                               onClick={() => {
                                 const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
@@ -290,7 +289,7 @@ const MessageComposer = ({
                               className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                             >
                               <Plus className="w-4 h-4" />
-                              Connect Twilio & Get A2P Number
+                              Get A2P Number
                             </button>
                           </div>
                         ) : (
@@ -566,9 +565,19 @@ const MessageComposer = ({
                     (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
                   }
-                  className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {sendingMessage ? 'Sending...' : 'Send'}
+                  {sendingMessage ? (
+                    <>
+                      <CircularProgress size={16} className="text-white" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send
+                      <PaperPlaneTilt size={16} />
+                    </>
+                  )}
                 </button>
               </div>
             </>

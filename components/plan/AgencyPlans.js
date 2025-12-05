@@ -24,6 +24,7 @@ import BackgroundVideo from '../general/BackgroundVideo'
 import CloseBtn from '../globalExtras/CloseBtn'
 import SelectYearlypopup from './SelectYearlypopup'
 import AppLogo from '@/components/common/AppLogo'
+import { Checkbox } from '../ui/checkbox'
 
 //code for add card
 let stripePublickKey =
@@ -232,7 +233,7 @@ function AgencyPlans({
       // Clear failure state when card is successfully added
       setSubscriptionPaymentFailed(false)
       setFailedPlanId(null)
-      
+
       // Check if subscription was already handled by AgencyAddCard component
       // If data has a status indicating subscription was already processed, don't call again
       if (data.status && data.subscriptionHandled) {
@@ -404,14 +405,14 @@ function AgencyPlans({
             setErrorMsg(response.data.message)
             setSnackMsgType(SnackbarTypes.Success)
             localStorage.removeItem('subPlan')
-            
+
             // Check if user is on mobile
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
             const SM_SCREEN_SIZE = 640
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
               typeof navigator !== 'undefined' ? navigator.userAgent : ''
             )
-            
+
             if (isFrom === 'addPlan') {
               console.log('call handleCloseModal')
               handleCloseModal(response.data.message)
@@ -523,7 +524,7 @@ function AgencyPlans({
 
   const handleContinueClick = async () => {
     if (!selectedPlan) return
-    
+
     const hasPM = () => {
       try {
         const localData = localStorage.getItem('User')
@@ -560,7 +561,7 @@ function AgencyPlans({
     const totalPrice = selectedPlan ? getTotalPrice(selectedPlan) : 0
 
     return (
-      <div className="h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 relative overflow-hidden flex flex-col w-full">
+      <div className="h-screen bg-gradient-to-br from-brand-primary/40 via-white to-brand-primary/40 relative overflow-hidden flex flex-col w-full">
         {/* Background blur effect */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute -left-1/4 -top-1/4 w-96 h-96 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
@@ -591,11 +592,10 @@ function AgencyPlans({
                             setSelectedDuration(dur)
                             setSelectedPlan(null)
                           }}
-                          className={`flex-shrink-0 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
-                            selectedDuration.id === dur.id
+                          className={`flex-shrink-0 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${selectedDuration.id === dur.id
                               ? 'bg-brand-primary text-white shadow-lg'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
+                            }`}
                         >
                           {dur.title}
                           {durationSaving.find(s => s.id === dur.id) && (
@@ -623,11 +623,10 @@ function AgencyPlans({
                       <div
                         key={plan.id}
                         onClick={() => handlePlanSelect(plan)}
-                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                          selectedPlan?.id === plan.id
+                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
                             ? 'border-brand-primary bg-brand-primary/5'
                             : 'border-gray-200 hover:border-brand-primary/30'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -676,7 +675,7 @@ function AgencyPlans({
                 {selectedPlan && (
                   <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                     <h3 className="font-semibold text-gray-900 mb-3">Plan Details</h3>
-                    
+
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium text-gray-900 capitalize">
@@ -730,11 +729,10 @@ function AgencyPlans({
               <button
                 onClick={handleContinueClick}
                 disabled={!selectedPlan || subPlanLoader}
-                className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all ${
-                  !selectedPlan || subPlanLoader
+                className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all ${!selectedPlan || subPlanLoader
                     ? 'bg-gray-300 cursor-not-allowed'
                     : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-                }`}
+                  }`}
               >
                 {subPlanLoader ? (
                   <div className="flex items-center justify-center gap-2">
@@ -864,7 +862,7 @@ function AgencyPlans({
                 style={{
                   fontSize: 16,
                   fontWeight: '500',
-                  color: '#808080',
+                  color: 'hsl(var(--muted-foreground))',
                 }}
               >{`Gets more done than coffee. Cheaper too.`}</span>
               <span>😉</span>
@@ -879,12 +877,13 @@ function AgencyPlans({
               return (
                 <button
                   key={item.id}
-                  className={`px-2 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple outline-none border-none' : 'text-[#8A8A8A]'} rounded-tl-lg rounded-tr-lg`}
-                  style={{ fontWeight: '600', fontSize: '13px' }}
-                // onClick={() => {
-                //     setSelectedDuration(item);
-                //     getCurrentPlans();
-                // }}
+                  className={
+                    `px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none' : 'text-muted-foreground'}`
+                  }
+                  onClick={() => {
+                    setSelectedDuration(item);
+                    getCurrentPlans();
+                  }}
                 >
                   {item.title}
                 </button>
@@ -898,10 +897,12 @@ function AgencyPlans({
               {duration?.map((item) => (
                 <button
                   key={item.id}
-                  className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full' : 'text-black'}`}
+                  className={
+                    `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50' : 'text-foreground'}`
+                  }
                   onClick={() => {
-                    setSelectedDuration(item)
-                    getCurrentPlans()
+                    setSelectedDuration(item);
+                    getCurrentPlans();
                   }}
                 >
                   {item.title}
@@ -941,128 +942,144 @@ function AgencyPlans({
                 : 'center',
           }}
         >
-            {loading ? (
-              <div className="mt-9">
-                <CircularProgress size={35} />
-              </div>
-            ) : (
-              getCurrentPlans().length > 0 &&
-              getCurrentPlans()?.map((item, index) => {
-                const isCurrentPlan = isPlanCurrent(item)
-                return item ? (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      if (disAblePlans) {
-                        return
-                      }
-                      handleTogglePlanClick(item, index)
-                      const currentItem = item
-                      const currentIndex = index
-                      if (currentItem && currentItem.id) {
-                        handleClaimEarlyAccess(currentItem, currentIndex)
-                      } else {
-                        console.error(
-                          'Item or item.id is undefined:',
-                          currentItem,
-                        )
-                      }
-                    }}
-                    disabled={disAblePlans || (isCurrentPlan && currentUserPlan?.status !== 'cancelled')}
-                    onMouseEnter={() => {
-                      if (!isCurrentPlan || currentUserPlan?.status === 'cancelled') {
-                        console.log('Hover entered on plan', item.tag)
-                        setHoverPlan(item)
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      setHoverPlan(null)
-                    }}
-                    className={`flex flex-col items-center rounded-lg flex-shrink-0 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-t hover:from-purple hover:to-[#C73BFF]' : ''}
-                                 ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-t from-purple to-[#C73BFF] p-2' : 'border p-2'}
-                                 ${isCurrentPlan && currentUserPlan?.status !== 'cancelled' ? 'opacity-75 cursor-not-allowed' : ''}
-                                `}
-                    style={{
-                      width: '280px',
-                      overflow: 'hidden',
-                      scrollbarWidth: 'none',
-                    }}
-                  >
-                    <div className="flex flex-col items-center h-auto w-full">
-                      <div className="pb-2">
-                        {item.tag ? (
-                          <div className=" flex flex-row items-center gap-2">
+          {loading ? (
+            <div className="mt-9">
+              <CircularProgress size={35} />
+            </div>
+          ) : (
+            getCurrentPlans().length > 0 &&
+            getCurrentPlans()?.map((item, index) => {
+              const isCurrentPlan = isPlanCurrent(item)
+              return item ? (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    if (disAblePlans) {
+                      return
+                    }
+                    handleTogglePlanClick(item, index)
+                    const currentItem = item
+                    const currentIndex = index
+                    if (currentItem && currentItem.id) {
+                      handleClaimEarlyAccess(currentItem, currentIndex)
+                    } else {
+                      console.error(
+                        'Item or item.id is undefined:',
+                        currentItem,
+                      )
+                    }
+                  }}
+                  disabled={disAblePlans || (isCurrentPlan && currentUserPlan?.status !== 'cancelled')}
+                  onMouseEnter={() => {
+                    if (!isCurrentPlan || currentUserPlan?.status === 'cancelled') {
+                      console.log('Hover entered on plan', item.tag)
+                      setHoverPlan(item)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoverPlan(null)
+                  }}
+                  className={
+                    `flex flex-col items-center rounded-lg flex-shrink-0 border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/40' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-t from-brand-primary to-brand-primary/40 p-2' : 'opacity-75 cursor-not-allowed'}`
+                  }
+                  style={{
+                    width: '280px',
+                    overflow: 'hidden',
+                    scrollbarWidth: 'none',
+                  }}
+                >
+                  <div className="flex flex-col items-center h-auto w-full">
+                    <div className="pb-2">
+                      {item.tag ? (
+                        <div className=" flex flex-row items-center gap-2">
+                          {(selectedPlan?.id === item.id ||
+                            hoverPlan?.id === item.id) &&
+                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? (
                             <Image
-                              src={
-                                (selectedPlan?.id === item.id ||
-                                  hoverPlan?.id === item.id) &&
-                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
-                                  ? '/svgIcons/powerWhite.svg'
-                                  : '/svgIcons/power.svg'
-                              }
+                              src="/svgIcons/powerWhite.svg"
                               height={24}
                               width={24}
                               alt="*"
                             />
-
+                          ) : (
                             <div
+                              className="icon-brand-primary"
                               style={{
-                                fontSize: 16,
-                                fontWeight: '700',
-                                color:
-                                  (selectedPlan?.id === item.id ||
-                                    hoverPlan?.id === item.id) &&
-                                    (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
-                                    ? 'white'
-                                    : '#7902df',
+                                '--icon-mask-image': `url('/svgIcons/power.svg')`,
                               }}
                             >
-                              {item.tag}
+                              <Image
+                                src="/svgIcons/power.svg"
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
                             </div>
+                          )}
+
+                          <div
+                            className={`text-base font-bold ${selectedPlan?.id === item.id || hoverPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'text-white' : 'text-brand-primary'}`}
+                          >
+                            {item.tag}
+                          </div>
+                          {(selectedPlan?.id === item.id ||
+                            hoverPlan?.id === item.id) &&
+                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? (
                             <Image
-                              src={
-                                (selectedPlan?.id === item.id ||
-                                  hoverPlan?.id === item.id) &&
-                                  (!isCurrentPlan || currentUserPlan?.status === 'cancelled')
-                                  ? '/svgIcons/enterArrowWhite.svg'
-                                  : '/svgIcons/enterArrow.svg'
-                              }
+                              src="/svgIcons/enterArrowWhite.svg"
                               height={20}
                               width={20}
                               alt="*"
                             />
-                          </div>
-                        ) : (
-                          <div className="h-[4vh]"></div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full">
-                        {/* Header section - fixed height */}
-                        <div className="flex flex-col items-center w-full flex-shrink-0">
-                          {/* Top section */}
-                          <div className="text-3xl font-semibold mt-2 capitalize">
-                            {item.title}
-                          </div>
-
-                          {/* Pricing */}
-                          <div className="flex flex-row items-center gap-2">
-                            <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-[#7902DF] bg-clip-text text-transparent">
-                            </span>
-                          </div>
-
-                          <div
-                            className={`text-center mt-1 ${disAblePlans && 'w-full border-b border-[#00000040] pb-2'}`}
-                            style={{ fontSize: 15, fontWeight: '400' }}
-                          >
-                              {selectedDuration.title === 'Monthly'
-                                ? 'Billed Monthly'
-                                : selectedDuration.title === 'Quarterly'
-                                  ? 'Billed Quarterly'
-                                  : selectedDuration.title === 'Yearly'
-                                    ? 'Billed Annually'
-                                    : '-'}
+                          ) : (
+                            <div
+                              className="icon-brand-primary"
+                              style={{
+                                width: '20px',
+                                height: '20px',
+                                '--icon-mask-image': `url('/svgIcons/enterArrow.svg')`,
+                              }}
+                            >
+                              <Image
+                                src="/svgIcons/enterArrow.svg"
+                                height={20}
+                                width={20}
+                                alt="*"
+                              />
                             </div>
-                            {/*
+                          )}
+                        </div>
+                      ) : (
+                        <div className="h-[4vh]"></div>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full">
+                      {/* Header section - fixed height */}
+                      <div className="flex flex-col items-center w-full flex-shrink-0">
+                        {/* Top section */}
+                        <div className="text-3xl font-semibold mt-2 capitalize">
+                          {item.title}
+                        </div>
+
+                        {/* Pricing */}
+                        <div className="flex flex-row items-center gap-2">
+                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-brand-primary to-brand-primary/40 bg-clip-text text-transparent">
+                          </span>
+                        </div>
+
+                        <div
+                          className={`text-center mt-1 ${disAblePlans && 'w-full border-b border-foreground/40 pb-2'}`}
+                          style={{ fontSize: 15, fontWeight: '400' }}
+                        >
+                          {selectedDuration.title === 'Monthly'
+                            ? 'Billed Monthly'
+                            : selectedDuration.title === 'Quarterly'
+                              ? 'Billed Quarterly'
+                              : selectedDuration.title === 'Yearly'
+                                ? 'Billed Annually'
+                                : '-'}
+                        </div>
+                        {/*
                                                             <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
                                                                 {item.capabilities?.affiliatePercent}% Rev Share
                                                             </div>
@@ -1072,144 +1089,141 @@ function AgencyPlans({
                                                             </div>
                                                         */}
 
-                          {!disAblePlans &&
-                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') &&
-                            (subPlanLoader === item.id ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                              <div
-                                className="w-[95%] py-3.5 h-[50px] mt-3 bg-purple rounded-lg text-white cursor-pointer"
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  e.stopPropagation()
-                                  handleTogglePlanClick(item, index)
-                                  const currentItem = item
-                                  const currentIndex = index
-                                  if (currentItem && currentItem.id) {
-                                    handleClaimEarlyAccess(currentItem, currentIndex)
-                                  }
-                                }}
-                                style={{
-                                  fontSize: 16.8,
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                {selectedPlan?.id === item.id
-                                  ? 'Continue'
-                                  : 'Get Started'}
-                              </div>
-                            ))
-                          }
+                        {!disAblePlans &&
+                          (!isCurrentPlan || currentUserPlan?.status === 'cancelled') &&
+                          (subPlanLoader === item.id ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <div
+                              className="w-[95%] py-3.5 h-[50px] mt-3 bg-brand-primary rounded-lg text-white cursor-pointer hover:bg-brand-primary/90 transition-colors"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleTogglePlanClick(item, index)
+                                const currentItem = item
+                                const currentIndex = index
+                                if (currentItem && currentItem.id) {
+                                  handleClaimEarlyAccess(currentItem, currentIndex)
+                                }
+                              }}
+                              style={{
+                                fontSize: 16.8,
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              {selectedPlan?.id === item.id
+                                ? 'Continue'
+                                : 'Get Started'}
+                            </div>
+                          ))
+                        }
 
-                          {/* Features container - scrollable */}
-                          <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
-                            <div className="flex flex-col items-start w-full flex-1 pr-2">
-                              {index > 0 && (
-                                <div className="w-full mb-3 flex-shrink-0">
-                                  <div className="text-sm font-semibold text-black mb-2 text-left">
-                                    Everything in{' '}
-                                    {getCurrentPlans()[index - 1]?.title}, and:
-                                  </div>
+                        {/* Features container - scrollable */}
+                        <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
+                          <div className="flex flex-col items-start w-full flex-1 pr-2">
+                            {index > 0 && (
+                              <div className="w-full mb-3 flex-shrink-0">
+                                <div className="text-sm font-semibold text-foreground mb-2 text-left">
+                                  Everything in{' '}
+                                  {getCurrentPlans()[index - 1]?.title}, and:
                                 </div>
-                              )}
+                              </div>
+                            )}
 
-                              {Array.isArray(item?.features) &&
-                                item?.features?.map((feature) => (
+                            {Array.isArray(item?.features) &&
+                              item?.features?.map((feature) => (
+                                <div
+                                  key={feature.text}
+                                  className="flex flex-row items-start gap-3 mb-3 w-full"
+                                >
+                                  <Checkbox
+                                    checked={true}
+                                    className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                  />
                                   <div
-                                    key={feature.text}
-                                    className="flex flex-row items-start gap-3 mb-3 w-full"
+                                    className="flex flex-row items-center gap-2"
+                                    style={{
+                                      whiteSpace: 'nowrap',
+                                      width: '100%',
+                                      borderWidth: 0,
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}
                                   >
-                                    <Image
-                                      src="/otherAssets/selectedTickBtn.png"
-                                      height={16}
-                                      width={16}
-                                      alt="✓"
-                                      className="mt-1 flex-shrink-0"
-                                    />
                                     <div
-                                      className="flex flex-row items-center gap-2"
                                       style={{
-                                        whiteSpace: 'nowrap',
-                                        width: '100%',
+                                        ...styles.regularFont,
+                                        textAlign: 'left',
                                         borderWidth: 0,
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
                                       }}
                                     >
+                                      {feature.text}
+                                    </div>
+                                    {feature?.subtext && (
                                       <div
                                         style={{
                                           ...styles.regularFont,
                                           textAlign: 'left',
                                           borderWidth: 0,
+                                          color: 'hsl(var(--muted-foreground))',
                                         }}
                                       >
-                                        {feature.text}
+                                        {feature?.subtext?.toLowerCase() ===
+                                          'upsell' ? (
+                                          '(Upsell)'
+                                        ) : feature?.subtext?.toLowerCase() ===
+                                          'coming soon' ? (
+                                          '(coming soon)'
+                                        ) : (
+                                          <Tooltip
+                                            title={feature.subtext}
+                                            placement="top"
+                                            arrow
+                                            componentsProps={{
+                                              tooltip: {
+                                                sx: {
+                                                  backgroundColor: 'hsl(var(--card))',
+                                                  color: 'hsl(var(--card-foreground))',
+                                                  fontSize: '14px',
+                                                  padding: '10px 15px',
+                                                  borderRadius: '8px',
+                                                  boxShadow:
+                                                    '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                },
+                                              },
+                                              arrow: {
+                                                sx: {
+                                                  color: 'hsl(var(--card))',
+                                                },
+                                              },
+                                            }}
+                                          >
+                                            <Image
+                                              src="/otherAssets/infoLightDark.png"
+                                              alt="info"
+                                              width={12}
+                                              height={12}
+                                              className="cursor-pointer rounded-full"
+                                            />
+                                          </Tooltip>
+                                        )}
                                       </div>
-                                      {feature?.subtext && (
-                                        <div
-                                          style={{
-                                            ...styles.regularFont,
-                                            textAlign: 'left',
-                                            borderWidth: 0,
-                                            color: '#00000050',
-                                          }}
-                                        >
-                                          {feature?.subtext?.toLowerCase() ===
-                                            'upsell' ? (
-                                            '(Upsell)'
-                                          ) : feature?.subtext?.toLowerCase() ===
-                                            'coming soon' ? (
-                                            '(coming soon)'
-                                          ) : (
-                                            <Tooltip
-                                              title={feature.subtext}
-                                              placement="top"
-                                              arrow
-                                              componentsProps={{
-                                                tooltip: {
-                                                  sx: {
-                                                    backgroundColor: '#ffffff',
-                                                    color: '#333',
-                                                    fontSize: '14px',
-                                                    padding: '10px 15px',
-                                                    borderRadius: '8px',
-                                                    boxShadow:
-                                                      '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                  },
-                                                },
-                                                arrow: {
-                                                  sx: {
-                                                    color: '#ffffff',
-                                                  },
-                                                },
-                                              }}
-                                            >
-                                              <Image
-                                                src="/otherAssets/infoLightDark.png"
-                                                alt="info"
-                                                width={12}
-                                                height={12}
-                                                className="cursor-pointer rounded-full"
-                                              />
-                                            </Tooltip>
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
-                                ))}
-                            </div>
+                                </div>
+                              ))}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </button>
-                ) : null
-              })
-            )}
+                  </div>
+                </button>
+              ) : null
+            })
+          )}
         </div>
 
         {/*
@@ -1370,7 +1384,7 @@ const styles = {
     right: '0',
     width: '0',
     height: '0',
-    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
     borderLeft: '50px solid transparent',
   },
   labelText: {
@@ -1388,12 +1402,12 @@ const styles = {
   },
   originalPrice: {
     textDecoration: 'line-through',
-    color: '#7902DF65',
+    color: 'hsl(var(--brand-primary) / 0.4)',
     fontSize: 18,
     fontWeight: '600',
   },
   discountedPrice: {
-    color: '#000000',
+    color: 'hsl(var(--foreground))',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: '10px',

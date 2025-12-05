@@ -670,7 +670,6 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
                       {phoneNumbers.length === 0 ? (
                         <div className="p-3">
-                          <p className="text-sm text-gray-600 mb-2">No A2P verified numbers available</p>
                           <button
                             onClick={() => {
                               router.push('/dashboard/myAccount?tab=7')
@@ -679,7 +678,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                           >
                             <Plus className="w-4 h-4" />
-                            Connect Twilio & Get A2P Number
+                            Get A2P Number
                           </button>
                         </div>
                       ) : (
