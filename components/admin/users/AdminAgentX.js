@@ -613,6 +613,7 @@ const [featureTitle, setFeatureTitle] = useState("");
     } else {
       setSelectedAgentForWebAgent(agent);
       setShowWebAgentModal(true);
+      setFetureType('webagent')
     }
   };
 
@@ -5433,6 +5434,7 @@ const [featureTitle, setFeatureTitle] = useState("");
         agentName={selectedAgentForEmbed?.name || ""}
         isEmbedFlow={true}
         embedCode={embedCode}
+        fetureType={fetureType}
       />
     </div>
   );
