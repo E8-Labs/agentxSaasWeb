@@ -349,12 +349,27 @@ function UserPlans({
           setShouldAutoSubscribe(false)
           
           if (reduxUser?.userRole === 'Agency') {
+            setShowRoutingLoader(true)
             router.push('/agency/dashboard')
+            setTimeout(() => {
+              setShowRoutingLoader(false)
+            }, 3000)
             return
           }
-          if (from === 'dashboard') {
+          if (from === 'dashboard' || isFrom === 'SubAccount') {
+            setShowRoutingLoader(true)
             router.push('/dashboard')
-            console.log('route to dashboard')
+            console.log('route to dashboard - from:', from, 'isFrom:', isFrom)
+            // Fallback redirect after a short delay to ensure navigation
+            setTimeout(() => {
+              if (window.location.pathname !== '/dashboard') {
+                console.log('Fallback redirect to dashboard')
+                window.location.href = '/dashboard'
+              }
+              // Hide loader after navigation completes
+              setShowRoutingLoader(false)
+            }, 3000)
+            return
           } else {
             // Check if user is on mobile (for normal users and subaccounts)
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
