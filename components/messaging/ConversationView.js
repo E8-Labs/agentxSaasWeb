@@ -134,46 +134,45 @@ const ConversationView = ({
             const messageMap = new Map()
             messages.forEach(msg => messageMap.set(msg.id, msg))
             
-            // Build reply tree structure - organize messages by reply relationships
-            const buildReplyTree = (messages) => {
-              const rootMessages = []
-              const messageChildren = new Map()
-              
-              messages.forEach(msg => {
-                const replyToId = msg.metadata?.replyToMessageId
-                if (replyToId && messageMap.has(replyToId)) {
-                  // This is a reply
-                  if (!messageChildren.has(replyToId)) {
-                    messageChildren.set(replyToId, [])
-                  }
-                  messageChildren.get(replyToId).push(msg)
-                } else {
-                  // This is a root message (not a reply)
-                  rootMessages.push(msg)
-                }
-              })
-              
-              // Sort children by creation time
-              messageChildren.forEach(children => {
-                children.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-              })
-              
-              // Build flat list with reply relationships
-              const result = []
-              const addMessageAndReplies = (msg, depth = 0) => {
-                result.push({ message: msg, depth, replyToId: msg.metadata?.replyToMessageId })
-                const children = messageChildren.get(msg.id) || []
-                children.forEach(child => addMessageAndReplies(child, depth + 1))
+            // First, sort ALL messages chronologically (oldest first)
+            const sortedMessages = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            
+            // Build reply depth map - calculate depth for each message based on reply chain
+            const calculateDepth = (msg, depthMap = new Map(), visited = new Set()) => {
+              if (depthMap.has(msg.id)) {
+                return depthMap.get(msg.id)
               }
               
-              // Sort root messages by creation time
-              rootMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-              rootMessages.forEach(msg => addMessageAndReplies(msg))
+              if (visited.has(msg.id)) {
+                // Circular reference - treat as root
+                depthMap.set(msg.id, 0)
+                return 0
+              }
               
-              return result
+              visited.add(msg.id)
+              
+              const replyToId = msg.metadata?.replyToMessageId
+              if (replyToId && messageMap.has(replyToId)) {
+                const parentDepth = calculateDepth(messageMap.get(replyToId), depthMap, visited)
+                const depth = parentDepth + 1
+                depthMap.set(msg.id, depth)
+                return depth
+              } else {
+                // Root message
+                depthMap.set(msg.id, 0)
+                return 0
+              }
             }
             
-            const messagesWithDepth = buildReplyTree(messages)
+            const depthMap = new Map()
+            sortedMessages.forEach(msg => calculateDepth(msg, depthMap))
+            
+            // Build result with depth information, maintaining chronological order
+            const messagesWithDepth = sortedMessages.map(msg => ({
+              message: msg,
+              depth: depthMap.get(msg.id) || 0,
+              replyToId: msg.metadata?.replyToMessageId,
+            }))
             
             return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
               const isOutbound = message.direction === 'outbound'
