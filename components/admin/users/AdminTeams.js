@@ -23,6 +23,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import AdminGetProfileDetails from "../AdminGetProfileDetails";
 
 function AdminTeam({ selectedUser }) {
   const timerRef = useRef(null);
@@ -57,6 +58,25 @@ function AdminTeam({ selectedUser }) {
   const [checkPhoneLoader, setCheckPhoneLoader] = useState(null);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [countryCode, setCountryCode] = useState(""); // Default country
+
+  const [userDetails, setUserDetails] = useState(null);
+
+
+  useEffect(() => {
+    getUserDetails();
+  }, [selectedUser]);
+
+  const getUserDetails = async () => {
+    try {
+      const response = await AdminGetProfileDetails(selectedUser.id);
+      if (response) {
+        console.log("response is", response);
+      }
+      setUserDetails(response);
+    } catch (error) {
+      console.error("Error getting user details:", error);
+    }
+  };
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true);
@@ -505,7 +525,7 @@ function AdminTeam({ selectedUser }) {
         }}>
         <DashboardSlider
           needHelp={false}
-          selectedUser={selectedUser} />
+          selectedUser={userDetails} />
       </div>
       {showSnak && (
         <AgentSelectSnackMessage
@@ -525,16 +545,16 @@ function AdminTeam({ selectedUser }) {
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {(selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
+          {(userDetails?.planCapabilities?.allowTeamCollaboration && userDetails?.plan.planId != null && userDetails?.planCapabilities?.maxTeamMembers < 1000) && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-              {`${selectedUser?.currentUsage?.maxTeamMembers}/${selectedUser?.planCapabilities?.maxTeamMembers || 0} used`}
+              {`${userDetails?.currentUsage?.maxTeamMembers}/${userDetails?.planCapabilities?.maxTeamMembers || 0} used`}
             </div>
           )}
 
           {
-            (selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
+            (userDetails?.planCapabilities?.allowTeamCollaboration && userDetails?.plan.planId != null && userDetails?.planCapabilities?.maxTeamMembers < 1000) && (
               <Tooltip
-                title={`Additional team seats are $${selectedUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                title={`Additional team seats are $${userDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow
                 componentsProps={{
                   tooltip: {
