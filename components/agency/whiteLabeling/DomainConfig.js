@@ -474,14 +474,14 @@ const DomainConfig = () => {
             <div className="w-full flex flex-row items-center gap-2">
               <input
                 style={styles.inputs}
-                className="w-[90%] border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
+                className="flex-1 border border-gray-200 outline-none focus:ring-0 rounded-md p-2"
                 placeholder="app.assignx.ai or assignx.ai"
                 value={customDomain}
                 onChange={(e) => setCustomDomain(e.target.value)}
                 disabled={loading || !!domainStatus}
               />
               <button
-                className="bg-brand-primary text-white rounded-md px-4 py-2 text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-brand-primary text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px]"
                 onClick={handleAddDomain}
                 disabled={loading || !!domainStatus}
               >
