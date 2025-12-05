@@ -37,22 +37,13 @@ const VideoCard = ({
     <div
       className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
         } 
-    p-4 rounded-lg border border-purple max-w-md cursor-pointer bg-white`}
+    p-4 rounded-lg border border-purple max-w-[300px] cursor-pointer bg-white`}
       onClick={() => {
         playVideo();
       }}
     >
 
-      {/* Content Section */}
-      <div className="flex flex-col items-start gap-3">
-        <h3
-          className="font-medium text-gray-800 pb-2"
-          style={{ fontSize: "15px" }}
-        >
-          {title}
-        </h3>
-
-      </div>
+     
       {/* Video Thumbnail */}
       <div className="flex flex-row items-start justify-between w-full">
         <div className="flex flex-row items-end gap-2">
@@ -66,26 +57,38 @@ const VideoCard = ({
               className="rounded-lg object-cover"
             />
           </div>
-          <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
-            <Image
-              src={'/svgIcons/youtube.svg'}
-              height={20} width={20} alt="*"
-            />
+          <div className="flex flex-col items-end justify-end gap-1">
+            <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
+              <p className="text-sm md:text-xs text-gray-600">{duration}</p>
+            </div>
+            <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
+              <Image
+                src={'/svgIcons/youtube.svg'}
+                height={20} width={20} alt="*"
+              />
 
-            <div style={{
-              fontSize: 12, fontWeight: 500, color: "black", whiteSpace: 'nowrap'
-            }}>
-              Show me how!
+              <div style={{
+                fontSize: 12, fontWeight: 500, color: "black"
+              }}>
+                Show me how!
+              </div>
             </div>
           </div>
 
         </div>
 
-        <div className="flex px-2 py-1 rounded-full border min-w-[40px] border-brdColor ">
-          <p className="text-sm md:text-xs text-gray-600">{duration}</p>
-        </div>
+        
       </div>
+ {/* Content Section */}
+ <div className="flex flex-col items-start gap-3">
+        <h3
+          className="font-medium text-gray-800 pb-2"
+          style={{ fontSize: "15px" }}
+        >
+          {title}
+        </h3>
 
+      </div>
 
     </div>
   );
