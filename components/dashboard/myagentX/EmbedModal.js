@@ -666,12 +666,8 @@ const EmbedModal = ({
                 marginBottom: -10,
               }}
             >
-              <div
+              <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
                 style={{
-                  backgroundImage: 'url(/agencyIcons/bg-embed-agent.png)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
                   borderRadius: '0 8px 8px 0',
                   height: '100%',
                   minHeight: 400,

@@ -1133,19 +1133,7 @@ function SubAccountBasicInfo() {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              emailRef.current?.focus()
-            }}
-            className="outline-none"
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="edit"
-            />
-          </button>
+          ""
         )}
       </div>
 
@@ -1194,12 +1182,12 @@ function SubAccountBasicInfo() {
                   (loading2 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleFarmSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
+
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1239,12 +1227,11 @@ function SubAccountBasicInfo() {
                   (loading6 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleServiceAreaSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1285,12 +1272,11 @@ function SubAccountBasicInfo() {
                   (loading3 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleBrokerAgeSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1328,12 +1314,11 @@ function SubAccountBasicInfo() {
                   (loading8 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"  
                       onClick={async () => {
                         handleCompanySave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1368,12 +1353,11 @@ function SubAccountBasicInfo() {
                   (loading10 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleWebsiteChange()
                       }}
-                      style={{
-                        color: ' #8a2be2',
+                      style={{  
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1410,12 +1394,11 @@ function SubAccountBasicInfo() {
                   (loading11 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"  
                       onClick={async () => {
                         handleCompanyAffiliationSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1458,12 +1441,11 @@ function SubAccountBasicInfo() {
                   (loading4 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleTransactionSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1497,12 +1479,11 @@ function SubAccountBasicInfo() {
                   (loading7 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"      
                       onClick={async () => {
                         handleInstallationVolumeSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1546,12 +1527,12 @@ function SubAccountBasicInfo() {
                   (loading9 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"  
                       onClick={async () => {
                         handleProjectSizeSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
+                        
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1586,12 +1567,11 @@ function SubAccountBasicInfo() {
                   (loading12 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleClientsPerMonthSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1626,12 +1606,11 @@ function SubAccountBasicInfo() {
                   (loading12 ? (
                     <CircularProgress size={20} />
                   ) : (
-                    <button
+                    <button className="text-brand-primary"
                       onClick={async () => {
                         handleClientsPerMonthSave()
                       }}
                       style={{
-                        color: ' #8a2be2',
                         fontSize: '14px',
                         fontWeight: '600',
                       }}
@@ -1844,12 +1823,11 @@ function SubAccountBasicInfo() {
               (srviceLoader ? (
                 <CircularProgress size={20} />
               ) : (
-                <button
+                <button className="text-brand-primary"
                   onClick={async () => {
                     handleServiceChange()
                   }}
                   style={{
-                    color: ' #8a2be2',
                     fontSize: '14px',
                     fontWeight: '600',
                   }}
@@ -1921,7 +1899,7 @@ function SubAccountBasicInfo() {
               (areaLoading ? (
                 <CircularProgress size={20} />
               ) : (
-                <button
+                <button className="text-brand-primary"    
                   onClick={async () => {
                     //console.log;
                     if (userType == UserTypes.RecruiterAgent) {
@@ -1931,7 +1909,6 @@ function SubAccountBasicInfo() {
                     }
                   }}
                   style={{
-                    color: ' #8a2be2',
                     fontSize: '14px',
                     fontWeight: '600',
                   }}

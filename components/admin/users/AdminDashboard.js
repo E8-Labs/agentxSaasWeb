@@ -334,7 +334,7 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">
         {
           agencyUser && (
-            <div
+            <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
             style={{
               position: 'absolute',
               top: 0,
@@ -346,7 +346,6 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
               overflow: 'hidden',
             }}
           >
-            <BackgroundVideo />
           </div>
           )
         }

@@ -1,4 +1,5 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   CaretDown,
   CaretUp,
@@ -13,6 +14,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { GetFormattedDateString } from '@/utilities/utility'
 
 function CallWorthyReviewsPopup({ open, close }) {
@@ -21,9 +23,10 @@ function CallWorthyReviewsPopup({ open, close }) {
   const [initialLoader, setInitialLoader] = useState(false)
 
   const [isExpandedActivity, setIsExpandedActivity] = useState([])
-  const [isExpanded, setIsExpanded] = useState([])
+  const [isExpanded, setIsExpanded] = useState(null)
 
   const [showAudioPlay, setShowAudioPlay] = useState(null)
+  const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
 
   useEffect(() => {
     getImportantCalls()
@@ -89,17 +92,7 @@ function CallWorthyReviewsPopup({ open, close }) {
     })
   }
   const handleReadMoreToggle = (item) => {
-    // setIsExpanded(!isExpanded);
-
-    setIsExpanded((prevIds) => {
-      if (prevIds.includes(item.id)) {
-        // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== item.id)
-      } else {
-        // Select the item if it's not already selected
-        return [...prevIds, item.id]
-      }
-    })
+    setIsExpanded(item)
   }
 
   return (
@@ -312,17 +305,11 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         <div
                                           className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
                                           {selectedCall?.firstName.slice(0, 1)}
                                         </div>
                                         <div
                                           className="truncate"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
                                           {selectedCall?.firstName}{' '}
                                           {selectedCall?.lastName}
@@ -717,7 +704,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                               : 'Ongoing'}
                                                             {/* {checkCallStatus(item)} */}
                                                             <div>
-                                                              {isExpandedActivity.includes(
+                                                              {isExpandedActivity?.includes(
                                                                 item.id,
                                                               ) ? (
                                                                 <div>
@@ -737,7 +724,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                             </div>
                                                           </button>
                                                         </div>
-                                                        {isExpandedActivity.includes(
+                                                        {isExpandedActivity?.includes(
                                                           item.id,
                                                         ) && (
                                                           <div
@@ -814,12 +801,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                                     fontSize: 15,
                                                                   }}
                                                                 >
-                                                                  {/* {item.transcript} */}
-                                                                  {isExpanded.includes(
-                                                                    item.id,
-                                                                  )
-                                                                    ? `${item.transcript}`
-                                                                    : `${initialText}...`}
+                                                                  {`${initialText}...`}
                                                                 </div>
                                                                 <button
                                                                   style={{
@@ -834,11 +816,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                                   }}
                                                                   className="mt-2 text-black underline"
                                                                 >
-                                                                  {isExpanded.includes(
-                                                                    item.id,
-                                                                  )
-                                                                    ? 'Read Less'
-                                                                    : 'Read more'}
+                                                                  Read More
                                                                 </button>
                                                               </div>
                                                             ) : (
@@ -917,6 +895,50 @@ function CallWorthyReviewsPopup({ open, close }) {
 
                                         {/* Can be use full to add shadow
                                                                                 <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                                      </div>
+                                    </div>
+                                  </Box>
+                                </Modal>
+
+                                {/* Modal for Transcript */}
+                                <Modal
+                                  open={!!isExpanded}
+                                  onClose={() => setIsExpanded(null)}
+                                  closeAfterTransition
+                                  BackdropProps={{
+                                    timeout: 1000,
+                                    sx: {
+                                      backgroundColor: '#00000020',
+                                    },
+                                  }}
+                                >
+                                  <Box
+                                    className="lg:w-4/12 sm:w-4/12 w-6/12"
+                                    sx={styles.modalsStyle}
+                                  >
+                                    <div className="flex flex-row justify-center w-full">
+                                      <div
+                                        className="w-full"
+                                        style={{
+                                          backgroundColor: '#ffffff',
+                                          padding: 20,
+                                          borderRadius: '13px',
+                                        }}
+                                      >
+                                        <div className="w-full flex flex-row items-center justify-between">
+                                          <div className="font-bold text-xl mt-4 mb-4">
+                                            Call Transcript
+                                          </div>
+                                          <div>
+                                            <button
+                                              className="font-bold outline-none border-none"
+                                              onClick={() => setIsExpanded(null)}
+                                            >
+                                              <CloseIcon />
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <TranscriptViewer callId={isExpanded?.id || ''} />
                                       </div>
                                     </div>
                                   </Box>

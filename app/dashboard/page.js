@@ -334,7 +334,7 @@ const Page = () => {
         </div>
       ) : (
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">
-          <div
+          <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
             style={{
               position: 'absolute',
               top: 0,
@@ -344,9 +344,9 @@ const Page = () => {
               objectFit: 'cover',
               zIndex: -1, // Ensure the video stays behind content
               overflow: 'hidden',
+
             }}
           >
-            <BackgroundVideo />
           </div>
           <div className="w-9/12 flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
