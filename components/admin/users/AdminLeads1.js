@@ -1000,7 +1000,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                 <div className="">
                   <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                     onClick={() => {
                       setShowAddLeadModal(true)
                     }}
@@ -1016,7 +1016,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
                 <div className="">
                   <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                     onClick={() => {
                       setShowAddNewSheetModal(true)
                     }}
@@ -1162,9 +1162,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     Works with only a CSV, TSV or Excel files
                   </p>
                   <button className="w-full flex flex-row justify-center mt-6 outline-none">
-                    <div className="border border-brand-primary rounded-[10px]">
+                    <div className="border border-purple rounded-[10px]">
                       <div
-                        className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
+                        className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
                         style={{
                           fontWeight: '500',
                           fontSize: 12,
@@ -1182,7 +1182,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 {SelectedFile && (
                   <div className="w-full mt-4 flex flex-row justify-center">
                     <button
-                      className="bg-brand-primary text-white flex flex-row items-center justify-center rounded-lg gap-2"
+                      className="bg-purple text-white flex flex-row items-center justify-center rounded-lg gap-2"
                       style={{
                         ...styles.subHeadingStyle,
                         height: "50px",
@@ -1229,7 +1229,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full flex flex-row items-center justify-center">
                   <CircularProgress
                     size={150}
-                    sx={{ color: 'hsl(var(--brand-primary))' }}
+                    sx={{ color: 'purple' }}
                     weight=""
                     thickness={1}
                   />
@@ -1278,7 +1278,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   <div className="flex flex-row items-center gap-2 ">
                     <Switch
                       checked={isEnrichToggle}
-                      // color="hsl(var(--brand-primary))"
+                      // color="purple"
                       // exclusive
                       onChange={(event) => {
                         //console.log;
@@ -1291,11 +1291,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       }}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: 'hsl(var(--brand-primary))',
+                          color: 'purple',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                         {
-                          backgroundColor: 'hsl(var(--brand-primary))',
+                          backgroundColor: 'purple',
                         },
                       }}
                     />
@@ -1899,7 +1899,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddLeadModal(true)
                       }}
@@ -1915,7 +1915,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddNewSheetModal(true)
                       }}

@@ -1624,8 +1624,8 @@ const AdminLeads = ({
       />
       <div
         className="flex flex-row items-center justify-between w-full px-4"
-        style={{ }}
-        // style={{ borderBottom: "1px solid #15151510" }}
+        style={{}}
+      // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
           <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
@@ -1837,7 +1837,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters)
                             }}
                           >
-                            <CloseBtn onClick={() => {}} />
+                            <CloseBtn onClick={() => { }} />
                           </button>
                         </div>
                       </div>
@@ -1901,19 +1901,19 @@ const AdminLeads = ({
                 )}
 
                 {/* <button className='flex flex-row items-center justify-center gap-2 bg-none outline-none border h-[43px] w-[101px] rounded'>
-                                        <span>
-                                            Import
-                                        </span>
-                                        <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
-                                    </button> */}
+                                      <span>
+                                          Import
+                                      </span>
+                                      <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
+                                  </button> */}
               </div>
             </div>
 
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1944,8 +1944,8 @@ const AdminLeads = ({
                         color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                         whiteSpace: 'nowrap', // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2056,7 +2056,7 @@ const AdminLeads = ({
               <div>
                 {LeadsList.length > 0 ? (
                   <div
-                    className={`overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]':'h-[50vh]'}`} //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                    className={`overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]' : 'h-[50vh]'}`} //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
                     id="scrollableDiv1"
                     style={{ scrollbarWidth: 'none' }}
                   >
@@ -2114,11 +2114,10 @@ const AdminLeads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
                                       ? 'sticky right-0 bg-white'
                                       : ''
-                                  }`}
+                                    }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: 'nowrap',
@@ -2145,11 +2144,10 @@ const AdminLeads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === 'More'
+                                    className={`border-none px-4 py-2 ${column.title === 'More'
                                         ? 'sticky right-0 bg-white'
                                         : ''
-                                    }`}
+                                      }`}
                                     style={{
                                       whiteSpace: 'nowrap',
                                       // overflow: "hidden",
@@ -2439,14 +2437,12 @@ const AdminLeads = ({
                                 onClick={() => {
                                   handleSelectStage(item)
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : 'bg-transparent'
-                                } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : 'text-black'
-                                                                    } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : 'bg-transparent'
+                                  } px-6
+                                                                    ${found >= 0
+                                    ? `text-white`
+                                    : 'text-black'
+                                  } rounded-2xl`}
                               >
                                 {item.stageTitle}
                               </button>
@@ -2572,9 +2568,9 @@ const AdminLeads = ({
                                   color: 'hsl(var(--brand-primary))',
                                 },
                                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                                  {
-                                    backgroundColor: 'hsl(var(--brand-primary))',
-                                  },
+                                {
+                                  backgroundColor: 'hsl(var(--brand-primary))',
+                                },
                               }}
                             />
                           </div>
@@ -2707,7 +2703,7 @@ const AdminLeads = ({
             leadStageUpdated={HandleUpdateStage}
           />
         </div>
-      )} 
+      )}
 
       {/* Modal to add notes */}
 
