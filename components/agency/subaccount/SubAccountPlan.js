@@ -128,15 +128,25 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   }
 
   const isCardsAvailable = () => {
-    let data = localStorage.getItem('User')
-    if (data) {
-      let u = JSON.parse(data)
+    try {
+      let data = localStorage.getItem('User')
+      if (data) {
+        let u = JSON.parse(data)
 
-      // console.log('data', u.user.cards)
-
-      if (u.user.cards.length > 0) {
-        return true
+        // Check multiple possible paths for cards
+        const cards = u?.data?.user?.cards || u?.user?.cards || u?.cards || []
+        
+        console.log('🔍 [isCardsAvailable] Checking cards:', cards)
+        
+        if (Array.isArray(cards) && cards.length > 0) {
+          console.log('✅ [isCardsAvailable] Payment method found')
+          return true
+        }
       }
+      console.log('❌ [isCardsAvailable] No payment method found')
+      return false
+    } catch (error) {
+      console.error('Error checking payment methods:', error)
       return false
     }
   }
@@ -187,9 +197,11 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             console.log('Mobile subaccount - redirecting to continue to desktop screen')
             setPlanSubscribed(true)
             router.push('/createagent/desktop')
-          } else if (subaccount) {
+          } else if (handleContinue && subaccount) {
+            // Only call handleContinue if it exists and subaccount is from onboarding flow
             handleContinue()
           } else {
+            // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
             setPlanSubscribed(true)
             router.push('/dashboard')
           }
@@ -295,7 +307,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         isFrom={'SubAccount'}
         handleContinue={() => {
           // alert("This is working function")
-          if (isFrom === 'UpgradePlanForTeam') {
+          if (isFrom === 'UpgradePlanForTeam' && handleClose) {
             handleClose()
           } else {
             // Check if user is on mobile
@@ -311,8 +323,10 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
               setPlanSubscribed(true)
               router.push('/createagent/desktop')
             } else if (handleContinue && subaccount) {
+              // Only call handleContinue if it exists and subaccount is from onboarding flow
               handleContinue()
             } else {
+              // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
               setPlanSubscribed(true)
               router.push('/dashboard')
             }

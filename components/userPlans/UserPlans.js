@@ -283,6 +283,24 @@ function UserPlans({
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
+      // Check if plan is free
+      const isFreePlan =
+        selectedPlan &&
+        (selectedPlan.discountedPrice === 0 ||
+          selectedPlan.discountedPrice === null)
+      
+      // For paid plans, check if payment method exists
+      if (!isFreePlan) {
+        const hasPM = hasPaymentMethod()
+        if (!hasPM) {
+          console.log('❌ [handleSubscribePlan] No payment method found - showing payment modal')
+          setShouldAutoSubscribe(true)
+          setAddPaymentPopUp(true)
+          setSubscribeLoader(null)
+          return
+        }
+      }
+
       let planType = selectedPlan?.planType
 
       setSubscribeLoader(selectedPlan?.id)
@@ -357,10 +375,24 @@ function UserPlans({
               }
             }
           }
+        } else if (response.data.status === false) {
+          // Handle subscription failure - check if it's due to missing payment method
+          if (response.data.message === 'No payment method added' || response.data.message?.toLowerCase().includes('payment')) {
+            console.log('❌ [handleSubscribePlan] API returned no payment method error - showing payment modal')
+            setShouldAutoSubscribe(true)
+            setAddPaymentPopUp(true)
+          }
         }
       }
     } catch (error) {
       console.error('Error occured in api is:', error)
+      // If error is related to payment, show payment modal
+      if (error?.response?.data?.message?.toLowerCase().includes('payment') || 
+          error?.response?.data?.message?.toLowerCase().includes('card')) {
+        console.log('❌ [handleSubscribePlan] Payment error detected - showing payment modal')
+        setShouldAutoSubscribe(true)
+        setAddPaymentPopUp(true)
+      }
     } finally {
       setSubscribeLoader(null)
     }
