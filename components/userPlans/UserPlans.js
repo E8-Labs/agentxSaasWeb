@@ -154,9 +154,46 @@ function UserPlans({
         getPlans()
     }, [])
 
-    const handleClose = async (data) => {
-        console.log("Card added details are here", data);
+    const handleClose = async (data, subscribed = false) => {
+        console.log("Card added details are here", data, "subscribed:", subscribed);
         if (data) {
+            // If subscription already happened (from UserAddCardModal), skip duplicate subscription call
+            if (subscribed) {
+                // Subscription already completed in UserAddCardModal, just refresh and route
+                console.log('Subscription already completed, handling redirect...');
+                await refreshUserData();
+                setAddPaymentPopUp(false);
+                setShouldAutoSubscribe(false);
+                
+                // Handle routing based on user type and context
+                if (isFrom == "Agency" || routedFrom == "Agency") {
+                    router.push("/agency/dashboard");
+                    setShowRoutingLoader(true);
+                    setTimeout(() => {
+                        setShowRoutingLoader(false);
+                    }, 3000);
+                } else if (from === "dashboard" || isFrom === "SubAccount") {
+                    // For SubAccount users, redirect to dashboard
+                    console.log('Redirecting SubAccount user to dashboard');
+                    setShowRoutingLoader(true);
+                    router.push("/dashboard");
+                    // Fallback redirect after a short delay to ensure navigation
+                    setTimeout(() => {
+                        if (window.location.pathname !== "/dashboard") {
+                            console.log('Fallback redirect to dashboard');
+                            window.location.href = "/dashboard";
+                        }
+                        // Hide loader after navigation completes
+                        setShowRoutingLoader(false);
+                    }, 3000);
+                } else {
+                    if (handleContinue) {
+                        handleContinue()
+                    }
+                }
+                return;
+            }
+            
             // Refresh user data to get updated cards
             await refreshUserData();
             
@@ -257,22 +294,47 @@ function UserPlans({
             });
 
             if (response) {
-                console.log("Response of subscribe plan api is", response.data);
+                console.log("Response of subscribe plan api is v2", response.data);
                 if (response.data.status === true) {
-                    await refreshUserData();
+                  console.log("Response of subscribe plan api is v2", true);
+                    try {
+                        await refreshUserData();
+                    } catch (refreshError) {
+                        console.error("Error refreshing user data, but continuing with redirect:", refreshError);
+                    }
+                    console.log("Redux user role ", reduxUser?.userRole)
+                    console.log("From is ", from)
+                    console.log("Is from is ", isFrom)
                     if(reduxUser?.userRole === "Agency") {
+                        setShowRoutingLoader(true);
                         router.push("/agency/dashboard");
+                        setTimeout(() => {
+                            setShowRoutingLoader(false);
+                        }, 3000);
                         return;
                     }
-                    if (from === "dashboard") {
-                        router.push("/dashboard")
-                        console.log('route to dashboard')
-                    } else {
-                        console.log('handle continue ')
+                    // For SubAccount users or when from="dashboard", redirect to dashboard
+                    if (from === "dashboard" || isFrom === "SubAccount") {
+                        console.log('route to dashboard - from:', from, 'isFrom:', isFrom)
+                        setShowRoutingLoader(true);
+                        // Use both router.push and window.location as fallback
+                        router.push("/dashboard");
+                        // Fallback redirect after a short delay to ensure navigation
+                        setTimeout(() => {
+                            if (window.location.pathname !== "/dashboard") {
+                                console.log('Fallback redirect to dashboard');
+                                window.location.href = "/dashboard";
+                            }
+                            // Hide loader after navigation completes
+                            setShowRoutingLoader(false);
+                        }, 3000);
+                        return;
+                    }
+                    console.log('handle continue - from:', from, 'isFrom:', isFrom)
 
-                        if (handleContinue) {
-                            handleContinue()
-                        }
+                    if (handleContinue) {
+                        console.log("Handle continue is called")
+                        handleContinue()
                     }
                 }
             }

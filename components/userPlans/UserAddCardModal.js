@@ -346,7 +346,7 @@ const UserAddCard = ({
                 if (response.data.status === true) {
                     //refresh user data from redux
                     refreshUserData();
-                    handleClose(response.data);
+                    handleClose(response.data, true); // Pass true to indicate subscription already happened
                     if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
                 }
             }

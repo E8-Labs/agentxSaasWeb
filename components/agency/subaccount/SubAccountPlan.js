@@ -279,6 +279,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       {/* Progress bar */}
       <UserPlans
         isFrom={"SubAccount"}
+        from="dashboard"
         handleContinue={() => {
           // alert("This is working function") 
           if (isFrom === "UpgradePlanForTeam") {
