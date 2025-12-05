@@ -123,7 +123,7 @@ const WhiteLabel = () => {
 
     const WhiteLabelTabs = [
         { id: 1, title: "Brand", comingSoon: false}, //process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? true : false },
-        { id: 2, title: "Domain", comingSoon: process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? true : false },
+        { id: 2, title: "Domain", comingSoon: false },
         { id: 3, title: "Email Config", comingSoon: false },
         { id: 4, title: "Notification Config", comingSoon: false },
         { id: 5, title: "Tutorial Videos", comingSoon: false  },

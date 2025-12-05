@@ -523,6 +523,20 @@ const OtherDetails = ({
       if (campainee) {
         formData.append("campaignee", campainee);
       }
+
+      // Add hostname for auto-detecting agency from custom domain/subdomain
+      let hostname = null;
+      if (typeof window !== "undefined") {
+        hostname = window.location.hostname;
+        // Only send if not localhost/127.0.0.1
+        if (
+          hostname &&
+          !hostname.includes("localhost") &&
+          !hostname.includes("127.0.0.1")
+        ) {
+          formData.append("hostname", hostname);
+        }
+      }
       // const formData = new FormData();
       formData.append("name", userDetails.name);
       formData.append("email", userDetails.email);
