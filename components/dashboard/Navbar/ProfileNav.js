@@ -667,13 +667,17 @@ const ProfileNav = () => {
       selected: "/svgIcons/selectedPiplineIcon.svg",
       uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
     },
-    {
-      id: 8,
-      name: "Messages",
-      href: "/dashboard/messages",
-      selected: "/messaging/icons_chat_menu.svg",
-      uneselected: "/messaging/icons_chat_menu.svg",
-    },
+    // Show Messages menu only if not production
+    ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' ? [
+      {
+        id: 8,
+        name: "Messages",
+        isBeta: true,
+        href: "/dashboard/messages",
+        selected: "/messaging/icons_chat_menu.svg",
+        uneselected: "/messaging/icons_chat_menu.svg",
+      }
+    ] : []),
     {
       id: 5,
       name: "Activity",//"Call Log",
@@ -1415,7 +1419,7 @@ const ProfileNav = () => {
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
                       }}
                     >
-                      {item.name}
+                      {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
                     </div>
                   </div>
                 </Link>

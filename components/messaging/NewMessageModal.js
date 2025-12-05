@@ -132,6 +132,9 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
     // Use mask-image approach: background color with icon as mask
     return (
+      <Image src={iconPath} alt="icon" width={width} height={height} />
+    )
+    return (
       <div
         style={{
           width: width,
