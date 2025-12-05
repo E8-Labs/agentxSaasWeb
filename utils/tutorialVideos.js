@@ -50,7 +50,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.KycQuestions,
     },
     [HowToVideoTypes.CRMIntegration]: {
-      title: 'Integrating with CRM Systems',
+      title: 'Learn about pipeline and stages ',//'Integrating with CRM Systems',
       description: '8:50',
       videoUrl: HowtoVideos.Pipeline,
     },
@@ -159,7 +159,7 @@ export const getTutorialVideos = () => {
       },
       {
         id: 5,
-        title: 'Integrating with CRM Systems',
+        title: 'Learn about pipeline and stages ',//'Integrating with CRM Systems',
         description: '8:50',
         videoUrl: HowtoVideos.Pipeline,
         enabled: true,
