@@ -65,6 +65,7 @@ const Messages = () => {
   const [emailTimelineLoading, setEmailTimelineLoading] = useState(false)
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+  const [replyToMessage, setReplyToMessage] = useState(null)
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -665,6 +666,30 @@ const Messages = () => {
     })
   }
 
+  // Handle reply click
+  const handleReplyClick = (message) => {
+    if (!message || !selectedThread?.lead?.id) return
+    
+    // Set the message to reply to
+    setReplyToMessage(message)
+    
+    // Open EmailTimelineModal with reply mode
+    setShowEmailTimeline(true)
+    setEmailTimelineLeadId(selectedThread.lead.id)
+    
+    // Set subject for threading (normalize it)
+    if (message.subject) {
+      // Normalize subject by removing "Re:", "Fwd:", etc. for threading
+      let normalizedSubject = message.subject
+        .replace(/^(re|fwd|fw|aw):\s*/i, '')
+        .replace(/^\[.*?\]\s*/, '')
+        .trim()
+      setEmailTimelineSubject(normalizedSubject)
+    } else {
+      setEmailTimelineSubject(null)
+    }
+  }
+
   // Get agent/user avatar for outbound messages
   const getAgentAvatar = (message) => {
     // Priority 1: Agent image or bitmoji
@@ -1190,6 +1215,7 @@ const Messages = () => {
                 setShowEmailTimeline={setShowEmailTimeline}
                 setEmailTimelineLeadId={setEmailTimelineLeadId}
                 setEmailTimelineSubject={setEmailTimelineSubject}
+                onReplyClick={handleReplyClick}
               />
 
               {/* Composer */}
@@ -1390,6 +1416,7 @@ const Messages = () => {
           setEmailTimelineLeadId(null)
           setEmailTimelineSubject(null)
           setEmailTimelineMessages([])
+          setReplyToMessage(null)
         }}
         leadId={emailTimelineLeadId}
         subject={emailTimelineSubject}
@@ -1406,6 +1433,7 @@ const Messages = () => {
         }}
         fetchThreads={fetchThreads}
         onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+        replyToMessage={replyToMessage}
       />
 
       {/* Auth Selection Popup for Gmail Connection */}

@@ -28,8 +28,11 @@ const EmailTimelineModal = ({
   onSendSuccess,
   fetchThreads,
   onOpenAuthPopup,
+  replyToMessage,
 }) => {
   const [replyBody, setReplyBody] = useState('')
+  const [replyToEmail, setReplyToEmail] = useState('')
+  const [replySubject, setReplySubject] = useState('')
   const [sending, setSending] = useState(false)
   const richTextEditorRef = useRef(null)
   const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
@@ -46,13 +49,111 @@ const EmailTimelineModal = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Format reply subject (add "Re:" prefix if not present)
+  const formatReplySubject = (originalSubject) => {
+    if (!originalSubject) return ''
+    const trimmed = originalSubject.trim()
+    if (/^re:\s*/i.test(trimmed)) {
+      return trimmed // Already has "Re:" prefix
+    }
+    return `Re: ${trimmed}`
+  }
+
+  // Format quoted message content (WhatsApp-style)
+  const formatQuotedMessage = (message) => {
+    if (!message) return ''
+    
+    // Extract sender name
+    let senderName = 'Unknown'
+    if (message.direction === 'outbound') {
+      senderName = 'You'
+    } else {
+      senderName = selectedThread?.lead?.firstName || 
+                   selectedThread?.lead?.name || 
+                   message.fromEmail?.split('@')[0] || 
+                   'Unknown'
+    }
+    
+    // Format timestamp
+    const timestamp = moment(message.createdAt).format('MMM D, YYYY, h:mm A')
+    
+    // Extract plain text from HTML content
+    const plainText = htmlToPlainText(message.content || '')
+    
+    // Format with > prefix on each line
+    const quotedLines = plainText.split('\n').map(line => `> ${line}`).join('\n')
+    
+    // Combine into WhatsApp-style quote
+    return `> ${senderName} wrote on ${timestamp}:\n${quotedLines}\n\n`
+  }
+
+  // Initialize reply fields when replyToMessage changes
+  useEffect(() => {
+    if (replyToMessage && open) {
+      // Determine recipient email
+      let recipientEmail = ''
+      if (replyToMessage.direction === 'outbound') {
+        // Replying to outbound message - reply to the recipient
+        recipientEmail = replyToMessage.toEmail || 
+                        replyToMessage.metadata?.to || 
+                        selectedThread?.lead?.email || 
+                        ''
+      } else {
+        // Replying to inbound message - reply to the sender
+        recipientEmail = replyToMessage.fromEmail || 
+                        replyToMessage.metadata?.from || 
+                        (replyToMessage.metadata?.headers?.from ? 
+                          replyToMessage.metadata.headers.from.match(/<(.+)>/)?.pop() || 
+                          replyToMessage.metadata.headers.from : 
+                          '') ||
+                        selectedThread?.lead?.email || 
+                        ''
+      }
+      setReplyToEmail(recipientEmail)
+      
+      // Format subject with "Re:" prefix
+      if (replyToMessage.subject) {
+        setReplySubject(formatReplySubject(replyToMessage.subject))
+      } else if (subject) {
+        setReplySubject(formatReplySubject(subject))
+      } else {
+        setReplySubject('')
+      }
+      
+      // Format quoted message content
+      const quotedContent = formatQuotedMessage(replyToMessage)
+      setReplyBody(quotedContent)
+      
+      // Focus the editor after a short delay
+      setTimeout(() => {
+        if (richTextEditorRef.current) {
+          // Try to focus the editor if it has a focus method
+          const editorElement = richTextEditorRef.current
+          if (editorElement && typeof editorElement.focus === 'function') {
+            editorElement.focus()
+          }
+        }
+      }, 100)
+    } else if (!replyToMessage) {
+      // Clear reply fields when not in reply mode
+      setReplyToEmail('')
+      setReplySubject('')
+      setReplyBody('')
+    }
+  }, [replyToMessage, open, subject, selectedThread])
+
   const handleClose = () => {
     setReplyBody('')
+    setReplyToEmail('')
+    setReplySubject('')
     onClose()
   }
 
   const handleSend = async () => {
-    if (!replyBody.trim() || !selectedEmailAccount || !leadId || !subject) {
+    // Use reply subject if in reply mode, otherwise use timeline subject
+    const emailSubject = replyToMessage ? replySubject : (subject || '')
+    
+    if (!replyBody.trim() || !selectedEmailAccount || !leadId || !emailSubject) {
       toast.error('Please fill in all required fields')
       return
     }
@@ -70,9 +171,14 @@ const EmailTimelineModal = ({
 
       const formData = new FormData()
       formData.append('leadId', leadId)
-      formData.append('subject', subject)
+      formData.append('subject', emailSubject)
       formData.append('body', replyBody)
       formData.append('emailAccountId', selectedEmailAccount)
+      
+      // Add replyToMessageId if replying to a specific message
+      if (replyToMessage && replyToMessage.id) {
+        formData.append('replyToMessageId', replyToMessage.id.toString())
+      }
 
       const response = await axios.post(Apis.sendEmailToLead, formData, {
         headers: {
@@ -84,6 +190,8 @@ const EmailTimelineModal = ({
       if (response.data?.status) {
         toast.success('Email sent successfully')
         setReplyBody('')
+        setReplyToEmail('')
+        setReplySubject('')
         if (onSendSuccess) {
           await onSendSuccess()
         }
@@ -102,6 +210,12 @@ const EmailTimelineModal = ({
   }
 
   const getRecipientEmail = () => {
+    // If in reply mode, use the replyToEmail
+    if (replyToMessage && replyToEmail) {
+      return replyToEmail
+    }
+    
+    // Otherwise, use the default logic
     if (!messages || messages.length === 0) {
       return selectedThread?.lead?.email || ''
     }
@@ -110,6 +224,28 @@ const EmailTimelineModal = ({
       return firstMessage.toEmail || selectedThread?.lead?.email || ''
     } else {
       return firstMessage.fromEmail || selectedThread?.lead?.email || ''
+    }
+  }
+  
+  const getDisplaySubject = () => {
+    // If in reply mode, use the reply subject
+    if (replyToMessage && replySubject) {
+      return replySubject
+    }
+    // Otherwise, use the timeline subject
+    return subject || ''
+  }
+  
+  const getReplySenderName = () => {
+    if (!replyToMessage) return ''
+    
+    if (replyToMessage.direction === 'outbound') {
+      return 'You'
+    } else {
+      return selectedThread?.lead?.firstName || 
+             selectedThread?.lead?.name || 
+             replyToMessage.fromEmail?.split('@')[0] || 
+             'Unknown'
     }
   }
 
@@ -148,7 +284,14 @@ const EmailTimelineModal = ({
       <div className="flex flex-col w-full h-full py-2 px-5 rounded-xl">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b">
-          <h2 className="text-xl font-semibold">Email Timeline</h2>
+          <div>
+            <h2 className="text-xl font-semibold">Email Timeline</h2>
+            {replyToMessage && (
+              <p className="text-sm text-gray-500 mt-1">
+                Replying to {getReplySenderName()}
+              </p>
+            )}
+          </div>
           <CloseBtn onClick={handleClose} />
         </div>
 
@@ -319,16 +462,18 @@ const EmailTimelineModal = ({
                 </div>
               </div>
 
-              {/* Subject field */}
-              {/* <div className="flex items-center gap-2">
-                <label className="text-sm font-medium whitespace-nowrap">Subject:</label>
-                <Input
-                  value={subject}
-                  readOnly
-                  className="flex-1 bg-gray-50 cursor-not-allowed h-[42px] border-[0.5px] border-gray-200 rounded-lg"
-                  style={{ height: '42px' }}
-                />
-              </div> */}
+              {/* Subject field - show when in reply mode */}
+              {replyToMessage && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium whitespace-nowrap">Subject:</label>
+                  <Input
+                    value={getDisplaySubject()}
+                    readOnly
+                    className="flex-1 bg-gray-50 cursor-not-allowed h-[42px] border-[0.5px] border-gray-200 rounded-lg"
+                    style={{ height: '42px' }}
+                  />
+                </div>
+              )}
 
               {/* Message body */}
               <div className="border border-gray-200 rounded-lg">

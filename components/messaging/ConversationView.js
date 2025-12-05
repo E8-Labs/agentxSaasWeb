@@ -24,6 +24,7 @@ const ConversationView = ({
   setShowEmailTimeline,
   setEmailTimelineLeadId,
   setEmailTimelineSubject,
+  onReplyClick,
 }) => {
   if (!selectedThread) return null
 
@@ -128,27 +129,88 @@ const ConversationView = ({
         </div>
       ) : (
         <>
-          {messages.map((message, index) => {
-            const isOutbound = message.direction === 'outbound'
-            const isEmail = message.messageType === 'email'
-            const showDateSeparator =
-              index === 0 ||
-              moment(message.createdAt).format('YYYY-MM-DD') !== moment(messages[index - 1].createdAt).format('YYYY-MM-DD')
+          {(() => {
+            // Build a map of messages by ID for quick lookup
+            const messageMap = new Map()
+            messages.forEach(msg => messageMap.set(msg.id, msg))
+            
+            // Build reply tree structure - organize messages by reply relationships
+            const buildReplyTree = (messages) => {
+              const rootMessages = []
+              const messageChildren = new Map()
+              
+              messages.forEach(msg => {
+                const replyToId = msg.metadata?.replyToMessageId
+                if (replyToId && messageMap.has(replyToId)) {
+                  // This is a reply
+                  if (!messageChildren.has(replyToId)) {
+                    messageChildren.set(replyToId, [])
+                  }
+                  messageChildren.get(replyToId).push(msg)
+                } else {
+                  // This is a root message (not a reply)
+                  rootMessages.push(msg)
+                }
+              })
+              
+              // Sort children by creation time
+              messageChildren.forEach(children => {
+                children.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              })
+              
+              // Build flat list with reply relationships
+              const result = []
+              const addMessageAndReplies = (msg, depth = 0) => {
+                result.push({ message: msg, depth, replyToId: msg.metadata?.replyToMessageId })
+                const children = messageChildren.get(msg.id) || []
+                children.forEach(child => addMessageAndReplies(child, depth + 1))
+              }
+              
+              // Sort root messages by creation time
+              rootMessages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              rootMessages.forEach(msg => addMessageAndReplies(msg))
+              
+              return result
+            }
+            
+            const messagesWithDepth = buildReplyTree(messages)
+            
+            return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
+              const isOutbound = message.direction === 'outbound'
+              const isEmail = message.messageType === 'email'
+              const isReply = !!replyToId
+              const parentMessage = replyToId ? messageMap.get(replyToId) : null
+              
+              const showDateSeparator =
+                index === 0 ||
+                moment(message.createdAt).format('YYYY-MM-DD') !== moment(messagesWithDepth[index - 1].message.createdAt).format('YYYY-MM-DD')
 
-            return (
-              <React.Fragment key={message.id}>
-                {showDateSeparator && (
-                  <div className="flex items-center justify-center my-6">
-                    <div className="border-t border-gray-200 flex-1"></div>
-                    <span className="px-4 text-xs text-gray-400">
-                      {moment(message.createdAt).format('MMMM DD, YYYY')}
-                    </span>
-                    <div className="border-t border-gray-200 flex-1"></div>
-                  </div>
-                )}
-                <div
-                  className={`flex ${isOutbound ? 'justify-end me-4' : 'justify-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
-                >
+              return (
+                <React.Fragment key={message.id}>
+                  {showDateSeparator && (
+                    <div className="flex items-center justify-center my-6">
+                      <div className="border-t border-gray-200 flex-1"></div>
+                      <span className="px-4 text-xs text-gray-400">
+                        {moment(message.createdAt).format('MMMM DD, YYYY')}
+                      </span>
+                      <div className="border-t border-gray-200 flex-1"></div>
+                    </div>
+                  )}
+                  <div
+                    className={`flex flex-col ${isOutbound ? 'items-end me-4' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
+                    style={isReply && depth > 0 ? { 
+                      [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px` 
+                    } : {}}
+                  >
+                    {/* Reply indicator - show which message this is replying to */}
+                    {isReply && parentMessage && (
+                      <div className={`text-xs mb-1 ${isOutbound ? 'text-right' : 'text-left'} text-gray-500 px-2`}>
+                        <span className="italic">
+                          ↳ Replying to {parentMessage.direction === 'outbound' ? 'your message' : `${getLeadName(selectedThread)}'s message`}
+                          {parentMessage.subject && `: "${parentMessage.subject.replace(/^Re:\s*/i, '')}"`}
+                        </span>
+                      </div>
+                    )}
                   <div
                     className={`flex items-start gap-3 max-w-[75%] ${isOutbound ? 'flex-row-reverse' : 'flex-row'} relative`}
                   >
@@ -359,10 +421,27 @@ const ConversationView = ({
                       <div className="absolute -bottom-1 -right-9 flex-shrink-0 z-10">{getAgentAvatar(message)}</div>
                     )}
                   </div>
+                  
+                  {/* Reply Button - Below bubble, right-aligned */}
+                  {isEmail && onReplyClick && (
+                    <div className="mt-1 text-right" style={{ width: '75%', maxWidth: '75%' }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onReplyClick(message)
+                        }}
+                        type="button"
+                        className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+                      >
+                        Reply
+                      </button>
+                    </div>
+                  )}
                 </div>
               </React.Fragment>
             )
-          })}
+            })
+          })()}
           <div ref={messagesEndRef} />
         </>
       )}
