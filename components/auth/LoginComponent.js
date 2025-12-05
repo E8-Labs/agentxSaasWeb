@@ -108,9 +108,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             },
             body: JSON.stringify({
               customDomain: window.location.hostname,
-              subdomain: window.location.hostname.includes('.assignx.ai')
-                ? window.location.hostname.split('.')[0]
-                : null
+             
             }),
           });
 

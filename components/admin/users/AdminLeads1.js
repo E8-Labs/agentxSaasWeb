@@ -960,6 +960,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               />
             </div>
           ) : (
+
+
             <div className={`${agencyUser ? 'h-[75vh]' : 'h-[50vh]'} w-full flex flex-col  items-center justify-between`}>
               <div className={`flex flex-row  items-center self-start gap-3 px-4}`}>
                 <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
@@ -978,7 +980,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   )}
               </div>
-              <div className={`flex flex-row items-start justify-start bg-blue mt-3 w-full px-4`}>
+              <div className={`flex flex-row items-center justify-center  mt-3 w-full px-4`}>
                 <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
                   <Image
                     src={'/assets/placeholder.png'}
@@ -990,74 +992,76 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center">
-              <div
-                className="mt-12 ms-8 text-center"
-                style={{ fontSize: 30, fontWeight: '700' }}
-              >
-                {`Looks like you don't have any leads yet`}
-              </div>
-
-              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddLeadModal(true)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/addManIcon.png'}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Upload Leads</span>
-                  </button>
+                <div
+                  className="mt-12 ms-8 text-center"
+                  style={{ fontSize: 30, fontWeight: '700' }}
+                >
+                  {`Looks like you don't have any leads yet`}
                 </div>
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddNewSheetModal(true)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/smartlistIcn.svg'}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Create Smartlist</span>
-                  </button>
-                </div>
-              </div>
 
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '70px',
-                  left: '60%',
-                  transform: 'translateX(-50%)',
-                }}
-              >
-                <VideoCard
-                  duration={(() => {
-                    const tutorial = getTutorialByType(
-                      HowToVideoTypes.LeadsAndContacts,
-                    )
-                    return tutorial?.description || '11:27'
-                  })()}
-                  horizontal={false}
-                  playVideo={() => {
-                    setIntroVideoModal(true)
+                <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddLeadModal(true)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/addManIcon.png'}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Upload Leads</span>
+                    </button>
+                  </div>
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddNewSheetModal(true)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/smartlistIcn.svg'}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Create Smartlist</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '70px',
+                    left: '60%',
+                    transform: 'translateX(-50%)',
                   }}
-                  title={
-                    getTutorialByType(HowToVideoTypes.LeadsAndContacts)
-                      ?.title || 'Learn how to add leads to your CRM'
-                  }
-                />
+                >
+                  <VideoCard
+                    duration={(() => {
+                      const tutorial = getTutorialByType(
+                        HowToVideoTypes.LeadsAndContacts,
+                      )
+                      return tutorial?.description || '11:27'
+                    })()}
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal(true)
+                    }}
+                    title={
+                      getTutorialByType(HowToVideoTypes.LeadsAndContacts)
+                        ?.title || 'Learn how to add leads to your CRM'
+                    }
+                  />
+                </div>
               </div>
-            </div>
+
+
             </div>
           )}
         </div>
@@ -1162,9 +1166,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     Works with only a CSV, TSV or Excel files
                   </p>
                   <button className="w-full flex flex-row justify-center mt-6 outline-none">
-                    <div className="border border-brand-primary rounded-[10px]">
+                    <div className="border border-purple rounded-[10px]">
                       <div
-                        className="bg-brand-primary text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
+                        className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
                         style={{
                           fontWeight: '500',
                           fontSize: 12,
@@ -1229,7 +1233,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full flex flex-row items-center justify-center">
                   <CircularProgress
                     size={150}
-                    sx={{ color: 'hsl(var(--brand-primary))' }}
+                    sx={{ color: '#7902DF' }}
                     weight=""
                     thickness={1}
                   />
@@ -1291,11 +1295,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                       }}
                       sx={{
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: 'hsl(var(--brand-primary))',
+                          color: '#7902DF',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                         {
-                          backgroundColor: 'hsl(var(--brand-primary))',
+                          backgroundColor: '#7902DF',
                         },
                       }}
                     />
@@ -1469,7 +1473,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
                         {item.matchedColumn || item.UserFacingName ? (
                           <button
-                            className="underline text-brand-primary w-1/12 outline-none ps-4"
+                              className="underline text-purple w-1/12 outline-none ps-4"
                             onClick={() => {
                               setUpdateHeader(item)
                               setShowDelCol(true)
@@ -1517,10 +1521,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   }}
                 >
                   {Loader ? (
-                    <CircularProgress size={27} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      <CircularProgress size={27} sx={{ color: '#7902DF' }} />
                   ) : (
                     <button
-                      className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
+                      className="bg-purple text-white rounded-lg h-[50px] w-4/12"
                       onClick={() => {
                         // validateColumns();
                         let validated = validateColumns()
@@ -1678,7 +1682,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 {GetDefaultColumnsNotMatched().map((item, index) => {
                   return (
                     <button
-                      className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
+                      className="text-start hover:bg-[#7902DF / 0.1] p-2"
                       key={index}
                       onClick={() => {
                         ChangeColumnName(item.UserFacingName)
@@ -1691,7 +1695,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               </div>
             </div>
             <button
-              className="underline text-brand-primary p-2 hover:bg-[hsl(var(--brand-primary) / 0.1)] w-full text-start"
+              className="underline text-purple p-2 hover:bg-[#7902DF / 0.1] w-full text-start"
               onClick={() => {
                 setShowPopUp(true)
               }}
@@ -1758,7 +1762,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 />
 
                 <button
-                  className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-8"
+                  className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
                   style={{
                     ...styles.subHeadingStyle,
                     backgroundColor: !updateColumnValue ? '#00000020' : '',
@@ -1820,7 +1824,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-full bg-brand-primary font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
                     onClick={() => {
                       setWarningModal(false)
                     }}
@@ -1899,7 +1903,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                        className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddLeadModal(true)
                       }}
@@ -1915,7 +1919,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                   <div className="">
                     <button
-                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
                       onClick={() => {
                         setShowAddNewSheetModal(true)
                       }}
@@ -2016,11 +2020,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                             }}
                             sx={{
                               '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'hsl(var(--brand-primary))',
+                                color: '#7902DF',
                               },
                               '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                               {
-                                backgroundColor: 'hsl(var(--brand-primary))',
+                                backgroundColor: '#7902DF',
                               },
                             }}
                           />
@@ -2037,11 +2041,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                             }}
                             sx={{
                               "& .MuiSwitch-switchBase.Mui-checked": {
-                                color: "hsl(var(--brand-primary))",
+                                color: "#7902DF",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
                                 {
-                                  backgroundColor: "hsl(var(--brand-primary))",
+                                    backgroundColor: "#7902DF",
                                 },
                             }}
                           />
@@ -2130,7 +2134,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                                                     */}
                       <button
                         onClick={handleAddInput}
-                        className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
+                        className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
                         style={styles.paragraph}
                       >
                         New Column
@@ -2142,13 +2146,13 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 <div className="w-full pb-8">
                   {showaddCreateListLoader ? (
                     <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      <CircularProgress size={25} sx={{ color: '#7902DF' }} />
                     </div>
                   ) : (
                     <button
                       className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                          ? 'bg-brand-primary text-white'
-                          : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
+                        ? 'bg-purple text-white'
+                        : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
                         }`}
                       style={{
                         fontWeight: '600',

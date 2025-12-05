@@ -219,7 +219,9 @@ function DashboardPlans({
         const idToCompare = newPlan.id
         const existingIndex = localPlans.findIndex(plan => plan.id === idToCompare);
 
-        if (existingIndex !== -1) {
+        let isEdit = existingIndex !== -1;
+        
+        if (isEdit) {
             // Replace existing plan
             updatedPlans = [...localPlans];
             updatedPlans[existingIndex] = newPlan;
@@ -238,7 +240,18 @@ function DashboardPlans({
 
         // Update state
         setPlansList(updatedPlans);
-        setFilteredList(updatedPlans)
+        setFilteredList(updatedPlans);
+
+        // Show snack message based on action
+        if (isEdit) {
+            const planTypeName = planType === "monthly" ? "Monthly Plan" : "XBar Plan";
+            setSnackMsg(`${planTypeName} updated successfully`);
+            setSnackMsgType(SnackbarTypes.Success);
+        } else {
+            const planTypeName = planType === "monthly" ? "Monthly Plan" : "XBar Plan";
+            setSnackMsg(`${planTypeName} created successfully`);
+            setSnackMsgType(SnackbarTypes.Success);
+        }
     };
 
 
@@ -733,7 +746,6 @@ function DashboardPlans({
                                         <button
                                             className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
                                             style={{ fontWeight: "500", fontSize: 15 }}
-                                            Create New Plan
                                             onClick={() => {
                                                 setIsEditPlan(false);
                                                 setSelectedPlan(null);
