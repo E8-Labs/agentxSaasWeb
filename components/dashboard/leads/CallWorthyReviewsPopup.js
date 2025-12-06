@@ -1,55 +1,59 @@
-import React, { useEffect, useState } from "react";
-import { Modal, Box, CircularProgress } from "@mui/material";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import Image from "next/image";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   CaretDown,
   CaretUp,
   EnvelopeSimple,
   Plus,
   X,
-} from "@phosphor-icons/react";
-import moment from "moment";
-import parsePhoneNumberFromString from "libphonenumber-js";
-import { GetFormattedDateString } from "@/utilities/utility";
+} from '@phosphor-icons/react'
+import axios from 'axios'
+import parsePhoneNumberFromString from 'libphonenumber-js'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
+import { GetFormattedDateString } from '@/utilities/utility'
 
 function CallWorthyReviewsPopup({ open, close }) {
-  const [importantCalls, setImportantCalls] = useState([]);
-  const [selectedCall, setSelectedCall] = useState("");
-  const [initialLoader, setInitialLoader] = useState(false);
+  const [importantCalls, setImportantCalls] = useState([])
+  const [selectedCall, setSelectedCall] = useState('')
+  const [initialLoader, setInitialLoader] = useState(false)
 
-  const [isExpandedActivity, setIsExpandedActivity] = useState([]);
-  const [isExpanded, setIsExpanded] = useState([]);
+  const [isExpandedActivity, setIsExpandedActivity] = useState([])
+  const [isExpanded, setIsExpanded] = useState(null)
 
-  const [showAudioPlay, setShowAudioPlay] = useState(null);
+  const [showAudioPlay, setShowAudioPlay] = useState(null)
+  const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
 
   useEffect(() => {
-    getImportantCalls();
-  }, []);
+    getImportantCalls()
+  }, [])
 
   const getImportantCalls = async () => {
     try {
-      setInitialLoader(true);
-      const data = localStorage.getItem("User");
+      setInitialLoader(true)
+      const data = localStorage.getItem('User')
       if (data) {
-        const u = JSON.parse(data);
-        let path = Apis.getImportantCalls;
+        const u = JSON.parse(data)
+        let path = Apis.getImportantCalls
         // //console.log;
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
           if (response.data.status === true) {
             console.log(
-              "response of get imporatant calls api is",
-              response.data.data
-            );
-            setImportantCalls(response.data.data);
-            setSelectedCall(response.data.data[0]);
+              'response of get imporatant calls api is',
+              response.data.data,
+            )
+            setImportantCalls(response.data.data)
+            setSelectedCall(response.data.data[0])
           } else {
             // console.log(
             // "message of get important calls api is",
@@ -61,58 +65,48 @@ function CallWorthyReviewsPopup({ open, close }) {
     } catch (e) {
       // //console.log;
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   const formatPhoneNumber = (rawNumber) => {
     const phoneNumber = parsePhoneNumberFromString(
-      rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
-    );
+      rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`,
+    )
     //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
-      : "Invalid phone number";
-  };
+      : 'Invalid phone number'
+  }
   const handleShowMoreActivityData = (item) => {
     // setIsExpanded(!isExpanded);
 
     setIsExpandedActivity((prevIds) => {
       if (prevIds.includes(item.id)) {
         // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== item.id);
+        return prevIds.filter((prevId) => prevId !== item.id)
       } else {
         // Select the item if it's not already selected
-        return [...prevIds, item.id];
+        return [...prevIds, item.id]
       }
-    });
-  };
+    })
+  }
   const handleReadMoreToggle = (item) => {
-    // setIsExpanded(!isExpanded);
-
-    setIsExpanded((prevIds) => {
-      if (prevIds.includes(item.id)) {
-        // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== item.id);
-      } else {
-        // Select the item if it's not already selected
-        return [...prevIds, item.id];
-      }
-    });
-  };
+    setIsExpanded(item)
+  }
 
   return (
     <div className="w-full">
       <Modal
         open={open}
         onClose={() => {
-          close();
+          close()
         }}
         closeAfterTransition
         BackdropProps={{
           timeout: 500,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -122,18 +116,18 @@ function CallWorthyReviewsPopup({ open, close }) {
             <div
               className="sm:w-full w-full px-6 py-6"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
 
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="w-full flex flex-row items-center justify-between">
-                <div style={{ fontSize: 22, fontWeight: "600", color: "#000" }}>
+                <div style={{ fontSize: 22, fontWeight: '600', color: '#000' }}>
                   Recommend giving these a listen
                 </div>
 
                 <button onClick={close} className="flex flex-row gap-2">
-                  <div style={{ fontSize: 15, fontWeight: "500" }}>Close</div>
+                  <div style={{ fontSize: 15, fontWeight: '500' }}>Close</div>
                   <img
                     src="/svgIcons/cross.svg"
                     style={{ height: 24, width: 24 }}
@@ -143,7 +137,7 @@ function CallWorthyReviewsPopup({ open, close }) {
 
               <div
                 className="h-[100%] pb-12"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 {initialLoader ? (
                   <div className="w-full flex flex-row items-center justify-center mt-12">
@@ -155,24 +149,24 @@ function CallWorthyReviewsPopup({ open, close }) {
                       <div className="w-full flex flex-row items-start justify-between h-[100%]">
                         <div
                           className="w-4/12 px-3 flex flex-col overflow-auto h-[100%]"
-                          style={{ scrollbarWidth: "none" }}
+                          style={{ scrollbarWidth: 'none' }}
                         >
                           {importantCalls?.map(
                             (
                               item,
-                              index //.slice.reverse
+                              index, //.slice.reverse
                             ) => (
                               <button
                                 key={index}
                                 onClick={() => {
-                                  setSelectedCall(item);
+                                  setSelectedCall(item)
                                 }}
                                 className="w-full p-3 flex flex-col gap-2 border-[2px] rounded-lg mt-5"
                                 style={{
                                   borderColor:
                                     selectedCall.id === item.id
-                                      ? "#7902df"
-                                      : "",
+                                      ? '#7902df'
+                                      : '',
                                 }}
                               >
                                 <div className="w-full flex flex-row justify-between items-center">
@@ -182,8 +176,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         className="h-[27px] w-[27px] items-center justify-center pt-[2px] rounded-full bg-black"
                                         style={{
                                           fontSize: 15,
-                                          fontWeight: "500",
-                                          color: "#fff",
+                                          fontWeight: '500',
+                                          color: '#fff',
                                         }}
                                       >
                                         {item.firstName[0]}
@@ -191,7 +185,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div
                                         style={{
                                           fontSize: 15,
-                                          fontWeight: "500",
+                                          fontWeight: '500',
                                         }}
                                       >
                                         {item.firstName}
@@ -200,14 +194,14 @@ function CallWorthyReviewsPopup({ open, close }) {
                                     <div
                                       style={{
                                         fontSize: 13,
-                                        fontWeight: "500",
-                                        color: "#00000060",
+                                        fontWeight: '500',
+                                        color: '#00000060',
                                         width: 100,
-                                        overflow: "hidden",
-                                        textOverflow: "ellipsis",
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
                                       }}
                                     >
-                                      {item.email.slice(0, 10) + "..."}
+                                      {item.email.slice(0, 10) + '...'}
                                     </div>
                                   </div>
 
@@ -218,7 +212,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                     />
                                     <div className="flex flex-row gap-2 items-center">
                                       <Image
-                                        src={"/agentXOrb.gif"}
+                                        src={'/agentXOrb.gif'}
                                         height={23}
                                         width={23}
                                         alt="gif"
@@ -226,14 +220,14 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div
                                         style={{
                                           fontSize: 13,
-                                          fontWeight: "600",
-                                          color: "#7902df",
-                                          textDecorationLine: "underline",
+                                          fontWeight: '600',
+                                          color: '#7902df',
+                                          textDecorationLine: 'underline',
                                           marginRight: 30,
                                         }}
                                       >
                                         {item?.callActivity[0]?.agent?.name ||
-                                          "-"}
+                                          '-'}
                                       </div>
                                     </div>
                                   </div>
@@ -241,7 +235,7 @@ function CallWorthyReviewsPopup({ open, close }) {
 
                                 <div className="w-full flex flex-row justify-between items-center">
                                   <Image
-                                    src={"/assets/manIcon.png"}
+                                    src={'/assets/manIcon.png'}
                                     height={23}
                                     width={23}
                                     alt="*"
@@ -271,7 +265,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                     </div>
                                                   </div>
                                                 </div>
-                                              );
+                                              )
                                             })
                                         }
                                         <div>
@@ -281,12 +275,12 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         </div>
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                   </div>
                                 </div>
                               </button>
-                            )
+                            ),
                           )}
                         </div>
 
@@ -296,8 +290,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                               <div
                                 className="w-full h-[80vh]"
                                 style={{
-                                  overflow: "auto",
-                                  scrollbarWidth: "none",
+                                  overflow: 'auto',
+                                  scrollbarWidth: 'none',
                                 }}
                               >
                                 <div>
@@ -311,19 +305,13 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         <div
                                           className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
                                           {selectedCall?.firstName.slice(0, 1)}
                                         </div>
                                         <div
                                           className="truncate"
-                                          onClick={() =>
-                                            handleToggleClick(item.id)
-                                          }
                                         >
-                                          {selectedCall?.firstName}{" "}
+                                          {selectedCall?.firstName}{' '}
                                           {selectedCall?.lastName}
                                         </div>
                                       </div>
@@ -344,7 +332,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           className="text-end"
                                           style={styles.paragraph}
                                         >
-                                          {selectedCall?.email || "-"}
+                                          {selectedCall?.email || '-'}
                                         </div>
                                       </div>
                                     </div>
@@ -353,7 +341,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div className="flex flex-row items-center gap-4">
                                         {/* <EnvelopeSimple size={20} color='#00000060' /> */}
                                         <Image
-                                          src={"/svgIcons/call.svg"}
+                                          src={'/svgIcons/call.svg'}
                                           height={20}
                                           width={20}
                                           alt="man"
@@ -368,8 +356,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       >
                                         {/* {selectedLeadsDetails?.phone} */}
                                         {formatPhoneNumber(
-                                          selectedCall?.phone
-                                        ) || "-"}
+                                          selectedCall?.phone,
+                                        ) || '-'}
                                       </div>
                                     </div>
 
@@ -378,7 +366,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         <div className="flex flex-row items-center gap-4">
                                           {/* <EnvelopeSimple size={20} color='#00000060' /> */}
                                           <Image
-                                            src={"/assets/location.png"}
+                                            src={'/assets/location.png'}
                                             height={16}
                                             width={16}
                                             alt="man"
@@ -391,21 +379,23 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           className="text-end"
                                           style={styles.paragraph}
                                         >
-                                          {selectedCall?.address || "-"}
+                                          {selectedCall?.address || '-'}
                                         </div>
                                       </div>
                                     )}
 
-                                    {selectedCall?.tags.length > 0 &&
-                                      (<div className="flex flex-row items--center w-full justify-between mt-4">
+                                    {selectedCall?.tags.length > 0 && (
+                                      <div className="flex flex-row items--center w-full justify-between mt-4">
                                         <div className="flex flex-row items-center gap-4">
                                           <Image
-                                            src={"/assets/tag.png"}
+                                            src={'/assets/tag.png'}
                                             height={16}
                                             width={16}
                                             alt="man"
                                           />
-                                          <div style={styles.subHeading}>Tag</div>
+                                          <div style={styles.subHeading}>
+                                            Tag
+                                          </div>
                                         </div>
                                         {selectedCall?.tags.length > 0 ? (
                                           <div
@@ -430,21 +420,25 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                         </div>
                                                       </div>
                                                     </div>
-                                                  );
+                                                  )
                                                 })
                                             }
                                             <div>
-                                              {selectedCall?.tags.length > 2 && (
+                                              {selectedCall?.tags.length >
+                                                2 && (
                                                 <div>
-                                                  +{selectedCall?.tags.length - 2}
+                                                  +
+                                                  {selectedCall?.tags.length -
+                                                    2}
                                                 </div>
                                               )}
                                             </div>
                                           </div>
                                         ) : (
-                                          "-"
+                                          '-'
                                         )}
-                                      </div>)}
+                                      </div>
+                                    )}
 
                                     {/*
                                                             <div className="flex flex-row items-center w-full justify-between mt-4">
@@ -467,84 +461,76 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                                         : "-"}
                                                                 </div>
                                                             </div> */}
-                                    {
-                                      selectedCall?.pipeline && (
-                                        <div className="flex flex-row items--center w-full justify-between mt-4">
-                                          <div className="flex flex-row items-center gap-2">
-                                            {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
-                                            <Image
-
-                                              src="/assets/pipelineIcon.svg"
-                                              height={16}
-                                              width={16}
-                                              alt="*"
-                                              style={{
-                                                filter:
-                                                  "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                              }}
-                                            />
-                                            <div style={styles.subHeading}>
-                                              Pipeline
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="text-end"
-                                            style={styles.paragraph}
-                                          >
-                                            {/* {selectedLeadsDetails?.phone} */}
-                                            {selectedCall?.pipeline
-                                              ? selectedCall.pipeline.title
-                                              : "-"}
+                                    {selectedCall?.pipeline && (
+                                      <div className="flex flex-row items--center w-full justify-between mt-4">
+                                        <div className="flex flex-row items-center gap-2">
+                                          {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
+                                          <Image
+                                            src="/assets/pipelineIcon.svg"
+                                            height={16}
+                                            width={16}
+                                            alt="*"
+                                            style={{
+                                              filter:
+                                                'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)',
+                                            }}
+                                          />
+                                          <div style={styles.subHeading}>
+                                            Pipeline
                                           </div>
                                         </div>
-                                      )
-                                    }
+                                        <div
+                                          className="text-end"
+                                          style={styles.paragraph}
+                                        >
+                                          {/* {selectedLeadsDetails?.phone} */}
+                                          {selectedCall?.pipeline
+                                            ? selectedCall.pipeline.title
+                                            : '-'}
+                                        </div>
+                                      </div>
+                                    )}
 
-                                    {
-                                      selectedCall?.stage && (
-                                        <div className="flex flex-row items--center w-full justify-between mt-4">
-                                          <div className="flex flex-row items-center gap-4">
-                                            <Image
-                                              src={"/svgIcons/arrow2.svg"}
-                                              height={25}
-                                              width={25}
-                                              alt="man"
-
-                                            />
-                                            <div style={styles.subHeading}>
-                                              Stage
-                                            </div>
-                                          </div>
-                                          <div
-                                            className="text-end flex flex-row items-center gap-1"
-                                            style={styles.paragraph}
-                                          >
-                                            <div
-                                              className="h-[10px] max-w-[200px] "
-                                              style={{
-                                                // backgroundColor: "red",
-                                                overflow: "hidden", // Ensures content is clipped
-                                                whiteSpace: "nowrap", // Prevents text from wrapping
-                                                textOverflow: "ellipsis", // Adds the ellipsis
-                                                height: "50px",
-                                              }}
-                                              title={
-                                                selectedCall?.stage?.stageTitle
-                                              } // Optional: Show full text on hover
-                                            >
-                                              {selectedCall?.stage?.stageTitle}
-                                            </div>
-
-
+                                    {selectedCall?.stage && (
+                                      <div className="flex flex-row items--center w-full justify-between mt-4">
+                                        <div className="flex flex-row items-center gap-4">
+                                          <Image
+                                            src={'/svgIcons/arrow2.svg'}
+                                            height={25}
+                                            width={25}
+                                            alt="man"
+                                          />
+                                          <div style={styles.subHeading}>
+                                            Stage
                                           </div>
                                         </div>
-                                      )
-                                    }
+                                        <div
+                                          className="text-end flex flex-row items-center gap-1"
+                                          style={styles.paragraph}
+                                        >
+                                          <div
+                                            className="h-[10px] max-w-[200px] "
+                                            style={{
+                                              // backgroundColor: "red",
+                                              overflow: 'hidden', // Ensures content is clipped
+                                              whiteSpace: 'nowrap', // Prevents text from wrapping
+                                              textOverflow: 'ellipsis', // Adds the ellipsis
+                                              height: '50px',
+                                            }}
+                                            title={
+                                              selectedCall?.stage?.stageTitle
+                                            } // Optional: Show full text on hover
+                                          >
+                                            {selectedCall?.stage?.stageTitle}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
 
                                     <div className="flex flex-row items--center w-full justify-between mt-4">
                                       <div className="flex flex-row items-center gap-4">
                                         <Image
-                                          src={"/svgIcons/manIcon.svg"}
+                                          src={'/svgIcons/manIcon.svg'}
                                           height={20}
                                           width={20}
                                           alt="man"
@@ -558,7 +544,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         style={styles.paragraph}
                                       >
                                         <Image
-                                          src={"/assets/manIcon.png"}
+                                          src={'/assets/manIcon.png'}
                                           height={16}
                                           width={16}
                                           alt="man"
@@ -576,7 +562,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                             alt="*"
                                             style={{
                                               filter:
-                                                "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                                'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)',
                                             }}
                                           />
                                           <div style={styles.subHeading}>
@@ -590,7 +576,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           {/* {selectedLeadsDetails?.phone} */}
                                           {GetFormattedDateString(
                                             selectedCall.booking.datetime,
-                                            true
+                                            true,
                                           )}
                                         </div>
                                       </div>
@@ -603,7 +589,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                     <div
                                       style={{
                                         fontsize: 22,
-                                        fontWeight: "600",
+                                        fontWeight: '600',
                                       }}
                                     >
                                       Call Activity
@@ -614,13 +600,13 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         <div
                                           className="flex flex-col items-center justify-center h-[20vh] w-full"
                                           style={{
-                                            fontWeight: "500",
+                                            fontWeight: '500',
                                             fontsize: 15,
                                           }}
                                         >
                                           <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
                                             <Image
-                                              src={"/assets/activityClock.png"}
+                                              src={'/assets/activityClock.png'}
                                               height={24}
                                               width={24}
                                               alt="*"
@@ -629,7 +615,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           <div className="mt-4">
                                             <i
                                               style={{
-                                                fontWeight: "500",
+                                                fontWeight: '500',
                                                 fontsize: 15,
                                               }}
                                             >
@@ -644,13 +630,13 @@ function CallWorthyReviewsPopup({ open, close }) {
                                             (item, index) => {
                                               const initialTextLength =
                                                 Math.ceil(
-                                                  item.transcript?.length * 0.1
-                                                ); // 40% of the text
+                                                  item.transcript?.length * 0.1,
+                                                ) // 40% of the text
                                               const initialText =
                                                 item.transcript?.slice(
                                                   0,
-                                                  initialTextLength
-                                                );
+                                                  initialTextLength,
+                                                )
                                               return (
                                                 <div
                                                   key={index}
@@ -660,12 +646,12 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                     className="-ms-4"
                                                     style={{
                                                       fontsize: 15,
-                                                      fontWeight: "500",
-                                                      color: "#15151560",
+                                                      fontWeight: '500',
+                                                      color: '#15151560',
                                                     }}
                                                   >
                                                     {GetFormattedDateString(
-                                                      item?.createdAt
+                                                      item?.createdAt,
                                                     )}
                                                   </div>
                                                   <div className="w-full flex flex-row items-center gap-4 h-full">
@@ -683,7 +669,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                             <div
                                                               style={{
                                                                 fontWeight:
-                                                                  "600",
+                                                                  '600',
                                                                 fontsize: 15,
                                                               }}
                                                             >
@@ -700,8 +686,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                             }
                                                             onClick={() => {
                                                               handleShowMoreActivityData(
-                                                                item
-                                                              );
+                                                                item,
+                                                              )
                                                             }}
                                                           >
                                                             <div
@@ -715,11 +701,11 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                             ></div>
                                                             {item?.callOutcome
                                                               ? item?.callOutcome
-                                                              : "Ongoing"}
+                                                              : 'Ongoing'}
                                                             {/* {checkCallStatus(item)} */}
                                                             <div>
-                                                              {isExpandedActivity.includes(
-                                                                item.id
+                                                              {isExpandedActivity?.includes(
+                                                                item.id,
                                                               ) ? (
                                                                 <div>
                                                                   <CaretUp
@@ -738,129 +724,120 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                             </div>
                                                           </button>
                                                         </div>
-                                                        {isExpandedActivity.includes(
-                                                          item.id
+                                                        {isExpandedActivity?.includes(
+                                                          item.id,
                                                         ) && (
+                                                          <div
+                                                            className="mt-6"
+                                                            style={{
+                                                              border:
+                                                                '1px solid #00000020',
+                                                              borderRadius:
+                                                                '10px',
+                                                              padding: 10,
+                                                              paddingInline: 15,
+                                                            }}
+                                                          >
                                                             <div
-                                                              className="mt-6"
+                                                              className="mt-4"
                                                               style={{
-                                                                border:
-                                                                  "1px solid #00000020",
-                                                                borderRadius:
-                                                                  "10px",
-                                                                padding: 10,
-                                                                paddingInline: 15,
+                                                                fontWeight:
+                                                                  '500',
+                                                                fontSize: 12,
+                                                                color:
+                                                                  '#00000070',
                                                               }}
                                                             >
+                                                              Transcript
+                                                            </div>
+                                                            <div className="flex flex-row items-center justify-between mt-4">
                                                               <div
-                                                                className="mt-4"
                                                                 style={{
                                                                   fontWeight:
-                                                                    "500",
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                    "#00000070",
+                                                                    '500',
+                                                                  fontSize: 15,
                                                                 }}
                                                               >
-                                                                Transcript
+                                                                {moment(
+                                                                  item?.duration *
+                                                                    1000,
+                                                                ).format(
+                                                                  'mm:ss',
+                                                                )}{' '}
                                                               </div>
-                                                              <div className="flex flex-row items-center justify-between mt-4">
+                                                              <button
+                                                                onClick={() => {
+                                                                  if (
+                                                                    item?.recordingUrl
+                                                                  ) {
+                                                                    setShowAudioPlay(
+                                                                      item?.recordingUrl,
+                                                                    )
+                                                                  } else {
+                                                                    setShowNoAudioPlay(
+                                                                      true,
+                                                                    )
+                                                                  }
+                                                                  // window.open(item.recordingUrl, "_blank")
+                                                                }}
+                                                              >
+                                                                <Image
+                                                                  src={
+                                                                    '/assets/play.png'
+                                                                  }
+                                                                  height={35}
+                                                                  width={35}
+                                                                  alt="*"
+                                                                />
+                                                              </button>
+                                                            </div>
+                                                            {item.transcript ? (
+                                                              <div className="w-full">
                                                                 <div
+                                                                  className="mt-4"
                                                                   style={{
                                                                     fontWeight:
-                                                                      "500",
+                                                                      '600',
                                                                     fontSize: 15,
                                                                   }}
                                                                 >
-                                                                  {moment(
-                                                                    item?.duration *
-                                                                    1000
-                                                                  ).format(
-                                                                    "mm:ss"
-                                                                  )}{" "}
+                                                                  {`${initialText}...`}
                                                                 </div>
                                                                 <button
-                                                                  onClick={() => {
-                                                                    if (
-                                                                      item?.recordingUrl
-                                                                    ) {
-                                                                      setShowAudioPlay(
-                                                                        item?.recordingUrl
-                                                                      );
-                                                                    } else {
-                                                                      setShowNoAudioPlay(
-                                                                        true
-                                                                      );
-                                                                    }
-                                                                    // window.open(item.recordingUrl, "_blank")
-                                                                  }}
-                                                                >
-                                                                  <Image
-                                                                    src={
-                                                                      "/assets/play.png"
-                                                                    }
-                                                                    height={35}
-                                                                    width={35}
-                                                                    alt="*"
-                                                                  />
-                                                                </button>
-                                                              </div>
-                                                              {item.transcript ? (
-                                                                <div className="w-full">
-                                                                  <div
-                                                                    className="mt-4"
-                                                                    style={{
-                                                                      fontWeight:
-                                                                        "600",
-                                                                      fontSize: 15,
-                                                                    }}
-                                                                  >
-                                                                    {/* {item.transcript} */}
-                                                                    {isExpanded.includes(
-                                                                      item.id
-                                                                    )
-                                                                      ? `${item.transcript}`
-                                                                      : `${initialText}...`}
-                                                                  </div>
-                                                                  <button
-                                                                    style={{
-                                                                      fontWeight:
-                                                                        "600",
-                                                                      fontSize: 15,
-                                                                    }}
-                                                                    onClick={() => {
-                                                                      handleReadMoreToggle(
-                                                                        item
-                                                                      );
-                                                                    }}
-                                                                    className="mt-2 text-black underline"
-                                                                  >
-                                                                    {isExpanded.includes(
-                                                                      item.id
-                                                                    )
-                                                                      ? "Read Less"
-                                                                      : "Read more"}
-                                                                  </button>
-                                                                </div>
-                                                              ) : (
-                                                                <div
                                                                   style={{
                                                                     fontWeight:
-                                                                      "600",
+                                                                      '600',
                                                                     fontSize: 15,
                                                                   }}
+                                                                  onClick={() => {
+                                                                    handleReadMoreToggle(
+                                                                      item,
+                                                                    )
+                                                                  }}
+                                                                  className="mt-2 text-black underline"
                                                                 >
-                                                                  No transcript
-                                                                </div>
-                                                              )}
-                                                            </div>
-                                                          )}
+                                                                  Read More
+                                                                </button>
+                                                              </div>
+                                                            ) : (
+                                                              <div
+                                                                style={{
+                                                                  fontWeight:
+                                                                    '600',
+                                                                  fontSize: 15,
+                                                                }}
+                                                              >
+                                                                No transcript
+                                                              </div>
+                                                            )}
+                                                          </div>
+                                                        )}
                                                       </div>
                                                     </div>
                                                   </div>
                                                 </div>
-                                              );
-                                            }
+                                              )
+                                            },
                                           )}
                                         </div>
                                       )}
@@ -877,7 +854,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                   closeAfterTransition
                                   BackdropProps={{
                                     sx: {
-                                      backgroundColor: "#00000020",
+                                      backgroundColor: '#00000020',
                                       // //backdropFilter: "blur(5px)",
                                     },
                                   }}
@@ -890,9 +867,9 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       <div
                                         className="w-full flex flex-col items-center"
                                         style={{
-                                          backgroundColor: "#ffffff",
+                                          backgroundColor: '#ffffff',
                                           padding: 20,
-                                          borderRadius: "13px",
+                                          borderRadius: '13px',
                                         }}
                                       >
                                         <audio controls>
@@ -906,10 +883,10 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         <button
                                           className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                                           onClick={() => {
-                                            setShowAudioPlay(null);
+                                            setShowAudioPlay(null)
                                           }}
                                           style={{
-                                            fontWeight: "600",
+                                            fontWeight: '600',
                                             fontSize: 15,
                                           }}
                                         >
@@ -918,6 +895,50 @@ function CallWorthyReviewsPopup({ open, close }) {
 
                                         {/* Can be use full to add shadow
                                                                                 <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                                      </div>
+                                    </div>
+                                  </Box>
+                                </Modal>
+
+                                {/* Modal for Transcript */}
+                                <Modal
+                                  open={!!isExpanded}
+                                  onClose={() => setIsExpanded(null)}
+                                  closeAfterTransition
+                                  BackdropProps={{
+                                    timeout: 1000,
+                                    sx: {
+                                      backgroundColor: '#00000020',
+                                    },
+                                  }}
+                                >
+                                  <Box
+                                    className="lg:w-4/12 sm:w-4/12 w-6/12"
+                                    sx={styles.modalsStyle}
+                                  >
+                                    <div className="flex flex-row justify-center w-full">
+                                      <div
+                                        className="w-full"
+                                        style={{
+                                          backgroundColor: '#ffffff',
+                                          padding: 20,
+                                          borderRadius: '13px',
+                                        }}
+                                      >
+                                        <div className="w-full flex flex-row items-center justify-between">
+                                          <div className="font-bold text-xl mt-4 mb-4">
+                                            Call Transcript
+                                          </div>
+                                          <div>
+                                            <button
+                                              className="font-bold outline-none border-none"
+                                              onClick={() => setIsExpanded(null)}
+                                            >
+                                              <CloseIcon />
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <TranscriptViewer callId={isExpanded?.id || ''} />
                                       </div>
                                     </div>
                                   </Box>
@@ -931,8 +952,8 @@ function CallWorthyReviewsPopup({ open, close }) {
                       <div
                         style={{
                           fontsize: 24,
-                          fontWeight: "600",
-                          textAlign: "center",
+                          fontWeight: '600',
+                          textAlign: 'center',
                           marginTop: 20,
                         }}
                       >
@@ -947,26 +968,26 @@ function CallWorthyReviewsPopup({ open, close }) {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default CallWorthyReviewsPopup;
+export default CallWorthyReviewsPopup
 
 const styles = {
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   subHeading: {
     fontsize: 12,
-    fontWeight: "500",
-    color: "#151515",
+    fontWeight: '500',
+    color: '#151515',
   },
-};
+}

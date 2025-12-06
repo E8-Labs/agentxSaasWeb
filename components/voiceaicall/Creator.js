@@ -1,156 +1,159 @@
-"use client";
-import { useState, useCallback, useEffect, useRef } from "react"; // useRef added
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+'use client'
+
+import 'react-phone-input-2/lib/style.css'
+
 import {
-  Box,
-  Drawer,
-  Modal,
-  Snackbar,
   Alert,
-  Slide,
-  Fade,
+  Box,
   CircularProgress,
-} from "@mui/material";
+  Drawer,
+  Fade,
+  Modal,
+  Slide,
+  Snackbar,
+} from '@mui/material'
+import {
+  FacebookLogo,
+  Globe,
+  InstagramLogo,
+  TwitterLogo,
+  XLogo,
+  YoutubeLogo,
+} from '@phosphor-icons/react'
+import Vapi from '@vapi-ai/web'
+import axios from 'axios'
+// useRef added
+import { AnimatePresence, motion } from 'framer-motion'
+import parsePhoneNumberFromString from 'libphonenumber-js'
+import Image from 'next/image'
 import {
   notFound,
   useParams,
   useRouter,
   useSearchParams,
-} from "next/navigation";
-import axios from "axios";
-import Apis from "../apis/Apis";
+} from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
 
-import {
-  Globe,
-  InstagramLogo,
-  YoutubeLogo,
-  TwitterLogo,
-  FacebookLogo,
-  XLogo,
-} from "@phosphor-icons/react";
-
-import Vapi from "@vapi-ai/web";
-import { VoiceWavesComponent } from "../askSky/askskycomponents/voice-waves";
-import { AudioWaveActivity } from "../askSky/askskycomponents/AudioWaveActivity";
-import { agentImage } from "@/utilities/agentUtilities";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 // Shadcn UI Components
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import CloseBtn from "../globalExtras/CloseBtn";
-import parsePhoneNumberFromString from "libphonenumber-js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { agentImage } from '@/utilities/agentUtilities'
+
+import Apis from '../apis/Apis'
+import { AudioWaveActivity } from '../askSky/askskycomponents/AudioWaveActivity'
+import { VoiceWavesComponent } from '../askSky/askskycomponents/voice-waves'
+import CloseBtn from '../globalExtras/CloseBtn'
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
-  backgroundSize: "cover",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "center",
-  width: "100%",
-  height: "100svh",
-  overflow: "hidden",
-};
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center',
+  width: '100%',
+  height: '100svh',
+  overflow: 'hidden',
+}
 
 const Creator = ({ agentId, name }) => {
-  const router = useRouter();
-  const buttonRef = useRef(null);
-  const buttonRef6 = useRef(null);
-  const profileBoxRef = useRef(null);
-  const createAIButtonRef = useRef(null);
-  const endCallButtonRef = useRef(null);
+  const router = useRouter()
+  const buttonRef = useRef(null)
+  const buttonRef6 = useRef(null)
+  const profileBoxRef = useRef(null)
+  const createAIButtonRef = useRef(null)
+  const endCallButtonRef = useRef(null)
 
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false)
 
-  const [boxVisible, setBoxVisible] = useState(false); // Animation state
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }); // Mouse position state
-  const { creator } = useParams();
-  const searchParams = useSearchParams();
-  const from = searchParams.get("from");
-  const [isWideScreen, setIsWideScreen] = useState(false);
-  const [isWideScreen2, setIsWideScreen2] = useState(false);
-  const [isHighScreen, setIsHighScreen] = useState(false);
-  const [windowHeight, setWindowHeight] = useState(1200);
+  const [boxVisible, setBoxVisible] = useState(false) // Animation state
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }) // Mouse position state
+  const { creator } = useParams()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from')
+  const [isWideScreen, setIsWideScreen] = useState(false)
+  const [isWideScreen2, setIsWideScreen2] = useState(false)
+  const [isHighScreen, setIsHighScreen] = useState(false)
+  const [windowHeight, setWindowHeight] = useState(1200)
 
   //triger vapi variables
-  const [vapi, setVapi] = useState(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [loadingMessage, setloadingMessage] = useState("");
-  const [transcript, setTranscript] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false); // Opens the support menu
-  const [voiceOpen, setVoiceOpen] = useState(false); // Sets up the Voice AI interface
-  const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
-  const [open, setOpen] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
-  const [vapiAgent, setVapiAgent] = useState(null);
-  const [assistantOverrides, setAssistantOverrides] = useState(null);
+  const [vapi, setVapi] = useState(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [loadingMessage, setloadingMessage] = useState('')
+  const [transcript, setTranscript] = useState([])
+  const [menuOpen, setMenuOpen] = useState(false) // Opens the support menu
+  const [voiceOpen, setVoiceOpen] = useState(false) // Sets up the Voice AI interface
+  const [chatOpen, setChatOpen] = useState(false) // Sets up the chat interface
+  const [open, setOpen] = useState(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [snackbarSeverity, setSnackbarSeverity] = useState('error')
+  const [vapiAgent, setVapiAgent] = useState(null)
+  const [assistantOverrides, setAssistantOverrides] = useState(null)
 
   // Modal and form states
-  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false)
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-  });
-  const [smartListFields, setSmartListFields] = useState({});
-  const [smartListData, setSmartListData] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  })
+  const [smartListFields, setSmartListFields] = useState({})
+  const [smartListData, setSmartListData] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Validation functions
   const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
 
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
+      countryCode?.toUpperCase(),
+    )
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       // setCheckPhoneResponse(null);
       // //console.log;
 
       timerRef.current = setTimeout(() => {
-        checkPhoneNumber(phoneNumber);
-      }, 300);
+        checkPhoneNumber(phoneNumber)
+      }, 300)
     }
-  };
+  }
 
   const isValidPhone = (phone) => {
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(
-      `+${phone}`,
-    );
+    const parsedNumber = parsePhoneNumberFromString(`+${phone}`)
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      return false;
+      return false
     } else {
-      return true;
+      return true
     }
-  };
+  }
 
   const isFormValid = () => {
     return (
@@ -160,249 +163,268 @@ const Creator = ({ agentId, name }) => {
       isValidEmail(formData.email) &&
       formData.phone?.trim() &&
       isValidPhone(formData.phone)
-    );
-  };
+    )
+  }
 
   //agent details by id
-  const [agentDetails, setAgentDetails] = useState(null);
-  const [profileLoader, setProfileLoader] = useState(true);
+  const [agentDetails, setAgentDetails] = useState(null)
+  const [profileLoader, setProfileLoader] = useState(true)
 
-  const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY;
+  const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY
 
   //fetch user profile data
   useEffect(() => {
     getUserByAgentId()
     // Load saved form data on component mount
     loadSavedFormData()
-  }, []);
+  }, [])
 
   // User loading messages to fake feedback...
   useEffect(() => {
     if (loading) {
-      setloadingMessage(`${name} is booting up...`);
+      setloadingMessage(`${name} is booting up...`)
 
       const timer = setTimeout(() => {
-        setloadingMessage("...getting coffee...");
-      }, 3000);
+        setloadingMessage('...getting coffee...')
+      }, 3000)
 
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer)
     }
-  }, [loading]);
+  }, [loading])
 
   useEffect(() => {
     const handleResize = () => {
       // Check if width is greater than or equal to 1024px
-      setWindowHeight(window.innerHeight);
-      setIsWideScreen(window.innerWidth >= 950);
+      setWindowHeight(window.innerHeight)
+      setIsWideScreen(window.innerWidth >= 950)
 
-      setIsWideScreen2(window.innerWidth >= 500);
+      setIsWideScreen2(window.innerWidth >= 500)
       // Check if height is greater than or equal to 1024px
-      setIsHighScreen(window.innerHeight >= 950);
+      setIsHighScreen(window.innerHeight >= 950)
 
       // Log the updated state values for debugging (Optional)
-      console.log("isWideScreen: ", window.innerWidth >= 950);
-      console.log("isWideScreen2: ", window.innerWidth >= 500);
-      console.log("isHighScreen: ", window.innerHeight >= 1024);
-    };
+      console.log('isWideScreen: ', window.innerWidth >= 950)
+      console.log('isWideScreen2: ', window.innerWidth >= 500)
+      console.log('isHighScreen: ', window.innerHeight >= 1024)
+    }
 
-    handleResize(); // Set initial state
-    window.addEventListener("resize", handleResize);
+    handleResize() // Set initial state
+    window.addEventListener('resize', handleResize)
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
   // Effect to update screen size status
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)"); // Adjust the max-width according to your medium screen size breakpoint
-    const handleResize = () => setIsSmallScreen(mediaQuery.matches);
+    const mediaQuery = window.matchMedia('(max-width: 768px)') // Adjust the max-width according to your medium screen size breakpoint
+    const handleResize = () => setIsSmallScreen(mediaQuery.matches)
 
-    handleResize(); // Check the screen size on component mount
-    mediaQuery.addEventListener("change", handleResize); // Add listener for screen resize
+    handleResize() // Check the screen size on component mount
+    mediaQuery.addEventListener('change', handleResize) // Add listener for screen resize
 
-    return () => mediaQuery.removeEventListener("change", handleResize); // Cleanup listener on component unmount
-  }, []);
+    return () => mediaQuery.removeEventListener('change', handleResize) // Cleanup listener on component unmount
+  }, [])
 
   // Function to remove duplicates from analysisPlan structure
   const removeDuplicatesFromAnalysisPlan = (assistantOverrides) => {
     if (!assistantOverrides || !assistantOverrides.analysisPlan) {
-      return assistantOverrides;
+      return assistantOverrides
     }
 
-    const analysisPlan = assistantOverrides.analysisPlan;
+    const analysisPlan = assistantOverrides.analysisPlan
 
     // Remove duplicates from structuredDataPlan.schema.required array
-    if (analysisPlan.structuredDataPlan &&
+    if (
+      analysisPlan.structuredDataPlan &&
       analysisPlan.structuredDataPlan.schema &&
       analysisPlan.structuredDataPlan.schema.required &&
-      Array.isArray(analysisPlan.structuredDataPlan.schema.required)) {
-
-      const originalLength = analysisPlan.structuredDataPlan.schema.required.length;
-      analysisPlan.structuredDataPlan.schema.required = [...new Set(analysisPlan.structuredDataPlan.schema.required)];
-      const newLength = analysisPlan.structuredDataPlan.schema.required.length;
+      Array.isArray(analysisPlan.structuredDataPlan.schema.required)
+    ) {
+      const originalLength =
+        analysisPlan.structuredDataPlan.schema.required.length
+      analysisPlan.structuredDataPlan.schema.required = [
+        ...new Set(analysisPlan.structuredDataPlan.schema.required),
+      ]
+      const newLength = analysisPlan.structuredDataPlan.schema.required.length
 
       if (originalLength !== newLength) {
-        console.log(`Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`);
+        console.log(
+          `Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`,
+        )
       }
     }
 
     // Ensure unique properties in structuredDataPlan.schema.properties
-    if (analysisPlan.structuredDataPlan &&
+    if (
+      analysisPlan.structuredDataPlan &&
       analysisPlan.structuredDataPlan.schema &&
       analysisPlan.structuredDataPlan.schema.properties &&
-      typeof analysisPlan.structuredDataPlan.schema.properties === 'object') {
+      typeof analysisPlan.structuredDataPlan.schema.properties === 'object'
+    ) {
+      const uniqueProperties = {}
+      const seenKeys = new Set()
 
-      const uniqueProperties = {};
-      const seenKeys = new Set();
-
-      for (const [key, value] of Object.entries(analysisPlan.structuredDataPlan.schema.properties)) {
+      for (const [key, value] of Object.entries(
+        analysisPlan.structuredDataPlan.schema.properties,
+      )) {
         if (!seenKeys.has(key)) {
-          uniqueProperties[key] = value;
-          seenKeys.add(key);
+          uniqueProperties[key] = value
+          seenKeys.add(key)
         } else {
-          console.warn(`Duplicate property key found in analysisPlan.structuredDataPlan.schema.properties: ${key}`);
+          console.warn(
+            `Duplicate property key found in analysisPlan.structuredDataPlan.schema.properties: ${key}`,
+          )
         }
       }
 
-      analysisPlan.structuredDataPlan.schema.properties = uniqueProperties;
-      console.log(`Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`);
+      analysisPlan.structuredDataPlan.schema.properties = uniqueProperties
+      console.log(
+        `Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`,
+      )
     }
 
-    return assistantOverrides;
-  };
+    return assistantOverrides
+  }
 
   //get user details by agentId
   const getUserByAgentId = async () => {
     try {
-      setProfileLoader(true);
-      const response = await callApiGet(`${Apis.getUserByAgentVapiId}/${agentId}`)
+      setProfileLoader(true)
+      const response = await callApiGet(
+        `${Apis.getUserByAgentVapiId}/${agentId}`,
+      )
       // await axios.get(
       //   `${Apis.getUserByAgentVapiId}/${agentId}`
       // );
-      console.log("Response of getagent details by id is", response);
+      console.log('Response of getagent details by id is', response)
       if (response) {
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
 
         // Clean assistantOverrides to remove duplicates
-        const cleanedOverrides = removeDuplicatesFromAnalysisPlan(response?.data?.data?.assistantOverrides);
+        const cleanedOverrides = removeDuplicatesFromAnalysisPlan(
+          response?.data?.data?.assistantOverrides,
+        )
         setAssistantOverrides(cleanedOverrides)
 
         setSmartListData(response?.data?.data?.smartList)
-        console.log("Smart list data:", response?.data?.data?.smartList);
+        console.log('Smart list data:', response?.data?.data?.smartList)
       }
-      setProfileLoader(false);
+      setProfileLoader(false)
     } catch (error) {
-      console.log("Error occured in fetch user details by agent id", error);
-      setProfileLoader(false);
+      console.log('Error occured in fetch user details by agent id', error)
+      setProfileLoader(false)
     } finally {
-      setProfileLoader(false);
+      setProfileLoader(false)
     }
   }
 
   const callApiGet = async (path) => {
-    const response = await axios.get(
-      path
-    );
-    return response;
+    const response = await axios.get(path)
+    return response
   }
   const callApiPost = async (path, data) => {
-
-    const response = await axios.post(
-      path,
-      data
-    );
+    const response = await axios.post(path, data)
     return response
   }
 
   // Form handling functions
   const handleFormDataChange = (field, value) => {
-    console.log(`Updating form field ${field} with value:`, value);
+    console.log(`Updating form field ${field} with value:`, value)
     const newFormData = {
       ...formData,
-      [field]: value
-    };
-    setFormData(newFormData);
+      [field]: value,
+    }
+    setFormData(newFormData)
 
     // Save to localStorage
-    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
-      formData: newFormData,
-      smartListFields: smartListFields
-    }));
-  };
+    localStorage.setItem(
+      `leadForm_${agentId}`,
+      JSON.stringify({
+        formData: newFormData,
+        smartListFields: smartListFields,
+      }),
+    )
+  }
 
   const handleSmartListFieldChange = (field, value) => {
-    console.log(`Updating smart list field ${field} with value:`, value);
+    console.log(`Updating smart list field ${field} with value:`, value)
     const newSmartListFields = {
       ...smartListFields,
-      [field]: value
-    };
-    setSmartListFields(newSmartListFields);
+      [field]: value,
+    }
+    setSmartListFields(newSmartListFields)
 
     // Save to localStorage
-    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
-      formData: formData,
-      smartListFields: newSmartListFields
-    }));
-  };
+    localStorage.setItem(
+      `leadForm_${agentId}`,
+      JSON.stringify({
+        formData: formData,
+        smartListFields: newSmartListFields,
+      }),
+    )
+  }
 
   // Load saved form data from localStorage
   const loadSavedFormData = () => {
     try {
-      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+      const savedData = localStorage.getItem(`leadForm_${agentId}`)
       if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        console.log("Loading saved form data:", parsedData);
-        setFormData(parsedData.formData || {
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-        });
-        setSmartListFields(parsedData.smartListFields || {});
+        const parsedData = JSON.parse(savedData)
+        console.log('Loading saved form data:', parsedData)
+        setFormData(
+          parsedData.formData || {
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+          },
+        )
+        setSmartListFields(parsedData.smartListFields || {})
       }
     } catch (error) {
-      console.error("Error loading saved form data:", error);
+      console.error('Error loading saved form data:', error)
     }
-  };
+  }
 
   const handleModalClose = () => {
-    console.log("Closing lead modal");
-    setShowLeadModal(false);
+    console.log('Closing lead modal')
+    setShowLeadModal(false)
     // Keep form data persistent - don't clear on close
-  };
+  }
 
   const handleModalOpen = () => {
-    console.log("Opening lead modal");
-    loadSavedFormData(); // Load saved data when opening
-    setShowLeadModal(true);
-  };
+    console.log('Opening lead modal')
+    loadSavedFormData() // Load saved data when opening
+    setShowLeadModal(true)
+  }
 
   const handleClearForm = () => {
-    console.log("Clearing form data");
-    localStorage.removeItem(`leadForm_${agentId}`);
+    console.log('Clearing form data')
+    localStorage.removeItem(`leadForm_${agentId}`)
     setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-    });
-    setSmartListFields({});
-    console.log("Form data cleared successfully");
-  };
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+    })
+    setSmartListFields({})
+    console.log('Form data cleared successfully')
+  }
 
   const handleFormSubmit = async () => {
-    console.log("Submitting form data:", { formData, smartListFields });
-    setIsSubmitting(true);
+    console.log('Submitting form data:', { formData, smartListFields })
+    setIsSubmitting(true)
 
     try {
       // Prepare extraColumns from smart list fields
-      const extraColumns = {};
+      const extraColumns = {}
       Object.entries(smartListFields).forEach(([key, value]) => {
         if (value && value.trim()) {
-          extraColumns[key] = value;
+          extraColumns[key] = value
         }
-      });
+      })
 
       // Prepare lead_details object
       const leadDetails = {
@@ -410,288 +432,303 @@ const Creator = ({ agentId, name }) => {
         lastName: formData.lastName,
         phone: formData.phone,
         email: formData.email,
-        extraColumns: extraColumns
-      };
+        extraColumns: extraColumns,
+      }
 
-      console.log("Sending lead details:", leadDetails);
+      console.log('Sending lead details:', leadDetails)
 
       // Call API with lead details
       const response = await callApiPost(
         `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
-        { lead_details: leadDetails }
-      );
+        { lead_details: leadDetails },
+      )
 
-      console.log("API response:", response);
+      console.log('API response:', response)
 
       if (response && response.data && response.data.data) {
-        const { totalSecondsAvailable } = response.data.data.user;
-        console.log("User total seconds available:", totalSecondsAvailable);
+        const { totalSecondsAvailable } = response.data.data.user
+        console.log('User total seconds available:', totalSecondsAvailable)
 
         if (totalSecondsAvailable < 120) {
-          console.log("Insufficient balance, showing error");
-          setSnackbarMessage("Insufficient Balance");
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-          return;
+          console.log('Insufficient balance, showing error')
+          setSnackbarMessage('Insufficient Balance')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+          return
         }
         // Update assistant overrides with new data
-        const newAssistantOverrides = response.data.data.assistantOverrides;
+        const newAssistantOverrides = response.data.data.assistantOverrides
         if (newAssistantOverrides) {
           // Clean assistantOverrides to remove duplicates
-          const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
-          setAssistantOverrides(cleanedNewOverrides);
-          console.log("Updated assistant overrides:", cleanedNewOverrides);
+          const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(
+            newAssistantOverrides,
+          )
+          setAssistantOverrides(cleanedNewOverrides)
+          console.log('Updated assistant overrides:', cleanedNewOverrides)
 
           // Keep form data persistent - don't clear after submission
-          console.log("Form submitted successfully, keeping data persistent");
+          console.log('Form submitted successfully, keeping data persistent')
 
           // Close modal and start call with new overrides
-          handleModalClose();
-          handleStartCallWithOverrides(newAssistantOverrides);
+          handleModalClose()
+          handleStartCallWithOverrides(newAssistantOverrides)
         } else {
           // Keep form data persistent - don't clear after submission
-          console.log("Form submitted successfully, keeping data persistent");
+          console.log('Form submitted successfully, keeping data persistent')
 
           // Close modal and start call with existing overrides
-          handleModalClose();
-          handleStartCall();
+          handleModalClose()
+          handleStartCall()
         }
       }
-
-
-
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setSnackbarMessage("Error submitting lead details. Please try again.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      console.error('Error submitting form:', error)
+      setSnackbarMessage('Error submitting lead details. Please try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   // Handle button click
   const handleInitiateVapi = async () => {
-    console.log("handleInitiateVapi called");
-    console.log("Smart list data:", smartListData);
+    console.log('handleInitiateVapi called')
+    console.log('Smart list data:', smartListData)
 
     // Check if agent has smartList attached
     if (smartListData && smartListData.id) {
       // Check if we have persisted data
-      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+      const savedData = localStorage.getItem(`leadForm_${agentId}`)
 
       if (savedData) {
         try {
-          const parsedData = JSON.parse(savedData);
-          const { formData: savedFormData, smartListFields: savedSmartListFields } = parsedData;
+          const parsedData = JSON.parse(savedData)
+          const {
+            formData: savedFormData,
+            smartListFields: savedSmartListFields,
+          } = parsedData
 
           // Check if all required fields are filled and valid
-          const isValidSavedData = (
+          const isValidSavedData =
             savedFormData?.firstName?.trim() &&
             savedFormData?.lastName?.trim() &&
             savedFormData?.email?.trim() &&
             isValidEmail(savedFormData.email) &&
             savedFormData?.phone?.trim() &&
             isValidPhone(savedFormData.phone)
-          );
 
           if (isValidSavedData) {
-            console.log("Found persisted form data, submitting directly:", parsedData);
+            console.log(
+              'Found persisted form data, submitting directly:',
+              parsedData,
+            )
 
             // Use the saved data to make API call directly
-            setIsSubmitting(true);
+            setIsSubmitting(true)
             try {
-              const extraColumns = {};
-              Object.entries(savedSmartListFields || {}).forEach(([key, value]) => {
-                if (value && value.trim()) {
-                  extraColumns[key] = value;
-                }
-              });
+              const extraColumns = {}
+              Object.entries(savedSmartListFields || {}).forEach(
+                ([key, value]) => {
+                  if (value && value.trim()) {
+                    extraColumns[key] = value
+                  }
+                },
+              )
 
               const leadDetails = {
                 firstName: savedFormData.firstName,
                 lastName: savedFormData.lastName,
                 phone: savedFormData.phone,
                 email: savedFormData.email,
-                extraColumns: extraColumns
-              };
+                extraColumns: extraColumns,
+              }
 
               const response = await callApiPost(
                 `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
-                { lead_details: leadDetails }
-              );
+                { lead_details: leadDetails },
+              )
 
               if (response && response.data && response.data.data) {
-                const { totalSecondsAvailable } = response.data.data.user;
+                const { totalSecondsAvailable } = response.data.data.user
 
                 if (totalSecondsAvailable < 120) {
-                  setSnackbarMessage("Insufficient Balance");
-                  setSnackbarSeverity("error");
-                  setSnackbarOpen(true);
-                  return;
+                  setSnackbarMessage('Insufficient Balance')
+                  setSnackbarSeverity('error')
+                  setSnackbarOpen(true)
+                  return
                 }
 
-                const newAssistantOverrides = response.data.data.assistantOverrides;
+                const newAssistantOverrides =
+                  response.data.data.assistantOverrides
                 if (newAssistantOverrides) {
-                  const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
-                  setAssistantOverrides(cleanedNewOverrides);
-                  handleStartCallWithOverrides(newAssistantOverrides);
+                  const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(
+                    newAssistantOverrides,
+                  )
+                  setAssistantOverrides(cleanedNewOverrides)
+                  handleStartCallWithOverrides(newAssistantOverrides)
                 } else {
-                  handleStartCall();
+                  handleStartCall()
                 }
               }
             } catch (error) {
-              console.error("Error submitting persisted form data:", error);
-              setSnackbarMessage("Error starting call. Please try again.");
-              setSnackbarSeverity("error");
-              setSnackbarOpen(true);
+              console.error('Error submitting persisted form data:', error)
+              setSnackbarMessage('Error starting call. Please try again.')
+              setSnackbarSeverity('error')
+              setSnackbarOpen(true)
             } finally {
-              setIsSubmitting(false);
+              setIsSubmitting(false)
             }
-            return;
+            return
           }
         } catch (error) {
-          console.error("Error parsing saved form data:", error);
+          console.error('Error parsing saved form data:', error)
         }
       }
 
       // If no persisted data or incomplete data, show modal
-      console.log("No complete persisted data found, showing modal");
-      handleModalOpen();
+      console.log('No complete persisted data found, showing modal')
+      handleModalOpen()
     } else {
-      console.log("No smart list found, starting call directly");
-      handleStartCall();
+      console.log('No smart list found, starting call directly')
+      handleStartCall()
     }
-  };
+  }
 
   useEffect(() => {
-    const vapiInstance = new Vapi(API_KEY);
-    console.log("vapInstance", API_KEY);
-    setVapi(vapiInstance);
-    vapiInstance.on("call-start", (call) => {
-      console.log("📞 CALL-START: Call started", call);
-      setLoading(false);
-      setOpen(true);
-    });
-    vapiInstance.on("call-end", () => {
-      console.log("📞 CALL-END: Call ended");
-      setIsSpeaking(false);
-      setOpen(false);
-      setloadingMessage("");
-    });
-    vapiInstance.on("speech-start", () => {
-      console.log("🎤 SPEECH-START: Assistant started speaking");
-      setIsSpeaking(true);
-    });
-    vapiInstance.on("speech-end", () => {
-      console.log("🔇 SPEECH-END: Assistant stopped speaking");
-      setIsSpeaking(false);
-    });
-    vapiInstance.on("message", (message) => {
+    const vapiInstance = new Vapi(API_KEY)
+    console.log('vapInstance', API_KEY)
+    setVapi(vapiInstance)
+    vapiInstance.on('call-start', (call) => {
+      console.log('📞 CALL-START: Call started', call)
+      setLoading(false)
+      setOpen(true)
+    })
+    vapiInstance.on('call-end', () => {
+      console.log('📞 CALL-END: Call ended')
+      setIsSpeaking(false)
+      setOpen(false)
+      setloadingMessage('')
+    })
+    vapiInstance.on('speech-start', () => {
+      console.log('🎤 SPEECH-START: Assistant started speaking')
+      setIsSpeaking(true)
+    })
+    vapiInstance.on('speech-end', () => {
+      console.log('🔇 SPEECH-END: Assistant stopped speaking')
+      setIsSpeaking(false)
+    })
+    vapiInstance.on('message', (message) => {
       const mag = message?.transcript?.length
         ? message.transcript.length / 100
-        : 100;
+        : 100
 
-      setTranscript((prev) => [...prev, message]);
-      console.log("MESSAGE:", message);
-      console.log("MAGNITUDE:", mag);
-    });
-    vapiInstance.on("error", (error) => {
-      console.error("Vapi error:", error);
-    });
+      setTranscript((prev) => [...prev, message])
+      console.log('MESSAGE:', message)
+      console.log('MAGNITUDE:', mag)
+    })
+    vapiInstance.on('error', (error) => {
+      console.error('Vapi error:', error)
+    })
 
     return () => {
-      vapiInstance?.stop();
-    };
-  }, []);
+      vapiInstance?.stop()
+    }
+  }, [])
 
   async function handleStartCall(voice) {
-    console.log("handleStartCall called with voice:", voice);
+    console.log('handleStartCall called with voice:', voice)
     try {
-
-      setOpen(true);
-      console.log("Setting up call UI and starting call");
-      setLoading(true);
-      setloadingMessage("");
+      setOpen(true)
+      console.log('Setting up call UI and starting call')
+      setLoading(true)
+      setloadingMessage('')
 
       if (voice) {
-        console.log("Setting voice interface");
-        setVoiceOpen(true);
+        console.log('Setting voice interface')
+        setVoiceOpen(true)
       } else {
-        console.log("Setting chat interface");
-        setChatOpen(true);
+        console.log('Setting chat interface')
+        setChatOpen(true)
       }
 
-      await startCall();
+      await startCall()
     } catch (error) {
-      console.error("Error checking user minutes:", error);
-      setSnackbarMessage("Error checking available minutes. Please try again.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      console.error('Error checking user minutes:', error)
+      setSnackbarMessage('Error checking available minutes. Please try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
     }
   }
 
   async function startCall(overrides = null) {
-    console.log("starting call");
+    console.log('starting call')
     if (vapi) {
       // Use overrides passed as parameter (from form submission) or fall back to state
-      const overridesToUse = overrides || assistantOverrides;
+      const overridesToUse = overrides || assistantOverrides
 
       // Remove variableValues field before passing to VAPI
-      let cleanedOverrides = overridesToUse;
+      let cleanedOverrides = overridesToUse
       if (overridesToUse && overridesToUse.variableValues !== undefined) {
-        cleanedOverrides = { ...overridesToUse };
-        delete cleanedOverrides.variableValues;
-        console.log("Removed variableValues from overrides:", cleanedOverrides);
+        cleanedOverrides = { ...overridesToUse }
+        delete cleanedOverrides.variableValues
+        console.log('Removed variableValues from overrides:', cleanedOverrides)
       }
 
-      console.log("Current assistant overrides:", overridesToUse);
-      console.log("Cleaned overrides for VAPI:", cleanedOverrides);
-      console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
-      if (agentDetails?.data?.data?.smartList) {//change this to check if agent has smart list attached
+      console.log('Current assistant overrides:', overridesToUse)
+      console.log('Cleaned overrides for VAPI:', cleanedOverrides)
+      console.log(
+        'Using overrides for VAPI start:',
+        cleanedOverrides ? cleanedOverrides : agentId,
+      )
+      if (agentDetails?.data?.data?.smartList) {
+        //change this to check if agent has smart list attached
 
         console.log('agentId before starting call', agentId)
         vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
       } else {
-        console.log("Agent has no smart list, starting call directly");
+        console.log('Agent has no smart list, starting call directly')
         vapi.start(agentId)
       }
       vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
     } else {
-      console.error("Vapi instance not initialized");
+      console.error('Vapi instance not initialized')
     }
   }
 
   // Function to start call with specific overrides from form submission
   const handleStartCallWithOverrides = async (newOverrides) => {
-    console.log("handleStartCallWithOverrides called with overrides:", newOverrides);
+    console.log(
+      'handleStartCallWithOverrides called with overrides:',
+      newOverrides,
+    )
     try {
-      setOpen(true);
-      console.log("Setting up call UI and starting call with new overrides");
-      setLoading(true);
-      setloadingMessage("");
+      setOpen(true)
+      console.log('Setting up call UI and starting call with new overrides')
+      setLoading(true)
+      setloadingMessage('')
 
       // Start call with the new overrides directly
-      await startCall(newOverrides);
+      await startCall(newOverrides)
     } catch (error) {
-      console.error("Error starting call with overrides:", error);
-      setSnackbarMessage("Error starting call. Please try again.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      console.error('Error starting call with overrides:', error)
+      setSnackbarMessage('Error starting call. Please try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
     }
-  };
+  }
 
   async function handleCloseCall() {
-    await vapi?.stop();
-    setLoading(false);
-    setloadingMessage("");
-    setOpen(false);
+    await vapi?.stop()
+    setLoading(false)
+    setloadingMessage('')
+    setOpen(false)
     if (voiceOpen) {
-      setVoiceOpen(false);
+      setVoiceOpen(false)
     }
 
     if (chatOpen) {
-      setChatOpen(false);
+      setChatOpen(false)
     }
   }
 
@@ -758,47 +795,47 @@ const Creator = ({ agentId, name }) => {
   // Helper function to check if mouse is over a specific element
 
   const handleMouseMove = (event) => {
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const x = event.clientX;
-    const y = event.clientY;
+    const centerX = window.innerWidth / 2
+    const centerY = window.innerHeight / 2
+    const x = event.clientX
+    const y = event.clientY
 
-    setMousePosition({ x, y });
+    setMousePosition({ x, y })
 
     // Check if the mouse is within 150px of the center
     if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
-      setBoxVisible(false); // Hide the box
-      return;
+      setBoxVisible(false) // Hide the box
+      return
     }
 
     // Check if the mouse is over any of the refs (buttonRef, createAIButtonRef, endCallButtonRef, profileBoxRef)
     if (
       (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
       (createAIButtonRef.current && isMouseOverRef(createAIButtonRef, x, y)) ||
-      (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) ||  // Check for endCallButtonRef
+      (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) || // Check for endCallButtonRef
       (profileBoxRef.current && isMouseOverRef(profileBoxRef, x, y))
     ) {
-      setBoxVisible(false); // Hide the animation when hovering over any of the refs
-      return;
+      setBoxVisible(false) // Hide the animation when hovering over any of the refs
+      return
     }
 
-    setBoxVisible(true); // Show the box when not hovering over the refs
-  };
+    setBoxVisible(true) // Show the box when not hovering over the refs
+  }
 
   // Helper function to check if mouse is over a specific element
   const isMouseOverRef = (ref, x, y) => {
-    const rect = ref.current.getBoundingClientRect();
+    const rect = ref.current.getBoundingClientRect()
     // Log the position and check if it's correctly identifying the bounding box
-    console.log("Checking mouse position over element:", rect);
-    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-  };
-
+    console.log('Checking mouse position over element:', rect)
+    return (
+      x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+    )
+  }
 
   // const isMouseOverRef = (ref, x, y) => {
   //   const rect = ref.current.getBoundingClientRect();
   //   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
   // };
-
 
   const showCallUI = () => {
     return (
@@ -824,30 +861,30 @@ const Creator = ({ agentId, name }) => {
           </button>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   const gifBackgroundImageSmallScreen = {
     backgroundImage: 'url("/assets/applogo2.png")', // Ensure the correct path
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: isWideScreen2 ? "550px" : "380px",
-    height: isWideScreen2 ? "550px" : "380px",
-    borderRadius: "50%",
-    resize: "cover",
-  };
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: isWideScreen2 ? '550px' : '380px',
+    height: isWideScreen2 ? '550px' : '380px',
+    borderRadius: '50%',
+    resize: 'cover',
+  }
 
   const gifBackgroundImage = {
     backgroundImage: 'url("/assets/applogo2.png")', // Ensure the correct path
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: isHighScreen ? "790px" : "530px",
-    height: isHighScreen ? "790px" : "530px",
-    borderRadius: "50%",
-    resize: "cover",
-  };
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: isHighScreen ? '790px' : '530px',
+    height: isHighScreen ? '790px' : '530px',
+    borderRadius: '50%',
+    resize: 'cover',
+  }
 
   return (
     <div>
@@ -859,27 +896,27 @@ const Creator = ({ agentId, name }) => {
         <div
           ref={profileBoxRef}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: 20,
-            top: 25
+            top: 25,
           }}
         >
-          <div
-            className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none"
-          >
-            {
-              profileLoader ? (
-                <CircularProgress size={15} />
-              ) : (
-                <div className="border border-[#ffffff] rounded-full">
-                  {agentImage(agentDetails?.data?.data?.agent)}
-                </div>
-              )
-            }
-            <div className="truncate" style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
+          <div className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none">
+            {profileLoader ? (
+              <CircularProgress size={15} />
+            ) : (
+              <div className="border border-[#ffffff] rounded-full">
+                {agentImage(agentDetails?.data?.data?.agent)}
+              </div>
+            )}
+            <div
+              className="truncate"
+              style={{ fontSize: '17px', fontWeight: '500', color: 'black' }}
+            >
               {/*agentDetails?.data?.data?.agent?.name*/}
               {agentDetails?.data?.data?.agent?.name &&
-                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1)}
+                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() +
+                  agentDetails?.data?.data?.agent?.name.slice(1)}
             </div>
           </div>
         </div>
@@ -888,48 +925,54 @@ const Creator = ({ agentId, name }) => {
         <div
           ref={createAIButtonRef}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: 20,
-            bottom: 25
-          }}>
+            bottom: 25,
+          }}
+        >
           <button
             className="rounded-full border border-[#ffffff] bg-purple60 flex flex-row items-center gap-2 h-[52px] px-4 outline-none"
-            onClick={() => { window.open("https://www.assignx.ai/", '_blank') }}
+            onClick={() => {
+              window.open('https://www.assignx.ai/', '_blank')
+            }}
           >
             <Image
-              src={"/assets/stars.png"}
+              src={'/assets/stars.png'}
               alt="phone"
               height={20}
               width={20}
             />
-            <div className="text-white" style={{ fontSize: "17px", fontWeight: "500" }}>Build your AI</div>
+            <div
+              className="text-white"
+              style={{ fontSize: '17px', fontWeight: '500' }}
+            >
+              Build your AI
+            </div>
           </button>
         </div>
 
         {/* Animating Image */}
         <div
           style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
           className="flex flex-col w-9/12 justify-center items-center md:flex hidden"
         >
           <button
             className="flex items-center justify-center flex-1"
             style={{
-              cursor: "pointer",
-              outline: "none",
-              border: "none",
-              backgroundColor: "transparent",
+              cursor: 'pointer',
+              outline: 'none',
+              border: 'none',
+              backgroundColor: 'transparent',
             }}
           >
             {/* <div className='flex flex-row items-center justify-center' style={gifBackgroundImage}>
                                     <Image onClick={handleInitiateVapi} src="/mainAppGif.gif" alt='gif' style={{ backgroundColor: "red", borderRadius: "50%" }} height={600} width={600} />
                                 </div> */}
-
-
 
             <div
               style={gifBackgroundImage}
@@ -941,8 +984,8 @@ const Creator = ({ agentId, name }) => {
                 src="/assets/maingif.gif"
                 alt="gif"
                 style={{
-                  backgroundColor: "",
-                  borderRadius: "50%",
+                  backgroundColor: '',
+                  borderRadius: '50%',
                   height: windowHeight / 2.14,
                   width: windowHeight / 2.14,
                 }}
@@ -951,27 +994,25 @@ const Creator = ({ agentId, name }) => {
               />
             </div>
           </button>
-          <div ref={endCallButtonRef}>
-            {showCallUI()}
-          </div>
+          <div ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
         {/* visible on small screens only */}
         <div
           style={{
-            position: "absolute",
-            top: "55%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            position: 'absolute',
+            top: '55%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
           }}
           className="w-full flex justify-center items-center md:hidden flex flex-col gap-4"
         >
           <button
             className="flex flex-col items-center justify-center flex-1 mr-6"
             style={{
-              cursor: "pointer",
-              outline: "none",
-              border: "none",
+              cursor: 'pointer',
+              outline: 'none',
+              border: 'none',
             }}
           >
             {/* <div className='px-4 py-2 rounded-lg -mb-8' style={{ fontSize: 14, fontWeight: '500', fontFamily: 'inter', backgroundColor: '#ffffff50' }}>
@@ -984,32 +1025,32 @@ const Creator = ({ agentId, name }) => {
               transition={{
                 duration: 3.5,
                 repeat: Infinity,
-                repeatType: "loop",
-                ease: "easeInOut",
+                repeatType: 'loop',
+                ease: 'easeInOut',
               }}
               className="-mb-16 rounded-lg flex flex-col justify-center"
               style={{
                 fontSize: 14,
-                fontWeight: "500",
-                fontFamily: "inter",
-                backgroundColor: "#ffffff80",
-                padding: "10px 20px", // Add padding to the content inside the box
-                position: "relative", // Required for positioning the triangle
+                fontWeight: '500',
+                fontFamily: 'inter',
+                backgroundColor: '#ffffff80',
+                padding: '10px 20px', // Add padding to the content inside the box
+                position: 'relative', // Required for positioning the triangle
               }}
             >
               Click to Talk
               {/* Triangle at the bottom center */}
               <div
                 style={{
-                  position: "absolute",
-                  bottom: "-15px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
+                  position: 'absolute',
+                  bottom: '-15px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
                   width: 0,
                   height: 0,
-                  borderLeft: "15px solid transparent",
-                  borderRight: "15px solid transparent",
-                  borderTop: "15px solid #ffffff80",
+                  borderLeft: '15px solid transparent',
+                  borderRight: '15px solid transparent',
+                  borderTop: '15px solid #ffffff80',
                 }}
               />
             </motion.div>
@@ -1023,8 +1064,8 @@ const Creator = ({ agentId, name }) => {
                 src="/assets/maingif.gif"
                 alt="gif"
                 style={{
-                  backgroundColor: "",
-                  borderRadius: "50%",
+                  backgroundColor: '',
+                  borderRadius: '50%',
                   height: windowHeight / 3,
                   width: windowHeight / 3,
                 }}
@@ -1033,9 +1074,7 @@ const Creator = ({ agentId, name }) => {
               />
             </div>
           </button>
-          <div ref={buttonRef}>
-            {showCallUI()}
-          </div>
+          <div ref={buttonRef}>{showCallUI()}</div>
         </div>
 
         {/* Mouse Following Box Animation */}
@@ -1044,23 +1083,23 @@ const Creator = ({ agentId, name }) => {
             {boxVisible && (
               <motion.div
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   top: Math.min(
                     Math.max(mousePosition.y - 50, 0),
-                    window.innerHeight - 120
+                    window.innerHeight - 120,
                   ), // Ensures the box stays within the viewport height
                   left: Math.min(
                     Math.max(mousePosition.x - 50, 0),
-                    window.innerWidth - 120
+                    window.innerWidth - 120,
                   ), // Ensures the box stays within the viewport width
                   width: 100,
                   height: 100,
-                  backgroundColor: "#ffffff60",
-                  borderRadius: "50%",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  backgroundColor: '#ffffff60',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1.2 }}
@@ -1069,9 +1108,9 @@ const Creator = ({ agentId, name }) => {
               >
                 <div
                   style={{
-                    color: "black",
-                    fontWeight: "500",
-                    fontFamily: "inter",
+                    color: 'black',
+                    fontWeight: '500',
+                    fontFamily: 'inter',
                     fontSize: 14,
                   }}
                 >
@@ -1090,7 +1129,7 @@ const Creator = ({ agentId, name }) => {
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(5px)",
           },
         }}
@@ -1103,9 +1142,9 @@ const Creator = ({ agentId, name }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             borderRadius: 2,
-            border: "none",
-            outline: "none",
-            backgroundColor: "white",
+            border: 'none',
+            outline: 'none',
+            backgroundColor: 'white',
             display: 'flex',
             flexDirection: 'column',
             maxHeight: '90vh',
@@ -1113,36 +1152,40 @@ const Creator = ({ agentId, name }) => {
           }}
         >
           {/* Scrollable Content */}
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: 24,
-            paddingBottom: 0
-          }}>
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: 24,
+              paddingBottom: 0,
+            }}
+          >
             <div className="flex flex-row items-center justify-between w-full">
-              <div style={{ fontWeight: "500", fontSize: 15 }}>
-                Get Started
-              </div>
+              <div style={{ fontWeight: '500', fontSize: 15 }}>Get Started</div>
               <CloseBtn onClick={handleModalClose} />
             </div>
 
             <div className="w-full">
               {/* Basic Fields */}
               <div className="flex flex-row items-center justify-start mt-6 gap-2">
-                <span style={{ fontWeight: "500", fontSize: 15 }}>Contact Info</span>
+                <span style={{ fontWeight: '500', fontSize: 15 }}>
+                  Contact Info
+                </span>
               </div>
 
               <div className="mt-4 space-y-4">
                 <div>
                   <input
                     value={formData.firstName}
-                    onChange={(e) => handleFormDataChange('firstName', e.target.value)}
+                    onChange={(e) =>
+                      handleFormDataChange('firstName', e.target.value)
+                    }
                     placeholder="First Name"
                     className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
                     style={{
-                      fontWeight: "500",
+                      fontWeight: '500',
                       fontSize: 15,
-                      border: "1px solid #00000020",
+                      border: '1px solid #00000020',
                     }}
                     required
                   />
@@ -1150,67 +1193,70 @@ const Creator = ({ agentId, name }) => {
                 <div>
                   <input
                     value={formData.lastName}
-                    onChange={(e) => handleFormDataChange('lastName', e.target.value)}
+                    onChange={(e) =>
+                      handleFormDataChange('lastName', e.target.value)
+                    }
                     placeholder="Last Name"
                     className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
                     style={{
-                      fontWeight: "500",
+                      fontWeight: '500',
                       fontSize: 15,
-                      border: "1px solid #00000020",
+                      border: '1px solid #00000020',
                     }}
                     required
                   />
                 </div>
 
-
                 <div>
                   <input
                     value={formData.email}
-                    onChange={(e) => handleFormDataChange('email', e.target.value)}
+                    onChange={(e) =>
+                      handleFormDataChange('email', e.target.value)
+                    }
                     placeholder="Email"
                     className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
                     style={{
-                      fontWeight: "500",
+                      fontWeight: '500',
                       fontSize: 15,
-                      border: "1px solid #00000020",
+                      border: '1px solid #00000020',
                     }}
                     required
                   />
                 </div>
                 <div>
                   <PhoneInput
-                    country={"us"}
+                    country={'us'}
                     value={formData.phone}
                     onChange={(value) => handleFormDataChange('phone', value)}
                     placeholder="Enter Phone Number"
                     className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl"
                     style={{
-                      borderRadius: "12px",
-                      outline: "none",
-                      boxShadow: "none",
-                      border: "1px solid #00000020",
+                      borderRadius: '12px',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      border: '1px solid #00000020',
                     }}
                     inputStyle={{
-                      width: "100%",
-                      borderWidth: "0px",
-                      backgroundColor: "transparent",
-                      paddingLeft: "60px",
-                      paddingTop: "12px",
-                      paddingBottom: "12px",
-                      height: "53px",
-                      outline: "none",
-                      boxShadow: "none",
-                      fontWeight: "500",
+                      width: '100%',
+                      borderWidth: '0px',
+                      backgroundColor: 'transparent',
+                      paddingLeft: '60px',
+                      paddingTop: '12px',
+                      paddingBottom: '12px',
+                      height: '53px',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      fontWeight: '500',
                       fontSize: 15,
                     }}
                     buttonStyle={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      outline: 'none',
                     }}
                     dropdownStyle={{
-                      maxHeight: "150px",
-                      overflowY: "auto",
+                      maxHeight: '150px',
+                      overflowY: 'auto',
                     }}
                     required
                   />
@@ -1218,56 +1264,66 @@ const Creator = ({ agentId, name }) => {
               </div>
 
               {/* Smart List Fields */}
-              {smartListData && smartListData.columns && smartListData.columns.length > 0 && (
-                <>
-                  <div className="mt-8" style={{ fontWeight: "500", fontSize: 15 }}>
-                    Additional Info
-                  </div>
-                  <div className="mt-4 space-y-4">
-                    {smartListData.columns.map((column, index) => (
-                      <div key={index}>
-                        <input
-                          value={smartListFields[column.columnName] || ''}
-                          onChange={(e) => handleSmartListFieldChange(column.columnName, e.target.value)}
-                          placeholder={column.columnName.charAt(0).toUpperCase() + column.columnName.slice(1)}
-                          className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                          style={{
-                            fontWeight: "500",
-                            fontSize: 15,
-                            border: "1px solid #00000020",
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
+              {smartListData &&
+                smartListData.columns &&
+                smartListData.columns.length > 0 && (
+                  <>
+                    <div
+                      className="mt-8"
+                      style={{ fontWeight: '500', fontSize: 15 }}
+                    >
+                      Additional Info
+                    </div>
+                    <div className="mt-4 space-y-4">
+                      {smartListData.columns.map((column, index) => (
+                        <div key={index}>
+                          <input
+                            value={smartListFields[column.columnName] || ''}
+                            onChange={(e) =>
+                              handleSmartListFieldChange(
+                                column.columnName,
+                                e.target.value,
+                              )
+                            }
+                            placeholder={
+                              column.columnName.charAt(0).toUpperCase() +
+                              column.columnName.slice(1)
+                            }
+                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                            style={{
+                              fontWeight: '500',
+                              fontSize: 15,
+                              border: '1px solid #00000020',
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
             </div>
           </div>
 
           {/* Fixed Buttons */}
-          <div style={{
-            padding: 24,
-            paddingTop: 16,
-            borderTop: '1px solid #00000010'
-          }}>
+          <div
+            style={{
+              padding: 24,
+              paddingTop: 16,
+              borderTop: '1px solid #00000010',
+            }}
+          >
             <div className="flex flex-row gap-3">
-             
               {isSubmitting ? (
                 <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
-                  <CircularProgress
-                    size={25}
-                    sx={{ color: "#7902DF" }}
-                  />
+                  <CircularProgress size={25} sx={{ color: '#7902DF' }} />
                 </div>
               ) : (
                 <button
-                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid()
-                    ? "bg-purple"
-                    : "bg-gray-400"
-                    }`}
+                  className={`h-[50px] rounded-xl text-white flex-1 ${
+                    isFormValid() ? 'bg-purple' : 'bg-gray-400'
+                  }`}
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
                   }}
                   onClick={handleFormSubmit}
@@ -1286,18 +1342,18 @@ const Creator = ({ agentId, name }) => {
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbarMessage}
         </Alert>
       </Snackbar>
     </div>
-  );
-};
+  )
+}
 
-export default Creator;
+export default Creator

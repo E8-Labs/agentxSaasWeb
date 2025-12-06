@@ -1,46 +1,48 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import { Alert, CircularProgress, Fade, Snackbar } from "@mui/material";
-import getProfileDetails from "../apis/GetProfile";
+import { Alert, CircularProgress, Fade, Snackbar } from '@mui/material'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import PlansService from '@/utilities/PlansService'
+
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData'
+import { AuthToken } from '../agency/plan/AuthDetails'
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { AuthToken } from "../agency/plan/AuthDetails";
-import PlansService from "@/utilities/PlansService";
-import { formatDecimalValue } from "../agency/agencyServices/CheckAgencyData";
+} from '../dashboard/leads/AgentSelectSnackMessage'
 
 function InviteAgentX({ isSubAccount }) {
-  const [userDetails, setUserDetails] = useState(null);
-  const [togglePlan, setTogglePlan] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [userDetails, setUserDetails] = useState(null)
+  const [togglePlan, setTogglePlan] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack bars
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //user plans list
-  const [plans, setPlans] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(true);
+  const [plans, setPlans] = useState([])
+  const [initialLoader, setInitialLoader] = useState(true)
 
   useEffect(() => {
     if (isSubAccount) {
-      getPlans();
+      getPlans()
     } else {
-      loadDefaultPlans();
+      loadDefaultPlans()
     }
 
-    const localData = localStorage.getItem("User");
+    const localData = localStorage.getItem('User')
 
     if (localData) {
-      const Data = JSON.parse(localData);
+      const Data = JSON.parse(localData)
 
       // //console.log;
-      setUserDetails(Data.user);
+      setUserDetails(Data.user)
     }
-  }, []);
+  }, [])
 
   // Function to load default plans
   const loadDefaultPlans = async () => {
@@ -49,16 +51,16 @@ function InviteAgentX({ isSubAccount }) {
         'invite_agentx_plans',
         'regular',
         'default',
-        false
-      );
-      setPlans(plansData);
-      setInitialLoader(false);
+        false,
+      )
+      setPlans(plansData)
+      setInitialLoader(false)
     } catch (error) {
-      console.error('Error loading InviteAgentX plans:', error);
-      setPlans(PlansService.getFallbackPlans('default', false));
-      setInitialLoader(false);
+      console.error('Error loading InviteAgentX plans:', error)
+      setPlans(PlansService.getFallbackPlans('default', false))
+      setInitialLoader(false)
     }
-  };
+  }
 
   // Plans will be loaded dynamically
 
@@ -72,15 +74,15 @@ function InviteAgentX({ isSubAccount }) {
     //     setAddPaymentPopUp(true);
     // }
     // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubScribePlan = async () => {
     try {
-      let planType = null;
+      let planType = null
 
       //// //console.log;
 
@@ -88,25 +90,24 @@ function InviteAgentX({ isSubAccount }) {
         planType = togglePlan
       } else {
         if (togglePlan === 1) {
-          planType = "Plan30";
+          planType = 'Plan30'
         } else if (togglePlan === 2) {
-          planType = "Plan120";
+          planType = 'Plan120'
         } else if (togglePlan === 3) {
-          planType = "Plan360";
+          planType = 'Plan360'
         } else if (togglePlan === 4) {
-          planType = "Plan720";
+          planType = 'Plan720'
         }
       }
 
-
       // //console.log;
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        AuthToken = LocalDetails.token
       }
 
       // //console.log;
@@ -114,158 +115,157 @@ function InviteAgentX({ isSubAccount }) {
       let ApiData = {
         plan: planType,
         payNow: true,
-      };
+      }
 
-      const formData = new FormData();
+      const formData = new FormData()
 
       // //console.log;
 
-      let ApiPath = Apis.subscribePlan;
+      let ApiPath = Apis.subscribePlan
       if (isSubAccount) {
-        formData.append("planId", togglePlan);
-        ApiPath = Apis.subAgencyAndSubAccountPlans;
-        ApiData = formData;
+        formData.append('planId', togglePlan)
+        ApiPath = Apis.subAgencyAndSubAccountPlans
+        ApiData = formData
       }
 
       if (isSubAccount) {
         for (let [key, value] of formData.entries()) {
-          console.log(`${key} = ${value}`);
+          console.log(`${key} = ${value}`)
         }
       }
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setSuccessSnack(response?.data?.message);
-          let response2 = await getProfileDetails();
-          setUserDetails(response2);
+          setSuccessSnack(response?.data?.message)
+          let response2 = await getProfileDetails()
+          setUserDetails(response2)
         } else if (response.data.status === false) {
-          setErrorSnack(response?.data?.message);
+          setErrorSnack(response?.data?.message)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
 
   //get list of subaccount plans
   const getPlans = async () => {
     try {
-      setInitialLoader(true);
-      const Token = AuthToken();
+      setInitialLoader(true)
+      const Token = AuthToken()
       // console.log("user id is", selectedUser?.id);
-      let ApiPath = null;
+      let ApiPath = null
       // if (selectedUser) {
       //   ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`;
       // } else {
       //   }
-      ApiPath = Apis.getSubAccountPlans;
-      console.log("Api path of get plan is", ApiPath);
+      ApiPath = Apis.getSubAccountPlans
+      console.log('Api path of get plan is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + Token,
-          "Content-Type": "application/json"
-        }
-      });
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
 
       if (response) {
-        console.log("Response of get plans api is", response.data.data);
-        setPlans(response.data.data.monthlyPlans);
-        setInitialLoader(false);
+        console.log('Response of get plans api is', response.data.data)
+        setPlans(response.data.data.monthlyPlans)
+        setInitialLoader(false)
       }
-
     } catch (error) {
-      setInitialLoader(false);
-      console.error("Error occured in getting subaccount plans", error);
+      setInitialLoader(false)
+      console.error('Error occured in getting subaccount plans', error)
     }
   }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     giftTextStyle: {
       fontSize: 14,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     cardStyles: {
-      fontSize: "14",
-      fontWeight: "500",
-      border: "1px solid #00000020",
+      fontSize: '14',
+      fontWeight: '500',
+      border: '1px solid #00000020',
     },
     pricingBox: {
-      position: "relative",
+      position: 'relative',
       // padding: '10px',
-      borderRadius: "10px",
+      borderRadius: '10px',
       // backgroundColor: '#f9f9ff',
-      display: "inline-block",
-      width: "100%",
+      display: 'inline-block',
+      width: '100%',
     },
     triangleLabel: {
-      position: "absolute",
-      top: "0",
-      right: "0",
-      width: "0",
-      height: "0",
-      borderTop: "50px solid #7902DF", // Increased height again for more padding
-      borderLeft: "50px solid transparent",
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid #7902DF', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
     },
     labelText: {
-      position: "absolute",
-      top: "10px", // Adjusted to keep the text centered within the larger triangle
-      right: "5px",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "bold",
-      transform: "rotate(45deg)",
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
     },
     content: {
-      textAlign: "left",
-      paddingTop: "10px",
+      textAlign: 'left',
+      paddingTop: '10px',
     },
     originalPrice: {
-      textDecoration: "line-through",
-      color: "#7902DF65",
+      textDecoration: 'line-through',
+      color: '#7902DF65',
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     discountedPrice: {
-      color: "#000000",
-      fontWeight: "bold",
+      color: '#000000',
+      fontWeight: 'bold',
       fontSize: 18,
-      marginLeft: "10px",
+      marginLeft: '10px',
     },
     paymentModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-50%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
       style={{
-        paddingBottom: "50px",
-        height: "100%",
-        overflow: "auto",
-        scrollbarWidth: "none",
+        paddingBottom: '50px',
+        height: '100%',
+        overflow: 'auto',
+        scrollbarWidth: 'none',
       }}
     >
       <AgentSelectSnackMessage
@@ -282,44 +282,44 @@ function InviteAgentX({ isSubAccount }) {
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
-      <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+      <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Invite Agent
       </div>
 
-      <div style={{ fontSize: 12, fontWeight: "500", color: "#00000090" }}>
-        {"Account > Invite Agent"}
+      <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
+        {'Account > Invite Agent'}
       </div>
 
       <div
         className="w-10/12 p-6 rounded-lg flex flex-row items-center"
         style={{
-          backgroundImage: "url(/svgIcons/cardBg.svg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          color: "#fff",
-          alignSelf: "center",
-          marginTop: "7vh",
+          backgroundImage: 'url(/svgIcons/cardBg.svg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          color: '#fff',
+          alignSelf: 'center',
+          marginTop: '7vh',
           // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
         }}
       >
         <div className="flex flex-col pt-5">
           <div
-            style={{ fontSize: "2vh", fontWeight: "700", marginBottom: "10px" }}
+            style={{ fontSize: '2vh', fontWeight: '700', marginBottom: '10px' }}
           >
             Get 60 credits when you invite an agent
           </div>
           <p
             style={{
-              fontSize: "15px",
-              fontWeight: "400",
-              lineHeight: "1.5",
-              width: "90%",
+              fontSize: '15px',
+              fontWeight: '400',
+              lineHeight: '1.5',
+              width: '90%',
             }}
           >
-            You and the agent you invite both get 30 AI credits. The
-            more agents you invite, the more you get. Everybody wins. The agents
-            can use this code at checkout.
+            You and the agent you invite both get 30 AI credits. The more agents
+            you invite, the more you get. Everybody wins. The agents can use
+            this code at checkout.
           </p>
         </div>
       </div>
@@ -331,15 +331,15 @@ function InviteAgentX({ isSubAccount }) {
             <div
               className="w-10/12 flex flex-row items-start gap-2"
               style={{
-                border: "2px solid #FF4E4E",
-                backgroundColor: "#FF4E4E10",
+                border: '2px solid #FF4E4E',
+                backgroundColor: '#FF4E4E10',
                 padding: 10,
-                borderRadius: "10px",
+                borderRadius: '10px',
               }}
             >
               <div className="mt-2">
                 <Image
-                  src={"/svgIcons/warning.svg"}
+                  src={'/svgIcons/warning.svg'}
                   height={28}
                   width={26}
                   alt="*"
@@ -349,7 +349,7 @@ function InviteAgentX({ isSubAccount }) {
                 <div
                   className="text-red"
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 16.8,
                     marginTop: 5,
                   }}
@@ -358,7 +358,7 @@ function InviteAgentX({ isSubAccount }) {
                 </div>
                 <div
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 15,
                     marginTop: 5,
                   }}
@@ -368,250 +368,261 @@ function InviteAgentX({ isSubAccount }) {
               </div>
             </div>
           </div>
-          {
-            initialLoader ? (
-              <div className="w-full flex flex-row items-center justify-center mt-4">
-                <CircularProgress size={30} />
-              </div>
-            ) : (
-              isSubAccount ? (
-                <div className="w-full flex flex-col items-center">
-                  {plans.map((item, index) => (
-                    <button
-                      key={item.id}
-                      className="w-10/12 mt-4"
-                      onClick={(e) => handleTogglePlanClick(item)}
+          {initialLoader ? (
+            <div className="w-full flex flex-row items-center justify-center mt-4">
+              <CircularProgress size={30} />
+            </div>
+          ) : isSubAccount ? (
+            <div className="w-full flex flex-col items-center">
+              {plans.map((item, index) => (
+                <button
+                  key={item.id}
+                  className="w-10/12 mt-4"
+                  onClick={(e) => handleTogglePlanClick(item)}
+                >
+                  {item.hasTrial && (
+                    <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                      <div className="flex flex-row items-center gap-2">
+                        <Image
+                          src={'/otherAssets/batchIcon.png'}
+                          alt="*"
+                          height={24}
+                          width={24}
+                        />
+                        <div
+                          style={{
+                            fontWeight: '600',
+                            fontSize: 18,
+                            color: 'white',
+                          }}
+                        >
+                          First{' '}
+                          {item.hasTrial == true &&
+                            `| ${item.trialValidForDays}`}{' '}
+                          Days Free
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className="px-4 py-1 pb-4"
+                    style={{
+                      ...styles.pricingBox,
+                      border:
+                        item.id === togglePlan
+                          ? '2px solid #7902DF'
+                          : '1px solid #15151520',
+                      backgroundColor:
+                        item.id === togglePlan ? '#402FFF05' : '',
+                      // borderRadius: item.hasTrial == true ? "" : "10px",
+                      borderTopLeftRadius: item.hasTrial == true ? '' : '10px',
+                      borderTopRightRadius: item.hasTrial == true ? '' : '10px',
+                      borderBottomLeftRadius: '10px',
+                      borderBottomRightRadius: '10px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        ...styles.triangleLabel,
+                        borderTopRightRadius:
+                          item.hasTrial == true ? '' : '7px',
+                      }}
+                    ></div>
+                    <span style={styles.labelText}>
+                      {item?.percentageDiscount
+                        ? formatDecimalValue(item?.percentageDiscount)
+                        : 0}
+                      %
+                    </span>
+                    <div
+                      className="flex flex-row items-start gap-3"
+                      style={styles.content}
                     >
-                      {item.hasTrial && (
-                        <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
-                          <div className="flex flex-row items-center gap-2">
+                      <div className="mt-1">
+                        <div>
+                          {item.id === togglePlan ? (
                             <Image
-                              src={"/otherAssets/batchIcon.png"}
-                              alt="*"
+                              src={'/svgIcons/checkMark.svg'}
                               height={24}
                               width={24}
+                              alt="*"
                             />
-                            <div
-                              style={{
-                                fontWeight: "600",
-                                fontSize: 18,
-                                color: "white",
-                              }}
-                            >
-                              First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
-                            </div>
-                          </div>
+                          ) : (
+                            <Image
+                              src={'/svgIcons/unCheck.svg'}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          )}
                         </div>
-                      )}
-                      <div
-                        className="px-4 py-1 pb-4"
-                        style={{
-                          ...styles.pricingBox,
-                          border:
-                            item.id === togglePlan
-                              ? "2px solid #7902DF"
-                              : "1px solid #15151520",
-                          backgroundColor:
-                            item.id === togglePlan ? "#402FFF05" : "",
-                          // borderRadius: item.hasTrial == true ? "" : "10px",
-                          borderTopLeftRadius: item.hasTrial == true ? "" : "10px",
-                          borderTopRightRadius: item.hasTrial == true ? "" : "10px",
-                          borderBottomLeftRadius: "10px",
-                          borderBottomRightRadius: "10px",
-                        }}
-                      >
+                      </div>
+                      <div className="w-full">
+                        {item.status && (
+                          <div
+                            className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                            style={{
+                              fontSize: 11.6,
+                              fontWeight: '500',
+                              width: 'fit-content',
+                            }}
+                          >
+                            {item.status}
+                          </div>
+                        )}
                         <div
                           style={{
-                            ...styles.triangleLabel,
-                            borderTopRightRadius: item.hasTrial == true ? "" : "7px",
+                            color: '#151515',
+                            fontSize: 20,
+                            fontWeight: '600',
                           }}
-                        ></div>
-                        <span style={styles.labelText}>
-                          {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0}%
-                        </span>
-                        <div
-                          className="flex flex-row items-start gap-3"
-                          style={styles.content}
+                          className="flex flex-row items-center gap-1"
                         >
-                          <div className="mt-1">
-                            <div>
-                              {item.id === togglePlan ? (
-                                <Image
-                                  src={"/svgIcons/checkMark.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              ) : (
-                                <Image
-                                  src={"/svgIcons/unCheck.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              )}
-                            </div>
+                          {item.title} | {item.minutes} mins{' '}
+                          <span
+                            className="px-2 py-1 bg-purple ms-2 rounded-full text-white"
+                            style={{ fontSize: '14px', fontWeight: '500' }}
+                          >
+                            {item.tag}
+                          </span>
+                        </div>
+                        <div className="flex flex-row items-center justify-between">
+                          <div
+                            className="mt-2"
+                            style={{
+                              color: '#15151590',
+                              fontSize: 12,
+                              width: '80%',
+                              fontWeight: '600',
+                            }}
+                          >
+                            {item.planDescription}
                           </div>
-                          <div className="w-full">
-
-                            {item.status && (
-                              <div
-                                className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
-                                style={{
-                                  fontSize: 11.6,
-                                  fontWeight: "500",
-                                  width: "fit-content",
-                                }}
-                              >
-                                {item.status}
+                          <div className="flex flex-row items-center">
+                            {item.originalPrice && (
+                              <div style={styles.originalPrice}>
+                                ${item.originalPrice}
                               </div>
                             )}
-                            <div
-                              style={{
-                                color: "#151515",
-                                fontSize: 20,
-                                fontWeight: "600",
-                              }}
-                              className="flex flex-row items-center gap-1"
-                            >
-                              {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
-                            </div>
-                            <div className="flex flex-row items-center justify-between">
-                              <div
-                                className="mt-2"
-                                style={{
-                                  color: "#15151590",
-                                  fontSize: 12,
-                                  width: "80%",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {item.planDescription}
+                            <div className="flex flex-row justify-start items-start">
+                              <div style={styles.discountedPrice}>
+                                {/*item.hasTrial ? "" : "$"*/}$
+                                {item?.discountedPrice
+                                  ? formatDecimalValue(item?.discountedPrice)
+                                  : 0}
                               </div>
-                              <div className="flex flex-row items-center">
-                                {item.originalPrice && (
-                                  <div style={styles.originalPrice}>
-                                    ${item.originalPrice}
-                                  </div>
-                                )}
-                                <div className="flex flex-row justify-start items-start">
-                                  <div style={styles.discountedPrice}>
-                                    {/*item.hasTrial ? "" : "$"*/}$
-                                    {item?.discountedPrice ? formatDecimalValue(item?.discountedPrice) : 0}
-                                  </div>
-                                  <p style={{ color: "#15151580" }}>/mo*</p>
-                                </div>
-                              </div>
+                              <p style={{ color: '#15151580' }}>/mo*</p>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="w-full flex flex-col items-center">
-                  {plans.map((item, index) => (
-                    <button
-                      key={item.id}
-                      className="w-10/12 mt-4"
-                      onClick={(e) => handleTogglePlanClick(item)}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="w-full flex flex-col items-center">
+              {plans.map((item, index) => (
+                <button
+                  key={item.id}
+                  className="w-10/12 mt-4"
+                  onClick={(e) => handleTogglePlanClick(item)}
+                >
+                  <div
+                    className="px-4 py-1 pb-4"
+                    style={{
+                      ...styles.pricingBox,
+                      border:
+                        item.id === togglePlan
+                          ? '2px solid #7902DF'
+                          : '1px solid #15151520',
+                      backgroundColor:
+                        item.id === togglePlan ? '#402FFF05' : '',
+                    }}
+                  >
+                    <div
+                      style={{
+                        ...styles.triangleLabel,
+                        borderTopRightRadius: '7px',
+                      }}
+                    ></div>
+                    <span style={styles.labelText}>{item.planStatus}</span>
+                    <div
+                      className="flex flex-row items-start gap-3"
+                      style={styles.content}
                     >
-                      <div
-                        className="px-4 py-1 pb-4"
-                        style={{
-                          ...styles.pricingBox,
-                          border:
-                            item.id === togglePlan
-                              ? "2px solid #7902DF"
-                              : "1px solid #15151520",
-                          backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                        }}
-                      >
+                      <div className="mt-1">
+                        <div>
+                          {item.id === togglePlan ? (
+                            <Image
+                              src={'/svgIcons/checkMark.svg'}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={'/svgIcons/unCheck.svg'}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-full">
                         <div
+                          className="flex flex-row items-center gap-2"
                           style={{
-                            ...styles.triangleLabel,
-                            borderTopRightRadius: "7px",
+                            color: '#151515',
+                            fontSize: 20,
+                            fontWeight: '600',
                           }}
-                        ></div>
-                        <span style={styles.labelText}>{item.planStatus}</span>
-                        <div
-                          className="flex flex-row items-start gap-3"
-                          style={styles.content}
                         >
-                          <div className="mt-1">
-                            <div>
-                              {item.id === togglePlan ? (
-                                <Image
-                                  src={"/svgIcons/checkMark.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              ) : (
-                                <Image
-                                  src={"/svgIcons/unCheck.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              )}
-                            </div>
-                          </div>
-                          <div className="w-full">
+                          {item.mints}mins | {item.calls} Calls*
+                          {item.status && (
                             <div
-                              className="flex flex-row items-center gap-2"
-                              style={{
-                                color: "#151515",
-                                fontSize: 20,
-                                fontWeight: "600",
-                              }}
+                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              style={{ fontSize: 11.6, fontWeight: '500' }}
                             >
-                              {item.mints}mins | {item.calls} Calls*
-                              {item.status && (
-                                <div
-                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                  style={{ fontSize: 11.6, fontWeight: "500" }}
-                                >
-                                  {item.status}
-                                </div>
-                              )}
+                              {item.status}
                             </div>
-                            <div className="flex flex-row items-center justify-between">
-                              <div
-                                className="mt-2"
-                                style={{
-                                  color: "#15151590",
-                                  fontSize: 12,
-                                  width: "80%",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {item.details}
+                          )}
+                        </div>
+                        <div className="flex flex-row items-center justify-between">
+                          <div
+                            className="mt-2"
+                            style={{
+                              color: '#15151590',
+                              fontSize: 12,
+                              width: '80%',
+                              fontWeight: '600',
+                            }}
+                          >
+                            {item.details}
+                          </div>
+                          <div className="flex flex-row items-center">
+                            {item.originalPrice && (
+                              <div style={styles.originalPrice}>
+                                ${item.originalPrice}
                               </div>
-                              <div className="flex flex-row items-center">
-                                {item.originalPrice && (
-                                  <div style={styles.originalPrice}>
-                                    ${item.originalPrice}
-                                  </div>
-                                )}
-                                <div className="flex flex-row justify-start items-start ">
-                                  <div style={styles.discountedPrice}>
-                                    ${item.discountPrice}
-                                  </div>
-                                  <p style={{ color: "#15151580" }}>/mo*</p>
-                                </div>
+                            )}
+                            <div className="flex flex-row justify-start items-start ">
+                              <div style={styles.discountedPrice}>
+                                ${item.discountPrice}
                               </div>
+                              <p style={{ color: '#15151580' }}>/mo*</p>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )
-            )
-          }
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
 
           {subscribePlanLoader ? (
             <div className="flex flex-row items-center justify-center h-[50px]">
@@ -623,10 +634,10 @@ function InviteAgentX({ isSubAccount }) {
                 disabled={!togglePlan}
                 className="w-10/12 h-[50px] rounded-lg"
                 style={{
-                  fontWeight: "600",
+                  fontWeight: '600',
                   fontSize: 16.8,
-                  color: togglePlan ? "white" : "black",
-                  backgroundColor: togglePlan ? "#7902DF" : "#00000020",
+                  color: togglePlan ? 'white' : 'black',
+                  backgroundColor: togglePlan ? '#7902DF' : '#00000020',
                 }}
                 onClick={handleSubScribePlan}
               >
@@ -637,11 +648,11 @@ function InviteAgentX({ isSubAccount }) {
         </div>
       ) : (
         <div
-          style={{ alignSelf: "center" }}
+          style={{ alignSelf: 'center' }}
           className="w-10/12 flex flex-col justify-center items-center"
         >
           <Image
-            src={"/svgIcons/balloons.svg"}
+            src={'/svgIcons/balloons.svg'}
             width={600}
             height={428}
             alt="image"
@@ -651,39 +662,38 @@ function InviteAgentX({ isSubAccount }) {
           <div className="w-8/12 flex flex-col items-start rounded-lg p-2 bg-purple -mt-20 ">
             <div
               className="flex flex-row items-center gap-2"
-              style={{ fontSize: "15px", fontWeight: "600", color: "#fff" }}
+              style={{ fontSize: '15px', fontWeight: '600', color: '#fff' }}
             >
               <img
                 src="/otherAssets/tagIcon.png"
                 alt="Tag Icon"
-                style={{ height: "16px", width: "16px" }}
+                style={{ height: '16px', width: '16px' }}
               />
               Code
             </div>
             <div
               style={{
-                fontSize: "5svw",
-                color: "#fff",
-                fontWeight: "700",
-                alignSelf: "center",
-                background: "linear-gradient(to top, #ffffff40, #ffffff)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                color: "transparent",
+                fontSize: '5svw',
+                color: '#fff',
+                fontWeight: '700',
+                alignSelf: 'center',
+                background: 'linear-gradient(to top, #ffffff40, #ffffff)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
               }}
             >
               {userDetails?.plan && userDetails?.isTrial === false
                 ? userDetails?.myInviteCode
                   ? userDetails?.myInviteCode
-                  : "N/A"
-                : "N/A"}
+                  : 'N/A'
+                : 'N/A'}
             </div>
           </div>
         </div>
-      )
-      }
-    </div >
-  );
+      )}
+    </div>
+  )
 }
 
-export default InviteAgentX;
+export default InviteAgentX

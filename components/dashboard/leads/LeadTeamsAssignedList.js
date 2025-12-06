@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 const UserAssignedTeamView = ({ user }) => {
   return (
@@ -11,18 +11,17 @@ const UserAssignedTeamView = ({ user }) => {
       {/* User Name */}
       <span className="text-gray-700 text-sm">{user?.name}</span>
     </div>
-  );
-};
+  )
+}
 
 //   export default UserView;
 
 const LeadTeamsAssignedList = ({ users, maxVisibleUsers = 2 }) => {
   // Calculate the overflow count
   // const maxVisibleUsers = 2;
-  const overflowCount = users.length - maxVisibleUsers;
+  const overflowCount = users.length - maxVisibleUsers
 
-  return (
-  users.map((user) => (
+  return users.map((user) => (
     <div key={user.id} className="flex space-x-3 overflow-x-auto items-center">
       <div className="flex items-center space-x-1">
         <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
@@ -32,7 +31,6 @@ const LeadTeamsAssignedList = ({ users, maxVisibleUsers = 2 }) => {
       </div>
     </div>
   ))
-  );
-};
+}
 
-export default LeadTeamsAssignedList;
+export default LeadTeamsAssignedList

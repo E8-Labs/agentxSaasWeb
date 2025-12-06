@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
 import {
   Alert,
   Box,
@@ -11,226 +7,230 @@ import {
   Snackbar,
   TextField,
   Tooltip,
-} from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import moment from "moment";
-import getProfileDetails from "@/components/apis/GetProfile";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import { getXBarOptions } from '@/components/agency/subaccount/GetPlansList'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { GetFormattedDateString } from "@/utilities/utility";
-import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
-import { PersistanceKeys, XBarPlans } from "@/constants/Constants";
-import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
-import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import AdminGetProfileDetails from "../../AdminGetProfileDetails";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import XBarConfirmationModal from '@/components/myAccount/XBarConfirmationModal'
+import { PersistanceKeys, XBarPlans } from '@/constants/Constants'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 function AdminXbarServices({ selectedUser }) {
   //stroes user cards list
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([])
 
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
   //userlocal data
-  const [userLocalData, setUserLocalData] = useState(null);
-  const [currentPlan, setCurrentPlan] = useState(null);
-  const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
-  const [redeemLoader, setRedeemLoader] = useState(false);
+  const [userLocalData, setUserLocalData] = useState(null)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [cancelPlanLoader, setCancelPlanLoader] = useState(false)
+  const [redeemLoader, setRedeemLoader] = useState(false)
 
   //stoores payment history
-  const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
-  const [historyLoader, setHistoryLoader] = useState(false);
+  const [PaymentHistoryData, setPaymentHistoryData] = useState([])
+  const [historyLoader, setHistoryLoader] = useState(false)
 
-  const [selectedCard, setSelectedCard] = useState(cards[0]);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(cards[0])
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
 
   //add card variables
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-  const [cardData, getcardData] = useState("");
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
+  const [cardData, getcardData] = useState('')
 
   //variables for selecting plans
-  const [togglePlan, setTogglePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [togglePlan, setTogglePlan] = useState(null)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //variables for cancel plan
-  const [giftPopup, setGiftPopup] = useState(false);
-  const [ScreenWidth, setScreenWidth] = useState(null);
+  const [giftPopup, setGiftPopup] = useState(false)
+  const [ScreenWidth, setScreenWidth] = useState(null)
   const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
-    useState(false);
+    useState(false)
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
-    useState(false);
+    useState(false)
 
-  const [role, setRole] = useState("")
-  const [selectedUserDetails, setSelectedUserDetails] = useState(null);
+  const [role, setRole] = useState('')
+  const [selectedUserDetails, setSelectedUserDetails] = useState(null)
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
     // //console.log;
-    setScreenWidth(screenWidth);
-  }, []);
+    setScreenWidth(screenWidth)
+  }, [])
 
   //array of plans
-  const defaultPlan = XBarPlans;
-  const [plans, setPlans] = useState([]);
-  const [getPlansLoader, setGetPlansLoader] = useState(true);
+  const defaultPlan = XBarPlans
+  const [plans, setPlans] = useState([])
+  const [getPlansLoader, setGetPlansLoader] = useState(true)
 
   useEffect(() => {
-    getProfile();
-    getCardsList();
-  }, []);
+    getProfile()
+    getCardsList()
+  }, [])
 
   useEffect(() => {
-    console.log("Passed client data is", selectedUser)
-    console.log("Toggle plan passed is", togglePlan);
-    console.log("Current plan passed is", currentPlan);
+    console.log('Passed client data is', selectedUser)
+    console.log('Toggle plan passed is', togglePlan)
+    console.log('Current plan passed is', currentPlan)
   }, [togglePlan, currentPlan])
 
   useEffect(() => {
-    setGetPlansLoader(true);
-    const Data = localStorage.getItem("User");
+    setGetPlansLoader(true)
+    const Data = localStorage.getItem('User')
     let localData = null
     if (Data) {
-      const D = JSON.parse(Data);
+      const D = JSON.parse(Data)
       localData = D.user
     }
-    if (role === "Agency" || localData.agencyTeamMember === true) {
+    if (role === 'Agency' || localData.agencyTeamMember === true) {
       getPlans()
     } else {
-      setPlans(defaultPlan);
-      setGetPlansLoader(false);
+      setPlans(defaultPlan)
+      setGetPlansLoader(false)
     }
-  }, [role]);
+  }, [role])
 
   useEffect(() => {
-    console.log("Status of get plans loader is", getPlansLoader)
+    console.log('Status of get plans loader is', getPlansLoader)
   }, [getPlansLoader])
 
   const getPlans = async () => {
     try {
-      setGetPlansLoader(true);
-      const Token = AuthToken();
-      const ApiPath = Apis.getSubAccountPlans + "?userId=" + selectedUser.id;
+      setGetPlansLoader(true)
+      const Token = AuthToken()
+      const ApiPath = Apis.getSubAccountPlans + '?userId=' + selectedUser.id
       const response = await axios.get(ApiPath, {
         headers: {
-          "Authorization": "Bearer " + Token,
-          "Content-Type": "application/json"
-        }
-      });
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
 
       if (response) {
-        console.log("Response of get plans api is", response.data.data);
-        setPlans(response.data.data.xbarPlans);
-        setGetPlansLoader(false);
+        console.log('Response of get plans api is', response.data.data)
+        setPlans(response.data.data.xbarPlans)
+        setGetPlansLoader(false)
       }
-
     } catch (error) {
-      console.error("Error occured in getting plans", error);
-      setGetPlansLoader(false);
+      console.error('Error occured in getting plans', error)
+      setGetPlansLoader(false)
     }
   }
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
-      setGetPlansLoader(true);
-      let response = await AdminGetProfileDetails(selectedUser.id);
+      const localData = localStorage.getItem('User')
+      setGetPlansLoader(true)
+      let response = await AdminGetProfileDetails(selectedUser.id)
       //console.log;
       if (response) {
-        console.log("Response of get profile apis is",response)
+        console.log('Response of get profile apis is', response)
         setRole(response?.userRole)
-        setSelectedUserDetails(response?.data?.data); 
-        let togglePlan = response?.supportPlan;
+        setSelectedUserDetails(response?.data?.data)
+        let togglePlan = response?.supportPlan
         // let togglePlan = plan?.type;
-        let planType = null;
+        let planType = null
         // if (plan.status == "active") {
-        if (role !== "Agency") {
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
+        if (role !== 'Agency') {
+          if (togglePlan === 'Starter') {
+            planType = 1
+          } else if (togglePlan === 'Professional') {
+            planType = 2
+          } else if (togglePlan === 'Enterprise') {
+            planType = 3
           }
         } else {
-          let type = plans?.find((item) => item?.title === togglePlan);
+          let type = plans?.find((item) => item?.title === togglePlan)
           // planType = type?.id;
-          console.log("Passed support plan id is", selectedUser?.supportPlan)
-          planType = selectedUser?.supportPlan;
+          console.log('Passed support plan id is', selectedUser?.supportPlan)
+          planType = selectedUser?.supportPlan
         }
         // }
-        setUserLocalData(response);
-        console.log("plan type is ", response)
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
+        setUserLocalData(response)
+        console.log('plan type is ', response)
+        setTogglePlan(planType)
+        setCurrentPlan(planType)
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
-  };
+  }
 
   useEffect(() => {
     // //console.log;
-  }, [userLocalData]);
+  }, [userLocalData])
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      let planType = null;
+      let planType = null
 
       //// //console.log;
-      if (role !== "Agency") {
+      if (role !== 'Agency') {
         if (togglePlan === 1) {
-          planType = "Starter";
+          planType = 'Starter'
         } else if (togglePlan === 2) {
-          planType = "Professional";
+          planType = 'Professional'
         } else if (togglePlan === 3) {
-          planType = "Enterprise";
+          planType = 'Enterprise'
         }
+      } else {
+        let type = plans?.find((item) => item.id === togglePlan)
+        planType = type?.id
       }
-      else {
-        let type = plans?.find((item) => item.id === togglePlan);
-        planType = type?.id;
-      }
-      console.log("plan type is ", planType)
+      console.log('plan type is ', planType)
       // return
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
         if (cards.length > 0) {
           // //console.log;
         } else {
           //   setErrorSnack("No payment method added");
-          setAddPaymentPopup(true);
-          return;
+          setAddPaymentPopup(true)
+          return
         }
       }
 
@@ -239,134 +239,134 @@ function AdminXbarServices({ selectedUser }) {
       const ApiData = {
         supportPlan: planType,
         userId: selectedUser.id,
-      };
+      }
 
-      console.log("ApiData is", ApiData);
+      console.log('ApiData is', ApiData)
 
-      const ApiPath = Apis.purchaseSupportPlan;
+      const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          localDetails.user = response.data.data;
+          localDetails.user = response.data.data
           // //console.log;
 
           //   if (response2) {
-          let togglePlan = response?.data?.data?.supportPlan;
-          let planType = null;
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
+          let togglePlan = response?.data?.data?.supportPlan
+          let planType = null
+          if (togglePlan === 'Starter') {
+            planType = 1
+          } else if (togglePlan === 'Professional') {
+            planType = 2
+          } else if (togglePlan === 'Enterprise') {
+            planType = 3
           }
 
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          setTogglePlan(planType)
+          setCurrentPlan(planType)
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
           let msg
-          if (togglePlan == "Enterprise") {
-            msg = "Scale"
+          if (togglePlan == 'Enterprise') {
+            msg = 'Scale'
           }
-          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`)
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+      console.error('Error occured in api is:', error)
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
   const handleClose = (data) => {
     // //console.log;
     if (data.status === true) {
-      let newCard = data.data;
-      setAddPaymentPopup(false);
-      setCards([newCard, ...cards]);
+      let newCard = data.data
+      setAddPaymentPopup(false)
+      setCards([newCard, ...cards])
     }
-  };
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      const ApiPath = Apis.getCardsList
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setCards(response.data.data);
+          setCards(response.data.data)
         }
       }
     } catch (error) {
       // //console.log;
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
+  }
 
   //function to get card brand image
   const getPlanFromId = () => {
-    let planType = "";
+    let planType = ''
     if (togglePlan === 1) {
-      planType = "Starter";
+      planType = 'Starter'
     } else if (togglePlan === 2) {
-      planType = "Professional";
+      planType = 'Professional'
     } else if (togglePlan === 3) {
-      planType = "Scale";
+      planType = 'Scale'
     }
-    return planType;
-  };
+    return planType
+  }
 
   const handleSpeakToAGenius = () => {
-    console.log("Selected user details are", selectedUserDetails)
-    if(role !== "Agency"){
-      let url = PersistanceKeys.GlobalConsultationUrl;
-      if (typeof window !== "undefined") {
-        window.open(url, "_blank");
+    console.log('Selected user details are', selectedUserDetails)
+    if (role !== 'Agency') {
+      let url = PersistanceKeys.GlobalConsultationUrl
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank')
       }
     } else {
-      let url = selectedUserDetails?.userSettings?.hireTeamUrl;
-      if (typeof window !== "undefined") {
-        window.open(url, "_blank");
+      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank')
       }
     }
   }
@@ -374,15 +374,15 @@ function AdminXbarServices({ selectedUser }) {
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
       style={{
-        paddingBottom: "50px",
-        scrollbarWidth: "none", // For Firefox
-        WebkitOverflowScrolling: "touch",
+        paddingBottom: '50px',
+        scrollbarWidth: 'none', // For Firefox
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(null);
+          setErrorSnack(null)
         }}
         message={errorSnack}
         type={SnackbarTypes.Error}
@@ -390,7 +390,7 @@ function AdminXbarServices({ selectedUser }) {
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(null);
+          setSuccessSnack(null)
         }}
         message={successSnack}
         type={SnackbarTypes.Success}
@@ -404,11 +404,11 @@ function AdminXbarServices({ selectedUser }) {
             className=""
             style={{
               fontSize: 22,
-              fontWeight: "700",
-              color: "#000",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              fontWeight: '700',
+              color: '#000',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             X Bar Services
@@ -418,10 +418,10 @@ function AdminXbarServices({ selectedUser }) {
             style={{
               fontSize: 12,
 
-              color: "#000",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              color: '#000',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             {` Account > XBar Services`}
@@ -430,32 +430,32 @@ function AdminXbarServices({ selectedUser }) {
         <div
           className="w-10/12 p-6 rounded-lg flex flex-row items-center"
           style={{
-            backgroundImage: "url(/svgIcons/cardBg.svg)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            color: "#fff",
-            alignSelf: "center",
-            marginTop: "7vh",
+            backgroundImage: 'url(/svgIcons/cardBg.svg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            color: '#fff',
+            alignSelf: 'center',
+            marginTop: '7vh',
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div className="flex flex-col pt-5">
             <div
               style={{
-                fontSize: "2vh",
-                fontWeight: "700",
-                marginBottom: "10px",
+                fontSize: '2vh',
+                fontWeight: '700',
+                marginBottom: '10px',
               }}
             >
               X Bar Services
             </div>
             <p
               style={{
-                fontSize: "15px",
-                fontWeight: "400",
-                lineHeight: "1.5",
-                width: "90%",
+                fontSize: '15px',
+                fontWeight: '400',
+                lineHeight: '1.5',
+                width: '90%',
               }}
             >
               {` This is like the Apple Genius Bar but better. Get up and running
@@ -468,81 +468,94 @@ function AdminXbarServices({ selectedUser }) {
             <div className="flex flex-row justify-between">
               <div></div>
 
-
-             <Tooltip title={`${!selectedUserDetails?.userSettings?.hireTeamTitle && "Unavailable"}`}
-                  placement="top"
-                 arrow
-                  componentsProps={{
-                       tooltip: { sx: { backgroundColor: "#ffffff", color: "#333", fontSize: "14px", padding: "10px 15px", borderRadius: "8px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" }, }, arrow: { sx: { color: "#ffffff" } }, }}>
-                  <button
-                    className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
-                    onClick={(e) => {
-                      handleSpeakToAGenius();
-                    }}
-                  >
-                    Speak to a Genius
-                  </button>
-                </Tooltip>
-
-
+              <Tooltip
+                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
+                placement="top"
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '10px 15px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                    },
+                  },
+                  arrow: { sx: { color: '#ffffff' } },
+                }}
+              >
+                <button
+                  className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                  onClick={(e) => {
+                    handleSpeakToAGenius()
+                  }}
+                >
+                  Speak to a Genius
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>
 
-        {
-          getPlansLoader ? (
-            <div className="mt-4">
-              <CircularProgress size={25} />
-            </div>
-          ) : (
-            <div className="w-full flex flex-col items-center">
-              {plans?.map((item, index) => (
-                <button
-                  key={item.id}
-                  className="w-9/12 mt-4 outline-none"
-                  onClick={(e) => handleTogglePlanClick(item)}
-                  disabled={Number(item.id) === Number(togglePlan)}
+        {getPlansLoader ? (
+          <div className="mt-4">
+            <CircularProgress size={25} />
+          </div>
+        ) : (
+          <div className="w-full flex flex-col items-center">
+            {plans?.map((item, index) => (
+              <button
+                key={item.id}
+                className="w-9/12 mt-4 outline-none"
+                onClick={(e) => handleTogglePlanClick(item)}
+                disabled={Number(item.id) === Number(togglePlan)}
+              >
+                <div
+                  className="px-4 py-1 pb-4"
+                  style={{
+                    ...styles.pricingBox,
+                    border:
+                      Number(item.id) === Number(togglePlan)
+                        ? '2px solid #7902DF'
+                        : '1px solid #15151520',
+                    backgroundColor:
+                      Number(item.id) === Number(togglePlan) ? '#402FFF05' : '',
+                  }}
                 >
                   <div
-                    className="px-4 py-1 pb-4"
                     style={{
-                      ...styles.pricingBox,
-                      border:
-                        Number(item.id) === Number(togglePlan)
-                          ? "2px solid #7902DF"
-                          : "1px solid #15151520",
-                      backgroundColor: Number(item.id) === Number(togglePlan) ? "#402FFF05" : "",
+                      ...styles.triangleLabel,
+                      borderTopRightRadius: '7px',
                     }}
+                  ></div>
+                  <span style={styles.labelText}>{item.planStatus}</span>
+                  <div
+                    className="flex flex-row items-start gap-3"
+                    style={styles.content}
                   >
-                    <div
-                      style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-                    ></div>
-                    <span style={styles.labelText}>{item.planStatus}</span>
-                    <div
-                      className="flex flex-row items-start gap-3"
-                      style={styles.content}
-                    >
-                      <div className="mt-1">
-                        <div>
-                          {Number(item.id) === Number(togglePlan) ? (
-                            <Image
-                              src={"/svgIcons/checkMark.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={"/svgIcons/unCheck.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          )}
-                        </div>
+                    <div className="mt-1">
+                      <div>
+                        {Number(item.id) === Number(togglePlan) ? (
+                          <Image
+                            src={'/svgIcons/checkMark.svg'}
+                            height={24}
+                            width={24}
+                            alt="*"
+                          />
+                        ) : (
+                          <Image
+                            src={'/svgIcons/unCheck.svg'}
+                            height={24}
+                            width={24}
+                            alt="*"
+                          />
+                        )}
                       </div>
-                      <div className="w-full">
-                        {/* {item.id === currentPlan && (
+                    </div>
+                    <div className="w-full">
+                      {/* {item.id === currentPlan && (
                     <div
                       className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                       style={{
@@ -555,84 +568,90 @@ function AdminXbarServices({ selectedUser }) {
                     </div>
                   )} */}
 
-                        <div className="flex flex-row items-center gap-3">
+                      <div className="flex flex-row items-center gap-3">
+                        <div
+                          style={{
+                            color: '#151515',
+                            fontSize: 20,
+                            fontWeight: '600',
+                          }}
+                        >
+                          {role === 'Agency' ||
+                          selectedUser.agencyTeamMember === true
+                            ? item?.title
+                            : item.PlanTitle}
+                        </div>
+                        {item.status && (
                           <div
-                            style={{
-                              color: "#151515",
-                              fontSize: 20,
-                              fontWeight: "600",
-                            }}
+                            className="flex px-2 py-1 bg-purple rounded-full text-white"
+                            style={{ fontSize: 11.6, fontWeight: '500' }}
                           >
-                            {role === "Agency" || selectedUser.agencyTeamMember === true?item?.title:item.PlanTitle}
+                            {item.status}
                           </div>
-                          {item.status && (
+                        )}
+                      </div>
+                      <div className="flex flex-row items-center justify-between">
+                        <div className="flex flex-col justify-start">
+                          {item.details ? (
+                            item.details?.map((det, index) => {
+                              return (
+                                <div
+                                  className=""
+                                  style={{
+                                    color: '#15151590',
+                                    fontSize: 12,
+                                    //   width: "60%",
+                                    fontWeight: '600',
+                                  }}
+                                  key={index}
+                                >
+                                  {det}
+                                </div>
+                              )
+                            })
+                          ) : (
                             <div
-                              className="flex px-2 py-1 bg-purple rounded-full text-white"
-                              style={{ fontSize: 11.6, fontWeight: "500" }}
+                              className=""
+                              style={{
+                                color: '#15151590',
+                                fontSize: 12,
+                                //   width: "60%",
+                                fontWeight: '600',
+                              }}
                             >
-                              {item.status}
+                              {item.planDescription}
                             </div>
                           )}
                         </div>
-                        <div className="flex flex-row items-center justify-between">
-                          <div className="flex flex-col justify-start">
-
-                            {
-                              item.details ?
-                                item.details?.map((det, index) => {
-                                  return (
-                                    <div
-                                      className=""
-                                      style={{
-                                        color: "#15151590",
-                                        fontSize: 12,
-                                        //   width: "60%",
-                                        fontWeight: "600",
-                                      }}
-                                      key={index}
-                                    >
-                                      {det}
-                                    </div>
-                                  );
-                                }) : (
-                                  <div
-                                    className=""
-                                    style={{
-                                      color: "#15151590",
-                                      fontSize: 12,
-                                      //   width: "60%",
-                                      fontWeight: "600",
-                                    }}
-
-                                  >
-                                    {item.planDescription}
-                                  </div>
-                                )
-
+                        <div className="flex flex-row items-center">
+                          <div
+                            style={
+                              item.discountPrice
+                                ? styles.originalPrice
+                                : styles.discountedPrice
                             }
+                          >
+                            {item.originalPrice && (
+                              <div>${item.originalPrice}</div>
+                            )}
                           </div>
-                          <div className="flex flex-row items-center">
-                            <div style={item.discountPrice ? styles.originalPrice : styles.discountedPrice}>
-                              {item.originalPrice && <div>${item.originalPrice}</div>}
-                            </div>
-                            {item.discountPrice &&
-                              <div className="flex flex-row justify-start items-start ">
-                                <div style={styles.discountedPrice}>
-                                  ${item.discountPrice}
-                                </div>
-                                <p style={{ color: "#15151580" }}></p>
+                          {item.discountPrice && (
+                            <div className="flex flex-row justify-start items-start ">
+                              <div style={styles.discountedPrice}>
+                                ${item.discountPrice}
                               </div>
-                            }
-                          </div>
+                              <p style={{ color: '#15151580' }}></p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
-                </button>
-              ))}
-            </div>
-          )
-        }
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-col w-full items-center justify-center">
           {subscribePlanLoader ? (
@@ -644,16 +663,16 @@ function AdminXbarServices({ selectedUser }) {
               className="rounded-xl w-9/12 mt-8"
               disabled={togglePlan === currentPlan}
               style={{
-                height: "50px",
+                height: '50px',
                 fontSize: 16,
-                fontWeight: "700",
+                fontWeight: '700',
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                  togglePlan === currentPlan ? '#00000020' : '#7902DF',
+                color: togglePlan === currentPlan ? '#000000' : '#ffffff',
               }}
               onClick={() => {
-                setShowConfirmationModal(true);
+                setShowConfirmationModal(true)
               }}
             >
               Continue
@@ -666,11 +685,11 @@ function AdminXbarServices({ selectedUser }) {
         plan={getPlanFromId()}
         open={showConfirmationModal}
         onClose={() => {
-          setShowConfirmationModal(false);
+          setShowConfirmationModal(false)
         }}
         onConfirm={() => {
-          handleSubscribePlan();
-          setTimeout(() => setShowConfirmationModal(false), 0);
+          handleSubscribePlan()
+          setTimeout(() => setShowConfirmationModal(false), 0)
         }}
       />
       {/* Add Payment Modal */}
@@ -681,7 +700,7 @@ function AdminXbarServices({ selectedUser }) {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -691,23 +710,23 @@ function AdminXbarServices({ selectedUser }) {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -720,8 +739,8 @@ function AdminXbarServices({ selectedUser }) {
                   stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  togglePlan={''}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -729,90 +748,90 @@ function AdminXbarServices({ selectedUser }) {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default AdminXbarServices;
+export default AdminXbarServices
 const styles = {
   text: {
     fontSize: 12,
-    color: "#00000090",
+    color: '#00000090',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
+    color: '#000000',
     fontWeight: 500,
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   paymentModal: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   gitTextStyle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   //style for plans
   cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
+    fontSize: '14',
+    fontWeight: '500',
+    border: '1px solid #00000020',
   },
   pricingBox: {
-    position: "relative",
+    position: 'relative',
     // padding: '10px',
-    borderRadius: "10px",
+    borderRadius: '10px',
     // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
+    display: 'inline-block',
+    width: '100%',
   },
   triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    width: '0',
+    height: '0',
+    borderTop: '50px solid #7902DF', // Increased height again for more padding
+    borderLeft: '50px solid transparent',
   },
   labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
+    position: 'absolute',
+    top: '10px', // Adjusted to keep the text centered within the larger triangle
+    right: '5px',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    transform: 'rotate(45deg)',
   },
   content: {
-    textAlign: "left",
-    paddingTop: "10px",
+    textAlign: 'left',
+    paddingTop: '10px',
   },
   originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
+    textDecoration: 'line-through',
+    color: '#7902DF65',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   discountedPrice: {
-    color: "#000000",
-    fontWeight: "bold",
+    color: '#000000',
+    fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: "10px",
+    marginLeft: '10px',
   },
-};
+}

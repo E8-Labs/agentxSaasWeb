@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 function RealEstateOtherDetails({
   inputsFields,
@@ -23,14 +23,14 @@ function RealEstateOtherDetails({
         enterKeyHint="done"
         placeholder="Your territory"
         className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: "8px" }}
+        style={{ ...styles.inputStyle, marginTop: '8px' }}
         value={userFarm}
         onChange={(e) => {
-          setUserFarm(e.target.value);
+          setUserFarm(e.target.value)
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === "Done") {
-            inputsFields.current[1]?.focus(); // Move to the second input
+          if (e.key === 'Enter' || e.key === 'Done') {
+            inputsFields.current[1]?.focus() // Move to the second input
           }
         }}
       />
@@ -46,14 +46,14 @@ function RealEstateOtherDetails({
         enterKeyHint="done"
         placeholder="Brokerage"
         className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: "8px" }}
+        style={{ ...styles.inputStyle, marginTop: '8px' }}
         value={userBrokage}
         onChange={(e) => {
-          setUserBrokage(e.target.value);
+          setUserBrokage(e.target.value)
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === "Done") {
-            inputsFields.current[2]?.focus(); // Move to the second input
+          if (e.key === 'Enter' || e.key === 'Done') {
+            inputsFields.current[2]?.focus() // Move to the second input
           }
         }}
       />
@@ -72,49 +72,49 @@ function RealEstateOtherDetails({
         inputMode="numeric"
         pattern="[0-9]*"
         className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: "8px" }}
+        style={{ ...styles.inputStyle, marginTop: '8px' }}
         value={userTransaction}
         onChange={(e) => {
           // Only keep digits in state
-          const onlyNums = e.target.value.replace(/\D/g, "");
-          setUserTransaction(onlyNums);
+          const onlyNums = e.target.value.replace(/\D/g, '')
+          setUserTransaction(onlyNums)
         }}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === "Done") {
-            handleVerifyPopup();
+          if (e.key === 'Enter' || e.key === 'Done') {
+            handleVerifyPopup()
           }
         }}
       />
     </div>
-  );
+  )
 }
 
-export default RealEstateOtherDetails;
+export default RealEstateOtherDetails
 
 const styles = {
   headingStyle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   inputStyle: {
     fontSize: 15,
-    fontWeight: "500",
-    borderRadius: "7px",
+    fontWeight: '500',
+    borderRadius: '7px',
   },
   errmsg: {
     fontSize: 12,
-    fontWeight: "500",
-    borderRadius: "7px",
+    fontWeight: '500',
+    borderRadius: '7px',
   },
   verifyPopup: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

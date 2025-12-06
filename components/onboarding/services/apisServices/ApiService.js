@@ -1,22 +1,23 @@
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import Apis from "@/components/apis/Apis";
-import getProfileDetails from "@/components/apis/GetProfile";
-import { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { PersistanceKeys } from "@/constants/Constants";
-import CircularLoader from "@/utilities/CircularLoader";
-import axios from "axios";
+import axios from 'axios'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { PersistanceKeys } from '@/constants/Constants'
+import CircularLoader from '@/utilities/CircularLoader'
 
 //api call to assign lead to teamm members
-export const AssignTeamMember = async (ApiData) => {
+export const AssignTeamMember = async (ApiData,selectedUser) => {
   try {
     // //console.log
-    let AuthToken = null;
-    const localData = localStorage.getItem("User");
+    let AuthToken = null
+    const localData = localStorage.getItem('User')
     // //console.log
     if (localData) {
-      const Data = JSON.parse(localData);
+      const Data = JSON.parse(localData)
       //// //console.log;
-      AuthToken = Data.token;
+      AuthToken = Data.token
       // return Data.token
     }
     // //console.log
@@ -26,55 +27,59 @@ export const AssignTeamMember = async (ApiData) => {
     //   leadId: leadId,
     //   teamMemberUserId: teamMemberUserId,
     // };
-    console.log("Api data sending in assign lead to team api is", ApiData);
+    console.log('Api data sending in assign lead to team api is', ApiData)
     // return;
 
-    const ApiPath = Apis.AssignLeadToTeam;
+    const ApiPath = Apis.AssignLeadToTeam
+
+    if(selectedUser){
+      ApiData.userId = selectedUser.id
+    }
     // //console.log
     // return
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
-        Authorization: "Bearer " + AuthToken,
-        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + AuthToken,
+        'Content-Type': 'application/json',
       },
-    });
+    })
 
     if (response) {
-      console.log("Respose of assign lead to team is", response);
-      return response;
+      console.log('Respose of assign lead to team is', response)
+      return response
     }
   } catch (error) {
-    // console.error("Error occured in assign lead to teammeber api is", error);
+    console.error("Error occured in assign lead to teammeber api is", error);
   } finally {
     // //console.log;
   }
-};
+}
 
 //api call to check the phone number availability
 export const checkPhoneNumber = async (value) => {
   try {
-    const ApiPath = Apis.CheckPhone;
+    const ApiPath = Apis.CheckPhone
 
     const ApiData = {
       phone: value,
-    };
+    }
 
     // //console.log;
 
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    });
+    })
 
     if (response) {
-      return response;
+      return response
     }
   } catch (error) {
     // console.error("Error occured in check phone api is :", error);
   } finally {
   }
-};
+}
 
 //function to get location
 export const getLocation = () => {
@@ -84,27 +89,27 @@ export const getLocation = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
-        localStorage.setItem("CompleteLocation", JSON.stringify(position));
+        const { latitude, longitude } = position.coords
+        localStorage.setItem('CompleteLocation', JSON.stringify(position))
         try {
           // //console.log
           // Fetch country code based on latitude and longitude
           const response = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-          );
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+          )
           // //console.log
-          const data = await response.json();
+          const data = await response.json()
           // //console.log
 
           // Set the country code if the API returns it
           const locationData = {
             location: data.countryCode.toLowerCase(),
-          };
+          }
           // //console.log
           if (data && data.countryCode) {
-            localStorage.setItem("userLocation", JSON.stringify(locationData));
+            localStorage.setItem('userLocation', JSON.stringify(locationData))
             // //console.log
-            getLocalLocation();
+            getLocalLocation()
             // //console.log
           } else {
             // console.error("Unable to fetch country code.");
@@ -116,49 +121,49 @@ export const getLocation = () => {
       },
       (error) => {
         // console.error("Geolocation error:", error.message);
-      }
-    );
+      },
+    )
   } else {
     // console.error("Geolocation is not supported by this browser.");
   }
-};
+}
 
 export const getLocalLocation = () => {
   // //console.log
-  const loc = localStorage.getItem("userLocation");
+  const loc = localStorage.getItem('userLocation')
   // //console.log
 
   if (loc) {
-    const L = JSON.parse(loc);
+    const L = JSON.parse(loc)
     if (L) {
       // //console.log
     }
-    return L?.location;
+    return L?.location
   } else if (!loc) {
-    return "us";
+    return 'us'
   }
-};
+}
 
 //function to get the teamsList
 export const getTeamsList = async () => {
   try {
-    const data = localStorage.getItem("User");
+    const data = localStorage.getItem('User')
 
     if (data) {
-      let u = JSON.parse(data);
+      let u = JSON.parse(data)
 
-      let path = Apis.getTeam;
+      let path = Apis.getTeam
 
       const response = await axios.get(path, {
         headers: {
-          Authorization: "Bearer " + u.token,
+          Authorization: 'Bearer ' + u.token,
         },
-      });
+      })
 
       if (response) {
         if (response.data.status === true) {
           // //console.log;
-          return response.data;
+          return response.data
         } else {
           // //console.log;
           // return response.data.data
@@ -170,63 +175,66 @@ export const getTeamsList = async () => {
   } finally {
     // //console.log;
   }
-};
+}
 
 //generate the link for add stripe
 export const getStripeLink = async (setLoader, popupWindow = null) => {
   try {
-    setLoader(true);
-    const data = await getProfileDetails();
-    console.log("Working");
+    setLoader(true)
+    const data = await getProfileDetails()
+    console.log('Working')
     if (data) {
       const D = data.data.data
-      console.log("Getprofile data is", D);
+      console.log('Getprofile data is', D)
       if (D.plan) {
-        const Token = AuthToken();
-        const ApiPath = Apis.createOnboardingLink;
+        const Token = AuthToken()
+        const ApiPath = Apis.createOnboardingLink
         const response = await axios.post(ApiPath, null, {
           headers: {
-            "Authorization": "Bearer " + Token
-          }
-        });
+            Authorization: 'Bearer ' + Token,
+          },
+        })
         if (response) {
-          console.log("Route user to connect stripe");
-          console.log("Payment link is", response.data.data.url);
-          
+          console.log('Route user to connect stripe')
+          console.log('Payment link is', response.data.data.url)
+
           // If popup window was passed, redirect it to the Stripe URL
           if (popupWindow && !popupWindow.closed) {
-            popupWindow.location.href = response.data.data.url;
+            popupWindow.location.href = response.data.data.url
           } else {
             // Fallback to opening in same tab if popup was blocked
-            window.location.href = response.data.data.url;
+            window.location.href = response.data.data.url
           }
-          setLoader(false);
+          setLoader(false)
         }
         // router.push("/agency/verify")
       } else {
-        console.log("Need to subscribe plan");
+        console.log('Need to subscribe plan')
         const d = {
-          subPlan: false
+          subPlan: false,
         }
-        localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
-        
+        localStorage.setItem(
+          PersistanceKeys.LocalStorageSubPlan,
+          JSON.stringify(d),
+        )
+
         // Close popup if it was opened
         if (popupWindow && !popupWindow.closed) {
-          popupWindow.close();
+          popupWindow.close()
         }
-        
-        window.location.href = "/agency/onboarding";
+
+        window.location.href = '/agency/onboarding'
       }
     }
   } catch (error) {
-    setLoader(false);
-    
+    setLoader(false)
+
     // Close popup on error
     if (popupWindow && !popupWindow.closed) {
-      popupWindow.close();
+      popupWindow.close()
     }
-    
-    console.error("Error occured  in getVerify link api is", error);
+
+    console.error('Error occured  in getVerify link api is', error)
   }
 }
 
@@ -235,39 +243,43 @@ export const handleDisconnectTwilio = async ({
   setDisConnectLoader,
   setShowSnackMessage,
   setShowSnackType,
-  selectedAgency
+  selectedAgency,
 }) => {
   try {
-    setDisConnectLoader(true);
-    const token = AuthToken();
-    const ApiPath = Apis.disconnectTwilio;
-    let ApiData = null;
+    setDisConnectLoader(true)
+    const token = AuthToken()
+    const ApiPath = Apis.disconnectTwilio
+    let ApiData = null
     if (selectedAgency) {
       ApiData = {
-        userId: selectedAgency.id
+        userId: selectedAgency.id,
       }
     }
-    const response = await axios.post(ApiPath, { ApiData }, {
-      headers: {
-        "Authorization": "Bearer " + token,
-        // "Content-Type": "application/json"
-      }
-    });
+    const response = await axios.post(
+      ApiPath,
+      { ApiData },
+      {
+        headers: {
+          Authorization: 'Bearer ' + token,
+          // "Content-Type": "application/json"
+        },
+      },
+    )
     if (response) {
-      console.log("Response of disconnect twilio api is", response);
+      console.log('Response of disconnect twilio api is', response)
       const ApiResponse = response.data
       if (ApiResponse.status === true) {
-        localStorage.removeItem(PersistanceKeys.twilioHubData);
-        console.log("Twilio disconnected",response.data);
+        localStorage.removeItem(PersistanceKeys.twilioHubData)
+        console.log('Twilio disconnected', response.data)
         // setShowSnack({
         //   message: "Twilio disconnected.",//ApiResponse.message
         //   isVisible: true,
         //   type: SnackbarTypes.Success,
         // });
-        setShowSnackMessage("Twilio disconnected");
-        setShowSnackType(SnackbarTypes.Success);
-        await getProfileDetails();
-        return true;
+        setShowSnackMessage('Twilio disconnected')
+        setShowSnackType(SnackbarTypes.Success)
+        await getProfileDetails()
+        return true
         // setTwilioHubData(null);
         // setProfileStatus(true);
 
@@ -282,16 +294,15 @@ export const handleDisconnectTwilio = async ({
         //   isVisible: true,
         //   type: SnackbarTypes.Success,
         // });
-        setShowSnackMessage(ApiResponse.message);
-        setShowSnackType(SnackbarTypes.Error);
+        setShowSnackMessage(ApiResponse.message)
+        setShowSnackType(SnackbarTypes.Error)
       }
-      setDisConnectLoader(false);
+      setDisConnectLoader(false)
     }
   } catch (error) {
-    setDisConnectLoader(false);
-    console.log("Error occured in disconnet twilio api is", error);
-  }
-  finally {
-    setDisConnectLoader(false);
+    setDisConnectLoader(false)
+    console.log('Error occured in disconnet twilio api is', error)
+  } finally {
+    setDisConnectLoader(false)
   }
 }

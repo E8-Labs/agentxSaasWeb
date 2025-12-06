@@ -1,241 +1,243 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import moment from "moment";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { ShowConfirmationPopup } from "./AdminDashboardActiveCall";
-import { PersistanceKeys } from "@/constants/Constants";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
-function AdminDashboardScheduledCalls({ }) {
+import Apis from '@/components/apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
+import { GetFormattedDateString } from '@/utilities/utility'
 
-  const Limit = 30;
-  const LimitPerPage = 20;
-  const [user, setUser] = useState(null);
+import { ShowConfirmationPopup } from './AdminDashboardActiveCall'
 
-  const [leadsLoading, setLeadsLoading] = useState(false);
-  const [hasMoreLeads, setHasMoreLeads] = useState(true);
-  
+function AdminDashboardScheduledCalls({}) {
+  const Limit = 30
+  const LimitPerPage = 20
+  const [user, setUser] = useState(null)
+
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [hasMoreLeads, setHasMoreLeads] = useState(true)
+
   // Pagination state
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
 
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('')
   //code for agent details
-  const [callDetails, setCallDetails] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [agentsList, setAgentsList] = useState([]);
-  const [filteredAgentsList, setFilteredAgentsList] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [callDetails, setCallDetails] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [agentsList, setAgentsList] = useState([])
+  const [filteredAgentsList, setFilteredAgentsList] = useState([])
+  const [anchorEl, setAnchorEl] = React.useState(null)
   //code for call log details
-  const [SelectedAgent, setSelectedAgent] = useState(null);
-  const [SelectedItem, setSelectedItem] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
-  const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
+  const [SelectedAgent, setSelectedAgent] = useState(null)
+  const [SelectedItem, setSelectedItem] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false)
+  const [sheduledCalllogs, setSheduledCalllogs] = useState([])
   //code for details view search
   const [filteredSheduledCalllogs, setFilteredSheduledCallDetails] = useState(
-    []
-  );
-  const [callDetailsSearchValue, setcallDetailsSearchValue] = useState("");
+    [],
+  )
+  const [callDetailsSearchValue, setcallDetailsSearchValue] = useState('')
   //code for leeads details modal
-  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false);
-  const [selectedLeadsList, setSelectedLeadsList] = useState([]);
-  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState(
-    []
-  );
-  const [leadsSearchValue, setLeadsSearchValue] = useState("");
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
+  const [selectedLeadsList, setSelectedLeadsList] = useState([])
+  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState([])
+  const [leadsSearchValue, setLeadsSearchValue] = useState('')
 
   //variable for warningpopup
-  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
-  const [color, setColor] = useState(false);
+  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null)
+  const [color, setColor] = useState(false)
 
-  const [PauseLoader, setPauseLoader] = useState(false);
+  const [PauseLoader, setPauseLoader] = useState(false)
 
   useEffect(() => {
     getAgents({
-      length: "",
+      length: '',
       isPagination: false,
-      sortData: null
-    });
+      sortData: null,
+    })
     // getSheduledCallLogs();
-    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (localD) {
-      let d = JSON.parse(localD);
-      setUser(d);
+      let d = JSON.parse(localD)
+      setUser(d)
     }
-  }, []);
+  }, [])
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget)
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
+    setSelectedAgent(agent)
+    setSelectedItem(item)
   }
 
   const handleClosePopup = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-    setSelectedLeadsList([]);
-    setFilteredSelectedLeadsList([]);
-    setShowLeadDetailsModal(true);
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+    setSelectedLeadsList([])
+    setFilteredSelectedLeadsList([])
+    setShowLeadDetailsModal(true)
     fetchLeadsInBatch(item)
-  };
+  }
 
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSelectedLeadsList(selectedLeadsList);
-      return;
+      setFilteredSelectedLeadsList(selectedLeadsList)
+      return
     }
 
     const filtered = selectedLeadsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSelectedLeadsList(filtered);
-  };
+    setFilteredSelectedLeadsList(filtered)
+  }
 
   //code to get agents
   const getAgents = async (passedData) => {
-    console.log("Getting scheduled calls data with params:", passedData);
+    console.log('Getting scheduled calls data with params:', passedData)
 
     // Check if we should load from cache (initial load with no pagination)
-    const shouldLoadFromCache = !passedData?.length && !passedData?.isPagination;
-    
+    const shouldLoadFromCache = !passedData?.length && !passedData?.isPagination
+
     if (shouldLoadFromCache) {
-      const localScheduleCalls = localStorage.getItem("adminScheduledCalls");
+      const localScheduleCalls = localStorage.getItem('adminScheduledCalls')
       if (localScheduleCalls) {
         try {
-          const S = JSON.parse(localScheduleCalls);
-          console.log("Loading scheduled calls from cache:", S.length, "items");
-          setFilteredAgentsList(S);
-          setCallDetails(S);
-          setAgentsList(S);
-          setInitialLoader(false);
+          const S = JSON.parse(localScheduleCalls)
+          console.log('Loading scheduled calls from cache:', S.length, 'items')
+          setFilteredAgentsList(S)
+          setCallDetails(S)
+          setAgentsList(S)
+          setInitialLoader(false)
         } catch (err) {
-          console.warn("Error parsing cached scheduled calls data", err);
-          localStorage.removeItem("adminScheduledCalls");
+          console.warn('Error parsing cached scheduled calls data', err)
+          localStorage.removeItem('adminScheduledCalls')
         }
       } else {
-        console.log("No cached data found for scheduled calls");
+        console.log('No cached data found for scheduled calls')
       }
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
       if (passedData?.isPagination === false) {
-        setInitialLoader(true);
+        setInitialLoader(true)
       }
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
-      let mainAgent = null;
-      const localAgent = localStorage.getItem("agentDetails");
+      let mainAgent = null
+      const localAgent = localStorage.getItem('agentDetails')
       if (localAgent) {
-        const agentDetails = JSON.parse(localAgent);
-        mainAgent = agentDetails;
+        const agentDetails = JSON.parse(localAgent)
+        mainAgent = agentDetails
       }
-      
-      // Add pagination parameters
-      const offset = passedData?.length || 0;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true&offset=${offset}&limit=${LimitPerPage}`;
 
-      console.log("API Path:", ApiPath);
+      // Add pagination parameters
+      const offset = passedData?.length || 0
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true&offset=${offset}&limit=${LimitPerPage}`
+
+      console.log('API Path:', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        const D = response.data.data;
-        console.log("Fetched scheduled calls from API:", D.length, "items");
-        console.log("Sample data structure:", D[0]);
+        const D = response.data.data
+        console.log('Fetched scheduled calls from API:', D.length, 'items')
+        console.log('Sample data structure:', D[0])
 
         // Handle pagination vs initial load differently
         if (passedData?.isPagination) {
           // For pagination, append to existing data
-          const updatedData = [...filteredAgentsList, ...D];
-          console.log("Appending paginated data. Total items now:", updatedData.length);
-          setFilteredAgentsList(updatedData);
-          setCallDetails(updatedData);
-          setAgentsList(updatedData);
+          const updatedData = [...filteredAgentsList, ...D]
+          console.log(
+            'Appending paginated data. Total items now:',
+            updatedData.length,
+          )
+          setFilteredAgentsList(updatedData)
+          setCallDetails(updatedData)
+          setAgentsList(updatedData)
         } else {
           // For initial load, replace all data
-          console.log("Replacing all data with fresh API data");
-          setFilteredAgentsList(D);
-          setCallDetails(D);
-          setAgentsList(D);
+          console.log('Replacing all data with fresh API data')
+          setFilteredAgentsList(D)
+          setCallDetails(D)
+          setAgentsList(D)
         }
 
-        setInitialLoader(false);
-        setLoading(false);
+        setInitialLoader(false)
+        setLoading(false)
 
         // Save to cache only for initial load
         if (shouldLoadFromCache) {
-          localStorage.setItem("adminScheduledCalls", JSON.stringify(D));
-          console.log("Saved scheduled calls to cache:", D.length, "items");
+          localStorage.setItem('adminScheduledCalls', JSON.stringify(D))
+          console.log('Saved scheduled calls to cache:', D.length, 'items')
         }
 
         if (D.length < LimitPerPage) {
-          setHasMore(false);
+          setHasMore(false)
         }
       } else {
-        console.log("No data received from API:", response?.data);
+        console.log('No data received from API:', response?.data)
       }
     } catch (error) {
-      console.error("Error occurred in getting scheduled calls API:", error);
+      console.error('Error occurred in getting scheduled calls API:', error)
       // If API fails and we have cached data, keep showing cached data
       if (!shouldLoadFromCache) {
-        const cachedData = localStorage.getItem("adminScheduledCalls");
+        const cachedData = localStorage.getItem('adminScheduledCalls')
         if (cachedData) {
           try {
-            const parsedCachedData = JSON.parse(cachedData);
-            setFilteredAgentsList(parsedCachedData);
-            setCallDetails(parsedCachedData);
-            setAgentsList(parsedCachedData);
+            const parsedCachedData = JSON.parse(cachedData)
+            setFilteredAgentsList(parsedCachedData)
+            setCallDetails(parsedCachedData)
+            setAgentsList(parsedCachedData)
           } catch (err) {
-            console.warn("Error parsing cached data after API failure", err);
+            console.warn('Error parsing cached data after API failure', err)
           }
         }
       }
     } finally {
-      setInitialLoader(false);
-      setLoading(false);
+      setInitialLoader(false)
+      setLoading(false)
     }
-  };
+  }
 
   //code to show call log details popup
 
@@ -245,8 +247,8 @@ function AdminDashboardScheduledCalls({ }) {
     //// //console.log;
     //// //console.log;
     // //console.log;
-    let updatedCallDetails = callDetails.map((item) => item.agentCalls);
-    let CallsArray = [];
+    let updatedCallDetails = callDetails.map((item) => item.agentCalls)
+    let CallsArray = []
 
     // updatedCallDetails.forEach((item) => {
     //     if (item.agentId === SelectedItem.id) {
@@ -257,44 +259,43 @@ function AdminDashboardScheduledCalls({ }) {
     //// //console.log;
 
     const calls = SelectedItem.agentCalls.map((item) =>
-      item.calls.map((item) => item.leadId)
-    );
+      item.calls.map((item) => item.leadId),
+    )
 
-    const leads = SelectedItem.leads.map((item) => item.id);
+    const leads = SelectedItem.leads.map((item) => item.id)
 
     const matchingCallLeadsData = SelectedItem.leads.filter((lead) => {
       lead.id ===
         SelectedItem.agentCalls.map((item) =>
-          item.calls.map((item) => item.leadId)
-        );
-      return lead;
-    });
+          item.calls.map((item) => item.leadId),
+        )
+      return lead
+    })
     // //console.log;
     // //console.log;
 
-    setSheduledCalllogs(matchingCallLeadsData);
-    setFilteredSheduledCallDetails(matchingCallLeadsData);
-    setShowDetailsModal(true);
-  };
-
+    setSheduledCalllogs(matchingCallLeadsData)
+    setFilteredSheduledCallDetails(matchingCallLeadsData)
+    setShowDetailsModal(true)
+  }
 
   const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstApiCall = false;
-      setLeadsLoading(true);
+      let firstApiCall = false
+      setLeadsLoading(true)
       let leadsInBatchLocalData = localStorage.getItem(
-        PersistanceKeys.LeadsInBatch + `${batch.id}`
-      );
+        PersistanceKeys.LeadsInBatch + `${batch.id}`,
+      )
       if (selectedLeadsList.length == 0) {
-        firstApiCall = true;
+        firstApiCall = true
         if (leadsInBatchLocalData) {
           //console.log;
-          let leads = JSON.parse(leadsInBatchLocalData);
+          let leads = JSON.parse(leadsInBatchLocalData)
           //console.log;
           // setSelectedLeadsList(leads);
           // setFilteredSelectedLeadsList(leads);
-          setLeadsLoading(false);
+          setLeadsLoading(false)
           // return;
         } else {
           //console.log;
@@ -303,23 +304,18 @@ function AdminDashboardScheduledCalls({ }) {
         //console.log;
       }
 
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log(
-        "Api Call Leads : ",
-        path
-      );
-      const response = await fetch(path,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setLeadsLoading(false);
-      const data = await response.json();
+      console.log('Api Call Leads : ', path)
+      const response = await fetch(path, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      setLeadsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
@@ -330,131 +326,130 @@ function AdminDashboardScheduledCalls({ }) {
         //   JSON.stringify(data.data)
         // );
 
-        console.log("Response of leads list detail", data.data)
+        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
-          setSelectedLeadsList(data.data);
-          setFilteredSelectedLeadsList(data.data);
+          setSelectedLeadsList(data.data)
+          setFilteredSelectedLeadsList(data.data)
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
-            JSON.stringify(data.data)
-          );
+            JSON.stringify(data.data),
+          )
         } else {
-          setSelectedLeadsList((prev) => [...prev, ...data.data]);
-          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setSelectedLeadsList((prev) => [...prev, ...data.data])
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data])
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.length < Limit) {
-          setHasMoreLeads(false);
+          setHasMoreLeads(false)
         } else {
-          setHasMoreLeads(true);
+          setHasMoreLeads(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data);
+        console.error('Failed to fetch leads in batch:', data)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
+      console.error('Error fetching leads in batch:', error)
     }
-  };
+  }
   //code for details search field
   const handleDetailsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSheduledCallDetails(sheduledCalllogs);
-      return;
+      setFilteredSheduledCallDetails(sheduledCalllogs)
+      return
     }
 
     const filtered = sheduledCalllogs.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSheduledCallDetails(filtered);
-  };
+    setFilteredSheduledCallDetails(filtered)
+  }
 
   const handleSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredAgentsList(agentsList);
-      return;
+      setFilteredAgentsList(agentsList)
+      return
     }
 
     const filtered = agentsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredAgentsList(filtered);
-  };
-
+    setFilteredAgentsList(filtered)
+  }
 
   //code to pause the agent
   const pauseAgents = async () => {
     // //console.log;
 
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.pauseAgent;
+      setPauseLoader(true)
+      const ApiPath = Apis.pauseAgent
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Paused",
-              };
+                status: 'Paused',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -462,9 +457,9 @@ function AdminDashboardScheduledCalls({ }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
+  }
 
   //function to resume calls
   const resumeCalls = async () => {
@@ -472,52 +467,52 @@ function AdminDashboardScheduledCalls({ }) {
     // //console.log
     // return
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.resumeCalls;
+      setPauseLoader(true)
+      const ApiPath = Apis.resumeCalls
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Active",
-              };
+                status: 'Active',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -525,10 +520,9 @@ function AdminDashboardScheduledCalls({ }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
-
+  }
 
   return (
     <div className="w-full items-start">
@@ -585,9 +579,7 @@ function AdminDashboardScheduledCalls({ }) {
           <div style={styles.text}>Scheduled on</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>
-            Action
-          </div>
+          <div style={styles.text}>Action</div>
         </div>
       </div>
 
@@ -597,19 +589,23 @@ function AdminDashboardScheduledCalls({ }) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-[65vh] overflow-auto`} style={{ scrollbarWidth: "none" }} id="scrollableDiv1">
+          <div
+            className={`h-[65vh] overflow-auto`}
+            style={{ scrollbarWidth: 'none' }}
+            id="scrollableDiv1"
+          >
             {filteredAgentsList?.length > 0 ? (
               <InfiniteScroll
                 className="lg:flex hidden flex-col w-full"
                 endMessage={
                   <p
                     style={{
-                      textAlign: "center",
-                      paddingTop: "10px",
-                      fontWeight: "400",
-                      fontFamily: "inter",
+                      textAlign: 'center',
+                      paddingTop: '10px',
+                      fontWeight: '400',
+                      fontFamily: 'inter',
                       fontSize: 16,
-                      color: "#00000060",
+                      color: '#00000060',
                     }}
                   >
                     {`You're all caught up`}
@@ -622,8 +618,8 @@ function AdminDashboardScheduledCalls({ }) {
                     getAgents({
                       length: filteredAgentsList.length,
                       isPagination: true,
-                      sortData: null
-                    });
+                      sortData: null,
+                    })
                   }
                 }}
                 hasMore={hasMore}
@@ -632,7 +628,7 @@ function AdminDashboardScheduledCalls({ }) {
                     <CircularProgress size={35} />
                   </div>
                 }
-                style={{ overflow: "unset" }}
+                style={{ overflow: 'unset' }}
               >
                 {filteredAgentsList.map((item, index) => {
                   return (
@@ -643,46 +639,48 @@ function AdminDashboardScheduledCalls({ }) {
                             <div
                               className="w-full flex flex-row items-center justify-between mt-10 px-10"
                               key={index}
-                            > 
+                            >
                               <div className="w-2/12">
                                 <div style={styles.text2}>
-                                  {item.agency?.name || "AssignX Main Admin"}
+                                  {item.agency?.name || 'AssignX Main Admin'}
                                 </div>
                               </div>
 
-                              <button className="w-2/12 flex flex-row gap-3 items-center"
+                              <button
+                                className="w-2/12 flex flex-row gap-3 items-center"
                                 onClick={() => {
                                   if (item?.user?.id) {
                                     // Open a new tab with user ID as query param
                                     let url = ` admin/users?userId=${item?.user?.id}`
                                     //console.log
-                                    window.open(url, "_blank");
+                                    window.open(url, '_blank')
                                   }
                                 }}
                               >
-                                  {item?.user?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={item?.user?.thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {item?.user?.name.slice(0, 1).toUpperCase()}
-                                    </div>
-                                  )}
-                                  <div style={styles.text2}>{item?.user?.name}</div>
+                                {item?.user?.thumb_profile_image ? (
+                                  <Image
+                                    className="rounded-full"
+                                    src={item?.user?.thumb_profile_image}
+                                    height={40}
+                                    width={40}
+                                    style={{
+                                      height: '40px',
+                                      width: '40px',
+                                      resize: 'cover',
+                                    }}
+                                    alt="*"
+                                  />
+                                ) : (
+                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                    {item?.user?.name.slice(0, 1).toUpperCase()}
+                                  </div>
+                                )}
+                                <div style={styles.text2}>
+                                  {item?.user?.name}
+                                </div>
+                              </button>
 
-                                </button>
-
-                                <div className="w-2/12 flex flex-row gap-4 items-center">
+                              <div className="w-2/12 flex flex-row gap-4 items-center">
                                 {/* {agent?.agents[0]?.thumb_profile_image ? (
                                                                 <Image
                                                                   className="rounded-full"
@@ -709,14 +707,13 @@ function AdminDashboardScheduledCalls({ }) {
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
 
-
                               <div className="w-2/12 ">
                                 {agent?.agents[0]?.agentObjective ? (
                                   <div style={styles.text2}>
                                     {agent.agents[0]?.agentObjective}
                                   </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
                               <div className="w-1/12">
@@ -724,7 +721,7 @@ function AdminDashboardScheduledCalls({ }) {
                                   style={styles.text2}
                                   className="text-purple underline outline-none"
                                   onClick={() => {
-                                    handleShowLeads(agent, item);
+                                    handleShowLeads(agent, item)
                                   }}
                                 >
                                   {item?.totalLeads}
@@ -733,23 +730,21 @@ function AdminDashboardScheduledCalls({ }) {
                               <div className="w-1/12">
                                 {item?.createdAt ? (
                                   <div style={styles.text2}>
-                                    {GetFormattedDateString(
-                                      item?.createdAt
-                                    )}
+                                    {GetFormattedDateString(item?.createdAt)}
                                   </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
                               <div className="w-2/12">
                                 {item.startTime ? (
                                   <div style={styles.text2}>
                                     {moment(item.startTime).format(
-                                      "MMM DD,YYYY - hh:mm A"
+                                      'MMM DD,YYYY - hh:mm A',
                                     )}
                                   </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
                               <div className="w-1/12">
@@ -757,11 +752,11 @@ function AdminDashboardScheduledCalls({ }) {
                                   aria-describedby={id}
                                   variant="contained"
                                   onClick={(event) => {
-                                    handleShowPopup(event, item, agent);
+                                    handleShowPopup(event, item, agent)
                                   }}
                                 >
                                   <Image
-                                    src={"/otherAssets/threeDotsIcon.png"}
+                                    src={'/otherAssets/threeDotsIcon.png'}
                                     height={24}
                                     width={24}
                                     alt="icon"
@@ -773,25 +768,26 @@ function AdminDashboardScheduledCalls({ }) {
                                   anchorEl={anchorEl}
                                   onClose={handleClosePopup}
                                   anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "right",
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
                                   }}
                                   transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                                    vertical: 'top',
+                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                                   }}
                                   PaperProps={{
                                     elevation: 0, // This will remove the shadow
                                     style: {
-                                      boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                                      borderRadius: "10px",
-                                      width: "120px",
+                                      boxShadow:
+                                        '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                      borderRadius: '10px',
+                                      width: '120px',
                                     },
                                   }}
                                 >
                                   <div
                                     className="p-2 flex flex-col gap-2"
-                                    style={{ fontWeight: "500", fontSize: 15 }}
+                                    style={{ fontWeight: '500', fontSize: 15 }}
                                   >
                                     <div>
                                       {PauseLoader ? (
@@ -800,29 +796,37 @@ function AdminDashboardScheduledCalls({ }) {
                                         <button
                                           className="text-start outline-none"
                                           onClick={() => {
-
-                                            if (SelectedItem?.status == "Paused") {
+                                            if (
+                                              SelectedItem?.status == 'Paused'
+                                            ) {
                                               //// //console.log
-                                              setColor(true);
-                                              setShowConfirmationPopup("resume Calls")
+                                              setColor(true)
+                                              setShowConfirmationPopup(
+                                                'resume Calls',
+                                              )
                                             } else {
                                               //// //console.log
-                                              setShowConfirmationPopup("pause Calls")
-                                              setColor(false);
+                                              setShowConfirmationPopup(
+                                                'pause Calls',
+                                              )
+                                              setColor(false)
                                             }
                                             // //console.log
                                           }}
                                         >
-                                          {SelectedItem?.status == "Paused"
-                                            ? "Run Calls"
-                                            : "Pause Calls"}
+                                          {SelectedItem?.status == 'Paused'
+                                            ? 'Run Calls'
+                                            : 'Pause Calls'}
                                         </button>
                                       )}
                                     </div>
                                     <button
                                       className="text-start outline-none"
                                       onClick={() => {
-                                        handleShowLeads(SelectedAgent, SelectedItem);
+                                        handleShowLeads(
+                                          SelectedAgent,
+                                          SelectedItem,
+                                        )
                                       }}
                                     >
                                       View Details
@@ -834,8 +838,12 @@ function AdminDashboardScheduledCalls({ }) {
                                 {/* Confirmation popup */}
                                 {showConfirmationPopuup && (
                                   <ShowConfirmationPopup
-                                    showConfirmationPopuup={showConfirmationPopuup}
-                                    setShowConfirmationPopup={setShowConfirmationPopup}
+                                    showConfirmationPopuup={
+                                      showConfirmationPopuup
+                                    }
+                                    setShowConfirmationPopup={
+                                      setShowConfirmationPopup
+                                    }
                                     pauseAgent={pauseAgents}
                                     color={color}
                                     PauseLoader={PauseLoader}
@@ -845,18 +853,24 @@ function AdminDashboardScheduledCalls({ }) {
                               </div>
                             </div>
                           </div>
-                        );
+                        )
                       })}
                     </div>
-                  );
+                  )
                 })}
               </InfiniteScroll>
             ) : (
-              <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
+              <div
+                style={{
+                  fontWeight: '600',
+                  fontSize: 24,
+                  textAlign: 'center',
+                  marginTop: 20,
+                }}
+              >
                 No Call Scheduled
               </div>
-            )
-            }
+            )}
           </div>
         )}
       </div>
@@ -869,42 +883,42 @@ function AdminDashboardScheduledCalls({ }) {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
               className="sm:w-10/12 w-full h-[100%] overflow-none"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row items-center justify-between">
                 <div
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 17,
                   }}
                 >
                   {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                    SelectedAgent?.name.slice(1)}{" "}
+                    SelectedAgent?.name.slice(1)}{' '}
                   call activity
                 </div>
                 <button
                   onClick={() => {
-                    setShowLeadDetailsModal(false);
+                    setShowLeadDetailsModal(false)
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -914,7 +928,7 @@ function AdminDashboardScheduledCalls({ }) {
               <div
                 className="max-h-[92%] overflow-auto"
                 style={{
-                  scrollbarWidth: "none",
+                  scrollbarWidth: 'none',
                 }}
               >
                 {AgentCallLogLoader ? (
@@ -930,13 +944,13 @@ function AdminDashboardScheduledCalls({ }) {
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          handleLeadsSearchChange(value);
-                          setLeadsSearchValue(e.target.value);
+                          const value = e.target.value
+                          handleLeadsSearchChange(value)
+                          setLeadsSearchValue(e.target.value)
                         }}
                       />
                       <img
-                        src={"/otherAssets/searchIcon.png"}
+                        src={'/otherAssets/searchIcon.png'}
                         alt="Search"
                         width={20}
                         height={20}
@@ -947,8 +961,8 @@ function AdminDashboardScheduledCalls({ }) {
                       className="flex flex-row items-center mt-6"
                       style={{
                         fontSize: 15,
-                        fontWeight: "500",
-                        color: "#00000070",
+                        fontWeight: '500',
+                        color: '#00000070',
                       }}
                     >
                       <div className="w-3/12">Name</div>
@@ -961,7 +975,7 @@ function AdminDashboardScheduledCalls({ }) {
                     <div
                       className="h-[70svh] overflow-auto pb-[100px] mt-6"
                       id="scrollableDiv1"
-                      style={{ scrollbarWidth: "none" }}
+                      style={{ scrollbarWidth: 'none' }}
                     >
                       {filteredSelectedLeadsList.length > 0 ? (
                         <div className="w-full">
@@ -970,12 +984,12 @@ function AdminDashboardScheduledCalls({ }) {
                             endMessage={
                               <p
                                 style={{
-                                  textAlign: "center",
-                                  paddingTop: "10px",
-                                  fontWeight: "400",
-                                  fontFamily: "inter",
+                                  textAlign: 'center',
+                                  paddingTop: '10px',
+                                  fontWeight: '400',
+                                  fontFamily: 'inter',
                                   fontSize: 16,
-                                  color: "#00000060",
+                                  color: '#00000060',
                                 }}
                               >
                                 {`You're all caught up`}
@@ -984,7 +998,7 @@ function AdminDashboardScheduledCalls({ }) {
                             scrollableTarget="scrollableDiv1"
                             dataLength={filteredSelectedLeadsList.length}
                             next={() => {
-                              fetchLeadsInBatch(SelectedItem);
+                              fetchLeadsInBatch(SelectedItem)
                             }}
                             hasMore={hasMoreLeads}
                             loader={
@@ -992,12 +1006,12 @@ function AdminDashboardScheduledCalls({ }) {
                                 {leadsLoading && (
                                   <CircularProgress
                                     size={35}
-                                    sx={{ color: "#7902DF" }}
+                                    sx={{ color: '#7902DF' }}
                                   />
                                 )}
                               </div>
                             }
-                            style={{ overflow: "unset" }}
+                            style={{ overflow: 'unset' }}
                           >
                             {filteredSelectedLeadsList.map((item, index) => (
                               <div
@@ -1006,7 +1020,7 @@ function AdminDashboardScheduledCalls({ }) {
                                 style={{
                                   fontSize: 15,
                                   fontWeight: 500,
-                                  scrollbarWidth: "none",
+                                  scrollbarWidth: 'none',
                                 }}
                               >
                                 <div
@@ -1024,10 +1038,10 @@ function AdminDashboardScheduledCalls({ }) {
                                     </div>
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.phone || "-"}
+                                    {item?.phone || '-'}
                                   </div>
                                   <div className="w-3/12 truncate">
-                                    {item?.address || "-"}
+                                    {item?.address || '-'}
                                   </div>
                                   <div className="w-2/12">
                                     {item.tags.length > 0 ? (
@@ -1046,8 +1060,8 @@ function AdminDashboardScheduledCalls({ }) {
                                           <div
                                             className="text-purple underline cursor-pointer"
                                             onClick={() => {
-                                              setExtraTagsModal(true);
-                                              setOtherTags(item.tags);
+                                              setExtraTagsModal(true)
+                                              setOtherTags(item.tags)
                                             }}
                                           >
                                             +{item.tags.length - 1}
@@ -1055,12 +1069,12 @@ function AdminDashboardScheduledCalls({ }) {
                                         )}
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
                                     {/*item?.stage || "-"*/}
-                                    {item?.stage?.stageTitle || "-"}
+                                    {item?.stage?.stageTitle || '-'}
                                   </div>
                                 </div>
                               </div>
@@ -1085,34 +1099,34 @@ function AdminDashboardScheduledCalls({ }) {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default AdminDashboardScheduledCalls;
+export default AdminDashboardScheduledCalls
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "500",
+    color: '#00000090',
+    fontWeight: '500',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
     // color: '#000000',
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    fontWeight: '500',
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

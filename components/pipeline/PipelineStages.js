@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import Image from "next/image";
-import { CaretDown, CaretUp, Minus, PencilSimple } from "@phosphor-icons/react";
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
   Alert,
   Box,
@@ -15,26 +12,34 @@ import {
   Select,
   Snackbar,
   Tooltip,
-} from "@mui/material";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import ColorPicker from "../dashboardPipeline/ColorPicker";
-import TagsInput from "../dashboard/leads/TagsInput";
+} from '@mui/material'
+import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
+import { PersistanceKeys } from '@/constants/Constants'
+import { useUser } from '@/hooks/redux-hooks'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
+
+import Apis from '../apis/Apis'
+import { UpgradeTagWithModal, getUserLocalData } from '../constants/constants'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { getA2PNumbers, getGmailAccounts, getTempletes } from "./TempleteServices";
-import EmailTempletePopup from "./EmailTempletePopup";
-import SMSTempletePopup from "./SMSTempletePopup";
-import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
-import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
-import AuthSelectionPopup from "./AuthSelectionPopup";
-import { PersistanceKeys } from "@/constants/Constants";
-import { getUserLocalData, UpgradeTagWithModal } from "../constants/constants";
-import { useUser } from "@/hooks/redux-hooks";
-
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import TagsInput from '../dashboard/leads/TagsInput'
+import ColorPicker from '../dashboardPipeline/ColorPicker'
+import { getAvailabePhoneNumbers } from '../globalExtras/GetAvailableNumbers'
+import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
+import AuthSelectionPopup from './AuthSelectionPopup'
+import EmailTempletePopup from './EmailTempletePopup'
+import SMSTempletePopup from './SMSTempletePopup'
+import {
+  getA2PNumbers,
+  getGmailAccounts,
+  getTempletes,
+} from './TempleteServices'
 
 const PipelineStages = ({
   stages,
@@ -57,68 +62,66 @@ const PipelineStages = ({
   onNewStageCreated,
   handleReOrder,
 }) => {
-  const [showSampleTip, setShowSampleTip] = useState(false);
+  const [showSampleTip, setShowSampleTip] = useState(false)
 
   //VIP variable for checking if agent is ononNewStageCreatedly inbound
-  const [isInboundAgent, setIsInboundAgent] = useState(false);
+  const [isInboundAgent, setIsInboundAgent] = useState(false)
 
-  const [pipelineStages, setPipelineStages] = useState(stages);
-  const [delStageLoader, setDelStageLoader] = useState(false);
-  const [delStageLoader2, setDelStageLoader2] = useState(false);
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [pipelineStages, setPipelineStages] = useState(stages)
+  const [delStageLoader, setDelStageLoader] = useState(false)
+  const [delStageLoader2, setDelStageLoader2] = useState(false)
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(null)
   //code for stages list
-  const [stagesList, setStagesList] = useState([]);
+  const [stagesList, setStagesList] = useState([])
   //code for deleting stage
-  const [showDelStagePopup, setShowDelStagePopup] = useState(null);
-  const [actionInfoEl, setActionInfoEl] = React.useState(null);
-  const [actionInfoEl2, setActionInfoEl2] = React.useState(null);
+  const [showDelStagePopup, setShowDelStagePopup] = useState(null)
+  const [actionInfoEl, setActionInfoEl] = React.useState(null)
+  const [actionInfoEl2, setActionInfoEl2] = React.useState(null)
   //code for dropdown stages when delstage
-  const [assignNextStage, setAssignNextStage] = useState("");
-  const [assignNextStageId, setAssignNextStageId] = useState("");
+  const [assignNextStage, setAssignNextStage] = useState('')
+  const [assignNextStageId, setAssignNextStageId] = useState('')
   //variable for tags input
-  const [tagsValue, setTagsValue] = useState([]);
+  const [tagsValue, setTagsValue] = useState([])
 
   //code for rename stage popup
-  const [showRenamePopup, setShowRenamePopup] = useState(false);
-  const [renameStage, setRenameStage] = useState("");
-  const [renameStageLoader, setRenameStageLoader] = useState(false);
-  const [updateStageColor, setUpdateStageColor] = useState("");
-  const [selectedStage, setSelectedStage] = useState("");
+  const [showRenamePopup, setShowRenamePopup] = useState(false)
+  const [renameStage, setRenameStage] = useState('')
+  const [renameStageLoader, setRenameStageLoader] = useState(false)
+  const [updateStageColor, setUpdateStageColor] = useState('')
+  const [selectedStage, setSelectedStage] = useState('')
 
   //code to add new stage
-  const [addNewStageModal, setAddNewStageModal] = useState(false);
-  const [newStageTitle, setNewStageTitle] = useState("");
-  const [stageColor, setStageColor] = useState("#000");
-  const [addStageLoader, setAddStageLoader] = useState(false);
+  const [addNewStageModal, setAddNewStageModal] = useState(false)
+  const [newStageTitle, setNewStageTitle] = useState('')
+  const [stageColor, setStageColor] = useState('#000')
+  const [addStageLoader, setAddStageLoader] = useState(false)
   //code for advance setting modal inside new stages
-  const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+  const [showAdvanceSettings, setShowAdvanceSettings] = useState(false)
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
-
 
   //code for input arrays
   const [inputs, setInputs] = useState([
     {
       id: 1,
-      value: "",
+      value: '',
       placeholder: `Sure, i’d be interested in knowing what my home is worth`,
     },
-    { id: 2, value: "", placeholder: "Yeah, how much is my home worth today?" },
-    { id: 3, value: "", placeholder: "Yeah, how much is my home worth today?" },
-  ]);
-  const [action, setAction] = useState("");
+    { id: 2, value: '', placeholder: 'Yeah, how much is my home worth today?' },
+    { id: 3, value: '', placeholder: 'Yeah, how much is my home worth today?' },
+  ])
+  const [action, setAction] = useState('')
 
   //variable to show and hide the add stage btn
-  const [showAddStageBtn, setShowAddStageBtn] = useState(false);
+  const [showAddStageBtn, setShowAddStageBtn] = useState(false)
 
   //get my teams list
-  const [myTeamList, setMyTeamList] = useState([]);
-  const [myTeamAdmin, setMyTeamAdmin] = useState([]);
-  const [assignToMember, setAssignToMember] = useState("");
-  const [assignLeadToMember, setAssignLeadToMember] = useState([]);
-
+  const [myTeamList, setMyTeamList] = useState([])
+  const [myTeamAdmin, setMyTeamAdmin] = useState([])
+  const [assignToMember, setAssignToMember] = useState('')
+  const [assignLeadToMember, setAssignLeadToMember] = useState([])
 
   //templetes variables
   const [templates, setTempletes] = useState([])
@@ -141,50 +144,69 @@ const PipelineStages = ({
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
   // Use Redux for user data instead of local state
-  const { user: userData, setUser: setUserData, token } = useUser();
-  const [user, setUser] = useState(userData); // Keep local state for compatibility
+  const { user: userData, setUser: setUserData, token } = useUser()
+  const [user, setUser] = useState(userData) // Keep local state for compatibility
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
 
   const ACTIONS = [
-    { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
-    { value: "call", label: "Call", icon: '/otherAssets/callIcon.png', focusedIcon: '/otherAssets/blueCallIcon.png' },
-    { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
-  ];
+    {
+      value: 'email',
+      label: 'Email',
+      icon: '/otherAssets/@Icon.png',
+      focusedIcon: '/otherAssets/blue@Icon.png',
+    },
+    {
+      value: 'call',
+      label: 'Call',
+      icon: '/otherAssets/callIcon.png',
+      focusedIcon: '/otherAssets/blueCallIcon.png',
+    },
+    {
+      value: 'sms',
+      label: 'Text',
+      icon: '/otherAssets/smsIcon.png',
+      focusedIcon: '/otherAssets/blueSmsIcon.png',
+    },
+  ]
 
-  const actionLabel = (v) => ACTIONS.find(a => a.value === v)?.label || "Make Call";
+  const actionLabel = (v) =>
+    ACTIONS.find((a) => a.value === v)?.label || 'Make Call'
 
   console.log('rowsByIndex', rowsByIndex)
 
   // one menu anchor per stage row-set
-  const [addMenuAnchor, setAddMenuAnchor] = useState({}); // { [stageIndex]: HTMLElement|null }
+  const [addMenuAnchor, setAddMenuAnchor] = useState({}) // { [stageIndex]: HTMLElement|null }
 
   const openAddMenu = (stageIndex, e) => {
-    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }));
-  };
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }))
+  }
 
   const closeAddMenu = (stageIndex) => {
     localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
     console.log('is default cadence removed from local')
-    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
-    setIsEditing(false);
-    setEditingRow(null);
-    setEditingStageIndex(null);
-    setSelectedType(null);
-    setSelectedIndex(null);
-
-  };
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }))
+    setIsEditing(false)
+    setEditingRow(null)
+    setEditingStageIndex(null)
+    setSelectedType(null)
+    setSelectedIndex(null)
+  }
 
   const handleSelectAdd = async (stageIndex, value) => {
-    if ((user?.planCapabilities.allowTextMessages === false || phoneNumbers.length === 0) && value == "sms") {
+    if (
+      (user?.planCapabilities.allowTextMessages === false ||
+        phoneNumbers.length === 0) &&
+      value == 'sms'
+    ) {
       // Upgrade modal is now handled by UpgradeTagWithModal component
       return
     }
-    if (value != "call") {
+    if (value != 'call') {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
       // if (temp && temp.length > 0) {
-      if (value === "email") {
+      if (value === 'email') {
         if (gmailAccounts.length > 0) {
           setShowEmailTempPopup(true)
         } else {
@@ -193,40 +215,43 @@ const PipelineStages = ({
         // setShowAuthSelectionPopup(true)
       } else {
         setShowSmsTempPopup(true)
-
       }
       // }
     } else {
       if (isEditing) {
-        closeAddMenu(stageIndex);
+        closeAddMenu(stageIndex)
       } else {
-        addRow(stageIndex, value);
-        closeAddMenu(stageIndex);
-
+        addRow(stageIndex, value)
+        closeAddMenu(stageIndex)
       }
     }
     // closeAddMenu(stageIndex);
-  };
+  }
 
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
       console.log('default cadence editing')
-      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing, JSON.stringify({ isdefault: true }))
+      localStorage.setItem(
+        PersistanceKeys.isDefaultCadenceEditing,
+        JSON.stringify({ isdefault: true }),
+      )
       openAddMenu(stageIndex, e)
     }
     console.log('row for edit', row)
-    setIsEditing(true);
-    setEditingRow(row);
-    setEditingStageIndex(stageIndex);
-    setSelectedType(row.action ? row.action : 'call');
-    setSelectedIndex(stageIndex);
+    setIsEditing(true)
+    setEditingRow(row)
+    setEditingStageIndex(stageIndex)
+    setSelectedType(row.action ? row.action : 'call')
+    setSelectedIndex(stageIndex)
 
-    if (row.communicationType === "email") {
-      setShowEmailTempPopup(true);
-    } else if (row.communicationType === "sms") {
-      setShowSmsTempPopup(true);
+    if (row.communicationType === 'email') {
+      setShowEmailTempPopup(true)
+    } else if (row.communicationType === 'sms') {
+      setShowSmsTempPopup(true)
+    }else if (row.communicationType === 'call') {
+      openAddMenu(stageIndex, e)
     }
-  };
+  }
 
   const handleUpdateRow = (rowId, updatedData) => {
     console.log('rowId', rowId)
@@ -236,43 +261,36 @@ const PipelineStages = ({
 
     if (editingStageIndex !== null && updateRow) {
       console.log('update row', editingStageIndex)
-      updateRow(editingStageIndex, rowId, updatedData);
+      updateRow(editingStageIndex, rowId, updatedData)
     }
 
     // Reset editing state
-    setIsEditing(false);
-    setEditingRow(null);
-    setEditingStageIndex(null);
-  };
-
-
-
-
-
-
+    setIsEditing(false)
+    setEditingRow(null)
+    setEditingStageIndex(null)
+  }
 
   useEffect(() => {
-    console.log("🔥 PIPELINESTAGES - useEffect triggered with userData:", {
+    console.log('🔥 PIPELINESTAGES - useEffect triggered with userData:', {
       userId: userData?.id,
       planType: userData?.plan?.type,
       planName: userData?.plan?.name,
-      allowTextMessages: userData?.planCapabilities?.allowTextMessages
-    });
+      allowTextMessages: userData?.planCapabilities?.allowTextMessages,
+    })
 
     // Use Redux userData instead of localStorage
     if (userData) {
-      setUser(userData);
+      setUser(userData)
     } else {
       // Fallback to localStorage only if Redux has no data
-      let data = getUserLocalData();
-      console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data);
-      setUser(data.user);
+      let data = getUserLocalData()
+      console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data)
+      setUser(data.user)
     }
 
-    getMyTeam();
-    getNumbers();
-  }, [stages, userData]);
-
+    getMyTeam()
+    getNumbers()
+  }, [stages, userData])
 
   useEffect(() => {
     if (showEmailTemPopup) {
@@ -288,7 +306,7 @@ const PipelineStages = ({
     setAccountLoader(true)
     let response = await getGmailAccounts()
     if (response) {
-      console.log("Gmail acounts list is", response);
+      console.log('Gmail acounts list is', response)
       setGmailAccounts(response)
     }
     setAccountLoader(false)
@@ -303,16 +321,15 @@ const PipelineStages = ({
   }
 
   const getNumbers = async () => {
-
-    let data = localStorage.getItem("selectedUser")
+    let data = localStorage.getItem('selectedUser')
     if (!data) {
       data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     }
     let selectedUser = null
     // console.log('data', data)
-    if (data != "undefined") {
+    if (data != 'undefined') {
       selectedUser = JSON.parse(data)
-      console.log("selected user data from local", selectedUser)
+      console.log('selected user data from local', selectedUser)
     }
     console.log('trying to get a2p numbers')
     setPhoneLoading(true)
@@ -327,195 +344,190 @@ const PipelineStages = ({
   //ading stages data
   useEffect(() => {
     if (selectedPipelineStages) {
-      setStagesList(selectedPipelineStages);
+      setStagesList(selectedPipelineStages)
     }
-  }, [selectedPipelineStages]);
-
-
+  }, [selectedPipelineStages])
 
   function canProceed() {
     if (newStageTitle.length > 0 && action.length == 0) {
-      return true;
+      return true
     }
     if (
       action &&
       action.length > 0 &&
       newStageTitle &&
       newStageTitle.length > 0 &&
-      inputs.filter((input) => input.value.trim() !== "").length === 3
+      inputs.filter((input) => input.value.trim() !== '').length === 3
     ) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   const handlePopoverOpen = (event) => {
-    setActionInfoEl(event.currentTarget);
-  };
+    setActionInfoEl(event.currentTarget)
+  }
 
   //get my team
   const getMyTeam = async () => {
     try {
-      let response = await getTeamsList();
+      let response = await getTeamsList()
       if (response) {
         // //console.log;
-        let teams = [];
+        let teams = []
         if (response.admin) {
-          let admin = response.admin;
-          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin };
-          teams.push(newInvite);
+          let admin = response.admin
+          let newInvite = { id: -1, invitedUser: admin, invitingUser: admin }
+          teams.push(newInvite)
         }
         if (response.data && response.data.length > 0) {
           for (const t of response.data) {
-            if (t.status == "Accepted") {
-              teams.push(t);
+            if (t.status == 'Accepted') {
+              teams.push(t)
             }
           }
         }
 
-        setMyTeamList(teams);
-        setMyTeamAdmin(response.admin);
+        setMyTeamList(teams)
+        setMyTeamAdmin(response.admin)
       }
     } catch (error) {
       // console.error("Error occured in api is", error);
     }
-  };
+  }
 
   //new teammeber
   const handleAssignTeamMember = (event) => {
-    let value = event.target.value;
+    let value = event.target.value
     // //console.log;
-    setAssignToMember(event.target.value);
+    setAssignToMember(event.target.value)
 
     const selectedItem = myTeamList.find(
-      (item) => item?.invitedUser?.name === value
-    );
+      (item) => item?.invitedUser?.name === value,
+    )
     // //console.log;
     setAssignToMember(
-      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
-    ); //
+      selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name,
+    ) //
     setAssignLeadToMember([
       ...assignLeadToMember,
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
-    ]); //
+    ]) //
 
     // //console.log;
-  };
+  }
 
   const handlePopoverClose = () => {
-    setActionInfoEl(null);
-    setActionInfoEl2(null);
-  };
+    setActionInfoEl(null)
+    setActionInfoEl2(null)
+  }
 
-  const open = Boolean(actionInfoEl);
-  const openAction = Boolean(actionInfoEl2);
+  const open = Boolean(actionInfoEl)
+  const openAction = Boolean(actionInfoEl2)
 
   //gets recent agent details
   useEffect(() => {
-    const agentDetails = localStorage.getItem("agentDetails");
-    if (agentDetails && agentDetails != "undefined") {
-      const agentData = JSON.parse(agentDetails);
+    const agentDetails = localStorage.getItem('agentDetails')
+    if (agentDetails && agentDetails != 'undefined') {
+      const agentData = JSON.parse(agentDetails)
       // //console.log;
       if (agentData.agents?.length > 1) {
         // //console.log;
-        setIsInboundAgent(false);
+        setIsInboundAgent(false)
       } else {
-        if (agentData.agents[0]?.agentType === "inbound") {
-          setIsInboundAgent(true);
+        if (agentData.agents[0]?.agentType === 'inbound') {
+          setIsInboundAgent(true)
         } else {
-          setIsInboundAgent(false);
+          setIsInboundAgent(false)
         }
       }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     // //console.log;
-    setPipelineStages(stages);
-  }, [stages]);
-
-
+    setPipelineStages(stages)
+  }, [stages])
 
   //code to rename the stage
   const handleRenameStage = async () => {
     try {
-      setRenameStageLoader(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      setRenameStageLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
-     // console.log("auth token", AuthToken)
+      // console.log("auth token", AuthToken)
 
       let ApiData = {
-          stageTitle: renameStage,
-          stageId: selectedStage.id,
-          color: updateStageColor||""
+        stageTitle: renameStage,
+        stageId: selectedStage.id,
+        color: updateStageColor || '',
       }
 
-      const selectedUser = localStorage.getItem(PersistanceKeys.selectedUser);
-      if(selectedUser){
-        const selectedUserData = JSON.parse(selectedUser);
+      const selectedUser = localStorage.getItem(PersistanceKeys.selectedUser)
+      if (selectedUser) {
+        const selectedUserData = JSON.parse(selectedUser)
         // ApiData.userId = selectedUserData.id;
       }
-      
 
-      console.log("api data", ApiData)
+      console.log('api data', ApiData)
 
-      const ApiPath = Apis.UpdateStage;
+      const ApiPath = Apis.UpdateStage
 
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         console.log('response.data', response.data)
-        setPipelineStages(response.data.data.stages);
-        setShowRenamePopup(false);
-        setSuccessSnack(response.data.message);
+        setPipelineStages(response.data.data.stages)
+        setShowRenamePopup(false)
+        setSuccessSnack(response.data.message)
         // handleCloseStagePopover();
       }
     } catch (error) {
-      console.log('Rename stage error:', error);
-      console.log('Error response:', error.response?.data);
-      console.log('Error status:', error.response?.status);
-      setRenameStageLoader(false);
+      console.log('Rename stage error:', error)
+      console.log('Error response:', error.response?.data)
+      console.log('Error status:', error.response?.status)
+      setRenameStageLoader(false)
       // //console.log;
     } finally {
-      setRenameStageLoader(false);
+      setRenameStageLoader(false)
     }
-  };
+  }
 
   //code to close the add stage model
   const handleCloseAddStage = () => {
-    setAddNewStageModal(false);
-    setNewStageTitle("");
+    setAddNewStageModal(false)
+    setNewStageTitle('')
     setInputs([
-      { id: 1, value: "" },
-      { id: 2, value: "" },
-      { id: 3, value: "" },
-    ]);
-  };
+      { id: 1, value: '' },
+      { id: 2, value: '' },
+      { id: 3, value: '' },
+    ])
+  }
 
   //code for drag and drop stages
   const handleOnDragEnd = (result) => {
     // //console.log;
-    const { source, destination } = result;
+    const { source, destination } = result
     // //console.log;
     // if (!destination) return;
     if (!destination || source.index === 0 || destination.index === 0) {
-      setShowRearrangeErr("Cannot rearrange when stage is expanded.");
-      setIsVisibleSnack(true);
-      setSnackType("Error");
+      setShowRearrangeErr('Cannot rearrange when stage is expanded.')
+      setIsVisibleSnack(true)
+      setSnackType('Error')
       // //console.log;
-      return;
+      return
     }
 
     // if (!destination || source.index === destination.index) {
@@ -524,52 +536,52 @@ const PipelineStages = ({
     // }
 
     // //console.log;
-    const items = Array.from(pipelineStages);
-    const [reorderedItem] = items.splice(source.index, 1);
-    items.splice(destination.index, 0, reorderedItem);
+    const items = Array.from(pipelineStages)
+    const [reorderedItem] = items.splice(source.index, 1)
+    items.splice(destination.index, 0, reorderedItem)
 
     // //console.log;
     const updatedStages = items.map((stage, index) => ({
       ...stage,
       order: index + 1,
-    }));
+    }))
 
     // //console.log;
-    setPipelineStages(updatedStages);
-    onUpdateOrder(updatedStages);
-    handleReOrder();
-  };
+    setPipelineStages(updatedStages)
+    onUpdateOrder(updatedStages)
+    handleReOrder()
+  }
 
   //functions to move to stage after deleting one
   const handleChangeNextStage = (event) => {
-    let value = event.target.value;
+    let value = event.target.value
     //// //console.log;
-    setAssignNextStage(event.target.value);
+    setAssignNextStage(event.target.value)
 
     const selectedItem = pipelineStages.find(
-      (item) => item.stageTitle === value
-    );
-    setAssignNextStageId(selectedItem.id);
+      (item) => item.stageTitle === value,
+    )
+    setAssignNextStageId(selectedItem.id)
 
     // //console.log;
-  };
+  }
 
   //code to delete stage
   const handleDeleteStage = async (value) => {
     try {
-      if (value === "del2") {
+      if (value === 'del2') {
         // //console.log;
-        setDelStageLoader2(true);
-      } else if (value === "del") {
+        setDelStageLoader2(true)
+      } else if (value === 'del') {
         // //console.log;
-        setDelStageLoader(true);
+        setDelStageLoader(true)
       }
       // //console.log;
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
         //// //console.log;
       }
 
@@ -581,44 +593,48 @@ const PipelineStages = ({
         pipelineId: selectedPipelineItem.id,
         stageId: showDelStagePopup.id,
         moveToStageId: assignNextStageId,
-      };
+      }
 
       // //console.log;
       // return
-      const ApiPath = Apis.deleteStage;
+      const ApiPath = Apis.deleteStage
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPipelineStages(response.data.data.stages);
-          setSuccessSnack(response.data.message);
-          setShowDelStagePopup(null);
-          let p = localStorage.getItem("pipelinesList")
+          setPipelineStages(response.data.data.stages)
+          setSuccessSnack(response.data.message)
+          setShowDelStagePopup(null)
+          let p = localStorage.getItem('pipelinesList')
 
           if (p) {
             let localPipelines = JSON.parse(p)
 
-            let updatedPipelines = localPipelines.map(pipeline => {
+            let updatedPipelines = localPipelines.map((pipeline) => {
               if (selectedPipelineItem.id === pipeline.id) {
                 return {
                   ...pipeline,
-                  stages: pipeline.stages.filter(stage => stage.id !== showDelStagePopup.id)
-                };
+                  stages: pipeline.stages.filter(
+                    (stage) => stage.id !== showDelStagePopup.id,
+                  ),
+                }
               }
-              return pipeline; // Return unchanged pipeline for others
-            });
+              return pipeline // Return unchanged pipeline for others
+            })
 
             //console.log
-            localStorage.setItem("pipelinesList", JSON.stringify(updatedPipelines));
-
+            localStorage.setItem(
+              'pipelinesList',
+              JSON.stringify(updatedPipelines),
+            )
           } else {
             //console.log
           }
@@ -628,46 +644,46 @@ const PipelineStages = ({
     } catch (error) {
       // console.error("Error occured in delstage api is:", error);
     } finally {
-      setDelStageLoader(false);
+      setDelStageLoader(false)
     }
-  };
+  }
 
   //code for add stage input fields
   const handleAddStageInputsChanges = (id, value) => {
     setInputs(
-      inputs.map((input) => (input.id === id ? { ...input, value } : input))
-    );
-  };
+      inputs.map((input) => (input.id === id ? { ...input, value } : input)),
+    )
+  }
 
   // Handle deletion of input field
   const handleDelete = (id) => {
-    setInputs(inputs.filter((input) => input.id !== id));
-  };
+    setInputs(inputs.filter((input) => input.id !== id))
+  }
 
   // Handle adding a new input field
   const handleAddInput = () => {
-    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1;
+    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1
     setInputs([
       ...inputs,
-      { id: newId, value: "", placeholder: "Add sample answer" },
-    ]);
-  };
+      { id: newId, value: '', placeholder: 'Add sample answer' },
+    ])
+  }
 
   //code for adding new custom stage
   const handleAddNewStageTitle = async () => {
     try {
-      setAddStageLoader(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      setAddStageLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
         // //console.log;
       }
 
       // //console.log;
 
-      const ApiPath = Apis.addCustomStage;
+      const ApiPath = Apis.addCustomStage
       // //console.log;
 
       const ApiData = {
@@ -678,43 +694,47 @@ const PipelineStages = ({
         examples: inputs,
         tags: tagsValue,
         teams: assignLeadToMember,
-      };
+      }
 
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setPipelineStages(response.data.data.stages);
-          handleCloseAddStage();
-          setNewStageTitle("");
+          setPipelineStages(response.data.data.stages)
+          handleCloseAddStage()
+          setNewStageTitle('')
           // setStageColor("");
-          setStagesList(response.data.data.stages);
-          selectedPipelineItem.stages = response.data.data.stages;
-          onNewStageCreated(selectedPipelineItem);
+          setStagesList(response.data.data.stages)
+          selectedPipelineItem.stages = response.data.data.stages
+          onNewStageCreated(selectedPipelineItem)
         } else {
-          let message = response.data.message;
-          setErrorMessage(message);
+          let message = response.data.message
+          setErrorMessage(message)
           setErrorSnack(true)
         }
       }
     } catch (error) {
       // console.error("Error occured inn adding new stage title api is", error);
     } finally {
-      setAddStageLoader(false);
+      setAddStageLoader(false)
     }
-  };
-
+  }
 
   const shouldDisable = (item) => {
-    if (item.value == "sms" && ((phoneNumbers.length === 0) || user?.planCapabilities.allowTextMessages === false)) {// 
+    if (
+      item.value == 'sms' &&
+      (phoneNumbers.length === 0 ||
+        user?.planCapabilities.allowTextMessages === false)
+    ) {
+      //
       return true
     } else {
       return false
@@ -724,45 +744,45 @@ const PipelineStages = ({
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#00000070",
+      fontWeight: '500',
+      color: '#00000070',
     },
     AddNewKYCQuestionModal: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
     labelStyle: {
-      backgroundColor: "white",
-      fontWeight: "400",
+      backgroundColor: 'white',
+      fontWeight: '400',
       fontSize: 10,
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -772,13 +792,14 @@ const PipelineStages = ({
             {...provided.droppableProps}
             ref={provided.innerRef}
             style={{
-              maxHeight: "100vh",
+              maxHeight: '100vh',
               // overflowY: "auto",
               // borderRadius: "8px",
               // padding: "10px",
-              border: "none",
-              scrollbarWidth: "none",
+              border: 'none',
+              scrollbarWidth: 'none',
               marginTop: 20,
+              paddingBottom: '80px',
             }}
           >
             {pipelineStages.map((item, index) => (
@@ -796,10 +817,10 @@ const PipelineStages = ({
                     style={{
                       ...provided.draggableProps.style,
                       // border: "1px solid red",
-                      borderRadius: "10px",
+                      borderRadius: '10px',
                       // padding: "15px",
-                      marginBottom: "10px",
-                      backgroundColor: "#fff",
+                      marginBottom: '10px',
+                      backgroundColor: '#fff',
                       // boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
                     className="flex flex-row items-start"
@@ -816,9 +837,7 @@ const PipelineStages = ({
                     />
                     <AgentSelectSnackMessage
                       isVisible={
-                        errorSnack == false || errorSnack == null
-                          ? false
-                          : true
+                        errorSnack == false || errorSnack == null ? false : true
                       }
                       hide={() => setErrorSnack(false)}
                       message={errorMessage}
@@ -828,7 +847,7 @@ const PipelineStages = ({
                       {index > 0 && (
                         <div className="outline-none mt-2">
                           <Image
-                            src={"/assets/list.png"}
+                            src={'/assets/list.png'}
                             height={6}
                             width={16}
                             alt="*"
@@ -844,40 +863,44 @@ const PipelineStages = ({
                             <button
                               className="outline-none"
                               onClick={() => {
-                                setShowRenamePopup(true);
-                                setRenameStage(item.stageTitle);
-                                setSelectedStage(item);
+                                setShowRenamePopup(true)
+                                setRenameStage(item.stageTitle)
+                                setSelectedStage(item)
                               }}
                             >
-                              <PencilSimple size={16} weight="regular" />
+                              <PencilSimple
+                                size={16}
+                                weight="regular"
+                                style={{ color: 'hsl(var(--brand-primary))' }}
+                              />
                             </button>
                           )}
                         </div>
 
                         {isInboundAgent ? (
                           <div>
-                            {index > 0 && item.stageTitle !== "Booked" && (
+                            {index > 0 && item.stageTitle !== 'Booked' && (
                               <div className="w-full flex flex-row items-center justify-end mt-2">
                                 <button
                                   className="flex flex-row items-center gap-1"
                                   onClick={() => {
-                                    setShowDelStagePopup(item);
+                                    setShowDelStagePopup(item)
                                   }}
                                 >
                                   <Image
-                                    src={"/assets/delIcon.png"}
+                                    src={'/assets/delIcon.png'}
                                     height={20}
                                     width={18}
                                     alt="*"
                                     style={{
                                       filter:
-                                        "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
+                                        'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
                                       opacity: 0.5,
                                     }}
                                   />
                                   <p
                                     className="text-[#15151580]"
-                                    style={{ fontWeight: "500", fontSize: 14 }}
+                                    style={{ fontWeight: '500', fontSize: 14 }}
                                   >
                                     Delete
                                   </p>
@@ -893,9 +916,9 @@ const PipelineStages = ({
                                   className="bg-[#00000020] flex flex-row items-center justify-center gap-1"
                                   style={{
                                     ...styles.inputStyle,
-                                    borderRadius: "55px",
-                                    height: "40px",
-                                    width: "104px",
+                                    borderRadius: '55px',
+                                    height: '40px',
+                                    width: '104px',
                                   }}
                                   onClick={() => handleUnAssignNewStage(index)}
                                 >
@@ -905,20 +928,29 @@ const PipelineStages = ({
                               </div>
                             ) : (
                               <button
-                                className="bg-purple text-white flex flex-row items-center justify-center gap-2"
+                                className="bg-brand-primary text-white flex flex-row items-center justify-center gap-2"
                                 style={{
                                   ...styles.inputStyle,
-                                  borderRadius: "55px",
-                                  height: "38px",
-                                  width: "104px",
+                                  borderRadius: '55px',
+                                  height: '38px',
+                                  width: '104px',
                                 }}
                                 onClick={() => assignNewStage(index)}
                               >
-                                <Image
-                                  src={"/assets/addIcon.png"}
-                                  height={16}
-                                  width={16}
-                                  alt="*"
+                                <div
+                                  style={{
+                                    width: '16px',
+                                    height: '16px',
+                                    backgroundColor: '#FFFFFF',
+                                    WebkitMaskImage: 'url(/assets/addIcon.png)',
+                                    maskImage: 'url(/assets/addIcon.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                  }}
                                 />
                                 <div>Assign</div>
                               </button>
@@ -931,13 +963,13 @@ const PipelineStages = ({
                           <div>
                             <div
                               className="mt-4"
-                              style={{ fontWeight: "500", fontSize: 12 }}
+                              style={{ fontWeight: '500', fontSize: 12 }}
                             >
                               <div
                                 style={{
                                   fontSize: 13,
-                                  fontWeight: "500",
-                                  color: "#00000060",
+                                  fontWeight: '500',
+                                  color: '#00000060',
                                 }}
                               >
                                 {item.description}
@@ -951,7 +983,10 @@ const PipelineStages = ({
                                       key={row.id}
                                       className="flex flex-row items-center justify-center mb-2"
                                     >
-                                      <div className="mt-2" style={styles.headingStyle}>
+                                      <div
+                                        className="mt-2"
+                                        style={styles.headingStyle}
+                                      >
                                         Wait
                                       </div>
                                       <div className="ms-6 flex flex-row items-center w-full justify-between">
@@ -967,11 +1002,11 @@ const PipelineStages = ({
                                               className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                               style={{
                                                 ...styles.inputStyle,
-                                                height: "42px",
-                                                width: "80px",
-                                                border: "1px solid #00000020",
-                                                borderTopLeftRadius: "10px",
-                                                borderBottomLeftRadius: "10px",
+                                                height: '42px',
+                                                width: '80px',
+                                                border: '1px solid #00000020',
+                                                borderTopLeftRadius: '10px',
+                                                borderBottomLeftRadius: '10px',
                                               }}
                                               placeholder="Days"
                                               value={row.waitTimeDays}
@@ -979,11 +1014,11 @@ const PipelineStages = ({
                                                 handleInputChange(
                                                   index,
                                                   row.id,
-                                                  "waitTimeDays",
+                                                  'waitTimeDays',
                                                   e.target.value.replace(
                                                     /[^0-9]/g,
-                                                    ""
-                                                  )
+                                                    '',
+                                                  ),
                                                 )
                                               }
                                             />
@@ -999,11 +1034,11 @@ const PipelineStages = ({
                                               className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                               style={{
                                                 ...styles.inputStyle,
-                                                height: "42px",
-                                                width: "80px",
-                                                border: "1px solid #00000020",
-                                                borderRight: "none",
-                                                borderLeft: "none",
+                                                height: '42px',
+                                                width: '80px',
+                                                border: '1px solid #00000020',
+                                                borderRight: 'none',
+                                                borderLeft: 'none',
                                               }}
                                               placeholder="Hours"
                                               value={row.waitTimeHours}
@@ -1011,11 +1046,11 @@ const PipelineStages = ({
                                                 handleInputChange(
                                                   index,
                                                   row.id,
-                                                  "waitTimeHours",
+                                                  'waitTimeHours',
                                                   e.target.value.replace(
                                                     /[^0-9]/g,
-                                                    ""
-                                                  )
+                                                    '',
+                                                  ),
                                                 )
                                               }
                                             />
@@ -1031,11 +1066,11 @@ const PipelineStages = ({
                                               className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
                                               style={{
                                                 ...styles.inputStyle,
-                                                height: "42px",
-                                                width: "80px",
-                                                border: "1px solid #00000020",
-                                                borderTopRightRadius: "10px",
-                                                borderBottomRightRadius: "10px",
+                                                height: '42px',
+                                                width: '80px',
+                                                border: '1px solid #00000020',
+                                                borderTopRightRadius: '10px',
+                                                borderBottomRightRadius: '10px',
                                               }}
                                               placeholder="Minutes"
                                               value={row.waitTimeMinutes}
@@ -1043,11 +1078,11 @@ const PipelineStages = ({
                                                 handleInputChange(
                                                   index,
                                                   row.id,
-                                                  "waitTimeMinutes",
+                                                  'waitTimeMinutes',
                                                   e.target.value.replace(
                                                     /[^0-9]/g,
-                                                    ""
-                                                  )
+                                                    '',
+                                                  ),
                                                 )
                                               }
                                             />
@@ -1055,28 +1090,42 @@ const PipelineStages = ({
                                           <div
                                             className="ms-4 mt-2 flex flex-row items-center"
                                             style={styles.inputStyle}
-                                          ><div>
-                                              {item.stageTitle === "Booked" &&
-                                                "before the meeting"}
-                                              , then{" "}
+                                          >
+                                            <div>
+                                              {item.stageTitle === 'Booked' &&
+                                                'before the meeting'}
+                                              , then{' '}
                                             </div>
-                                            <div className="ml-2" style={{ fontWeight: "600" }}>
-                                              <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
-                                                <div className="text-purple text-[12px]">
-                                                  {
-                                                    (row.communicationType && row.communicationType != "call" || (row.action && row.action != "call")) ? (
-                                                      `Send ${actionLabel(row.communicationType)}`
-                                                    ) : (
-                                                      `Make Call`
-                                                    )
-                                                  }
-
+                                            <div
+                                              className="ml-2"
+                                              style={{ fontWeight: '600' }}
+                                            >
+                                              <div className="flex flex-row items-cetner gap-2 p-2 rounded"
+                                              style={{
+                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                              }}
+                                              >
+                                                <div className="text-brand-primary text-[12px]">
+                                                  {(row.communicationType &&
+                                                    row.communicationType !=
+                                                      'call') ||
+                                                  (row.action &&
+                                                    row.action != 'call')
+                                                    ? `Send ${actionLabel(row.communicationType)}`
+                                                    : `Make Call`}
                                                 </div>
 
-
-                                                <button onClick={(e) => handleEditRow(index, row, e)}>
-                                                  <Image src={'/svgIcons/editIconPurple.svg'}
-                                                    height={16} width={16} alt="*"
+                                                <button
+                                                  onClick={(e) =>
+                                                    handleEditRow(index, row, e)
+                                                  }
+                                                >
+                                                  <PencilSimple
+                                                    size={16}
+                                                    weight="regular"
+                                                    style={{
+                                                      color: 'hsl(var(--brand-primary))',
+                                                    }}
                                                   />
                                                 </button>
                                               </div>
@@ -1084,16 +1133,20 @@ const PipelineStages = ({
                                           </div>
                                         </div>
                                         {rowIndex > 0 && (
-                                          <CloseBtn onClick={() => removeRow(index, row.id)} />
+                                          <CloseBtn
+                                            onClick={() =>
+                                              removeRow(index, row.id)
+                                            }
+                                          />
                                         )}
                                       </div>
                                     </div>
-                                  )
+                                  ),
                                 )}
                                 <button
                                   onClick={(e) => openAddMenu(index, e)}
                                   style={styles.inputStyle}
-                                  className="text-purple mt-4"
+                                  className="text-brand-primary mt-4"
                                 >
                                   + Add (If no answer)
                                 </button>
@@ -1102,18 +1155,28 @@ const PipelineStages = ({
                                   open={Boolean(addMenuAnchor[index])}
                                   onClose={() => {
                                     closeAddMenu(index)
-                                    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+                                    localStorage.removeItem(
+                                      PersistanceKeys.isDefaultCadenceEditing,
+                                    )
                                   }}
                                   PaperProps={{
                                     style: {
-                                      boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
-                                      borderRadius: "12px",
+                                      boxShadow:
+                                        '0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)', // custom purple shadow
+                                      borderRadius: '12px',
                                     },
                                   }}
                                 >
                                   {ACTIONS.map((a) => (
-                                    <Tooltip key={a.id}
-                                      title={shouldDisable(a) && user?.planCapabilities.allowTextMessages === true ? "You need to complete A2P to text" : ""}
+                                    <Tooltip
+                                      key={a.value}
+                                      title={
+                                        shouldDisable(a) &&
+                                        user?.planCapabilities
+                                          .allowTextMessages === true
+                                          ? 'You need to complete A2P to text'
+                                          : ''
+                                      }
                                       arrow
                                       disableHoverListener={!shouldDisable(a)}
                                       disableFocusListener={!shouldDisable(a)}
@@ -1121,18 +1184,19 @@ const PipelineStages = ({
                                       componentsProps={{
                                         tooltip: {
                                           sx: {
-                                            backgroundColor: "#ffffff", // Ensure white background
-                                            color: "#333", // Dark text color
-                                            fontSize: "16px",
-                                            fontWeight: "500",
-                                            padding: "10px 15px",
-                                            borderRadius: "8px",
-                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                            backgroundColor: '#ffffff', // Ensure white background
+                                            color: '#333', // Dark text color
+                                            fontSize: '16px',
+                                            fontWeight: '500',
+                                            padding: '10px 15px',
+                                            borderRadius: '8px',
+                                            boxShadow:
+                                              '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                                           },
                                         },
                                         arrow: {
                                           sx: {
-                                            color: "#ffffff", // Match tooltip background
+                                            color: '#ffffff', // Match tooltip background
                                           },
                                         },
                                       }}
@@ -1140,7 +1204,6 @@ const PipelineStages = ({
                                       <div>
                                         <MenuItem
                                           // disabled={shouldDisable(a)}
-                                          key={a.value}
                                           sx={{
                                             width: 180,
                                             '&:hover .action-icon': {
@@ -1150,65 +1213,72 @@ const PipelineStages = ({
                                               display: 'block',
                                             },
                                           }}
-                                          onClick={() => handleSelectAdd(index, a.value)}
+                                          onClick={() =>
+                                            handleSelectAdd(index, a.value)
+                                          }
                                         >
-                                          {
-                                            tempLoader === a.value ? (
-                                              <CircularProgress size={20} />
-                                            ) : (
-                                              <div className="flex flex-row items-center justify-between w-full">
-                                                <div className="flex flex-row items-center gap-3">
-                                                  {/* default icon */}
-                                                  <Image
-                                                    src={a.icon}
-                                                    height={20}
-                                                    width={20}
-                                                    alt="*"
-                                                    className="action-icon"
-                                                    style={{ display: 'block' }}
-                                                  />
-                                                  {/* blue (hover) icon */}
-                                                  <Image
-                                                    src={a.focusedIcon}
-                                                    height={20}
-                                                    width={20}
-                                                    alt="*"
-                                                    className="action-icon-hover"
-                                                    style={{ display: 'none' }}
-                                                  />
+                                          {tempLoader === a.value ? (
+                                            <CircularProgress size={20} />
+                                          ) : (
+                                            <div className="flex flex-row items-center justify-between w-full">
+                                              <div className="flex flex-row items-center gap-3">
+                                                {/* default icon */}
+                                                <Image
+                                                  src={a.icon}
+                                                  height={20}
+                                                  width={20}
+                                                  alt="*"
+                                                  className="action-icon"
+                                                  style={{ display: 'block' }}
+                                                />
+                                                {/* blue (hover) icon */}
+                                                <Image
+                                                  src={a.focusedIcon}
+                                                  height={20}
+                                                  width={20}
+                                                  alt="*"
+                                                  className="action-icon-hover"
+                                                  style={{ display: 'none' }}
+                                                />
 
-                                                  <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
-                                                  {
-                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
-
-
+                                                <div
+                                                  style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '400',
+                                                  }}
+                                                >
+                                                  {a.label}
+                                                </div>
+                                                {user?.planCapabilities
+                                                  .allowTextMessages ===
+                                                  false &&
+                                                  a.label == 'Text' && (
                                                     <UpgradeTagWithModal
                                                       reduxUser={userData}
                                                       setReduxUser={setUserData}
                                                     />
-
-                                                  }
-
-                                                </div>
-                                                {
-                                                  shouldDisable(a) && user?.planCapabilities.allowTextMessages != false && a.label == "Text" && (
-                                                    <Image
-                                                      src={"/otherAssets/redInfoIcon.png"}
-                                                      height={16}
-                                                      width={16}
-                                                      alt="*"
-                                                    />
-                                                  )
-                                                }
+                                                  )}
                                               </div>
-                                            )}
+                                              {shouldDisable(a) &&
+                                                user?.planCapabilities
+                                                  .allowTextMessages != false &&
+                                                a.label == 'Text' && (
+                                                  <Image
+                                                    src={
+                                                      '/otherAssets/redInfoIcon.png'
+                                                    }
+                                                    height={16}
+                                                    width={16}
+                                                    alt="*"
+                                                  />
+                                                )}
+                                            </div>
+                                          )}
                                         </MenuItem>
                                       </div>
                                     </Tooltip>
                                   ))}
                                 </Menu>
-
-
                               </div>
                               <div className="flex flex-row items-center gap-2 mt-4">
                                 <div style={styles.inputStyle}>
@@ -1217,7 +1287,7 @@ const PipelineStages = ({
 
                                 <Box
                                   className="flex flex-row item-center justify-center"
-                                  sx={{ width: "141px", py: 0, m: 0 }}
+                                  sx={{ width: '141px', py: 0, m: 0 }}
                                 >
                                   <FormControl
                                     fullWidth
@@ -1225,42 +1295,54 @@ const PipelineStages = ({
                                   >
                                     <Select
                                       displayEmpty
-                                      value={nextStage[index] || ""}
+                                      value={nextStage[index] || ''}
                                       onChange={(event) =>
                                         handleSelectNextChange(index, event)
                                       }
                                       renderValue={(selected) => {
-                                        if (selected === "") {
+                                        if (selected === '') {
                                           return (
                                             <div style={styles.dropdownMenu}>
                                               Select Stage
                                             </div>
-                                          );
+                                          )
                                         }
-                                        return selected;
+                                        return selected
+                                      }}
+                                      MenuProps={{
+                                        PaperProps: {
+                                          sx: {
+                                            '& .MuiMenuItem-root.Mui-selected': {
+                                              backgroundColor: '#F5F5F5',
+                                              '&:hover': {
+                                                backgroundColor: '#F5F5F5',
+                                              },
+                                            },
+                                          },
+                                        },
                                       }}
                                       sx={{
                                         ...styles.dropdownMenu,
-                                        backgroundColor: "transparent",
-                                        color: "#000000",
-                                        border: "1px solid #00000020",
+                                        backgroundColor: 'transparent',
+                                        color: '#000000',
+                                        border: '1px solid #00000020',
                                         py: 0,
                                         my: 0,
                                         minHeight: 0,
-                                        height: "32px",
-                                        "& .MuiOutlinedInput-root": {
+                                        height: '32px',
+                                        '& .MuiOutlinedInput-root': {
                                           py: 0,
                                           my: 0,
                                           minHeight: 0,
                                         },
-                                        "& .MuiSelect-select": {
+                                        '& .MuiSelect-select': {
                                           py: 0,
                                           my: 0,
-                                          display: "flex",
-                                          alignItems: "center",
+                                          display: 'flex',
+                                          alignItems: 'center',
                                         },
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                          border: "none",
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                          border: 'none',
                                         },
                                       }}
                                     >
@@ -1277,14 +1359,20 @@ const PipelineStages = ({
                                           sx={{
                                             py: 0,
                                             my: 0,
-                                            minHeight: "32px",
+                                            minHeight: '32px',
+                                            '&.Mui-selected': {
+                                              backgroundColor: '#F5F5F5',
+                                              '&:hover': {
+                                                backgroundColor: '#F5F5F5',
+                                              },
+                                            },
                                           }}
                                         >
                                           {dropDownStateItem.stageTitle
                                             .slice(0, 1)
                                             .toUpperCase()}
                                           {dropDownStateItem.stageTitle.slice(
-                                            1
+                                            1,
                                           )}
                                         </MenuItem>
                                       ))}
@@ -1297,46 +1385,48 @@ const PipelineStages = ({
                         )}
                       </div>
 
-                      {index > 0 && !isInboundAgent && item.stageTitle !== "Booked" && (
-                        <div className="w-full flex flex-row items-center justify-end mt-2">
-                          <button
-                            className="flex flex-row items-center gap-1"
-                            onClick={() => {
-                              setShowDelStagePopup(item);
-                            }}
-                          >
-                            <Image
-                              src={"/assets/delIcon.png"}
-                              height={20}
-                              width={18}
-                              alt="*"
-                              style={{
-                                filter:
-                                  "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
-                                opacity: 0.5,
+                      {index > 0 &&
+                        !isInboundAgent &&
+                        item.stageTitle !== 'Booked' && (
+                          <div className="w-full flex flex-row items-center justify-end mt-2">
+                            <button
+                              className="flex flex-row items-center gap-1"
+                              onClick={() => {
+                                setShowDelStagePopup(item)
                               }}
-                            />
-                            <p
-                              className="text-[#15151580]"
-                              style={{ fontWeight: "500", fontSize: 14 }}
                             >
-                              Delete
-                            </p>
-                          </button>
-                        </div>
-                      )}
+                              <Image
+                                src={'/assets/delIcon.png'}
+                                height={20}
+                                width={18}
+                                alt="*"
+                                style={{
+                                  filter:
+                                    'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)',
+                                  opacity: 0.5,
+                                }}
+                              />
+                              <p
+                                className="text-[#15151580]"
+                                style={{ fontWeight: '500', fontSize: 14 }}
+                              >
+                                Delete
+                              </p>
+                            </button>
+                          </div>
+                        )}
 
                       {/* Modal to rename stage */}
                       <Modal
                         open={showRenamePopup}
                         onClose={() => {
-                          setShowRenamePopup(false);
+                          setShowRenamePopup(false)
                           // handleCloseStagePopover();
                         }}
                         BackdropProps={{
                           timeout: 1000,
                           sx: {
-                            backgroundColor: "#00000010",
+                            backgroundColor: '#00000010',
                             //backdropFilter: "blur(5px)",
                           },
                         }}
@@ -1345,37 +1435,39 @@ const PipelineStages = ({
                           className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
                           sx={{
                             ...styles.modalsStyle,
-                            backgroundColor: "white",
+                            backgroundColor: 'white',
                           }}
                         >
-                          <div style={{ width: "100%" }}>
+                          <div style={{ width: '100%' }}>
                             <div
                               className="max-h-[60vh] overflow-auto"
-                              style={{ scrollbarWidth: "none" }}
+                              style={{ scrollbarWidth: 'none' }}
                             >
                               <div
                                 style={{
-                                  width: "100%",
-                                  direction: "row",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
+                                  width: '100%',
+                                  direction: 'row',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
                                 }}
                               >
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div
-                                  style={{ fontWeight: "700", fontSize: 22 }}
+                                  style={{ fontWeight: '700', fontSize: 22 }}
                                 >
                                   Rename stage
                                 </div>
                                 <div
                                   style={{
-                                    direction: "row",
-                                    display: "flex",
-                                    justifyContent: "end",
+                                    direction: 'row',
+                                    display: 'flex',
+                                    justifyContent: 'end',
                                   }}
                                 >
-                                  <CloseBtn onClick={() => setShowRenamePopup(false)} />
+                                  <CloseBtn
+                                    onClick={() => setShowRenamePopup(false)}
+                                  />
                                 </div>
                               </div>
 
@@ -1383,7 +1475,7 @@ const PipelineStages = ({
                                 <div
                                   className="mt-4"
                                   style={{
-                                    fontWeight: "600",
+                                    fontWeight: '600',
                                     fontSize: 12,
                                     paddingBottom: 5,
                                   }}
@@ -1393,16 +1485,16 @@ const PipelineStages = ({
                                 <input
                                   value={renameStage}
                                   onChange={(e) => {
-                                    setRenameStage(e.target.value);
+                                    setRenameStage(e.target.value)
                                   }}
                                   placeholder="Enter stage title"
                                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                                  style={{ border: "1px solid #00000020" }}
+                                  style={{ border: '1px solid #00000020' }}
                                 />
                                 <div
                                   style={{
                                     marginTop: 20,
-                                    fontWeight: "600",
+                                    fontWeight: '600',
                                     fontSize: 12,
                                     paddingBottom: 5,
                                   }}
@@ -1422,15 +1514,15 @@ const PipelineStages = ({
                               </div>
                             ) : (
                               <button
-                                className="mt-4 outline-none bg-purple"
+                                className="mt-4 outline-none bg-brand-primary"
                                 style={{
                                   // backgroundColor: "#402FFF",
-                                  color: "white",
-                                  height: "50px",
-                                  borderRadius: "10px",
-                                  width: "100%",
+                                  color: 'white',
+                                  height: '50px',
+                                  borderRadius: '10px',
+                                  width: '100%',
                                   fontWeight: 600,
-                                  fontSize: "20",
+                                  fontSize: '20',
                                 }}
                                 onClick={handleRenameStage}
                               >
@@ -1449,7 +1541,7 @@ const PipelineStages = ({
                         BackdropProps={{
                           timeout: 1000,
                           sx: {
-                            backgroundColor: "#00000010",
+                            backgroundColor: '#00000010',
                             //backdropFilter: "blur(5px)",
                           },
                         }}
@@ -1462,32 +1554,34 @@ const PipelineStages = ({
                             <div
                               className="sm:w-7/12 w-full"
                               style={{
-                                backgroundColor: "#ffffff",
+                                backgroundColor: '#ffffff',
                                 padding: 20,
-                                borderRadius: "13px",
+                                borderRadius: '13px',
                               }}
                             >
                               <div className="flex flex-row justify-between items-center">
                                 <div
                                   className="text-center font-16"
-                                  style={{ fontWeight: "700" }}
+                                  style={{ fontWeight: '700' }}
                                 >
                                   Delete stage
                                 </div>
 
-                                <CloseBtn onClick={() => setShowDelStagePopup(null)} />
+                                <CloseBtn
+                                  onClick={() => setShowDelStagePopup(null)}
+                                />
                               </div>
 
                               {selectedStage?.hasLeads ? (
                                 <div>
                                   <div
                                     className="max-h-[60vh] overflow-auto"
-                                    style={{ scrollbarWidth: "none" }}
+                                    style={{ scrollbarWidth: 'none' }}
                                   >
                                     <div
                                       className="mt-6"
                                       style={{
-                                        fontWeight: "500",
+                                        fontWeight: '500',
                                         fontSize: 15,
                                       }}
                                     >
@@ -1499,7 +1593,7 @@ const PipelineStages = ({
                                     <div
                                       className="mt-6"
                                       style={{
-                                        fontWeight: "700",
+                                        fontWeight: '700',
                                         fontSize: 15,
                                       }}
                                     >
@@ -1509,42 +1603,42 @@ const PipelineStages = ({
                                     <FormControl fullWidth>
                                       <Select
                                         id="demo-simple-select"
-                                        value={assignNextStage || ""} // Default to empty string when no value is selected
+                                        value={assignNextStage || ''} // Default to empty string when no value is selected
                                         onChange={handleChangeNextStage}
                                         displayEmpty // Enables placeholder
                                         renderValue={(selected) => {
                                           if (!selected) {
                                             return (
-                                              <div style={{ color: "#aaa" }}>
+                                              <div style={{ color: '#aaa' }}>
                                                 Select Stage
                                               </div>
-                                            ); // Placeholder style
+                                            ) // Placeholder style
                                           }
-                                          return selected;
+                                          return selected
                                         }}
                                         sx={{
-                                          border: "1px solid #00000020", // Default border
-                                          "&:hover": {
-                                            border: "1px solid #00000020", // Same border on hover
+                                          border: '1px solid #00000020', // Default border
+                                          '&:hover': {
+                                            border: '1px solid #00000020', // Same border on hover
                                           },
-                                          "& .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove the default outline
-                                          },
-                                          "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                          {
-                                            border: "none", // Remove outline on focus
-                                          },
-                                          "&.MuiSelect-select": {
+                                          '& .MuiOutlinedInput-notchedOutline':
+                                            {
+                                              border: 'none', // Remove the default outline
+                                            },
+                                          '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                            {
+                                              border: 'none', // Remove outline on focus
+                                            },
+                                          '&.MuiSelect-select': {
                                             py: 0, // Optional padding adjustments
                                           },
                                         }}
                                         MenuProps={{
                                           PaperProps: {
                                             style: {
-                                              maxHeight: "30vh", // Limit dropdown height
-                                              overflow: "auto", // Enable scrolling in dropdown
-                                              scrollbarWidth: "none",
+                                              maxHeight: '30vh', // Limit dropdown height
+                                              overflow: 'auto', // Enable scrolling in dropdown
+                                              scrollbarWidth: 'none',
                                             },
                                           },
                                         }}
@@ -1560,7 +1654,7 @@ const PipelineStages = ({
                                             >
                                               {stage.stageTitle}
                                             </MenuItem>
-                                          );
+                                          )
                                         })}
                                       </Select>
                                     </FormControl>
@@ -1572,21 +1666,21 @@ const PipelineStages = ({
                                     </div>
                                   ) : (
                                     <button
-                                      className="mt-10 outline-none bg-purple"
+                                      className="mt-10 outline-none bg-brand-primary"
                                       disabled={!assignNextStage}
                                       style={{
-                                        color: "white",
-                                        height: "50px",
-                                        borderRadius: "10px",
-                                        width: "100%",
+                                        color: 'white',
+                                        height: '50px',
+                                        borderRadius: '10px',
+                                        width: '100%',
                                         backgroundColor:
-                                          !assignNextStage && "#00000020",
-                                        color: !assignNextStage && "#000000",
+                                          !assignNextStage && '#00000020',
+                                        color: !assignNextStage && '#000000',
                                         fontWeight: 600,
-                                        fontSize: "20",
+                                        fontSize: '20',
                                       }}
                                       onClick={(e) => {
-                                        handleDeleteStage("del2");
+                                        handleDeleteStage('del2')
                                       }}
                                     >
                                       Delete
@@ -1602,13 +1696,13 @@ const PipelineStages = ({
                                       <button
                                         className="mt-2 outline-none"
                                         style={{
-                                          color: "#00000080",
-                                          fontWeight: "500",
+                                          color: '#00000080',
+                                          fontWeight: '500',
                                           fontSize: 15,
-                                          borderBottom: "1px solid #00000080",
+                                          borderBottom: '1px solid #00000080',
                                         }}
                                         onClick={(e) => {
-                                          handleDeleteStage("del");
+                                          handleDeleteStage('del')
                                         }}
                                       >
                                         Delete and remove leads from pipeline
@@ -1621,7 +1715,7 @@ const PipelineStages = ({
                                   <div
                                     className="mt-6"
                                     style={{
-                                      fontWeight: "500",
+                                      fontWeight: '500',
                                       fontSize: 15,
                                     }}
                                   >
@@ -1632,7 +1726,7 @@ const PipelineStages = ({
                                     <div
                                       className="w-1/2 text-center"
                                       onClick={() => {
-                                        setShowDelStagePopup(null);
+                                        setShowDelStagePopup(null)
                                       }}
                                     >
                                       Cancel
@@ -1645,7 +1739,7 @@ const PipelineStages = ({
                                       <button
                                         className="bg-red text-white w-1/2 h-[44px] rounded-[10px]"
                                         onClick={(e) => {
-                                          handleDeleteStage("del");
+                                          handleDeleteStage('del')
                                         }}
                                       >
                                         Delete
@@ -1661,8 +1755,6 @@ const PipelineStages = ({
                     </div>
                   </div>
                 )}
-
-
               </Draggable>
             ))}
             {provided.placeholder}
@@ -1670,59 +1762,72 @@ const PipelineStages = ({
             <button
               className="outline-none w-full flex flex-row items-center justify-center h-[50px] mt-4 rounded-lg"
               style={{
-                border: "2px dashed #7902DF",
+                border: '2px dashed hsl(var(--brand-primary))',
               }}
               onClick={() => {
-                setAddNewStageModal(true);
+                setAddNewStageModal(true)
               }}
             >
               <div className="gap-1 flex flex-row items-center">
-                <Image
-                  src={"/assets/addIcon.png"}
-                  height={15}
-                  width={15}
-                  alt="*"
+                <div
                   style={{
-                    // filter: 'invert(23%) sepia(50%) saturate(7999%) hue-rotate(259deg) brightness(100%) contrast(140%)',
-                    filter:
-                      "invert(59%) sepia(84%) saturate(7500%) hue-rotate(260deg) brightness(90%) contrast(110%)",
+                    width: '15px',
+                    height: '15px',
+                    backgroundColor: 'hsl(var(--brand-primary))',
+                    WebkitMaskImage: 'url(/assets/addIcon.png)',
+                    maskImage: 'url(/assets/addIcon.png)',
+                    WebkitMaskSize: 'contain',
+                    maskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    maskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskPosition: 'center',
                   }}
                 />
                 <p
-                  className="text-purple"
-                  style={{ fontSize: 16, fontWeight: "600" }}
+                  className="text-brand-primary"
+                  style={{ fontSize: 16, fontWeight: '600' }}
                 >
                   Add New Stage
                 </p>
               </div>
             </button>
 
-            <AuthSelectionPopup open={showAuthSelectionPopup}
+            <AuthSelectionPopup
+              open={showAuthSelectionPopup}
               onClose={() => setShowAuthSelectionPopup(false)}
               onSuccess={getAccounts}
               showEmailTemPopup={showEmailTemPopup}
               setShowEmailTempPopup={setShowEmailTempPopup}
               setSelectedGoogleAccount={(account) => {
-                console.log('PipelineStages: setSelectedGoogleAccount called with:', account)
+                console.log(
+                  'PipelineStages: setSelectedGoogleAccount called with:',
+                  account,
+                )
                 setSelectedGoogleAccount(account)
               }}
-
             />
 
-            <EmailTempletePopup open={showEmailTemPopup} onClose={() => {
-              setShowEmailTempPopup(false)
-              setIsEditing(false);
-              setEditingRow(null);
-              setEditingStageIndex(null);
-              closeAddMenu(selectedIndex)
-            }}
+            <EmailTempletePopup
+              open={showEmailTemPopup}
+              onClose={() => {
+                setShowEmailTempPopup(false)
+                setIsEditing(false)
+                setEditingRow(null)
+                setEditingStageIndex(null)
+                closeAddMenu(selectedIndex)
+              }}
               setSelectedGoogleAccount={(account) => {
-                console.log(`PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`)
+                console.log(
+                  `PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`,
+                )
                 setSelectedGoogleAccount(account)
               }}
               selectedGoogleAccount={selectedGoogleAccount}
               onGoogleAccountChange={(account) => {
-                console.log(`PipelineStages: onGoogleAccountChange called with: ${account}`)
+                console.log(
+                  `PipelineStages: onGoogleAccountChange called with: ${account}`,
+                )
                 setSelectedGoogleAccount(account)
               }}
               templetes={templates}
@@ -1732,8 +1837,8 @@ const PipelineStages = ({
                 console.log('PipelineStages: addRow called with:', {
                   selectedIndex,
                   selectedType,
-                  templateData
-                });
+                  templateData,
+                })
                 addRow(selectedIndex, selectedType, templateData)
               }}
               isEditing={isEditing}
@@ -1749,50 +1854,48 @@ const PipelineStages = ({
               }}
               phoneNumbers={phoneNumbers}
               phoneLoading={phoneLoading}
-              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              addRow={(templateData) =>
+                addRow(selectedIndex, selectedType, templateData)
+              }
               communicationType={selectedType}
               onUpdateRow={handleUpdateRow}
               isEditing={isEditing}
               editingRow={editingRow}
             />
 
-
-
-
-
             {/* Code for add stage modal */}
             <Modal
               open={addNewStageModal}
               onClose={() => {
-                handleCloseAddStage();
+                handleCloseAddStage()
               }}
             >
               <Box
                 className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+                sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
               >
-                <div style={{ width: "100%" }}>
+                <div style={{ width: '100%' }}>
                   <div
-                    style={{ scrollbarWidth: "none" }} //className='max-h-[60vh] overflow-auto'
+                    style={{ scrollbarWidth: 'none' }} //className='max-h-[60vh] overflow-auto'
                   >
                     <div
                       style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
+                        width: '100%',
+                        direction: 'row',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
                       {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      <div style={{ fontWeight: '700', fontSize: 22 }}>
                         Add New Stage
                       </div>
                       <div
                         style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
+                          direction: 'row',
+                          display: 'flex',
+                          justifyContent: 'end',
                         }}
                       >
                         <CloseBtn onClick={() => handleCloseAddStage()} />
@@ -1803,7 +1906,7 @@ const PipelineStages = ({
                       <div
                         className="mt-4"
                         style={{
-                          fontWeight: "600",
+                          fontWeight: '600',
                           fontSize: 12,
                           paddingBottom: 5,
                         }}
@@ -1813,16 +1916,16 @@ const PipelineStages = ({
                       <input
                         value={newStageTitle}
                         onChange={(e) => {
-                          setNewStageTitle(e.target.value);
+                          setNewStageTitle(e.target.value)
                         }}
                         placeholder="Enter stage title"
                         className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                        style={{ border: "1px solid #00000020" }}
+                        style={{ border: '1px solid #00000020' }}
                       />
                       <div
                         style={{
                           marginTop: 20,
-                          fontWeight: "600",
+                          fontWeight: '600',
                           fontSize: 12,
                           paddingBottom: 5,
                         }}
@@ -1832,14 +1935,14 @@ const PipelineStages = ({
                       <ColorPicker setStageColor={setStageColor} />
                     </div>
 
-                    <div className="text-purple mt-4">
+                    <div className="text-brand-primary mt-4">
                       <button
                         onClick={() => {
-                          setShowAdvanceSettings(!showAdvanceSettings);
+                          setShowAdvanceSettings(!showAdvanceSettings)
                         }}
                         className="flex flex-row items-center gap-2 outline-none"
                       >
-                        <div style={{ fontWeight: "600", fontSize: 15 }}>
+                        <div style={{ fontWeight: '600', fontSize: 15 }}>
                           Advanced Settings
                         </div>
                         {showAdvanceSettings ? (
@@ -1853,10 +1956,10 @@ const PipelineStages = ({
                     {showAdvanceSettings && (
                       <div
                         className="max-h-[40vh] overflow-auto"
-                        style={{ scrollbarWidth: "none" }}
+                        style={{ scrollbarWidth: 'none' }}
                       >
                         <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          <p style={{ fontWeight: '600', fontSize: 15 }}>
                             Action
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
@@ -1865,7 +1968,7 @@ const PipelineStages = ({
                             height={20}
                             width={20}
                             alt="*"
-                            aria-owns={open ? "mouse-over-popover" : undefined}
+                            aria-owns={open ? 'mouse-over-popover' : undefined}
                             aria-haspopup="true"
                             onMouseEnter={handlePopoverOpen}
                             onMouseLeave={handlePopoverClose}
@@ -1874,22 +1977,22 @@ const PipelineStages = ({
                           <Popover
                             id="mouse-over-popover"
                             sx={{
-                              pointerEvents: "none",
+                              pointerEvents: 'none',
                             }}
                             open={open}
                             anchorEl={actionInfoEl}
                             anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
+                              vertical: 'top',
+                              horizontal: 'center',
                             }}
                             transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
+                              vertical: 'bottom',
+                              horizontal: 'left',
                             }}
                             PaperProps={{
                               elevation: 1, // This will remove the shadow
                               style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
                               },
                             }}
                             onClose={handlePopoverClose}
@@ -1898,12 +2001,12 @@ const PipelineStages = ({
                             <div className="p-2">
                               <div className="flex flex-row items-center gap-1">
                                 <Image
-                                  src={"/svgIcons/infoIcon.svg"}
+                                  src={'/svgIcons/infoIcon.svg'}
                                   height={24}
                                   width={24}
                                   alt="*"
                                 />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                <p style={{ fontWeight: '500', fontSize: 12 }}>
                                   Tip: Tell your AI when to move the leads to
                                   this stage.
                                 </p>
@@ -1915,19 +2018,19 @@ const PipelineStages = ({
                           className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                           placeholder="Ex: Does the human express interestting a CMA "
                           style={{
-                            border: "1px solid #00000020",
-                            fontWeight: "500",
+                            border: '1px solid #00000020',
+                            fontWeight: '500',
                             fontSize: 15,
-                            maxHeight: "200px"
+                            maxHeight: '200px',
                           }}
                           value={action}
                           onChange={(e) => {
-                            setAction(e.target.value);
+                            setAction(e.target.value)
                           }}
                         />
 
                         <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          <p style={{ fontWeight: '600', fontSize: 15 }}>
                             Sample Answers
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
@@ -1937,23 +2040,23 @@ const PipelineStages = ({
                             width={20}
                             alt="*"
                             aria-owns={
-                              openAction ? "mouse-over-popover2" : undefined
+                              openAction ? 'mouse-over-popover2' : undefined
                             }
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
-                              setShowSampleTip(true);
-                              setActionInfoEl2(event.currentTarget);
+                              setShowSampleTip(true)
+                              setActionInfoEl2(event.currentTarget)
                             }}
                             onMouseLeave={() => {
-                              handlePopoverClose();
-                              setShowSampleTip(false);
+                              handlePopoverClose()
+                              setShowSampleTip(false)
                             }}
                           />
                         </div>
 
                         <div
                           className=" mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[30vh] overflow-auto
-                          style={{ scrollbarWidth: "none" }}
+                          style={{ scrollbarWidth: 'none' }}
                         >
                           {inputs.map((input, index) => (
                             <div
@@ -1964,8 +2067,8 @@ const PipelineStages = ({
                                 className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
                                 style={{
                                   ...styles.paragraph,
-                                  width: "95%",
-                                  borderColor: "#00000020",
+                                  width: '95%',
+                                  borderColor: '#00000020',
                                 }}
                                 placeholder={input.placeholder}
                                 // placeholder={`
@@ -1977,7 +2080,7 @@ const PipelineStages = ({
                                 onChange={(e) =>
                                   handleAddStageInputsChanges(
                                     input.id,
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               />
@@ -1990,7 +2093,7 @@ const PipelineStages = ({
                         {/* <div style={{ height: "50px" }}>
                                                         {
                                                             inputs.length < 3 && (
-                                                                <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
+                                                                <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
                                                                     fontSize: 15,
                                                                     fontWeight: "700"
                                                                 }}>
@@ -2001,7 +2104,7 @@ const PipelineStages = ({
                                                     </div> */}
 
                         <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                          <p style={{ fontWeight: '600', fontSize: 15 }}>
                             Assign to
                           </p>
                           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
@@ -2011,11 +2114,11 @@ const PipelineStages = ({
                             width={20}
                             alt="*"
                             aria-owns={
-                              openAction ? "mouse-over-popover2" : undefined
+                              openAction ? 'mouse-over-popover2' : undefined
                             }
                             aria-haspopup="true"
                             onMouseEnter={(event) => {
-                              setActionInfoEl2(event.currentTarget);
+                              setActionInfoEl2(event.currentTarget)
                             }}
                             onMouseLeave={handlePopoverClose}
                           />
@@ -2023,22 +2126,22 @@ const PipelineStages = ({
                           <Popover
                             id="mouse-over-popover2"
                             sx={{
-                              pointerEvents: "none",
+                              pointerEvents: 'none',
                             }}
                             open={openAction}
                             anchorEl={actionInfoEl2}
                             anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
+                              vertical: 'top',
+                              horizontal: 'center',
                             }}
                             transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
+                              vertical: 'bottom',
+                              horizontal: 'left',
                             }}
                             PaperProps={{
                               elevation: 1, // This will remove the shadow
                               style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                                boxShadow: '0px 10px 10px rgba(0, 0, 0, 0.1)',
                               },
                             }}
                             onClose={handlePopoverClose}
@@ -2047,15 +2150,15 @@ const PipelineStages = ({
                             <div className="p-2">
                               <div className="flex flex-row items-center gap-1">
                                 <Image
-                                  src={"/svgIcons/infoIcon.svg"}
+                                  src={'/svgIcons/infoIcon.svg'}
                                   height={24}
                                   width={24}
                                   alt="*"
                                 />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                <p style={{ fontWeight: '500', fontSize: 12 }}>
                                   {showSampleTip
-                                    ? "What are possible answers leads will give to this question?"
-                                    : "Notify a team member when leads move here."}
+                                    ? 'What are possible answers leads will give to this question?'
+                                    : 'Notify a team member when leads move here.'}
                                 </p>
                               </div>
                             </div>
@@ -2066,41 +2169,41 @@ const PipelineStages = ({
                           <FormControl fullWidth>
                             <Select
                               id="demo-simple-select"
-                              value={assignToMember || ""} // Default to empty string when no value is selected
+                              value={assignToMember || ''} // Default to empty string when no value is selected
                               onChange={handleAssignTeamMember}
                               displayEmpty // Enables placeholder
                               renderValue={(selected) => {
                                 if (!selected) {
                                   return (
-                                    <div style={{ color: "#aaa" }}>
+                                    <div style={{ color: '#aaa' }}>
                                       Select team member
                                     </div>
-                                  ); // Placeholder style
+                                  ) // Placeholder style
                                 }
-                                return selected;
+                                return selected
                               }}
                               sx={{
-                                border: "1px solid #00000020", // Default border
-                                "&:hover": {
-                                  border: "1px solid #00000020", // Same border on hover
+                                border: '1px solid #00000020', // Default border
+                                '&:hover': {
+                                  border: '1px solid #00000020', // Same border on hover
                                 },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove the default outline
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  border: 'none', // Remove the default outline
                                 },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                                "&.MuiSelect-select": {
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
                               }}
                               MenuProps={{
                                 PaperProps: {
                                   style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
+                                    maxHeight: '30vh', // Limit dropdown height
+                                    overflow: 'auto', // Enable scrolling in dropdown
+                                    scrollbarWidth: 'none',
                                   },
                                 },
                               }}
@@ -2108,7 +2211,7 @@ const PipelineStages = ({
                               {/* <MenuItem value={myTeamAdmin.name}>
                                 <div className="w-full flex flex-row items-center gap-2">
                                   <div>{myTeamAdmin.name}</div>
-                                  <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                  <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
                                     Admin
                                   </div>
                                 </div>
@@ -2132,11 +2235,11 @@ const PipelineStages = ({
                                     {getAgentsListImage(
                                       item?.invitedUser,
                                       42,
-                                      42
+                                      42,
                                     )}
                                     {item.invitedUser?.name}
                                   </MenuItem>
-                                );
+                                )
                               })}
                             </Select>
                           </FormControl>
@@ -2144,7 +2247,7 @@ const PipelineStages = ({
 
                         <p
                           className="mt-2"
-                          style={{ fontWeight: "500", fontSize: 15 }}
+                          style={{ fontWeight: '500', fontSize: 15 }}
                         >
                           Tags
                         </p>
@@ -2168,13 +2271,13 @@ const PipelineStages = ({
                           <button
                             className="mt-4 outline-none"
                             style={{
-                              backgroundColor: "#7902DF",
-                              color: "white",
-                              height: "50px",
-                              borderRadius: "10px",
-                              width: "100%",
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              color: 'white',
+                              height: '50px',
+                              borderRadius: '10px',
+                              width: '100%',
                               fontWeight: 600,
-                              fontSize: "20",
+                              fontSize: '20',
                             }}
                             onClick={handleAddNewStageTitle}
                           >
@@ -2185,15 +2288,15 @@ const PipelineStages = ({
                             className="mt-4 outline-none"
                             disabled={true}
                             style={{
-                              backgroundColor: "#00000020",
-                              color: "black",
-                              height: "50px",
-                              borderRadius: "10px",
-                              width: "100%",
+                              backgroundColor: '#00000020',
+                              color: 'black',
+                              height: '50px',
+                              borderRadius: '10px',
+                              width: '100%',
                               fontWeight: 600,
-                              fontSize: "20",
+                              fontSize: '20',
                             }}
-                          // onClick={handleAddNewStageTitle}
+                            // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>
@@ -2204,12 +2307,11 @@ const PipelineStages = ({
                 </div>
               </Box>
             </Modal>
-
           </div>
         )}
       </Droppable>
     </DragDropContext>
-  );
-};
+  )
+}
 
-export default PipelineStages;
+export default PipelineStages

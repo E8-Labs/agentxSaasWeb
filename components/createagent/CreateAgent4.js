@@ -1,114 +1,138 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
+import 'react-phone-input-2/lib/style.css'
+
+import { CircularProgress, Modal, Popover } from '@mui/material'
 //import for input drop down menu
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { CircularProgress, Modal, Popover } from "@mui/material";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import PurchaseNumberSuccess from "./PurchaseNumberSuccess";
-import { Key } from "@phosphor-icons/react";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import PhoneInput from "react-phone-input-2";
-import { getLocalLocation } from "../onboarding/services/apisServices/ApiService";
-import VideoCard from "./VideoCard";
-import IntroVideoModal from "./IntroVideoModal";
-import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
-import UpgardView from "@/constants/UpgardView";
-import { useUser } from "@/hooks/redux-hooks";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
-import AdminGetProfileDetails from "../admin/AdminGetProfileDetails";
-import { getGlobalPhoneNumber } from "@/utilities/PhoneNumberUtility";
+import Box from '@mui/material/Box'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import { Key } from '@phosphor-icons/react'
+import axios from 'axios'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import UpgardView from '@/constants/UpgardView'
+import { useUser } from '@/hooks/redux-hooks'
+import { getGlobalPhoneNumber } from '@/utilities/PhoneNumberUtility'
+
+import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
+import Apis from '../apis/Apis'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
+import { getLocalLocation } from '../onboarding/services/apisServices/ApiService'
+import IntroVideoModal from './IntroVideoModal'
+import PurchaseNumberSuccess from './PurchaseNumberSuccess'
+import VideoCard from './VideoCard'
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
-  const timerRef = useRef(null);
-  const router = useRouter();
-  const selectRef = useRef(null);
+  const timerRef = useRef(null)
+  const router = useRouter()
+  const selectRef = useRef(null)
 
   // Redux user state
-  const { user: userData, setUser: setUserData, token } = useUser();
-  const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null);
+  const { user: userData, setUser: setUserData, token } = useUser()
+  const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   // Log current userData state
-  console.log("🔥 CREATEAGENT4 - Current userData from Redux:", userData);
-  console.log("🔥 CREATEAGENT4 - Agency capabilities:", userData?.agencyCapabilities);
-  console.log("🔥 CREATEAGENT4 - Plan capabilities:", userData?.planCapabilities);
+  console.log('🔥 CREATEAGENT4 - Current userData from Redux:', userData)
+  console.log(
+    '🔥 CREATEAGENT4 - Agency capabilities:',
+    userData?.agencyCapabilities,
+  )
+  console.log(
+    '🔥 CREATEAGENT4 - Plan capabilities:',
+    userData?.planCapabilities,
+  )
 
   //agent type
-  const [agentType, setAgentType] = useState("");
+  const [agentType, setAgentType] = useState('')
   //variable for video card
-  const [introVideoModal, setIntroVideoModal] = useState(false);
-  const [toggleClick, setToggleClick] = useState(false);
-  const [selectNumber, setSelectNumber] = useState("");
-  const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false);
-  const [reassignLoader, setReassignLoader] = useState(null);
-  const [useOfficeNumber, setUseOfficeNumber] = useState(false);
-  const [userSelectedNumber, setUserSelectedNumber] = useState("");
-  const [showOfficeNumberInput, setShowOfficeNumberInput] = useState(false);
-  const [officeNumber, setOfficeNumber] = useState("");
-  const [showClaimPopup, setShowClaimPopup] = useState(false);
-  const [previousNumber, setPreviousNumber] = useState([]);
+  const [introVideoModal, setIntroVideoModal] = useState(false)
+  const [toggleClick, setToggleClick] = useState(false)
+  const [selectNumber, setSelectNumber] = useState('')
+  const [openCalimNumDropDown, setOpenCalimNumDropDown] = useState(false)
+  const [reassignLoader, setReassignLoader] = useState(null)
+  const [useOfficeNumber, setUseOfficeNumber] = useState(false)
+  const [userSelectedNumber, setUserSelectedNumber] = useState('')
+  const [showOfficeNumberInput, setShowOfficeNumberInput] = useState(false)
+  const [officeNumber, setOfficeNumber] = useState('')
+  const [showClaimPopup, setShowClaimPopup] = useState(false)
+  const [previousNumber, setPreviousNumber] = useState([])
   //agent details variable
-  const [AgentData, setAgentData] = useState(null);
+  const [AgentData, setAgentData] = useState(null)
   //show reassign btn or not
-  const [showConfirmationModal, setShowConfirmationModal] = useState(null);
-  const [showReassignBtn, setShowReassignBtn] = useState(false);
-  const [showGlobalBtn, setShowGlobalBtn] = useState(true);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(null)
+  const [showReassignBtn, setShowReassignBtn] = useState(false)
+  const [showGlobalBtn, setShowGlobalBtn] = useState(true)
   //code for find numbers
-  const [findNumber, setFindNumber] = useState("");
-  const [findeNumberLoader, setFindeNumberLoader] = useState(false);
-  const [foundeNumbers, setFoundeNumbers] = useState([]);
-  const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null);
-  const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null);
-  const [purchaseLoader, setPurchaseLoader] = useState(false);
+  const [findNumber, setFindNumber] = useState('')
+  const [findeNumberLoader, setFindeNumberLoader] = useState(false)
+  const [foundeNumbers, setFoundeNumbers] = useState([])
+  const [selectedPurchasedIndex, setSelectedPurchasedIndex] = useState(null)
+  const [selectedPurchasedNumber, setSelectedPurchasedNumber] = useState(null)
+  const [purchaseLoader, setPurchaseLoader] = useState(false)
   const [openPurchaseSuccessModal, setOpenPurchaseSuccessModal] =
-    useState(false);
+    useState(false)
 
-  const [callBackNumber, setCallBackNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("us");
-  const [assignLoader, setAssignLoader] = useState(false);
-  const [shouldContinue, setShouldContinue] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(false);
-  const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
+  const [callBackNumber, setCallBackNumber] = useState('')
+  const [countryCode, setCountryCode] = useState('us')
+  const [assignLoader, setAssignLoader] = useState(false)
+  const [shouldContinue, setShouldContinue] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(false)
+  const [officeErrorMessage, setOfficeErrorMessage] = useState(false)
 
-  const [updatedUserData, setUpdatedUserData] = useState(null);
+  const [updatedUserData, setUpdatedUserData] = useState(null)
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Error,
-    message: "",
-    isVisible: false
-  });
+    message: '',
+    isVisible: false,
+  })
 
   useEffect(() => {
-    getSubUserProfile();
-  }, [userData]);
-
-  useEffect(() => {
-    const localData = localStorage.getItem("claimNumberData");
-
-    const AT = localStorage.getItem("agentType");
-    if (AT) {
-      let t = JSON.parse(AT);
-      console.log("Agent type is", t);
-      setAgentType(t);
+    getSubUserProfile()
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
     }
-    let loc = getLocalLocation();
-    setCountryCode(loc);
+  }, [userData])
 
+  useEffect(() => {
+    const localData = localStorage.getItem('claimNumberData')
 
+    const AT = localStorage.getItem('agentType')
+    if (AT) {
+      let t = JSON.parse(AT)
+      console.log('Agent type is', t)
+      setAgentType(t)
+    }
+    let loc = getLocalLocation()
+    setCountryCode(loc)
 
     if (localData) {
-      const claimNumberDetails = JSON.parse(localData);
-
+      const claimNumberDetails = JSON.parse(localData)
 
       // //console.log;
 
@@ -124,23 +148,21 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // setCallBackNumber(claimNumberDetails.callBackNumber);
       // setSelectNumber(claimNumberDetails.userNumber);
       // setShouldContinue(false);
-
-
     }
-    getAvailabePhoneNumbers();
-    const localAgentsData = localStorage.getItem("agentDetails");
+    getAvailabePhoneNumbers()
+    const localAgentsData = localStorage.getItem('agentDetails')
     if (localAgentsData) {
-      const agetnDetails = JSON.parse(localAgentsData);
+      const agetnDetails = JSON.parse(localAgentsData)
       // //console.log;
-      setAgentData(agetnDetails?.agents[0]);
+      setAgentData(agetnDetails?.agents[0])
       if (agetnDetails?.agents?.length === 2) {
-        setShowReassignBtn(false);
-      } else if (agetnDetails?.agents[0]?.agentType === "inbound") {
-        setShowReassignBtn(true);
-        setShowGlobalBtn(false);
+        setShowReassignBtn(false)
+      } else if (agetnDetails?.agents[0]?.agentType === 'inbound') {
+        setShowReassignBtn(true)
+        setShowGlobalBtn(false)
       }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     // //console.log;
@@ -156,9 +178,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       officeNumber ||
       isInboundOnly()
     ) {
-      setShouldContinue(false);
+      setShouldContinue(false)
     } else {
-      setShouldContinue(true);
+      setShouldContinue(true)
     }
   }, [
     selectNumber,
@@ -167,103 +189,103 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     toggleClick,
     useOfficeNumber,
     officeNumber,
-  ]);
+  ])
 
   function isInboundOnly() {
-    const localAgentsData = localStorage.getItem("agentDetails");
+    const localAgentsData = localStorage.getItem('agentDetails')
     if (localAgentsData) {
-      const agentDetails = JSON.parse(localAgentsData);
+      const agentDetails = JSON.parse(localAgentsData)
       // //console.log;
       // setAgentData(agetnDetails.agents[0]);
       if (
         agentDetails.agents.length === 1 &&
-        agentDetails?.agents[0]?.agentType == "inbound"
+        agentDetails?.agents[0]?.agentType == 'inbound'
       ) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   }
 
   //code to format the number
   const formatPhoneNumber = (rawNumber) => {
     const phoneNumber = parsePhoneNumberFromString(
-      rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
-    );
+      rawNumber?.startsWith('+') ? rawNumber : `+${rawNumber}`,
+    )
     //// //console.log;
     return phoneNumber
       ? phoneNumber.formatInternational()
-      : "Invalid phone number";
-  };
+      : 'Invalid phone number'
+  }
 
   const handleSelectNumber = (event) => {
-    setSelectNumber(event.target.value);
-  };
+    setSelectNumber(event.target.value)
+  }
 
   const handleToggleClick = () => {
-    setToggleClick(!toggleClick);
-  };
+    setToggleClick(!toggleClick)
+  }
 
   //code to use office number
   const handleOfficeNumberClick = () => {
-    setUserSelectedNumber("");
-    setUseOfficeNumber(!useOfficeNumber);
-    setShowOfficeNumberInput(!showOfficeNumberInput);
-  };
+    setUserSelectedNumber('')
+    setUseOfficeNumber(!useOfficeNumber)
+    setShowOfficeNumberInput(!showOfficeNumberInput)
+  }
 
   const handleSelectedNumberClick = (item) => {
     // //console.log;
-    setOfficeNumber("");
-    setShowOfficeNumberInput(false);
-    setUseOfficeNumber(false);
-    setUserSelectedNumber(item);
-  };
+    setOfficeNumber('')
+    setShowOfficeNumberInput(false)
+    setUseOfficeNumber(false)
+    setUserSelectedNumber(item)
+  }
 
   const handleCloseClaimPopup = () => {
-    setShowClaimPopup(false);
-  };
+    setShowClaimPopup(false)
+  }
 
   //code for phone number inputs functions
   const handleCallBackNumberChange = (phone) => {
-    setCallBackNumber(phone);
-    validatePhoneNumber(phone);
+    setCallBackNumber(phone)
+    validatePhoneNumber(phone)
 
     if (!phone) {
-      setErrorMessage("");
-      setOfficeErrorMessage("");
+      setErrorMessage('')
+      setOfficeErrorMessage('')
     }
-  };
+  }
 
   //code for reassigning the number api
   const handleReassignNumber = async (item) => {
     try {
       // //console.log;
 
-      setReassignLoader(item);
+      setReassignLoader(item)
       // Use Redux token instead of localStorage
       if (!token) {
-        console.error("No token available");
-        setReassignLoader(null);
-        return;
+        console.error('No token available')
+        setReassignLoader(null)
+        return
       }
-      const agentDetails = localStorage.getItem("agentDetails");
-      let MyAgentData = null;
+      const agentDetails = localStorage.getItem('agentDetails')
+      let MyAgentData = null
 
       if (agentDetails) {
         // //console.log;
-        setShowConfirmationModal(null);
-        const agentData = JSON.parse(agentDetails);
+        setShowConfirmationModal(null)
+        const agentData = JSON.parse(agentDetails)
         // //console.log;
-        MyAgentData = agentData;
+        MyAgentData = agentData
       }
 
-      const ApiPath = Apis.reassignNumber;
+      const ApiPath = Apis.reassignNumber
 
       const ApiData = {
         agentId: item.claimedBy.id, //MyAgentData.agents[0].id,
         phoneNumber: item.phoneNumber,
         newAgentId: MyAgentData.agents[0].id,
-      };
+      }
       // //console.log;
 
       // //console.log;
@@ -273,22 +295,22 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         setSelectNumber(
-          item?.phoneNumber?.startsWith("+")
+          item?.phoneNumber?.startsWith('+')
             ? item.phoneNumber.slice(1)
-            : item.phoneNumber
-        );
-        setOpenCalimNumDropDown(false);
+            : item.phoneNumber,
+        )
+        setOpenCalimNumDropDown(false)
         //code to close the dropdown
         if (selectRef.current) {
-          selectRef.current.blur(); // Triggers dropdown close
+          selectRef.current.blur() // Triggers dropdown close
         }
 
         // if (response.data.status === true) {
@@ -300,22 +322,22 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     } catch (error) {
       // console.error("Error occured in reassign the number api:", error);
     } finally {
-      setReassignLoader(null);
+      setReassignLoader(null)
       // //console.log;
     }
-  };
+  }
 
   //code for office number change
   const handleOfficeNumberChange = (phone, e) => {
-    setOfficeNumber(phone);
-    validatePhoneNumber(phone, e);
-    setUserSelectedNumber("");
+    setOfficeNumber(phone)
+    validatePhoneNumber(phone, e)
+    setUserSelectedNumber('')
 
     if (!phone) {
-      setErrorMessage("");
-      setOfficeErrorMessage("");
+      setErrorMessage('')
+      setOfficeErrorMessage('')
     }
-  };
+  }
 
   //phone validation
   //number validation
@@ -324,21 +346,21 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
+      countryCode?.toUpperCase(),
+    )
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       if (e) {
-        setOfficeErrorMessage("Invalid");
+        setOfficeErrorMessage('Invalid')
       } else {
-        setErrorMessage("Invalid");
+        setErrorMessage('Invalid')
       }
     } else {
-      setErrorMessage("");
-      setOfficeErrorMessage("");
+      setErrorMessage('')
+      setOfficeErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       // setCheckPhoneResponse(null);
@@ -346,85 +368,87 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       timerRef.current = setTimeout(() => {
         // checkPhoneNumber(phoneNumber);
-      }, 300);
+      }, 300)
     }
-  };
+  }
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
     // //console.log;
-    localStorage.setItem("numberPurchased", JSON.stringify(item));
-    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item));
-    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
-  };
+    localStorage.setItem('numberPurchased', JSON.stringify(item))
+    setSelectedPurchasedNumber((prevId) => (prevId === item ? null : item))
+    setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index))
+  }
 
   const getSubUserProfile = async () => {
-    const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     if (localData) {
-      const data = JSON.parse(localData);
-      console.log("Data is from agency or a admin is", data);
+      const data = JSON.parse(localData)
+      console.log('Data is from agency or a admin is', data)
       // setIsFromAgencyOrAdmin(data);
-      const subUserProfile = await AdminGetProfileDetails(data.subAccountData.id);
-      setIsFromAgencyOrAdmin(subUserProfile);
-      console.log("Subuser profile is", subUserProfile);
+      const subUserProfile = await AdminGetProfileDetails(
+        data.subAccountData.id,
+      )
+      setIsFromAgencyOrAdmin(subUserProfile)
+      console.log('Subuser profile is', subUserProfile)
     }
   }
 
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
     try {
-      console.log("Trigered the get numbers api");
+      console.log('Trigered the get numbers api')
       // Use Redux token instead of AuthToken()
       if (!token) {
-        console.error("No token available");
-        return;
+        console.error('No token available')
+        return
       }
 
-      let userId = null;
-      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-      console.log("check 343")
+      let userId = null
+      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      console.log('check 343')
       if (U) {
         // const d = JSON.parse(U);
         // console.log("Subaccount data recieved on createagent_1 screen is", d);
         // userId = d.subAccountData.id;
         try {
-          const d = JSON.parse(U);
-          console.log("Subaccount data recieved");
-          userId = d.subAccountData.id;
+          const d = JSON.parse(U)
+          console.log('Subaccount data recieved')
+          userId = d.subAccountData.id
         } catch (e) {
-          console.error("Failed to parse isFromAdminOrAgency", e);
+          console.error('Failed to parse isFromAdminOrAgency', e)
         }
       }
 
       // //console.log;
-      let ApiPath = null;
+      let ApiPath = null
       if (U) {
-        console.log("UserId is", userId);
-        ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`;
+        console.log('UserId is', userId)
+        ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`
       } else {
-        console.log("UserId is not found");
-        ApiPath = Apis.userAvailablePhoneNumber;
+        console.log('UserId is not found')
+        ApiPath = Apis.userAvailablePhoneNumber
       }
-      console.log("ApiPath on create agent is", ApiPath);
+      console.log('ApiPath on create agent is', ApiPath)
       // //console.log;
 
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Numbers list iis", response.data.data);
-        setPreviousNumber(response.data.data);
+        console.log('Numbers list iis', response.data.data)
+        setPreviousNumber(response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in: ", error);
     } finally {
       // //console.log;
     }
-  };
+  }
 
   //get main agent id
   const AssignNumber = async () => {
@@ -434,70 +458,70 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // setAssignLoader(true);
       // Use Redux token instead of localStorage
       if (!token) {
-        console.error("No token available");
-        setAssignLoader(false);
-        return;
+        console.error('No token available')
+        setAssignLoader(false)
+        return
       }
-      let MyAgentData = null;
-      const agentDetails = localStorage.getItem("agentDetails");
+      let MyAgentData = null
+      const agentDetails = localStorage.getItem('agentDetails')
 
       if (agentDetails) {
         // //console.log;
-        const agentData = JSON.parse(agentDetails);
+        const agentData = JSON.parse(agentDetails)
         // //console.log;
-        MyAgentData = agentData;
+        MyAgentData = agentData
       }
 
-      const formData = new FormData();
-      formData.append("phoneNumber", selectNumber);
+      const formData = new FormData()
+      formData.append('phoneNumber', selectNumber)
       if (userSelectedNumber) {
-        formData.append("callbackNumber", userSelectedNumber.phoneNumber);
+        formData.append('callbackNumber', userSelectedNumber.phoneNumber)
       } else {
-        formData.append("callbackNumber", officeNumber);
+        formData.append('callbackNumber', officeNumber)
       }
-      formData.append("liveTransferNumber", callBackNumber);
-      formData.append("mainAgentId", MyAgentData.id);
-      formData.append("liveTransfer", !toggleClick);
+      formData.append('liveTransferNumber', callBackNumber)
+      formData.append('mainAgentId', MyAgentData.id)
+      formData.append('liveTransfer', !toggleClick)
 
-      const ApiPath = Apis.asignPhoneNumber;
+      const ApiPath = Apis.asignPhoneNumber
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
       // return;
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + token,
+          Authorization: 'Bearer ' + token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of assign number is", response.data);
-        console.log("Check 1")
+        console.log('Response of assign number is', response.data)
+        console.log('Check 1')
         if (response.data.status === true) {
-          setOpenCalimNumDropDown(false);
+          setOpenCalimNumDropDown(false)
           // handleContinue();
           const calimNoData = {
             officeNo: officeNumber,
             userNumber: selectNumber,
             usernumber2: userSelectedNumber,
             callBackNumber: callBackNumber,
-          };
-          localStorage.setItem("claimNumberData", JSON.stringify(calimNoData));
+          }
+          localStorage.setItem('claimNumberData', JSON.stringify(calimNoData))
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
       if (axios.isAxiosError(error)) {
-        console.error("Axios error:", error.response?.data || error.message);
+        console.error('Axios error:', error.response?.data || error.message)
       } else {
-        console.error("General error:", error);
+        console.error('General error:', error)
       }
     } finally {
       // //console.log;
-      setAssignLoader(false);
+      setAssignLoader(false)
     }
-  };
+  }
 
   // const PhoneNumbers = [
   //     {
@@ -517,60 +541,62 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const styles = {
     headingStyle: {
       fontSize: 15,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 14,
-      fontWeight: "400",
-      color: "#000000",
+      fontWeight: '400',
+      color: '#000000',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#000000",
+      fontWeight: '500',
+      color: '#000000',
     },
     callBackStyles: {
       // height: "71px", //width: "210px",
-      border: "1px solid #15151550",
-      borderRadius: "20px",
-      fontWeight: "500",
+      border: '1px solid #15151550',
+      borderRadius: '20px',
+      fontWeight: '500',
       fontSize: 15,
     },
     claimPopup: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
     findNumberTitle: {
       fontSize: 17,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     findNumberDescription: {
       fontSize: 15,
-      fontWeight: "500",
+      fontWeight: '500',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
-      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
           message={showSnackMsg.message}
           type={showSnackMsg.type}
           isVisible={showSnackMsg.isVisible}
-          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+          hide={() =>
+            setShowSnackMsg({ type: null, message: '', isVisible: false })
+          }
         />
         <div>
           {/* Video Card */}
@@ -584,40 +610,46 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           <Header />
           {/* Body */}
           <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
             style={{
-              position: "absolute",
+              position: 'absolute',
               // left: "18%",
               // translate: "-50%",
               // left: "14%",
-              top: "20%",
+              top: '20%',
               // backgroundColor: "red"
             }}
           >
             <VideoCard
-              duration={"1:52"}
+              duration={'1:52'}
               horizontal={false}
               playVideo={() => {
-                setIntroVideoModal(true);
+                setIntroVideoModal(true)
               }}
               title="Learn about phone numbers"
             />
           </div>
           <div
-            className="flex flex-col items-center px-4 w-full h-[67vh] overflow-auto"
-            style={{ scrollbarWidth: "none" }}
+            className="flex flex-col items-center px-4 w-full"
+            style={{
+              paddingTop: isSubaccount ? '50px' : undefined,
+            }}
           >
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: "center" }}
-            // onClick={handleContinue}
+              className="w-11/12 md:text-4xl text-lg font-[600]"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-80px' : '24px',
+                marginBottom: '16px',
+              }}
+              // onClick={handleContinue}
             >
               {`Let's talk digits`}
             </div>
             <div
-              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
+              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-auto overflow-auto"
               // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>
                 {`Select a phone number you'd like to use to call with`}
@@ -626,11 +658,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="border rounded-lg focus-within:border-black transition-colors"
                 style={{
-                  height: "clamp(45px, 50px, 55px)",
-                  fontSize: "clamp(11px, 2vw, 13px)",
-                  overflow: "hidden",
-                  boxSizing: "border-box",
-                  border: "1px solid #00000020",
+                  height: 'clamp(45px, 50px, 55px)',
+                  fontSize: 'clamp(11px, 2vw, 13px)',
+                  overflow: 'hidden',
+                  boxSizing: 'border-box',
+                  border: '1px solid #00000020',
                 }}
               >
                 <Box className="w-full h-full">
@@ -645,37 +677,37 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       value={selectNumber}
                       // onChange={handleSelectNumber}
                       onChange={(e) => {
-                        let value = e.target.value;
-                        console.log("Value updated bcz clicked on menu item");
-                        if (agentType?.agentType !== "inbound") {
-                          console.log("Value for outbound is", value);
-                          setSelectNumber(value);
-                          setOpenCalimNumDropDown(false);
+                        let value = e.target.value
+                        console.log('Value updated bcz clicked on menu item')
+                        if (agentType?.agentType !== 'inbound') {
+                          console.log('Value for outbound is', value)
+                          setSelectNumber(value)
+                          setOpenCalimNumDropDown(false)
                         }
                       }}
                       renderValue={(selected) => {
-                        if (selected === "") {
-                          return <div>Select Number</div>;
+                        if (selected === '') {
+                          return <div>Select Number</div>
                         }
-                        return selected;
+                        return selected
                       }}
                       sx={{
                         ...styles.dropdownMenu,
-                        backgroundColor: "#FFFFFF",
-                        height: "100%",
-                        "& .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
+                        backgroundColor: '#FFFFFF',
+                        height: '100%',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
                         },
-                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                          border: "none",
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
                         },
-                        "& .MuiSelect-select": {
-                          display: "flex",
-                          alignItems: "center",
-                          height: "100%",
+                        '& .MuiSelect-select': {
+                          display: 'flex',
+                          alignItems: 'center',
+                          height: '100%',
                         },
-                        "&:focus": {
-                          outline: "none",
+                        '&:focus': {
+                          outline: 'none',
                         },
                       }}
                     >
@@ -684,33 +716,31 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           key={index}
                           style={{
                             ...styles.dropdownMenu,
-                            fontSize: "clamp(11px, 2vw, 13px)",
-                            padding: "clamp(4px, 0.8vw, 8px)",
-                            minHeight: "clamp(30px, 35px, 40px)",
+                            fontSize: 'clamp(11px, 2vw, 13px)',
+                            padding: 'clamp(4px, 0.8vw, 8px)',
+                            minHeight: 'clamp(30px, 35px, 40px)',
                           }}
                           value={
-                            item?.phoneNumber?.startsWith("+")
+                            item?.phoneNumber?.startsWith('+')
                               ? item?.phoneNumber.slice(1)
                               : item?.phoneNumber
                           }
                           disabled={
-                            typeof selectNumber === "string" &&
-                            selectNumber.replace("+", "") === item.phoneNumber.replace("+", "")
+                            typeof selectNumber === 'string' &&
+                            selectNumber.replace('+', '') ===
+                              item.phoneNumber.replace('+', '')
                           }
                           className="flex flex-row items-center gap-2"
                           onClick={(e) => {
-                            console.log("Menu item clicked");
+                            console.log('Menu item clicked')
                             // return;
                             if (showReassignBtn && item?.claimedBy) {
-                              e.stopPropagation();
-                              setShowConfirmationModal(item);
-                              console.log(
-                                "Hit release number api",
-                                item
-                              );
+                              e.stopPropagation()
+                              setShowConfirmationModal(item)
+                              console.log('Hit release number api', item)
                               // AssignNumber
                             } else {
-                              AssignNumber();
+                              AssignNumber()
                             }
                           }}
                         >
@@ -730,8 +760,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                   className="flex flex-row items-center"
                                   onClick={(e) => {
                                     if (item?.claimedBy) {
-                                      e.stopPropagation();
-                                      setShowConfirmationModal(item);
+                                      e.stopPropagation()
+                                      setShowConfirmationModal(item)
                                     }
                                   }}
                                 >
@@ -739,15 +769,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     (Claimed by {item.claimedBy.name})
                                   </div>
                                   {reassignLoader?.claimedBy?.id ===
-                                    item.claimedBy.id ? (
+                                  item.claimedBy.id ? (
                                     <CircularProgress size={15} />
                                   ) : (
                                     <button
-                                      className="text-purple underline"
+                                      className="text-brand-primary underline"
                                       onClick={(e) => {
-                                        e.stopPropagation();
+                                        e.stopPropagation()
                                         // handleReassignNumber(item);
-                                        setShowConfirmationModal(item);
+                                        setShowConfirmationModal(item)
                                         // handleReassignNumber(e.target.value)
                                       }}
                                     >
@@ -762,23 +792,27 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       ))}
                       <MenuItem
                         style={styles.dropdownMenu}
-                        value={showGlobalBtn ? getGlobalPhoneNumber(userData).replace("+", "") : ""}
+                        value={
+                          showGlobalBtn
+                            ? getGlobalPhoneNumber(userData).replace('+', '')
+                            : ''
+                        }
                       >
                         {getGlobalPhoneNumber(userData)}
-                        {showGlobalBtn && " (available for testing calls only)"}
+                        {showGlobalBtn && ' (available for testing calls only)'}
                         {showGlobalBtn == false &&
-                          " (Only for outbound agents. You must buy a number)"}
+                          ' (Only for outbound agents. You must buy a number)'}
                       </MenuItem>
                       <div
                         className="ms-4"
-                        style={{ ...styles.inputStyle, color: "#00000070" }}
+                        style={{ ...styles.inputStyle, color: '#00000070' }}
                       >
-                        <i>Get your own unique phone number.</i>{" "}
+                        <i>Get your own unique phone number.</i>{' '}
                         <button
-                          className="text-purple underline"
-                          style={{ fontSize: "clamp(10px, 2vw, 14px)" }}
+                          className="text-brand-primary underline"
+                          style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}
                           onClick={() => {
-                            setShowClaimPopup(true);
+                            setShowClaimPopup(true)
                           }}
                         >
                           Claim one
@@ -796,11 +830,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   handleCloseClaimPopup={handleCloseClaimPopup}
                   setOpenCalimNumDropDown={setOpenCalimNumDropDown}
                   setSelectNumber={(number) => {
-                    console.log("Number is", number)
+                    console.log('Number is', number)
                     setSelectNumber(number)
                   }}
                   setPreviousNumber={(numbers) => {
-                    console.log("Numbers are", numbers)
+                    console.log('Numbers are', numbers)
                     setPreviousNumber(numbers)
                   }}
                   previousNumber={previousNumber}
@@ -815,7 +849,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     // //backdropFilter: "blur(20px)",
                   },
                 }}
@@ -828,9 +862,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     <div
                       className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div>
@@ -842,7 +876,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <PurchaseNumberSuccess
                           selectedNumber={selectedPurchasedNumber}
                           handleContinue={() => {
-                            setOpenPurchaseSuccessModal(false);
+                            setOpenPurchaseSuccessModal(false)
                           }}
                         />
                       </div>
@@ -865,17 +899,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="flex flex-row items-center overflow-x-auto"
                 style={{
-                  scrollbarWidth: "none",
-                  overflowY: "hidden",
-                  height: "clamp(40px, 45px, 50px)",
+                  scrollbarWidth: 'none',
+                  overflowY: 'hidden',
+                  height: 'clamp(40px, 45px, 50px)',
                   flexShrink: 0,
-                  paddingBottom: "3px",
-                  gap: "clamp(5px, 1.2vw, 10px)",
+                  paddingBottom: '3px',
+                  gap: 'clamp(5px, 1.2vw, 10px)',
                 }}
               >
                 <div
                   className="flex flex-row items-center min-w-full"
-                  style={{ gap: "clamp(5px, 1.2vw, 10px)" }}
+                  style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
                 >
                   {previousNumber.map((item, index) => (
                     <button
@@ -883,21 +917,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                       style={{
                         ...styles.callBackStyles,
-                        width: "clamp(100px, 22vw, 220px)",
-                        height: "clamp(30px, 35px, 40px)",
-                        fontSize: "clamp(9px, 1.8vw, 13px)",
+                        width: 'clamp(100px, 22vw, 220px)',
+                        height: 'clamp(30px, 35px, 40px)',
+                        fontSize: 'clamp(9px, 1.8vw, 13px)',
                         border:
                           userSelectedNumber === item
-                            ? "2px solid #7902DF"
-                            : "1px solid #15151550",
+                            ? '2px solid hsl(var(--brand-primary))'
+                            : '1px solid #15151550',
                         backgroundColor:
-                          userSelectedNumber === item
-                            ? "#402FFF15"
-                            : "#fff",
-                        minWidth: "clamp(85px, 18vw, 150px)",
-                        maxWidth: "220px",
-                        whiteSpace: "nowrap",
-                        padding: "clamp(5px, 0.8vw, 10px)",
+                          userSelectedNumber === item ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
+                        minWidth: 'clamp(85px, 18vw, 150px)',
+                        maxWidth: '220px',
+                        whiteSpace: 'nowrap',
+                        padding: 'clamp(5px, 0.8vw, 10px)',
                       }}
                       onClick={() => handleSelectedNumberClick(item)}
                     >
@@ -908,19 +940,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                     style={{
                       ...styles.callBackStyles,
-                      width: "clamp(100px, 22vw, 200px)",
-                      height: "clamp(30px, 35px, 40px)",
-                      fontSize: "clamp(9px, 1.8vw, 13px)",
+                      width: 'clamp(100px, 22vw, 200px)',
+                      height: 'clamp(30px, 35px, 40px)',
+                      fontSize: 'clamp(9px, 1.8vw, 13px)',
                       border: useOfficeNumber
-                        ? "2px solid #7902DF"
-                        : "1px solid #15151550",
-                      backgroundColor: useOfficeNumber
-                        ? "#402FFF15"
-                        : "#fff",
-                      minWidth: "clamp(85px, 18vw, 150px)",
-                      maxWidth: "200px",
-                      whiteSpace: "nowrap",
-                      padding: "clamp(5px, 0.8vw, 9px)",
+                        ? '2px solid hsl(var(--brand-primary))'
+                        : '1px solid #15151550',
+                      backgroundColor: useOfficeNumber ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
+                      minWidth: 'clamp(85px, 18vw, 150px)',
+                      maxWidth: '200px',
+                      whiteSpace: 'nowrap',
+                      padding: 'clamp(5px, 0.8vw, 9px)',
                     }}
                     onClick={handleOfficeNumberClick}
                   >
@@ -938,211 +968,255 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   <PhoneInput
                     containerClass="phone-input-container"
                     className="outline-none bg-white focus:ring-0"
-                    country={"us"} // restrict to US only
-                    onlyCountries={["us", "mx", "ca"]}
+                    country={'us'} // restrict to US only
+                    onlyCountries={['us', 'mx']}
                     disableDropdown={true}
                     countryCodeEditable={false}
                     disableCountryCode={false}
                     value={officeNumber}
                     onChange={handleOfficeNumberChange}
                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                    placeholder={"Enter Phone Number"}
+                    placeholder={'Enter Phone Number'}
                     // disabled={loading} // Disable input if still loading
-                    style={{ 
-                      borderRadius: "7px", 
-                      border: "1px solid #00000020",
-                      outline: "none",
-                      boxShadow: "none",
+                    style={{
+                      borderRadius: '7px',
+                      border: '1px solid #00000020',
+                      outline: 'none',
+                      boxShadow: 'none',
                     }}
                     inputStyle={{
-                      width: "100%",
-                      borderWidth: "0px",
-                      backgroundColor: "transparent",
-                      paddingLeft: "60px",
-                      paddingTop: "10px",
-                      paddingBottom: "10px",
-                      paddingRight: "12px",
-                      outline: "none",
-                      boxShadow: "none",
+                      width: '100%',
+                      borderWidth: '0px',
+                      backgroundColor: 'transparent',
+                      paddingLeft: '60px',
+                      paddingTop: '10px',
+                      paddingBottom: '10px',
+                      paddingRight: '12px',
+                      outline: 'none',
+                      boxShadow: 'none',
                     }}
                     buttonStyle={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      outline: "none",
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      outline: 'none',
                     }}
                     dropdownStyle={{
-                      maxHeight: "150px",
-                      overflowY: "auto",
+                      maxHeight: '150px',
+                      overflowY: 'auto',
                     }}
-                  // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                   {officeErrorMessage && (
                     <div
                       className="mt-2"
-                      style={{ fontWeight: "500", fontSize: 11, color: "red" }}
+                      style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
                     >
                       {officeErrorMessage}
                     </div>
                   )}
                 </div>
               ) : (
-                ""
+                ''
               )}
 
               {/* Phone number input here */}
-              {
+              {userData?.userRole === 'AgencySubAccount' &&
+              userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
+                <div className="w-full h-[35vh]  flex items-center justify-center">
+                  <UpgardView
+                    setShowSnackMsg={setShowSnackMsg}
+                    title={'Enable Live Transfer'}
+                    subTitle={
+                      'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
+                    }
+                    userData={userData}
+                    onUpgradeSuccess={(userData) => {
+                      console.log(
+                        '🔥 CREATEAGENT4 - LT:Upgrade successful',
+                        userData,
+                      )
+                      console.log('🔥 CREATEAGENT4 - UserData type check:', {
+                        hasToken: userData?.hasOwnProperty('token'),
+                        hasUser: userData?.hasOwnProperty('user'),
+                        isFullFormat:
+                          userData?.hasOwnProperty('token') &&
+                          userData?.hasOwnProperty('user'),
+                        dataStructure: Object.keys(userData || {}),
+                      })
 
-                (userData?.userRole === "AgencySubAccount" && userData?.agencyCapabilities?.allowLiveCallTransfer === false)
-                  // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true) 
-                  ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <UpgardView
-                        setShowSnackMsg={setShowSnackMsg}
-                        title={"Enable Live Transfer"}
-                        subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                        userData={userData}
-                        onUpgradeSuccess={(userData) => {
-                          console.log("🔥 CREATEAGENT4 - LT:Upgrade successful", userData);
-                          console.log("🔥 CREATEAGENT4 - UserData type check:", {
+                      console.log(
+                        '🔥 CREATEAGENT4 - About to call setUpdatedUserData',
+                      )
+                      setUpdatedUserData(userData)
+                      console.log(
+                        '🔥 CREATEAGENT4 - About to call setUserData (Redux)',
+                      )
+                      setUserData(userData)
+                      console.log(
+                        '🔥 CREATEAGENT4 - Both setters called successfully',
+                      )
+
+                      // Verify localStorage was updated
+                      setTimeout(() => {
+                        const localStorageData = localStorage.getItem('User')
+                        console.log(
+                          '🔥 CREATEAGENT4 - localStorage after update:',
+                          localStorageData
+                            ? JSON.parse(localStorageData)
+                            : null,
+                        )
+                      }, 100)
+                    }}
+                    // handleContinue={handleContinue}
+                  />
+                </div>
+              ) : isFromAgencyOrAdmin?.planCapabilities
+                  ?.allowLiveCallTransfer === true ||
+                (!isFromAgencyOrAdmin &&
+                  userData?.planCapabilities?.allowLiveCallTransfer ===
+                    true) ? (
+                <div className="">
+                  <div className="w-full">
+                    <div style={styles.headingStyle}>
+                      What number should we forward live transfers to when a
+                      lead wants to talk to you?
+                    </div>
+                    <PhoneInput
+                      containerClass="phone-input-container"
+                      className="outline-none bg-white mt-2 focus:ring-0"
+                      country={'us'} // restrict to US only
+                      onlyCountries={['us', 'mx']}
+                      disableDropdown={true}
+                      countryCodeEditable={false}
+                      disableCountryCode={false}
+                      value={callBackNumber}
+                      onChange={handleCallBackNumberChange}
+                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                      placeholder={'Enter Phone Number'}
+                      // disabled={loading} // Disable input if still loading
+                      style={{
+                        borderRadius: '7px',
+                        border: '1px solid #00000020',
+                        outline: 'none',
+                        boxShadow: 'none',
+                      }}
+                      inputStyle={{
+                        width: '100%',
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '60px',
+                        paddingTop: '14px',
+                        paddingBottom: '14px',
+                        paddingRight: '16px',
+                        outline: 'none',
+                        boxShadow: 'none',
+                      }}
+                      buttonStyle={{
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        outline: 'none',
+                      }}
+                      dropdownStyle={{
+                        maxHeight: '150px',
+                        overflowY: 'auto',
+                      }}
+                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    />
+                    <div
+                      style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
+                    >
+                      {errorMessage}
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center gap-4 justify-start">
+                    <button onClick={handleToggleClick}>
+                      {toggleClick ? (
+                        <div
+                          className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                          style={{ height: '24px', width: '24px' }}
+                        >
+                          <Image
+                            src={'/assets/whiteTick.png'}
+                            height={8}
+                            width={10}
+                            alt="*"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                          style={{ height: '24px', width: '24px' }}
+                        ></div>
+                      )}
+                    </button>
+                    <div
+                      style={{
+                        color: '#151515',
+                        fontSize: 15,
+                        fontWeight: '500',
+                        marginLeft: '8px',
+                      }}
+                    >
+                      {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full  flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                  <div className="w-full h-[35vh] flex items-center justify-center">
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Enable Live Transfer'}
+                      subTitle={
+                        'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
+                      }
+                      userData={userData}
+                      onUpgradeSuccess={(userData) => {
+                        console.log(
+                          '🔥 CREATEAGENT4 - Second LT:Upgrade successful',
+                          userData,
+                        )
+                        console.log(
+                          '🔥 CREATEAGENT4 - Second - UserData type check:',
+                          {
                             hasToken: userData?.hasOwnProperty('token'),
                             hasUser: userData?.hasOwnProperty('user'),
-                            isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
-                            dataStructure: Object.keys(userData || {})
-                          });
+                            isFullFormat:
+                              userData?.hasOwnProperty('token') &&
+                              userData?.hasOwnProperty('user'),
+                            dataStructure: Object.keys(userData || {}),
+                          },
+                        )
 
-                          console.log("🔥 CREATEAGENT4 - About to call setUpdatedUserData");
-                          setUpdatedUserData(userData);
-                          console.log("🔥 CREATEAGENT4 - About to call setUserData (Redux)");
-                          setUserData(userData);
-                          console.log("🔥 CREATEAGENT4 - Both setters called successfully");
+                        console.log(
+                          '🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData',
+                        )
+                        setUpdatedUserData(userData)
+                        console.log(
+                          '🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)',
+                        )
+                        setUserData(userData)
+                        console.log(
+                          '🔥 CREATEAGENT4 - Second - Both setters called successfully',
+                        )
 
-                          // Verify localStorage was updated
-                          setTimeout(() => {
-                            const localStorageData = localStorage.getItem("User");
-                            console.log("🔥 CREATEAGENT4 - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
-                          }, 100);
-                        }}
+                        // Verify localStorage was updated
+                        setTimeout(() => {
+                          const localStorageData = localStorage.getItem('User')
+                          console.log(
+                            '🔥 CREATEAGENT4 - Second - localStorage after update:',
+                            localStorageData
+                              ? JSON.parse(localStorageData)
+                              : null,
+                          )
+                        }, 100)
+                      }}
                       // handleContinue={handleContinue}
-                      />
-                    </div>
-
-                  ) : (
-                    isFromAgencyOrAdmin?.planCapabilities?.allowLiveCallTransfer === true || (!isFromAgencyOrAdmin && userData?.planCapabilities?.allowLiveCallTransfer === true) ? (
-                      <div>
-                        <div className="w-full">
-                          <div style={styles.headingStyle}>
-                            What number should we forward live transfers to when a lead
-                            wants to talk to you?
-                          </div>
-                          <PhoneInput
-                            containerClass="phone-input-container"
-                            className="outline-none bg-white mt-2 focus:ring-0"
-                            country={"us"} // restrict to US only
-                            onlyCountries={["us", "mx", "ca"]}
-                            disableDropdown={true}
-                            countryCodeEditable={false}
-                            disableCountryCode={false}
-                            value={callBackNumber}
-                            onChange={handleCallBackNumberChange}
-                            // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                            placeholder={"Enter Phone Number"}
-                            // disabled={loading} // Disable input if still loading
-                            style={{ 
-                              borderRadius: "7px", 
-                              border: "1px solid #00000020",
-                              outline: "none",
-                              boxShadow: "none",
-                            }}
-                            inputStyle={{
-                              width: "100%",
-                              borderWidth: "0px",
-                              backgroundColor: "transparent",
-                              paddingLeft: "60px",
-                              paddingTop: "14px",
-                              paddingBottom: "14px",
-                              paddingRight: "16px",
-                              outline: "none",
-                              boxShadow: "none",
-                            }}
-                            buttonStyle={{
-                              border: "none",
-                              backgroundColor: "transparent",
-                              outline: "none",
-                            }}
-                            dropdownStyle={{
-                              maxHeight: "150px",
-                              overflowY: "auto",
-                            }}
-                          // defaultMask={locationLoader ? "Loading..." : undefined}
-                          />
-                          <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                            {errorMessage}
-                          </div>
-                        </div>
-                        <div className="flex flex-row items-center gap-4 justify-start">
-                          <button onClick={handleToggleClick}>
-                            {toggleClick ? (
-                              <div
-                                className="bg-purple flex flex-row items-center justify-center rounded"
-                                style={{ height: "24px", width: "24px" }}
-                              >
-                                <Image
-                                  src={"/assets/whiteTick.png"}
-                                  height={8}
-                                  width={10}
-                                  alt="*"
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                style={{ height: "24px", width: "24px" }}
-                              ></div>
-                            )}
-                          </button>
-                          <div
-                            style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}
-                          >
-                            {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
-                        <div className="w-full h-full flex items-center justify-center">
-                          <UpgardView
-                            setShowSnackMsg={setShowSnackMsg}
-                            title={"Enable Live Transfer"}
-                            subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                            userData={userData}
-                            onUpgradeSuccess={(userData) => {
-                              console.log("🔥 CREATEAGENT4 - Second LT:Upgrade successful", userData);
-                              console.log("🔥 CREATEAGENT4 - Second - UserData type check:", {
-                                hasToken: userData?.hasOwnProperty('token'),
-                                hasUser: userData?.hasOwnProperty('user'),
-                                isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
-                                dataStructure: Object.keys(userData || {})
-                              });
-
-                              console.log("🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData");
-                              setUpdatedUserData(userData);
-                              console.log("🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)");
-                              setUserData(userData);
-                              console.log("🔥 CREATEAGENT4 - Second - Both setters called successfully");
-
-                              // Verify localStorage was updated
-                              setTimeout(() => {
-                                const localStorageData = localStorage.getItem("User");
-                                console.log("🔥 CREATEAGENT4 - Second - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
-                              }, 100);
-                            }}
-                          // handleContinue={handleContinue}
-                          />
-                        </div>
-                      </div>
-                    )
-                  )
-              }
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* <Body /> */}
             </div>
@@ -1156,14 +1230,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
           <Footer
             handleContinue={() => {
-              if (agentType?.agentType === "inbound" && !selectNumber) {
-                console.log("Without api call");
-                handleContinue();
+              if (agentType?.agentType === 'inbound' && !selectNumber) {
+                console.log('Without api call')
+                handleContinue()
               } else {
-                console.log("With api call");
-                setAssignLoader(true);
-                AssignNumber();
-                handleContinue();
+                console.log('With api call')
+                setAssignLoader(true)
+                AssignNumber()
+                handleContinue()
               }
             }}
             handleBack={handleBack}
@@ -1177,17 +1251,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         <Modal
           open={showConfirmationModal}
           onClose={() => {
-            setShowConfirmationModal(null);
+            setShowConfirmationModal(null)
           }}
         >
           <Box
             className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
-            sx={{ ...styles.claimPopup, backgroundColor: "white" }}
+            sx={{ ...styles.claimPopup, backgroundColor: 'white' }}
           >
-            <div style={{ width: "100%" }}>
+            <div style={{ width: '100%' }}>
               <div
                 className="max-h-[60vh] overflow-auto"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
@@ -1203,19 +1277,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   <div
                     style={{
                       fontSize: 17,
-                      fontWeight: "600",
+                      fontWeight: '600',
                     }}
                   >
                     Reassign Number
                   </div>
                   <button
                     onClick={() => {
-                      setShowConfirmationModal(null);
+                      setShowConfirmationModal(null)
                       // setSelectNumber("");
                     }}
                   >
                     <Image
-                      src={"/assets/blackBgCross.png"}
+                      src={'/assets/blackBgCross.png'}
                       height={20}
                       width={20}
                       alt="*"
@@ -1227,7 +1301,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   className="mt-8"
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Confirm Action
@@ -1237,13 +1311,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   className="mt-8"
                   style={{
                     fontSize: 15,
-                    fontWeight: "500",
+                    fontWeight: '500',
                   }}
                 >
-                  Please confirm you would like to reassign{" "}
-                  <span className="text-purple">
+                  Please confirm you would like to reassign{' '}
+                  <span className="text-brand-primary">
                     ({formatPhoneNumber(showConfirmationModal?.phoneNumber)})
-                  </span>{" "}
+                  </span>{' '}
                   to {AgentData?.name}
                   {/* {showConfirmationModal?.claimedBy?.name}. */}
                   {/* {`{${showConfirmationModal?.claimedBy?.name}}`}. */}
@@ -1254,17 +1328,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 <button
                   className="mt-4 outline-none w-1/2"
                   style={{
-                    color: "black",
-                    height: "50px",
-                    borderRadius: "10px",
-                    width: "100%",
+                    color: 'black',
+                    height: '50px',
+                    borderRadius: '10px',
+                    width: '100%',
                     fontWeight: 600,
-                    fontSize: "20",
+                    fontSize: '20',
                   }}
                   onClick={() => {
-                    console.log("Discard  btn clicked");
-                    setShowConfirmationModal(null);
-                    setShowClaimPopup(null);
+                    console.log('Discard  btn clicked')
+                    setShowConfirmationModal(null)
+                    setShowClaimPopup(null)
                     // setSelectNumber("");
                   }}
                 >
@@ -1277,17 +1351,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </div>
                   ) : (
                     <button
-                      className="mt-4 outline-none bg-purple w-full"
+                      className="mt-4 outline-none bg-brand-primary w-full"
                       style={{
-                        color: "white",
-                        height: "50px",
-                        borderRadius: "10px",
-                        width: "100%",
+                        color: 'white',
+                        height: '50px',
+                        borderRadius: '10px',
+                        width: '100%',
                         fontWeight: 600,
-                        fontSize: "20",
+                        fontSize: '20',
                       }}
                       onClick={() => {
-                        handleReassignNumber(showConfirmationModal);
+                        handleReassignNumber(showConfirmationModal)
                         ////console.log
                       }}
                     >
@@ -1300,8 +1374,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </Box>
         </Modal>
       </div>
-    </div >
-  );
-};
+    </div>
+  )
+}
 
-export default CreateAgent4;
+export default CreateAgent4

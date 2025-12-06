@@ -1,5 +1,5 @@
-import React from "react";
-import { FormControl, Select, MenuItem } from "@mui/material";
+import { FormControl, MenuItem, Select } from '@mui/material'
+import React from 'react'
 
 const SelectStageDropdown = ({
   selectedStage,
@@ -7,7 +7,7 @@ const SelectStageDropdown = ({
   stagesList,
   updateLeadStage,
 }) => {
- // //console.log;
+  // //console.log;
   return (
     <FormControl size="fit-content">
       <Select
@@ -17,37 +17,44 @@ const SelectStageDropdown = ({
         renderValue={(selected) => {
           if (!selected) {
             return (
-              <div style={{ color: "#aaa" }}>
-                {stagesList?.length > 0 ? "Select" : "No Stage"}
+              <div style={{ color: '#aaa' }}>
+                {stagesList?.length > 0 ? 'Select' : 'No Stage'}
               </div>
-            );
+            )
           }
-          return selected;
+          return selected
         }}
         sx={{
-          border: "none",
-          "&:hover": { border: "none" },
-          "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: "none" },
-          "& .MuiSelect-select": {
-            padding: "0 24px 0 8px",
-            lineHeight: 1,
-            minHeight: "unset",
-            display: "flex",
-            alignItems: "center",
+          border: 'none',
+          '&:hover': { 
+            border: 'none',
+            backgroundColor: '#f5f5f5',
           },
-          "& .MuiSelect-icon": {
-            right: "4px",
-            top: "50%",
-            transform: "translateY(-50%)",
+          '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { border: 'none' },
+          '&.Mui-focused': {
+            backgroundColor: '#f5f5f5',
+          },
+          '& .MuiSelect-select': {
+            padding: '0 24px 0 8px',
+            lineHeight: 1,
+            minHeight: 'unset',
+            display: 'flex',
+            alignItems: 'center',
+          },
+          '& .MuiSelect-icon': {
+            right: '4px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#666',
           },
         }}
         MenuProps={{
           PaperProps: {
             style: {
-              maxHeight: "90vh",
-              overflow: "auto",
-              scrollbarWidth: "none",
+              maxHeight: '90vh',
+              overflow: 'auto',
+              scrollbarWidth: 'none',
             },
           },
         }}
@@ -58,7 +65,19 @@ const SelectStageDropdown = ({
             <MenuItem
               value={item.stageTitle}
               key={index}
-              className="hover:bg-lightBlue hover:text-[#000000]"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#f5f5f5',
+                  color: '#000000',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: '#f5f5f5',
+                  color: '#000000',
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                },
+              }}
             >
               <button
                 className="outline-none border-none w-full text-start"
@@ -77,7 +96,7 @@ const SelectStageDropdown = ({
         )}
       </Select>
     </FormControl>
-  );
-};
+  )
+}
 
-export default SelectStageDropdown;
+export default SelectStageDropdown

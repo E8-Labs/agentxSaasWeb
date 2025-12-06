@@ -1,7 +1,7 @@
 import { Tooltip } from '@mui/material'
 import DOMPurify from 'dompurify'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import {
   Accordion,
@@ -9,24 +9,148 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import {
+  createOrUpdateNotificationCustomization,
+} from '@/services/notificationServices/NotificationCustomizationService'
 
-import EditNotifications from './EditNotifications'
+import EditEmailNotification from './EditEmailNotification'
+import EditPushNotification from './EditPushNotification'
 import {
   GamificationNotificationList,
   PostTrialPeriodNotificationsList,
   TrialPeriodNotificationsList,
 } from './WhiteLabelNotificationExtras'
+import { NotificationTypes } from '@/constants/NotificationTypes'
 
-const TrialPeriodNot = ({ notificationsListArray }) => {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+const TrialPeriodNot = ({
+  notificationsListArray,
+  notificationsData = [],
+  onRefresh,
+}) => {
+  const [isEditPushModalOpen, setIsEditPushModalOpen] = useState(false)
+  const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
-  const [notificationsList, setNotificationsList] = useState(
-    notificationsListArray === 'TrialPeriod'
-      ? TrialPeriodNotificationsList
-      : notificationsListArray === 'PostTrialPeriod'
-        ? PostTrialPeriodNotificationsList
-        : GamificationNotificationList,
+  const [saving, setSaving] = useState(false)
+
+  // Determine category based on notificationsListArray
+  const category = useMemo(() => {
+    if (notificationsListArray === 'TrialPeriod') return 'TrialPeriod'
+    if (notificationsListArray === 'PostTrialPeriod') return 'PostTrialPeriod'
+    return 'Gamification'
+  }, [notificationsListArray])
+
+  // Map hardcoded list items to notification types
+  const getNotificationTypeFromId = useCallback(
+    (id, cat) => {
+      if (cat === 'TrialPeriod') {
+        const mapping = {
+          1: NotificationTypes.Trial30MinTicking,
+          2: NotificationTypes.X3MoreLikeyToWin,
+          3: NotificationTypes.NeedHand,
+          4: NotificationTypes.TrialReminder,
+          5: NotificationTypes.NeedHelpDontMissOut,
+          6: NotificationTypes.LastChanceToAct,
+          7: NotificationTypes.LastDayToMakeItCount,
+          8: NotificationTypes.TrialTime5MinLeft,
+          9: NotificationTypes.PlanRenewed,
+        }
+        return mapping[id]
+      } else if (cat === 'PostTrialPeriod') {
+        const mapping = {
+          1: NotificationTypes.SocialProof,
+          2: NotificationTypes.CompetitiveEdge,
+          3: NotificationTypes.FOMOAlert,
+          4: NotificationTypes.TrainingReminder,
+          5: NotificationTypes.Exclusivity,
+          6: NotificationTypes.TerritoryUpdate,
+        }
+        return mapping[id]
+      }
+      return null
+    },
+    [],
   )
+
+  // Get fallback list based on category
+  const fallbackList = useMemo(() => {
+    if (category === 'TrialPeriod') return TrialPeriodNotificationsList
+    if (category === 'PostTrialPeriod') return PostTrialPeriodNotificationsList
+    return GamificationNotificationList
+  }, [category])
+
+  // Transform API data to match the expected UI format
+  const transformedNotifications = useMemo(() => {
+    if (!notificationsData || notificationsData.length === 0) {
+      return fallbackList // Fallback to hardcoded data
+    }
+
+    // Filter notifications by category
+    return notificationsData
+      .filter((item) => item.metadata?.category === category)
+      .map((item, index) => ({
+        id: index + 1,
+        notificationType: item.notificationType,
+        title: item.metadata?.name || 'Notification',
+        description: item.metadata?.description || '',
+        tootTip: item.metadata?.description || '',
+        // App Notification (Push) fields
+        appNotficationTitle:
+          item.customization?.customPushTitle ||
+          item.metadata?.defaultPushTitle ||
+          '',
+        appNotficationBody:
+          item.customization?.customPushBody ||
+          item.metadata?.defaultPushBody ||
+          '',
+        appNotficationCTA:
+          item.customization?.customEmailCTA ||
+          item.metadata?.defaultEmailCTA ||
+          '',
+        // Email Template fields
+        emailNotficationTitle:
+          item.customization?.customEmailSubject ||
+          item.metadata?.defaultEmailSubject ||
+          '',
+        emailNotficationBody:
+          item.customization?.customEmailBody ||
+          item.metadata?.defaultEmailBody ||
+          '',
+        emailNotficationCTA:
+          item.customization?.customEmailCTA ||
+          item.metadata?.defaultEmailCTA ||
+          '',
+        // Legacy fields for backward compatibility
+        subject:
+          item.customization?.customEmailSubject ||
+          item.metadata?.defaultEmailSubject ||
+          '',
+        subjectDescription:
+          item.customization?.customEmailBody ||
+          item.metadata?.defaultEmailBody ||
+          '',
+        CTA:
+          item.customization?.customEmailCTA ||
+          item.metadata?.defaultEmailCTA ||
+          '',
+        isActive: item.isActive,
+        isCustomized: item.isCustomized,
+        availableVariables: item.metadata?.availableVariables || [],
+        supportsCTA: item.metadata?.supportsCTA || false,
+        actualNotificationType: item.notificationType,
+      }))
+  }, [notificationsData, category, fallbackList])
+
+  // Use transformed notifications if available, otherwise use fallback
+  const notificationsList = useMemo(() => {
+    if (transformedNotifications.length > 0 && notificationsData.length > 0) {
+      return transformedNotifications
+    }
+    // Add notificationType to fallback list items
+    return fallbackList.map((item) => ({
+      ...item,
+      notificationType: getNotificationTypeFromId(item.id, category),
+    }))
+  }, [transformedNotifications, notificationsData, fallbackList, category])
 
   // Sanitize HTML for safe rendering
   const sanitizeHTML = (html) => {
@@ -54,51 +178,148 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
     })
   }
 
-  const handleEditClick = (notification) => {
-    // console.log("Selected notification is", notification)
+  const handleEditPushClick = (notification) => {
     setSelectedNotification(notification)
-    setIsEditModalOpen(true)
+    setIsEditPushModalOpen(true)
   }
 
-  const handleSaveNotification = (updatedData) => {
-    // Update the notifications list with the edited data
-    setNotificationsList((prevList) =>
-      prevList.map((item) => {
-        if (item.id === selectedNotification.id) {
-          // Check if we're editing App Notification or Email Template
-          if (selectedNotification.notificationType === 'App Notification') {
-            return {
-              ...item,
-              title: updatedData.title,
-              appNotficationTitle: updatedData.subject,
-              appNotficationBody: updatedData.description,
-              appNotficationCTA: updatedData.cta,
-            }
-          } else if (
-            selectedNotification.notificationType === 'Email Template'
-          ) {
-            return {
-              ...item,
-              title: updatedData.title,
-              emailNotficationTitle: updatedData.subject,
-              emailNotficationBody: updatedData.description,
-              emailNotficationCTA: updatedData.cta,
-            }
-          }
-        }
-        return item
-      }),
-    )
-    console.log('Updated notification data:', updatedData)
+  const handleEditEmailClick = (notification) => {
+    setSelectedNotification(notification)
+    setIsEditEmailModalOpen(true)
   }
 
-  const handleCloseModal = () => {
-    setIsEditModalOpen(false)
+  const handleSavePushNotification = async (updatedData) => {
+    try {
+      setSaving(true)
+
+      // Get notification type from selected notification
+      const notificationType =
+        selectedNotification?.actualNotificationType ||
+        selectedNotification?.notificationType ||
+        getNotificationTypeFromId(
+          selectedNotification?.id,
+          category,
+        )
+
+      if (!notificationType) {
+        alert(
+          'Unable to determine notification type. Please refresh and try again.',
+        )
+        return
+      }
+
+      // Prepare data for API with push notification fields
+      // Only include fields that are explicitly provided (not undefined)
+      // Allow null and empty strings to clear fields, but don't send undefined fields
+      const apiData = {
+        isActive: true,
+      }
+
+      if (updatedData.pushTitle !== undefined) {
+        apiData.customPushTitle = updatedData.pushTitle || null
+      }
+
+      if (updatedData.pushBody !== undefined) {
+        apiData.customPushBody = updatedData.pushBody || null
+      }
+
+      if (updatedData.cta !== undefined) {
+        apiData.customEmailCTA = updatedData.cta || null
+      }
+
+      console.log('apiData', apiData)
+      console.log('notificationType', notificationType)
+
+      // Call API to save customization
+      await createOrUpdateNotificationCustomization(notificationType, apiData)
+
+      console.log('Push notification saved successfully')
+
+      // Refresh the data
+      if (onRefresh) {
+        await onRefresh()
+      }
+    } catch (error) {
+      console.error('Error saving push notification:', error)
+      alert('Failed to save push notification. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleSaveEmailNotification = async (updatedData) => {
+    try {
+      setSaving(true)
+
+      // Get notification type from selected notification
+      const notificationType =
+        selectedNotification?.actualNotificationType ||
+        selectedNotification?.notificationType ||
+        getNotificationTypeFromId(
+          selectedNotification?.id,
+          category,
+        )
+
+      if (!notificationType) {
+        alert(
+          'Unable to determine notification type. Please refresh and try again.',
+        )
+        return
+      }
+
+      // Prepare data for API with email fields
+      // Only include fields that are explicitly provided (not undefined)
+      // Allow null and empty strings to clear fields, but don't send undefined fields
+      const apiData = {
+        isActive: true,
+      }
+
+      if (updatedData.emailSubject !== undefined) {
+        apiData.customEmailSubject = updatedData.emailSubject || null
+      }
+
+      if (updatedData.emailBody !== undefined) {
+        apiData.customEmailBody = updatedData.emailBody || null
+      }
+
+      if (updatedData.cta !== undefined) {
+        apiData.customEmailCTA = updatedData.cta || null
+      }
+
+      // Call API to save customization
+      await createOrUpdateNotificationCustomization(notificationType, apiData)
+
+      console.log('Email notification saved successfully')
+
+      // Refresh the data
+      if (onRefresh) {
+        await onRefresh()
+      }
+    } catch (error) {
+      console.error('Error saving email notification:', error)
+      alert('Failed to save email notification. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleClosePushModal = () => {
+    setIsEditPushModalOpen(false)
+    setSelectedNotification(null)
+  }
+
+  const handleCloseEmailModal = () => {
+    setIsEditEmailModalOpen(false)
     setSelectedNotification(null)
   }
 
   return (
     <>
+      {saving && (
+        <div className="w-full flex justify-center items-center py-4">
+          <div className="text-brand-primary">Saving...</div>
+        </div>
+      )}
       {notificationsList.map((item) => {
         return (
           <div key={item.id} className="w-full border-b px-4 pb-4 mb-4">
@@ -169,17 +390,9 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                         </span>
                       </div>
                       <button
-                        className="outline-none border-none"
+                        className="outline-none border-none relative"
                         style={styles.smallRegular}
-                        onClick={() =>
-                          handleEditClick({
-                            ...item,
-                            notificationType: 'App Notification',
-                            subject: item.appNotficationTitle,
-                            subjectDescription: item.appNotficationBody,
-                            CTA: item.appNotficationCTA,
-                          })
-                        }
+                        onClick={() => handleEditPushClick(item)}
                         title="Edit push notification"
                       >
                         <div
@@ -205,7 +418,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                         {item.appNotficationBody}
                       </div>
                     </div>
-                    {item.appNotficationCTA && (
+                    {item.supportsCTA && item.appNotficationCTA && (
                       <div>
                         <span style={styles.semiBoldHeading}>CTA:</span>
                         <span
@@ -244,17 +457,9 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                           </span>
                         </div>
                         <button
-                          className="outline-none border-none"
+                          className="outline-none border-none relative"
                           style={styles.smallRegular}
-                          onClick={() =>
-                            handleEditClick({
-                              ...item,
-                              notificationType: 'Email Template',
-                              subject: item.emailNotficationTitle,
-                              subjectDescription: item.emailNotficationBody,
-                              CTA: item.emailNotficationCTA,
-                            })
-                          }
+                          onClick={() => handleEditEmailClick(item)}
                           title="Edit email notification"
                         >
                           <div
@@ -284,7 +489,7 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
                           }}
                         />
                       </div>
-                      {item.emailNotficationCTA && (
+                      {item.supportsCTA && item.emailNotficationCTA && (
                         <div>
                           <span style={styles.semiBoldHeading}>CTA:</span>
                           <span
@@ -304,12 +509,20 @@ const TrialPeriodNot = ({ notificationsListArray }) => {
         )
       })}
 
-      {/* Edit Notifications Modal */}
-      <EditNotifications
-        isOpen={isEditModalOpen}
-        onClose={handleCloseModal}
+      {/* Edit Push Notification Modal */}
+      <EditPushNotification
+        isOpen={isEditPushModalOpen}
+        onClose={handleClosePushModal}
         notificationData={selectedNotification}
-        onSave={handleSaveNotification}
+        onSave={handleSavePushNotification}
+      />
+
+      {/* Edit Email Notification Modal */}
+      <EditEmailNotification
+        isOpen={isEditEmailModalOpen}
+        onClose={handleCloseEmailModal}
+        notificationData={selectedNotification}
+        onSave={handleSaveEmailNotification}
       />
     </>
   )

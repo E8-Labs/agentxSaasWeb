@@ -1,40 +1,41 @@
-import Apis from "@/components/apis/Apis";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+
+import Apis from '@/components/apis/Apis'
 
 export async function GET(req) {
   try {
     // Extract token from request headers (sent from the frontend)
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get('Authorization')
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(' ')[1]
 
     // Fetch admin stats from backend API
     const response = await fetch(Apis.adminStats, {
-      method: "GET",
+      method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.error || "Failed to fetch admin stats" },
-        { status: response.status }
-      );
+        { error: data.error || 'Failed to fetch admin stats' },
+        { status: response.status },
+      )
     }
 
-    return NextResponse.json({ success: true, stats: data });
+    return NextResponse.json({ success: true, stats: data })
   } catch (error) {
     return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+      { error: 'Internal Server Error' },
+      { status: 500 },
+    )
   }
 }

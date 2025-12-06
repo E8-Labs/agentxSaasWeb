@@ -1,13 +1,14 @@
-import voicesList from "@/components/createagent/Voices";
-import { models } from "@/constants/Constants";
-import parsePhoneNumberFromString from "libphonenumber-js";
-import Image from "next/image";
+import parsePhoneNumberFromString from 'libphonenumber-js'
+import Image from 'next/image'
+
+import voicesList from '@/components/createagent/Voices'
+import { models } from '@/constants/Constants'
 
 export const getAgentImage = (item) => {
   //// //console.log;
 
   // Extract subagents
-  const subagents = item?.agents || [];
+  const subagents = item?.agents || []
   //// //console.log;
 
   // Iterate through subagents to find the first valid profile image or voice ID
@@ -18,11 +19,11 @@ export const getAgentImage = (item) => {
         <div
           className="flex flex-row items-center justify-center"
           style={{
-            height: "62px",
-            width: "62px",
-            borderRadius: "50%",
-            backgroundColor: "white",
-            overflow: "hidden", // Ensures no part of the image spills outside the container
+            height: '62px',
+            width: '62px',
+            borderRadius: '50%',
+            backgroundColor: 'white',
+            overflow: 'hidden', // Ensures no part of the image spills outside the container
           }}
         >
           <img
@@ -30,31 +31,31 @@ export const getAgentImage = (item) => {
             alt="*"
             className="rounded-full"
             style={{
-              height: "100%", // Makes the image fill the height of the container
-              width: "100%", // Makes the image fill the width of the container
-              objectFit: "cover", // Ensures the image fully covers the container without empty space
+              height: '100%', // Makes the image fill the height of the container
+              width: '100%', // Makes the image fill the width of the container
+              objectFit: 'cover', // Ensures the image fully covers the container without empty space
               // backgroundColor: 'red' // Optional fallback background color
             }}
           />
         </div>
-      );
+      )
     }
 
     // Check for voiceId and map it to an image
     if (subAgent.voiceId) {
       const selectedVoice = voicesList.find(
-        (voice) => voice.voice_id === subAgent.voiceId
-      );
+        (voice) => voice.voice_id === subAgent.voiceId,
+      )
       // //console.log;
       if (selectedVoice && selectedVoice.img) {
         return (
           <div
             className="flex flex-row items-center justify-center"
             style={{
-              height: "62px",
-              width: "62px",
-              borderRadius: "50%",
-              backgroundColor: "white",
+              height: '62px',
+              width: '62px',
+              borderRadius: '50%',
+              backgroundColor: 'white',
             }}
           >
             <Image
@@ -70,7 +71,7 @@ export const getAgentImage = (item) => {
               }
             />
           </div>
-        );
+        )
       }
     }
   }
@@ -85,18 +86,94 @@ export const getAgentImage = (item) => {
         className="rounded-full"
         alt="*"
         style={{
-          margin: "18px",
+          margin: '18px',
         }}
       />
     </div>
-  );
-};
+  )
+}
+
+// Helper function to get initials from a lead
+const getLeadInitials = (lead) => {
+  if (!lead) return 'L'
+  
+  const firstName = lead.firstName || ''
+  const lastName = lead.lastName || ''
+  const name = lead.name || ''
+  
+  if (firstName && lastName) {
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
+  } else if (firstName) {
+    return firstName.charAt(0).toUpperCase()
+  } else if (name) {
+    const nameParts = name.trim().split(/\s+/)
+    if (nameParts.length >= 2) {
+      return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase()
+    } else if (nameParts.length === 1) {
+      return nameParts[0].charAt(0).toUpperCase()
+    }
+  }
+  
+  return 'L'
+}
+
+// Function to get lead profile picture with initials fallback
+export const getLeadProfileImage = (lead, imgHeight = 27, imgWidth = 27) => {
+  if (lead?.thumb_profile_image) {
+    return (
+      <div
+        className="flex flex-row items-center justify-center"
+        style={{
+          height: `${imgHeight}px`,
+          width: `${imgWidth}px`,
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          overflow: 'hidden',
+        }}
+      >
+        <img
+          src={lead.thumb_profile_image}
+          alt="*"
+          className="rounded-full"
+          style={{
+            height: '100%',
+            width: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </div>
+    )
+  }
+
+  // Fallback to initials in a rounded circle
+  const initials = getLeadInitials(lead)
+  const bgColor = lead?.firstName 
+    ? `hsl(${(lead.firstName.charCodeAt(0) * 137.508) % 360}, 70%, 50%)`
+    : 'hsl(var(--brand-primary))'
+
+  return (
+    <div
+      className="flex flex-row items-center justify-center rounded-full"
+      style={{
+        height: `${imgHeight}px`,
+        width: `${imgWidth}px`,
+        borderRadius: '50%',
+        backgroundColor: bgColor,
+        color: 'white',
+        fontSize: `${Math.max(10, imgHeight * 0.4)}px`,
+        fontWeight: '600',
+      }}
+    >
+      {initials}
+    </div>
+  )
+}
 
 export const getAgentsListImage = (
   subAgent,
   imgHeight,
   imgWidth,
-  showExtraheight = true
+  showExtraheight = true,
 ) => {
   //// //console.log;
 
@@ -107,8 +184,8 @@ export const getAgentsListImage = (
   // console.log("Sub agent passed is", subAgent);
   //// //console.log;
 
-  let height = imgHeight || 62;
-  let width = imgWidth || 62;
+  let height = imgHeight || 62
+  let width = imgWidth || 62
 
   //// //console.log;
   //// //console.log;
@@ -118,11 +195,11 @@ export const getAgentsListImage = (
       <div
         className="flex flex-row items-center justify-center"
         style={{
-          height: "45px",
-          width: "45px",
-          borderRadius: "50%",
-          backgroundColor: "white",
-          overflow: "hidden", // Ensures no part of the image spills outside the container
+          height: '45px',
+          width: '45px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          overflow: 'hidden', // Ensures no part of the image spills outside the container
         }}
       >
         <img
@@ -130,21 +207,21 @@ export const getAgentsListImage = (
           alt="*"
           className="rounded-full"
           style={{
-            height: "100%", // Makes the image fill the height of the container
-            width: "100%", // Makes the image fill the width of the container
-            objectFit: "cover", // Ensures the image fully covers the container without empty space
+            height: '100%', // Makes the image fill the height of the container
+            width: '100%', // Makes the image fill the width of the container
+            objectFit: 'cover', // Ensures the image fully covers the container without empty space
             // backgroundColor: 'red' // Optional fallback background color
           }}
         />
       </div>
-    );
+    )
   }
 
   // Check for voiceId and map it to an image
   if (subAgent?.voiceId) {
     const selectedVoice = voicesList.find(
-      (voice) => voice.voice_id === subAgent.voiceId
-    );
+      (voice) => voice.voice_id === subAgent.voiceId,
+    )
     //// //console.log;
     if (selectedVoice && selectedVoice.img) {
       return (
@@ -152,10 +229,10 @@ export const getAgentsListImage = (
         <div
           className="flex flex-row items-center justify-center"
           style={{
-            height: "45px",
-            width: "45px",
-            borderRadius: "50%",
-            backgroundColor: "white",
+            height: '45px',
+            width: '45px',
+            borderRadius: '50%',
+            backgroundColor: 'white',
           }}
         >
           <Image
@@ -171,7 +248,7 @@ export const getAgentsListImage = (
             }
           />
         </div>
-      );
+      )
     }
   }
 
@@ -182,8 +259,8 @@ export const getAgentsListImage = (
     >
       <Image src="/agentXOrb.gif" height={height} width={width} alt="*" />
     </div>
-  );
-};
+  )
+}
 
 //format the phonenumber
 
@@ -204,30 +281,30 @@ export const getAgentsListImage = (
 export const formatPhoneNumber = (rawNumber) => {
   if (rawNumber) {
     const phoneNumber = parsePhoneNumberFromString(
-      rawNumber.startsWith("+") ? rawNumber : `+${rawNumber}`
-    );
+      rawNumber.startsWith('+') ? rawNumber : `+${rawNumber}`,
+    )
 
     if (phoneNumber) {
-      const countryCode = phoneNumber.countryCallingCode; // Get the country code
-      const nationalNumber = phoneNumber.nationalNumber; // Get the national number
+      const countryCode = phoneNumber.countryCallingCode // Get the country code
+      const nationalNumber = phoneNumber.nationalNumber // Get the national number
 
       // Format the number as "1 (805) 457 9527"
-      if (phoneNumber.country === "US" && nationalNumber.length === 10) {
-        const match = nationalNumber.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (phoneNumber.country === 'US' && nationalNumber.length === 10) {
+        const match = nationalNumber.match(/^(\d{3})(\d{3})(\d{4})$/)
         if (match) {
-          return `${countryCode} (${match[1]}) ${match[2]} ${match[3]}`;
+          return `${countryCode} (${match[1]}) ${match[2]} ${match[3]}`
         }
       }
 
       // Default to international format if not US or doesn't match the criteria
-      return phoneNumber.formatInternational();
+      return phoneNumber.formatInternational()
     }
 
-    return "No phone number";
+    return 'No phone number'
   }
 
-  return "No phone number";
-};
+  return 'No phone number'
+}
 
 ////agent profile image
 export const getAgentProfileImage = (subAgent) => {
@@ -241,11 +318,11 @@ export const getAgentProfileImage = (subAgent) => {
       <div
         className="flex flex-row items-center justify-center"
         style={{
-          height: "62px",
-          width: "62px",
-          borderRadius: "50%",
-          backgroundColor: "white",
-          overflow: "hidden", // Ensures no part of the image spills outside the container
+          height: '62px',
+          width: '62px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
+          overflow: 'hidden', // Ensures no part of the image spills outside the container
         }}
       >
         <img
@@ -253,31 +330,31 @@ export const getAgentProfileImage = (subAgent) => {
           alt="*"
           className="rounded-full"
           style={{
-            height: "100%", // Makes the image fill the height of the container
-            width: "100%", // Makes the image fill the width of the container
-            objectFit: "cover", // Ensures the image fully covers the container without empty space
+            height: '100%', // Makes the image fill the height of the container
+            width: '100%', // Makes the image fill the width of the container
+            objectFit: 'cover', // Ensures the image fully covers the container without empty space
             // backgroundColor: 'red' // Optional fallback background color
           }}
         />
       </div>
-    );
+    )
   }
 
   // Check for voiceId and map it to an image
   if (subAgent?.voiceId) {
     const selectedVoice = voicesList.find(
-      (voice) => voice.voice_id === subAgent?.voiceId
-    );
+      (voice) => voice.voice_id === subAgent?.voiceId,
+    )
     // //console.log;
     if (selectedVoice && selectedVoice.img) {
       return (
         <div
           className="flex flex-row items-center justify-center"
           style={{
-            height: "62px",
-            width: "62px",
-            borderRadius: "50%",
-            backgroundColor: "white",
+            height: '62px',
+            width: '62px',
+            borderRadius: '50%',
+            backgroundColor: 'white',
           }}
         >
           <Image
@@ -293,7 +370,7 @@ export const getAgentProfileImage = (subAgent) => {
             }
           />
         </div>
-      );
+      )
     }
   }
 
@@ -307,29 +384,28 @@ export const getAgentProfileImage = (subAgent) => {
         className="rounded-full"
         alt="*"
         style={{
-          margin: "18px",
+          margin: '18px',
         }}
       />
     </div>
-  );
-};
-
+  )
+}
 
 const agentMemoji = (agent) => {
   const selectedVoice = voicesList.find(
-    (voice) => voice.voice_id === agent?.voiceId
-  );
-  console.log("Avatar got details", agent);
+    (voice) => voice.voice_id === agent?.voiceId,
+  )
+  console.log('Avatar got details', agent)
   if (selectedVoice && selectedVoice.img) {
     // console.log("showing the compared avatar")
     return (
       <div
         className="flex flex-row items-center justify-center"
         style={{
-          height: "40px",
-          width: "40px",
-          borderRadius: "50%",
-          backgroundColor: "white",
+          height: '40px',
+          width: '40px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
         }}
       >
         <Image
@@ -338,44 +414,40 @@ const agentMemoji = (agent) => {
           width={40}
           alt="*"
           className="rounded-full"
-
         />
       </div>
     )
   } else {
-    console.log("showing the hard coated avatar")
+    console.log('showing the hard coated avatar')
     return (
       <div
         className="flex flex-row items-center justify-center"
         style={{
-          height: "40px",
-          width: "40px",
-          borderRadius: "50%",
-          backgroundColor: "white",
+          height: '40px',
+          width: '40px',
+          borderRadius: '50%',
+          backgroundColor: 'white',
         }}
       >
         <Image
-          src={"/assets/avatar1.png"}
+          src={'/assets/avatar1.png'}
           height={40}
           width={40}
           alt="*"
           className="rounded-full"
-
         />
       </div>
     )
   }
 }
 
-
-
 export function getAgentImageWithMemoji(agent) {
   // console.log('agent', agent)
-  const agents = agent.agents || [];
+  const agents = agent.agents || []
   if (agents.length > 0) {
     let img
-    if (agents[0].agentType === "outbound") {
-      img = agents[0]?.thumb_profile_image;
+    if (agents[0].agentType === 'outbound') {
+      img = agents[0]?.thumb_profile_image
 
       if (img) {
         return (
@@ -385,9 +457,9 @@ export function getAgentImageWithMemoji(agent) {
             height={40}
             width={40}
             style={{
-              height: "40px",
-              width: "40px",
-              resize: "cover",
+              height: '40px',
+              width: '40px',
+              resize: 'cover',
             }}
             alt="*"
           />
@@ -395,10 +467,9 @@ export function getAgentImageWithMemoji(agent) {
       } else {
         return agentMemoji(agents[0])
       }
-    }
-    else {
+    } else {
       if (agents.length > 1) {
-        img = agents[1]?.thumb_profile_image;
+        img = agents[1]?.thumb_profile_image
         if (img) {
           return (
             <Image
@@ -407,9 +478,9 @@ export function getAgentImageWithMemoji(agent) {
               height={40}
               width={40}
               style={{
-                height: "40px",
-                width: "40px",
-                resize: "cover",
+                height: '40px',
+                width: '40px',
+                resize: 'cover',
               }}
               alt="*"
             />
@@ -420,29 +491,27 @@ export function getAgentImageWithMemoji(agent) {
       }
     }
   }
-  return "-";
+  return '-'
 }
 
-
 export function findLLMModel(value) {
-  let model = null;
+  let model = null
   for (const m of models) {
     if (m.model == value) {
-      model = m;
+      model = m
     }
   }
-  console.log("Selected model:", model);
+  console.log('Selected model:', model)
   if (model === null) {
-    return models[0]; // Default to the first model if not found
+    return models[0] // Default to the first model if not found
   }
 
-
-  return model;
+  return model
 }
 
 export function agentImage(agent) {
-  console.log("Agent passed is", agent)
-  let img = agent?.thumb_profile_image;
+  console.log('Agent passed is', agent)
+  let img = agent?.thumb_profile_image
   if (img) {
     return (
       <Image
@@ -451,15 +520,15 @@ export function agentImage(agent) {
         height={40}
         width={40}
         style={{
-          height: "40px",
-          width: "40px",
-          resize: "cover",
+          height: '40px',
+          width: '40px',
+          resize: 'cover',
         }}
         alt="*"
       />
     )
   } else {
-    console.log("Passing to avatar")
+    console.log('Passing to avatar')
     return agentMemoji(agent)
   }
 }

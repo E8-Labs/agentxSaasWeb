@@ -1,22 +1,25 @@
 // app/layout.js
-import localFont from "next/font/local";
-import Script from "next/script";
+import localFont from 'next/font/local'
+import Script from 'next/script'
+
 // import "./globals.css";
-import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOauthWatcher";
+import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
 
 export default function RootLayout({ children }) {
-    return (
-        <html lang="en">
-            <body
-                // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-                style={{ fontFamily: "Inter" }}
-            >
-                <div><GhlOauthWatcher /></div>
-                {children}
+  return (
+    <html lang="en">
+      <body
+        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ fontFamily: 'Inter' }}
+      >
+        <div>
+          <GhlOauthWatcher />
+        </div>
+        {children}
 
-                {/* Step 2 – Signup tracking helper */}
-                <Script id="agentx-signup-helper" strategy="afterInteractive">
-                    {`
+        {/* Step 2 – Signup tracking helper */}
+        <Script id="agentx-signup-helper" strategy="afterInteractive">
+          {`
             window.agentxTrackSignup = function(email, firstName, lastName) {
               const trySignup = () => {
                 if (window.affiliateManager && typeof window.affiliateManager.signup === "function") {
@@ -38,8 +41,8 @@ export default function RootLayout({ children }) {
             };
 
           `}
-                </Script>
-            </body>
-        </html>
-    );
+        </Script>
+      </body>
+    </html>
+  )
 }

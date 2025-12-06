@@ -67,29 +67,32 @@
 // }
 
 export function formatFractional2(price) {
-    if (price == null || price === undefined || price === "") {
-        return "0";
-    }
+  if (price == null || price === undefined || price === '') {
+    return '0'
+  }
 
-    const num = Number(price);
-    if (Number.isNaN(num)) {
-        return "0";
-    }
+  const num = Number(price)
+  if (Number.isNaN(num)) {
+    return '0'
+  }
 
-    // Check if the number is a whole number
-    const isWholeNumber = Number.isInteger(num) || (num % 1 === 0);
-    
-    if (isWholeNumber) {
-        // Whole numbers: no decimal places
-        return new Intl.NumberFormat("en-US", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(num);
-    } else {
-        // Decimal numbers: always show 2 decimal places
-        return new Intl.NumberFormat("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(num);
-    }
+  // Round to 2 decimal places first to handle cases like 55.00001
+  const rounded = Math.round(num * 100) / 100
+
+  // Check if the rounded number is a whole number
+  const isWholeNumber = Number.isInteger(rounded) || rounded % 1 === 0
+
+  if (isWholeNumber) {
+    // Whole numbers: no decimal places
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(rounded)
+  } else {
+    // Decimal numbers: always show 2 decimal places
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(rounded)
+  }
 }

@@ -1,42 +1,45 @@
-"use client";
-import React, { useState } from "react";
-import { Copy, ExternalLink, Settings } from "lucide-react";
+'use client'
+
+import { Copy, ExternalLink, Settings } from 'lucide-react'
+import React, { useState } from 'react'
 
 const TestEmbedPage = () => {
-  const [assistantId, setAssistantId] = useState("dcddc675-d616-4089-8627-2b499da98188");
-  const [embedCode, setEmbedCode] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [assistantId, setAssistantId] = useState(
+    'dcddc675-d616-4089-8627-2b499da98188',
+  )
+  const [embedCode, setEmbedCode] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   // Generate embed code
   const generateEmbedCode = () => {
     if (!assistantId.trim()) {
-      alert("Please enter an Assistant ID");
-      return;
+      alert('Please enter an Assistant ID')
+      return
     }
 
-    const baseUrl = window.location.origin;
+    const baseUrl = window.location.origin
 
-    const code = `<iframe src="${baseUrl}/embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; height: 100vh; border: none; background: transparent; z-index: 9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';"></iframe>`;
+    const code = `<iframe src="${baseUrl}/embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; height: 100vh; border: none; background: transparent; z-index: 9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';"></iframe>`
 
-    setEmbedCode(code);
-  };
+    setEmbedCode(code)
+  }
 
   // Copy embed code to clipboard
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(embedCode);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      await navigator.clipboard.writeText(embedCode)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error('Failed to copy: ', err)
     }
-  };
+  }
 
   // Toggle preview
   const togglePreview = () => {
-    setShowPreview(!showPreview);
-  };
+    setShowPreview(!showPreview)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -44,7 +47,7 @@ const TestEmbedPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          AssignX Support Widget Embed Generator
+            AssignX Support Widget Embed Generator
           </h1>
           <p className="text-lg text-gray-600">
             Generate and test embed codes for your AI support agents
@@ -72,7 +75,8 @@ const TestEmbedPage = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  This is your VAPI assistant ID that will handle the support calls
+                  This is your VAPI assistant ID that will handle the support
+                  calls
                 </p>
               </div>
 
@@ -96,14 +100,14 @@ const TestEmbedPage = () => {
                     className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm transition-colors"
                   >
                     <Copy className="w-4 h-4" />
-                    {copySuccess ? "Copied!" : "Copy"}
+                    {copySuccess ? 'Copied!' : 'Copy'}
                   </button>
                   <button
                     onClick={togglePreview}
                     className="flex items-center gap-2 px-3 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-md text-sm transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    {showPreview ? "Hide Preview" : "Preview"}
+                    {showPreview ? 'Hide Preview' : 'Preview'}
                   </button>
                 </div>
               )}
@@ -153,7 +157,7 @@ const TestEmbedPage = () => {
                     border: 'none',
                     background: 'transparent',
                     zIndex: '999',
-                    pointerEvents: 'auto'
+                    pointerEvents: 'auto',
                   }}
                   allow="microphone"
                   title="AssignX Support Widget Preview"
@@ -173,10 +177,12 @@ const TestEmbedPage = () => {
               <strong>1. Copy the embed code</strong> generated above
             </p>
             <p>
-              <strong>2. Paste the iframe code directly</strong> into your website HTML where you want the widget to appear
+              <strong>2. Paste the iframe code directly</strong> into your
+              website HTML where you want the widget to appear
             </p>
             <p>
-              <strong>3. The widget will appear</strong> in the bottom-right corner of your site
+              <strong>3. The widget will appear</strong> in the bottom-right
+              corner of your site
             </p>
             <p>
               <strong>4. Features:</strong>
@@ -205,7 +211,7 @@ const TestEmbedPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TestEmbedPage;
+export default TestEmbedPage

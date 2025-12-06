@@ -1,10 +1,21 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import Image from "next/image";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { CircularProgress, Tooltip } from "@mui/material";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { CircularProgress, Tooltip } from '@mui/material'
+import { CalendarIcon } from 'lucide-react'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Table,
   TableBody,
@@ -12,14 +23,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
-import moment from "moment";
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
 
 /**
  * TransactionTable - Full-width table displaying transaction details
@@ -39,18 +44,18 @@ function TransactionTable({
   loadingMore = false,
   onLoadMore,
   filters = {},
-  onFilterChange
+  onFilterChange,
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const typeOptions = ['all', 'Plan', 'Other', 'Xbar', 'Phone', 'Enrichment', 'DNC', 'Seat', 'Agent'];
+  const typeOptions = ['all', 'Agent', 'DNC', 'Enrichment', 'Phone', 'Plan', 'Promo', 'Seat', 'Xbar'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
     { value: 'last7Days', label: 'Last 7 Days' },
     { value: 'last30Days', label: 'Last 30 Days' },
-    { value: 'customRange', label: 'Custom Range' }
-  ];
+    { value: 'customRange', label: 'Custom Range' },
+  ]
 
   // Default sample data
   const defaultData = [
@@ -119,49 +124,43 @@ function TransactionTable({
     //   date: "15/1/2025",
     //   status: "success",
     // },
-  ];
+  ]
 
-  const transactionData = data.length > 0 ? data : defaultData;
+  const transactionData = data.length > 0 ? data : defaultData
 
   const getStatusDot = (status) => {
     const statusConfig = {
-      success: "bg-green-500",
-      failed: "bg-red-500",
-      pending: "bg-yellow-500",
-    };
+      success: 'bg-green-500',
+      failed: 'bg-red-500',
+      pending: 'bg-yellow-500',
+    }
     return (
       <div
         className={cn(
-          "w-2 h-2 rounded-full",
-          statusConfig[status] || "bg-gray-400"
+          'w-2 h-2 rounded-full',
+          statusConfig[status] || 'bg-gray-400',
         )}
       />
-    );
-  };
+    )
+  }
 
   const getAccountIconColor = (index) => {
-    const colors = [
-      "#8E24AA",
-      "#FF6600",
-      "#402FFF",
-      "#FF2D2D",
-      "#F59E0B",
-    ];
-    return colors[index % colors.length];
-  };
+    const colors = ['#8E24AA', '#FF6600', '#402FFF', '#FF2D2D', '#F59E0B']
+    return colors[index % colors.length]
+  }
 
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
+    const value = e.target.value
+    setSearchQuery(value)
     if (onSearch) {
-      onSearch(value);
+      onSearch(value)
     }
-  };
+  }
 
   // Filter data based on search query
   const filteredData = transactionData.filter((item) =>
-    item.subAccount.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    item.subAccount.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
   return (
     <Card className="bg-white rounded-lg border-2 border-white shadow-sm">
@@ -177,10 +176,12 @@ function TransactionTable({
           {/* Type Filter */}
           <select
             value={filters.type || 'all'}
-            onChange={(e) => onFilterChange && onFilterChange('type', e.target.value)}
+            onChange={(e) =>
+              onFilterChange && onFilterChange('type', e.target.value)
+            }
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {typeOptions.map(type => (
+            {typeOptions.map((type) => (
               <option key={type} value={type}>
                 {type === 'all' ? 'All Types' : type}
               </option>
@@ -190,12 +191,16 @@ function TransactionTable({
           {/* Status Filter */}
           <select
             value={filters.status || 'all'}
-            onChange={(e) => onFilterChange && onFilterChange('status', e.target.value)}
+            onChange={(e) =>
+              onFilterChange && onFilterChange('status', e.target.value)
+            }
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {statusOptions.map(status => (
+            {statusOptions.map((status) => (
               <option key={status} value={status}>
-                {status === 'all' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === 'all'
+                  ? 'All Statuses'
+                  : status.charAt(0).toUpperCase() + status.slice(1)}
               </option>
             ))}
           </select>
@@ -203,10 +208,12 @@ function TransactionTable({
           {/* Date Filter */}
           <select
             value={filters.dateFilter || 'all'}
-            onChange={(e) => onFilterChange && onFilterChange('dateFilter', e.target.value)}
+            onChange={(e) =>
+              onFilterChange && onFilterChange('dateFilter', e.target.value)
+            }
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {dateOptions.map(option => (
+            {dateOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -223,16 +230,23 @@ function TransactionTable({
                     className="w-full justify-start text-left font-normal text-sm h-auto py-2"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.startDate ? filters.startDate : "Start date"}
+                    {filters.startDate ? filters.startDate : 'Start date'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={filters.startDate ? moment(filters.startDate, 'MM/DD/YYYY').toDate() : undefined}
+                    selected={
+                      filters.startDate
+                        ? moment(filters.startDate, 'MM/DD/YYYY').toDate()
+                        : undefined
+                    }
                     onSelect={(date) => {
-                      const formattedDate = date ? moment(date).format('MM/DD/YYYY') : '';
-                      onFilterChange && onFilterChange('startDate', formattedDate);
+                      const formattedDate = date
+                        ? moment(date).format('MM/DD/YYYY')
+                        : ''
+                      onFilterChange &&
+                        onFilterChange('startDate', formattedDate)
                     }}
                     initialFocus
                   />
@@ -247,16 +261,22 @@ function TransactionTable({
                     className="w-full justify-start text-left font-normal text-sm h-auto py-2"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.endDate ? filters.endDate : "End date"}
+                    {filters.endDate ? filters.endDate : 'End date'}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={filters.endDate ? moment(filters.endDate, 'MM/DD/YYYY').toDate() : undefined}
+                    selected={
+                      filters.endDate
+                        ? moment(filters.endDate, 'MM/DD/YYYY').toDate()
+                        : undefined
+                    }
                     onSelect={(date) => {
-                      const formattedDate = date ? moment(date).format('MM/DD/YYYY') : '';
-                      onFilterChange && onFilterChange('endDate', formattedDate);
+                      const formattedDate = date
+                        ? moment(date).format('MM/DD/YYYY')
+                        : ''
+                      onFilterChange && onFilterChange('endDate', formattedDate)
                     }}
                     initialFocus
                   />
@@ -266,7 +286,9 @@ function TransactionTable({
           )}
 
           {/* Search Input */}
-          <div className={`relative ${filters.dateFilter === 'customRange' ? 'col-span-2' : 'col-span-3'}`}>
+          <div
+            className={`relative ${filters.dateFilter === 'customRange' ? 'col-span-2' : 'col-span-3'}`}
+          >
             <Image
               src="/svgIcons/searchIcon.svg"
               alt="Search"
@@ -285,16 +307,16 @@ function TransactionTable({
         </div>
       </CardHeader>
       <CardContent>
-        <div 
+        <div
           id="transactionScrollableDiv"
           className="overflow-x-auto max-h-[640px] overflow-y-auto"
-          style={{ scrollbarWidth: "none" }}
+          style={{ scrollbarWidth: 'none' }}
         >
           <InfiniteScroll
             dataLength={filteredData.length}
             next={() => {
               if (onLoadMore && !loadingMore && hasMore) {
-                onLoadMore();
+                onLoadMore()
               }
             }}
             hasMore={hasMore}
@@ -307,45 +329,55 @@ function TransactionTable({
               filteredData.length > 0 ? (
                 <p
                   style={{
-                    textAlign: "center",
-                    paddingTop: "10px",
-                    fontWeight: "400",
+                    textAlign: 'center',
+                    paddingTop: '10px',
+                    fontWeight: '400',
                     fontSize: 16,
-                    color: "#00000060",
+                    color: '#00000060',
                   }}
                 >
-                 {` You're all caught up`}
+                  {` You're all caught up`}
                 </p>
               ) : null
             }
             scrollableTarget="transactionScrollableDiv"
-            style={{ overflow: "unset" }}
+            style={{ overflow: 'unset' }}
           >
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-gray-200">
-                  <TableHead className="text-gray-600 font-medium">Sub account</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Product Name</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Type</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Total Paid</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Stripe</TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Sub account
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Product Name
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Type
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Total Paid
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Stripe
+                  </TableHead>
                   <TableHead className="text-gray-600 font-medium">
                     <Tooltip
-                        title={`The partner share isn’t just a fee — it’s what fuels new features, better tools, and ongoing innovation designed to help your agency reach the next level. Upgrade to save 20%.`}
-                        componentsProps={{
+                      title={`The partner share isn’t just a fee — it’s what fuels new features, better tools, and ongoing innovation designed to help your agency reach the next level. Upgrade to save 20%.`}
+                      componentsProps={{
                         tooltip: {
                           sx: {
-                            backgroundColor: "#ffffff",
-                            color: "#333",
-                            fontSize: "14px",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            backgroundColor: '#ffffff',
+                            color: '#333',
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                           },
                         },
                         arrow: {
                           sx: {
-                            color: "#ffffff",
+                            color: '#ffffff',
                           },
                         },
                       }}
@@ -359,17 +391,17 @@ function TransactionTable({
                       componentsProps={{
                         tooltip: {
                           sx: {
-                            backgroundColor: "#ffffff",
-                            color: "#333",
-                            fontSize: "14px",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                            backgroundColor: '#ffffff',
+                            color: '#333',
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                           },
                         },
                         arrow: {
                           sx: {
-                            color: "#ffffff",
+                            color: '#ffffff',
                           },
                         },
                       }}
@@ -377,9 +409,15 @@ function TransactionTable({
                       <span className="cursor-help">Service Cost</span>
                     </Tooltip>
                   </TableHead>
-                  <TableHead className="text-gray-600 font-medium">Payout</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Date</TableHead>
-                  <TableHead className="text-gray-600 font-medium">Status</TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Payout
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Date
+                  </TableHead>
+                  <TableHead className="text-gray-600 font-medium">
+                    Status
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -406,7 +444,9 @@ function TransactionTable({
                     <TableCell className="text-sm text-gray-700">
                       {item.title}
                     </TableCell>
-                    <TableCell className="text-sm text-gray-700">{item.type}</TableCell>
+                    <TableCell className="text-sm text-gray-700">
+                      {item.type}
+                    </TableCell>
                     <TableCell className="text-sm text-gray-700 font-medium">
                       {item.totalPaid}
                     </TableCell>
@@ -431,17 +471,17 @@ function TransactionTable({
                             componentsProps={{
                               tooltip: {
                                 sx: {
-                                  backgroundColor: "#ffffff",
-                                  color: "#333",
-                                  fontSize: "14px",
-                                  padding: "10px 15px",
-                                  borderRadius: "8px",
-                                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                                  backgroundColor: '#ffffff',
+                                  color: '#333',
+                                  fontSize: '14px',
+                                  padding: '10px 15px',
+                                  borderRadius: '8px',
+                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
                                 },
                               },
                               arrow: {
                                 sx: {
-                                  color: "#ffffff",
+                                  color: '#ffffff',
                                 },
                               },
                             }}
@@ -453,7 +493,9 @@ function TransactionTable({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-700">{item.date}</TableCell>
+                    <TableCell className="text-sm text-gray-700">
+                      {item.date}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getStatusDot(item.status)}
@@ -470,8 +512,7 @@ function TransactionTable({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
-export default TransactionTable;
-
+export default TransactionTable

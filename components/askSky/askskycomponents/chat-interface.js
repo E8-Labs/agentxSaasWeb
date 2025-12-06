@@ -1,6 +1,6 @@
-import classNames from "classnames";
-import { Send } from "lucide-react";
-import { useMemo, useState } from "react";
+import classNames from 'classnames'
+import { Send } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 export function ChatInterface({
   loading,
@@ -9,23 +9,23 @@ export function ChatInterface({
   isSpeaking,
   sendMessage,
 }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState('')
 
   const formattedMessages = useMemo(() => {
     return messages
       .filter(
         ({ type, transcriptType }) =>
-          type === "transcript" && transcriptType === "final",
+          type === 'transcript' && transcriptType === 'final',
       )
-      .map(({ role, transcript }) => ({ role, transcript }));
-  }, [messages]);
+      .map(({ role, transcript }) => ({ role, transcript }))
+  }, [messages])
 
   if (loading) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center gap-2">
         <p className="italic">{loadingMessage}</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -35,10 +35,10 @@ export function ChatInterface({
           <div
             key={transcript}
             className={classNames(
-              "w-5/6 min-h-6 rounded-md text-sm p-1",
-              role === "assistant"
-                ? "bg-accent self-start"
-                : "bg-purple text-white self-end",
+              'w-5/6 min-h-6 rounded-md text-sm p-1',
+              role === 'assistant'
+                ? 'bg-accent self-start'
+                : 'bg-purple text-white self-end',
             )}
           >
             {transcript}
@@ -53,7 +53,7 @@ export function ChatInterface({
       <div className="w-full relative flex items-center justify-start">
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value || "")}
+          onChange={(e) => setText(e.target.value || '')}
           className="flex focus:border-accent focus:ring-0 focus:outline-0 w-full border-accent text-sm resize-none h-8 overflow-y-auto pr-6 p-1 rounded-md"
         />
         <button
@@ -64,5 +64,5 @@ export function ChatInterface({
         </button>
       </div>
     </div>
-  );
+  )
 }

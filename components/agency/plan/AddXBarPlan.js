@@ -1,15 +1,18 @@
-import Apis from "@/components/apis/Apis";
-import { Modal, Box, Switch, CircularProgress } from "@mui/material";
-import { useEffect, useState } from "react";
-import { AuthToken } from "./AuthDetails";
-import axios from "axios";
+import { Box, CircularProgress, Modal, Switch } from '@mui/material'
+import axios from 'axios'
+import { min } from 'draft-js/lib/DefaultDraftBlockRenderMap'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import Image from "next/image";
-import { min } from "draft-js/lib/DefaultDraftBlockRenderMap";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import XBarSideUI from "./XBarSideUI";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+
+import { AuthToken } from './AuthDetails'
+import XBarSideUI from './XBarSideUI'
+
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddXBarPlan({
@@ -18,231 +21,328 @@ export default function AddXBarPlan({
   onPlanCreated,
   agencyPlanCost,
   isEditPlan,
-  selectedPlan
+  selectedPlan,
+  selectedAgency,
+  isAgency,
 }) {
-  const [title, setTitle] = useState("");
-  const [tag, setTag] = useState("");
-  const [planDescription, setPlanDescription] = useState("");
-  const [originalPrice, setOriginalPrice] = useState("");
-  const [discountedPrice, setDiscountedPrice] = useState("");
-  const [minutes, setMinutes] = useState("");
-  const [addPlanLoader, setAddPlanLoader] = useState(false);
-  const [minCostErr, setMinCostErr] = useState(false);
-  const [isDefaultPlan, setIsDefaultPlan] = useState(false);
+  const [title, setTitle] = useState('')
+  const [tag, setTag] = useState('')
+  const [planDescription, setPlanDescription] = useState('')
+  const [originalPrice, setOriginalPrice] = useState('')
+  const [discountedPrice, setDiscountedPrice] = useState('')
+  const [minutes, setMinutes] = useState('')
+  const [addPlanLoader, setAddPlanLoader] = useState(false)
+  const [minCostErr, setMinCostErr] = useState(false)
+  const [isDefaultPlan, setIsDefaultPlan] = useState(false)
 
-  const [snackMsg, setSnackMsg] = useState(null);
-  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+  const [snackMsg, setSnackMsg] = useState(null)
+  const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error)
 
-  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
-  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null)
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(
+    SnackbarTypes.Error,
+  )
+  const [profitMarginErr, setProfitMarginErr] = useState(false)
 
   //plan passed is
-  const [planPassed, setPlanPassed] = useState(null);
+  const [planPassed, setPlanPassed] = useState(null)
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
-    console.log("Test log xbars")
+    console.log('Test log xbars')
     if (selectedPlan) {
-      setPlanPassed(selectedPlan);
-      console.log("Value of selected plan passed is", selectedPlan);
-      setTitle(selectedPlan?.title);
-      setTag(selectedPlan?.tag ?? "");
-      setPlanDescription(selectedPlan?.planDescription);
-      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2));
+      setPlanPassed(selectedPlan)
+      console.log('Value of selected plan passed is', selectedPlan)
+      setTitle(selectedPlan?.title)
+      setTag(selectedPlan?.tag ?? '')
+      setPlanDescription(selectedPlan?.planDescription)
+      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2))
       const OriginalPrice = selectedPlan?.originalPrice
       if (OriginalPrice > 0) {
-        setDiscountedPrice(OriginalPrice);
+        setDiscountedPrice(OriginalPrice)
       }
-      setMinutes(selectedPlan?.minutes);
-      setIsDefaultPlan(selectedPlan?.isDefault || false);
+      setMinutes(selectedPlan?.minutes)
+      setIsDefaultPlan(selectedPlan?.isDefault || false)
     }
-  }, [selectedPlan]);
+  }, [selectedPlan])
 
   //auto check minCostError
   useEffect(() => {
     if (originalPrice && minutes) {
-      const P = originalPrice / minutes;
-      console.log("Calculated price is", P);
+      const P = originalPrice / minutes
+      console.log('Calculated price is', P)
       if (P < agencyPlanCost) {
-        const cal = originalPrice * minutes;
-        setMinCostErr(true);
+        const cal = originalPrice * minutes
+        setMinCostErr(true)
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
-        setSnackBannerMsg(`Bonus credits should be less than ${(originalPrice / agencyPlanCost).toFixed(2)}`);  //${agencyPlanCost.toFixed(2)} or less than //add formatfractional function here to remove extra .00
-        setSnackBannerMsgType(SnackbarTypes.Warning);
+        setSnackBannerMsg(
+          `Bonus credits should be less than ${(originalPrice / agencyPlanCost).toFixed(2)}`,
+        ) //${agencyPlanCost.toFixed(2)} or less than //add formatfractional function here to remove extra .00
+        setSnackBannerMsgType(SnackbarTypes.Warning)
       } else if (P > agencyPlanCost) {
-        setSnackBannerMsg(null);
-        setMinCostErr(false);
+        setSnackBannerMsg(null)
+        setMinCostErr(false)
       }
     }
-  }, [minutes, originalPrice]);
+  }, [minutes, originalPrice])
+
+  // Check profit margin
+  useEffect(() => {
+    if (!originalPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      setProfitMarginErr(false)
+      return
+    }
+    const margin =
+      ((Number(originalPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100
+    if (margin < 10) {
+      setProfitMarginErr(true)
+      setSnackBannerMsg(
+        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+      )
+      setSnackBannerMsgType(SnackbarTypes.Error)
+    } else {
+      setProfitMarginErr(false)
+      if (snackBannerMsg && snackBannerMsg.includes('Profit margin')) {
+        setSnackBannerMsg(null)
+      }
+    }
+  }, [originalPrice, agencyPlanCost, snackBannerMsg])
 
   //profit text color
   const getClr = () => {
-    const percentage =
-      ((originalPrice - agencyPlanCost) / agencyPlanCost) * 100;
+    const percentage = ((originalPrice - agencyPlanCost) / agencyPlanCost) * 100
 
     if (percentage >= 0 && percentage <= 50) {
-      return "#FF4E4E";
+      return '#FF4E4E'
     } else if (percentage > 50 && percentage <= 75) {
-      return "orange";
+      return 'orange'
     } else if (percentage > 75 && percentage < 100) {
-      return "yellow";
+      return 'yellow'
     } else if (percentage >= 100) {
-      return "#01CB76";
+      return '#01CB76'
     }
-  };
+  }
 
   //reset values after plan added
   const handleResetValues = () => {
-    setTitle("")
-    setTag("")
-    setPlanDescription("")
-    setOriginalPrice("")
-    setDiscountedPrice("")
-    setMinutes("")
+    setTitle('')
+    setTag('')
+    setPlanDescription('')
+    setOriginalPrice('')
+    setDiscountedPrice('')
+    setMinutes('')
     setIsDefaultPlan(false)
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
-    setAddPlanLoader(false);
+    setAddPlanLoader(false)
   }
 
   //code to add plan
   const handleAddPlanClick = async () => {
     try {
-      setAddPlanLoader(true);
-      console.log("Working");
-
-      const ApiPath = Apis.addXBarOptions;
-      const Token = AuthToken();
-
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("tag", tag);
-      formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice || 0);
-      formData.append("discountedPrice", originalPrice);
-      if (discountedPrice > 0) {
-        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
-          100).toFixed(2);
-        formData.append("percentageDiscount", percentage);
-      } else {
-        formData.append("percentageDiscount", 0)
+      // Validate profit margin before creating plan
+      if (originalPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+        const margin =
+          ((Number(originalPrice) - Number(agencyPlanCost)) /
+            Number(agencyPlanCost)) *
+          100
+        if (margin < 10) {
+          setSnackMsg(
+            `Cannot create plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+          )
+          setSnackMsgType(SnackbarTypes.Error)
+          return
+        }
       }
-      formData.append("minutes", minutes);
-      formData.append("isDefault", isDefaultPlan);
+
+      setAddPlanLoader(true)
+      console.log('Working')
+
+      const ApiPath = Apis.addXBarOptions
+      const Token = AuthToken()
+
+      const formData = new FormData()
+      formData.append('title', title)
+      formData.append('tag', tag)
+      formData.append('planDescription', planDescription)
+      formData.append('originalPrice', discountedPrice || 0)
+      formData.append('discountedPrice', originalPrice)
+      if (discountedPrice > 0) {
+        const percentage = (
+          ((discountedPrice - originalPrice) / discountedPrice) *
+          100
+        ).toFixed(2)
+        formData.append('percentageDiscount', percentage)
+      } else {
+        formData.append('percentageDiscount', 0)
+      }
+      formData.append('minutes', minutes)
+      formData.append('isDefault', isDefaultPlan)
 
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + Token,
+          Authorization: 'Bearer ' + Token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of add xbars api is", response.data);
-        setAddPlanLoader(false);
-        onPlanCreated(response);
+        console.log('Response of add xbars api is', response.data)
+        setAddPlanLoader(false)
+        onPlanCreated(response)
         if (response.data.status === true) {
           //update the xbars state on localstorage to update checklist
-          const localData = localStorage.getItem("User");
+          const localData = localStorage.getItem('User')
           if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.plansXbarAdded = true;
-            localStorage.setItem("User", JSON.stringify(D));
+            let D = JSON.parse(localData)
+            D.user.checkList.checkList.plansXbarAdded = true
+            localStorage.setItem('User', JSON.stringify(D))
           }
-          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+          window.dispatchEvent(
+            new CustomEvent('UpdateAgencyCheckList', {
+              detail: { update: true },
+            }),
+          )
 
-          setSnackMsg(response.data.message);
+          setSnackMsg(response.data.message)
           handleResetValues()
-          setSnackMsgType(SnackbarTypes.Success);
-          handleClose(response.data.message);
+          setSnackMsgType(SnackbarTypes.Success)
+          handleClose(response.data.message)
         } else if (response.data.status === false) {
-          setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Error);
+          setSnackMsg(response.data.message)
+          setSnackMsgType(SnackbarTypes.Error)
         }
       }
     } catch (error) {
-      setAddPlanLoader(false);
-      console.error("Error is", error);
+      setAddPlanLoader(false)
+      console.error('Error is', error)
     } finally {
-      setAddPlanLoader(false);
+      setAddPlanLoader(false)
     }
-  };
+  }
 
   //code to update plan
   const handleUpdatePlanClick = async () => {
     try {
-      setAddPlanLoader(true);
-      console.log("Working and the passed plan item is", planPassed);
+      // Validate profit margin before updating plan
+      if (originalPrice && agencyPlanCost && Number(agencyPlanCost) > 0) {
+        const margin =
+          ((Number(originalPrice) - Number(agencyPlanCost)) /
+            Number(agencyPlanCost)) *
+          100
+        if (margin < 10) {
+          setSnackMsg(
+            `Cannot update plan: Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
+          )
+          setSnackMsgType(SnackbarTypes.Error)
+          return
+        }
+      }
+
+      setAddPlanLoader(true)
+      console.log('Working and the passed plan item is', planPassed)
 
       // const ApiPath = Apis.addXBarOptions; //vincecamuto
-      const url = `${Apis.updateAgencyXBar}/${planPassed.id}`;
-      const Token = AuthToken();
-      console.log("Url for udate ageny is", url);
+      const url = `${Apis.updateAgencyXBar}/${planPassed.id}`
+      const Token = AuthToken()
+      console.log('Url for udate ageny is', url)
 
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("tag", tag);
-      formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice || 0);
+      const formData = new FormData()
+      formData.append('title', title)
+      formData.append('tag', tag)
+      formData.append('planDescription', planDescription)
+      formData.append('originalPrice', discountedPrice || 0)
       if (discountedPrice > 0) {
-        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
-          100).toFixed(2);
-        formData.append("percentageDiscount", percentage);
-        formData.append("discountedPrice", originalPrice);
+        const percentage = (
+          ((discountedPrice - originalPrice) / discountedPrice) *
+          100
+        ).toFixed(2)
+        formData.append('percentageDiscount', percentage)
+        formData.append('discountedPrice', originalPrice)
       } else {
-        formData.append("discountedPrice", 0);
+        formData.append('discountedPrice', 0)
       }
       formData.append(
-        "percentageDiscount",
-        100 - (originalPrice / discountedPrice) * 100
-      );
-      formData.append("minutes", minutes);
-      formData.append("isDefault", isDefaultPlan);
+        'percentageDiscount',
+        100 - (originalPrice / discountedPrice) * 100,
+      )
+      formData.append('minutes', minutes)
+      formData.append('isDefault', isDefaultPlan)
 
       const response = await axios.put(url, formData, {
         headers: {
-          Authorization: "Bearer " + Token,
+          Authorization: 'Bearer ' + Token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of add xbars api is", response.data);
-        setAddPlanLoader(false);
-        onPlanCreated(response);
+        console.log('Response of add xbars api is', response.data)
+        setAddPlanLoader(false)
+        onPlanCreated(response)
         if (response.data.status === true) {
           //update the xbars state on localstorage to update checklist
-          const localData = localStorage.getItem("User");
+          const localData = localStorage.getItem('User')
           if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.plansXbarAdded = true;
-            localStorage.setItem("User", JSON.stringify(D));
+            let D = JSON.parse(localData)
+            D.user.checkList.checkList.plansXbarAdded = true
+            localStorage.setItem('User', JSON.stringify(D))
           }
-          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+          window.dispatchEvent(
+            new CustomEvent('UpdateAgencyCheckList', {
+              detail: { update: true },
+            }),
+          )
 
-          setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Success);
+          setSnackMsg(response.data.message)
+          setSnackMsgType(SnackbarTypes.Success)
           handleResetValues()
-          handleClose(response.data.message);
+          handleClose(response.data.message)
         } else if (response.data.status === false) {
-          setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Error);
+          setSnackMsg(response.data.message)
+          setSnackMsgType(SnackbarTypes.Error)
         }
       }
     } catch (error) {
-      setAddPlanLoader(false);
-      console.error("Error is", error.message);
+      setAddPlanLoader(false)
+      console.error('Error is', error.message)
     } finally {
-      setAddPlanLoader(false);
+      setAddPlanLoader(false)
     }
-  };
+  }
+
+  // Calculate profit margin percentage
+  const calculateProfitMargin = () => {
+    if (!originalPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+      return null
+    }
+    const margin =
+      ((Number(originalPrice) - Number(agencyPlanCost)) /
+        Number(agencyPlanCost)) *
+      100
+    return margin
+  }
 
   const shouldContinue = () => {
-    if (!title || !planDescription || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minCostErr) {
+    // Check profit margin
+    const margin = calculateProfitMargin()
+    const marginValid = margin === null || margin >= 10
+
+    if (
+      !title ||
+      !planDescription ||
+      !originalPrice ||
+      originalPrice === '0' ||
+      discountedPrice === '0' ||
+      minCostErr ||
+      profitMarginErr ||
+      !marginValid
+    ) {
       return true
       // || !tag|| minutes === "0"
     } else {
@@ -252,94 +352,94 @@ export default function AddXBarPlan({
 
   const styles = {
     labels: {
-      fontSize: "15px",
-      fontWeight: "500",
-      color: "#00000050",
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#00000050',
     },
     inputs: {
-      fontSize: "15px",
-      fontWeight: "500",
-      color: "#000000",
+      fontSize: '15px',
+      fontWeight: '500',
+      color: '#000000',
     },
     text: {
-      fontSize: "15px",
-      fontWeight: "500",
+      fontSize: '15px',
+      fontWeight: '500',
     },
     text2: {
-      textAlignLast: "left",
+      textAlignLast: 'left',
       fontSize: 15,
-      color: "#000000",
+      color: '#000000',
       fontWeight: 500,
-      whiteSpace: "nowrap", // Prevent text from wrapping
-      overflow: "hidden", // Hide overflow text
-      textOverflow: "ellipsis", // Add ellipsis for overflow text
+      whiteSpace: 'nowrap', // Prevent text from wrapping
+      overflow: 'hidden', // Hide overflow text
+      textOverflow: 'ellipsis', // Add ellipsis for overflow text
     },
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     gitTextStyle: {
       fontSize: 15,
-      fontWeight: "700",
+      fontWeight: '700',
     },
 
     //style for plans
     cardStyles: {
-      fontSize: "14",
-      fontWeight: "500",
-      border: "1px solid #00000020",
+      fontSize: '14',
+      fontWeight: '500',
+      border: '1px solid #00000020',
     },
     pricingBox: {
-      position: "relative",
+      position: 'relative',
       // padding: '10px',
-      borderRadius: "15px",
+      borderRadius: '15px',
       // backgroundColor: '#f9f9ff',
-      display: "inline-block",
-      width: "100%",
+      display: 'inline-block',
+      width: '100%',
     },
     triangleLabel: {
-      position: "absolute",
-      top: "0",
-      right: "0",
-      width: "0",
-      height: "0",
-      borderTop: "50px solid #7902DF", // Increased height again for more padding
-      borderLeft: "50px solid transparent",
+      position: 'absolute',
+      top: '0',
+      right: '0',
+      width: '0',
+      height: '0',
+      borderTop: '50px solid hsl(var(--brand-primary))', // Increased height again for more padding
+      borderLeft: '50px solid transparent',
     },
     labelText: {
-      position: "absolute",
-      top: "10px", // Adjusted to keep the text centered within the larger triangle
-      right: "5px",
-      color: "white",
-      fontSize: "10px",
-      fontWeight: "bold",
-      transform: "rotate(45deg)",
+      position: 'absolute',
+      top: '10px', // Adjusted to keep the text centered within the larger triangle
+      right: '5px',
+      color: 'white',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      transform: 'rotate(45deg)',
     },
     content: {
-      textAlign: "left",
-      paddingTop: "10px",
+      textAlign: 'left',
+      paddingTop: '10px',
     },
     originalPrice: {
       // textDecoration: "line-through",
-      color: "#00000020",
+      color: '#00000020',
       fontSize: 18,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     discountedPrice: {
-      color: "#000000",
-      fontWeight: "700",
+      color: '#000000',
+      fontWeight: '700',
       fontSize: 22,
       // marginLeft: "10px",
     },
-  };
+  }
 
   return (
     <Modal
       open={open}
-    // onClose={() => {
-    //   handleResetValues();
-    //   handleClose("");
-    // }}
+      // onClose={() => {
+      //   handleResetValues();
+      //   handleClose("");
+      // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-none max-w-[80%] w-[95%] h-[90vh] border-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
@@ -347,7 +447,7 @@ export default function AddXBarPlan({
           isVisible={snackMsg !== null}
           message={snackMsg}
           hide={() => {
-            setSnackMsg(null);
+            setSnackMsg(null)
           }}
           type={snackMsgType}
         />
@@ -366,12 +466,31 @@ export default function AddXBarPlan({
             <div
               className="overflow-y-auto h-[90%] scrollbar-hide"
               style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
             >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">{isEditPlan ? "Edit Plan" : "New XBar Option"}</h2>
+              <div className="flex flex-row justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">
+                  {isEditPlan ? 'Edit Plan' : 'New XBar Option'}
+                </h2>
+                 {/* Default Plan Toggle */}
+                 <div className="flex flex-row items-center gap-2 mb-4">
+                 <label style={styles.labels}>Default Xbar Option</label>
+                 <Switch
+                   checked={isDefaultPlan}
+                   onChange={(e) => setIsDefaultPlan(e.target.checked)}
+                   sx={{
+                     '& .MuiSwitch-switchBase.Mui-checked': {
+                       color: 'hsl(var(--brand-primary))',
+                     },
+                     '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                       {
+                         backgroundColor: 'hsl(var(--brand-primary))',
+                       },
+                   }}
+                 />
+               </div>
               </div>
 
               {/* Plan Name */}
@@ -382,7 +501,7 @@ export default function AddXBarPlan({
                 placeholder="Type here"
                 value={title}
                 onChange={(e) => {
-                  setTitle(e.target.value);
+                  setTitle(e.target.value)
                 }}
               />
 
@@ -394,7 +513,7 @@ export default function AddXBarPlan({
                 placeholder="Popular, best deals"
                 value={tag}
                 onChange={(e) => {
-                  setTag(e.target.value);
+                  setTag(e.target.value)
                 }}
               />
 
@@ -406,7 +525,7 @@ export default function AddXBarPlan({
                 placeholder="Type here"
                 value={planDescription}
                 onChange={(e) => {
-                  setPlanDescription(e.target.value);
+                  setPlanDescription(e.target.value)
                 }}
               />
 
@@ -414,7 +533,9 @@ export default function AddXBarPlan({
                 <div className="w-full">
                   {/* Price */}
                   <label style={styles.labels}>Price</label>
-                  <div className={`border ${minCostErr ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                  <div
+                    className={`border ${minCostErr ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                  >
                     <div className="" style={styles.inputs}>
                       $
                     </div>
@@ -425,19 +546,20 @@ export default function AddXBarPlan({
                       placeholder=""
                       value={originalPrice}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        const value = e.target.value
                         // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '');
+                        const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid = sanitized.split('.').length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized;
+                        const valid =
+                          sanitized.split('.').length > 2
+                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                            : sanitized
                         // if (valid === 0) {
                         //   setSnackMsg("Price cannot be zero");
                         //   setSnackMsgType(SnackbarTypes.Warning);
                         // }
-                        setOriginalPrice(valid);
+                        setOriginalPrice(valid)
                       }}
                     />
                   </div>
@@ -458,13 +580,13 @@ export default function AddXBarPlan({
                     </div>
                   )*/}
 
-
-
                   {/* Strikethrough Price */}
                   <label style={styles.labels}>
                     Strikethrough Price (Optional)
                   </label>
-                  <div className={`border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                  <div
+                    className={`border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                  >
                     <div className="" style={styles.inputs}>
                       $
                     </div>
@@ -475,15 +597,16 @@ export default function AddXBarPlan({
                       placeholder=""
                       value={discountedPrice}
                       onChange={(e) => {
-                        const value = e.target.value;
+                        const value = e.target.value
                         // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '');
+                        const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid = sanitized.split('.').length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized;
-                        setDiscountedPrice(valid);
+                        const valid =
+                          sanitized.split('.').length > 2
+                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                            : sanitized
+                        setDiscountedPrice(valid)
                       }}
                     />
                   </div>
@@ -497,41 +620,22 @@ export default function AddXBarPlan({
                     placeholder=""
                     value={minutes}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value
                       // Allow only digits and one optional period
-                      const sanitized = value.replace(/[^0-9.]/g, '');
+                      const sanitized = value.replace(/[^0-9.]/g, '')
 
                       // Prevent multiple periods
-                      const valid = sanitized.split('.').length > 2
-                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                        : sanitized;
-                      setMinutes(valid);
+                      const valid =
+                        sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized
+                      setMinutes(valid)
                     }}
                   />
 
-                  {/* Default Plan Toggle */}
-                  <div className="flex flex-row items-center justify-between mb-4">
-                    <label style={styles.labels}>Default Xbar Option</label>
-                    <Switch
-                      checked={isDefaultPlan}
-                      onChange={(e) => setIsDefaultPlan(e.target.checked)}
-                      sx={{
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: '#7902DF',
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: '#7902DF',
-                        },
-                      }}
-                    />
-                  </div>
-
-                
+                 
                 </div>
-
-
               </div>
-
             </div>
 
             {/* Action Buttons */}
@@ -539,10 +643,10 @@ export default function AddXBarPlan({
               <button
                 disabled={addPlanLoader}
                 onClick={() => {
-                  handleResetValues();
-                  handleClose("");
+                  handleResetValues()
+                  handleClose('')
                 }}
-                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
+                className="text-brand-primary font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
               >
                 Cancel
               </button>
@@ -550,18 +654,18 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
+                  className={` ${shouldContinue() ? 'bg-[#00000050]' : 'bg-brand-primary'} w-[12vw] hover:bg-brand-primary/90 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
                   // onClick={handleAddPlanClick}
                   onClick={() => {
                     if (isEditPlan) {
-                      handleUpdatePlanClick();
+                      handleUpdatePlanClick()
                     } else {
-                      handleAddPlanClick();
+                      handleAddPlanClick()
                     }
                   }}
                   disabled={shouldContinue()}
                 >
-                  {isEditPlan ? "Update" : "Create Plan"}
+                  {isEditPlan ? 'Update' : 'Create Plan'}
                 </button>
               )}
             </div>
@@ -577,11 +681,12 @@ export default function AddXBarPlan({
             discountedPrice={discountedPrice}
             minutes={minutes}
             isDefaultPlan={isDefaultPlan}
+            isAgency={isAgency}
           />
         </div>
       </Box>
     </Modal>
-  );
+  )
 }
 
 // <div>

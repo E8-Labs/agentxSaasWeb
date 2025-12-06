@@ -1,52 +1,53 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Congrats from "@/components/onboarding/Congrats";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import UserType from "@/components/onboarding/UserType";
-import UserService from "@/components/onboarding/UserService";
-import FocusArea from "@/components/onboarding/FocusArea";
-import SignUpForm from "@/components/onboarding/SignUpForm";
-import InsuranceAgentSignUp from "@/components/onboarding/otherAgentsSignUp/InsuranceAgentSignUp";
-import SalesDevAgent from "@/components/onboarding/otherAgentsSignUp/SalesDevAgent";
-import SolarRepAgentSignUp from "@/components/onboarding/otherAgentsSignUp/SolarRepAgentSignUp";
-import MarketerAgentSignUp from "@/components/onboarding/otherAgentsSignUp/MarketerAgentSignUp";
-import WebOwnersAgentSignUp from "@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp";
-import RecruiterAgentSignUp from "@/components/onboarding/otherAgentsSignUp/RecruiterAgentSignUp";
-import TaxAgentSignUp from "@/components/onboarding/otherAgentsSignUp/TaxAgentSignUp";
-import { useRouter } from "next/navigation";
-import OtherDetails from "@/components/onboarding/mobileUI/OtherDetails";
-import BasicDetails from "@/components/onboarding/mobileUI/BasicDetails";
-import BackgroundVideo from "@/components/general/BackgroundVideo";
-import { Modal } from "@mui/material";
-import { UserTypes } from "@/constants/UserTypes";
-import { PersistanceKeys } from "@/constants/Constants";
-import DebtCollectorAgentSignUp from "@/components/onboarding/DebtCollectorAgentSignUp";
-import DebtCollerterAgentSignUp from "@/components/onboarding/otherAgentsSignUp/DebtCollecterAgentSignUp";
-import MedSpaAgentSignUp from "@/components/onboarding/otherAgentsSignUp/MedSpaAgentSignUp";
-import LawAgentSignUp from "@/components/onboarding/otherAgentsSignUp/LawAgentSignUp";
-import LoanOfficerSignUp from "@/components/onboarding/otherAgentsSignUp/LoanOfficerSignUp";
-import MedSpaAgentSignUpMobile from "@/components/onboarding/mobileUI/MedSpaAgentSignUpMobile";
-import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOfficerSignUpMobile";
-import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
-import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import LoaderAnimation from "@/components/animations/LoaderAnimation";
-import GeneralAgentSignUp from "@/components/onboarding/otherAgentsSignUp/GeneralAgentSignUp";
-import { ShootingStarIcon } from "@phosphor-icons/react/dist/ssr";
-import ShootingStarLoading from "@/components/animations/ShootingStarLoading";
+'use client'
+
+import { Modal } from '@mui/material'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import ErrorBoundary from '@/components/ErrorBoundary'
+import LoaderAnimation from '@/components/animations/LoaderAnimation'
+import Apis from '@/components/apis/Apis'
+import BackgroundVideo from '@/components/general/BackgroundVideo'
+import Congrats from '@/components/onboarding/Congrats'
+import DebtCollectorAgentSignUp from '@/components/onboarding/DebtCollectorAgentSignUp'
+import FocusArea from '@/components/onboarding/FocusArea'
+import SignUpForm from '@/components/onboarding/SignUpForm'
+import UserService from '@/components/onboarding/UserService'
+import UserType from '@/components/onboarding/UserType'
+import BasicDetails from '@/components/onboarding/mobileUI/BasicDetails'
+import LawAgentSignUpMobile from '@/components/onboarding/mobileUI/LawAgentSignUpMobile'
+import LoanOfficerSignUpMobile from '@/components/onboarding/mobileUI/LoanOfficerSignUpMobile'
+import MedSpaAgentSignUpMobile from '@/components/onboarding/mobileUI/MedSpaAgentSignUpMobile'
+import OtherDetails from '@/components/onboarding/mobileUI/OtherDetails'
+import TexAgentSignUpMoble from '@/components/onboarding/mobileUI/TexAgentSignUpMoble'
+import DebtCollerterAgentSignUp from '@/components/onboarding/otherAgentsSignUp/DebtCollecterAgentSignUp'
+import GeneralAgentSignUp from '@/components/onboarding/otherAgentsSignUp/GeneralAgentSignUp'
+import InsuranceAgentSignUp from '@/components/onboarding/otherAgentsSignUp/InsuranceAgentSignUp'
+import LawAgentSignUp from '@/components/onboarding/otherAgentsSignUp/LawAgentSignUp'
+import LoanOfficerSignUp from '@/components/onboarding/otherAgentsSignUp/LoanOfficerSignUp'
+import MarketerAgentSignUp from '@/components/onboarding/otherAgentsSignUp/MarketerAgentSignUp'
+import MedSpaAgentSignUp from '@/components/onboarding/otherAgentsSignUp/MedSpaAgentSignUp'
+import RecruiterAgentSignUp from '@/components/onboarding/otherAgentsSignUp/RecruiterAgentSignUp'
+import SalesDevAgent from '@/components/onboarding/otherAgentsSignUp/SalesDevAgent'
+import SolarRepAgentSignUp from '@/components/onboarding/otherAgentsSignUp/SolarRepAgentSignUp'
+import TaxAgentSignUp from '@/components/onboarding/otherAgentsSignUp/TaxAgentSignUp'
+import WebOwnersAgentSignUp from '@/components/onboarding/otherAgentsSignUp/WebOwnersAgentSignUp'
+import { PersistanceKeys } from '@/constants/Constants'
+import { UserTypes } from '@/constants/UserTypes'
+import ShootingStarLoading from '@/components/animations/ShootingStarLoading'
 
 const Page = ({ params }) => {
-  const router = useRouter();
-  const [congratsPopup, setCongratsPopup] = useState(false);
-  const [userType, setUserType] = useState(UserTypes.RealEstateAgent);
-  const [index, setIndex] = useState(0);
+  const router = useRouter()
+  const [congratsPopup, setCongratsPopup] = useState(false)
+  const [userType, setUserType] = useState(UserTypes.RealEstateAgent)
+  const [index, setIndex] = useState(0)
 
-  const [showredirectPopup,setShowredirectPopup] = useState(false);
+  const [showredirectPopup, setShowredirectPopup] = useState(false)
 
-  let windowSize = 1000;
-  if (typeof window !== "undefined") {
-    windowSize = window.innerWidth;
+  let windowSize = 1000
+  if (typeof window !== 'undefined') {
+    windowSize = window.innerWidth
     // //console.log;
   } else {
     // //console.log;
@@ -64,14 +65,14 @@ const Page = ({ params }) => {
     // InsuranceAgentSignUp, MarketerAgentSignUp,
     // WebOwnersAgentSignUp, RecruiterAgentSignUp,
     // TaxAgentSignUp
-  ]);
+  ])
 
   //variables store userDetails
   const [userDetails, setUserDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
+    name: '',
+    email: '',
+    phone: '',
+  })
 
   //function stores the agentDetails
   const handleDetails = (userName, userEmail, userPhoneNumber) => {
@@ -80,37 +81,36 @@ const Page = ({ params }) => {
       name: userName,
       email: userEmail,
       phone: userPhoneNumber,
-    });
-  };
+    })
+  }
 
   useEffect(() => {
     //console.log;
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
 
     if (screenWidth < 640) {
-      let comps = getMobileComponent();
+      let comps = getMobileComponent()
       //console.log;
       if (userType) {
-        setComponents(comps.filter(Boolean));
-
-}
+        setComponents(comps.filter(Boolean))
+      }
     } else {
-      let comps = getComponentToRender();
+      let comps = getComponentToRender()
       // //console.log;
       // console.log(
       //   "🚀 Components from getComponentToRender:",
       //   comps.map((c) => c?.name || "undefined")
       // );
-      setComponents(comps.filter(Boolean));
+      setComponents(comps.filter(Boolean))
     }
-  }, [userType]);
+  }, [userType])
   // registerDetails  {"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
   function getComponentToRender() {
     //console.log;
-    let agentTitle = userType; //userData?.userTypeTitle || null;
+    let agentTitle = userType //userData?.userTypeTitle || null;
     //console.log;
 
     const agentComponents = {
@@ -126,11 +126,11 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUp,
       [UserTypes.LawAgent]: LawAgentSignUp,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUp,
-      [UserTypes.General] : GeneralAgentSignUp,
-      [UserTypes.Reception] : GeneralAgentSignUp,
-    };
+      [UserTypes.General]: GeneralAgentSignUp,
+      [UserTypes.Reception]: GeneralAgentSignUp,
+    }
 
-    const selectedComponent = agentComponents[agentTitle] || SignUpForm;
+    const selectedComponent = agentComponents[agentTitle] || SignUpForm
 
     // 🚀 Ensure components are functions, not strings
     const finalComponents = [
@@ -139,14 +139,14 @@ const Page = ({ params }) => {
       FocusArea,
       selectedComponent,
       // Congrats,
-    ].filter(Boolean);
+    ].filter(Boolean)
 
-    return finalComponents;
+    return finalComponents
   }
 
   function getMobileComponent() {
     //console.log;
-    let agentTitle = userType; //userData?.userTypeTitle || null;
+    let agentTitle = userType //userData?.userTypeTitle || null;
     //console.log;
 
     const agentComponents = {
@@ -162,11 +162,11 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUpMobile,
       [UserTypes.LawAgent]: LawAgentSignUpMobile,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUpMobile,
-      [UserTypes.General] : GeneralAgentSignUp,
-      [UserTypes.Reception] : GeneralAgentSignUp,
-    };
+      [UserTypes.General]: GeneralAgentSignUp,
+      [UserTypes.Reception]: GeneralAgentSignUp,
+    }
 
-    const selectedComponent = agentComponents[agentTitle] || SignUpForm;
+    const selectedComponent = agentComponents[agentTitle] || SignUpForm
 
     // 🚀 Ensure components are functions, not strings
     const finalComponents = [
@@ -176,120 +176,120 @@ const Page = ({ params }) => {
       BasicDetails,
       OtherDetails,
       Congrats,
-    ].filter(Boolean);
+    ].filter(Boolean)
 
-    return finalComponents;
+    return finalComponents
   }
 
-  let CurrentComp = components[index];
+  let CurrentComp = components[index]
 
   //function for moving to the other agents sign up pages
 
   // Function to proceed to the next step
   const handleContinue = () => {
     //console.log;
-    setIndex(index + 1);
-  };
+    setIndex(index + 1)
+  }
 
   //sals dev
   const handleSalesAgentContinue = () => {
     // //console.log;
-    setIndex(index + 3);
-  };
+    setIndex(index + 3)
+  }
 
   const handleSalesAgentBack = () => {
     // //console.log;
-    setIndex(index - 3);
-  };
+    setIndex(index - 3)
+  }
 
   //solar rep
   const handleSolarAgentContinue = () => {
     // //console.log;
-    setIndex(index + 4);
-  };
+    setIndex(index + 4)
+  }
 
   const handleSolarAgentBack = () => {
     // //console.log;
-    setIndex(index - 4);
-  };
+    setIndex(index - 4)
+  }
 
   // insurance
   const handleInsuranceContinue = () => {
     // //console.log;
-    setIndex(index + 5);
-  };
+    setIndex(index + 5)
+  }
 
   const handleInsuranceBack = () => {
     // //console.log;
-    setIndex(index - 5);
-  };
+    setIndex(index - 5)
+  }
 
   // marketer
   const handleMarketerAgentContinue = () => {
     // //console.log;
-    setIndex(index + 6);
-  };
+    setIndex(index + 6)
+  }
 
   const handleMarketerAgentBack = () => {
     // //console.log;
-    setIndex(index - 6);
-  };
+    setIndex(index - 6)
+  }
 
   // website owners
   const handleWebsiteAgentContinue = () => {
     // //console.log;
-    setIndex(index + 7);
-  };
+    setIndex(index + 7)
+  }
 
   const handleWebsiteAgentBack = () => {
     // //console.log;
-    setIndex(index - 7);
-  };
+    setIndex(index - 7)
+  }
   // recruiter agent
   const handleRecruiterAgentContinue = () => {
     // //console.log;
-    setIndex(index + 8);
-  };
+    setIndex(index + 8)
+  }
 
   const handleRecruiterAgentBack = () => {
     // //console.log;
-    setIndex(index - 8);
-  };
+    setIndex(index - 8)
+  }
   // tax agent
   const handleTaxAgentContinue = () => {
     // //console.log;
-    setIndex(index + 9);
-  };
+    setIndex(index + 9)
+  }
 
   const handleTaxAgentBack = () => {
     // //console.log;
-    setIndex(index - 9);
-  };
+    setIndex(index - 9)
+  }
 
   const handleBack = () => {
     // //console.log;
-    setIndex(index - 1);
-  };
+    setIndex(index - 1)
+  }
 
   //move other agent to wait list
   const handleWaitList = () => {
-    router.push("/onboarding/WaitList");
-  };
+    router.push('/onboarding/WaitList')
+  }
 
   const handleUserTypeChange = (userType) => {
     //console.log;
-    setUserType(userType);
-  };
+    setUserType(userType)
+  }
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: "100%",
-    height: "100svh",
-    overflow: "none",
-  };
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: '100%',
+    height: '100svh',
+    overflow: 'none',
+  }
 
   if (showredirectPopup) {
     return (
@@ -301,7 +301,6 @@ const Page = ({ params }) => {
     )
   }
 
-
   return (
     <ErrorBoundary>
       <div
@@ -311,13 +310,13 @@ const Page = ({ params }) => {
         {windowSize > 640 && (
           <div
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              backgroundColor: "white",
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              backgroundColor: 'white',
               zIndex: -1, // Ensure the video stays behind content
             }}
           >
@@ -348,10 +347,9 @@ const Page = ({ params }) => {
           setCongratsPopup={setCongratsPopup}
           handleUserTypeChange={handleUserTypeChange}
           handleShowRedirectPopup={() => {
-            setShowredirectPopup(true);
+            setShowredirectPopup(true)
           }}
         />
-
         <Modal
           open={congratsPopup}
           // onClose={() => setAddKYCQuestion(false)}
@@ -359,7 +357,7 @@ const Page = ({ params }) => {
           BackdropProps={{
             timeout: 1000,
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
               ////backdropFilter: "blur(5px)"
             },
           }}
@@ -368,7 +366,7 @@ const Page = ({ params }) => {
         </Modal>
       </div>
     </ErrorBoundary>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

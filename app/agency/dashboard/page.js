@@ -1,45 +1,46 @@
-"use client";
-import React, { useState } from "react";
-import Image from "next/image";
-import AdminUsers from "@/components/admin/users/AdminUsers";
-import Dashboard from "@/components/admin/dashboard/dashboard";
-import BackgroundVideo from "@/components/general/BackgroundVideo";
-import AdminAffiliates from "@/components/admin/affiliates/AdminAffiliates";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { logout } from "@/utilities/UserUtility";
-import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
-import { ErrorBoundary } from "next/dist/client/components/error-boundary";
-import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
-import AgencyDashboard from "@/components/agency/dashboard/AgencyDashboard";
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
+
+import AdminDashboardCallLogs from '@/components/admin/CallLogs/AdminDashboardCallLogs'
+import AdminAffiliates from '@/components/admin/affiliates/AdminAffiliates'
+import Dashboard from '@/components/admin/dashboard/dashboard'
+import AdminUsers from '@/components/admin/users/AdminUsers'
+import PhoneVerificationCodesList from '@/components/admin/verificationCodesList/PhoneVerificationCodesList'
+import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
+import BackgroundVideo from '@/components/general/BackgroundVideo'
+import { logout } from '@/utilities/UserUtility'
 
 function Page() {
-  const router = useRouter();
+  const router = useRouter()
   const manuBar = [
     {
       id: 1,
-      name: "Dashboard",
+      name: 'Dashboard',
     },
 
     {
       id: 2,
-      name: "Call Logs",
+      name: 'Call Logs',
     },
+  ]
 
-  ];
-
-  const [selectedManu, setSelectedManu] = useState(manuBar[0]);
+  const [selectedManu, setSelectedManu] = useState(manuBar[0])
 
   return (
-    <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden " >
+    <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
       <AgencyDashboard />
     </div>
-  );
+  )
 }
 
-export default Page;
+export default Page
 
-{/*<div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
+{
+  /*<div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
         <div
           style={{
             position: "absolute",
@@ -96,4 +97,5 @@ export default Page;
             </div>
           )}
         </div>
-        </div>*/}
+        </div>*/
+}

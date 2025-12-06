@@ -37,11 +37,13 @@ const VideoCard = ({
     <div
       className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
         } 
-    p-4 rounded-lg border border-purple max-w-[300px] cursor-pointer bg-white`}
+    p-4 rounded-lg border border-brand-primary max-w-[300px] cursor-pointer bg-white`}
       onClick={() => {
         playVideo();
       }}
     >
+
+     
       {/* Video Thumbnail */}
       <div className="flex flex-row items-start justify-between w-full">
         <div className="flex flex-row items-end gap-2">
@@ -75,19 +77,19 @@ const VideoCard = ({
 
         </div>
 
-
+        
       </div>
-
-      {/* Content Section */}
-      <div className="flex flex-col items-start gap-3">
+ {/* Content Section */}
+ <div className="flex flex-col items-start gap-3">
         <h3
-          className="font-medium text-gray-800 pt-1"
+          className="font-medium text-gray-800 pb-2"
           style={{ fontSize: "15px" }}
         >
           {title}
         </h3>
 
       </div>
+
     </div>
   );
 };

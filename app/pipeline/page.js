@@ -1,44 +1,66 @@
-"use client";
-const AddCalender = dynamic(() =>
-  import("../../components/pipeline/AddCalender.js")
-);
-const Pipeline1 = dynamic(() =>
-  import("../../components/pipeline/Pipeline1.js")
-);
-const Pipeline2 = dynamic(() =>
-  import("../../components/pipeline/Pipeline2.js")
-);
-import BackgroundVideo from "@/components/general/BackgroundVideo.js";
-import dynamic from "next/dynamic.js";
-import React, { useState } from "react";
+'use client'
+
+import dynamic from 'next/dynamic.js'
+import React, { useEffect, useState } from 'react'
+
+import BackgroundVideo from '@/components/general/BackgroundVideo.js'
+
+const AddCalender = dynamic(
+  () => import('../../components/pipeline/AddCalender.js'),
+)
+const Pipeline1 = dynamic(
+  () => import('../../components/pipeline/Pipeline1.js'),
+)
+const Pipeline2 = dynamic(
+  () => import('../../components/pipeline/Pipeline2.js'),
+)
 
 const Page = () => {
-  const [index, setIndex] = useState(1);
-  let components = [AddCalender, Pipeline1, Pipeline2];
+  const [index, setIndex] = useState(1)
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  let components = [AddCalender, Pipeline1, Pipeline2]
 
-  let CurrentComp = components[index];
+  let CurrentComp = components[index]
+
+  useEffect(() => {
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   // Function to proceed to the next step
   const handleContinue = () => {
-   // //console.log;
-    setIndex(index + 1);
-  };
+    // //console.log;
+    setIndex(index + 1)
+  }
 
   const handleBack = () => {
-   // //console.log;
-    setIndex(index - 1);
-  };
+    // //console.log;
+    setIndex(index - 1)
+  }
 
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: "100%",
-    height: "100vh",
-    overflow: "none",
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: '100%',
+    height: '100vh',
+    overflow: 'none',
     // backgroundColor: 'red'
-  };
+  }
 
   return (
     <div
@@ -47,16 +69,29 @@ const Page = () => {
     >
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
           zIndex: -1, // Ensure the video stays behind content
         }}
       >
-        <BackgroundVideo />
+        {isSubaccount ? (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background:
+                process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+                  ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
+                  : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
+            }}
+          />
+        ) : (
+          <BackgroundVideo />
+        )}
       </div>
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
@@ -65,7 +100,7 @@ const Page = () => {
 
     //     </div>
     // </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

@@ -1,95 +1,92 @@
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import getProfileDetails from "../apis/GetProfile";
-import { termsAndConditionUrl } from "@/constants/Constants";
-import { Box, CircularProgress, Modal } from "@mui/material";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
 
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "../createagent/addpayment/AddCardDetails";
-import { handleAutoCharge } from "./PlansView";
-import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
+import { termsAndConditionUrl } from '@/constants/Constants'
+
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
+import AddCardDetails from '../createagent/addpayment/AddCardDetails'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import { handleAutoCharge } from './PlansView'
 
 const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
-
   let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-  const stripePromise = loadStripe(stripePublickKey);
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+  const stripePromise = loadStripe(stripePublickKey)
 
-
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
-  const [addPaymentPopup, setAddPaymentPopup] = useState(false);
-  const [successSnack, setSuccessSnack] = useState("");
-  const [showSuccessSnack, setShowSuccessSnack] = useState(false);
-  const [errorSnack, setErrorSnack] = useState("");
-  const [showErrorSnack, setShowErrorSnack] = useState(false);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [cards, setCards] = useState([]);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
+  const [addPaymentPopup, setAddPaymentPopup] = useState(false)
+  const [successSnack, setSuccessSnack] = useState('')
+  const [showSuccessSnack, setShowSuccessSnack] = useState(false)
+  const [errorSnack, setErrorSnack] = useState('')
+  const [showErrorSnack, setShowErrorSnack] = useState(false)
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [cards, setCards] = useState([])
+  const [selectedCard, setSelectedCard] = useState(null)
 
   useEffect(() => {
-    getCardsList();
+    getCardsList()
   }, [selectedPlan])
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
-
       const ApiPath = Apis.getCardsList
-
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("get cards data", response.data);
+        console.log('get cards data', response.data)
         if (response.data.status === true) {
-          setCards(response.data.data);
-          let cards = response.data.data;
-          cards.forEach(card => {
+          setCards(response.data.data)
+          let cards = response.data.data
+          cards.forEach((card) => {
             if (card.isDefault) {
-              setSelectedCard(card);
+              setSelectedCard(card)
             }
-          });
+          })
         }
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
-
+  }
 
   const handleUpgrade = async () => {
     try {
-
       if (cards.length == 0) {
-        setAddPaymentPopup(true);
-        return;
+        setAddPaymentPopup(true)
+        return
       }
 
-      let planType = null;
-      planType = selectedPlan.planType;
+      let planType = null
+      planType = selectedPlan.planType
 
       // if (selectedPlan.name === "Starter") {
       //   planType = "Plan120";
@@ -99,88 +96,92 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
       //   planType = "Plan720";
       // }
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
       }
 
       const ApiData = {
         plan: planType,
         payNow: true,
-      };
+      }
 
+      const ApiPath = Apis.subscribePlan
 
-      const ApiPath = Apis.subscribePlan;
-
-      console.log("apipath", ApiPath);
+      console.log('apipath', ApiPath)
       console.log('apiDatta', ApiData)
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("response",response)
+        console.log('response', response)
         if (response.data.status === true) {
-          await handleAutoCharge();
-          setShowSuccessSnack(true);
-          setSuccessSnack("Plan Upgraded! 🎉");
+          await handleAutoCharge()
+          setShowSuccessSnack(true)
+          setSuccessSnack('Plan Upgraded! 🎉')
           setTimeout(() => {
-            onClose();
-          }, 1000);
-          getProfileDetails();
+            onClose()
+          }, 1000)
+          getProfileDetails()
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
-          setShowErrorSnack(true);
+          setErrorSnack(response.data.message)
+          setShowErrorSnack(true)
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+      console.error('Error occured in api is:', error)
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
   return (
     <>
-
       <AgentSelectSnackMessage
         isVisible={showSuccessSnack}
         message={successSnack}
-        hide={() => { setShowSuccessSnack(false) }}
+        hide={() => {
+          setShowSuccessSnack(false)
+        }}
         type={SnackbarTypes.Success}
       />
 
       <AgentSelectSnackMessage
         isVisible={showErrorSnack}
         message={errorSnack}
-        hide={() => { setShowErrorSnack(false) }}
+        hide={() => {
+          setShowErrorSnack(false)
+        }}
         type={SnackbarTypes.Error}
       />
 
       <div className="w-full flex flex-col items-center gap-8 z-10 relative">
-
         {/* Header */}
         <div className="flex flex-col items-center gap-2  w-full">
-          <button className='text-purple self-start '
-            style={{ fontWeight: "700", fontSize: "16" }}
-            onClick={onCancel}>
+          <button
+            className="text-purple self-start "
+            style={{ fontWeight: '700', fontSize: '16' }}
+            onClick={onCancel}
+          >
             Back
           </button>
-          <h1 className="text-[20px] font-semibold text-center mt-10" >
+          <h1 className="text-[20px] font-semibold text-center mt-10">
             Continue Your Calls With Better Rates
           </h1>
           <div className="text-center text-[14px] font-[400] text-black max-w-xl">
-            Upgrading to a higher plan gives you better rates and more call time!
+            Upgrading to a higher plan gives you better rates and more call
+            time!
           </div>
         </div>
 
@@ -189,15 +190,18 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           {/* Selected Plan */}
           <div className="flex-1 flex flex-col items-start gap-2">
             <div className="text-lg font-semibold mb-2">Selected Plan</div>
-            <div
-              className="text-2xl font-bold bg-gradient-to-r from-purple  to-[#DF02BA] bg-clip-text text-transparent"
-            >
+            <div className="text-2xl font-bold bg-gradient-to-r from-purple  to-[#DF02BA] bg-clip-text text-transparent">
               {selectedPlan?.name}
             </div>
-            <div className="text-black text-[14px] font-[400]">{selectedPlan?.mints} AI Credits | {selectedPlan?.calls} Calls*</div>
-            <div className="text-gray-500 text-[12px] font-[300] mb-2">Total Amount</div>
-            <div className="text-3xl font-bold">${selectedPlan?.discountPrice}</div>
-
+            <div className="text-black text-[14px] font-[400]">
+              {selectedPlan?.mints} AI Credits | {selectedPlan?.calls} Calls*
+            </div>
+            <div className="text-gray-500 text-[12px] font-[300] mb-2">
+              Total Amount
+            </div>
+            <div className="text-3xl font-bold">
+              ${selectedPlan?.discountPrice}
+            </div>
           </div>
 
           {/* Divider */}
@@ -206,9 +210,10 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           {/* Payment */}
           <div className="flex-1 flex flex-col items-start gap-2">
             <div className="text-lg font-semibold mb-2">Payment</div>
-            <button className="text-sm text-black font-medium mb-2 underline"
+            <button
+              className="text-sm text-black font-medium mb-2 underline"
               onClick={() => {
-                setAddPaymentPopup(true);
+                setAddPaymentPopup(true)
               }}
             >
               + Add Payment
@@ -216,21 +221,20 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
 
             <div className="flex flex-col gap-2 h-[30vh] overflow-auto">
               {cards.map((card, index) => {
-
                 return (
                   <div
                     key={index}
                     className="flex flex-row items-center w-full"
-                    style={{ marginBottom: "1rem", cursor: "pointer" }}
+                    style={{ marginBottom: '1rem', cursor: 'pointer' }}
                     onClick={() => setSelectedCard(card)}
                   >
                     <div
                       className="flex flex-row items-center w-full border rounded-lg px-5 py-3"
                       style={{
-
-                        borderColor: selectedCard?.id === card.id ? "#7902DF" : "#E5E7EB",
-                        borderWidth: "1.5px",
-                        boxShadow: "0 1px 4px 0 rgba(64,17,250,0.03)",
+                        borderColor:
+                          selectedCard?.id === card.id ? '#7902DF' : '#E5E7EB',
+                        borderWidth: '1.5px',
+                        boxShadow: '0 1px 4px 0 rgba(64,17,250,0.03)',
                       }}
                     >
                       {/* Radio icon */}
@@ -238,8 +242,8 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
                         <Image
                           src={
                             selectedCard?.id === card.id
-                              ? "/twiliohubassets/RadioFocus.jpg"
-                              : "/twiliohubassets/Radio.jpg"
+                              ? '/twiliohubassets/RadioFocus.jpg'
+                              : '/twiliohubassets/Radio.jpg'
                           }
                           alt={'*'}
                           width={24}
@@ -247,7 +251,10 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
                         />
                       </span>
                       {/* Card Brand Name */}
-                      <span className="font-bold text-[18px] text-[#232323] mr-2" style={{ fontStyle: "italic" }}>
+                      <span
+                        className="font-bold text-[18px] text-[#232323] mr-2"
+                        style={{ fontStyle: 'italic' }}
+                      >
                         {card.brand}
                       </span>
                       {/* Card Last 4 */}
@@ -256,11 +263,13 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
                       </span>
                       {/* Default label */}
                       {card.isDefault && (
-                        <span className="text-xs text-gray-500 ml-2">(default)</span>
+                        <span className="text-xs text-gray-500 ml-2">
+                          (default)
+                        </span>
                       )}
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
@@ -268,18 +277,18 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
 
         {/* Footer Buttons */}
         <div className="w-full flex flex-col gap-2 mt-8">
-          {
-            subscribePlanLoader ? <div className="w-full flex justify-center items-center">
+          {subscribePlanLoader ? (
+            <div className="w-full flex justify-center items-center">
               <CircularProgress />
-            </div> :
-
-              <button
-                className="w-full bg-purple text-white font-semibold py-3 rounded-lg text-lg transition"
-                onClick={handleUpgrade}
-              >
-                Upgrade Plan
-              </button>
-          }
+            </div>
+          ) : (
+            <button
+              className="w-full bg-purple text-white font-semibold py-3 rounded-lg text-lg transition"
+              onClick={handleUpgrade}
+            >
+              Upgrade Plan
+            </button>
+          )}
           <button
             className="w-full text-[#6b7280] text-base font-medium bg-transparent"
             onClick={onCancel}
@@ -287,10 +296,12 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
             Cancel
           </button>
           <div className="text-center text-xs text-gray-500 mt-2">
-            By continuing you agree to our{" "}
-            <a href="#" className="text-purple "
+            By continuing you agree to our{' '}
+            <a
+              href="#"
+              className="text-purple "
               onClick={() => {
-                window.open(termsAndConditionUrl);
+                window.open(termsAndConditionUrl)
               }}
             >
               Terms & Conditions
@@ -304,7 +315,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           BackdropProps={{
             timeout: 100,
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
             },
           }}
         >
@@ -316,23 +327,23 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
               <div
                 className="sm:w-7/12 w-full"
                 style={{
-                  backgroundColor: "#ffffff",
+                  backgroundColor: '#ffffff',
                   padding: 20,
-                  borderRadius: "13px",
+                  borderRadius: '13px',
                 }}
               >
                 <div className="flex flex-row justify-between items-center">
                   <div
                     style={{
                       fontSize: 22,
-                      fontWeight: "600",
+                      fontWeight: '600',
                     }}
                   >
                     Payment Details
                   </div>
                   <button onClick={() => setAddPaymentPopup(false)}>
                     <Image
-                      src={"/assets/crossIcon.png"}
+                      src={'/assets/crossIcon.png'}
                       height={40}
                       width={40}
                       alt="*"
@@ -345,9 +356,9 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
                     // getcardData={getcardData}
                     handleClose={() => {
                       setAddPaymentPopup(false)
-                      getCardsList();
+                      getCardsList()
                     }}
-                    togglePlan={""}
+                    togglePlan={''}
                   />
                 </Elements>
               </div>
@@ -359,21 +370,19 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
   )
 }
 
-export default UpgradePlanView;
-
-
+export default UpgradePlanView
 
 const styles = {
   paymentModal: {
     // height: "auto",
-    bgcolor: "transparent",
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
+    mx: 'auto',
     // my: "50vh",
     // transform: "translateY(-50%)",
     borderRadius: 2,
-    border: "none",
-    outline: "none",
-    height: "100svh",
+    border: 'none',
+    outline: 'none',
+    height: '100svh',
   },
-};
+}

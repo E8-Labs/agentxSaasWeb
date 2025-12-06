@@ -1,16 +1,17 @@
-import React, { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import moment from "moment";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { PersistanceKeys } from "@/constants/Constants";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import { getReadableStatus } from "@/utilities/UserUtility";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { PersistanceKeys } from '@/constants/Constants'
+import { getReadableStatus } from '@/utilities/UserUtility'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
+import { GetFormattedDateString } from '@/utilities/utility'
 
 function AdminDashboardActiveCall({
   isFromAgency,
@@ -19,99 +20,108 @@ function AdminDashboardActiveCall({
   selectedToDate,
   selectedStatus = [],
   selectedAgency,
-  onFiltersApplied
+  onFiltersApplied,
 }) {
-  const Limit = 30;
-  const LimitPerPage = 20;
-  const [user, setUser] = useState(null);
-  const [leadsLoading, setLeadsLoading] = useState(false);
-  const [hasMoreLeads, setHasMoreLeads] = useState(true);
-  const [callsLoading, setCallsLoading] = useState(false);
-  const [hasMoreCalls, setHasMoreCalls] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
+  const Limit = 30
+  const LimitPerPage = 20
+  const [user, setUser] = useState(null)
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [hasMoreLeads, setHasMoreLeads] = useState(true)
+  const [callsLoading, setCallsLoading] = useState(false)
+  const [hasMoreCalls, setHasMoreCalls] = useState(true)
+  const [searchValue, setSearchValue] = useState('')
   //code for agent details
-  const [callDetails, setCallDetails] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [agentsList, setAgentsList] = useState([]);
-  const [filteredAgentsList, setFilteredAgentsList] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [callDetails, setCallDetails] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [agentsList, setAgentsList] = useState([])
+  const [filteredAgentsList, setFilteredAgentsList] = useState([])
+  const [anchorEl, setAnchorEl] = React.useState(null)
   //code for call log details
-  const [SelectedAgent, setSelectedAgent] = useState(null);
-  const [SelectedItem, setSelectedItem] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
-  const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
-  const [filteredSheduledCalllogs, setFilteredSheduledCalllogs] = useState([]);
-  const [detailsFilterSearchValue, setDetailsFilterSearchValue] = useState("");
+  const [SelectedAgent, setSelectedAgent] = useState(null)
+  const [SelectedItem, setSelectedItem] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false)
+  const [sheduledCalllogs, setSheduledCalllogs] = useState([])
+  const [filteredSheduledCalllogs, setFilteredSheduledCalllogs] = useState([])
+  const [detailsFilterSearchValue, setDetailsFilterSearchValue] = useState('')
   //code for leeads details modal
-  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false);
-  const [selectedLeadsList, setSelectedLeadsList] = useState([]);
-  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState(
-    []
-  );
-  const [leadsSearchValue, setLeadsSearchValue] = useState("");
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
+  const [selectedLeadsList, setSelectedLeadsList] = useState([])
+  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState([])
+  const [leadsSearchValue, setLeadsSearchValue] = useState('')
   //variable for warningpopup
-  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
-  const [color, setColor] = useState(false);
+  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null)
+  const [color, setColor] = useState(false)
 
   //variable for showing modal
-  const [extraTagsModal, setExtraTagsModal] = useState(false);
-  const [otherTags, setOtherTags] = useState([]);
+  const [extraTagsModal, setExtraTagsModal] = useState(false)
+  const [otherTags, setOtherTags] = useState([])
 
   //code for pagination
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(false)
 
-  const [selectedSort, setSelectedSort] = useState(null);
-  const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
+  const [selectedSort, setSelectedSort] = useState(null)
+  const [selectedSortOrder, setSelectedSortOrder] = useState('ASC')
 
-  let sortData = { sort: "", sortOrder: "" };
+  let sortData = { sort: '', sortOrder: '' }
 
   // Use ref to track initial mount and previous filter values
-  const isInitialMount = useRef(true);
-  const prevFilters = useRef({ selectedFromDate, selectedToDate, selectedStatus, selectedAgency });
+  const isInitialMount = useRef(true)
+  const prevFilters = useRef({
+    selectedFromDate,
+    selectedToDate,
+    selectedStatus,
+    selectedAgency,
+  })
 
   useEffect(() => {
     getAgents({
-      length: "",
+      length: '',
       isPagination: false,
       sortData: null,
       selectedFromDate,
       selectedToDate,
       selectedStatus,
-      selectedAgency
-    });
-    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      selectedAgency,
+    })
+    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (localD) {
-      let d = JSON.parse(localD);
-      setUser(d);
+      let d = JSON.parse(localD)
+      setUser(d)
     }
     // getSheduledCallLogs();
-    isInitialMount.current = false;
-  }, []);
+    isInitialMount.current = false
+  }, [])
 
   // Refetch when filters change (skip initial mount)
   useEffect(() => {
     // Skip on initial mount
     if (isInitialMount.current) {
-      prevFilters.current = { selectedFromDate, selectedToDate, selectedStatus, selectedAgency };
-      return;
+      prevFilters.current = {
+        selectedFromDate,
+        selectedToDate,
+        selectedStatus,
+        selectedAgency,
+      }
+      return
     }
 
     // Check if filters actually changed
     const filtersChanged =
       prevFilters.current.selectedFromDate !== selectedFromDate ||
       prevFilters.current.selectedToDate !== selectedToDate ||
-      JSON.stringify(prevFilters.current.selectedStatus || []) !== JSON.stringify(selectedStatus || []) ||
-      prevFilters.current.selectedAgency?.id !== selectedAgency?.id;
+      JSON.stringify(prevFilters.current.selectedStatus || []) !==
+        JSON.stringify(selectedStatus || []) ||
+      prevFilters.current.selectedAgency?.id !== selectedAgency?.id
 
     // Refetch if filters changed (either added or cleared)
     if (filtersChanged) {
-      setInitialLoader(true);
-      setFilteredAgentsList([]);
-      setCallDetails([]);
-      setAgentsList([]);
-      setHasMore(true);
+      setInitialLoader(true)
+      setFilteredAgentsList([])
+      setCallDetails([])
+      setAgentsList([])
+      setHasMore(true)
       getAgents({
         length: 0,
         isPagination: false,
@@ -119,61 +129,65 @@ function AdminDashboardActiveCall({
         selectedFromDate,
         selectedToDate,
         selectedStatus,
-        selectedAgency
-      });
-      prevFilters.current = { selectedFromDate, selectedToDate, selectedStatus, selectedAgency };
+        selectedAgency,
+      })
+      prevFilters.current = {
+        selectedFromDate,
+        selectedToDate,
+        selectedStatus,
+        selectedAgency,
+      }
     }
-  }, [selectedFromDate, selectedToDate, selectedStatus, selectedAgency]);
+  }, [selectedFromDate, selectedToDate, selectedStatus, selectedAgency])
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+  }
 
   const handleClosePopup = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-    setSelectedLeadsList([]);
-    setFilteredSelectedLeadsList([]);
-    setHasMoreLeads(true);
-    setShowLeadDetailsModal(true);
-    fetchLeadsInBatch(item);
-  };
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+    setSelectedLeadsList([])
+    setFilteredSelectedLeadsList([])
+    setHasMoreLeads(true)
+    setShowLeadDetailsModal(true)
+    fetchLeadsInBatch(item)
+  }
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSelectedLeadsList(selectedLeadsList);
-      return;
+      setFilteredSelectedLeadsList(selectedLeadsList)
+      return
     }
 
     const filtered = selectedLeadsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSelectedLeadsList(filtered);
-  };
+    setFilteredSelectedLeadsList(filtered)
+  }
 
   function getCallStatusWithSchedule(item) {
     // const currentTime = moment();
@@ -185,7 +199,7 @@ function AdminDashboardActiveCall({
     //   const formattedDate = startTime.format('MMM DD');
     //   return `Scheduled `;
     // } else {
-    return getReadableStatus(item.status);
+    return getReadableStatus(item.status)
     // }
 
     // Return the regular readable status for past or current calls
@@ -193,128 +207,144 @@ function AdminDashboardActiveCall({
 
   //code to get agents
   const getAgents = async (passedData) => {
-    console.log("Data passed is", passedData);
+    console.log('Data passed is', passedData)
 
     // Check if we should load from cache (initial load with no pagination, sorting, or filters)
-    const hasFilters = passedData?.selectedFromDate || passedData?.selectedToDate ||
+    const hasFilters =
+      passedData?.selectedFromDate ||
+      passedData?.selectedToDate ||
       (passedData?.selectedStatus && passedData.selectedStatus.length > 0) ||
-      passedData?.selectedAgency;
-    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData &&
-      !passedData?.isPagination && !hasFilters;
+      passedData?.selectedAgency
+    const shouldLoadFromCache =
+      !passedData?.length &&
+      !passedData?.sortData &&
+      !passedData?.isPagination &&
+      !hasFilters
 
     if (shouldLoadFromCache) {
-      const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
+      const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls)
       if (cache) {
         try {
-          const parsed = JSON.parse(cache);
-          console.log("Loading call activities from cache:", parsed.length, "items");
-          setFilteredAgentsList(parsed);
-          setCallDetails(parsed);
-          setAgentsList(parsed);
-          setInitialLoader(false);
+          const parsed = JSON.parse(cache)
+          console.log(
+            'Loading call activities from cache:',
+            parsed.length,
+            'items',
+          )
+          setFilteredAgentsList(parsed)
+          setCallDetails(parsed)
+          setAgentsList(parsed)
+          setInitialLoader(false)
         } catch (err) {
-          console.warn("Error parsing cached call activities data", err);
-          localStorage.removeItem(PersistanceKeys.LocalActiveCalls);
+          console.warn('Error parsing cached call activities data', err)
+          localStorage.removeItem(PersistanceKeys.LocalActiveCalls)
         }
       } else {
-        console.log("No cached data found for call activities");
+        console.log('No cached data found for call activities')
       }
     }
 
     try {
-      console.log("Fetching agents from API with pagination data", passedData);
+      console.log('Fetching agents from API with pagination data', passedData)
       if (passedData?.isPagination === false) {
-        setInitialLoader(true);
+        setInitialLoader(true)
       }
 
-      const token = AuthToken();
-      if (!token) return;
+      const token = AuthToken()
+      if (!token) return
       let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
 
       if (passedData?.sortData) {
-        ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
+        ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`
       }
 
       // Add date filters
       if (passedData?.selectedFromDate && passedData?.selectedToDate) {
-        const startDate = moment(passedData.selectedFromDate).format("MM-DD-YYYY");
-        const endDate = moment(passedData.selectedToDate).format("MM-DD-YYYY");
-        ApiPath += `&startDate=${startDate}&endDate=${endDate}`;
+        const startDate = moment(passedData.selectedFromDate).format(
+          'MM-DD-YYYY',
+        )
+        const endDate = moment(passedData.selectedToDate).format('MM-DD-YYYY')
+        ApiPath += `&startDate=${startDate}&endDate=${endDate}`
       }
 
       // Add status filters
       if (passedData?.selectedStatus && passedData.selectedStatus.length > 0) {
-        ApiPath += `&status=${passedData.selectedStatus.join(",")}`;
+        ApiPath += `&status=${passedData.selectedStatus.join(',')}`
       }
 
       // Add agency filter (userId)
       if (passedData?.selectedAgency) {
-        ApiPath += `&userId=${passedData.selectedAgency.id}`;
+        ApiPath += `&userId=${passedData.selectedAgency.id}`
       }
 
-      console.log("Api path is", ApiPath);
+      console.log('Api path is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response?.data?.data) {
-        const agents = response.data.data;
-        console.log("Fetched call activities from API:", agents.length, "items");
-        console.log("Sample data structure:", agents[0]);
+        const agents = response.data.data
+        console.log('Fetched call activities from API:', agents.length, 'items')
+        console.log('Sample data structure:', agents[0])
 
         // Handle pagination vs initial load differently
         if (passedData?.isPagination) {
           // For pagination, append to existing data
-          const updatedAgents = [...filteredAgentsList, ...agents];
-          console.log("Appending paginated data. Total items now:", updatedAgents.length);
-          setFilteredAgentsList(updatedAgents);
-          setCallDetails(updatedAgents);
-          setAgentsList(updatedAgents);
+          const updatedAgents = [...filteredAgentsList, ...agents]
+          console.log(
+            'Appending paginated data. Total items now:',
+            updatedAgents.length,
+          )
+          setFilteredAgentsList(updatedAgents)
+          setCallDetails(updatedAgents)
+          setAgentsList(updatedAgents)
         } else {
           // For initial load, replace all data
-          console.log("Replacing all data with fresh API data");
-          setFilteredAgentsList(agents);
-          setCallDetails(agents);
-          setAgentsList(agents);
+          console.log('Replacing all data with fresh API data')
+          setFilteredAgentsList(agents)
+          setCallDetails(agents)
+          setAgentsList(agents)
         }
 
-        console.log("Updated call activities data in UI");
-        setInitialLoader(false);
-        setLoading(false);
+        console.log('Updated call activities data in UI')
+        setInitialLoader(false)
+        setLoading(false)
 
         // Save to cache only for initial load (no pagination, sorting, or filters)
         if (shouldLoadFromCache && !hasFilters) {
-          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
-          console.log("Saved call activities to cache:", agents.length, "items");
+          localStorage.setItem(
+            PersistanceKeys.LocalActiveCalls,
+            JSON.stringify(agents),
+          )
+          console.log('Saved call activities to cache:', agents.length, 'items')
         }
 
         // Notify parent if callback is provided
         if (onFiltersApplied && hasFilters) {
-          onFiltersApplied();
+          onFiltersApplied()
         }
 
         if (agents.length < LimitPerPage) {
-          setHasMore(false);
+          setHasMore(false)
         }
       } else {
-        console.log("No data received from API:", response?.data);
+        console.log('No data received from API:', response?.data)
       }
     } catch (error) {
-      console.error("Failed to fetch agents", error);
+      console.error('Failed to fetch agents', error)
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
-
+  }
 
   //code to show call log details popup
 
   const handleShowDetails = () => {
-    fetchCallsInBatch(SelectedItem);
+    fetchCallsInBatch(SelectedItem)
     // let updatedCallDetails = callDetails.map((item) => item.agentCalls);
     // let CallsArray = [];
     // let matchingPastCallsLeads = SelectedItem.leads.filter((lead) => {
@@ -325,44 +355,44 @@ function AdminDashboardActiveCall({
     // setSheduledCalllogs(SelectedItem.pastCalls);
     // setFilteredSheduledCalllogs(SelectedItem.pastCalls);
     // setShowDetailsModal(true);
-  };
+  }
 
   //code to filter slected agent leads
   const handleDetailsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSheduledCalllogs(sheduledCalllogs);
-      return;
+      setFilteredSheduledCalllogs(sheduledCalllogs)
+      return
     }
 
     const filtered = sheduledCalllogs.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSheduledCalllogs(filtered);
-  };
+    setFilteredSheduledCalllogs(filtered)
+  }
 
   //main page search
   const handleSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredAgentsList(agentsList);
-      return;
+      setFilteredAgentsList(agentsList)
+      return
     }
 
     //// //console.log;
 
     const filtered = agentsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       //// //console.log
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
@@ -370,64 +400,64 @@ function AdminDashboardActiveCall({
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredAgentsList(filtered);
-  };
+    setFilteredAgentsList(filtered)
+  }
 
-  const [PauseLoader, setPauseLoader] = useState(false);
+  const [PauseLoader, setPauseLoader] = useState(false)
   //code to pause the agent
   const pauseAgents = async () => {
     // //console.log;
 
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.pauseAgent;
+      setPauseLoader(true)
+      const ApiPath = Apis.pauseAgent
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Paused",
-              };
+                status: 'Paused',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -435,9 +465,9 @@ function AdminDashboardActiveCall({
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
+  }
 
   //function to resume calls
   const resumeCalls = async () => {
@@ -445,52 +475,52 @@ function AdminDashboardActiveCall({
     // //console.log
     // return
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.resumeCalls;
+      setPauseLoader(true)
+      const ApiPath = Apis.resumeCalls
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Active",
-              };
+                status: 'Active',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -498,28 +528,27 @@ function AdminDashboardActiveCall({
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
-
+  }
 
   const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstApiCall = false;
-      setLeadsLoading(true);
+      let firstApiCall = false
+      setLeadsLoading(true)
       let leadsInBatchLocalData = localStorage.getItem(
-        PersistanceKeys.LeadsInBatch + `${batch.id}`
-      );
+        PersistanceKeys.LeadsInBatch + `${batch.id}`,
+      )
       if (selectedLeadsList.length == 0) {
-        firstApiCall = true;
+        firstApiCall = true
         if (leadsInBatchLocalData) {
           //console.log;
-          let leads = JSON.parse(leadsInBatchLocalData);
+          let leads = JSON.parse(leadsInBatchLocalData)
           //console.log;
           // setSelectedLeadsList(leads);
           // setFilteredSelectedLeadsList(leads);
-          setLeadsLoading(false);
+          setLeadsLoading(false)
           // return;
         } else {
           //console.log;
@@ -528,23 +557,18 @@ function AdminDashboardActiveCall({
         //console.log;
       }
 
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log(
-        "Api Call Leads : ",
-        path
-      );
-      const response = await fetch(path,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setLeadsLoading(false);
-      const data = await response.json();
+      console.log('Api Call Leads : ', path)
+      const response = await fetch(path, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      setLeadsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
@@ -555,41 +579,41 @@ function AdminDashboardActiveCall({
         //   JSON.stringify(data.data)
         // );
 
-        console.log("Response of leads list detail", data.data)
+        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
-          setSelectedLeadsList(data.data);
-          setFilteredSelectedLeadsList(data.data);
+          setSelectedLeadsList(data.data)
+          setFilteredSelectedLeadsList(data.data)
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
-            JSON.stringify(data.data)
-          );
+            JSON.stringify(data.data),
+          )
         } else {
-          setSelectedLeadsList((prev) => [...prev, ...data.data]);
-          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setSelectedLeadsList((prev) => [...prev, ...data.data])
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data])
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.length < Limit) {
-          setHasMoreLeads(false);
+          setHasMoreLeads(false)
         } else {
-          setHasMoreLeads(true);
+          setHasMoreLeads(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data);
+        console.error('Failed to fetch leads in batch:', data)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
+      console.error('Error fetching leads in batch:', error)
     }
-  };
+  }
   const fetchCallsInBatch = async (batch) => {
     //console.log;
     try {
-      let firstCall = false;
-      setCallsLoading(true);
+      let firstCall = false
+      setCallsLoading(true)
       if (sheduledCalllogs.length == 0) {
-        firstCall = true;
+        firstCall = true
         // let leadsInBatchLocalData = localStorage.getItem(
         //   PersistanceKeys.CallsInBatch + `${batch.id}`
         // );
@@ -607,62 +631,61 @@ function AdminDashboardActiveCall({
         // }
       }
 
-      const token = user.token; // Extract JWT token
+      const token = user.token // Extract JWT token
       //console.log;
       const response = await fetch(
-        "/api/calls/callsInABatch" +
-        `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
+        '/api/calls/callsInABatch' +
+          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
         {
-          method: "GET",
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        }
-      );
+        },
+      )
       //console.log;
-      setCallsLoading(false);
-      const data = await response.json();
+      setCallsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
         if (firstCall) {
-          setSheduledCalllogs(data.data.pastCalls);
-          setFilteredSheduledCalllogs(data.data.pastCalls);
+          setSheduledCalllogs(data.data.pastCalls)
+          setFilteredSheduledCalllogs(data.data.pastCalls)
           localStorage.setItem(
             PersistanceKeys.CallsInBatch + `${batch.id}`,
-            JSON.stringify(data.data.pastCalls)
-          );
+            JSON.stringify(data.data.pastCalls),
+          )
         } else {
           // Show API response data instead of appending to existing array
-          setSheduledCalllogs(data.data.pastCalls);
-          setFilteredSheduledCalllogs(data.data.pastCalls);
+          setSheduledCalllogs(data.data.pastCalls)
+          setFilteredSheduledCalllogs(data.data.pastCalls)
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.pastCalls.length < Limit) {
-          setHasMoreCalls(false);
+          setHasMoreCalls(false)
         } else {
-          setHasMoreCalls(true);
+          setHasMoreCalls(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error('Failed to fetch leads in batch:', data.message)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
-    }
-  };
-
-  function GetLoadingOrNoCallsView() {
-    if (callsLoading) {
-      return <div className="text-center mt-6 text-3xl">Loading...</div>;
-    } else if (!callsLoading && sheduledCalllogs.length == 0) {
-      return <div className="text-center mt-6 text-3xl">No Activity Found</div>;
+      console.error('Error fetching leads in batch:', error)
     }
   }
 
+  function GetLoadingOrNoCallsView() {
+    if (callsLoading) {
+      return <div className="text-center mt-6 text-3xl">Loading...</div>
+    } else if (!callsLoading && sheduledCalllogs.length == 0) {
+      return <div className="text-center mt-6 text-3xl">No Activity Found</div>
+    }
+  }
 
   return (
     <div className="w-full items-start overflow-hidden">
@@ -672,53 +695,53 @@ function AdminDashboardActiveCall({
         anchorEl={anchorEl}
         onClose={handleClosePopup}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
+          vertical: 'bottom',
+          horizontal: 'right',
         }}
         transformOrigin={{
-          vertical: "top",
-          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+          vertical: 'top',
+          horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
         }}
         PaperProps={{
           elevation: 0, // This will remove the shadow
           style: {
-            boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-            borderRadius: "10px",
-            width: "120px",
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+            borderRadius: '10px',
+            width: '120px',
           },
         }}
       >
         <div
           className="p-2 flex flex-col gap-2"
-          style={{ fontWeight: "500", fontSize: 15 }}
+          style={{ fontWeight: '500', fontSize: 15 }}
         >
-          {
-            SelectedItem?.status !== "Completed" && (
-              <div>
-                {PauseLoader ? (
-                  <CircularProgress size={18} />
-                ) : (
-                  <button
-                    className="text-start outline-none"
-                    onClick={() => {
-                      if (SelectedItem?.status == "Paused") {
-                        //// //console.log
-                        setColor(true);
-                        setShowConfirmationPopup("resume Calls");
-                      } else {
-                        //// //console.log
-                        setShowConfirmationPopup("pause Calls");
-                        setColor(false);
-                      }
-                      // //console.log
-                    }}
-                  >
-                    {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
-                  </button>
-                )}
-              </div>
-            )
-          }
+          {SelectedItem?.status !== 'Completed' && (
+            <div>
+              {PauseLoader ? (
+                <CircularProgress size={18} />
+              ) : (
+                <button
+                  className="text-start outline-none"
+                  onClick={() => {
+                    if (SelectedItem?.status == 'Paused') {
+                      //// //console.log
+                      setColor(true)
+                      setShowConfirmationPopup('resume Calls')
+                    } else {
+                      //// //console.log
+                      setShowConfirmationPopup('pause Calls')
+                      setColor(false)
+                    }
+                    // //console.log
+                  }}
+                >
+                  {SelectedItem?.status == 'Paused'
+                    ? 'Run Calls'
+                    : 'Pause Calls'}
+                </button>
+              )}
+            </div>
+          )}
           <button
             className="text-start outline-none"
             onClick={() => {
@@ -754,7 +777,7 @@ function AdminDashboardActiveCall({
         ) : (
           <div
             className={`h-[65vh] overflow-auto`}
-            style={{ scrollbarWidth: "none" }}
+            style={{ scrollbarWidth: 'none' }}
             id="scrollableDiv1"
           >
             <InfiniteScroll
@@ -762,12 +785,12 @@ function AdminDashboardActiveCall({
               endMessage={
                 <p
                   style={{
-                    textAlign: "center",
-                    paddingTop: "10px",
-                    fontWeight: "400",
-                    fontFamily: "inter",
+                    textAlign: 'center',
+                    paddingTop: '10px',
+                    fontWeight: '400',
+                    fontFamily: 'inter',
                     fontSize: 16,
-                    color: "#00000060",
+                    color: '#00000060',
                   }}
                 >
                   {`You're all caught up`}
@@ -785,31 +808,27 @@ function AdminDashboardActiveCall({
                     selectedFromDate,
                     selectedToDate,
                     selectedStatus,
-                    selectedAgency
-                  });
+                    selectedAgency,
+                  })
                 }
-
               }} // Fetch more when scrolled
               hasMore={hasMore} // Check if there's more data
               loader={
-
                 <div className="w-full flex flex-row justify-center mt-8">
                   <CircularProgress size={35} />
                 </div>
               }
-              style={{ overflow: "unset" }}
+              style={{ overflow: 'unset' }}
             >
               {filteredAgentsList?.length > 0 ? (
                 <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                   {/* Table Header */}
                   <div className="w-full flex flex-row mt-2 px-10">
-                    {
-                      !isFromAgency && (
-                        <div className=" w-[200px] flex-shrink-0">
-                          <div style={styles.text}>Agency Name</div>
-                        </div>
-                      )
-                    }
+                    {!isFromAgency && (
+                      <div className=" w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Agency Name</div>
+                      </div>
+                    )}
                     <div className=" w-[200px] flex-shrink-0">
                       <div style={styles.text}>Sub Account</div>
                     </div>
@@ -821,23 +840,23 @@ function AdminDashboardActiveCall({
                       <div style={styles.text}>List Name</div>
                     </div>
 
-
                     <div className=" w-[150px] flex-shrink-0">
-                      <button className="truncate"
+                      <button
+                        className="truncate"
                         onClick={() => {
-
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "Leads") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'Leads') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
 
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
 
                           sortData = {
-                            sort: "totalLeads",
+                            sort: 'totalLeads',
                             sortOrder: sortOrder,
-                          };
-                          setSelectedSort("Leads");
+                          }
+                          setSelectedSort('Leads')
                           getAgents({
                             length: 0,
                             isPagination: false,
@@ -845,17 +864,17 @@ function AdminDashboardActiveCall({
                             selectedFromDate,
                             selectedToDate,
                             selectedStatus,
-                            selectedAgency
-                          });
+                            selectedAgency,
+                          })
                         }}
                       >
                         Leads
-                        {selectedSort === "Leads" ? (
+                        {selectedSort === 'Leads' ? (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={10}
@@ -864,26 +883,26 @@ function AdminDashboardActiveCall({
                           />
                         ) : null}
                       </button>
-
                     </div>
 
                     <div className=" w-[200px] flex-shrink-0 whitespace-nowrap">
-                      <button className=""
+                      <button
+                        className=""
                         onClick={() => {
-
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "CreatedAt") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'CreatedAt') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
 
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
 
                           sortData = {
-                            sort: "CreatedAt",
+                            sort: 'CreatedAt',
                             sortOrder: sortOrder,
-                          };
+                          }
 
-                          setSelectedSort("CreatedAt");
+                          setSelectedSort('CreatedAt')
                           getAgents({
                             length: 0,
                             isPagination: false,
@@ -891,17 +910,17 @@ function AdminDashboardActiveCall({
                             selectedFromDate,
                             selectedToDate,
                             selectedStatus,
-                            selectedAgency
-                          });
+                            selectedAgency,
+                          })
                         }}
                       >
                         Date created
-                        {selectedSort === "CreatedAt" ? (
+                        {selectedSort === 'CreatedAt' ? (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={10}
@@ -930,45 +949,50 @@ function AdminDashboardActiveCall({
                                 className="w-full flex flex-row items-center justify-between mt-5 px-10 hover:bg-[#402FFF05] py-2"
                                 key={index}
                               >
-                                {
-                                  !isFromAgency && (
-                                    <div className="w-[200px] flex-shrink-0 truncate">
-                                      <div style={styles.text2}>
-                                        {item.agency?.name || "-"}
-                                      </div>
+                                {!isFromAgency && (
+                                  <div className="w-[200px] flex-shrink-0 truncate">
+                                    <div style={styles.text2}>
+                                      {item.agency?.name || '-'}
                                     </div>
-                                  )
-                                }
+                                  </div>
+                                )}
 
-                                <div className="w-[200px] flex-shrink-0 truncate"
-
+                                <div
+                                  className="w-[200px] flex-shrink-0 truncate"
                                   onClick={() => {
                                     if (item?.user?.id) {
                                       // Open a new tab with user ID as query param
                                       let url = ` admin/users?userId=${item?.user?.id}`
                                       //console.log
-                                      window.open(url, "_blank");
+                                      window.open(url, '_blank')
                                     }
                                   }}
                                 >
-                                  <div style={styles.text2} className="truncate">{item?.user?.name}</div>
-
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                  >
+                                    {item?.user?.name}
+                                  </div>
                                 </div>
 
                                 <div className="w-[150px] flex-shrink-0 truncate">
-                                  <div style={styles.text2} className="truncate">{
-                                    agent?.agents[0].agentType === "outbound" ? (
-                                      agent?.agents[0]?.name
-                                    ) : (
-                                      agent?.agents[1]?.name
-                                    )
-                                  }</div>
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                  >
+                                    {agent?.agents[0].agentType === 'outbound'
+                                      ? agent?.agents[0]?.name
+                                      : agent?.agents[1]?.name}
+                                  </div>
                                 </div>
 
-
                                 <div className="w-[200px] flex-shrink-0 truncate">
-                                  <div style={styles.text2} className="truncate">
-                                    {item.Sheet?.sheetName || "-"}
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                  >
+                                    {item.Sheet?.sheetName || '-'}
                                   </div>
                                 </div>
 
@@ -977,13 +1001,12 @@ function AdminDashboardActiveCall({
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
                                     onClick={() => {
-                                      handleShowLeads(agent, item);
+                                      handleShowLeads(agent, item)
                                     }}
                                   >
                                     {item?.totalLeads}
                                   </button>
                                 </div>
-
 
                                 <div className=" w-[200px] max-w-[250px] flex-shrink-0 truncate">
                                   {item?.createdAt ? (
@@ -994,17 +1017,22 @@ function AdminDashboardActiveCall({
                                     <div style={styles.text2}>-</div>
                                   )}
                                 </div>
-                                <div className=" w-[200px] max-w-[250px] flex-shrink-0 truncate" style={styles.text2}>{getCallStatusWithSchedule(item)}</div>
+                                <div
+                                  className=" w-[200px] max-w-[250px] flex-shrink-0 truncate"
+                                  style={styles.text2}
+                                >
+                                  {getCallStatusWithSchedule(item)}
+                                </div>
                                 <div className=" w-[150px] max-w-[250px]  flex-shrink-0 sticky right-0 bg-white z-10 pl-10">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"
                                     onClick={(event) => {
-                                      handleShowPopup(event, item, agent);
+                                      handleShowPopup(event, item, agent)
                                     }}
                                   >
                                     <Image
-                                      src={"/otherAssets/threeDotsIcon.png"}
+                                      src={'/otherAssets/threeDotsIcon.png'}
                                       height={24}
                                       width={24}
                                       alt="icon"
@@ -1013,18 +1041,18 @@ function AdminDashboardActiveCall({
                                 </div>
                               </div>
                             </div>
-                          );
+                          )
                         })}
                       </div>
-                    );
+                    )
                   })}
                 </div>
               ) : (
                 <div
                   style={{
-                    fontWeight: "600",
+                    fontWeight: '600',
                     fontSize: 24,
-                    textAlign: "center",
+                    textAlign: 'center',
                     marginTop: 20,
                   }}
                 >
@@ -1044,26 +1072,26 @@ function AdminDashboardActiveCall({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100svh",
+            backgroundColor: '#00000020',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100svh',
           },
         }}
       >
         <Box
           className="flex flex-col justify-center items-center w-full h-[100svh] "
-          sx={{ scrollbarWidth: "none" }}
+          sx={{ scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[90svh] ">
             <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
               <div className="flex flex-row justify-end">
                 <button
                   onClick={() => {
-                    setShowDetailsModal(false);
-                    setSheduledCalllogs([]);
-                    setFilteredSheduledCalllogs([]);
-                    setHasMoreCalls(true);
+                    setShowDetailsModal(false)
+                    setSheduledCalllogs([])
+                    setFilteredSheduledCalllogs([])
+                    setHasMoreCalls(true)
                   }}
                 >
                   <Image
@@ -1085,8 +1113,8 @@ function AdminDashboardActiveCall({
                       <div>
                         {SelectedAgent?.name
                           ? SelectedAgent.name.charAt(0).toUpperCase() +
-                          SelectedAgent.name.slice(1)
-                          : ""}{" "}
+                            SelectedAgent.name.slice(1)
+                          : ''}{' '}
                         call activity
                       </div>
                       <div className="flex w-full items-center border border-gray-300 rounded-full px-4 max-w-md shadow-sm mt-6">
@@ -1096,9 +1124,9 @@ function AdminDashboardActiveCall({
                           className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                           value={detailsFilterSearchValue}
                           onChange={(e) => {
-                            const value = e.target.value;
-                            handleDetailsSearchChange(value);
-                            setDetailsFilterSearchValue(value);
+                            const value = e.target.value
+                            handleDetailsSearchChange(value)
+                            setDetailsFilterSearchValue(value)
                           }}
                         />
                         <img
@@ -1113,19 +1141,19 @@ function AdminDashboardActiveCall({
                     <div
                       className="overflow-auto pb-4 flex-grow max-h-[74vh]"
                       id="scrollableDiv1"
-                      style={{ scrollbarWidth: "none" }}
+                      style={{ scrollbarWidth: 'none' }}
                     >
                       <InfiniteScroll
                         className="flex flex-col "
                         endMessage={
                           <p
                             style={{
-                              textAlign: "center",
-                              paddingTop: "10px",
-                              fontWeight: "400",
-                              fontFamily: "inter",
+                              textAlign: 'center',
+                              paddingTop: '10px',
+                              fontWeight: '400',
+                              fontFamily: 'inter',
                               fontSize: 16,
-                              color: "#00000060",
+                              color: '#00000060',
                             }}
                           >
                             {`You're all caught up`}
@@ -1135,7 +1163,7 @@ function AdminDashboardActiveCall({
                         dataLength={filteredSheduledCalllogs.length}
                         next={() => {
                           //console.log;
-                          fetchCallsInBatch(SelectedItem);
+                          fetchCallsInBatch(SelectedItem)
                         }}
                         hasMore={hasMoreCalls}
                         loader={
@@ -1143,19 +1171,19 @@ function AdminDashboardActiveCall({
                             {callsLoading && (
                               <CircularProgress
                                 size={35}
-                                sx={{ color: "#7902DF" }}
+                                sx={{ color: '#7902DF' }}
                               />
                             )}
                           </div>
                         }
-                        style={{ overflow: "unset" }}
+                        style={{ overflow: 'unset' }}
                       >
                         <div
                           className="flex flex-row items-center mt-6"
                           style={{
                             fontSize: 15,
-                            fontWeight: "500",
-                            color: "#00000070",
+                            fontWeight: '500',
+                            color: '#00000070',
                           }}
                         >
                           <div className="w-2/12">Name</div>
@@ -1168,7 +1196,7 @@ function AdminDashboardActiveCall({
                         {filteredSheduledCalllogs.length > 0 ? (
                           <div
                             className="w-full "
-                            style={{ scrollbarWidth: "none" }}
+                            style={{ scrollbarWidth: 'none' }}
                           >
                             {filteredSheduledCalllogs.map((item, index) => (
                               <div
@@ -1176,13 +1204,13 @@ function AdminDashboardActiveCall({
                                 className="w-full mt-4"
                                 style={{
                                   fontSize: 15,
-                                  fontWeight: "500",
-                                  scrollbarWidth: "none",
+                                  fontWeight: '500',
+                                  scrollbarWidth: 'none',
                                 }}
                               >
                                 <div
                                   className="flex flex-row items-center mt-4"
-                                  style={{ fontSize: 15, fontWeight: "500" }}
+                                  style={{ fontSize: 15, fontWeight: '500' }}
                                 >
                                   <div className="w-2/12 flex flex-row items-center gap-2 truncate">
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
@@ -1193,22 +1221,22 @@ function AdminDashboardActiveCall({
                                     <div
                                       className="truncate"
                                       style={{
-                                        width: "100px",
-                                        textOverflow: "ellipsis",
+                                        width: '100px',
+                                        textOverflow: 'ellipsis',
                                       }}
                                     >
-                                      {item?.LeadModel.firstName}{" "}
+                                      {item?.LeadModel.firstName}{' '}
                                       {item?.LeadModel.lastName}
                                     </div>
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.LeadModel.phone || "-"}
+                                    {item?.LeadModel.phone || '-'}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.LeadModel.address || "-"}
+                                    {item?.LeadModel.address || '-'}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.Sheet?.sheetName || "-"}
+                                    {item?.Sheet?.sheetName || '-'}
                                   </div>
                                   <div className="w-2/12 truncate flex flex-row items-center gap-2">
                                     {item?.tags?.length > 0 ? (
@@ -1225,18 +1253,18 @@ function AdminDashboardActiveCall({
                                           ))}
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                     {item?.tags?.length > 2 && (
                                       <div
                                         className="text-purple underline cursor-pointer"
                                         style={{
-                                          fontWeight: "500",
+                                          fontWeight: '500',
                                           fontSize: 13,
                                         }}
                                         onClick={() => {
-                                          setExtraTagsModal(true);
-                                          setOtherTags(item?.tags);
+                                          setExtraTagsModal(true)
+                                          setOtherTags(item?.tags)
                                         }}
                                       >
                                         +{item.tags.length - 2}
@@ -1244,7 +1272,7 @@ function AdminDashboardActiveCall({
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.PipelineStages?.stageTitle || "-"}
+                                    {item?.PipelineStages?.stageTitle || '-'}
                                   </div>
                                 </div>
                               </div>
@@ -1274,44 +1302,43 @@ function AdminDashboardActiveCall({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
               className="sm:w-10/12 w-full h-[100%] overflow-none"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row items-center justify-between">
                 <div
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 17,
                   }}
                 >
                   {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                    SelectedAgent?.name.slice(1)}{" "}
+                    SelectedAgent?.name.slice(1)}{' '}
                   call activity
                 </div>
                 <button
                   onClick={() => {
-                    setShowLeadDetailsModal(false);
+                    setShowLeadDetailsModal(false)
                     setFilteredSelectedLeadsList([])
-
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1321,7 +1348,7 @@ function AdminDashboardActiveCall({
               <div
                 className="max-h-[92%] overflow-auto"
                 style={{
-                  scrollbarWidth: "none",
+                  scrollbarWidth: 'none',
                 }}
               >
                 {AgentCallLogLoader ? (
@@ -1337,13 +1364,13 @@ function AdminDashboardActiveCall({
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          handleLeadsSearchChange(value);
-                          setLeadsSearchValue(e.target.value);
+                          const value = e.target.value
+                          handleLeadsSearchChange(value)
+                          setLeadsSearchValue(e.target.value)
                         }}
                       />
                       <img
-                        src={"/otherAssets/searchIcon.png"}
+                        src={'/otherAssets/searchIcon.png'}
                         alt="Search"
                         width={20}
                         height={20}
@@ -1354,8 +1381,8 @@ function AdminDashboardActiveCall({
                       className="flex flex-row items-center mt-6"
                       style={{
                         fontSize: 15,
-                        fontWeight: "500",
-                        color: "#00000070",
+                        fontWeight: '500',
+                        color: '#00000070',
                       }}
                     >
                       <div className="w-3/12">Name</div>
@@ -1368,7 +1395,7 @@ function AdminDashboardActiveCall({
                     <div
                       className="h-[70svh] overflow-auto pb-[100px] mt-6"
                       id="scrollableDiv1"
-                      style={{ scrollbarWidth: "none" }}
+                      style={{ scrollbarWidth: 'none' }}
                     >
                       {filteredSelectedLeadsList.length > 0 ? (
                         <div className="w-full">
@@ -1377,12 +1404,12 @@ function AdminDashboardActiveCall({
                             endMessage={
                               <p
                                 style={{
-                                  textAlign: "center",
-                                  paddingTop: "10px",
-                                  fontWeight: "400",
-                                  fontFamily: "inter",
+                                  textAlign: 'center',
+                                  paddingTop: '10px',
+                                  fontWeight: '400',
+                                  fontFamily: 'inter',
                                   fontSize: 16,
-                                  color: "#00000060",
+                                  color: '#00000060',
                                 }}
                               >
                                 {`You're all caught up`}
@@ -1391,7 +1418,7 @@ function AdminDashboardActiveCall({
                             scrollableTarget="scrollableDiv1"
                             dataLength={filteredSelectedLeadsList.length}
                             next={() => {
-                              fetchLeadsInBatch(SelectedItem);
+                              fetchLeadsInBatch(SelectedItem)
                             }}
                             hasMore={hasMoreLeads}
                             loader={
@@ -1399,12 +1426,12 @@ function AdminDashboardActiveCall({
                                 {leadsLoading && (
                                   <CircularProgress
                                     size={35}
-                                    sx={{ color: "#7902DF" }}
+                                    sx={{ color: '#7902DF' }}
                                   />
                                 )}
                               </div>
                             }
-                            style={{ overflow: "unset" }}
+                            style={{ overflow: 'unset' }}
                           >
                             {filteredSelectedLeadsList.map((item, index) => (
                               <div
@@ -1413,7 +1440,7 @@ function AdminDashboardActiveCall({
                                 style={{
                                   fontSize: 15,
                                   fontWeight: 500,
-                                  scrollbarWidth: "none",
+                                  scrollbarWidth: 'none',
                                 }}
                               >
                                 <div
@@ -1431,10 +1458,10 @@ function AdminDashboardActiveCall({
                                     </div>
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.phone || "-"}
+                                    {item?.phone || '-'}
                                   </div>
                                   <div className="w-3/12 truncate">
-                                    {item?.address || "-"}
+                                    {item?.address || '-'}
                                   </div>
                                   <div className="w-2/12">
                                     {item.tags.length > 0 ? (
@@ -1453,8 +1480,8 @@ function AdminDashboardActiveCall({
                                           <div
                                             className="text-purple underline cursor-pointer"
                                             onClick={() => {
-                                              setExtraTagsModal(true);
-                                              setOtherTags(item.tags);
+                                              setExtraTagsModal(true)
+                                              setOtherTags(item.tags)
                                             }}
                                           >
                                             +{item.tags.length - 1}
@@ -1462,11 +1489,11 @@ function AdminDashboardActiveCall({
                                         )}
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.status || "-"}
+                                    {item?.status || '-'}
                                   </div>
                                 </div>
                               </div>
@@ -1499,7 +1526,7 @@ function AdminDashboardActiveCall({
         BackdropProps={{
           timeout: 1000,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -1509,24 +1536,26 @@ function AdminDashboardActiveCall({
             <div
               className="sm:w-full w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="w-full flex items-center justify-between">
                 <div
                   style={{
                     fontsize: 15,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Other Tags
                 </div>
                 <div>
-                  <CloseBtn onClick={() => {
-                    setExtraTagsModal(false);
-                  }} />
+                  <CloseBtn
+                    onClick={() => {
+                      setExtraTagsModal(false)
+                    }}
+                  />
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
@@ -1562,7 +1591,7 @@ function AdminDashboardActiveCall({
                         )} */}
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -1570,38 +1599,38 @@ function AdminDashboardActiveCall({
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default AdminDashboardActiveCall;
+export default AdminDashboardActiveCall
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "600",
+    color: '#00000090',
+    fontWeight: '600',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    color: '#000000',
+    fontWeight: '500',
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   modalsStyle: {
     // height: "auto",
     // height: "90svh",
-    bgcolor: "transparent",
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}
 
 export const ShowConfirmationPopup = ({
   showConfirmationPopuup,
@@ -1616,24 +1645,24 @@ export const ShowConfirmationPopup = ({
       <Modal
         open={showConfirmationPopuup} //showConfirmationPopuup
         onClose={() => {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
         }}
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-4/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
         >
-          <div style={{ width: "100%" }}>
+          <div style={{ width: '100%' }}>
             <div
               className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
@@ -1647,7 +1676,7 @@ export const ShowConfirmationPopup = ({
 
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
                 <Image
-                  src={"/assets/warningFill.png"}
+                  src={'/assets/warningFill.png'}
                   height={18}
                   width={18}
                   alt="*"
@@ -1656,7 +1685,7 @@ export const ShowConfirmationPopup = ({
                   className="text-black"
                   style={{
                     fontSize: 16,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Are you sure you want to {showConfirmationPopuup}
@@ -1667,7 +1696,7 @@ export const ShowConfirmationPopup = ({
               <button
                 className="w-4/12"
                 onClick={() => {
-                  setShowConfirmationPopup(null);
+                  setShowConfirmationPopup(null)
                 }}
               >
                 Cancel
@@ -1679,20 +1708,20 @@ export const ShowConfirmationPopup = ({
                   </div>
                 ) : (
                   <button
-                    className={`outline-none ${color ? "bg-purple" : "bg-red"}`}
+                    className={`outline-none ${color ? 'bg-purple' : 'bg-red'}`}
                     style={{
-                      color: "white",
-                      height: "50px",
-                      borderRadius: "10px",
-                      width: "100%",
+                      color: 'white',
+                      height: '50px',
+                      borderRadius: '10px',
+                      width: '100%',
                       fontWeight: 600,
-                      fontSize: "20",
+                      fontSize: '20',
                     }}
                     onClick={() => {
                       if (color === true) {
-                        resumeCalls();
+                        resumeCalls()
                       } else {
-                        pauseAgent();
+                        pauseAgent()
                       }
                     }}
                   >
@@ -1706,5 +1735,5 @@ export const ShowConfirmationPopup = ({
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}

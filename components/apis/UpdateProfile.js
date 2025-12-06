@@ -1,55 +1,57 @@
-import axios from "axios";
-import React from "react";
-import Apis from "./Apis";
-import { PersistanceKeys } from "@/constants/Constants";
+import axios from 'axios'
+import React from 'react'
+
+import { PersistanceKeys } from '@/constants/Constants'
+
+import Apis from './Apis'
 
 export const UpdateProfile = async (apidata) => {
   // //console.log
 
   let SavedLocation = localStorage.getItem(
-    PersistanceKeys.LocalStorageCompleteLocation
-  );
+    PersistanceKeys.LocalStorageCompleteLocation,
+  )
   if (SavedLocation) {
     // //console.log;
-    let parsedLocation = JSON.parse(SavedLocation);
-    apidata.lat = parsedLocation.latitude;
-    apidata.lang = parsedLocation.longitude;
+    let parsedLocation = JSON.parse(SavedLocation)
+    apidata.lat = parsedLocation.latitude
+    apidata.lang = parsedLocation.longitude
   }
   // //console.log;
   // UpdateProfile()
   try {
-    const data = localStorage.getItem("User");
+    const data = localStorage.getItem('User')
     if (data) {
-      let u = JSON.parse(data);
-      let path = Apis.updateProfileApi;
+      let u = JSON.parse(data)
+      let path = Apis.updateProfileApi
       // //console.log;
       //console.log
       // return
       const response = await axios.post(path, apidata, {
         headers: {
-          Authorization: "Bearer " + u.token,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + u.token,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         console.log(response.data)
         if (response.data.status === true) {
-          u.user = response.data.data;
+          u.user = response.data.data
 
-          //// //console.log
-          localStorage.setItem("User", JSON.stringify(u));
+          console.log('response.data.data', response.data.data)
+          localStorage.setItem('User', JSON.stringify(u))
           //console.log
           window.dispatchEvent(
-            new CustomEvent("UpdateProfile", { detail: { update: true } })
-          );
-          return response.data.data;
+            new CustomEvent('UpdateProfile', { detail: { update: true } }),
+          )
+          return response.data.data
         }
       }
-    }else{
+    } else {
       //console.log
     }
   } catch (e) {
-    console.log("error in update profile api",e)
+    console.log('error in update profile api', e)
   }
-};
+}

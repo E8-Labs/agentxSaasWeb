@@ -1,93 +1,112 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
+import { CircularProgress, Modal } from '@mui/material'
 //import for input drop down menu
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import { CircularProgress, Modal } from "@mui/material";
-import voicesList from "./Voices";
-import { PauseCircle, PlayCircle } from "@phosphor-icons/react";
-import { UserTypes } from "@/constants/UserTypes";
+import Box from '@mui/material/Box'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import { PauseCircle, PlayCircle } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { UserTypes } from '@/constants/UserTypes'
+
+import Apis from '../apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
+import voicesList from './Voices'
 
 const CreateAgentVoice = ({ handleBack, user }) => {
-  let synthKey = process.env.NEXT_PUBLIC_SynthFlowApiKey;
+  let synthKey = process.env.NEXT_PUBLIC_SynthFlowApiKey
 
-  const router = useRouter();
-  const [toggleClick, setToggleClick] = useState(null);
-  const [voices, setVoices] = useState([]);
-  const [voicesLoader, setVoicesLoader] = useState(false);
-  const [selectedVoiceId, setSelectedVoiceId] = useState("");
-  const [preview, setPreview] = useState(null);
-  const [agentDetails, setAgentDetails] = useState(null);
-  const [shouldContinue, setShouldContinue] = useState(true);
-  const [audio, setAudio] = useState(null);
+  const router = useRouter()
+  const [toggleClick, setToggleClick] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [voices, setVoices] = useState([])
+  const [voicesLoader, setVoicesLoader] = useState(false)
+  const [selectedVoiceId, setSelectedVoiceId] = useState('')
+  const [preview, setPreview] = useState(null)
+  const [agentDetails, setAgentDetails] = useState(null)
+  const [shouldContinue, setShouldContinue] = useState(true)
+  const [audio, setAudio] = useState(null)
 
-  const [showNoAudioModal, setShowNoAudioModal] = useState(null);
+  const [showNoAudioModal, setShowNoAudioModal] = useState(null)
 
   useEffect(() => {
-    setVoices(voicesList);
-  }, []);
+    setVoices(voicesList)
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (selectedVoiceId) {
-      setShouldContinue(false);
+      setShouldContinue(false)
     }
-  }, [selectedVoiceId]);
+  }, [selectedVoiceId])
 
   useEffect(() => {
     // //console.log;
-    const localData = localStorage.getItem("agentDetails");
+    const localData = localStorage.getItem('agentDetails')
     if (localData) {
-      const agentData = JSON.parse(localData);
+      const agentData = JSON.parse(localData)
       // //console.log;
-      setAgentDetails(agentData);
+      setAgentDetails(agentData)
     }
-  }, []);
+  }, [])
 
   const handleToggleClick = (id, item) => {
-    setToggleClick((prevId) => (prevId === id ? null : id));
+    setToggleClick((prevId) => (prevId === id ? null : id))
     //// //console.log;
-    setSelectedVoiceId(item.name);
-  };
+    setSelectedVoiceId(item.name)
+  }
 
   const handleContinue = async () => {
     // e.preventDefaults();
     try {
-      setVoicesLoader(true);
-      let AuthToken = null;
-      let mainAgentId = null;
-      const localData = localStorage.getItem("User");
+      setVoicesLoader(true)
+      let AuthToken = null
+      let mainAgentId = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
 
-      const mainAgentData = localStorage.getItem("agentDetails");
+      const mainAgentData = localStorage.getItem('agentDetails')
       if (mainAgentData) {
-        const Data = JSON.parse(mainAgentData);
+        const Data = JSON.parse(mainAgentData)
         // //console.log;
-        mainAgentId = Data.id;
+        mainAgentId = Data.id
       }
 
-      const ApiPath = Apis.updateAgent;
+      const ApiPath = Apis.updateAgent
       // const ApiData = {}
-      const formData = new FormData();
+      const formData = new FormData()
       // //console.log;
-      formData.append("mainAgentId", mainAgentId);
+      formData.append('mainAgentId', mainAgentId)
       // return
-      formData.append("voiceId", selectedVoiceId);
+      formData.append('voiceId', selectedVoiceId)
 
       for (let [key, value] of formData.entries()) {
         // //console.log;
@@ -95,55 +114,71 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
           // "Content-Type": "application/json"
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
           // if (user.user.userType == UserTypes.RealEstateAgent) {
-          console.log("agent add voice response ", response.data.data)
+          console.log('agent add voice response ', response.data.data)
           //   router.push("/sellerskycquestions");
           // } else {
           //   // //console.log;
           //   router.push("/customerkycquestions");
           // }
 
-          router.push("/pipeline");
+          // Check if we came from admin/agency and have a return URL
+          const isFromAdminOrAgency = localStorage.getItem(
+            PersistanceKeys.isFromAdminOrAgency,
+          )
+          const returnUrl = localStorage.getItem(
+            PersistanceKeys.returnUrlAfterAgentCreation,
+          )
 
-          localStorage.removeItem("claimNumberData");
+          if (isFromAdminOrAgency && returnUrl) {
+            // Clean up the stored data
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+            localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+            // Redirect back to the saved URL
+            window.location.href = returnUrl
+          } else {
+            router.push('/pipeline')
+          }
+
+          localStorage.removeItem('claimNumberData')
         } else {
-          setVoicesLoader(false);
+          setVoicesLoader(false)
         }
       }
     } catch (error) {
       // console.error("ERror occured in api is error0", error);
-      setVoicesLoader(false);
+      setVoicesLoader(false)
     } finally {
     }
-  };
+  }
 
   const playVoice = (url) => {
     if (audio) {
-      audio.pause();
+      audio.pause()
     }
-    const ad = new Audio(url); // Create a new Audio object with the preview URL
-    ad.play();
-    setAudio(ad); // Play the audio
+    const ad = new Audio(url) // Create a new Audio object with the preview URL
+    ad.play()
+    setAudio(ad) // Play the audio
 
     // Handle when the audio ends
-    ad.addEventListener("ended", () => {
-      setPreview(null);
-    });
-  };
+    ad.addEventListener('ended', () => {
+      setPreview(null)
+    })
+  }
 
   const avatarImages = [
-    "/assets/avatar1.png",
-    "/assets/avatar2.png",
-    "/assets/avatar3.png",
+    '/assets/avatar1.png',
+    '/assets/avatar2.png',
+    '/assets/avatar3.png',
     // "/assets/avatar4.png",
     // "/assets/avatar5.png",
     // "/assets/avatar6.png",
@@ -151,135 +186,136 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     // "/assets/avatar8.png",
     // "/assets/avatar9.png",
     // "/assets/avatar10.png",
-  ];
+  ]
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#000000",
+      fontWeight: '500',
+      color: '#000000',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#00000070",
+      fontWeight: '500',
+      color: '#00000070',
     },
     callBackStyles: {
-      height: "71px",
-      width: "210px",
-      border: "1px solid #15151550",
-      borderRadius: "20px",
-      fontWeight: "600",
+      height: '71px',
+      width: '210px',
+      border: '1px solid #15151550',
+      borderRadius: '20px',
+      fontWeight: '600',
       fontSize: 15,
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   const getImageHeight = (item) => {
-    if (item.name === "Ava") {
-      return 50;
-    } else if (item.name === "Zane") {
-      return 50;
-    } else if (item.name === "Trinity") {
-      return 30;
-    } else if (item.name === "Dax") {
-      return 70;
-    } else if (item.name === "Mia") {
-      return 30;
-    } else if (item.name === "Kaia") {
-      return 30;
-    } else if (item.name === "Axel") {
-      return 30;
-    } else if (item.name === "Aria") {
-      return 60;
-    } else if (item.name === "Luna") {
-      return 50;
-    }else if(item.name === "Max") {
-      return 30;
+    console.log('item is', item.name)
+    if (item.name === 'Ava') {
+      return 50
+    } else if (item.name === 'Zane') {
+      return 50
+    } else if (item.name === 'Trinity') {
+      return 36 // Increased from 30
+    } else if (item.name === 'Dax') {
+      return 75 // Increased from 70
+    } else if (item.name === 'Mia') {
+      return 30
+    } else if (item.name === 'Kaia') {
+      return 30
+    } else if (item.name === 'Axel') {
+      return 28 // Reduced by 20% from 30
+    } else if (item.name === 'Aria') {
+      return 60
+    } else if (item.name === 'Luna') {
+      return 50
+    } else if (item.name === 'Max') {
+      return 26 // Reduced by 20% from 30
     }
 
-    return 70;
-  };
+    return 70
+  }
   const getImageWidth = (item) => {
-    if (item.name === "Ava") {
-      return 50;
-    } else if (item.name === "Zane") {
-      return 50;
-    } else if (item.name === "Trinity") {
-      return 55;
-    } else if (item.name === "Dax") {
-      return 60;
-    } else if (item.name === "Mia") {
-      return 55;
-    } else if (item.name === "Kaia") {
-      return 50;
-    } else if (item.name === "Axel") {
-      return 35;
-    } else if (item.name === "Aria") {
-      return 58;
-    } else if (item.name === "Luna") {
-      return 50;
-    }else if(item.name === "Max") {
-      return 40;
+    if (item.name === 'Ava') {
+      return 50
+    } else if (item.name === 'Zane') {
+      return 50
+    } else if (item.name === 'Trinity') {
+      return 62 // Increased from 55
+    } else if (item.name === 'Dax') {
+      return 65 // Increased from 60
+    } else if (item.name === 'Mia') {
+      return 55
+    } else if (item.name === 'Kaia') {
+      return 50
+    } else if (item.name === 'Axel') {
+      return 28 // Reduced by 20% from 35
+    } else if (item.name === 'Aria') {
+      return 58
+    } else if (item.name === 'Luna') {
+      return 50
+    } else if (item.name === 'Max') {
+      return 32 // Reduced by 20% from 40
     }
 
-    return 60;
-  };
+    return 60
+  }
 
   const addMarginTop = (item) => {
-    if (item.name === "Trinity") {
-      return 5;
-    } else if (item.name === "Dax") {
-      return 3;
-    } else if (item.name === "Axel") {
-      return 0;
-    } else if (item.name === "Niko") {
-      return 5;
-    } else if (item.name === "Lex") {
-      return 2;
-    } else if (item.name === "Xen") {
-      return 6;
-    } else if (item.name === "Elon") {
-      return 8;
-    } else if (item.name === "Aria") {
-      return 12;
+    if (item.name === 'Trinity') {
+      return 5
+    } else if (item.name === 'Dax') {
+      return 3
+    } else if (item.name === 'Axel') {
+      return 0
+    } else if (item.name === 'Niko') {
+      return 5
+    } else if (item.name === 'Lex') {
+      return 2
+    } else if (item.name === 'Xen') {
+      return 6
+    } else if (item.name === 'Elon') {
+      return 8
+    } else if (item.name === 'Aria') {
+      return 12
     }
 
-    return 0;
-  };
+    return 0
+  }
 
   const addMariginLeft = (item) => {
-    if (item.name === "Niko") {
-      return 4;
-    } else if (item.name === "Lex") {
-      return 4;
-    } else if (item.name === "Dax") {
-      return 3;
-    } else if (item.name === "Xen") {
-      return 6;
-    } else if (item.name === "Elon") {
-      return 5;
+    if (item.name === 'Niko') {
+      return 4
+    } else if (item.name === 'Lex') {
+      return 4
+    } else if (item.name === 'Dax') {
+      return 3
+    } else if (item.name === 'Xen') {
+      return 6
+    } else if (item.name === 'Elon') {
+      return 5
     }
-    return 0;
-  };
+    return 0
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between">
@@ -289,15 +325,18 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: "center" }}
+              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-40px' : undefined,
+              }}
             >
               Choose a voice for {agentDetails?.name}
             </div>
             <div className="w-full flex flex-row justify-center">
               <div
-                className="mt-8 w-6/12 gap-2 flex flex-col max-h-[53vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                style={{ scrollbarWidth: "none" }}
+                className="pt-8 w-6/12 gap-1 flex flex-col h-[52vh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                style={{ scrollbarWidth: 'none' }}
               >
                 {voices.map((item, index) => (
                   <button
@@ -305,14 +344,14 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     style={{
                       border:
                         item.name === selectedVoiceId
-                          ? "2px solid #7902DF"
-                          : "",
+                          ? '2px solid hsl(var(--brand-primary))'
+                          : '',
                       backgroundColor:
-                        item.name === selectedVoiceId ? "#402FFF10" : "",
+                        item.name === selectedVoiceId ? 'hsl(var(--brand-primary) / 0.1)' : '',
                     }}
-                    className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none"
+                    className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-2 rounded-xl outline-none"
                     onClick={(e) => {
-                      handleToggleClick(index, item);
+                      handleToggleClick(index, item)
                       // playVoice(item.preview);
                     }}
                   >
@@ -320,13 +359,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                       <div
                         className="flex flex-row items-center justify-center"
                         style={{
-                          height: "62px",
-                          width: "62px",
-                          borderRadius: "50%",
-                          backgroundColor:
-                            item.name === selectedVoiceId
-                              ? "white"
-                              : "#d3d3d380",
+                          height: '50px',
+                          width: '50px',
+                          borderRadius: '50%',
+                          // backgroundColor:
+                          //   item.name === selectedVoiceId
+                          //     ? 'white'
+                          //     : '#d3d3d380',
                         }}
                       >
                         {/* <Image src={"/assets/warning.png"} height={40} width={35} alt='*' /> */}
@@ -337,7 +376,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           width={getImageWidth(item)}
                           style={{
                             // backgroundColor:'red',
-                            borderRadius: "50%",
+                            borderRadius: '50%',
                             marginTop: addMarginTop(item),
                             marginLeft: addMariginLeft(item),
                           }}
@@ -349,12 +388,12 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           className="text-start flex flex-row items-center gap-2"
                           style={{
                             fontSize: 17,
-                            fontWeight: "700",
+                            fontWeight: '700',
                           }}
                         >
                           {item.name}
                           {item.status && (
-                            <div className="text-start text-white text-sm font-[500] bg-purple rounded-full px-2 w-fit-content">
+                            <div className="text-start text-white text-sm font-[500] bg-brand-primary rounded-full px-2 w-fit-content">
                               {item.status}
                             </div>
                           )}
@@ -362,7 +401,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                         <div
                           style={{
                             fontSize: 14,
-                            fontWeight: "500",
+                            fontWeight: '500',
                           }}
                         >
                           {item.Dialect}
@@ -372,7 +411,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     <div className="flex flex-row items-center gap-4">
                       <div>
                         <Image
-                          src={"/assets/voice.png"}
+                          src={'/assets/voice.png'}
                           height={15}
                           width={23}
                           alt="*"
@@ -384,11 +423,10 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                             <div
                               onClick={() => {
                                 if (audio) {
-                                  audio.pause();
-                                  audio.removeEventListener("ended", () => { });
-
+                                  audio.pause()
+                                  audio.removeEventListener('ended', () => {})
                                 }
-                                setPreview(null);
+                                setPreview(null)
                               }}
                             >
                               <PauseCircle size={38} weight="regular" />
@@ -396,12 +434,12 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           ) : (
                             <div
                               onClick={(e) => {
-                                setPreview(item.preview);
-                                playVoice(item.preview);
+                                setPreview(item.preview)
+                                playVoice(item.preview)
                               }}
                             >
                               <Image
-                                src={"/assets/play.png"}
+                                src={'/assets/play.png'}
                                 height={25}
                                 width={25}
                                 alt="*"
@@ -413,11 +451,11 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                         <div>
                           <div
                             onClick={(e) => {
-                              setShowNoAudioModal(item);
+                              setShowNoAudioModal(item)
                             }}
                           >
                             <Image
-                              src={"/assets/play.png"}
+                              src={'/assets/play.png'}
                               height={25}
                               width={25}
                               alt="*"
@@ -448,7 +486,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           BackdropProps={{
             timeout: 1000,
             sx: {
-              backgroundColor: "#00000020",
+              backgroundColor: '#00000020',
               // //backdropFilter: "blur(20px)",
             },
           }}
@@ -458,19 +496,19 @@ const CreateAgentVoice = ({ handleBack, user }) => {
               <div
                 className="sm:w-full w-full"
                 style={{
-                  backgroundColor: "#ffffff",
+                  backgroundColor: '#ffffff',
                   padding: 20,
-                  borderRadius: "13px",
+                  borderRadius: '13px',
                 }}
               >
                 <div className="flex flex-row justify-end">
                   <button
                     onClick={() => {
-                      setShowNoAudioModal(null);
+                      setShowNoAudioModal(null)
                     }}
                   >
                     <Image
-                      src={"/assets/crossIcon.png"}
+                      src={'/assets/crossIcon.png'}
                       height={40}
                       width={40}
                       alt="*"
@@ -480,13 +518,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
 
                 <div
                   className="text-center sm:font-24 font-16"
-                  style={{ fontWeight: "700" }}
+                  style={{ fontWeight: '700' }}
                 >
                   Learn more about assigning leads
                 </div>
 
                 <div className="mt-6 text-red text-center font-[600] text-xl">
-                  No voice added by{" "}
+                  No voice added by{' '}
                   <span className="underline">{showNoAudioModal?.name}</span>
                 </div>
 
@@ -511,7 +549,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CreateAgentVoice;
+export default CreateAgentVoice

@@ -1,52 +1,47 @@
-"use client";
-import React, { Suspense, useEffect, useState } from "react";
+'use client'
 
-import MyAccount from "@/components/myAccount/MyAccount";
-import SubAccountMyAccount from "@/components/dashboard/subaccount/myAccount/SubAccountMyAccount";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress } from '@mui/material'
+import React, { Suspense, useEffect, useState } from 'react'
+
+import SubAccountMyAccount from '@/components/dashboard/subaccount/myAccount/SubAccountMyAccount'
+import MyAccount from '@/components/myAccount/MyAccount'
+
 function Page() {
+  const [role, setRole] = useState('')
+  const [roleLoader, setRoleLoader] = useState(true)
 
-    const [role, setRole] = useState("");
-    const [roleLoader, setRoleLoader] = useState(true);
+  useEffect(() => {
+    const checkUserType = () => {
+      const data = localStorage.getItem('User')
+      if (data) {
+        let u = JSON.parse(data)
 
-    useEffect(() => {
-        const checkUserType = () => {
-            const data = localStorage.getItem("User")
-            if (data) {
-                let u = JSON.parse(data)
+        console.log('u.user.userRole', u.user.userRole)
+        setRole(u.user.userRole)
+        setRoleLoader(false)
+      }
+    }
 
-                console.log('u.user.userRole', u.user.userRole)
-                setRole(u.user.userRole);
-                setRoleLoader(false);
-            }
-        }
+    checkUserType()
+  }, [])
 
-        checkUserType()
-    }, [])
-
-    return (
-        <Suspense>
-            {
-                roleLoader ? (
-                    <div className="h-screen w-full flex flex-row items-center justify-center">
-                        <CircularProgress
-                            size={45}
-                        />
-                    </div>
-                ) : (
-                    <div>
-                        {
-                            role && role === "AgencySubAccount" ? (
-                                <SubAccountMyAccount />
-                            ) : (
-                                <MyAccount />
-                            )
-                        }
-                    </div>
-                )
-            }
-        </Suspense>
-    );
+  return (
+    <Suspense>
+      {roleLoader ? (
+        <div className="h-screen w-full flex flex-row items-center justify-center">
+          <CircularProgress size={45} />
+        </div>
+      ) : (
+        <div>
+          {role && role === 'AgencySubAccount' ? (
+            <SubAccountMyAccount />
+          ) : (
+            <MyAccount />
+          )}
+        </div>
+      )}
+    </Suspense>
+  )
 }
 
-export default Page;
+export default Page

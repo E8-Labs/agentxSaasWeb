@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from 'next/image'
 
 const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
   return (
@@ -6,14 +6,14 @@ const AgentInfoCard = ({ name, value, icon, bgColor, iconColor }) => {
       {/* Icon */}
       <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
 
-      <div style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
+      <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}
       </div>
-      <div style={{ fontSize: 20, fontWeight: "600", color: "#000" }}>
+      <div style={{ fontSize: 20, fontWeight: '600', color: '#000' }}>
         {value}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AgentInfoCard;
+export default AgentInfoCard

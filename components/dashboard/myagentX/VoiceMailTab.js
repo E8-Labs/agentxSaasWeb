@@ -1,21 +1,24 @@
-import React, { useEffect, useState } from 'react'
-import NoVoicemailView from './NoVoicemailView'
+import { Box, Modal } from '@mui/material'
+import { PauseCircle, PlayCircle } from '@phosphor-icons/react'
+import axios from 'axios'
 import Image from 'next/image'
-import AddVoiceMail from './AddVoiceMail'
-import { PauseCircle, PlayCircle } from "@phosphor-icons/react";
-import voicesList from '@/components/createagent/Voices';
-import { Box, Modal } from '@mui/material';
-import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
-import { PersistanceKeys } from '@/constants/Constants';
-import axios from 'axios';
-import Apis from '@/components/apis/Apis';
-import EditVoicemailModal from './EditVoicemailModal';
-import { getAgentsListImage } from '@/utilities/agentUtilities';
-import { getUserLocalData } from '@/components/constants/constants';
-import UpgradeModal from '@/constants/UpgradeModal';
-import getProfileDetails from '@/components/apis/GetProfile';
-import UpgardView from '@/constants/UpgardView';
+import React, { useEffect, useState } from 'react'
 
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import { getUserLocalData } from '@/components/constants/constants'
+import voicesList from '@/components/createagent/Voices'
+import { PersistanceKeys } from '@/constants/Constants'
+import UpgardView from '@/constants/UpgardView'
+import UpgradeModal from '@/constants/UpgradeModal'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
+
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../leads/AgentSelectSnackMessage'
+import AddVoiceMail from './AddVoiceMail'
+import EditVoicemailModal from './EditVoicemailModal'
+import NoVoicemailView from './NoVoicemailView'
 
 function VoiceMailTab({
   agent,
@@ -25,7 +28,6 @@ function VoiceMailTab({
   uniqueColumns,
   selectedUser = null,
 }) {
-
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
   // console.log('agent', agent)
 
@@ -41,57 +43,54 @@ function VoiceMailTab({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
+    message: '',
+    isVisible: false,
   })
 
-
   useEffect(() => {
-    if(selectedUser){
+    if (selectedUser) {
       setUser(selectedUser)
-    }else{
+    } else {
       let data = getUserLocalData()
       setUser(data.user)
     }
   }, [selectedUser])
 
-
-
   const playVoice = (url) => {
     // console.log('url', url)
     if (isPlaying) {
-      audio.pause();
-      audio.currentTime = 0; // Reset to the start
+      audio.pause()
+      audio.currentTime = 0 // Reset to the start
     }
 
-    const ad = new Audio(url);
-    ad.play().then(() => {
-      setIsPlaying(true);
-      setAudio(ad);
-    }).catch((error) => {
-      console.error('Error playing audio:', error);
-      setIsPlaying(false);
-    });
+    const ad = new Audio(url)
+    ad.play()
+      .then(() => {
+        setIsPlaying(true)
+        setAudio(ad)
+      })
+      .catch((error) => {
+        console.error('Error playing audio:', error)
+        setIsPlaying(false)
+      })
 
     ad.onended = () => {
-      setIsPlaying(false);
-    };
-  };
-
+      setIsPlaying(false)
+    }
+  }
 
   const voices = [
     {
       id: 1,
-      name: "Ava",
-      voice_id: "SJzBm6fWJCplrpPNzyCV",
-      preview: "/voicesList/Ava.MP3",
-
-    }, {
+      name: 'Ava',
+      voice_id: 'SJzBm6fWJCplrpPNzyCV',
+      preview: '/voicesList/Ava.MP3',
+    },
+    {
       id: 2,
-      name: "Axel",
-      voice_id: "NmfK18brFwCqDBtJ04tW",//Pvvx65MwYBsyOsxiwygJ
-      preview: "/voicesList/Axel.MP3",
-
+      name: 'Axel',
+      voice_id: 'NmfK18brFwCqDBtJ04tW', //Pvvx65MwYBsyOsxiwygJ
+      preview: '/voicesList/Axel.MP3',
     },
   ]
 
@@ -102,13 +101,13 @@ function VoiceMailTab({
     //   return
     // }
     if (!data.message) {
-      setShowMessage("Enter voicemail")
+      setShowMessage('Enter voicemail')
       setMessageType(SnackbarTypes.Error)
       return
     }
     setLoading(true)
     try {
-      const d = localStorage.getItem("User")
+      const d = localStorage.getItem('User')
 
       if (d) {
         let u = JSON.parse(d)
@@ -118,14 +117,13 @@ function VoiceMailTab({
           agentType: data.agentType,
           voice: data.voiceId,
           agentId: agent.id,
-
         }
-        if(selectedUser){
+        if (selectedUser) {
           apidata.userId = selectedUser.id
         }
         let response = await axios.post(Apis.setVoicemaeil, apidata, {
           headers: {
-            "Authorization": "Bearer " + u.token
+            Authorization: 'Bearer ' + u.token,
           },
         })
 
@@ -135,51 +133,40 @@ function VoiceMailTab({
             setShowMessage(response.data.message)
             setMessageType(SnackbarTypes.Success)
 
-
-
-
             const localAgentsList = localStorage.getItem(
-              PersistanceKeys.LocalStoredAgentsListMain
-            );
+              PersistanceKeys.LocalStoredAgentsListMain,
+            )
 
-            let agentsListDetails = [];
+            let agentsListDetails = []
 
             if (localAgentsList) {
-              const agentsList = JSON.parse(localAgentsList);
+              const agentsList = JSON.parse(localAgentsList)
               // agentsListDetails = agentsList;
               agent.voicemail = response.data.data
 
               const updatedArray = agentsList.map((localItem) => {
-                const updatedAgents = localItem.agents.map(item => {
-                  return agent.id === item.id ? { ...item, ...agent } : item;
-                });
+                const updatedAgents = localItem.agents.map((item) => {
+                  return agent.id === item.id ? { ...item, ...agent } : item
+                })
 
-                return { ...localItem, agents: updatedAgents };
-              });
+                return { ...localItem, agents: updatedAgents }
+              })
 
               // let updatedSubAgent = nul
 
               setShowDrawerSelectedAgent(agent)
-
-
 
               //// //console.log;
               // console.log('updateAgentData', agent)
               // console.log('updatedArray', updatedArray)
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
-                JSON.stringify(updatedArray)
-              );
-              setMainAgentsList(updatedArray);
-
+                JSON.stringify(updatedArray),
+              )
+              setMainAgentsList(updatedArray)
             }
 
-
             setShowAddNewPopup(false)
-
-
-
-
           } else {
             setShowMessage(response.data.message)
             setMessageType(SnackbarTypes.Error)
@@ -189,27 +176,25 @@ function VoiceMailTab({
     } catch (e) {
       setLoading(false)
       console.log('error in set voice mail', e)
-    }
-    finally {
+    } finally {
       setLoading(false)
     }
   }
 
   const updateVoicemail = async (data) => {
-
     // if (!data.voiceId) {
     //   setShowMessage("Select a voice")
     //   setMessageType(SnackbarTypes.Error)
     //   return
     // }
     if (!data.message) {
-      setShowMessage("Enter voicemail")
+      setShowMessage('Enter voicemail')
       setMessageType(SnackbarTypes.Error)
       return
     }
     setLoading2(true)
     try {
-      const d = localStorage.getItem("User")
+      const d = localStorage.getItem('User')
 
       if (d) {
         let u = JSON.parse(d)
@@ -218,11 +203,11 @@ function VoiceMailTab({
           message: data.message,
           voicemailId: agent.voicemail.id,
           voice: data.voiceId,
-          agentId: agent.id
+          agentId: agent.id,
         }
         let response = await axios.post(Apis.updateVoicemail, apidata, {
           headers: {
-            "Authorization": "Bearer " + u.token
+            Authorization: 'Bearer ' + u.token,
           },
         })
 
@@ -232,51 +217,40 @@ function VoiceMailTab({
             setShowMessage(response.data.message)
             setMessageType(SnackbarTypes.Success)
 
-
-
-
             const localAgentsList = localStorage.getItem(
-              PersistanceKeys.LocalStoredAgentsListMain
-            );
+              PersistanceKeys.LocalStoredAgentsListMain,
+            )
 
-            let agentsListDetails = [];
+            let agentsListDetails = []
 
             if (localAgentsList) {
-              const agentsList = JSON.parse(localAgentsList);
+              const agentsList = JSON.parse(localAgentsList)
               // agentsListDetails = agentsList;
               agent.voicemail = response.data.data
 
               const updatedArray = agentsList.map((localItem) => {
-                const updatedAgents = localItem.agents.map(item => {
-                  return agent.id === item.id ? { ...item, ...agent } : item;
-                });
+                const updatedAgents = localItem.agents.map((item) => {
+                  return agent.id === item.id ? { ...item, ...agent } : item
+                })
 
-                return { ...localItem, agents: updatedAgents };
-              });
+                return { ...localItem, agents: updatedAgents }
+              })
 
               // let updatedSubAgent = nul
 
               setShowDrawerSelectedAgent(agent)
-
-
 
               //// //console.log;
               // console.log('updateAgentData', agent)
               // console.log('updatedArray', updatedArray)
               localStorage.setItem(
                 PersistanceKeys.LocalStoredAgentsListMain,
-                JSON.stringify(updatedArray)
-              );
-              setMainAgentsList(updatedArray);
-
+                JSON.stringify(updatedArray),
+              )
+              setMainAgentsList(updatedArray)
             }
 
-
             setShowEditPopup(false)
-
-
-
-
           } else {
             setShowMessage(response.data.message)
             setMessageType(SnackbarTypes.Error)
@@ -286,8 +260,7 @@ function VoiceMailTab({
     } catch (e) {
       setLoading2(false)
       console.log('error in set voice mail', e)
-    }
-    finally {
+    } finally {
       setLoading2(false)
     }
   }
@@ -297,84 +270,98 @@ function VoiceMailTab({
     if (voice.length > 0) {
       return voice[0].name
     } else {
-      return "Ava"
+      return 'Ava'
     }
   }
 
-
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showMessage != null && !showAddNewPopup && !showEditPopup ? true : false}
-        message={showMessage} type={messageType} hide={() => {
-          setShowMessage(null);
+      <AgentSelectSnackMessage
+        isVisible={
+          showMessage != null && !showAddNewPopup && !showEditPopup
+            ? true
+            : false
+        }
+        message={showMessage}
+        type={messageType}
+        hide={() => {
+          setShowMessage(null)
         }}
       />
       <AgentSelectSnackMessage
         message={showSnackMsg.message}
         type={showSnackMsg.type}
         isVisible={showSnackMsg.isVisible}
-        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        hide={() =>
+          setShowSnackMsg({ type: null, message: '', isVisible: false })
+        }
       />
-      {
-        agent?.voicemail == null ? (
-          user?.agencyCapabilities?.allowVoicemail === false ? (
-
-            <UpgardView
-              title={"Enable Voicemail"}
-              subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
-              setShowSnackMsg={setShowSnackMsg}
-            />
-          ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
-            <UpgardView
-              title={"Enable Voicemail"}
-              subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
-              setShowSnackMsg={setShowSnackMsg}
-            />
-          ) : (
-            <NoVoicemailView
-              openModal={() => {
-                if (user?.planCapabilities.allowVoicemailSettings) {
-                  setShowAddNewPopup(true)
-                } else {
-                  setShowUpgradeModal(true)
-                }
-                // console.log('open')
-              }}
-              showAddBtn={true}
-            />
-          )
-
+      {agent?.voicemail == null ? (
+        user?.agencyCapabilities?.allowVoicemail === false ? (
+          <UpgardView
+            title={'Enable Voicemail'}
+            subTitle={
+              'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
+            }
+            setShowSnackMsg={setShowSnackMsg}
+          />
+        ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
+          <UpgardView
+            title={'Enable Voicemail'}
+            subTitle={
+              'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
+            }
+            setShowSnackMsg={setShowSnackMsg}
+          />
         ) : (
-          <div className='w-full flex flex-col gap-3 items-center'>
-            <div className='w-full flex flex-row items-center justify-between mt-2'>
-              <div style={{ fontSize: 22, fontWeight: '700' }}>
-                Voicemail
-              </div>
+          <NoVoicemailView
+            openModal={() => {
+              if (user?.planCapabilities.allowVoicemailSettings) {
+                setShowAddNewPopup(true)
+              } else {
+                setShowUpgradeModal(true)
+              }
+              // console.log('open')
+            }}
+            showAddBtn={true}
+          />
+        )
+      ) : (
+        <div className="w-full flex flex-col gap-3 items-center">
+          <div className="w-full flex flex-row items-center justify-between mt-2">
+            <div style={{ fontSize: 22, fontWeight: '700' }}>Voicemail</div>
 
-              <button
-                onClick={() => {
-                  setShowEditPopup(true)
-                }}
-              >
-                <Image src={"/svgIcons/editIconPurple.svg"}
-                  height={24} width={24} alt='*'
-                />
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setShowEditPopup(true)
+              }}
+            >
+              <Image
+                src={'/svgIcons/editIconPurple.svg'}
+                height={24}
+                width={24}
+                alt="*"
+              />
+            </button>
+          </div>
 
-            <div className='w-full' style={{
-              fontSize: 14, fontWeight: '500'
-            }}>
-              {agent.voicemail?.message}
-            </div>
-            {/* <div className='w-full flex flex-row items-center justify-between mt-2'>
+          <div
+            className="w-full"
+            style={{
+              fontSize: 14,
+              fontWeight: '500',
+            }}
+          >
+            {agent.voicemail?.message}
+          </div>
+          {/* <div className='w-full flex flex-row items-center justify-between mt-2'>
               <div style={{ fontSize: 15, fontWeight: '500' }}>
                 Voice
               </div>
 
               <div className='flex flex-row items-center'>
 
-                <div className='text-purple' style={{ fontSize: 15, fontWeight: '500' }}>
+                <div className='text-brand-primary' style={{ fontSize: 15, fontWeight: '500' }}>
                   {getVoiceName(agent?.voicemail.voiceId)}
                 </div>
 
@@ -412,26 +399,22 @@ function VoiceMailTab({
                 </div>
               </div>
             </div> */}
-          </div>
-        )
-
-      }
-      {
-        showAddNewPopup && (
-          <AddVoiceMail
-            showAddNewPopup={showAddNewPopup}
-            setShowAddNewPopup={setShowAddNewPopup}
-            agent={agent}
-            addVoiceMail={(data) => saveVoiceMail(data)}
-            loading={loading}
-            showMessage={showMessage}
-            setShowMessage={setShowMessage}
-            messageType={messageType}
-            kycsData={kycsData}
-            uniqueColumns={uniqueColumns}
-          />
-        )
-      }
+        </div>
+      )}
+      {showAddNewPopup && (
+        <AddVoiceMail
+          showAddNewPopup={showAddNewPopup}
+          setShowAddNewPopup={setShowAddNewPopup}
+          agent={agent}
+          addVoiceMail={(data) => saveVoiceMail(data)}
+          loading={loading}
+          showMessage={showMessage}
+          setShowMessage={setShowMessage}
+          messageType={messageType}
+          kycsData={kycsData}
+          uniqueColumns={uniqueColumns}
+        />
+      )}
 
       <EditVoicemailModal
         showEditPopup={showEditPopup}
@@ -452,10 +435,9 @@ function VoiceMailTab({
         handleClose={() => {
           setShowUpgradeModal(false)
         }}
-
-        title={"Unlock voicemail"}
-        subTitle={"Upgrade to unlock voice mail feature"}
-        buttonTitle={"No Thanks"}
+        title={'Unlock voicemail'}
+        subTitle={'Upgrade to unlock voice mail feature'}
+        buttonTitle={'No Thanks'}
       />
     </div>
   )
@@ -465,14 +447,14 @@ export default VoiceMailTab
 
 const styles = {
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
 }

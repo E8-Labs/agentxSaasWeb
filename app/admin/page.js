@@ -1,12 +1,14 @@
-"use client";
-import AdminContainer from '@/components/admin/AdminContainer';
+'use client'
+
 import React, { Suspense } from 'react'
+
+import AdminContainer from '@/components/admin/AdminContainer'
 
 function page() {
   return (
-   <Suspense>
-    <AdminContainer />
-   </Suspense>
+    <Suspense>
+      <AdminContainer />
+    </Suspense>
   )
 }
 

@@ -1,12 +1,26 @@
-import React, { useState, useEffect } from 'react'
-import { FormControl, Select, MenuItem, Button, CircularProgress } from '@mui/material'
-import LabelingHeader from './LabelingHeader'
+import {
+  Button,
+  CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+} from '@mui/material'
 import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+
 import Apis from '../../apis/Apis'
-import { AuthToken } from '../plan/AuthDetails'
-import { connectGmailAccount, deleteAccount } from '../../pipeline/TempleteServices'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../../dashboard/leads/AgentSelectSnackMessage'
 import { Scopes } from '../../dashboard/myagentX/Scopes'
-import AgentSelectSnackMessage, { SnackbarTypes } from '../../dashboard/leads/AgentSelectSnackMessage'
+import {
+  connectGmailAccount,
+  deleteAccount,
+} from '../../pipeline/TempleteServices'
+import { AuthToken } from '../plan/AuthDetails'
+import LabelingHeader from './LabelingHeader'
+import { generateOAuthState } from '@/utils/oauthState'
+import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
 const EmailConfig = () => {
   // Mail account state
@@ -55,21 +69,55 @@ const EmailConfig = () => {
   }
 
   // Google OAuth handler
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
 
+    // Get agency custom domain from API
+    const { agencyId, customDomain, subaccountId } = await getAgencyCustomDomain()
+
+    // Also check if current hostname is a custom domain or subdomain
+    const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
+    const isCustomDomain = currentHostname && 
+      !currentHostname.includes('app.assignx.ai') && 
+      !currentHostname.includes('dev.assignx.ai') &&
+      !currentHostname.includes('localhost') &&
+      !currentHostname.includes('127.0.0.1')
+
+    // Always use current domain to avoid cross-domain redirects
+    // If on custom domain, use it. If on dev/app.assignx.ai, use that instead of custom domain from DB
+    // This ensures state is always generated and popup context is preserved
+    const domainToUse = currentHostname
+
+    // Generate state parameter if we have a domain to redirect back to
+    let stateParam = null
+    if (domainToUse && agencyId) {
+      stateParam = generateOAuthState({
+        agencyId,
+        customDomain: domainToUse,
+        provider: 'google',
+        subaccountId: subaccountId, // Include subaccountId if user is a subaccount
+        originalRedirectUri: null,
+      })
+    }
+
+    const params = new URLSearchParams({
+      client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'code',
+      scope: Scopes.join(' '),
+      access_type: 'offline',
+      prompt: 'consent',
+    })
+
+    // Add state parameter only if we have it (custom domain flow)
+    if (stateParam) {
+      params.set('state', stateParam)
+    }
+
     const oauthUrl =
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      new URLSearchParams({
-        client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        redirect_uri: REDIRECT_URI,
-        response_type: 'code',
-        scope: Scopes.join(' '),
-        access_type: 'offline',
-        prompt: 'consent',
-      }).toString()
+      `https://accounts.google.com/o/oauth2/v2/auth?` + params.toString()
 
     const popup = window.open(oauthUrl, '_blank', 'width=500,height=600')
 
@@ -106,14 +154,17 @@ const EmailConfig = () => {
 
             if (response && response.data && response.data.status == true) {
               setShowSnack({
-                message: response.data.message || 'Gmail account connected successfully',
+                message:
+                  response.data.message ||
+                  'Gmail account connected successfully',
                 type: SnackbarTypes.Success,
               })
               // Refresh mail account data
               await fetchAgencyMailAccount()
             } else {
               setShowSnack({
-                message: response?.data?.message || 'Failed to connect Google account',
+                message:
+                  response?.data?.message || 'Failed to connect Google account',
                 type: SnackbarTypes.Error,
               })
             }
@@ -139,7 +190,7 @@ const EmailConfig = () => {
     try {
       setLoading(true)
       const response = await deleteAccount(mailAccount)
-      
+
       if (response && response.data && response.data.status) {
         setShowSnack({
           message: 'Gmail account disconnected successfully',
@@ -169,7 +220,9 @@ const EmailConfig = () => {
       <LabelingHeader
         img={'/agencyIcons/email.png'}
         title={'Configure your email'}
-        description={'Connect your Gmail account to send billing emails to subaccounts.'}
+        description={
+          'Connect your Gmail account to send billing emails to subaccounts.'
+        }
       />
 
       {/* Gmail Account Connection */}
@@ -182,7 +235,7 @@ const EmailConfig = () => {
 
             {loading ? (
               <div className="w-full flex justify-center py-8">
-                <CircularProgress size={24} />
+                <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : mailAccount ? (
               <div className="w-full">
@@ -215,20 +268,22 @@ const EmailConfig = () => {
                   </div>
                 </div>
                 <div className="mt-3 text-[#00000060]" style={styles.small}>
-                  Billing emails to subaccounts will be sent from this Gmail account.
+                  Billing emails to subaccounts will be sent from this Gmail
+                  account.
                 </div>
               </div>
             ) : (
               <div className="w-full">
                 <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
                   <div className="text-start mb-4" style={styles.small}>
-                    No Gmail account connected. Connect your Gmail account to send billing
-                    emails to subaccounts from your own email address.
+                    No Gmail account connected. Connect your Gmail account to
+                    send billing emails to subaccounts from your own email
+                    address.
                   </div>
                   <button
                     onClick={handleGoogleAuth}
                     disabled={connecting}
-                    className="bg-purple text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="bg-brand-primary text-white rounded-lg px-4 py-2 font-medium text-base hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {connecting ? (
                       <>

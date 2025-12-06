@@ -169,6 +169,70 @@ export const DEFAULT_TERMS_TEXT = `
 <p>For any concerns or issues related to our promotional and reminder communications, please contact us at hello@assignx.ai.</p>
 `
 
+export const DEFAULT_CANCELLATION_REFUND_TEXT = `
+<h2>Cancellation & Refund Policy</h2>
+<p>At AssignX, we offer a flexible subscription model designed to support business growth while ensuring clarity and fairness in our terms. By subscribing to our services, you agree to the following cancellation and refund policy:</p>
+
+<h3>1. Monthly Subscriptions</h3>
+<p>Customers may cancel their monthly subscription at any time prior to the renewal date through the AssignX account dashboard.</p>
+<ul>
+  <li>Cancellations submitted via email, SMS, or support chat will not be accepted as formal cancellations. All cancellations must be completed within the platform.</li>
+  <li>Upon initiating a cancellation, your subscription will terminate immediately, and access to all services, call credits, and platform tools will be immediately revoked.</li>
+  <li>There is no penalty for canceling a monthly subscription.</li>
+</ul>
+
+<h4>Refund Policy:</h4>
+<ul>
+  <li>If a refund is requested within 7 days of the end of the free trial, AssignX reserves the right to refund up to 50% of the payment in dispute, based on service usage and support delivered.</li>
+  <li>No refunds will be issued for cancellations made mid-billing cycle. Any unused AI talk time or platform credits will be forfeited.</li>
+  <li>Chargebacks filed without prior communication may result in permanent suspension of the account and legal pursuit to recover associated platform and service costs.</li>
+</ul>
+
+<h3>2. XBar Setup Fees</h3>
+<ul>
+  <li>All XBar Setup Fees are non-refundable once billed, regardless of usage or campaign outcomes.</li>
+  <li>This fee covers the cost of onboarding, custom AI configuration, script optimization, CRM or dialer integration, and team allocation. As such, it represents a one-time service charge that cannot be reversed once work begins.</li>
+  <li>By submitting payment for the XBar Setup, you acknowledge and agree that the service is considered rendered and consumed upon initiation of setup, and no partial or full refunds will be issued under any circumstances.</li>
+</ul>
+
+<h3>3. Free Trial Period</h3>
+<ul>
+  <li>Each new subscription is eligible for a 7-day OR 30 Min free trial, whichever comes first.</li>
+  <li>After the trial ends, customers will be billed automatically unless a cancellation is submitted through the dashboard prior to the end of the 7-day trial.</li>
+  <li>Once billing occurs, our standard refund terms apply.</li>
+</ul>
+
+<h3>4. Smart Refills (Pay-as-you-go)</h3>
+<ul>
+  <li>Customers on pay-as-you-go or usage-based plans (e.g., AI talk-time credits) are billed in real-time based on consumption.</li>
+  <li>Smart Refills are enabled by default to ensure uninterrupted AI calling. When active, Smart Refills automatically top up your minutes when your balance runs low before your next renewal date.</li>
+  <li>Customers have full control to enable or disable Smart Refills at any time via their account settings. If Smart Refills are disabled and the balance reaches zero, AI operations will pause until additional credits are manually added or the subscription renews.</li>
+  <li>All credits purchased—whether manually or through Smart Refills—are non-refundable, even if unused, unless a confirmed technical fault or system error occurred, as validated by our support team.</li>
+  <li>It is the customer's responsibility to monitor credit usage, enable/disable Smart Refills accordingly, and manage their talk-time preferences to ensure service continuity.</li>
+</ul>
+
+<h3>5. Account Reinstatement</h3>
+<ul>
+  <li>Customers may reinstate their account after cancellation; however, AssignX makes no guarantee of data retention.</li>
+  <li>Any leads, recordings, campaign history, or AI scripts associated with the canceled account will be permanently deleted and unrecoverable.</li>
+  <li>Reinstated users will be treated as new customers and must undergo onboarding again.</li>
+</ul>
+
+<h3>6. Dispute Resolution</h3>
+<ul>
+  <li>In the event of a dispute related to billing, cancellation, or refunds, customers must contact our support team at hello@assignx.ai within 7 days of the transaction.</li>
+  <li>Our goal is to resolve disputes promptly and fairly. However, AssignX retains full discretion in final decisions regarding refunds or account reinstatement.</li>
+</ul>
+
+<h3>7. Agreement Acknowledgement</h3>
+<p>By subscribing, using, or accessing the AssignX platform, you confirm that you have read, understood, and agreed to:</p>
+<ul>
+  <li>The AssignX Terms & Conditions</li>
+  <li>The AssignX Privacy Policy</li>
+  <li>This Cancellation & Refund Policy</li>
+</ul>
+`
+
 export const DEFAULT_PRIVACY_POLICY_TEXT = `
 <h2>Privacy Policy</h2>
 <p><strong>Updated Date: Aug 2, 2025</strong></p>

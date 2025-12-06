@@ -1,166 +1,167 @@
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import { CaretDown, CaretUp, DotsThree } from "@phosphor-icons/react";
-import axios from "axios";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import Apis from "../apis/Apis";
-import AddSellerKyc from "./AddSellerKyc";
-import AddBuyerKyc from "./AddBuyerKyc";
-import UserType from "../onboarding/UserType";
-import { UserTypes } from "@/constants/UserTypes";
-import IntroVideoModal from "../createagent/IntroVideoModal";
-import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos, HowToVideoTypes } from "@/constants/Constants";
-import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import { CaretDown, CaretUp, DotsThree } from '@phosphor-icons/react'
+import axios from 'axios'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
+import { UserTypes } from '@/constants/UserTypes'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+
+import Apis from '../apis/Apis'
+import IntroVideoModal from '../createagent/IntroVideoModal'
+import VideoCard from '../createagent/VideoCard'
+import UserType from '../onboarding/UserType'
+import AddBuyerKyc from './AddBuyerKyc'
+import AddSellerKyc from './AddSellerKyc'
 
 const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [BuyerAnchor, setBuyerAnchor] = useState(null);
-  const [kycsData, setKycsData] = useState([]);
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [BuyerAnchor, setBuyerAnchor] = useState(null)
+  const [kycsData, setKycsData] = useState([])
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
   // //console.log
-  const openBuyerKyc = Boolean(BuyerAnchor);
-  const buyerId = openBuyerKyc ? "buyer-popover" : undefined;
-  const [selectedKyc, setSelectedKyc] = useState(null);
+  const openBuyerKyc = Boolean(BuyerAnchor)
+  const buyerId = openBuyerKyc ? 'buyer-popover' : undefined
+  const [selectedKyc, setSelectedKyc] = useState(null)
 
   //seller kyc data
-  const [SellerNeedData, setSellerNeedData] = useState([]);
-  const [showSellerNeedData, setShowSellerNeedData] = useState(false);
-  const [SellerMotivationData, setSellerMotivationData] = useState([]);
+  const [SellerNeedData, setSellerNeedData] = useState([])
+  const [showSellerNeedData, setShowSellerNeedData] = useState(false)
+  const [SellerMotivationData, setSellerMotivationData] = useState([])
   const [showSellerMotivationData, setShowSellerMotivationData] =
-    useState(false);
-  const [SellerUrgencyData, setSellerUrgencyData] = useState([]);
-  const [showSellerUrgencyData, setShowSellerUrgencyData] = useState(false);
-  const [addSellerKyc, setAddSellerKyc] = useState(false);
+    useState(false)
+  const [SellerUrgencyData, setSellerUrgencyData] = useState([])
+  const [showSellerUrgencyData, setShowSellerUrgencyData] = useState(false)
+  const [addSellerKyc, setAddSellerKyc] = useState(false)
 
   //directly open the desired add seeler question tab
-  const [OpenSellerNeeds, setOpenSellerNeeds] = useState(false);
-  const [OpenSelerMotivation, setOpenSelerMotivation] = useState(false);
-  const [OpenSellerUrgency, setOpenSellerUrgency] = useState(false);
+  const [OpenSellerNeeds, setOpenSellerNeeds] = useState(false)
+  const [OpenSelerMotivation, setOpenSelerMotivation] = useState(false)
+  const [OpenSellerUrgency, setOpenSellerUrgency] = useState(false)
 
   // //console.log
 
   //buyer kyc data
-  const [BuyerNeedData, setBuyerNeedData] = useState([]);
-  const [showBuyerNeedData, setShowBuyerNeedData] = useState(false);
-  const [BuyerMotivationData, setBuyerMotivationData] = useState([]);
-  const [showBuyerMotivationData, setShowBuyerMotivationData] = useState(false);
-  const [BuyerUrgencyData, setBuyerUrgencyData] = useState([]);
-  const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false);
-  const [addBuyerKyc, setAddBuyerKyc] = useState(false);
+  const [BuyerNeedData, setBuyerNeedData] = useState([])
+  const [showBuyerNeedData, setShowBuyerNeedData] = useState(false)
+  const [BuyerMotivationData, setBuyerMotivationData] = useState([])
+  const [showBuyerMotivationData, setShowBuyerMotivationData] = useState(false)
+  const [BuyerUrgencyData, setBuyerUrgencyData] = useState([])
+  const [showBuyerUrgencyData, setShowBuyerUrgencyData] = useState(false)
+  const [addBuyerKyc, setAddBuyerKyc] = useState(false)
 
   //directly open the desired add seeler question tab
   // const [OpenBuyerNeed, setOpenBuyerNeed] = useState(false);
-  const [OpenBuyerMotivation, setOpenBuyerMotivation] = useState(false);
-  const [OpenBuyerUrgency, setOpenBuyerUrgency] = useState(false);
+  const [OpenBuyerMotivation, setOpenBuyerMotivation] = useState(false)
+  const [OpenBuyerUrgency, setOpenBuyerUrgency] = useState(false)
 
   //intro video modal
-  const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [introVideoModal, setIntroVideoModal] = useState(false)
 
   //code for deleting the kycs
-  const [DelKycLoader, setDelKycLoader] = useState(false);
+  const [DelKycLoader, setDelKycLoader] = useState(false)
 
   //popover code here
   const handleOpenPopover = (event, item) => {
     // //console.log;
-    setAnchorEl(event.currentTarget);
-    setSelectedKyc(item);
-  };
+    setAnchorEl(event.currentTarget)
+    setSelectedKyc(item)
+  }
 
   const handleOpenBuyerKycPopover = (event, item) => {
-    setBuyerAnchor(event.currentTarget);
-    setSelectedKyc(item);
-  };
+    setBuyerAnchor(event.currentTarget)
+    setSelectedKyc(item)
+  }
 
   const handleClosePopover = () => {
-    setAnchorEl(null);
-    setBuyerAnchor(null);
-  };
+    setAnchorEl(null)
+    setBuyerAnchor(null)
+  }
 
   const getKyc = async () => {
     try {
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
-      let MainAgentData = null;
-      const mainAgentData = localStorage.getItem("agentDetails");
+      let MainAgentData = null
+      const mainAgentData = localStorage.getItem('agentDetails')
       if (mainAgentData) {
-        const Data = JSON.parse(mainAgentData);
+        const Data = JSON.parse(mainAgentData)
         //console.log;
-        MainAgentData = Data.id;
+        MainAgentData = Data.id
       }
 
       // //console.log;
 
-      let ApiPath = null;
+      let ApiPath = null
 
       if (mainAgentId) {
-        ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`;
-
+        ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`
       } else {
-        ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
+        ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`
       }
 
       // //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
-      
-      console.log("response of get kycs", response)
+      })
+
+      console.log('response of get kycs', response)
       if (response) {
-        kycsDetails(response.data.data);
-        setKycsData(response.data.data);
+        kycsDetails(response.data.data)
+        setKycsData(response.data.data)
         const filteredSellerQuestions = response.data.data.filter(
-          (item) => item.type === "seller"
-        );
+          (item) => item.type === 'seller',
+        )
         const filteredBuyerQuestions = response.data.data.filter(
-          (item) => item.type === "buyer"
-        );
+          (item) => item.type === 'buyer',
+        )
         // //console.log;
         // //console.log;
         //code for seller kyc questions
         const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === "need"
-        );
+          (item) => item.category === 'need',
+        )
         const filteredSellerMotivationQuestions =
           filteredSellerQuestions.filter(
-            (item) => item.category === "motivation"
-          );
+            (item) => item.category === 'motivation',
+          )
         const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-          (item) => item.category === "urgency"
-        );
+          (item) => item.category === 'urgency',
+        )
         // //console.log;
-        setSellerNeedData(filteredSellerNeedQuestions);
+        setSellerNeedData(filteredSellerNeedQuestions)
         // //console.log;
-        setSellerMotivationData(filteredSellerMotivationQuestions);
+        setSellerMotivationData(filteredSellerMotivationQuestions)
         // //console.log;
-        setSellerUrgencyData(filteredSellerUrgencyQuestions);
+        setSellerUrgencyData(filteredSellerUrgencyQuestions)
         //code for buyer kyc questions
         const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === "need"
-        );
+          (item) => item.category === 'need',
+        )
         const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === "motivation"
-        );
+          (item) => item.category === 'motivation',
+        )
         const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-          (item) => item.category === "urgency"
-        );
+          (item) => item.category === 'urgency',
+        )
         // //console.log;
-        setBuyerNeedData(filteredBuyerNeedQuestions);
+        setBuyerNeedData(filteredBuyerNeedQuestions)
         // //console.log;
-        setBuyerMotivationData(filteredBuyerMotivationQuestions);
+        setBuyerMotivationData(filteredBuyerMotivationQuestions)
         // //console.log;
-        setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
+        setBuyerUrgencyData(filteredBuyerUrgencyQuestions)
       } else {
         // //console.log
       }
@@ -169,28 +170,28 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     } finally {
       // //console.log;
     }
-  };
+  }
 
   useEffect(() => {
-    getKyc();
-  }, []);
+    getKyc()
+  }, [])
 
   //close add seller kyc modal
   const handleCloseSellerKyc = () => {
     //// //console.log;
     //// //console.log;
-    setOpenSelerMotivation(false);
-    setOpenSellerUrgency(false);
-    setOpenSellerNeeds(false);
-    setAddSellerKyc(false);
-    setAddBuyerKyc(false);
-  };
+    setOpenSelerMotivation(false)
+    setOpenSellerUrgency(false)
+    setOpenSellerNeeds(false)
+    setAddSellerKyc(false)
+    setAddBuyerKyc(false)
+  }
 
   //getadd seller kyc data
   const handleAddSellerKycData = (data) => {
     // //console.log;
-    const categories = data.kyc;
-    kycsDetails(data.kyc);
+    const categories = data.kyc
+    kycsDetails(data.kyc)
     // //console.log;
     // //console.log;
 
@@ -205,32 +206,32 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
 
     //code for seller kyc questions
     const filteredSellerQuestions = data.kyc.filter(
-      (item) => item.type === "seller"
-    );
+      (item) => item.type === 'seller',
+    )
     // //console.log;
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "need"
-    );
+      (item) => item.category === 'need',
+    )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "motivation"
-    );
+      (item) => item.category === 'motivation',
+    )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "urgency"
-    );
+      (item) => item.category === 'urgency',
+    )
     // //console.log;
-    setSellerNeedData(filteredSellerNeedQuestions);
+    setSellerNeedData(filteredSellerNeedQuestions)
     //console.log;
-    setSellerMotivationData(filteredSellerMotivationQuestions);
+    setSellerMotivationData(filteredSellerMotivationQuestions)
     // //console.log;
-    setSellerUrgencyData(filteredSellerUrgencyQuestions);
+    setSellerUrgencyData(filteredSellerUrgencyQuestions)
     //code for buyer kyc questions
-  };
+  }
 
   //getadd buyer kyc data
   const handleAddBuyerKycData = (data) => {
     // //console.log;
-    const categories = data.kyc;
-    kycsDetails(data.kyc);
+    const categories = data.kyc
+    kycsDetails(data.kyc)
     // //console.log;
     // if (categories === "need") {
     //     setBuyerNeedData([...BuyerNeedData, ...data]);
@@ -241,92 +242,92 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
     // }
 
     const filteredBuyerQuestions = data.kyc.filter(
-      (item) => item.type === "buyer"
-    );
+      (item) => item.type === 'buyer',
+    )
     // //console.log;
 
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "need"
-    );
+      (item) => item.category === 'need',
+    )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "motivation"
-    );
+      (item) => item.category === 'motivation',
+    )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "urgency"
-    );
+      (item) => item.category === 'urgency',
+    )
     // //console.log;
-    setBuyerNeedData(filteredBuyerNeedQuestions);
+    setBuyerNeedData(filteredBuyerNeedQuestions)
     // //console.log;
-    setBuyerMotivationData(filteredBuyerMotivationQuestions);
+    setBuyerMotivationData(filteredBuyerMotivationQuestions)
     // //console.log;
-    setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
-  };
+    setBuyerUrgencyData(filteredBuyerUrgencyQuestions)
+  }
 
   //function to filter KYCs
 
   const filterKycs = (KycsList) => {
     const filteredSellerQuestions = KycsList.filter(
-      (item) => item.type === "seller"
-    );
+      (item) => item.type === 'seller',
+    )
     const filteredBuyerQuestions = KycsList.filter(
-      (item) => item.type === "buyer"
-    );
+      (item) => item.type === 'buyer',
+    )
     // //console.log;
     // //console.log;
     //code for seller kyc questions
     const filteredSellerNeedQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "need"
-    );
+      (item) => item.category === 'need',
+    )
     const filteredSellerMotivationQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "motivation"
-    );
+      (item) => item.category === 'motivation',
+    )
     const filteredSellerUrgencyQuestions = filteredSellerQuestions.filter(
-      (item) => item.category === "urgency"
-    );
+      (item) => item.category === 'urgency',
+    )
     // //console.log;
-    setSellerNeedData(filteredSellerNeedQuestions);
+    setSellerNeedData(filteredSellerNeedQuestions)
     // //console.log;
-    setSellerMotivationData(filteredSellerMotivationQuestions);
+    setSellerMotivationData(filteredSellerMotivationQuestions)
     // //console.log;
-    setSellerUrgencyData(filteredSellerUrgencyQuestions);
+    setSellerUrgencyData(filteredSellerUrgencyQuestions)
     //code for buyer kyc questions
     const filteredBuyerNeedQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "need"
-    );
+      (item) => item.category === 'need',
+    )
     const filteredBuyerMotivationQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "motivation"
-    );
+      (item) => item.category === 'motivation',
+    )
     const filteredBuyerUrgencyQuestions = filteredBuyerQuestions.filter(
-      (item) => item.category === "urgency"
-    );
+      (item) => item.category === 'urgency',
+    )
     // //console.log;
-    setBuyerNeedData(filteredBuyerNeedQuestions);
+    setBuyerNeedData(filteredBuyerNeedQuestions)
     // //console.log;
-    setBuyerMotivationData(filteredBuyerMotivationQuestions);
+    setBuyerMotivationData(filteredBuyerMotivationQuestions)
     // //console.log;
-    setBuyerUrgencyData(filteredBuyerUrgencyQuestions);
-  };
+    setBuyerUrgencyData(filteredBuyerUrgencyQuestions)
+  }
 
   //delete kyc data
   const handleDeleteKyc = async () => {
     try {
-      setDelKycLoader(true);
+      setDelKycLoader(true)
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       const ApiData = {
         kycId: selectedKyc.id,
-      };
+      }
 
-      const ApiPath = Apis.deleteKyc;
+      const ApiPath = Apis.deleteKyc
       // //console.log;
 
       // //console.log;
@@ -334,86 +335,85 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // kycsDetails()
-          filterKycs(response.data.data.kyc);
-          handleClosePopover();
+          filterKycs(response.data.data.kyc)
+          handleClosePopover()
         }
       }
     } catch (error) {
       // console.error("Eror occured in", error);
     } finally {
-      setDelKycLoader(false);
+      setDelKycLoader(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "700",
+      fontWeight: '700',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
+      fontWeight: '500',
     },
     dropdownMenu: {
       fontSize: 15,
-      fontWeight: "500",
-      color: "#00000070",
+      fontWeight: '500',
+      color: '#00000070',
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   function GetTitleForKyc() {
-    let type = "KYC - Seller";
+    let type = 'KYC - Seller'
     if (user) {
-      console.log("user is", user)
-      let profile = user.user;
-      if(selectedUser){
-        profile = selectedUser;
+      console.log('user is', user)
+      let profile = user.user
+      if (selectedUser) {
+        profile = selectedUser
       }
       if (profile?.userType && profile?.userType != UserTypes.RealEstateAgent) {
-        type = "KYC";
+        type = 'KYC'
       }
     }
-    return type;
+    return type
   }
 
   function CanShowBuyerKycs() {
-    let type = true;
+    let type = true
     if (user) {
-      let profile = user.user;
-      if(selectedUser){
-        profile = selectedUser;
+      let profile = user.user
+      if (selectedUser) {
+        profile = selectedUser
       }
       if (profile?.userType && profile?.userType != UserTypes.RealEstateAgent) {
-        type = false;
+        type = false
       }
     }
-    return type;
+    return type
   }
 
   // //console.log)
 
   return (
-    <div style={{ height: "100%", backgroundColor: "" }}>
- 
+    <div style={{ height: '100%', backgroundColor: '' }}>
       {/* <div className="mt-5" style={styles.headingStyle}>
         Call Summary
       </div> */}
@@ -434,8 +434,6 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
 
       /> */}
 
-
-
       <div style={styles.headingStyle} className="mt-4">
         {GetTitleForKyc()}
       </div>
@@ -446,18 +444,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             <div
               className="border flex flex-row items-center justify-center"
               style={{
-                height: "20px",
-                width: "18px",
+                height: '20px',
+                width: '18px',
                 fontSize: 12,
-                fontWeight: "700",
-                borderRadius: "50%",
+                fontWeight: '700',
+                borderRadius: '50%',
               }}
             >
               {SellerNeedData?.length}
             </div>
             <button
               onClick={() => {
-                setShowSellerNeedData(!showSellerNeedData);
+                setShowSellerNeedData(!showSellerNeedData)
               }}
             >
               {showSellerNeedData ? (
@@ -479,7 +477,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                     <button
                       aria-describedby={id}
                       onClick={(event) => {
-                        handleOpenPopover(event, item);
+                        handleOpenPopover(event, item)
                       }}
                     >
                       <DotsThree size={35} weight="bold" />
@@ -490,18 +488,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                       anchorEl={anchorEl}
                       onClose={handleClosePopover}
                       anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
+                        vertical: 'bottom',
+                        horizontal: 'right',
                       }}
                       transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                        vertical: 'top',
+                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                       }}
                       PaperProps={{
                         elevation: 0, // This will remove the shadow
                         style: {
-                          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                          borderRadius: "13px",
+                          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                          borderRadius: '13px',
                         },
                       }}
                     >
@@ -515,7 +513,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                           onClick={handleDeleteKyc}
                         >
                           <Image
-                            src={"/assets/delIcon.png"}
+                            src={'/assets/delIcon.png'}
                             height={16}
                             width={16}
                             alt="*"
@@ -533,11 +531,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
-              setOpenSellerNeeds(true);
-              setAddSellerKyc(true);
+              setOpenSellerNeeds(true)
+              setAddSellerKyc(true)
             }}
           >
             Add Question
@@ -552,18 +550,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             <div
               className="border flex flex-row items-center justify-center"
               style={{
-                height: "20px",
-                width: "18px",
+                height: '20px',
+                width: '18px',
                 fontSize: 12,
-                fontWeight: "700",
-                borderRadius: "50%",
+                fontWeight: '700',
+                borderRadius: '50%',
               }}
             >
               {SellerMotivationData?.length}
             </div>
             <button
               onClick={() => {
-                setShowSellerMotivationData(!showSellerMotivationData);
+                setShowSellerMotivationData(!showSellerMotivationData)
               }}
             >
               {showSellerMotivationData ? (
@@ -585,7 +583,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                     <button
                       aria-describedby={id}
                       onClick={(event) => {
-                        handleOpenPopover(event, item);
+                        handleOpenPopover(event, item)
                       }}
                     >
                       <DotsThree size={35} weight="bold" />
@@ -596,18 +594,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                       anchorEl={anchorEl}
                       onClose={handleClosePopover}
                       anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
+                        vertical: 'bottom',
+                        horizontal: 'right',
                       }}
                       transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                        vertical: 'top',
+                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                       }}
                       PaperProps={{
                         elevation: 0, // This will remove the shadow
                         style: {
-                          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                          borderRadius: "13px",
+                          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                          borderRadius: '13px',
                         },
                       }}
                     >
@@ -621,7 +619,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                           onClick={handleDeleteKyc}
                         >
                           <Image
-                            src={"/assets/delIcon.png"}
+                            src={'/assets/delIcon.png'}
                             height={16}
                             width={16}
                             alt="*"
@@ -639,11 +637,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
-              setOpenSelerMotivation(true);
-              setAddSellerKyc(true);
+              setOpenSelerMotivation(true)
+              setAddSellerKyc(true)
             }}
           >
             Add Question
@@ -658,18 +656,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             <div
               className="border flex flex-row items-center justify-center"
               style={{
-                height: "20px",
-                width: "18px",
+                height: '20px',
+                width: '18px',
                 fontSize: 12,
-                fontWeight: "700",
-                borderRadius: "50%",
+                fontWeight: '700',
+                borderRadius: '50%',
               }}
             >
               {SellerUrgencyData?.length}
             </div>
             <button
               onClick={() => {
-                setShowSellerUrgencyData(!showSellerUrgencyData);
+                setShowSellerUrgencyData(!showSellerUrgencyData)
               }}
             >
               {showSellerUrgencyData ? (
@@ -691,7 +689,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                     <button
                       aria-describedby={id}
                       onClick={(event) => {
-                        handleOpenPopover(event, item);
+                        handleOpenPopover(event, item)
                       }}
                     >
                       <DotsThree size={35} weight="bold" />
@@ -702,18 +700,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                       anchorEl={anchorEl}
                       onClose={handleClosePopover}
                       anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
+                        vertical: 'bottom',
+                        horizontal: 'right',
                       }}
                       transformOrigin={{
-                        vertical: "top",
-                        horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                        vertical: 'top',
+                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                       }}
                       PaperProps={{
                         elevation: 0, // This will remove the shadow
                         style: {
-                          boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                          borderRadius: "13px",
+                          boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                          borderRadius: '13px',
                         },
                       }}
                     >
@@ -728,7 +726,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                             onClick={handleDeleteKyc}
                           >
                             <Image
-                              src={"/assets/delIcon.png"}
+                              src={'/assets/delIcon.png'}
                               height={16}
                               width={16}
                               alt="*"
@@ -747,11 +745,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
           )}
 
           <button
-            className="underline text-purple mt-4"
+            className="underline text-brand-primary mt-4"
             style={styles.inputStyle}
             onClick={() => {
-              setAddSellerKyc(true);
-              setOpenSellerUrgency(true);
+              setAddSellerKyc(true)
+              setOpenSellerUrgency(true)
             }}
           >
             Add Question
@@ -772,36 +770,36 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-[760px] w-10/12 h-[85vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[100%]">
             <div
               className="w-full h-[100%]"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-end items-center">
                 {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                 <button
                   onClick={() => {
-                    setAddSellerKyc(false);
-                    setOpenSelerMotivation(false);
-                    setOpenSellerUrgency(false);
-                    setOpenSellerNeeds(false);
+                    setAddSellerKyc(false)
+                    setOpenSelerMotivation(false)
+                    setOpenSellerUrgency(false)
+                    setOpenSellerNeeds(false)
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -849,18 +847,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
-                    height: "20px",
-                    width: "18px",
+                    height: '20px',
+                    width: '18px',
                     fontSize: 12,
-                    fontWeight: "700",
-                    borderRadius: "50%",
+                    fontWeight: '700',
+                    borderRadius: '50%',
                   }}
                 >
                   {BuyerNeedData.length}
                 </div>
                 <button
                   onClick={() => {
-                    setShowBuyerNeedData(!showBuyerNeedData);
+                    setShowBuyerNeedData(!showBuyerNeedData)
                   }}
                 >
                   {showBuyerNeedData ? (
@@ -882,7 +880,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         <button
                           aria-describedby={buyerId}
                           onClick={(event) => {
-                            handleOpenBuyerKycPopover(event, item);
+                            handleOpenBuyerKycPopover(event, item)
                           }}
                         >
                           <DotsThree size={35} weight="bold" />
@@ -893,18 +891,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                           anchorEl={BuyerAnchor}
                           onClose={handleClosePopover}
                           anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
+                            vertical: 'bottom',
+                            horizontal: 'right',
                           }}
                           transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                            vertical: 'top',
+                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                           }}
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                              borderRadius: "13px",
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                              borderRadius: '13px',
                             },
                           }}
                         >
@@ -916,7 +914,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                               onClick={handleDeleteKyc}
                             >
                               <Image
-                                src={"/assets/delIcon.png"}
+                                src={'/assets/delIcon.png'}
                                 height={16}
                                 width={16}
                                 alt="*"
@@ -937,10 +935,10 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
-                  setAddBuyerKyc(true);
+                  setAddBuyerKyc(true)
                 }}
               >
                 Add Question
@@ -955,18 +953,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
-                    height: "20px",
-                    width: "18px",
+                    height: '20px',
+                    width: '18px',
                     fontSize: 12,
-                    fontWeight: "700",
-                    borderRadius: "50%",
+                    fontWeight: '700',
+                    borderRadius: '50%',
                   }}
                 >
                   {BuyerMotivationData.length}
                 </div>
                 <button
                   onClick={() => {
-                    setShowBuyerMotivationData(!showBuyerMotivationData);
+                    setShowBuyerMotivationData(!showBuyerMotivationData)
                   }}
                 >
                   {showBuyerMotivationData ? (
@@ -988,7 +986,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         <button
                           aria-describedby={buyerId}
                           onClick={(event) => {
-                            handleOpenBuyerKycPopover(event, item);
+                            handleOpenBuyerKycPopover(event, item)
                           }}
                         >
                           <DotsThree size={35} weight="bold" />
@@ -999,18 +997,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                           anchorEl={BuyerAnchor}
                           onClose={handleClosePopover}
                           anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
+                            vertical: 'bottom',
+                            horizontal: 'right',
                           }}
                           transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                            vertical: 'top',
+                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                           }}
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                              borderRadius: "13px",
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                              borderRadius: '13px',
                             },
                           }}
                         >
@@ -1022,7 +1020,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                               onClick={handleDeleteKyc}
                             >
                               <Image
-                                src={"/assets/delIcon.png"}
+                                src={'/assets/delIcon.png'}
                                 height={16}
                                 width={16}
                                 alt="*"
@@ -1043,11 +1041,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
-                  setAddBuyerKyc(true);
-                  setOpenBuyerMotivation(true);
+                  setAddBuyerKyc(true)
+                  setOpenBuyerMotivation(true)
                 }}
               >
                 Add Question
@@ -1062,18 +1060,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                 <div
                   className="border flex flex-row items-center justify-center"
                   style={{
-                    height: "20px",
-                    width: "18px",
+                    height: '20px',
+                    width: '18px',
                     fontSize: 12,
-                    fontWeight: "700",
-                    borderRadius: "50%",
+                    fontWeight: '700',
+                    borderRadius: '50%',
                   }}
                 >
                   {BuyerUrgencyData.length}
                 </div>
                 <button
                   onClick={() => {
-                    setShowBuyerUrgencyData(!showBuyerUrgencyData);
+                    setShowBuyerUrgencyData(!showBuyerUrgencyData)
                   }}
                 >
                   {showBuyerUrgencyData ? (
@@ -1095,7 +1093,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                         <button
                           aria-describedby={buyerId}
                           onClick={(event) => {
-                            handleOpenBuyerKycPopover(event, item);
+                            handleOpenBuyerKycPopover(event, item)
                           }}
                         >
                           <DotsThree size={35} weight="bold" />
@@ -1106,18 +1104,18 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                           anchorEl={BuyerAnchor}
                           onClose={handleClosePopover}
                           anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
+                            vertical: 'bottom',
+                            horizontal: 'right',
                           }}
                           transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                            vertical: 'top',
+                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                           }}
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                              borderRadius: "13px",
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                              borderRadius: '13px',
                             },
                           }}
                         >
@@ -1129,7 +1127,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
                               onClick={handleDeleteKyc}
                             >
                               <Image
-                                src={"/assets/delIcon.png"}
+                                src={'/assets/delIcon.png'}
                                 height={16}
                                 width={16}
                                 alt="*"
@@ -1150,11 +1148,11 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               )}
 
               <button
-                className="underline text-purple"
+                className="underline text-brand-primary"
                 style={styles.inputStyle}
                 onClick={() => {
-                  setAddBuyerKyc(true);
-                  setOpenBuyerUrgency(true);
+                  setAddBuyerKyc(true)
+                  setOpenBuyerUrgency(true)
                 }}
               >
                 Add Question
@@ -1168,20 +1166,31 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
-          videoTitle={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
-          videoUrl={getVideoUrlByType(HowToVideoTypes.AgentConfiguration) || HowtoVideos.KycQuestions}
+          videoTitle={
+            getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title ||
+            'Learn about asking questions (KYC)'
+          }
+          videoUrl={
+            getVideoUrlByType(HowToVideoTypes.AgentConfiguration) ||
+            HowtoVideos.KycQuestions
+          }
         />
         <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
           <VideoCard
             duration={(() => {
-              const tutorial = getTutorialByType(HowToVideoTypes.AgentConfiguration);
-                return tutorial?.description || "1:38";
+              const tutorial = getTutorialByType(
+                HowToVideoTypes.AgentConfiguration,
+              )
+              return tutorial?.description || '1:38'
             })()}
             horizontal={false}
             playVideo={() => {
-              setIntroVideoModal(true);
+              setIntroVideoModal(true)
             }}
-            title={getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title || "Learn about asking questions (KYC)"}
+            title={
+              getTutorialByType(HowToVideoTypes.AgentConfiguration)?.title ||
+              'Learn about asking questions (KYC)'
+            }
           />
         </div>
       </div>
@@ -1194,36 +1203,36 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-[760px] h-[85vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[100%]">
             <div
               className="w-full h-[100%]"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-end items-center">
                 {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                 <button
                   onClick={() => {
-                    setAddBuyerKyc(false);
-                    setAddBuyerKyc(false);
-                    setOpenBuyerMotivation(false);
-                    setOpenBuyerUrgency(false);
+                    setAddBuyerKyc(false)
+                    setAddBuyerKyc(false)
+                    setOpenBuyerMotivation(false)
+                    setOpenBuyerUrgency(false)
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -1251,7 +1260,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default KYCs;
+export default KYCs

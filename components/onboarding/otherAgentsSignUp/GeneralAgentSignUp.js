@@ -1,15 +1,5 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+import 'react-phone-input-2/lib/style.css'
+
 import {
   Alert,
   Box,
@@ -17,76 +7,95 @@ import {
   Fade,
   Modal,
   Snackbar,
-} from "@mui/material";
-import SendVerificationCode from "../services/AuthVerification/AuthService";
-import SnackMessages from "../services/AuthVerification/SnackMessages";
-import { setCookie } from "@/utilities/cookies";
-import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
-import { getLocalLocation } from "../services/apisServices/ApiService";
-import { PersistanceKeys } from "@/constants/Constants";
-import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
-import { Input } from "@/components/ui/input";
+} from '@mui/material'
+import axios from 'axios'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
 
-const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete, handleShowRedirectPopup }) => {
-  const verifyInputRef = useRef([]);
-  const timerRef = useRef(null);
+import Apis from '@/components/apis/Apis'
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { PersistanceKeys } from '@/constants/Constants'
+import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
+import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
+import { setCookie } from '@/utilities/cookies'
 
-  let inputsFields = useRef([]);
+import SendVerificationCode from '../services/AuthVerification/AuthService'
+import SnackMessages from '../services/AuthVerification/SnackMessages'
+import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
-  const router = useRouter();
-  const [userName, setUserName] = useState("");
-  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  let [response, setResponse] = useState({});
-  const [registerLoader, setRegisterLoader] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
+const GeneralAgentSignUp = ({
+  handleContinue,
+  handleBack,
+  length = 6,
+  onComplete,
+  handleShowRedirectPopup,
+}) => {
+  const verifyInputRef = useRef([])
+  const timerRef = useRef(null)
+
+  let inputsFields = useRef([])
+
+  const router = useRouter()
+  const [userName, setUserName] = useState('')
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  let [response, setResponse] = useState({})
+  const [registerLoader, setRegisterLoader] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   // const [emailErr, setEmailCheckResponse] = useState(false);
-  const [userFarm, setUserFarm] = useState("");
-  const [company, setCompany] = useState("");
-  const [userBrokage, setUserBrokage] = useState("");
-  const [userTransaction, setUserTransaction] = useState("");
+  const [userFarm, setUserFarm] = useState('')
+  const [company, setCompany] = useState('')
+  const [userBrokage, setUserBrokage] = useState('')
+  const [userTransaction, setUserTransaction] = useState('')
   //phone number input variable
-  const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [sendcodeLoader, setSendcodeLoader] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userPhoneNumber, setUserPhoneNumber] = useState('')
+  const [countryCode, setCountryCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [sendcodeLoader, setSendcodeLoader] = useState(false)
+  const [userData, setUserData] = useState(null)
   const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] =
-    useState(false);
+    useState(false)
   //verify code input fields
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''))
   //check email availability
-  const [emailLoader, setEmailLoader] = useState(false);
-  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
-  const [validEmail, setValidEmail] = useState("");
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errMessage, setErrMessage] = useState(null);
+  const [emailLoader, setEmailLoader] = useState(false)
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null)
+  const [validEmail, setValidEmail] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errMessage, setErrMessage] = useState(null)
   //check phone number availability
-  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [locationLoader, setLocationLoader] = useState(false);
-  const [shouldContinue, setShouldContinue] = useState(true);
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [locationLoader, setLocationLoader] = useState(false)
+  const [shouldContinue, setShouldContinue] = useState(true)
 
   //congrats popup for small size screens
-  const [congratsPopup, setCongratsPopup] = useState(false);
+  const [congratsPopup, setCongratsPopup] = useState(false)
 
   //load the user location
   useEffect(() => {
-    let loc = getLocalLocation();
-    setCountryCode(loc);
-    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    let loc = getLocalLocation()
+    setCountryCode(loc)
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails)
     if (storedData) {
-      let data = JSON.parse(storedData);
-      setUserData(data);
+      let data = JSON.parse(storedData)
+      setUserData(data)
     }
-  }, []);
+  }, [])
 
   //focus 1st field automaticallly
   useEffect(() => {
     // Focus the first input field on component load
-    inputsFields.current[0]?.focus();
-  }, []);
+    inputsFields.current[0]?.focus()
+  }, [])
 
   // Function to get the user's location and set the country code
   useEffect(() => {
@@ -99,7 +108,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
     ) {
-      setShouldContinue(false);
+      setShouldContinue(false)
     } else if (
       !userName ||
       !userEmail ||
@@ -109,7 +118,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
-      setShouldContinue(true);
+      setShouldContinue(true)
     }
   }, [
     userName,
@@ -119,24 +128,24 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
     company,
     checkPhoneResponse,
     emailCheckResponse,
-  ]);
+  ])
 
   //code to focus the verify code input field
   useEffect(() => {
     if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus();
+      verifyInputRef.current[0].focus()
     }
-  }, [showVerifyPopup]);
+  }, [showVerifyPopup])
 
   // Handle phone number change and validation
   const handlePhoneNumberChange = (phone) => {
-    setUserPhoneNumber(phone);
-    validatePhoneNumber(phone);
+    setUserPhoneNumber(phone)
+    validatePhoneNumber(phone)
 
     if (!phone) {
-      setErrorMessage("");
+      setErrorMessage('')
     }
-  };
+  }
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -144,181 +153,192 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
+      countryCode?.toUpperCase(),
+    )
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       // setCheckPhoneResponse(null);
       // //console.log;
 
       timerRef.current = setTimeout(() => {
-        checkPhoneNumber(phoneNumber);
+        checkPhoneNumber(phoneNumber)
         // //console.log;
-      }, 300);
+      }, 300)
     }
-  };
+  }
 
   //email validation function
   const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
     // Check if email contains consecutive dots, which are invalid
     if (/\.\./.test(email)) {
-      return false;
+      return false
     }
 
     // Check the general pattern for a valid email
-    return emailPattern.test(email);
-  };
+    return emailPattern.test(email)
+  }
 
   //code for verify number popup
 
   const handleVerifyPopup = async () => {
     // let response = await SendVerificationCode(userPhoneNumber, true);
     try {
-      setShowVerifyPopup(true);
-      setSendcodeLoader(true);
-      let response = await SendVerificationCode(userPhoneNumber, true);
-      setResponse(response);
-      setIsVisible(true);
+      setShowVerifyPopup(true)
+      setSendcodeLoader(true)
+      let response = await SendVerificationCode(userPhoneNumber, true)
+      setResponse(response)
+      setIsVisible(true)
       // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
-      setSendcodeLoader(false);
+      setSendcodeLoader(false)
     }
     // setResponse(response)
     // setIsVisible(true)
 
     setTimeout(() => {
       if (verifyInputRef.current[0]) {
-        verifyInputRef.current[0].focus();
+        verifyInputRef.current[0].focus()
       }
-    }, 100); // Adjust the delay as needed, 0 should be enough
-  };
+    }, 100) // Adjust the delay as needed, 0 should be enough
+  }
 
   const handleClose = () => {
-    setShowVerifyPopup(false);
-  };
+    setShowVerifyPopup(false)
+  }
 
   //code for handling verify code changes
 
   const handleVerifyInputChange = (e, index) => {
-    const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+    const { value } = e.target
+    if (!/[0-9]/.test(value) && value !== '') return // Allow only numeric input
 
-    const newValues = [...VerifyCode];
-    newValues[index] = value;
-    setVerifyCode(newValues);
+    const newValues = [...VerifyCode]
+    newValues[index] = value
+    setVerifyCode(newValues)
 
     // Move focus to the next field if a number is entered
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1].focus();
+      verifyInputRef.current[index + 1].focus()
     }
 
     // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join("")); // Convert array to a single string here
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join('')) // Convert array to a single string here
     }
-  };
+  }
 
   const handleBackspace = (e, index) => {
-    if (e.key === "Backspace") {
-      if (VerifyCode[index] === "" && index > 0) {
-        verifyInputRef.current[index - 1].focus();
+    if (e.key === 'Backspace') {
+      if (VerifyCode[index] === '' && index > 0) {
+        verifyInputRef.current[index - 1].focus()
       }
-      const newValues = [...VerifyCode];
-      newValues[index] = "";
-      setVerifyCode(newValues);
+      const newValues = [...VerifyCode]
+      newValues[index] = ''
+      setVerifyCode(newValues)
     }
-  };
+  }
 
   const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData("text").slice(0, length);
+    const pastedText = e.clipboardData.getData('text').slice(0, length)
     const newValues = pastedText
-      .split("")
-      .map((char) => (/[0-9]/.test(char) ? char : ""));
-    setVerifyCode(newValues);
+      .split('')
+      .map((char) => (/[0-9]/.test(char) ? char : ''))
+    setVerifyCode(newValues)
 
     // Set each input's value and move focus to the last filled input
     newValues.forEach((char, index) => {
-      verifyInputRef.current[index].value = char;
+      verifyInputRef.current[index].value = char
       if (index === newValues.length - 1) {
-        verifyInputRef.current[index].focus();
+        verifyInputRef.current[index].focus()
       }
-    });
+    })
 
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join(""));
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''))
     }
-  };
+  }
 
   //code for number verification
   const handleVerifyCode = () => {
     // //console.log);
-    setPhoneVerifiedSuccessSnack(true);
-    handleRegister();
-  };
+    setPhoneVerifiedSuccessSnack(true)
+    // Close verification popup immediately
+    setShowVerifyPopup(false)
+    // Show loader immediately for desktop screens
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
+    }
+    const SM_SCREEN_SIZE = 640
+    if (screenWidth > SM_SCREEN_SIZE && handleShowRedirectPopup) {
+      handleShowRedirectPopup()
+    }
+    handleRegister()
+  }
 
   //code for registering user
   const handleRegister = async () => {
     try {
-      setRegisterLoader(true);
+      setRegisterLoader(true)
 
-      let agentTitle = userData.userTypeTitle;
+      let agentTitle = userData.userTypeTitle
 
-      const formData = new FormData();
-      const ApiPath = Apis.register;
-      let campainee = null;
-      if (typeof window !== "undefined") {
-        campainee = GetCampaigneeNameIfAvailable(window);
+      const formData = new FormData()
+      const ApiPath = Apis.register
+      let campainee = null
+      if (typeof window !== 'undefined') {
+        campainee = GetCampaigneeNameIfAvailable(window)
       }
       if (campainee) {
-        formData.append("campaignee", campainee);
+        formData.append('campaignee', campainee)
       }
 
       // Add agency UUID if present (for subaccount registration)
-      const agencyUuid = getAgencyUUIDForAPI();
+      const agencyUuid = getAgencyUUIDForAPI()
       if (agencyUuid) {
-        formData.append("agencyUuid", agencyUuid);
+        formData.append('agencyUuid', agencyUuid)
       }
 
       // Add hostname for auto-detecting agency from custom domain/subdomain
-      let hostname = null;
-      if (typeof window !== "undefined") {
-        hostname = window.location.hostname;
+      let hostname = null
+      if (typeof window !== 'undefined') {
+        hostname = window.location.hostname
         // Only send if not localhost/127.0.0.1
         if (
           hostname &&
-          !hostname.includes("localhost") &&
-          !hostname.includes("127.0.0.1")
+          !hostname.includes('localhost') &&
+          !hostname.includes('127.0.0.1')
         ) {
-          formData.append("hostname", hostname);
+          formData.append('hostname', hostname)
         }
       }
 
-      formData.append("name", userName);
-      formData.append("email", userEmail);
-      formData.append("phone", userPhoneNumber);
-      formData.append("territory", userFarm);
-      formData.append("company", company);
-      formData.append("agentService", JSON.stringify(userData.serviceID));
-      formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", agentTitle);
-      formData.append("login", false);
+      formData.append('name', userName)
+      formData.append('email', userEmail)
+      formData.append('phone', userPhoneNumber)
+      formData.append('territory', userFarm)
+      formData.append('company', company)
+      formData.append('agentService', JSON.stringify(userData.serviceID))
+      formData.append('areaOfFocus', JSON.stringify(userData.focusAreaId))
+      formData.append('userType', agentTitle)
+      formData.append('login', false)
       formData.append(
-        "timeZone",
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      );
-      formData.append("verificationCode", VerifyCode.join(""));
+        'timeZone',
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      )
+      formData.append('verificationCode', VerifyCode.join(''))
 
       // //console.log;
       for (let [key, value] of formData.entries()) {
@@ -326,167 +346,187 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
       }
 
       // return;
-      const response = await axios.post(ApiPath, formData);
+      const response = await axios.post(ApiPath, formData)
       if (response) {
         //console.log;
-        let result = response.data;
-        setResponse(result);
-        setIsVisible(true);
+        let result = response.data
+        setResponse(result)
+        setIsVisible(true)
         if (response.data.status === true) {
-          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
-          localStorage.removeItem(PersistanceKeys.RegisterDetails);
-          localStorage.setItem("User", JSON.stringify(response.data.data));
+          console.log(
+            '[DEBUG] Registration successful, starting affiliate tracking...',
+          )
+          localStorage.removeItem(PersistanceKeys.RegisterDetails)
+          localStorage.setItem('User', JSON.stringify(response.data.data))
 
-          if (typeof document !== "undefined") {
-            setCookie(response.data.data.user, document);
+          if (typeof document !== 'undefined') {
+            setCookie(response.data.data.user, document)
           }
 
           // Track signup for affiliate marketing
-          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
-          if (typeof window !== "undefined" && window.agentxTrackSignup) {
-            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
-            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          console.log(
+            '[DEBUG] Checking affiliate tracking function...',
+            typeof window.agentxTrackSignup,
+          )
+          if (typeof window !== 'undefined' && window.agentxTrackSignup) {
+            console.log(
+              '[DEBUG] Calling agentxTrackSignup with:',
+              userEmail,
+              userName,
+              response.data.data.user?.id,
+            )
+            window.agentxTrackSignup(
+              userEmail,
+              userName,
+              response.data.data.user?.id,
+            )
           } else {
-            console.log("[DEBUG] agentxTrackSignup not available");
+            console.log('[DEBUG] agentxTrackSignup not available')
           }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
-            clearAgencyUUID();
+            clearAgencyUUID()
           }
 
-          let screenWidth = 1000;
-          if (typeof window !== "undefined") {
-            screenWidth = window.innerWidth; // Get current screen width
-          }
-          const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
           let user = response.data.data.user
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
+          }
+
+          let screenWidth = 1000
+          if (typeof window !== 'undefined') {
+            screenWidth = window.innerWidth // Get current screen width
+          }
+          const SM_SCREEN_SIZE = 640 // Tailwind's sm breakpoint is typically 640px
           // return
-          if (user.userRole === "AgencySubAccount") {
-            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
-              JSON.stringify(response.data.data)
+          if (user.userRole === 'AgencySubAccount') {
+            localStorage.setItem(
+              PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data),
             )
           }
           //console.log;
           if (screenWidth <= SM_SCREEN_SIZE) {
-            setCongratsPopup(true);
+            setCongratsPopup(true)
             // //console.log;
           } else {
             //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            router.push("/createagent")
+            router.push('/createagent')
           }
         }
       }
     } catch (error) {
       // console.error("Error occured in register api is: ", error);
     } finally {
-      setRegisterLoader(false);
+      setRegisterLoader(false)
     }
-  };
+  }
 
   //code to check email and phone
 
   const checkEmail = async (value) => {
     try {
-      setValidEmail("");
-      setEmailLoader(true);
+      setValidEmail('')
+      setEmailLoader(true)
 
-      const ApiPath = Apis.CheckEmail;
+      const ApiPath = Apis.CheckEmail
 
       const ApiData = {
         email: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        console.log("Data of check email api is", response);
+        console.log('Data of check email api is', response)
         if (response.data.status === true) {
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         } else {
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check email api is :", error);
     } finally {
-      setEmailLoader(false);
+      setEmailLoader(false)
     }
-  };
+  }
 
   const checkPhoneNumber = async (value) => {
     try {
-      setPhoneNumberLoader(true);
-      const ApiPath = Apis.CheckPhone;
+      setPhoneNumberLoader(true)
+      const ApiPath = Apis.CheckPhone
 
       const ApiData = {
         phone: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         } else {
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check phone api is :", error);
     } finally {
-      setPhoneNumberLoader(false);
+      setPhoneNumberLoader(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     verifyPopup: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
@@ -499,17 +539,17 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: "center" }}
-            // onClick={()=>{
-            //   console.log('push',)
-            //   router.push("/createagent")
-            // }}
+              style={{ textAlign: 'center' }}
+              // onClick={()=>{
+              //   console.log('push',)
+              //   router.push("/createagent")
+              // }}
             >
               Your Contact Information
             </div>
             <div
               className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
               <Input
@@ -520,14 +560,14 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 placeholder="Name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 ref={(el) => (inputsFields.current[0] = el)}
-                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
                 onChange={(e) => {
-                  const input = e.target.value;
+                  const input = e.target.value
                   const formattedName = input
-                    .split(" ")
+                    .split(' ')
                     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ");
+                    .join(' ')
 
                   // const words = input.split(' ');
                   // const formattedName =
@@ -535,11 +575,11 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                   //     ? words[0].toLowerCase() + ' ' + words.slice(1).map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
                   //     : words[0].toLowerCase();
 
-                  setUserName(formattedName);
+                  setUserName(formattedName)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === "Done") {
-                    inputsFields.current[1]?.focus(); // Move to the second input
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[1]?.focus() // Move to the second input
                   }
                 }}
               />
@@ -550,7 +590,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 </div>
                 <div>
                   {emailLoader ? (
-                    <p style={{ ...styles.errmsg, color: "black" }}>
+                    <p style={{ ...styles.errmsg, color: 'black' }}>
                       Checking ...
                     </p>
                   ) : (
@@ -561,8 +601,8 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                             ...styles.errmsg,
                             color:
                               emailCheckResponse.status === true
-                                ? "green"
-                                : "red",
+                                ? 'green'
+                                : 'red',
                           }}
                         >
                           {emailCheckResponse.message
@@ -575,7 +615,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       )}
                     </div>
                   )}
-                  <div style={{ ...styles.errmsg, color: "red" }}>
+                  <div style={{ ...styles.errmsg, color: 'red' }}>
                     {validEmail}
                   </div>
                 </div>
@@ -589,11 +629,11 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 enterKeyHint="done"
                 placeholder="Email address"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  setUserEmail(value);
+                  let value = e.target.value
+                  setUserEmail(value)
 
                   // if (value) {
                   //   const timer = setTimeout(() => {
@@ -606,41 +646,41 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                   // }
 
                   if (timerRef.current) {
-                    clearTimeout(timerRef.current);
+                    clearTimeout(timerRef.current)
                   }
 
-                  setEmailCheckResponse(null);
+                  setEmailCheckResponse(null)
 
                   if (!value) {
                     // //console.log;
-                    setValidEmail("");
-                    return;
+                    setValidEmail('')
+                    return
                   }
 
                   if (!validateEmail(value)) {
                     // //console.log;
-                    setValidEmail("Invalid");
+                    setValidEmail('Invalid')
                   } else {
                     // //console.log;
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
-                        checkEmail(value);
-                      }, 300);
+                        checkEmail(value)
+                      }, 300)
                     } else {
                       // Reset the response if input is cleared
-                      setEmailCheckResponse(null);
-                      setValidEmail("");
+                      setEmailCheckResponse(null)
+                      setValidEmail('')
                     }
                   }
                 }}
                 onKeyDown={(e) => {
                   const timer = setTimeout(() => {
-                    if (e.key === "Enter" || e.key === "Done") {
-                      inputsFields.current[2]?.focus(); // Move to the second input
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[2]?.focus() // Move to the second input
                     }
-                  }, [300]);
-                  clearTimeout(timer);
+                  }, [300])
+                  clearTimeout(timer)
                 }}
               />
 
@@ -653,7 +693,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                   {locationLoader && (
                     <p
                       className="text-purple"
-                      style={{ ...styles.errmsg, height: "20px" }}
+                      style={{ ...styles.errmsg, height: '20px' }}
                     >
                       Getting location ...
                     </p>
@@ -662,8 +702,8 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                     <p
                       style={{
                         ...styles.errmsg,
-                        color: errorMessage && "red",
-                        height: "20px",
+                        color: errorMessage && 'red',
+                        height: '20px',
                       }}
                     >
                       {errorMessage}
@@ -674,8 +714,8 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                         <p
                           style={{
                             ...styles.errmsg,
-                            color: "black",
-                            height: "20px",
+                            color: 'black',
+                            height: '20px',
                           }}
                         >
                           Checking ...
@@ -688,9 +728,9 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                                 ...styles.errmsg,
                                 color:
                                   checkPhoneResponse.status === true
-                                    ? "green"
-                                    : "red",
-                                height: "20px",
+                                    ? 'green'
+                                    : 'red',
+                                height: '20px',
                               }}
                             >
                               {checkPhoneResponse.message
@@ -708,59 +748,59 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 </div>
               </div>
 
-              <div style={{ marginTop: "8px" }}>
-                <PhoneInput
-                  ref={(el) => (inputsFields.current[2] = el)}
-                  containerClass="phone-input-container"
-                  className="outline-none bg-white focus:ring-0"
-                  country={"us"} // restrict to US only
-                  onlyCountries={["us", "mx", "ca"]}
-                  disableDropdown={true}
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={userPhoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={
-                    locationLoader
-                      ? "Loading location ..."
-                      : "Enter Phone Number"
-                  }
-                  disabled={loading} // Disable input if still loading
-                  style={{
-                    borderRadius: "7px",
-                    border: "1px solid #00000020",
-                    outline: "none",
-                    boxShadow: "none",
-                  }}
-                  inputStyle={{
-                    width: "100%",
-                    borderWidth: "0px",
-                    backgroundColor: "transparent",
-                    // paddingLeft: "30px",
-                    paddingTop: "20px",
-                    paddingBottom: "20px",
-                    outline: "none",
-                    boxShadow: "none",
-                  }}
-                  buttonStyle={{
-                    border: "none",
-                    backgroundColor: "transparent",
-                    outline: "none",
-                    // display: 'flex',
-                    // alignItems: 'center',
-                    // justifyContent: 'center',
-                  }}
-                  dropdownStyle={{
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                  }}
-                  defaultMask={loading ? "Loading..." : undefined}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === "Done") {
-                      inputsFields.current[3]?.focus(); // Move to the second input
-                    }
-                  }}
-                />
+              <div style={{ marginTop: '8px' }}>
+              <PhoneInput
+              ref={(el) => (inputsFields.current[2] = el)}
+              containerClass="phone-input-container"
+              className="outline-none bg-white focus:ring-0"
+              country={'us'} // Default country
+              onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
+              disableDropdown={false} // Enable dropdown to switch between US/CA
+              countryCodeEditable={false}
+              disableCountryCode={false}
+              value={userPhoneNumber}
+              onChange={handlePhoneNumberChange}
+              placeholder={
+                locationLoader
+                  ? 'Loading location ...'
+                  : 'Enter Phone Number'
+              }
+              disabled={loading} // Disable input if still loading
+              style={{
+                borderRadius: '7px',
+                border: '2px solid #00000020',
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              inputStyle={{
+                width: '100%',
+                borderWidth: '0px',
+                backgroundColor: 'transparent',
+                // paddingLeft: "30px",
+                paddingTop: '20px',
+                paddingBottom: '20px',
+                outline: 'none',
+                boxShadow: 'none',
+              }}
+              buttonStyle={{
+                border: 'none',
+                backgroundColor: 'transparent',
+                outline: 'none',
+                // display: 'flex',
+                // alignItems: 'center',
+                // justifyContent: 'center',
+              }}
+              dropdownStyle={{
+                maxHeight: '150px',
+                overflowY: 'auto',
+              }}
+              defaultMask={loading ? 'Loading...' : undefined}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Done') {
+                  inputsFields.current[3]?.focus() // Move to the second input
+                }
+              }}
+            />
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
@@ -774,14 +814,14 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 enterKeyHint="done"
                 placeholder="Company name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={company}
                 onChange={(e) => {
-                  setCompany(e.target.value);
+                  setCompany(e.target.value)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === "Done") {
-                    inputsFields.current[4]?.focus(); // Move to the second input
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[4]?.focus() // Move to the second input
                   }
                 }}
               />
@@ -797,18 +837,17 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 enterKeyHint="done"
                 placeholder="Your territory"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-                style={{ ...styles.inputStyle, marginTop: "8px", border: "1px solid #00000020" }}
+                style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userFarm}
                 onChange={(e) => {
-                  setUserFarm(e.target.value);
+                  setUserFarm(e.target.value)
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === "Done") {
-                    inputsFields.current[4]?.focus(); // Move to the second input
+                  if (e.key === 'Enter' || e.key === 'Done') {
+                    inputsFields.current[4]?.focus() // Move to the second input
                   }
                 }}
               />
-
 
               {/* Modal for verify number */}
 
@@ -819,7 +858,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     ////backdropFilter: "blur(5px)"
                   },
                 }}
@@ -832,15 +871,15 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                     <div
                       className="sm:w-7/12 w-full mx-2"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
                           <Image
-                            src={"/assets/crossIcon.png"}
+                            src={'/assets/crossIcon.png'}
                             height={40}
                             width={40}
                             alt="*"
@@ -850,14 +889,14 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       <div
                         style={{
                           fontSize: 26,
-                          fontWeight: "700",
+                          fontWeight: '700',
                         }}
                       >
                         Verify phone number
                       </div>
                       <div
                         className="mt-8"
-                        style={{ ...styles.inputStyle, color: "#00000060" }}
+                        style={{ ...styles.inputStyle, color: '#00000060' }}
                       >
                         Enter code that was sent to number ending with *
                         {userPhoneNumber.slice(-4)}.
@@ -865,7 +904,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       {/* <VerificationCodeInput /> */}
                       <div
                         className="mt-8"
-                        style={{ display: "flex", gap: "8px" }}
+                        style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
                           <input
@@ -885,21 +924,21 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                             onKeyUp={(e) => {
                               // Check if the Enter key is pressed and all inputs are filled
                               if (
-                                e.key === "Enter" &&
-                                VerifyCode.every((value) => value.trim() !== "")
+                                e.key === 'Enter' &&
+                                VerifyCode.every((value) => value.trim() !== '')
                               ) {
-                                handleVerifyCode();
+                                handleVerifyCode()
                               }
                             }}
                             onPaste={handlePaste}
                             placeholder="-"
                             style={{
-                              width: "40px",
-                              height: "40px",
-                              textAlign: "center",
-                              fontSize: "20px",
-                              border: "1px solid #ccc",
-                              borderRadius: "5px",
+                              width: '40px',
+                              height: '40px',
+                              textAlign: 'center',
+                              fontSize: '20px',
+                              border: '1px solid #ccc',
+                              borderRadius: '5px',
                             }}
                             className=" focus:outline-none focus:ring-0"
                           />
@@ -928,7 +967,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       ) : (
                         <button
                           className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                          style={{ height: "50px" }}
+                          style={{ height: '50px' }}
                           onClick={handleVerifyCode}
                         >
                           Continue
@@ -947,7 +986,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     ////backdropFilter: "blur(5px)"
                   },
                 }}
@@ -957,9 +996,9 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                     <div
                       className="w-full mx-4"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div className="flex flex-row justify-end">
@@ -975,8 +1014,8 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       <div
                         style={{
                           fontSize: 26,
-                          fontWeight: "700",
-                          textAlign: "center",
+                          fontWeight: '700',
+                          textAlign: 'center',
                         }}
                       >
                         Congrats!
@@ -987,9 +1026,9 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                           className=""
                           src="/agentXOrb.gif"
                           style={{
-                            height: "100px",
-                            width: "110px",
-                            resize: "contain",
+                            height: '100px',
+                            width: '110px',
+                            resize: 'contain',
                           }}
                           height={102}
                           width={102}
@@ -1000,10 +1039,10 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                       <div
                         style={{
                           fontSize: 15,
-                          fontWeight: "600",
-                          textAlign: "center",
+                          fontWeight: '600',
+                          textAlign: 'center',
                           marginTop: 50,
-                          color: "#00000070",
+                          color: '#00000070',
                         }}
                       >
                         Your account is created!
@@ -1016,12 +1055,39 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                         <button
                           className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                           style={{
-                            height: "50px",
+                            height: '50px',
                             fontSize: 15,
-                            fontWeight: "700",
+                            fontWeight: '700',
                           }}
-                          onClick={() => {
-                            router.push("/createagent");
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            
+                            // Check if user is on mobile - use both screen width and user agent
+                            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+                            const SM_SCREEN_SIZE = 640
+                            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+                            )
+                            
+                            console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
+                            
+                            // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
+                            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                              // Mobile: Navigate to payment step (step 4) to allow subscription
+                              console.log('Mobile detected - navigating to payment step')
+                              router.push('/createagent?step=4')
+                            } else {
+                              // Desktop: Navigate to createagent
+                              console.log('Desktop detected - navigating to createagent')
+                              if (handleShowRedirectPopup) {
+                                handleShowRedirectPopup()
+                              }
+                              // Small delay to ensure popup shows before navigation
+                              setTimeout(() => {
+                                router.push('/createagent')
+                              }, 100)
+                            }
                           }}
                         >
                           Get Started
@@ -1036,7 +1102,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
                 message={response.message}
                 isVisible={isVisible}
                 setIsVisible={(visible) => {
-                  setIsVisible(visible);
+                  setIsVisible(visible)
                 }}
                 success={response.status}
               />
@@ -1058,7 +1124,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GeneralAgentSignUp;
+export default GeneralAgentSignUp

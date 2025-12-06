@@ -1,196 +1,218 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, Plus, Trash2, Eye, X } from "lucide-react";
-import PromoCodeModal from "./PromoCodeModal";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import { CircularProgress } from "@mui/material";
-import moment from "moment";
+'use client'
+
+import { CircularProgress } from '@mui/material'
+import axios from 'axios'
+import { Edit, Eye, Plus, Trash2, X } from 'lucide-react'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+
+import PromoCodeModal from './PromoCodeModal'
 
 const AdminPromoCodes = () => {
-  const [promoCodes, setPromoCodes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [editingPromoCode, setEditingPromoCode] = useState(null);
-  const [selectedPromoCode, setSelectedPromoCode] = useState(null);
-  const [showUsageModal, setShowUsageModal] = useState(false);
-  const [usageData, setUsageData] = useState(null);
-  const [usageLoading, setUsageLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(20);
-  const [totalPages, setTotalPages] = useState(1);
+  const [promoCodes, setPromoCodes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [editingPromoCode, setEditingPromoCode] = useState(null)
+  const [selectedPromoCode, setSelectedPromoCode] = useState(null)
+  const [showUsageModal, setShowUsageModal] = useState(false)
+  const [usageData, setUsageData] = useState(null)
+  const [usageLoading, setUsageLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [limit] = useState(20)
+  const [totalPages, setTotalPages] = useState(1)
   const [filters, setFilters] = useState({
     isActive: null,
     promoType: null,
-  });
+  })
 
   // Get auth token
   const getAuthToken = () => {
-    const localData = localStorage.getItem("User");
-    return localData ? JSON.parse(localData).token : null;
-  };
+    const localData = localStorage.getItem('User')
+    return localData ? JSON.parse(localData).token : null
+  }
 
   // Fetch promo codes
   const fetchPromoCodes = async () => {
     try {
-      setLoading(true);
-      const authToken = getAuthToken();
+      setLoading(true)
+      const authToken = getAuthToken()
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-      });
+      })
 
       if (filters.isActive !== null) {
-        params.append("isActive", filters.isActive.toString());
+        params.append('isActive', filters.isActive.toString())
       }
       if (filters.promoType) {
-        params.append("promoType", filters.promoType);
+        params.append('promoType', filters.promoType)
       }
 
-      const response = await axios.get(`${Apis.getPromoCodes}?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
+      const response = await axios.get(
+        `${Apis.getPromoCodes}?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      )
 
       if (response.data?.status) {
         // Handle different response structures
-        const data = response.data.data;
+        const data = response.data.data
         if (Array.isArray(data)) {
-          setPromoCodes(data);
+          setPromoCodes(data)
         } else if (data?.promoCodes) {
-          setPromoCodes(data.promoCodes);
+          setPromoCodes(data.promoCodes)
           if (data.totalPages) {
-            setTotalPages(data.totalPages);
+            setTotalPages(data.totalPages)
           }
         } else {
-          setPromoCodes([]);
+          setPromoCodes([])
         }
       }
     } catch (error) {
-      console.error("Error fetching promo codes:", error);
+      console.error('Error fetching promo codes:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchPromoCodes();
-  }, [page, filters]);
+    fetchPromoCodes()
+  }, [page, filters])
 
   const handleEdit = (promoCode) => {
-    setEditingPromoCode(promoCode);
-    setShowModal(true);
-  };
+    setEditingPromoCode(promoCode)
+    setShowModal(true)
+  }
 
   const handleAdd = () => {
-    setEditingPromoCode(null);
-    setShowModal(true);
-  };
+    setEditingPromoCode(null)
+    setShowModal(true)
+  }
 
   const handleModalClose = () => {
-    setShowModal(false);
-    setEditingPromoCode(null);
-    fetchPromoCodes();
-  };
+    setShowModal(false)
+    setEditingPromoCode(null)
+    fetchPromoCodes()
+  }
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this promo code?")) {
-      return;
+    if (!confirm('Are you sure you want to delete this promo code?')) {
+      return
     }
 
     try {
-      const authToken = getAuthToken();
+      const authToken = getAuthToken()
       await axios.delete(`${Apis.deletePromoCode}/${id}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
-      fetchPromoCodes();
+      })
+      fetchPromoCodes()
     } catch (error) {
-      console.error("Error deleting promo code:", error);
-      alert("Error deleting promo code. Please try again.");
+      console.error('Error deleting promo code:', error)
+      alert('Error deleting promo code. Please try again.')
     }
-  };
+  }
 
   const handleViewUsage = async (promoCode) => {
-    setSelectedPromoCode(promoCode);
-    setShowUsageModal(true);
-    setUsageLoading(true);
-    setUsageData(null);
+    setSelectedPromoCode(promoCode)
+    setShowUsageModal(true)
+    setUsageLoading(true)
+    setUsageData(null)
 
     try {
-      const authToken = getAuthToken();
-      const response = await axios.get(`${Apis.getPromoCodeUsage}/${promoCode.id}/usage`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
+      const authToken = getAuthToken()
+      const response = await axios.get(
+        `${Apis.getPromoCodeUsage}/${promoCode.id}/usage`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      )
 
       if (response.data?.status) {
-        console.log("📊 Usage API Response:", response.data);
-        console.log("📊 Usage Data:", response.data.data);
-        console.log("📊 Summary:", response.data.data?.summary);
-        setUsageData(response.data.data);
+        console.log('📊 Usage API Response:', response.data)
+        console.log('📊 Usage Data:', response.data.data)
+        console.log('📊 Summary:', response.data.data?.summary)
+        setUsageData(response.data.data)
       }
     } catch (error) {
-      console.error("Error fetching usage data:", error);
+      console.error('Error fetching usage data:', error)
     } finally {
-      setUsageLoading(false);
+      setUsageLoading(false)
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "N/A";
-    return moment(date).format("MMM DD, YYYY");
-  };
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'N/A'
+    return moment(date).format('MMM DD, YYYY')
+  }
 
   const getDiscountDisplay = (promoCode) => {
-    if (promoCode.promoType === "minutes") {
-      return `${promoCode.redeemableMinutes || 0} minutes`;
+    if (promoCode.promoType === 'minutes') {
+      return `${promoCode.redeemableMinutes || 0} minutes`
     }
-    if (promoCode.promoType === "discount") {
-      if (promoCode.discountType === "percentage") {
-        return `${promoCode.discountValue}% off`;
-      } else if (promoCode.discountType === "flat_amount") {
-        return `$${promoCode.discountValue} off`;
+    if (promoCode.promoType === 'discount') {
+      if (promoCode.discountType === 'percentage') {
+        return `${promoCode.discountValue}% off`
+      } else if (promoCode.discountType === 'flat_amount') {
+        return `$${promoCode.discountValue} off`
       }
     }
-    return "N/A";
-  };
+    return 'N/A'
+  }
 
   const getDurationDisplay = (promoCode) => {
-    if (promoCode.promoType === "discount") {
-      if (!promoCode.discountDurationMonths || promoCode.discountDurationMonths === 0) {
-        return "One-time";
+    if (promoCode.promoType === 'discount') {
+      if (
+        !promoCode.discountDurationMonths ||
+        promoCode.discountDurationMonths === 0
+      ) {
+        return 'One-time'
       }
-      return `${promoCode.discountDurationMonths} months`;
+      return `${promoCode.discountDurationMonths} months`
     }
-    return "N/A";
-  };
+    return 'N/A'
+  }
 
   if (loading && promoCodes.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <CircularProgress size={45} />
       </div>
-    );
+    )
   }
 
   return (
     <div className="p-6 space-y-6 h-full overflow-auto">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Promo Codes</h1>
-        <Button onClick={handleAdd} className="bg-purple-600 hover:bg-purple-700">
+        <Button
+          onClick={handleAdd}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add New Promo Code
         </Button>
@@ -199,11 +221,12 @@ const AdminPromoCodes = () => {
       {/* Filters */}
       <div className="flex gap-4 items-center">
         <select
-          value={filters.isActive ?? ""}
+          value={filters.isActive ?? ''}
           onChange={(e) =>
             setFilters({
               ...filters,
-              isActive: e.target.value === "" ? null : e.target.value === "true",
+              isActive:
+                e.target.value === '' ? null : e.target.value === 'true',
             })
           }
           className="px-4 py-2 border rounded-md"
@@ -213,11 +236,11 @@ const AdminPromoCodes = () => {
           <option value="false">Inactive</option>
         </select>
         <select
-          value={filters.promoType ?? ""}
+          value={filters.promoType ?? ''}
           onChange={(e) =>
             setFilters({
               ...filters,
-              promoType: e.target.value === "" ? null : e.target.value,
+              promoType: e.target.value === '' ? null : e.target.value,
             })
           }
           className="px-4 py-2 border rounded-md"
@@ -261,23 +284,30 @@ const AdminPromoCodes = () => {
                         <Badge
                           variant="outline"
                           className={
-                            promoCode.promoType === "discount"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
+                            promoCode.promoType === 'discount'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-green-100 text-green-800'
                           }
                         >
-                          {promoCode.promoType === "discount" ? "Discount" : "Minutes"}
+                          {promoCode.promoType === 'discount'
+                            ? 'Discount'
+                            : 'Minutes'}
                         </Badge>
                       </TableCell>
                       <TableCell>{getDiscountDisplay(promoCode)}</TableCell>
                       <TableCell>{getDurationDisplay(promoCode)}</TableCell>
                       <TableCell>
-                        {promoCode.currentRedemptions || 0} / {promoCode.maxRedemptions || "∞"}
+                        {promoCode.currentRedemptions || 0} /{' '}
+                        {promoCode.maxRedemptions || '∞'}
                       </TableCell>
-                      <TableCell>{formatDate(promoCode.expirationDate)}</TableCell>
                       <TableCell>
-                        <Badge variant={promoCode.isActive ? "default" : "secondary"}>
-                          {promoCode.isActive ? "Active" : "Inactive"}
+                        {formatDate(promoCode.expirationDate)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={promoCode.isActive ? 'default' : 'secondary'}
+                        >
+                          {promoCode.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
                       <TableCell>{formatDate(promoCode.createdAt)}</TableCell>
@@ -311,7 +341,10 @@ const AdminPromoCodes = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                    <TableCell
+                      colSpan={9}
+                      className="text-center py-8 text-gray-500"
+                    >
                       No promo codes found
                     </TableCell>
                   </TableRow>
@@ -373,20 +406,23 @@ const AdminPromoCodes = () => {
                 <div className="space-y-6">
                   {/* Calculate summary from usageRecords if summary is not available */}
                   {(() => {
-                    const usageRecords = usageData?.usageRecords || [];
+                    const usageRecords = usageData?.usageRecords || []
                     const summary = usageData?.summary || {
                       totalRedemptions: usageRecords.length,
                       totalDiscountGiven: usageRecords.reduce((sum, record) => {
-                        return sum + (parseFloat(record.totalDiscountGiven) || 0);
+                        return (
+                          sum + (parseFloat(record.totalDiscountGiven) || 0)
+                        )
                       }, 0),
                       activeSubscriptions: usageRecords.filter(
-                        (r) => r.status === "active" && (r.monthsRemaining || 0) > 0
+                        (r) =>
+                          r.status === 'active' && (r.monthsRemaining || 0) > 0,
                       ).length,
                       expiredSubscriptions: usageRecords.filter(
-                        (r) => r.status === "expired"
+                        (r) => r.status === 'expired',
                       ).length,
-                    };
-                    
+                    }
+
                     return (
                       <>
                         {/* Summary Statistics */}
@@ -397,25 +433,34 @@ const AdminPromoCodes = () => {
                           <CardContent>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <div>
-                                <p className="text-sm text-gray-600">Total Redemptions</p>
+                                <p className="text-sm text-gray-600">
+                                  Total Redemptions
+                                </p>
                                 <p className="text-2xl font-bold">
                                   {summary.totalRedemptions || 0}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-600">Total Discount Given</p>
+                                <p className="text-sm text-gray-600">
+                                  Total Discount Given
+                                </p>
                                 <p className="text-2xl font-bold">
-                                  ${(summary.totalDiscountGiven || 0).toFixed(2)}
+                                  $
+                                  {(summary.totalDiscountGiven || 0).toFixed(2)}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-600">Active Subscriptions</p>
+                                <p className="text-sm text-gray-600">
+                                  Active Subscriptions
+                                </p>
                                 <p className="text-2xl font-bold">
                                   {summary.activeSubscriptions || 0}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-600">Expired Subscriptions</p>
+                                <p className="text-sm text-gray-600">
+                                  Expired Subscriptions
+                                </p>
                                 <p className="text-2xl font-bold">
                                   {summary.expiredSubscriptions || 0}
                                 </p>
@@ -441,7 +486,9 @@ const AdminPromoCodes = () => {
                                       <TableHead>Discount Value</TableHead>
                                       <TableHead>Status</TableHead>
                                       <TableHead>Months Remaining</TableHead>
-                                      <TableHead>Total Discount Given</TableHead>
+                                      <TableHead>
+                                        Total Discount Given
+                                      </TableHead>
                                       <TableHead>Applied At</TableHead>
                                       <TableHead>Next Charge Date</TableHead>
                                     </TableRow>
@@ -450,46 +497,53 @@ const AdminPromoCodes = () => {
                                     {usageRecords.map((record) => (
                                       <TableRow key={record.id}>
                                         <TableCell>
-                                          {record.User?.name || "N/A"}
+                                          {record.User?.name || 'N/A'}
                                         </TableCell>
                                         <TableCell>
-                                          {record.User?.email || "N/A"}
+                                          {record.User?.email || 'N/A'}
                                         </TableCell>
                                         <TableCell>
                                           <Badge
                                             variant="outline"
                                             className={
-                                              record.discountType === "percentage"
-                                                ? "bg-blue-100 text-blue-800"
-                                                : "bg-green-100 text-green-800"
+                                              record.discountType ===
+                                              'percentage'
+                                                ? 'bg-blue-100 text-blue-800'
+                                                : 'bg-green-100 text-green-800'
                                             }
                                           >
-                                            {record.discountType || "N/A"}
+                                            {record.discountType || 'N/A'}
                                           </Badge>
                                         </TableCell>
                                         <TableCell>
-                                          {record.discountType === "percentage"
+                                          {record.discountType === 'percentage'
                                             ? `${record.discountValue}%`
                                             : `$${record.discountValue}`}
                                         </TableCell>
                                         <TableCell>
                                           <Badge
                                             variant={
-                                              record.status === "active"
-                                                ? "default"
-                                                : record.status === "expired"
-                                                ? "secondary"
-                                                : "outline"
+                                              record.status === 'active'
+                                                ? 'default'
+                                                : record.status === 'expired'
+                                                  ? 'secondary'
+                                                  : 'outline'
                                             }
                                           >
-                                            {record.status || "N/A"}
+                                            {record.status || 'N/A'}
                                           </Badge>
                                         </TableCell>
                                         <TableCell>
-                                          {record.monthsRemaining || 0} / {record.totalMonthsApplicable || 0}
+                                          {record.monthsRemaining || 0} /{' '}
+                                          {record.totalMonthsApplicable || 0}
                                         </TableCell>
                                         <TableCell>
-                                          ${(parseFloat(record.totalDiscountGiven) || 0).toFixed(2)}
+                                          $
+                                          {(
+                                            parseFloat(
+                                              record.totalDiscountGiven,
+                                            ) || 0
+                                          ).toFixed(2)}
                                         </TableCell>
                                         <TableCell>
                                           {formatDate(record.appliedAt)}
@@ -504,9 +558,14 @@ const AdminPromoCodes = () => {
                               </div>
                               {usageData?.pagination && (
                                 <div className="mt-4 text-sm text-gray-600">
-                                  Showing {usageRecords.length} of {usageData.pagination.total} records
+                                  Showing {usageRecords.length} of{' '}
+                                  {usageData.pagination.total} records
                                   {usageData.pagination.totalPages > 1 && (
-                                    <span> (Page {usageData.pagination.page} of {usageData.pagination.totalPages})</span>
+                                    <span>
+                                      {' '}
+                                      (Page {usageData.pagination.page} of{' '}
+                                      {usageData.pagination.totalPages})
+                                    </span>
                                   )}
                                 </div>
                               )}
@@ -520,7 +579,7 @@ const AdminPromoCodes = () => {
                           </Card>
                         )}
                       </>
-                    );
+                    )
                   })()}
                 </div>
               ) : (
@@ -533,8 +592,7 @@ const AdminPromoCodes = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default AdminPromoCodes;
-
+export default AdminPromoCodes

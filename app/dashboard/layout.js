@@ -1,19 +1,21 @@
-"use client";
-import { useState, useEffect } from "react";
-import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
-import ErrorBoundary from "@/components/ErrorBoundary";
+'use client'
+
+import { useEffect, useState } from 'react'
+
+import ErrorBoundary from '@/components/ErrorBoundary'
+import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
 // import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOAuthWatcher";
-import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOauthWatcher";
+import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
 
 const shouldShowServiceBanner =
-  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === "Yes";
+  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
 
 export default function DashboardLayout({ children }) {
   const message =
-    "Our voice system is currently undergoing maintenance. Adding a few updates.";
+    'Our voice system is currently undergoing maintenance. Adding a few updates.'
 
-  const [typedMessage, setTypedMessage] = useState(message);
-  const [charIndex, setCharIndex] = useState(0);
+  const [typedMessage, setTypedMessage] = useState(message)
+  const [charIndex, setCharIndex] = useState(0)
 
   //   useEffect(() => {
   //     if (shouldShowServiceBanner && charIndex < message.length) {
@@ -41,15 +43,16 @@ export default function DashboardLayout({ children }) {
 
         {/* Main Layout */}
         <div
-          className={`flex flex-row w-full ${shouldShowServiceBanner ? "pt-[4vh]" : ""
-            }`}
+          className={`flex flex-row w-full ${
+            shouldShowServiceBanner ? 'pt-[4vh]' : ''
+          }`}
         >
           {/* Sidebar */}
           <div
             className="h-screen w-[15%]"
             style={{
-              borderRight: "1px solid #00000010",
-              backgroundColor: "white",
+              borderRight: '1px solid #00000010',
+              backgroundColor: 'white',
             }}
           >
             <ProfileNav />
@@ -66,5 +69,5 @@ export default function DashboardLayout({ children }) {
         </div>
       </div>
     </ErrorBoundary>
-  );
+  )
 }

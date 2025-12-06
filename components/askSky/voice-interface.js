@@ -1,7 +1,8 @@
-import Image from "next/image";
-import { MYAGENTX_URL } from "./constants";
-import { AudioWaveActivity } from "./askskycomponents/AudioWaveActivity";
-import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
+import Image from 'next/image'
+
+import { AudioWaveActivity } from './askskycomponents/AudioWaveActivity'
+import { VoiceWavesComponent } from './askskycomponents/voice-waves'
+import { MYAGENTX_URL } from './constants'
 
 export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
   return (
@@ -17,27 +18,28 @@ export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
             alt="AgentX Orb"
             className="relative z-10 rounded-full bg-white shadow-lg object-cover"
             style={{
-              height: "120px",
-              width: "120px",
+              height: '120px',
+              width: '120px',
             }}
           />
         </div>
         {loading ? (
-          <p style={{
-            whiteSpace:'nowrap'
-          }} className="mt-10 italic w-full text-center truncate">{loadingMessage}</p>
+          <p
+            style={{
+              whiteSpace: 'nowrap',
+            }}
+            className="mt-10 italic w-full text-center truncate"
+          >
+            {loadingMessage}
+          </p>
+        ) : isSpeaking ? (
+          <VoiceWavesComponent className="mt-12" />
         ) : (
-          isSpeaking ? (
-            <VoiceWavesComponent
-              className="mt-12"
-
-            />
-          ) :
-            <AudioWaveActivity
-              isActive={isSpeaking}
-              barCount={15}
-              className="mt-10"
-            />
+          <AudioWaveActivity
+            isActive={isSpeaking}
+            barCount={15}
+            className="mt-10"
+          />
         )}
       </div>
       <div className="relative w-2/3 flex flex-col h-5 items-center justify-center gap-6 z-10">
@@ -60,5 +62,5 @@ export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
         </div>
       </div>
     </>
-  );
+  )
 }

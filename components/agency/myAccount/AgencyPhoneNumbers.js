@@ -1,94 +1,90 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import {
-  CircularProgress,
-  Button,
-  Snackbar,
-  Alert,
-  Fade,
-} from "@mui/material";
+'use client'
+
+import { Alert, Button, CircularProgress, Fade, Snackbar } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import moment from "moment";
-import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
 
 function AgencyPhoneNumbers({ selectedAgency }) {
-  const [phoneNumbers, setPhoneNumbers] = useState([]);
-  const [globalNumber, setGlobalNumber] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(null); // Track which action is loading
-  const [showClaimPopup, setShowClaimPopup] = useState(false);
+  const [phoneNumbers, setPhoneNumbers] = useState([])
+  const [globalNumber, setGlobalNumber] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState(null) // Track which action is loading
+  const [showClaimPopup, setShowClaimPopup] = useState(false)
   const [snackMsg, setSnackMsg] = useState({
     type: SnackbarTypes.Success,
-    message: "",
+    message: '',
     isVisible: false,
-  });
+  })
 
   useEffect(() => {
-    fetchPhoneNumbers();
-  }, []);
+    fetchPhoneNumbers()
+  }, [])
 
   const fetchPhoneNumbers = async () => {
     try {
-      setLoading(true);
-      const token = AuthToken();
+      setLoading(true)
+      const token = AuthToken()
       if (!token) {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message: "Authentication token not found",
+          message: 'Authentication token not found',
           isVisible: true,
-        });
-        return;
+        })
+        return
       }
 
       const response = await axios.get(Apis.getAgencyPhoneNumbers, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response?.data?.status === true) {
-        const data = response.data.data;
-        setPhoneNumbers(data.phoneNumbers || []);
-        setGlobalNumber(data.globalNumber || null);
+        const data = response.data.data
+        setPhoneNumbers(data.phoneNumbers || [])
+        setGlobalNumber(data.globalNumber || null)
       } else {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message: response?.data?.message || "Failed to fetch phone numbers",
+          message: response?.data?.message || 'Failed to fetch phone numbers',
           isVisible: true,
-        });
+        })
       }
     } catch (error) {
-      console.error("Error fetching phone numbers:", error);
+      console.error('Error fetching phone numbers:', error)
       setSnackMsg({
         type: SnackbarTypes.Error,
         message:
           error?.response?.data?.message ||
-          "An error occurred while fetching phone numbers",
+          'An error occurred while fetching phone numbers',
         isVisible: true,
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSetGlobalNumber = async (phoneNumberId) => {
     try {
-      setActionLoading(`set-${phoneNumberId}`);
-      const token = AuthToken();
+      setActionLoading(`set-${phoneNumberId}`)
+      const token = AuthToken()
       if (!token) {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message: "Authentication token not found",
+          message: 'Authentication token not found',
           isVisible: true,
-        });
-        return;
+        })
+        return
       }
 
       const response = await axios.post(
@@ -97,55 +93,54 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        }
-      );
+        },
+      )
 
       if (response?.data?.status === true) {
-        const data = response.data.data;
+        const data = response.data.data
         setSnackMsg({
           type: SnackbarTypes.Success,
           message: data.alreadySet
-            ? "This number is already set as the global number"
-            : "Global number updated successfully",
+            ? 'This number is already set as the global number'
+            : 'Global number updated successfully',
           isVisible: true,
-        });
+        })
         // Refresh the list
-        await fetchPhoneNumbers();
+        await fetchPhoneNumbers()
       } else {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message:
-            response?.data?.message || "Failed to set global number",
+          message: response?.data?.message || 'Failed to set global number',
           isVisible: true,
-        });
+        })
       }
     } catch (error) {
-      console.error("Error setting global number:", error);
+      console.error('Error setting global number:', error)
       setSnackMsg({
         type: SnackbarTypes.Error,
         message:
           error?.response?.data?.message ||
-          "An error occurred while setting global number",
+          'An error occurred while setting global number',
         isVisible: true,
-      });
+      })
     } finally {
-      setActionLoading(null);
+      setActionLoading(null)
     }
-  };
+  }
 
   const handleUnsetGlobalNumber = async () => {
     try {
-      setActionLoading("unset");
-      const token = AuthToken();
+      setActionLoading('unset')
+      const token = AuthToken()
       if (!token) {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message: "Authentication token not found",
+          message: 'Authentication token not found',
           isVisible: true,
-        });
-        return;
+        })
+        return
       }
 
       const response = await axios.post(
@@ -154,80 +149,82 @@ function AgencyPhoneNumbers({ selectedAgency }) {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        }
-      );
+        },
+      )
 
       if (response?.data?.status === true) {
         setSnackMsg({
           type: SnackbarTypes.Success,
-          message: "Global number unset successfully",
+          message: 'Global number unset successfully',
           isVisible: true,
-        });
+        })
         // Refresh the list
-        await fetchPhoneNumbers();
+        await fetchPhoneNumbers()
       } else {
         setSnackMsg({
           type: SnackbarTypes.Error,
-          message:
-            response?.data?.message || "Failed to unset global number",
+          message: response?.data?.message || 'Failed to unset global number',
           isVisible: true,
-        });
+        })
       }
     } catch (error) {
-      console.error("Error unsetting global number:", error);
+      console.error('Error unsetting global number:', error)
       setSnackMsg({
         type: SnackbarTypes.Error,
         message:
           error?.response?.data?.message ||
-          "An error occurred while unsetting global number",
+          'An error occurred while unsetting global number',
         isVisible: true,
-      });
+      })
     } finally {
-      setActionLoading(null);
+      setActionLoading(null)
     }
-  };
+  }
 
   const getSourceLabel = (source) => {
     switch (source) {
-      case "agentx":
-        return "AgentX";
-      case "user_twilio":
-        return "Your Twilio";
-      case "imported":
-        return "Imported";
+      case 'agentx':
+        return 'AgentX'
+      case 'user_twilio':
+        return 'Your Twilio'
+      case 'imported':
+        return 'Imported'
       default:
-        return source || "Unknown";
+        return source || 'Unknown'
     }
-  };
+  }
 
   const formatPhoneNumber = (phone) => {
     // Format phone number for display (e.g., +1 (555) 123-4567)
-    if (!phone) return "";
-    const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.length === 11 && cleaned[0] === "1") {
-      return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`;
+    if (!phone) return ''
+    const cleaned = phone.replace(/\D/g, '')
+    if (cleaned.length === 11 && cleaned[0] === '1') {
+      return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7)}`
     }
-    return phone;
-  };
+    return phone
+  }
 
   const handleCloseClaimPopup = () => {
-    setShowClaimPopup(false);
-  };
+    setShowClaimPopup(false)
+  }
 
   return (
-    <div className="w-full p-8" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+    <div
+      className="w-full p-8"
+      style={{ maxWidth: '1200px', margin: '0 auto' }}
+    >
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
           <div
             className="text-2xl font-semibold mb-2"
-            style={{ color: "#000" }}
+            style={{ color: '#000' }}
           >
             Phone Numbers List
           </div>
-          <div className="text-sm" style={{ color: "#666" }}>
+          <div className="text-sm" style={{ color: '#666' }}>
             Manage your agency global phone numbers. The global number will be
             visible to all subaccounts.
           </div>
@@ -236,10 +233,10 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           variant="contained"
           onClick={() => setShowClaimPopup(true)}
           style={{
-            backgroundColor: "#7902DF",
-            color: "#fff",
-            textTransform: "none",
-            minWidth: "150px",
+            backgroundColor: 'hsl(var(--brand-primary))',
+            color: '#fff',
+            textTransform: 'none',
+            minWidth: '150px',
           }}
         >
           Get Global Number
@@ -287,37 +284,39 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       {/* Phone Numbers List */}
       {loading ? (
         <div className="flex justify-center items-center py-12">
-          <CircularProgress style={{ color: "#7902DF" }} />
+          <CircularProgress style={{ color: 'hsl(var(--brand-primary))' }} />
         </div>
       ) : phoneNumbers.length === 0 ? (
         <div
           className="text-center py-12 rounded-lg"
-          style={{ backgroundColor: "#f5f5f5" }}
+          style={{ backgroundColor: '#f5f5f5' }}
         >
-          <div className="text-lg font-medium mb-2" style={{ color: "#666" }}>
+          <div className="text-lg font-medium mb-2" style={{ color: '#666' }}>
             No phone numbers found
           </div>
-          <div className="text-sm" style={{ color: "#999" }}>
+          <div className="text-sm" style={{ color: '#999' }}>
             Add phone numbers to your account to get started.
           </div>
         </div>
       ) : (
         <div
           className="flex flex-col gap-4 overflow-y-auto"
-          style={{ maxHeight: "600px" }}
+          style={{ maxHeight: '600px' }}
         >
           {phoneNumbers.map((number) => {
-            const isGlobal = number.isAgencyGlobalNumber;
-            const isSubaccountNumber = number.subaccountNumber;
-            const isLoading = actionLoading === `set-${number.id}`;
+            const isGlobal = number.isAgencyGlobalNumber
+            const isSubaccountNumber = number.subaccountNumber
+            const isDisabled = number.disabled === true
+            const isLoading = actionLoading === `set-${number.id}`
 
             return (
               <div
                 key={number.id}
                 className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
-                  borderColor: isGlobal ? "#7902DF" : "#e0e0e0",
-                  backgroundColor: isGlobal ? "#7902DF10" : "#fff",
+                  borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
+                  backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
+                  opacity: isDisabled ? 0.7 : 1,
                 }}
               >
                 {/* Left Section - Phone Number Info */}
@@ -325,15 +324,22 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                   <div className="flex items-center gap-3 mb-2">
                     {isGlobal && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
-                        style={{ backgroundColor: "#7902DF", color: "#fff" }}
+                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-brand-primary text-white"
                       >
                         Global Number
                       </div>
                     )}
+                    {isDisabled && (
+                      <div
+                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                        style={{ backgroundColor: '#999', color: '#fff' }}
+                      >
+                        Disabled
+                      </div>
+                    )}
                     <div
                       className="text-xl font-semibold"
-                      style={{ color: "#000" }}
+                      style={{ color: isDisabled ? '#999' : '#000' }}
                     >
                       {formatPhoneNumber(number.phone)}
                     </div>
@@ -361,13 +367,25 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                     <div
                       className="text-sm py-2 px-4 text-center rounded"
                       style={{
-                        color: "#666",
-                        fontWeight: "500",
-                        minWidth: "180px",
-                        backgroundColor: "#f5f5f5",
+                        color: '#666',
+                        fontWeight: '500',
+                        minWidth: '180px',
+                        backgroundColor: '#f5f5f5',
                       }}
                     >
-                      {number.subaccountName || "Subaccount"}
+                      {number.subaccountName || 'Subaccount'}
+                    </div>
+                  ) : isDisabled ? (
+                    <div
+                      className="text-sm py-2 px-4 text-center rounded"
+                      style={{
+                        color: '#999',
+                        fontWeight: '500',
+                        minWidth: '180px',
+                        backgroundColor: '#f5f5f5',
+                      }}
+                    >
+                      Disabled
                     </div>
                   ) : !isGlobal ? (
                     <Button
@@ -375,16 +393,16 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                       onClick={() => handleSetGlobalNumber(number.id)}
                       disabled={isLoading}
                       style={{
-                        backgroundColor: "#7902DF",
-                        color: "#fff",
-                        textTransform: "none",
-                        minWidth: "100px",
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                        color: '#fff',
+                        textTransform: 'none',
+                        minWidth: '100px',
                       }}
                     >
                       {isLoading ? (
-                        <CircularProgress size={20} style={{ color: "#fff" }} />
+                        <CircularProgress size={20} style={{ color: '#fff' }} />
                       ) : (
-                        "Set Global Number"
+                        'Set Global Number'
                       )}
                     </Button>
                   ) : null}
@@ -399,16 +417,13 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                   )} */}
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
 
       {/* Snackbar for messages */}
-      <AgentSelectSnackMessage
-        snackMsg={snackMsg}
-        setSnackMsg={setSnackMsg}
-      />
+      <AgentSelectSnackMessage snackMsg={snackMsg} setSnackMsg={setSnackMsg} />
 
       {/* Claim Number Modal */}
       {showClaimPopup && (
@@ -421,15 +436,14 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           previousNumber={[]}
           AssignNumber={async (phoneNumber) => {
             // After purchase, refresh the phone numbers list
-            await fetchPhoneNumbers();
-            setShowClaimPopup(false);
+            await fetchPhoneNumbers()
+            setShowClaimPopup(false)
           }}
           selectedUSer={selectedAgency}
         />
       )}
     </div>
-  );
+  )
 }
 
-export default AgencyPhoneNumbers;
-
+export default AgencyPhoneNumbers

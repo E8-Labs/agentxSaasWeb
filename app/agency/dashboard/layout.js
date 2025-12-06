@@ -1,19 +1,21 @@
-"use client";
-import { useState, useEffect } from "react";
-import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import AgencyNavBar from "@/components/dashboard/Navbar/AgencyNavBar";
+'use client'
+
+import { useEffect, useState } from 'react'
+
+import ErrorBoundary from '@/components/ErrorBoundary'
+import AgencyNavBar from '@/components/dashboard/Navbar/AgencyNavBar'
+import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
 
 const shouldShowServiceBanner =
-  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === "Yes";
+  process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
 
 export default function DashboardLayout({ children }) {
   const message =
-    "Taking a brief pause to invent the future. Calls will resume soon.";
-    //Our voice system is currently undergoing maintenance. Adding a few updates.
+    'Taking a brief pause to invent the future. Calls will resume soon.'
+  //Our voice system is currently undergoing maintenance. Adding a few updates.
 
-  const [typedMessage, setTypedMessage] = useState(message);
-  const [charIndex, setCharIndex] = useState(0);
+  const [typedMessage, setTypedMessage] = useState(message)
+  const [charIndex, setCharIndex] = useState(0)
 
   //   useEffect(() => {
   //     if (shouldShowServiceBanner && charIndex < message.length) {
@@ -42,15 +44,15 @@ export default function DashboardLayout({ children }) {
         {/* Main Layout */}
         <div
           className={`flex flex-row w-full ${
-            shouldShowServiceBanner ? "pt-[4vh]" : ""
+            shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
         >
           {/* Sidebar */}
           <div
             className="h-screen w-2/12"
             style={{
-              borderRight: "1px solid #00000010",
-              backgroundColor: "white",
+              borderRight: '1px solid #00000010',
+              backgroundColor: 'white',
             }}
           >
             <AgencyNavBar />
@@ -64,5 +66,5 @@ export default function DashboardLayout({ children }) {
         </div>
       </div>
     </ErrorBoundary>
-  );
+  )
 }

@@ -9,23 +9,27 @@ Planning documents in this directory serve as the architectural and implementati
 ## Core Principles for Codex Agents
 
 ### 1. Modularity First
+
 - Break down complex plans into small, independent, testable phases
 - Each planning document should focus on a single architectural concern
 - Design for composability - components should work independently and together
 
 ### 2. Iterate, Don't Overplan
+
 - Start with a minimal viable plan rather than exhaustive upfront design
 - Use the read → edit → test → refine loop
 - Validate assumptions early through code examples and prototypes
 - Adjust plans based on implementation feedback
 
 ### 3. Fast Feedback Loops
+
 - Include validation commands after each implementation step
 - Specify linting, formatting, and testing requirements explicitly
 - Use pre-commit hooks and CI checks as guardrails
 - Make plans verifiable through automated checks
 
 ### 4. Clear Success Criteria
+
 - Every phase must have measurable completion criteria
 - Define what "done" looks like before implementation begins
 - Include troubleshooting guides for common failure modes
@@ -49,6 +53,7 @@ Author: [Author/Team Name]
 ```
 
 **Status Values:**
+
 - `Documentation` - Reference documentation and patterns
 - `Ready for Implementation` - Actionable implementation plans
 - `Updated - [Reason]` - Revised documents (specify what changed)
@@ -57,6 +62,7 @@ Author: [Author/Team Name]
 - `Completed` - Implementation finished and validated
 
 **Versioning:**
+
 - **Minor bump** (1.0 → 1.1): Clarifications, examples, minor corrections
 - **Major bump** (1.x → 2.0): Architectural changes, new requirements, policy changes
 
@@ -160,19 +166,23 @@ Implementation plans break architecture into executable phases.
 
 ### Structure for Each Phase:
 
-```markdown
+````markdown
 ## Phase N: [Phase Name]
 
 ### Context
+
 Why this phase matters and what problem it solves.
 
 ### Prerequisites
+
 - [ ] Previous phase completed and validated
 - [ ] Dependencies installed: `npm install <package>`
 - [ ] Environment configured: `<specific setup>`
 
 ### What to Implement
+
 Detailed checklist of deliverables:
+
 - [ ] Create `src/components/foo.tsx`
 - [ ] Add unit tests in `src/components/foo.test.tsx`
 - [ ] Update `src/types/index.ts` with new types
@@ -185,23 +195,25 @@ Detailed checklist of deliverables:
    # Create file
    touch src/components/foo.tsx
    ```
+````
 
-   ```typescript
-   // src/components/foo.tsx
-   import { forwardRef } from 'react';
+```typescript
+// src/components/foo.tsx
+import { forwardRef } from 'react'
 
-   export interface FooProps {
-     // ... type definitions
-   }
+export interface FooProps {
+  // ... type definitions
+}
 
-   export const Foo = forwardRef<HTMLDivElement, FooProps>((props, ref) => {
-     // ... implementation
-   });
+export const Foo = forwardRef<HTMLDivElement, FooProps>((props, ref) => {
+  // ... implementation
+})
 
-   Foo.displayName = 'Foo';
-   ```
+Foo.displayName = 'Foo'
+```
 
 2. **Add tests**
+
    ```bash
    # Create test file
    touch src/components/foo.test.tsx
@@ -222,6 +234,7 @@ Detailed checklist of deliverables:
    ```
 
 3. **Validate implementation**
+
    ```bash
    # Type check
    npm run type-check
@@ -237,6 +250,7 @@ Detailed checklist of deliverables:
    ```
 
 ### Success Criteria
+
 - [ ] All tests passing
 - [ ] No TypeScript errors (strict mode)
 - [ ] No linting errors
@@ -251,7 +265,8 @@ Detailed checklist of deliverables:
 
 **Issue**: Build fails
 **Solution**: Check that all imports use correct paths and exports are defined
-```
+
+````
 
 ## Current State Documentation
 
@@ -278,11 +293,12 @@ Brief description of how the system currently works.
 - API remains compatible for 2 minor versions
 - Migration guide will be provided
 - Codemods will be offered for automatic migration
-```
+````
 
 ## Code Block Guidelines
 
 ### Import Statements
+
 Always show full imports, never use abbreviated or assumed imports:
 
 ```typescript
@@ -298,6 +314,7 @@ import { useState } from 'react';
 ```
 
 ### Type Annotations
+
 All functions, parameters, and variables should have explicit types:
 
 ```typescript
@@ -319,32 +336,36 @@ export function UserCard({ user, onEdit }) {
 ```
 
 ### Realistic Examples
+
 Show complete, working examples that could be copy-pasted:
 
 ```typescript
 // ✅ GOOD: Complete, realistic example
-import { create } from 'zustand';
-import type { User } from '@/types/user';
+import { create } from 'zustand'
+
+import type { User } from '@/types/user'
 
 interface UserStore {
-  users: User[];
-  addUser: (user: User) => void;
-  removeUser: (id: string) => void;
+  users: User[]
+  addUser: (user: User) => void
+  removeUser: (id: string) => void
 }
 
 export const useUserStore = create<UserStore>((set) => ({
   users: [],
-  addUser: (user) => set((state) => ({
-    users: [...state.users, user]
-  })),
-  removeUser: (id) => set((state) => ({
-    users: state.users.filter(u => u.id !== id)
-  })),
-}));
+  addUser: (user) =>
+    set((state) => ({
+      users: [...state.users, user],
+    })),
+  removeUser: (id) =>
+    set((state) => ({
+      users: state.users.filter((u) => u.id !== id),
+    })),
+}))
 
 // Usage example:
 function UserList() {
-  const { users, addUser } = useUserStore();
+  const { users, addUser } = useUserStore()
   // ... component implementation
 }
 
@@ -352,10 +373,11 @@ function UserList() {
 const store = create((set) => ({
   // ... some state
   // ... some actions
-}));
+}))
 ```
 
 ### Comment Complex Logic
+
 Explain non-obvious decisions and algorithms:
 
 ```typescript
@@ -382,6 +404,7 @@ export function calculateDiscount(price: number, tier: string): number {
 ```
 
 ### Omitted Code
+
 Use `// ...` to indicate intentionally omitted code:
 
 ```typescript
@@ -410,23 +433,26 @@ export function ComplexComponent({ data }: Props) {
 All UI components MUST follow these patterns:
 
 1. **Use ShadCN components from `@workspace/ui`**
+
    ```typescript
-   import { Button } from '@workspace/ui/components/button';
-   import { Card } from '@workspace/ui/components/card';
+   import { Button } from '@workspace/ui/components/button'
+   import { Card } from '@workspace/ui/components/card'
    ```
 
 2. **Semantic color tokens only** (never hardcoded colors)
+
    ```typescript
    // ✅ GOOD
-   className="bg-primary text-primary-foreground"
-   className="bg-success-light text-success-dark"
+   className = 'bg-primary text-primary-foreground'
+   className = 'bg-success-light text-success-dark'
 
    // ❌ BAD
-   className="bg-blue-500 text-white"
-   className="bg-green-100 text-green-900"
+   className = 'bg-blue-500 text-white'
+   className = 'bg-green-100 text-green-900'
    ```
 
 3. **HSL CSS variables with light/dark mode**
+
    ```css
    /* styles.css */
    :root {
@@ -441,6 +467,7 @@ All UI components MUST follow these patterns:
    ```
 
 4. **Use `cn()` utility for dynamic classes**
+
    ```typescript
    import { cn } from '@workspace/ui/lib/utils';
 
@@ -458,8 +485,9 @@ All UI components MUST follow these patterns:
    ```
 
 5. **Class Variance Authority (CVA) for variants**
+
    ```typescript
-   import { cva, type VariantProps } from 'class-variance-authority';
+   import { type VariantProps, cva } from 'class-variance-authority'
 
    const buttonVariants = cva(
      'inline-flex items-center justify-center rounded-md',
@@ -479,8 +507,8 @@ All UI components MUST follow these patterns:
          variant: 'default',
          size: 'default',
        },
-     }
-   );
+     },
+   )
 
    export interface ButtonProps
      extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -488,6 +516,7 @@ All UI components MUST follow these patterns:
    ```
 
 6. **Use Radix Slot (`asChild`) for polymorphic components**
+
    ```typescript
    import { Slot } from '@radix-ui/react-slot';
 
@@ -498,6 +527,7 @@ All UI components MUST follow these patterns:
    ```
 
 7. **Interactive components: `forwardRef` + `className`**
+
    ```typescript
    import { forwardRef } from 'react';
 
@@ -517,6 +547,7 @@ All UI components MUST follow these patterns:
    ```
 
 8. **Accessibility: Focus states + ARIA attributes**
+
    ```typescript
    <button
      aria-label="Close dialog"
@@ -528,8 +559,9 @@ All UI components MUST follow these patterns:
    ```
 
 9. **Desktop-first responsive design**
+
    ```typescript
-   className="grid grid-cols-4 gap-4 md:grid-cols-2 sm:grid-cols-1"
+   className = 'grid grid-cols-4 gap-4 md:grid-cols-2 sm:grid-cols-1'
    // Desktop: 4 columns
    // Tablet: 2 columns
    // Mobile: 1 column
@@ -538,6 +570,7 @@ All UI components MUST follow these patterns:
 10. **Validate UI changes with Chrome DevTools MCP**
     ```markdown
     ### UI Validation Steps
+
     1. Use `mcp__chrome-devtools__take_snapshot` to capture accessibility tree
     2. Verify focus states with `mcp__chrome-devtools__hover` and keyboard navigation
     3. Test responsive layouts by resizing with `mcp__chrome-devtools__resize_page`
@@ -582,10 +615,11 @@ export function Logo() {
 ### Testing Requirements
 
 1. **Use Vitest exclusively**
+
    ```typescript
-   import { describe, it, expect, vi, beforeEach } from 'vitest';
-   import { render, screen, waitFor } from '@testing-library/react';
-   import userEvent from '@testing-library/user-event';
+   import { render, screen, waitFor } from '@testing-library/react'
+   import userEvent from '@testing-library/user-event'
+   import { beforeEach, describe, expect, it, vi } from 'vitest'
    ```
 
 2. **Write tests for new/changed behavior**
@@ -594,6 +628,7 @@ export function Logo() {
    - Integration tests for data flow
 
 3. **TypeScript strict mode, no `any`**
+
    ```typescript
    // ✅ GOOD
    function process(data: unknown): Result {
@@ -676,9 +711,9 @@ When implementing from planning documents, verify:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | TBD | Initial version with Codex-specific guidelines |
+| Version | Date | Changes                                        |
+| ------- | ---- | ---------------------------------------------- |
+| 1.0     | TBD  | Initial version with Codex-specific guidelines |
 
 ## Cross-References
 

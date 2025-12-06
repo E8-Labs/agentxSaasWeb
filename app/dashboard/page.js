@@ -1,8 +1,5 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
+'use client'
+
 import {
   CircularProgress,
   FormControl,
@@ -11,127 +8,133 @@ import {
   Popover,
   Select,
   Typography,
-} from "@mui/material";
-import moment from "moment";
-import getProfileDetails from "@/components/apis/GetProfile";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import { useRouter } from "next/navigation";
-import BackgroundVideo from "@/components/general/BackgroundVideo";
-import { Constants, PersistanceKeys } from "@/constants/Constants";
-import { convertSecondsToMinDuration } from "@/utilities/utility";
-import DashboardSlider from "@/components/animations/DashboardSlider";
-import { Elements } from "@stripe/react-stripe-js";
-import UpgradePlan from "@/components/userPlans/UpgradePlan";
-import { loadStripe } from "@stripe/stripe-js";
-import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import DashboardSlider from '@/components/animations/DashboardSlider'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import BackgroundVideo from '@/components/general/BackgroundVideo'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import { Constants, PersistanceKeys } from '@/constants/Constants'
+import { convertSecondsToMinDuration } from '@/utilities/utility'
 
 const Page = () => {
-  const router = useRouter();
+  const router = useRouter()
 
   //variable stores screenWidth
-  const [screenWidth, setScreenWidth] = useState(null);
-  const [screenHeight, setScreenHeight] = useState(null);
+  const [screenWidth, setScreenWidth] = useState(null)
+  const [screenHeight, setScreenHeight] = useState(null)
 
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState(null)
 
-  const [showPlansPopup, setShowPlansPopup] = useState(false);
+  const [showPlansPopup, setShowPlansPopup] = useState(false)
 
-  const [statsDetails, setStatsDetails] = useState(null);
-  const [statsComparisonDetails, setStatsComparisonDetails] = useState(null);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [isinItiallyLoaded, setIsInitiallyLoaded] = useState(false);
+  const [statsDetails, setStatsDetails] = useState(null)
+  const [statsComparisonDetails, setStatsComparisonDetails] = useState(null)
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [isinItiallyLoaded, setIsInitiallyLoaded] = useState(false)
 
   //variable for hover
-  const [aIWebinarhover, setAIWebinarhover] = useState(false);
-  const [consultHover, setConsulthover] = useState(false);
+  const [aIWebinarhover, setAIWebinarhover] = useState(false)
+  const [consultHover, setConsulthover] = useState(false)
 
   //code for dropdown
-  const [Duration, setDuration] = useState("24 hrs");
+  const [Duration, setDuration] = useState('24 hrs')
 
   //variables for popover
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const open = Boolean(anchorEl)
   const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,
-    message: "",
-    isVisible: false
-  });
+    message: '',
+    isVisible: false,
+  })
 
   let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-  const stripePromise = loadStripe(stripePublickKey);
-
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+  const stripePromise = loadStripe(stripePublickKey)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      let screnW = window.innerWidth;
-      let screnH = window.innerHeight;
-      setScreenWidth(screnW);
-      setScreenHeight(screnH);
+    if (typeof window !== 'undefined') {
+      let screnW = window.innerWidth
+      let screnH = window.innerHeight
+      setScreenWidth(screnW)
+      setScreenHeight(screnH)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     // //console.log;
     // //console.log;
-  }, [statsDetails, statsComparisonDetails]);
+  }, [statsDetails, statsComparisonDetails])
 
   useEffect(() => {
-    setInitialLoader(true);
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setInitialLoader(true)
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     //console.log;
-    getDashboardData();
-    getProfile();
-  }, []);
+    getDashboardData()
+    getProfile()
+  }, [])
 
   //function for tootip
 
   const handlePopoverOpen = (event) => {
-    setAnchorEl(event.currentTarget); // Correct handling for mouse enter
-  };
+    setAnchorEl(event.currentTarget) // Correct handling for mouse enter
+  }
 
   const handlePopoverClose = () => {
-    setAnchorEl(null); // Correct handling for mouse leave
-  };
+    setAnchorEl(null) // Correct handling for mouse leave
+  }
 
   //function to get user profile details
   const getProfile = async () => {
     try {
-      let response = await getProfileDetails();
+      let response = await getProfileDetails()
 
       // //console.log;
       if (response) {
-        let user = response?.data?.data;
+        let user = response?.data?.data
         if (user) {
-          setUserDetails(user);
+          setUserDetails(user)
         }
-        if (!response?.data?.data?.plan?.status === "cancelled") {
-          setShowPlansPopup(true);
+        if (!response?.data?.data?.plan?.status === 'cancelled') {
+          setShowPlansPopup(true)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is error", error);
     }
-  };
+  }
 
   //function to get the dashboard data
 
   function SaveDashboardDataToLocal(api, data) {
-    localStorage.setItem(api, JSON.stringify(data));
+    localStorage.setItem(api, JSON.stringify(data))
   }
   function GetDashboardDataFromLocalStorage(api) {
-    let d = localStorage.getItem(api);
+    let d = localStorage.getItem(api)
     if (d) {
-      let json = JSON.parse(d);
-      console.log("Dashboard data is", json)
+      let json = JSON.parse(d)
+      console.log('Dashboard data is', json)
 
-      let stats = json.stats;
-      let comp = json.statsComparison;
-      setStatsDetails(stats);
-      setStatsComparisonDetails(comp);
+      let stats = json.stats
+      let comp = json.statsComparison
+      setStatsDetails(stats)
+      setStatsComparisonDetails(comp)
     } else {
       // //console.log;
     }
@@ -140,35 +143,33 @@ const Page = () => {
   const getDashboardData = async (duration) => {
     try {
       // //console.log;
-      let durationValue = 1;
+      let durationValue = 1
 
-      if (duration === "24 hrs") {
-        durationValue = 1;
-      } else if (duration === "Last 7 Days") {
-        durationValue = 7;
-      } else if (duration === "Last 30 Days") {
-        durationValue = 30;
-      } else if (duration === "All time") {
-        durationValue = 365;
+      if (duration === '24 hrs') {
+        durationValue = 1
+      } else if (duration === 'Last 7 Days') {
+        durationValue = 7
+      } else if (duration === 'Last 30 Days') {
+        durationValue = 30
+      } else if (duration === 'All time') {
+        durationValue = 365
       }
 
       // //console.log;
 
-      const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`;
-      // GetDashboardDataFromLocalStorage(ApiPath);
+      const ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`
+      GetDashboardDataFromLocalStorage(ApiPath)
       // if (isinItiallyLoaded === false) {
       // setInitialLoader(true);
       // }
 
-      console.log("ApiPath for dashboard data is", ApiPath);
-
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
+        const UserDetails = JSON.parse(localData)
         // //console.log;
-        setUserDetails(UserDetails.user);
-        AuthToken = UserDetails.token;
+        setUserDetails(UserDetails.user)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
@@ -179,50 +180,50 @@ const Page = () => {
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         console.log("response of dashboard data is", response.data);
         if (response.data.status === true) {
-          console.log("dashboard data is", response.data.data);
-          setStatsDetails(response.data.data.stats);
-          setStatsComparisonDetails(response.data.data.statsComparison);
+          console.log('dashboard data is', response.data.data)
+          setStatsDetails(response.data.data.stats)
+          setStatsComparisonDetails(response.data.data.statsComparison)
 
-          SaveDashboardDataToLocal(ApiPath, response.data.data);
+          SaveDashboardDataToLocal(ApiPath, response.data.data)
         }
       }
     } catch (error) {
       console.error("Error occured in api is", error);
     } finally {
       // //console.log;
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   useEffect(() => {
     //console.log;
-  }, [isinItiallyLoaded]);
+  }, [isinItiallyLoaded])
 
   //function to handle the dropdown
   const handleChange = (event) => {
-    event.preventDefault();
-    setDuration(event.target.value);
-    getDashboardData(event.target.value);
-  };
+    event.preventDefault()
+    setDuration(event.target.value)
+    getDashboardData(event.target.value)
+  }
 
   const backgroundImage = {
     backgroundImage: 'url("/otherAssets/bg23.png")',
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-    width: "100%",
-    height: "40%",
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    width: '100%',
+    height: '40%',
     // height: "40svh",
-    overflow: "hidden",
-  };
+    overflow: 'hidden',
+  }
 
   //function for cards
   function Card({
@@ -238,7 +239,7 @@ const Page = () => {
       <div
         className={`bg-white flex flex-col items-center ${borderSide}`}
         style={{
-          borderColor: "rgba(0, 0, 0, 0.1)",
+          borderColor: 'rgba(0, 0, 0, 0.1)',
         }}
       >
         <div className="w-10/12 ps-4 py-4">
@@ -253,11 +254,11 @@ const Page = () => {
               <div className="flex flex-row items-center gap-2">
                 <div>Recomendation</div>
                 <Image
-                  aria-owns={open ? "mouse-over-popover" : undefined}
+                  aria-owns={open ? 'mouse-over-popover' : undefined}
                   aria-haspopup="true"
                   onMouseEnter={handlePopoverOpen}
                   onMouseLeave={handlePopoverClose}
-                  src={"/svgIcons/infoIcon.svg"}
+                  src={'/svgIcons/infoIcon.svg'}
                   height={20}
                   width={20}
                   alt="*"
@@ -304,17 +305,18 @@ const Page = () => {
           <div></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
-
       <AgentSelectSnackMessage
         message={showSnackMsg.message}
         type={showSnackMsg.type}
         isVisible={showSnackMsg.isVisible}
-        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        hide={() =>
+          setShowSnackMsg({ type: null, message: '', isVisible: false })
+        }
       />
       {/* Slider code<div
         style={{
@@ -325,7 +327,6 @@ const Page = () => {
         <DashboardSlider />
       </div> */}
 
-
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
@@ -333,19 +334,19 @@ const Page = () => {
         </div>
       ) : (
         <div className="flex flex-col mt-12 items-center w-full h-[100%]">
-          <div
+          <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
-              width: "100%",
-              height: "20%",
-              objectFit: "cover",
+              width: '100%',
+              height: '20%',
+              objectFit: 'cover',
               zIndex: -1, // Ensure the video stays behind content
-              overflow: "hidden",
+              overflow: 'hidden',
+
             }}
           >
-            <BackgroundVideo />
           </div>
           <div className="w-9/12 flex flex-col items-center h-[100%]">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
@@ -353,7 +354,7 @@ const Page = () => {
  </div> */}
             <div
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 25,
                 right: 50,
               }}
@@ -365,12 +366,12 @@ const Page = () => {
                 <div className="w-full flex flex-row items-center justify-between h-[30%]">
                   <div className="w-2/12 flex flex-col gap-1">
                     <div
-                      style={{ fontSize: 29, fontWeight: "600", color: "#000" }}
+                      style={{ fontSize: 29, fontWeight: '600', color: '#000' }}
                     >
                       Usage
                     </div>
                     <div
-                      style={{ fontSize: 15, fontWeight: "400", color: "#000" }}
+                      style={{ fontSize: 15, fontWeight: '400', color: '#000' }}
                     >
                       Total Activity
                     </div>
@@ -382,17 +383,17 @@ const Page = () => {
                             : screenHeight < 800
                               ? 50
                               : 75,
-                        fontWeight: "700",
-                        color: "#000",
+                        fontWeight: '700',
+                        color: '#000',
                       }}
                     >
-                      {statsDetails?.totalCalls || "-"}
+                      {statsDetails?.totalCalls || '-'}
                     </div>
                   </div>
                   <div className="w-8/12 flex flex-col items-end gap-2">
                     <div
                       className="w-fit-content flex flex-row justify-between"
-                      style={{ backgroundColor: "#00000006 ", borderRadius: 5 }}
+                      style={{ backgroundColor: '#00000006 ', borderRadius: 5 }}
                     >
                       {/* <div style={{ fontSize: 15 }}>
  Last 24hrs
@@ -409,78 +410,76 @@ const Page = () => {
                           displayEmpty // Enables placeholder
                           renderValue={(selected) => {
                             if (!selected) {
-                              return (
-                                <div style={{ color: "#aaa" }}>Select</div>
-                              ); // Placeholder style
+                              return <div style={{ color: '#aaa' }}>Select</div> // Placeholder style
                             }
-                            return selected;
+                            return selected
                           }}
                           sx={{
-                            border: "none", // Default border
-                            "&:hover": {
-                              border: "none", // Same border on hover
+                            border: 'none', // Default border
+                            '&:hover': {
+                              border: 'none', // Same border on hover
                             },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove the default outline
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none', // Remove the default outline
                             },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                              border: "none", // Remove outline on focus
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              border: 'none', // Remove outline on focus
                             },
-                            "&.MuiSelect-select": {
+                            '&.MuiSelect-select': {
                               py: 0, // Optional padding adjustments
                             },
                           }}
                           MenuProps={{
                             PaperProps: {
                               style: {
-                                maxHeight: "30vh", // Limit dropdown height
-                                overflow: "auto", // Enable scrolling in dropdown
-                                scrollbarWidth: "none",
+                                maxHeight: '30vh', // Limit dropdown height
+                                overflow: 'auto', // Enable scrolling in dropdown
+                                scrollbarWidth: 'none',
                                 // borderRadius: "10px"
                               },
                             },
                           }}
                         >
                           <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={"24 hrs"}
+                            className="hover:bg-brand-primary/10"
+                            value={'24 hrs'}
                             style={{
                               backgroundColor:
-                                Duration === "24 hrs" && "#7902DF",
-                              color: Duration === "24 hrs" && "#ffffff",
+                                Duration === '24 hrs' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                              color: Duration === '24 hrs' && '#ffffff',
                             }}
                           >
                             Last 24 Hours
                           </MenuItem>
                           <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={"Last 7 Days"}
+                            className="hover:bg-brand-primary/10"
+                            value={'Last 7 Days'}
                             style={{
                               backgroundColor:
-                                Duration === "Last 7 Days" && "#7902DF",
-                              color: Duration === "Last 7 Days" && "#ffffff",
+                                Duration === 'Last 7 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                              color: Duration === 'Last 7 Days' && '#ffffff',
                             }}
                           >
                             Last 7 Days
                           </MenuItem>
                           <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={"Last 30 Days"}
+                            className="hover:bg-brand-primary/10"
+                            value={'Last 30 Days'}
                             style={{
                               backgroundColor:
-                                Duration === "Last 30 Days" && "#7902DF",
-                              color: Duration === "Last 30 Days" && "#ffffff",
+                                Duration === 'Last 30 Days' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                              color: Duration === 'Last 30 Days' && '#ffffff',
                             }}
                           >
                             Last 30 Days
                           </MenuItem>
                           <MenuItem
-                            className="hover:bg-[#402FFF10]"
-                            value={"All time"}
+                            className="hover:bg-brand-primary/10"
+                            value={'All time'}
                             style={{
                               backgroundColor:
-                                Duration === "All time" && "#7902DF",
-                              color: Duration === "All time" && "#ffffff",
+                                Duration === 'All time' && 'hsl(var(--brand-primary, 270 75% 50%))',
+                              color: Duration === 'All time' && '#ffffff',
                             }}
                           >
                             All time
@@ -490,20 +489,28 @@ const Page = () => {
                     </div>
 
                     <div
-                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4"
+                      className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
                       style={{
-                        backgroundImage: "url('/svgIcons/cardBg.svg')",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center",
-                        width: "40vw",
-                        minHeight: "13vh",
+                        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        width: '40vw',
+                        minHeight: '13vh',
                         borderRadius: 10,
                       }}
                     >
-                      <div className="flex flex-row gap-3 items-start">
+                      {/* Brand Color Overlay */}
+                      <div
+                        className="absolute inset-0 rounded-lg"
+                        style={{
+                          backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
+                          mixBlendMode: 'multiply',
+                        }}
+                      />
+                      {/* Content */}
+                      <div className="flex flex-row gap-3 items-start relative z-10">
                         <Image
-                          src={"/svgIcons/timerIcon.svg"}
+                          src={'/svgIcons/timerIcon.svg'}
                           height={50}
                           width={50}
                           alt="timer"
@@ -512,8 +519,8 @@ const Page = () => {
                           <div
                             style={{
                               fontSize: 15,
-                              fontWeight: "400",
-                              color: "#fff",
+                              fontWeight: '400',
+                              color: '#fff',
                             }}
                           >
                             Balance
@@ -523,21 +530,24 @@ const Page = () => {
                             className="lg:text-2xl md:text-3xl sm:text-xl text-lg font-bold text-white"
                             style={{
                               // fontSize: 40,
-                              fontWeight: "400",
-                              color: "#fff",
+                              fontWeight: '400',
+                              color: '#fff',
                             }}
                           >
-                            {(userDetails?.totalSecondsAvailable / 60).toFixed(2)} AI Credits
+                            {(userDetails?.totalSecondsAvailable / 60).toFixed(
+                              2,
+                            )}{' '}
+                            AI Credits
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 relative z-10">
                         <div
                           style={{
                             fontSize: 15,
-                            fontWeight: "400",
-                            color: "#fff",
+                            fontWeight: '400',
+                            color: '#fff',
                           }}
                         >
                           Scale your business
@@ -545,18 +555,18 @@ const Page = () => {
                         <button
                           className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
                           onClick={() => {
-                              setShowUpgradePlanPopup(true)
+                            setShowUpgradePlanPopup(true)
                           }}
                         >
                           <Image
-                            src={"/svgIcons/king.svg"}
+                            src={'/svgIcons/king.svg'}
                             height={20}
                             width={20}
                             alt="*"
                           />
                           <div
                             style={{
-                              fontWeight: "500",
+                              fontWeight: '500',
                               fontSize: 15,
                             }}
                           >
@@ -574,14 +584,14 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/convosIcon.svg"
                       title="Convos"
-                      value={statsDetails?.totalCallsGt10 || "-"}
+                      value={statsDetails?.totalCallsGt10 || '-'}
                       subtitle="Answer rate"
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                            2
-                          )}%`
-                          : "-"
+                              2,
+                            )}%`
+                          : '-'
                       }
                       borderSide="border-b-2"
                     />
@@ -590,14 +600,14 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/hotLeadsIcon.svg"
                       title="Hot Leads"
-                      value={statsDetails?.hotLeads || "-"}
+                      value={statsDetails?.hotLeads || '-'}
                       subtitle="Conversion rate"
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                            2
-                          )}%`
-                          : "-"
+                              2,
+                            )}%`
+                          : '-'
                       }
                       borderSide="border-l-2 border-b-2"
                       recomendation={false}
@@ -607,7 +617,7 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/bookedMeetingsIcon.svg"
                       title="Booked Meetings"
-                      value={statsDetails?.meetingScheduled || "-"}
+                      value={statsDetails?.meetingScheduled || '-'}
                       subtitle="Conversion rate"
                       // rate={
                       // statsComparisonDetails?.durationChange
@@ -619,9 +629,9 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                            2
-                          )}%`
-                          : "-"
+                              2,
+                            )}%`
+                          : '-'
                       }
                       borderSide="border-l-2 border-b-2"
                       recomendation={false}
@@ -631,7 +641,7 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/voicemailIcon.svg"
                       title="Voicemails"
-                      value={statsDetails?.voicemail || "-"}
+                      value={statsDetails?.voicemail || '-'}
                       borderSide=""
                     />
 
@@ -639,7 +649,7 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/notInterestedIcon.svg"
                       title="Not Interested"
-                      value={statsDetails?.notInterested || "-"}
+                      value={statsDetails?.notInterested || '-'}
                       borderSide="border-l-2"
                     />
 
@@ -652,7 +662,12 @@ const Page = () => {
                       //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
                       //     : "-"
                       // }
-                      value={statsDetails?.formattedAvDuration && statsDetails?.formattedAvDuration != "N/A"  ? statsDetails?.formattedAvDuration : "-" }
+                      value={
+                        statsDetails?.formattedAvDuration &&
+                        statsDetails?.formattedAvDuration != 'N/A'
+                          ? statsDetails?.formattedAvDuration
+                          : '-'
+                      }
                       borderSide="border-l-2"
                     />
 
@@ -660,7 +675,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/creditsUsedIcons.png"
                       title="Credits Used"
-                      value={statsDetails?.creditsUsed || "-"}
+                      value={statsDetails?.creditsUsed || '-'}
                       borderSide="border-t-2"
                     />
 
@@ -668,7 +683,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/emailSentIcon.png"
                       title="Emails Sent"
-                      value={statsDetails?.emailsSent || "-"}
+                      value={statsDetails?.emailsSent || '-'}
                       borderSide="border-l-2 border-t-2"
                     />
 
@@ -676,8 +691,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/smsSentIcon.png"
                       title="Texts Sent"
-                      
-                      value={statsDetails?.smsSents || "-"}
+                      value={statsDetails?.smsSents || '-'}
                       borderSide="border-l-2 border-t-2"
                     />
                   </div>
@@ -804,21 +818,20 @@ const Page = () => {
 
           <Elements stripe={stripePromise}>
             <UpgradePlan
-             setSelectedPlan={()=>{
-              console.log("setSelectedPlan is called")
-             }}
+              setSelectedPlan={() => {
+                console.log('setSelectedPlan is called')
+              }}
               open={showUpgradePlanPopup}
               handleClose={() => {
                 setShowUpgradePlanPopup(false)
               }}
               // setShowSnackMsg={setShowSnackMsg}
-
             />
           </Elements>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

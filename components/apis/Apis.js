@@ -1,20 +1,17 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
 
 // //console.log;
+
 let BasePath =
-process.env.NEXT_PUBLIC_BASE_API_URL || 
-  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/agentx/" 
-    : "https://apimyagentx.com/agentxtest/" ) 
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+    ? 'https://apimyagentx.com/agentx/'
+    : 'https://apimyagentx.com/agentxtest/')
 
 // Plans API Base URL (temporary ngrok URL)
 // BasePath = "https://65ea59dbae33.ngrok-free.app/";
 
-
-console.log(
-  "Current base url is",
-  BasePath
-);
+console.log('Current base url is', BasePath)
 
 const Apis = {
   getCalenders: `${BasePath}api/calendar/calendars`,
@@ -28,7 +25,7 @@ const Apis = {
   userAvailablePhoneNumber: `${BasePath}api/agent/listUsersAvailablePhoneNumbers`,
   reassignNumber: `${BasePath}api/agent/releasePhoneNumber`,
   asignPhoneNumber: `${BasePath}api/agent/assignPhoneNumber`,
-  getVoices: "https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices",
+  getVoices: 'https://fine-tuner.ai/api/1.1/wf/v2_voice_agent_voices',
   addKyc: `${BasePath}api/agent/addKyc`,
   deleteKyc: `${BasePath}api/agent/deleteKyc`,
   updateKYC: `${BasePath}api/agent/updateKyc`,
@@ -45,6 +42,7 @@ const Apis = {
   updateSubAgent: `${BasePath}api/agent/updateSubAgent`,
   createLead: `${BasePath}api/leads/addLeads`,
   getLeads: `${BasePath}api/leads/getLeads`,
+  searchLeadsForMessaging: `${BasePath}api/leads/searchLeadsForMessaging`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
   attachSmartList: `${BasePath}api/agent/attachSmartList`,
@@ -135,7 +133,6 @@ const Apis = {
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
   deleteAffiliate: `${BasePath}api/admin/deleteAffiliate`,
   adminStats: `${BasePath}api/admin/adminStats`,
-  
 
   getUsersForAffiliate: `${BasePath}api/admin/usersForAffiliate`,
 
@@ -240,12 +237,11 @@ const Apis = {
   getAdminTransactions: `${BasePath}api/admin/transactions`,
   releaseHeldFunds: `${BasePath}api/admin/transactions/release`,
 
-
-  templets : `${BasePath}api/templates`,
-  gmailAccount :`${BasePath}api/mail/accounts`,
-  connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+  templets: `${BasePath}api/templates`,
+  gmailAccount: `${BasePath}api/mail/accounts`,
+  connectGmailAccount: `${BasePath}api/mail/connect-gmail`,
   agencyMailAccount: `${BasePath}api/mail/agency-account`,
-  a2pNumbers :`${BasePath}api/agent/getA2PVerifiedNumbers`,
+  a2pNumbers: `${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,
 
@@ -256,35 +252,32 @@ const Apis = {
   updatePlan: `${BasePath}api/plans`,
   togglePlanStatus: `${BasePath}api/plans`,
   getAllPlansAdmin: `${BasePath}api/plans/admin/all`,
-   
-  
-  initiateCancelation : `${BasePath}api/user/cancellation/initiate`,
-  pauseSubscription:`${BasePath}api/user/cancellation/pause`,
-  continueToGift :`${BasePath}api/user/cancellation/continue-to-gift`,
-  claimGiftMins :`${BasePath}api/user/cancellation/claim-gift`,
-  continueToDiscount :`${BasePath}api/user/cancellation/continue-to-discount`,
-  purchaseDiscountedMins :`${BasePath}api/user/cancellation/purchase-discount`,
-  completeCancelatiton :`${BasePath}api/user/cancellation/complete`,
-  sendEmailToLead :`${BasePath}api/templates/send-email`,
-  sendSMSToLead :`${BasePath}api/templates/send-sms`,
 
-  validateReferralCode : `${BasePath}api/user/validateReferralCode`,
+  initiateCancelation: `${BasePath}api/user/cancellation/initiate`,
+  pauseSubscription: `${BasePath}api/user/cancellation/pause`,
+  continueToGift: `${BasePath}api/user/cancellation/continue-to-gift`,
+  claimGiftMins: `${BasePath}api/user/cancellation/claim-gift`,
+  continueToDiscount: `${BasePath}api/user/cancellation/continue-to-discount`,
+  purchaseDiscountedMins: `${BasePath}api/user/cancellation/purchase-discount`,
+  completeCancelatiton: `${BasePath}api/user/cancellation/complete`,
+  sendEmailToLead: `${BasePath}api/templates/send-email`,
+  sendSMSToLead: `${BasePath}api/templates/send-sms`,
 
-
+  validateReferralCode: `${BasePath}api/user/validateReferralCode`,
 
   // Call Analytics API
   getCallAnalytics: `${BasePath}api/admin/call-analytics`,
-  
+
   // Revenue APIs
   revenueSummary: `${BasePath}api/admin/revenue/summary`,
   revenueGrowth: `${BasePath}api/admin/revenue/revenue-growth`,
   revenueLeaderboard: `${BasePath}api/admin/revenue/leaderboard`,
   revenuePayoutsSummary: `${BasePath}api/admin/revenue/payouts/summary`,
   revenueTransactions: `${BasePath}api/admin/revenue/transactions`,
-  
+
   // Plan Subscriptions API
   getPlanSubscriptions: `${BasePath}api/admin/analytics/plan-subscriptions`,
-  
+
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
@@ -296,7 +289,6 @@ const Apis = {
   getCronConfig: `${BasePath}api/admin/cron/config`,
   restartCronJob: `${BasePath}api/admin/cron/restart`,
 
-
   //subaccount section apis
   requestFeatureFromAgency: `${BasePath}api/user/requestFeature`,
 
@@ -306,9 +298,8 @@ const Apis = {
   createAgentScoring: `${BasePath}api/agent/scoring`,
   deleteAgentScoring: `${BasePath}api/agent/scoring`,
   copyAgentScoring: `${BasePath}api/agent/scoring`,
-  
+
   exportLeads: `${BasePath}api/leads/export-csv`,
-  
 
   //agency integrations
   userSettings: `${BasePath}api/settings`,
@@ -357,6 +348,8 @@ const Apis = {
   updateAgencyBrandingColors: `${BasePath}api/agency/branding/colors`,
   uploadBrandingLogo: `${BasePath}api/agency/branding/logo`,
   uploadBrandingFavicon: `${BasePath}api/agency/branding/favicon`,
+  uploadSupportWidgetLogo: `${BasePath}api/agency/branding/support-widget-logo`,
+  updateSupportWidgetTitle: `${BasePath}api/agency/branding/support-widget-title`,
   addCustomDomain: `${BasePath}api/agency/branding/domain`,
   verifyCustomDomain: `${BasePath}api/agency/branding/domain/verify`,
   getDomainStatus: `${BasePath}api/agency/branding/domain`,
@@ -372,9 +365,14 @@ const Apis = {
   setAgencyGlobalNumber: `${BasePath}api/agency/set-global-number`,
   unsetAgencyGlobalNumber: `${BasePath}api/agency/unset-global-number`,
 
-  
-};
+  // Messaging APIs
+  getMessageThreads: `${BasePath}api/user/messaging/threads`,
+  getThreadById: `${BasePath}api/user/messaging/threads`,
+  getMessagesForThread: `${BasePath}api/user/messaging/threads`,
+  markThreadAsRead: `${BasePath}api/user/messaging/threads`,
+  getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+}
 
-export default Apis;
+export default Apis
 
 //2344233435567779

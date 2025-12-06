@@ -77,6 +77,10 @@ input[type="date"]::-moz-datetime-edit-year-field {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    /* Agency branding colors - defaults to purple (#7902DF) */
+    /* These will be overridden by ThemeProvider when agency colors are set */
+    --brand-primary: 270 75% 50%; /* Default purple: #7902DF */
+    --brand-secondary: 270 60% 60%; /* Default lighter purple variant */
   }
 
   .dark {
@@ -139,13 +143,13 @@ input[type="date"]::-moz-datetime-edit-year-field {
 
 /* ------------- Date Picker (Selected Date) ------------- */
 .MuiPickersDay-root.Mui-selected {
-  background-color: #7902DF !important; /* Purple */
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
 /* Hover effect for unselected dates */
 .MuiPickersDay-root:hover {
-  background-color: #a352df !important; /* Light Purple */
+  background-color: hsl(var(--brand-primary) / 0.7) !important;
 }
 
 /* Default color for unselected dates */
@@ -159,7 +163,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
 .MuiClockNumber-root.Mui-selected,
 .MuiPickersTimeClock-root .Mui-selected,
 .MuiTimeClock-root .Mui-selected {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
@@ -167,18 +171,18 @@ input[type="date"]::-moz-datetime-edit-year-field {
 .MuiClock-root .MuiButtonBase-root:hover,
 .MuiPickersTimeClock-root .MuiButtonBase-root:hover,
 .MuiTimeClock-root .MuiButtonBase-root:hover {
-  background-color: #a352df !important;
+  background-color: hsl(var(--brand-primary) / 0.7) !important;
 }
 
 /* Selected AM/PM Button */
 .MuiPickersToolbar-root .Mui-selected {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
 
 /* ------------- OK & CANCEL Buttons ------------- */
 .MuiDialogActions-root button {
-  color: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
 }
 
 /* Time picker scrollbar track */
@@ -188,7 +192,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
 
 /* Time picker scrollbar thumb */
 .MuiTimeClock-root::-webkit-scrollbar-thumb {
-  background-color: #7902DF !important;
+  background-color: hsl(var(--brand-primary)) !important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -321,8 +325,8 @@ a.text-red:hover {
 /* Target Lucide icons specifically by class */
 [data-sonner-toast][data-type="success"] svg.lucide,
 [data-sonner-toast][data-type="success"] [data-icon] svg.lucide {
-  color: #7902DF !important;
-  stroke: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
+  stroke: hsl(var(--brand-primary)) !important;
 }
 
 [data-sonner-toast][data-type="error"] svg.lucide,
@@ -333,8 +337,8 @@ a.text-red:hover {
 
 /* Fallback for any SVG in success/error toasts */
 [data-sonner-toast][data-type="success"] svg {
-  color: #7902DF !important;
-  stroke: #7902DF !important;
+  color: hsl(var(--brand-primary)) !important;
+  stroke: hsl(var(--brand-primary)) !important;
 }
 
 [data-sonner-toast][data-type="error"] svg {
@@ -352,6 +356,63 @@ a.text-red:hover {
 .phone-input-container:focus-within .react-tel-input input:focus {
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Dynamic icon coloring for navigation icons */
+/* Uses CSS mask-image to apply brand color directly */
+.icon-brand-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.icon-brand-primary img {
+  /* Hide the original colored image */
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Use a pseudo-element with the image as mask and brand color as background */
+.icon-brand-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsl(var(--brand-primary, 270 75% 50%));
+  /* Use the image URL from CSS custom property as mask */
+  -webkit-mask-image: var(--icon-mask-image);
+  mask-image: var(--icon-mask-image);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+  pointer-events: none;
+}
+
+/* Brand primary filter for icons */
+.filter-brand-primary {
+  filter: var(--icon-filter, brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(260deg) brightness(99%) contrast(93%));
+}
+
+/* Icon brand filter class for Next.js Image components */
+.icon-brand-filter {
+  filter: var(--icon-filter);
+  transition: filter 0.2s ease-in-out;
 }
 
 

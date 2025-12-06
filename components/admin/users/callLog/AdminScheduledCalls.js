@@ -1,139 +1,168 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import moment from "moment";
-import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
-import { ShowConfirmationPopup } from "./AdminActiveCalls";
-import { PersistanceKeys } from "@/constants/Constants";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import Apis from '@/components/apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
+import {
+  getAgentImageWithMemoji,
+  getAgentsListImage,
+} from '@/utilities/agentUtilities'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import { ShowConfirmationPopup } from './AdminActiveCalls'
 
 function AdminScheduledCalls({ selectedUser }) {
-  const [user, setUser] = useState(null);
-  const Limit = 30;
+  const [user, setUser] = useState(null)
+  const Limit = 30
 
-  const [leadsLoading, setLeadsLoading] = useState(false);
-  const [hasMoreLeads, setHasMoreLeads] = useState(true);
-  const [searchValue, setSearchValue] = useState("");
+  const [leadsLoading, setLeadsLoading] = useState(false)
+  const [hasMoreLeads, setHasMoreLeads] = useState(true)
+  const [searchValue, setSearchValue] = useState('')
   //code for agent details
-  const [callDetails, setCallDetails] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [agentsList, setAgentsList] = useState([]);
-  const [filteredAgentsList, setFilteredAgentsList] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [callDetails, setCallDetails] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [agentsList, setAgentsList] = useState([])
+  const [filteredAgentsList, setFilteredAgentsList] = useState([])
+  const [anchorEl, setAnchorEl] = React.useState(null)
   //code for call log details
-  const [SelectedAgent, setSelectedAgent] = useState(null);
-  const [SelectedItem, setSelectedItem] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false);
-  const [sheduledCalllogs, setSheduledCalllogs] = useState([]);
+  const [SelectedAgent, setSelectedAgent] = useState(null)
+  const [SelectedItem, setSelectedItem] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [AgentCallLogLoader, setAgentCallLogLoader] = useState(false)
+  const [sheduledCalllogs, setSheduledCalllogs] = useState([])
   //code for details view search
   const [filteredSheduledCalllogs, setFilteredSheduledCallDetails] = useState(
-    []
-  );
-  const [callDetailsSearchValue, setcallDetailsSearchValue] = useState("");
+    [],
+  )
+  const [callDetailsSearchValue, setcallDetailsSearchValue] = useState('')
   //code for leeads details modal
-  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false);
-  const [selectedLeadsList, setSelectedLeadsList] = useState([]);
-  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState(
-    []
-  );
-  const [leadsSearchValue, setLeadsSearchValue] = useState("");
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
+  const [selectedLeadsList, setSelectedLeadsList] = useState([])
+  const [filteredSelectedLeadsList, setFilteredSelectedLeadsList] = useState([])
+  const [leadsSearchValue, setLeadsSearchValue] = useState('')
 
   //variable for warningpopup
-  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null);
-  const [color, setColor] = useState(false);
+  const [showConfirmationPopuup, setShowConfirmationPopup] = useState(null)
+  const [color, setColor] = useState(false)
 
-  const [PauseLoader, setPauseLoader] = useState(false);
+  const [PauseLoader, setPauseLoader] = useState(false)
+
+  // Helper function to truncate text
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return '-'
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength) + '...'
+  }
 
   useEffect(() => {
-    getAgents();
-    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (selectedUser && selectedUser.id) {
+      getAgents()
+    }
+    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (localD) {
-      let d = JSON.parse(localD);
-      setUser(d);
+      let d = JSON.parse(localD)
+      setUser(d)
     }
     // getSheduledCallLogs();
-  }, []);
+  }, [selectedUser])
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget)
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-  };
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+  }
 
   const handleClosePopup = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   //code for showing the selected agent leads
   const handleShowLeads = (agent, item) => {
     // //console.log;
     // //console.log;
-    setSelectedAgent(agent);
-    setSelectedItem(item);
-    setSelectedLeadsList([]);
-    setFilteredSelectedLeadsList([]);
-    setShowLeadDetailsModal(true);
+    setSelectedAgent(agent)
+    setSelectedItem(item)
+    setSelectedLeadsList([])
+    setFilteredSelectedLeadsList([])
+    setShowLeadDetailsModal(true)
     fetchLeadsInBatch(item)
-  };
+  }
 
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSelectedLeadsList(selectedLeadsList);
-      return;
+      setFilteredSelectedLeadsList(selectedLeadsList)
+      return
     }
 
     const filtered = selectedLeadsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSelectedLeadsList(filtered);
-  };
+    setFilteredSelectedLeadsList(filtered)
+  }
 
   //code to get agents
   const getAgents = async () => {
-    try {
-      setInitialLoader(true);
+    // Guard: Don't proceed if selectedUser is not available
+    if (!selectedUser || !selectedUser.id) {
+      console.warn('selectedUser is not available')
+      setInitialLoader(false)
+      setFilteredAgentsList([])
+      setCallDetails([])
+      setAgentsList([])
+      return
+    }
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+    try {
+      setInitialLoader(true)
+
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
 
-      let mainAgent = null;
-      const localAgent = localStorage.getItem("agentDetails");
+      let mainAgent = null
+      const localAgent = localStorage.getItem('agentDetails')
       if (localAgent) {
-        const agentDetails = JSON.parse(localAgent);
+        const agentDetails = JSON.parse(localAgent)
         // //console.log;
         // //console.log;
-        mainAgent = agentDetails;
+        mainAgent = agentDetails
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`;
+      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`
+
+      console.log(
+        'Fetching scheduled calls for userId:',
+        selectedUser.id,
+        'API Path:',
+        ApiPath,
+      )
 
       ApiPath = ApiPath
 
@@ -141,88 +170,103 @@ function AdminScheduledCalls({ selectedUser }) {
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-      if (response) {
-        // //console.log;
-
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+      if (response && response.data) {
+        if (response.data.status && response.data.data) {
+          console.log('Scheduled calls data received:', response.data.data)
+          setFilteredAgentsList(response.data.data)
+          setCallDetails(response.data.data)
+          setAgentsList(response.data.data)
+        } else {
+          // No data returned
+          console.log('No scheduled calls data:', response.data.message)
+          setFilteredAgentsList([])
+          setCallDetails([])
+          setAgentsList([])
+        }
+      } else {
+        console.warn('Invalid response structure:', response)
+        setFilteredAgentsList([])
+        setCallDetails([])
+        setAgentsList([])
       }
     } catch (error) {
-      // console.error("Error occured in get Agents api is :", error);
+      console.error('Error occurred in get Agents api:', error)
+      // Set empty arrays on error
+      setFilteredAgentsList([])
+      setCallDetails([])
+      setAgentsList([])
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
     }
-  };
+  }
 
   //code for details search field
   const handleDetailsSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredSheduledCallDetails(sheduledCalllogs);
-      return;
+      setFilteredSheduledCallDetails(sheduledCalllogs)
+      return
     }
 
     const filtered = sheduledCalllogs.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredSheduledCallDetails(filtered);
-  };
+    setFilteredSheduledCallDetails(filtered)
+  }
 
   const handleSearchChange = (value) => {
-    if (value.trim() === "") {
+    if (value.trim() === '') {
       //// //console.log;
       // Reset to original list when input is empty
-      setFilteredAgentsList(agentsList);
-      return;
+      setFilteredAgentsList(agentsList)
+      return
     }
 
     const filtered = agentsList.filter((item) => {
-      const term = value.toLowerCase();
+      const term = value.toLowerCase()
       return (
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
         item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      );
-    });
+      )
+    })
 
-    setFilteredAgentsList(filtered);
-  };
-
+    setFilteredAgentsList(filtered)
+  }
 
   const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
-      let firstApiCall = false;
-      setLeadsLoading(true);
+      let firstApiCall = false
+      setLeadsLoading(true)
       let leadsInBatchLocalData = localStorage.getItem(
-        PersistanceKeys.LeadsInBatch + `${batch.id}`
-      );
+        PersistanceKeys.LeadsInBatch + `${batch.id}`,
+      )
       if (selectedLeadsList.length == 0) {
-        firstApiCall = true;
+        firstApiCall = true
         if (leadsInBatchLocalData) {
           //console.log;
-          let leads = JSON.parse(leadsInBatchLocalData);
+          let leads = JSON.parse(leadsInBatchLocalData)
           //console.log;
           // setSelectedLeadsList(leads);
           // setFilteredSelectedLeadsList(leads);
-          setLeadsLoading(false);
+          setLeadsLoading(false)
           // return;
         } else {
           //console.log;
@@ -231,23 +275,20 @@ function AdminScheduledCalls({ selectedUser }) {
         //console.log;
       }
 
-      const token = user.token; // Extract JWT token
-      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
-      console.log(
-        "Api Call Leads : ",
-       path
-      );
-      const response = await fetch(path,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setLeadsLoading(false);
-      const data = await response.json();
+      const token = user.token // Extract JWT token
+      let path =
+        Apis.getLeadsInBatch +
+        `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
+      console.log('Api Call Leads : ', path)
+      const response = await fetch(path, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      setLeadsLoading(false)
+      const data = await response.json()
 
       if (response.ok) {
         //console.log;
@@ -258,87 +299,86 @@ function AdminScheduledCalls({ selectedUser }) {
         //   JSON.stringify(data.data)
         // );
 
-        console.log("Response of leads list detail", data.data)
+        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
-          setSelectedLeadsList(data.data);
-          setFilteredSelectedLeadsList(data.data);
+          setSelectedLeadsList(data.data)
+          setFilteredSelectedLeadsList(data.data)
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
-            JSON.stringify(data.data)
-          );
+            JSON.stringify(data.data),
+          )
         } else {
-          setSelectedLeadsList((prev) => [...prev, ...data.data]);
-          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setSelectedLeadsList((prev) => [...prev, ...data.data])
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data])
         }
 
         // setShowDetailsModal(true);
 
         if (data.data.length < Limit) {
-          setHasMoreLeads(false);
+          setHasMoreLeads(false)
         } else {
-          setHasMoreLeads(true);
+          setHasMoreLeads(true)
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data);
+        console.error('Failed to fetch leads in batch:', data)
       }
     } catch (error) {
-      console.error("Error fetching leads in batch:", error);
+      console.error('Error fetching leads in batch:', error)
     }
-  };
-
+  }
 
   //code to pause the agent
   const pauseAgents = async () => {
     // //console.log;
 
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.pauseAgent;
+      setPauseLoader(true)
+      const ApiPath = Apis.pauseAgent
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Paused",
-              };
+                status: 'Paused',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -346,9 +386,9 @@ function AdminScheduledCalls({ selectedUser }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
+  }
 
   //function to resume calls
   const resumeCalls = async () => {
@@ -356,52 +396,52 @@ function AdminScheduledCalls({ selectedUser }) {
     // //console.log
     // return
     try {
-      setPauseLoader(true);
-      const ApiPath = Apis.resumeCalls;
+      setPauseLoader(true)
+      const ApiPath = Apis.resumeCalls
 
       // //console.log;
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const Data = JSON.parse(localData);
+        const Data = JSON.parse(localData)
         // //console.log;
-        AuthToken = Data.token;
+        AuthToken = Data.token
       }
 
       // //console.log;
       const ApiData = {
         // mainAgentId: SelectedItem.id
         batchId: SelectedItem.id,
-      };
+      }
       // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowConfirmationPopup(null);
+          setShowConfirmationPopup(null)
           let currentStatus = filteredAgentsList.map((item) => {
             if (item.id === SelectedItem.id) {
               // Update the status for the matching item
               return {
                 ...item,
-                status: "Active",
-              };
+                status: 'Active',
+              }
             }
             // Return the item unchanged
-            return item;
-          });
+            return item
+          })
           // //console.log;
 
-          setFilteredAgentsList(currentStatus);
-          handleClosePopup();
+          setFilteredAgentsList(currentStatus)
+          handleClosePopup()
         }
         // setFilteredAgentsList(response.data.data);
         // setAgentsList(response.data.data);
@@ -409,38 +449,35 @@ function AdminScheduledCalls({ selectedUser }) {
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
     } finally {
-      setPauseLoader(false);
+      setPauseLoader(false)
     }
-  };
-
+  }
 
   return (
     <div className="w-full items-start">
-      <div className="flex w-full pl-10 flex-row items-start gap-3">
-      </div>
+      <div className="flex w-full pl-10 flex-row items-start gap-3"></div>
 
-      <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
-          <div style={styles.text}>Agent</div>
+      <div className="w-full flex flex-row items-center justify-between mt-10 px-10 gap-4">
+        <div className="w-3/12 flex-shrink">
+          <div style={styles.text}>Agent Name</div>
         </div>
-        
-          <div className="w-2/12 ">
-            <div style={styles.text}>List Name</div>
-          </div>
-        
-        <div className="w-1/12">
+        <div className="w-2/12 flex-shrink">
+          <div style={styles.text}>List Name</div>
+        </div>
+        <div className="w-1/12 flex-shrink-0 text-center">
           <div style={styles.text}>Leads</div>
         </div>
-        <div className="w-1/12">
+        <div className="w-1/12 flex-shrink-0">
           <div style={styles.text}>Date created</div>
         </div>
-        <div className="w-2/12">
+        <div className="w-2/12 flex-shrink-0">
           <div style={styles.text}>Scheduled on</div>
         </div>
-        <div className="w-1/12">
-          <div style={styles.text}>
-            Action
-          </div>
+        <div className="w-1/12 flex-shrink-0">
+          <div style={styles.text}>Call Status</div>
+        </div>
+        <div className="w-1/12 flex-shrink-0">
+          <div style={styles.text}>Action</div>
         </div>
       </div>
 
@@ -450,11 +487,12 @@ function AdminScheduledCalls({ selectedUser }) {
             <CircularProgress size={35} />
           </div>
         ) : (
-          <div className={`h-[42vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
+          <div
+            className={`h-[42vh] overflow-auto`}
+            style={{ scrollbarWidth: 'none' }}
+          >
             {filteredAgentsList.length > 0 ? (
-              <div
-                className={`h-[42vh] overflow-auto`}>
-
+              <div className={`h-[42vh] overflow-auto`}>
                 {filteredAgentsList.map((item, index) => {
                   return (
                     <div key={index}>
@@ -462,69 +500,89 @@ function AdminScheduledCalls({ selectedUser }) {
                         return (
                           <div key={index}>
                             <div
-                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                              className="w-full flex flex-row items-center justify-between mt-10 px-10 gap-4"
                               key={index}
                             >
-                              <div className="w-3/12 flex flex-row gap-4 items-center">
-
+                              <div className="w-3/12 flex flex-row gap-4 items-center min-w-0 flex-shrink">
                                 {getAgentImageWithMemoji(agent)}
-
-                                <div style={styles.text2}>{agent.name}</div>
+                                <div
+                                  style={styles.text2}
+                                  className="truncate"
+                                  title={agent.name}
+                                >
+                                  {truncateText(agent.name, 10)}
+                                </div>
                               </div>
 
-                                <div className="w-2/12 ">
-                                  {agent?.agents[0]?.agentObjective ? (
-                                    <div style={styles.text2}>
-                                      {agent.Sheet.sheetName}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
+                              <div className="w-2/12 min-w-0 flex-shrink">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                    title={agent.Sheet.sheetName}
+                                  >
+                                    {truncateText(agent.Sheet.sheetName, 15)}
+                                  </div>
+                                ) : (
+                                  '-'
+                                )}
+                              </div>
 
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0 text-center">
                                 <button
                                   style={styles.text2}
-                                  className="text-purple underline outline-none"
+                                  className="text-brand-primary underline outline-none"
                                   onClick={() => {
-                                    handleShowLeads(agent, item);
+                                    handleShowLeads(agent, item)
                                   }}
                                 >
                                   {item?.totalLeads}
                                 </button>
                               </div>
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0">
                                 {item?.createdAt ? (
-                                  <div style={styles.text2}>
-                                    {GetFormattedDateString(
-                                      item?.createdAt
-                                    )}
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                  >
+                                    {GetFormattedDateString(item?.createdAt)}
                                   </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
-                              <div className="w-2/12">
+                              <div className="w-2/12 flex-shrink-0">
                                 {item.startTime ? (
-                                  <div style={styles.text2}>
+                                  <div
+                                    style={styles.text2}
+                                    className="truncate"
+                                  >
                                     {moment(item.startTime).format(
-                                      "MMM DD,YYYY - hh:mm A"
+                                      'MMM DD,YYYY - hh:mm A',
                                     )}
                                   </div>
                                 ) : (
-                                  "-"
+                                  '-'
                                 )}
                               </div>
-                              <div className="w-1/12">
+                              <div className="w-1/12 flex-shrink-0">
+                                <div style={styles.text2}>
+                                  {item.status
+                                    ? item.status.charAt(0).toUpperCase() +
+                                      item.status.slice(1).toLowerCase()
+                                    : '-'}
+                                </div>
+                              </div>
+                              <div className="w-1/12 flex-shrink-0">
                                 <button
                                   aria-describedby={id}
                                   variant="contained"
                                   onClick={(event) => {
-                                    handleShowPopup(event, item, agent);
+                                    handleShowPopup(event, item, agent)
                                   }}
                                 >
                                   <Image
-                                    src={"/otherAssets/threeDotsIcon.png"}
+                                    src={'/otherAssets/threeDotsIcon.png'}
                                     height={24}
                                     width={24}
                                     alt="icon"
@@ -536,25 +594,26 @@ function AdminScheduledCalls({ selectedUser }) {
                                   anchorEl={anchorEl}
                                   onClose={handleClosePopup}
                                   anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "right",
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
                                   }}
                                   transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                                    vertical: 'top',
+                                    horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
                                   }}
                                   PaperProps={{
                                     elevation: 0, // This will remove the shadow
                                     style: {
-                                      boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                                      borderRadius: "10px",
-                                      width: "120px",
+                                      boxShadow:
+                                        '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                                      borderRadius: '10px',
+                                      width: '120px',
                                     },
                                   }}
                                 >
                                   <div
                                     className="p-2 flex flex-col gap-2"
-                                    style={{ fontWeight: "500", fontSize: 15 }}
+                                    style={{ fontWeight: '500', fontSize: 15 }}
                                   >
                                     <div>
                                       {PauseLoader ? (
@@ -563,29 +622,34 @@ function AdminScheduledCalls({ selectedUser }) {
                                         <button
                                           className="text-start outline-none"
                                           onClick={() => {
-
-                                            if (SelectedItem?.status == "Paused") {
+                                            if (
+                                              SelectedItem?.status == 'Paused'
+                                            ) {
                                               //// //console.log
-                                              setColor(true);
-                                              setShowConfirmationPopup("resume Calls")
+                                              setColor(true)
+                                              setShowConfirmationPopup(
+                                                'resume Calls',
+                                              )
                                             } else {
                                               //// //console.log
-                                              setShowConfirmationPopup("pause Calls")
-                                              setColor(false);
+                                              setShowConfirmationPopup(
+                                                'pause Calls',
+                                              )
+                                              setColor(false)
                                             }
                                             // //console.log
                                           }}
                                         >
-                                          {SelectedItem?.status == "Paused"
-                                            ? "Run Calls"
-                                            : "Pause Calls"}
+                                          {SelectedItem?.status == 'Paused'
+                                            ? 'Run Calls'
+                                            : 'Pause Calls'}
                                         </button>
                                       )}
                                     </div>
                                     <button
                                       className="text-start outline-none"
                                       onClick={() => {
-                                        handleShowLeads(agent, item);
+                                        handleShowLeads(agent, item)
                                       }}
                                     >
                                       View Details
@@ -597,8 +661,12 @@ function AdminScheduledCalls({ selectedUser }) {
                                 {/* Confirmation popup */}
                                 {showConfirmationPopuup && (
                                   <ShowConfirmationPopup
-                                    showConfirmationPopuup={showConfirmationPopuup}
-                                    setShowConfirmationPopup={setShowConfirmationPopup}
+                                    showConfirmationPopuup={
+                                      showConfirmationPopuup
+                                    }
+                                    setShowConfirmationPopup={
+                                      setShowConfirmationPopup
+                                    }
                                     pauseAgent={pauseAgents}
                                     color={color}
                                     PauseLoader={PauseLoader}
@@ -608,23 +676,29 @@ function AdminScheduledCalls({ selectedUser }) {
                               </div>
                             </div>
                           </div>
-                        );
+                        )
                       })}
                     </div>
-                  );
+                  )
                 })}
               </div>
             ) : (
-              <div style={{ fontWeight: "600", fontSize: 24, textAlign: "center", marginTop: 20 }}>
+              <div
+                style={{
+                  fontWeight: '600',
+                  fontSize: 24,
+                  textAlign: 'center',
+                  marginTop: 20,
+                }}
+              >
                 No Call Scheduled
               </div>
-            )
-            }
+            )}
           </div>
         )}
       </div>
 
-     {/* Leads list modal goes here */}
+      {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
         onClose={() => setShowLeadDetailsModal(false)}
@@ -632,42 +706,42 @@ function AdminScheduledCalls({ selectedUser }) {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
         <Box
           className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
         >
           <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
               className="sm:w-10/12 w-full h-[100%] overflow-none"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row items-center justify-between">
                 <div
                   style={{
-                    fontWeight: "500",
+                    fontWeight: '500',
                     fontSize: 17,
                   }}
                 >
                   {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                    SelectedAgent?.name.slice(1)}{" "}
+                    SelectedAgent?.name.slice(1)}{' '}
                   call activity
                 </div>
                 <button
                   onClick={() => {
-                    setShowLeadDetailsModal(false);
+                    setShowLeadDetailsModal(false)
                   }}
                 >
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -677,7 +751,7 @@ function AdminScheduledCalls({ selectedUser }) {
               <div
                 className="max-h-[92%] overflow-auto"
                 style={{
-                  scrollbarWidth: "none",
+                  scrollbarWidth: 'none',
                 }}
               >
                 {AgentCallLogLoader ? (
@@ -693,13 +767,13 @@ function AdminScheduledCalls({ selectedUser }) {
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0 rounded-full"
                         value={leadsSearchValue}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          handleLeadsSearchChange(value);
-                          setLeadsSearchValue(e.target.value);
+                          const value = e.target.value
+                          handleLeadsSearchChange(value)
+                          setLeadsSearchValue(e.target.value)
                         }}
                       />
                       <img
-                        src={"/otherAssets/searchIcon.png"}
+                        src={'/otherAssets/searchIcon.png'}
                         alt="Search"
                         width={20}
                         height={20}
@@ -710,8 +784,8 @@ function AdminScheduledCalls({ selectedUser }) {
                       className="flex flex-row items-center mt-6"
                       style={{
                         fontSize: 15,
-                        fontWeight: "500",
-                        color: "#00000070",
+                        fontWeight: '500',
+                        color: '#00000070',
                       }}
                     >
                       <div className="w-3/12">Name</div>
@@ -724,7 +798,7 @@ function AdminScheduledCalls({ selectedUser }) {
                     <div
                       className="h-[70svh] overflow-auto pb-[100px] mt-6"
                       id="scrollableDiv1"
-                      style={{ scrollbarWidth: "none" }}
+                      style={{ scrollbarWidth: 'none' }}
                     >
                       {filteredSelectedLeadsList.length > 0 ? (
                         <div className="w-full">
@@ -733,12 +807,12 @@ function AdminScheduledCalls({ selectedUser }) {
                             endMessage={
                               <p
                                 style={{
-                                  textAlign: "center",
-                                  paddingTop: "10px",
-                                  fontWeight: "400",
-                                  fontFamily: "inter",
+                                  textAlign: 'center',
+                                  paddingTop: '10px',
+                                  fontWeight: '400',
+                                  fontFamily: 'inter',
                                   fontSize: 16,
-                                  color: "#00000060",
+                                  color: '#00000060',
                                 }}
                               >
                                 {`You're all caught up`}
@@ -747,7 +821,7 @@ function AdminScheduledCalls({ selectedUser }) {
                             scrollableTarget="scrollableDiv1"
                             dataLength={filteredSelectedLeadsList.length}
                             next={() => {
-                              fetchLeadsInBatch(SelectedItem);
+                              fetchLeadsInBatch(SelectedItem)
                             }}
                             hasMore={hasMoreLeads}
                             loader={
@@ -755,12 +829,12 @@ function AdminScheduledCalls({ selectedUser }) {
                                 {leadsLoading && (
                                   <CircularProgress
                                     size={35}
-                                    sx={{ color: "#7902DF" }}
+                                    sx={{ color: 'hsl(var(--brand-primary))' }}
                                   />
                                 )}
                               </div>
                             }
-                            style={{ overflow: "unset" }}
+                            style={{ overflow: 'unset' }}
                           >
                             {filteredSelectedLeadsList.map((item, index) => (
                               <div
@@ -769,7 +843,7 @@ function AdminScheduledCalls({ selectedUser }) {
                                 style={{
                                   fontSize: 15,
                                   fontWeight: 500,
-                                  scrollbarWidth: "none",
+                                  scrollbarWidth: 'none',
                                 }}
                               >
                                 <div
@@ -787,10 +861,10 @@ function AdminScheduledCalls({ selectedUser }) {
                                     </div>
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.phone || "-"}
+                                    {item?.phone || '-'}
                                   </div>
                                   <div className="w-3/12 truncate">
-                                    {item?.address || "-"}
+                                    {item?.address || '-'}
                                   </div>
                                   <div className="w-2/12">
                                     {item.tags.length > 0 ? (
@@ -800,17 +874,17 @@ function AdminScheduledCalls({ selectedUser }) {
                                           .map((tag, index) => (
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                              className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg text-brand-primary"
                                             >
                                               {tag}
                                             </div>
                                           ))}
                                         {item.tags.length > 1 && (
                                           <div
-                                            className="text-purple underline cursor-pointer"
+                                            className="text-brand-primary underline cursor-pointer"
                                             onClick={() => {
-                                              setExtraTagsModal(true);
-                                              setOtherTags(item.tags);
+                                              setExtraTagsModal(true)
+                                              setOtherTags(item.tags)
                                             }}
                                           >
                                             +{item.tags.length - 1}
@@ -818,12 +892,12 @@ function AdminScheduledCalls({ selectedUser }) {
                                         )}
                                       </div>
                                     ) : (
-                                      "-"
+                                      '-'
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
                                     {/*item?.stage || "-"*/}
-                                    {item?.stage?.stageTitle || "-"}
+                                    {item?.stage?.stageTitle || '-'}
                                   </div>
                                 </div>
                               </div>
@@ -847,36 +921,35 @@ function AdminScheduledCalls({ selectedUser }) {
           </div>
         </Box>
       </Modal>
-
     </div>
-  );
+  )
 }
 
-export default AdminScheduledCalls;
+export default AdminScheduledCalls
 const styles = {
   text: {
     fontSize: 15,
-    color: "#00000090",
-    fontWeight: "500",
+    color: '#00000090',
+    fontWeight: '500',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
     // color: '#000000',
-    fontWeight: "500",
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    fontWeight: '500',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

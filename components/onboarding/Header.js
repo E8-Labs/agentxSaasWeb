@@ -1,9 +1,10 @@
-import React from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { UserTypes } from "@/constants/UserTypes";
-import AppLogo from "../common/AppLogo";
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import { UserTypes } from '@/constants/UserTypes'
+import AppLogo from '@/components/common/AppLogo'
 
 const Header = ({
   skipSellerKYC,
@@ -13,36 +14,56 @@ const Header = ({
   handleContinue,
   user,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
+  const [isSubaccount, setIsSubaccount] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   function getSkipPageForSellerKyc() {
     if (user && user.user.userType != UserTypes.RealEstateAgent) {
-      return "/pipeline";
+      return '/pipeline'
     }
-    return "/buyerskycquestions";
+    return '/buyerskycquestions'
   }
 
   return (
     <div>
-      <div className="px-4 flex flex-row items-center md:pt-2">
+      <div className="px-4 flex flex-row items-center md:pt-6">
         <div className="w-4/12">
-        <div className="ms-6 hidden md:flex">
-        <AppLogo
-          height={29}
-          width={122}
-          alt="logo"
-        />
-      </div>
+          <div className="ms-6 hidden md:flex">
+            <AppLogo
+              height={29}
+              width={122}
+              alt="logo"
+            />
+          </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
-          <Image
-            className=""
-            src="/agentXOrb.gif"
-            style={{ height: "69px", width: "75px", resize: "contain" }}
-            height={69}
-            width={69}
-            alt="*"
-          />
+          {!isSubaccount && (
+            <Image
+              className=""
+              src="/agentXOrb.gif"
+              style={{ height: '69px', width: '75px', resize: 'contain' }}
+              height={69}
+              width={69}
+              alt="*"
+            />
+          )}
         </div>
         <div className="w-4/12 flex felx-row items-start h-full justify-end">
           {skipSellerKYC && shouldContinue && (
@@ -51,12 +72,12 @@ const Header = ({
               href={getSkipPageForSellerKyc()}
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={(e) => {
-                e.preventDefault();
-                router.push(getSkipPageForSellerKyc());
+                e.preventDefault()
+                router.push(getSkipPageForSellerKyc())
               }}
             >
               Skip
@@ -64,16 +85,16 @@ const Header = ({
           )}
           {buyerKYC && shouldContinue && (
             <Link
-              href={"/pipeline"}
+              href={'/pipeline'}
               className="underline h-full me-8"
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={(e) => {
-                e.preventDefault();
-                router.push("/pipeline");
+                e.preventDefault()
+                router.push('/pipeline')
               }}
             >
               Skip
@@ -84,8 +105,8 @@ const Header = ({
               className="underline h-full me-8"
               style={{
                 fontSize: 15,
-                fontWeight: "600",
-                color: "#00000060",
+                fontWeight: '600',
+                color: '#00000060',
               }}
               onClick={handleContinue}
             >
@@ -95,7 +116,7 @@ const Header = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

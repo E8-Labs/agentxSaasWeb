@@ -1,4 +1,5 @@
-import Apis from "@/components/apis/Apis";
+import 'react-calendar/dist/Calendar.css'
+
 import {
   Box,
   CircularProgress,
@@ -9,35 +10,80 @@ import {
   RadioGroup,
   Switch,
   Typography,
-} from "@mui/material";
-import { CalendarDots, CaretLeft } from "@phosphor-icons/react";
-import axios from "axios";
-import moment from "moment";
-import Image from "next/image";
-import React, { use, useEffect, useState } from "react";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+} from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { CalendarDots, CaretLeft } from '@phosphor-icons/react'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+// Import Day.js
+import utc from 'dayjs/plugin/utc'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { use, useEffect, useState } from 'react'
+import Calendar from 'react-calendar'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import { SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi'
+import { getAgentImage } from '@/utilities/agentUtilities'
+
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "./AgentSelectSnackMessage";
+} from './AgentSelectSnackMessage'
+import AllowSmartRefillPopup from './AllowSmartRefillPopup'
+import DncConfirmationPopup from './DncConfirmationPopup'
 
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import dayjs from "dayjs"; // Import Day.js
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import { getAgentImage } from "@/utilities/agentUtilities";
-import DncConfirmationPopup from "./DncConfirmationPopup";
-import Tooltip from "@mui/material/Tooltip";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
-import AllowSmartRefillPopup from "./AllowSmartRefillPopup";
-import InfiniteScroll from "react-infinite-scroll-component";
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+// Helper function to get brand primary color as hex (for MUI sx props)
+const getBrandPrimaryHex = () => {
+  if (typeof window === 'undefined') return '#7902DF'
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  if (brandPrimary) {
+    // Convert HSL to hex for inline styles
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  return '#7902DF' // Default fallback
+}
 
 const AssignLead = ({
   leadIs,
@@ -51,54 +97,73 @@ const AssignLead = ({
   // console.log("leadIs length is:",leadIs.length)
   // console.log('selectedAll', selectedAll)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
-    useState(false);
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
-  const [initialLoader, setInitialLoader] = useState(false);
-  const [agentsList, setAgentsList] = useState([]);
+    useState(false)
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null)
+  const [initialLoader, setInitialLoader] = useState(false)
+  const [agentsList, setAgentsList] = useState([])
   //pagination
-  const [hasMoreAgents, setHasMoreAgents] = useState(true);
-  const [stages, setStages] = useState([]);
-  const [SelectedAgents, setSelectedAgents] = useState([]);
-  const [CannotAssignLeadModal, setCannotAssignLeadModal] = useState(false);
-  const [loader, setLoader] = useState(false);
-  const [lastStepModal, setLastStepModal] = useState(false);
-  const [ShouldContinue, setShouldContinue] = useState(false);
-  const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
-  const [customLeadsToSend, setCustomLeadsToSend] = useState("");
-  const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState("");
-  const [selectedFromDate, setSelectedFromDate] = useState(null);
-  const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
-  const [CallNow, setCallNow] = useState("");
-  const [CallLater, setCallLater] = useState(false);
+  const [hasMoreAgents, setHasMoreAgents] = useState(true)
+  const [stages, setStages] = useState([])
+  const [SelectedAgents, setSelectedAgents] = useState([])
+  const [CannotAssignLeadModal, setCannotAssignLeadModal] = useState(false)
+  const [loader, setLoader] = useState(false)
+  const [lastStepModal, setLastStepModal] = useState(false)
+  const [ShouldContinue, setShouldContinue] = useState(false)
+  const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState('')
+  const [customLeadsToSend, setCustomLeadsToSend] = useState('')
+  const [isFocustedCustomLeads, setisFocustedCustomLeads] = useState('')
+  const [selectedFromDate, setSelectedFromDate] = useState(null)
+  const [showFromDatePicker, setShowFromDatePicker] = useState(false)
+  const [selectedDateTime, setSelectedDateTime] = useState(dayjs())
+  const [CallNow, setCallNow] = useState('')
+  const [CallLater, setCallLater] = useState(false)
 
   //smart refill
-  const [showSmartRefillPopUp, setShowSmartRefillPopUp] = useState(false);
-  const [smartRefillLoader, setSmartRefillLoader] = useState(false);
-  const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
+  const [showSmartRefillPopUp, setShowSmartRefillPopUp] = useState(false)
+  const [smartRefillLoader, setSmartRefillLoader] = useState(false)
+  const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false)
 
-  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
+  const [invalidTimeMessage, setInvalidTimeMessage] = useState(null)
 
   //new code by salman
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [errTitle, setErrTitle] = useState(null);
-  const SelectAgentErrorTimeout = 4000; //change this to change the duration of the snack timer
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [errTitle, setErrTitle] = useState(null)
+  const SelectAgentErrorTimeout = 4000 //change this to change the duration of the snack timer
 
-  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
-  const [isDncChecked, setIsDncChecked] = useState(false);
+  const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false)
+  const [isDncChecked, setIsDncChecked] = useState(false)
+  
+  // Get brand primary color for styling
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
+  
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    // Get initial color
+    updateBrandColor()
+    
+    // Listen for branding updates
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
 
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
-        setErrorMessage(null);
-        setErrTitle(null);
-      }, SelectAgentErrorTimeout);
+        setErrorMessage(null)
+        setErrTitle(null)
+      }, SelectAgentErrorTimeout)
     }
-  }, [errorMessage]);
+  }, [errorMessage])
 
   useEffect(() => {
     if (SelectedAgents.length === 0) {
-      setShouldContinue(true);
+      setShouldContinue(true)
     }
 
     // if (ShouldContinue === true) {
@@ -109,12 +174,12 @@ const AssignLead = ({
     // } else {
     //     setShouldContinue(true);
     // }
-  }, [SelectedAgents]);
+  }, [SelectedAgents])
 
   useEffect(() => {
     // //console.log;
 
-    let agentsList = [];
+    let agentsList = []
 
     // const localAgents = localStorage.getItem("localAgentDetails");
     // if (localAgents) {
@@ -143,48 +208,48 @@ const AssignLead = ({
     // }
     // else {
     // //console.log;
-    getAgents();
+    getAgents()
     // }
-  }, []);
+  }, [])
 
   useEffect(() => {
     // //console.log;
-  }, [SelectedAgents]);
+  }, [SelectedAgents])
 
   //get agents api
   const getAgents = async (initialoaderStatus) => {
     try {
-      console.log("Status of initial loader", initialoaderStatus);
-      const checkLocalAgentsList = localStorage.getItem("localAgentDetails");
+      console.log('Status of initial loader', initialoaderStatus)
+      const checkLocalAgentsList = localStorage.getItem('localAgentDetails')
 
       if (initialoaderStatus?.initialoaderStatus === false) {
-        setInitialLoader(false);
+        setInitialLoader(false)
       } else {
         if (!checkLocalAgentsList) {
-          setInitialLoader(true);
+          setInitialLoader(true)
         }
       }
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
         // //console.log;
       }
 
       // //console.log;
 
       // const ApiPath = Apis.getAgents;
-      const offset = agentsList.length;
+      const offset = agentsList.length
       const ApiPath = `${Apis.getAgents}?offset=${offset}`
-      console.log("Api path is of get agents", ApiPath);
+      console.log('Api path is of get agents', ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         //console.log;
@@ -196,64 +261,64 @@ const AssignLead = ({
         //// //console.log);
         const filterredAgentsList2 = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
-          const subAgents = mainAgent.agents;
+          const subAgents = mainAgent.agents
           const hasOutbound = subAgents.some(
-            (item) => item.agentType === "outbound"
-          );
+            (item) => item.agentType === 'outbound',
+          )
           const hasInbound = subAgents.some(
-            (item) => item.agentType === "inbound"
-          );
+            (item) => item.agentType === 'inbound',
+          )
 
           // Keep the main agent if it has only outbound agents or both inbound and outbound agents
-          return hasOutbound && (!hasInbound || hasInbound);
-        });
+          return hasOutbound && (!hasInbound || hasInbound)
+        })
         // console.log("Response of api is", response.data.data);
         let filterredAgentsList = response?.data?.data
-        setAgentsList([...agentsList, ...filterredAgentsList]);
+        setAgentsList([...agentsList, ...filterredAgentsList])
         if (filterredAgentsList.length > 0) {
-          setHasMoreAgents(true);
+          setHasMoreAgents(true)
         } else {
-          setHasMoreAgents(false);
+          setHasMoreAgents(false)
         }
         //console.log;
-        setStages(filterredAgentsList.stages);
+        setStages(filterredAgentsList.stages)
       }
     } catch (error) {
       // console.error("ERrror occured in agents api is :", error);
     } finally {
-      setInitialLoader(false);
+      setInitialLoader(false)
       // //console.log;
     }
-  };
+  }
 
   function GetOutboundAgent(mainAgent) {
     if (mainAgent.agents.length == 0) {
-      return null;
+      return null
     }
     if (mainAgent.agents.length > 0) {
-      let outbound = null;
+      let outbound = null
       for (const a of mainAgent.agents) {
-        if (a.agentType == "outbound" || a.agentType == "inbound") {
-          outbound = a;
+        if (a.agentType == 'outbound' || a.agentType == 'inbound') {
+          outbound = a
         }
       }
-      return outbound;
+      return outbound
     }
   }
 
   function GetInboundAgent(mainAgent) {
     if (mainAgent.agents.length == 0) {
-      return null;
+      return null
     }
     if (mainAgent.agents.length > 0) {
-      let inbound = null;
+      let inbound = null
       for (const a of mainAgent.agents) {
-        if (a.agentType == "inbound") {
-          inbound = a;
+        if (a.agentType == 'inbound') {
+          inbound = a
           // console.log("returned the agent", a);
         }
       }
-      return inbound;
+      return inbound
     }
   }
 
@@ -274,33 +339,33 @@ const AssignLead = ({
     //2 can not assign
     // Check if the item is already selected
     const isAlreadySelected = SelectedAgents.some(
-      (selectedItem) => selectedItem.id === item.id
-    );
+      (selectedItem) => selectedItem.id === item.id,
+    )
 
     if (isAlreadySelected) {
       // Remove the item if it's already selected
       // //console.log;
-      return 1;
+      return 1
       // return prevSelectedItems.filter((selectedItem) => selectedItem.id !== item.id);
     } else {
-      let allSelectedAgentStages = [];
+      let allSelectedAgentStages = []
       // item.stages.map((agent) => {
       //     allSelectedAgentStages.push(agent)
       // })
 
       SelectedAgents.map((agent) => {
-        allSelectedAgentStages = [...allSelectedAgentStages, ...agent.stages];
+        allSelectedAgentStages = [...allSelectedAgentStages, ...agent.stages]
         // allSelectedAgentStages.push(agent.stages)
-      });
+      })
 
-      let canAssignStage = 0;
+      let canAssignStage = 0
       // Check if the pipeline.id matches with any previously selected item's pipeline.id
       if (item) {
         SelectedAgents.map((agent) => {
           if (agent?.pipeline?.id != item?.pipeline?.id) {
-            canAssignStage = 2;
+            canAssignStage = 2
           }
-        });
+        })
       }
 
       if (canAssignStage == 0) {
@@ -308,12 +373,12 @@ const AssignLead = ({
       } else {
         // //console.log;
         if (!errorMessage) {
-          setErrTitle("Pipeline Confilict");
+          setErrTitle('Pipeline Confilict')
           setErrorMessage(
-            "You can’t assign leads to agents in different pipelines"
-          );
+            'You can’t assign leads to agents in different pipelines',
+          )
         }
-        return 2;
+        return 2
       }
 
       // //console.log;
@@ -330,15 +395,15 @@ const AssignLead = ({
             if (stage.id == selectedStage.id) {
               // //console.log;
               if (!errorMessage) {
-                setErrTitle("Conflicting Agents");
+                setErrTitle('Conflicting Agents')
                 setErrorMessage(
-                  "You can’t assign leads to agents in the same stage"
-                );
+                  'You can’t assign leads to agents in the same stage',
+                )
               }
-              canAssignStage = 2;
+              canAssignStage = 2
             }
-          });
-        });
+          })
+        })
       }
 
       // item.stages.forEach((stage) => {
@@ -350,32 +415,32 @@ const AssignLead = ({
       //     });
       // });
 
-      return canAssignStage;
+      return canAssignStage
     }
     // });
-  };
+  }
 
   const handleAssignLead = async () => {
-    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
-    const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
-    const currentHour = selectedDate.hour(); // Get the current hour (0-23)
-    const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
+    let userTimeZone = userProfile.timeZone || 'America/Los_Angeles'
+    const selectedDate = dayjs(selectedDateTime).tz(userTimeZone) // Convert input date to Day.js object
+    const currentHour = selectedDate.hour() // Get the current hour (0-23)
+    const currentMinute = selectedDate.minute() // Get minutes for 8:30 PM check
     //console.log;
     //console.log;
     //console.log;
     //console.log;
 
-    const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
+    const isAfterStartTime = currentHour >= 7 // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
     const isBeforeEndTime =
-      currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
+      currentHour < 20 || (currentHour === 20 && currentMinute <= 30) // Before 8:30 PM
     if (
       isAfterStartTime && // After 7:00 AM
       isBeforeEndTime // Before 8:30 PM
     ) {
       console.log(
-        "✅ Selected time is between 7 AM and 8:30 PM.",
-        selectedDate.format()
-      );
+        '✅ Selected time is between 7 AM and 8:30 PM.',
+        selectedDate.format(),
+      )
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
@@ -389,25 +454,25 @@ const AssignLead = ({
     // return;
 
     try {
-      setLoader(true);
+      setLoader(true)
 
-      let timer = null;
-      let batchSize = null;
+      let timer = null
+      let batchSize = null
 
       if (customLeadsToSend) {
-        batchSize = customLeadsToSend;
+        batchSize = customLeadsToSend
       } else if (NoOfLeadsToSend) {
-        batchSize = NoOfLeadsToSend;
+        batchSize = NoOfLeadsToSend
       }
 
       if (CallNow) {
-        timer = 0;
+        timer = 0
       } else if (CallLater) {
-        const currentDateTime = dayjs(); // Get current date and time using Day.js
+        const currentDateTime = dayjs() // Get current date and time using Day.js
 
-        const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
-        const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
-        timer = minutes.toFixed(0); // Round to nearest integer
+        const differenceInMilliseconds = selectedDateTime.diff(currentDateTime) // Difference in ms
+        const minutes = differenceInMilliseconds / (1000 * 60) // Convert ms to minutes
+        timer = minutes.toFixed(0) // Round to nearest integer
 
         // //console.log;
         // //console.log;
@@ -422,7 +487,7 @@ const AssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
-      };
+      }
 
       //console.log;
       // return;
@@ -436,106 +501,106 @@ const AssignLead = ({
           selectedAll: selectedAll,
           dncCheck: isDncChecked,
           ...filters,
-        };
+        }
       }
 
       //console.log;
       // return;
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
       }
 
       // //console.log;
 
-      const ApiPath = Apis.assignLeadToPipeLine;
+      const ApiPath = Apis.assignLeadToPipeLine
 
       // //console.log;
 
       const response = await axios.post(ApiPath, Apidata, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           handleCloseAssignLeadModal({
             status: false,
-            showSnack: "Lead assigned",
+            showSnack: 'Lead assigned',
             disSelectLeads: true,
-          });
-          setLastStepModal(false);
+          })
+          setLastStepModal(false)
           // window.location.reload();
         } else if (response.data.status === false) {
           handleCloseAssignLeadModal({
             status: true,
-            showSnack: "Error assigning lead",
+            showSnack: 'Error assigning lead',
             disSelectLeads: false,
-          });
+          })
         }
       }
     } catch (error) {
       // console.error("Error occured in api is", error);
-      setSmartRefillLoader(false);
-      setSmartRefillLoaderLater(false);
+      setSmartRefillLoader(false)
+      setSmartRefillLoaderLater(false)
     } finally {
-      setLoader(false);
-      setSmartRefillLoader(false);
-      setSmartRefillLoaderLater(false);
+      setLoader(false)
+      setSmartRefillLoader(false)
+      setSmartRefillLoaderLater(false)
     }
-  };
+  }
 
   //code for update profile for smartrefill
   const handleSmartRefill = async () => {
     try {
-      setSmartRefillLoader(true);
-      const response = await SmartRefillApi();
+      setSmartRefillLoader(true)
+      const response = await SmartRefillApi()
       if (response.data.status === true) {
-        handleAssignLead();
+        handleAssignLead()
       }
     } catch (error) {
-      setSmartRefillLoader(false);
-      console.error("Error occured is", error);
+      setSmartRefillLoader(false)
+      console.error('Error occured is', error)
     }
-  };
+  }
 
   const handleSmartRefillLater = async () => {
     try {
-      setSmartRefillLoaderLater(true);
-      handleAssignLead();
+      setSmartRefillLoaderLater(true)
+      handleAssignLead()
     } catch (error) {
-      setSmartRefillLoaderLater(false);
-      console.error("Error occured is", error);
+      setSmartRefillLoaderLater(false)
+      console.error('Error occured is', error)
     }
-  };
+  }
 
   //code for date picker
 
   const handleDateChange = (date) => {
     if (!date) {
       // //console.log;
-      return;
+      return
     }
 
-    setSelectedDateTime(date);
-    setHasUserSelectedDate(true);
-  };
+    setSelectedDateTime(date)
+    setHasUserSelectedDate(true)
+  }
 
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date); // Set the selected date
-    setShowFromDatePicker(false);
-  };
+    setSelectedFromDate(date) // Set the selected date
+    setShowFromDatePicker(false)
+  }
 
   function getLeadSelectedCount() {
     if (selectedAll) {
-      return totalLeads - leadIs.length;
+      return totalLeads - leadIs.length
     } else {
-      return leadIs.length;
+      return leadIs.length
     }
   }
 
@@ -543,38 +608,38 @@ const AssignLead = ({
     // let filtered = agentsList.filter((item) => {
     //   return item.pipeline != null && item.stages.length > 0;
     // });
-    return agentsList;
+    return agentsList
   }
 
   const styles = {
     heading: {
-      fontWeight: "600",
+      fontWeight: '600',
       fontSize: 17,
     },
     paragraph: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 12,
     },
     paragraph2: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 12,
     },
     title: {
-      fontWeight: "500",
+      fontWeight: '500',
       fontSize: 15,
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div className="w-full">
@@ -584,8 +649,8 @@ const AssignLead = ({
         isVisible={errorMessage}
         hide={() => {
           //   setIsSnackVisible(false);
-          setErrorMessage(null);
-          setErrTitle(null);
+          setErrorMessage(null)
+          setErrTitle(null)
         }}
         type=""
       />
@@ -594,18 +659,18 @@ const AssignLead = ({
         <DncConfirmationPopup
           open={showDncConfirmationPopup}
           onClose={() => {
-            setShowDncConfirmationPopup(false);
-            setIsDncChecked(false);
+            setShowDncConfirmationPopup(false)
+            setIsDncChecked(false)
             //
           }}
           onCancel={() => {
-            setShowDncConfirmationPopup(false);
+            setShowDncConfirmationPopup(false)
             //Unset the dncToggle
-            setIsDncChecked(false);
+            setIsDncChecked(false)
           }}
           onConfirm={() => {
-            setShowSuccessSnack("DNC Enabled");
-            setShowDncConfirmationPopup(false);
+            setShowSuccessSnack('DNC Enabled')
+            setShowDncConfirmationPopup(false)
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
         />
@@ -613,8 +678,8 @@ const AssignLead = ({
       {/* Snackbar for invalid time */}
 
       <div className="flex flex-row items-center justify-between mt-4">
-        <div style={{ fontSize: 24, fontWeight: "700" }}>Select your Agent</div>
-        <div className="text-purple" style={styles.paragraph}>
+        <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
+        <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
           {getLeadSelectedCount()} Contacts Selected
         </div>
       </div>
@@ -635,34 +700,36 @@ const AssignLead = ({
       ) : (
         <div
           className="relative max-h-[50vh] overflow-y-auto"
-          style={{ scrollbarWidth: "none" }}
+          style={{ scrollbarWidth: 'none' }}
           id="scrollableAgentDiv"
         >
           <InfiniteScroll
             dataLength={agentsList.length}
-            next={() => { getAgents({ initialoaderStatus: false }) }}
+            next={() => {
+              getAgents({ initialoaderStatus: false })
+            }}
             hasMore={hasMoreAgents}
             scrollableTarget="scrollableAgentDiv"
             loader={
               <div className="w-full flex justify-center mt-4">
-                <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                <CircularProgress size={30} sx={{ color: brandPrimaryColor }} />
               </div>
             }
             endMessage={
               <p
                 style={{
-                  textAlign: "center",
-                  paddingTop: "10px",
-                  fontWeight: "400",
-                  fontFamily: "inter",
+                  textAlign: 'center',
+                  paddingTop: '10px',
+                  fontWeight: '400',
+                  fontFamily: 'inter',
                   fontSize: 16,
-                  color: "#00000060",
+                  color: '#00000060',
                 }}
               >
                 {`You're all caught up`}
               </p>
             }
-            style={{ overflow: "unset" }}
+            style={{ overflow: 'unset' }}
           >
             {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
               const noNumberWarning = (mainAgent) => {
@@ -673,14 +740,14 @@ const AssignLead = ({
                 return mainAgent.agents.map((subAgent, index) => {
                   // Check if the agent is of type 'outbound' and has no phone number
                   if (
-                    subAgent.agentType === "outbound" &&
-                    (!subAgent.phoneNumber || subAgent.phoneNumber === "")
+                    subAgent.agentType === 'outbound' &&
+                    (!subAgent.phoneNumber || subAgent.phoneNumber === '')
                   ) {
                     return (
                       <div key={index}>
                         <div className="flex flex-row items-center gap-2 -mt-1">
                           <Image
-                            src={"/assets/warningFill.png"}
+                            src={'/assets/warningFill.png'}
                             height={18}
                             width={18}
                             alt="*"
@@ -690,7 +757,7 @@ const AssignLead = ({
                               className="text-red"
                               style={{
                                 fontSize: 12,
-                                fontWeight: "600",
+                                fontWeight: '600',
                               }}
                             >
                               No phone number assigned
@@ -698,44 +765,44 @@ const AssignLead = ({
                           </p>
                         </div>
                       </div>
-                    );
+                    )
                   }
-                  return null;
-                });
-              };
+                  return null
+                })
+              }
 
               return (
                 <button
                   key={index}
                   disabled={checkNostageAndInboundAgent(item)}
-                  className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? "bg-[#00000020]" : ""}`} //
+                  className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? 'bg-[#00000020]' : ''}`} //
                   style={{
                     border: SelectedAgents.includes(item)
-                      ? "2px solid #7902DF"
-                      : "1px solid #00000020",
+                      ? `2px solid ${brandPrimaryColor}`
+                      : '1px solid #00000020',
                     backgroundColor: SelectedAgents.includes(item)
-                      ? "#402FFF05"
-                      : "",
+                      ? `${brandPrimaryColor}08`
+                      : '',
                   }}
                   onClick={() => {
                     // console.log("Selected item is", item);
-                    let canAssign = canAssignStage(item);
+                    let canAssign = canAssignStage(item)
                     if (canAssign == 0) {
                       //push to the array
                       // //console.log;
-                      setSelectedAgents([...SelectedAgents, item]);
+                      setSelectedAgents([...SelectedAgents, item])
                       // setLastStepModal(true);//loader
-                      setShouldContinue(false);
+                      setShouldContinue(false)
                     } else if (canAssign == 1) {
                       //remove from the array
                       // //console.log;
                       let agents = SelectedAgents.filter(
-                        (selectedItem) => selectedItem.id !== item.id
-                      );
-                      setSelectedAgents(agents);
+                        (selectedItem) => selectedItem.id !== item.id,
+                      )
+                      setSelectedAgents(agents)
                     } else if (canAssign == 2) {
                       //can not assign. Show popup
-                      setCannotAssignLeadModal(true);
+                      setCannotAssignLeadModal(true)
                     }
                   }}
                 >
@@ -743,7 +810,9 @@ const AssignLead = ({
                     <div className="flex flex-row items-center gap-2">
                       {getAgentImage(item)}
                       <span style={styles.heading}>
-                        {GetOutboundAgent(item)?.name?.slice(0, 1)?.toUpperCase()}
+                        {GetOutboundAgent(item)
+                          ?.name?.slice(0, 1)
+                          ?.toUpperCase()}
                         {GetOutboundAgent(item)?.name?.slice(1)}
                         {/*item?.name?.slice(0, 1)?.toUpperCase()}
                         {item?.name?.slice(1)*/}
@@ -753,7 +822,7 @@ const AssignLead = ({
                       <div>{noNumberWarning(item)}</div>
                       <div
                         style={{
-                          fontWeight: "500",
+                          fontWeight: '500',
                           fontSize: 12,
                         }}
                       >
@@ -766,30 +835,30 @@ const AssignLead = ({
                     className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
                     style={{
                       ...styles.paragraph,
-                      overflowY: "hidden",
-                      scrollbarWidth: "none", // For Firefox
-                      msOverflowStyle: "none", // For Internet Explorer and Edge
+                      overflowY: 'hidden',
+                      scrollbarWidth: 'none', // For Firefox
+                      msOverflowStyle: 'none', // For Internet Explorer and Edge
                     }}
                   >
                     <style jsx>
                       {`
-                      div::-webkit-scrollbar {
-                        display: none; /* For Chrome, Safari, and Opera */
+                        div::-webkit-scrollbar {
+                          display: none; /* For Chrome, Safari, and Opera */
                         }
-                    `}
+                      `}
                     </style>
                     <div
                       className="flex-shrink-0 flex flex-row items-center gap-1"
                       style={styles.paragraph}
                     >
-                      <span className="text-purple">Active in | </span>{" "}
-                      {item.pipeline?.title || "No Pipeline"}
+                      <span style={{ color: brandPrimaryColor }}>Active in | </span>{' '}
+                      {item.pipeline?.title || 'No Pipeline'}
                     </div>
 
-                    {
-                      item.stages.length > 0 ? <div
+                    {item.stages.length > 0 ? (
+                      <div
                         className="flex-shrink-0 flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                        style={{ scrollbarWidth: "none" }}
+                        style={{ scrollbarWidth: 'none' }}
                       >
                         {item.stages.map((item, index) => (
                           <div
@@ -800,17 +869,18 @@ const AssignLead = ({
                             {item.stageTitle}
                           </div>
                         ))}
-                      </div> :
-                        <div
-                          className="px-3 py-1 rounded-3xl border"
-                          style={styles.paragraph}
-                        >
-                          No Stage
-                        </div>
-                    }
+                      </div>
+                    ) : (
+                      <div
+                        className="px-3 py-1 rounded-3xl border"
+                        style={styles.paragraph}
+                      >
+                        No Stage
+                      </div>
+                    )}
                   </div>
                 </button>
-              );
+              )
             })}
           </InfiniteScroll>
         </div>
@@ -821,12 +891,12 @@ const AssignLead = ({
           className="rounded-lg mt-4 w-full h-[50px]"
           style={{
             ...styles.heading,
-            backgroundColor: ShouldContinue ? "#00000020" : "#7902DF",
-            color: ShouldContinue ? "#00000080" : "white",
+            backgroundColor: ShouldContinue ? '#00000020' : brandPrimaryColor,
+            color: ShouldContinue ? '#00000080' : 'white',
           }} //onClick={handleAssigLead}
           disabled={ShouldContinue}
           onClick={() => {
-            setLastStepModal(true);
+            setLastStepModal(true)
           }}
         >
           Continue
@@ -838,7 +908,7 @@ const AssignLead = ({
       <AllowSmartRefillPopup
         showSmartRefillPopUp={showSmartRefillPopUp}
         handleCloseReillPopup={() => {
-          setShowSmartRefillPopUp(false);
+          setShowSmartRefillPopUp(false)
         }}
         smartRefillLoader={smartRefillLoader}
         smartRefillLoaderLater={smartRefillLoaderLater}
@@ -853,7 +923,7 @@ const AssignLead = ({
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -865,7 +935,7 @@ const AssignLead = ({
               message={invalidTimeMessage}
               isVisible={invalidTimeMessage}
               hide={() => {
-                setInvalidTimeMessage(null);
+                setInvalidTimeMessage(null)
               }}
             />
 
@@ -874,7 +944,7 @@ const AssignLead = ({
               message={showSuccessSnack}
               isVisible={showSuccessSnack === null ? false : true}
               hide={() => {
-                setShowSuccessSnack(null);
+                setShowSuccessSnack(null)
               }}
               type={SnackbarTypes.Success}
             />
@@ -882,9 +952,9 @@ const AssignLead = ({
             <div
               className="w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between">
@@ -893,7 +963,7 @@ const AssignLead = ({
                   <span
                     style={styles.title}
                     onClick={() => {
-                      setLastStepModal(false);
+                      setLastStepModal(false)
                     }}
                   >
                     Back
@@ -901,11 +971,11 @@ const AssignLead = ({
                 </button>
                 <button
                   onClick={() => {
-                    setLastStepModal(false);
+                    setLastStepModal(false)
                   }}
                 >
                   <Image
-                    src={"/assets/cross.png"}
+                    src={'/assets/cross.png'}
                     height={14}
                     width={14}
                     alt="*"
@@ -916,7 +986,7 @@ const AssignLead = ({
               <div className="flex flex-row items-center justify-between mt-6">
                 <div
                   style={{
-                    fontWeight: "700",
+                    fontWeight: '700',
                     fontSize: 24,
                   }}
                 >
@@ -924,8 +994,7 @@ const AssignLead = ({
                 </div>
                 <div className="flex flex-col items-start">
                   <div
-                    className="text-purple"
-                    style={{ fontSize: 12, fontWeight: "600" }}
+                    style={{ fontSize: 12, fontWeight: '600', color: brandPrimaryColor }}
                   >
                     {getLeadSelectedCount()} Contacts Selected
                   </div>
@@ -937,17 +1006,17 @@ const AssignLead = ({
                       componentsProps={{
                         tooltip: {
                           sx: {
-                            backgroundColor: "#ffffff", // Ensure white background
-                            color: "#333", // Dark text color
-                            fontSize: "14px",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                           },
                         },
                         arrow: {
                           sx: {
-                            color: "#ffffff", // Match tooltip background
+                            color: '#ffffff', // Match tooltip background
                           },
                         },
                       }}
@@ -955,9 +1024,9 @@ const AssignLead = ({
                       <div
                         style={{
                           fontSize: 12,
-                          fontWeight: "600",
-                          color: "#000000",
-                          cursor: "pointer",
+                          fontWeight: '600',
+                          color: '#000000',
+                          cursor: 'pointer',
                         }}
                       >
                         Check DNC List
@@ -969,19 +1038,19 @@ const AssignLead = ({
                       // color="#7902DF"
                       // exclusive
                       onChange={(event) => {
-                        setIsDncChecked(event.target.checked);
+                        setIsDncChecked(event.target.checked)
                         if (event.target.checked) {
-                          setShowDncConfirmationPopup(true);
+                          setShowDncConfirmationPopup(true)
                         }
                       }}
                       sx={{
-                        "& .MuiSwitch-switchBase.Mui-checked": {
-                          color: "#7902DF",
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: brandPrimaryColor,
                         },
-                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "#7902DF",
-                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                          {
+                            backgroundColor: brandPrimaryColor,
+                          },
                         margin: 0,
                       }}
                     />
@@ -997,21 +1066,22 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads
-                      ? "2px solid #7902Df"
-                      : "1px solid #00000040"
-                      }`,
-                    height: "50px",
+                    border: `${
+                      isFocustedCustomLeads
+                        ? `2px solid ${brandPrimaryColor}`
+                        : '1px solid #00000040'
+                    }`,
+                    height: '50px',
                   }}
                   value={customLeadsToSend}
                   onFocus={() => {
-                    setNoOfLeadsToSend("");
-                    setisFocustedCustomLeads(true);
+                    setNoOfLeadsToSend('')
+                    setisFocustedCustomLeads(true)
                   }}
                   onChange={(e) => {
-                    let value = e.target.value;
-                    if (!/[0-9]/.test(value) && value !== "") return;
-                    setCustomLeadsToSend(e.target.value);
+                    let value = e.target.value
+                    if (!/[0-9]/.test(value) && value !== '') return
+                    setCustomLeadsToSend(e.target.value)
                   }}
                   placeholder="Ex: 100"
                 />
@@ -1019,14 +1089,14 @@ const AssignLead = ({
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
                   style={{
                     border: NoOfLeadsToSend
-                      ? "2px solid #7902DF"
-                      : "1px solid #00000040",
-                    height: "50px",
+                      ? `2px solid ${brandPrimaryColor}`
+                      : '1px solid #00000040',
+                    height: '50px',
                   }}
                   onClick={() => {
-                    setNoOfLeadsToSend(totalLeads);
-                    setCustomLeadsToSend("");
-                    setisFocustedCustomLeads(false);
+                    setNoOfLeadsToSend(totalLeads)
+                    setCustomLeadsToSend('')
+                    setisFocustedCustomLeads(false)
                   }}
                 >
                   All {getLeadSelectedCount()}
@@ -1042,18 +1112,18 @@ const AssignLead = ({
                   className="w-1/2 flex flex-col justify-between items-start p-4 rounded-2xl"
                   style={{
                     border: CallNow
-                      ? "2px solid #7902DF"
-                      : "1px solid #00000040",
-                    height: "119px",
+                      ? `2px solid ${brandPrimaryColor}`
+                      : '1px solid #00000040',
+                    height: '119px',
                   }}
                   onClick={() => {
-                    setHasUserSelectedDate(false);
-                    const currentDateTime = new Date();
-                    const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
+                    setHasUserSelectedDate(false)
+                    const currentDateTime = new Date()
+                    const currentHour = currentDateTime.getHours() // Get the current hour (0-23)
                     // if (currentHour >= 5 && currentHour < 19) {
                     //   //console.log;
-                    setCallNow(currentDateTime);
-                    setCallLater(false);
+                    setCallNow(currentDateTime)
+                    setCallLater(false)
                     // } else {
                     //   //console.log;
                     //   setInvalidTimeMessage(
@@ -1064,13 +1134,13 @@ const AssignLead = ({
                     //   "Current data is:",
                     //   currentDateTime.toLocaleString()
                     // );
-                    setSelectedDateTime(dayjs());
+                    setSelectedDateTime(dayjs())
 
                     // handleDateTimerDifference();
                   }}
                 >
                   <Image
-                    src={"/assets/callBtn.png"}
+                    src={'/assets/callBtn.png'}
                     height={24}
                     width={24}
                     alt="*"
@@ -1082,14 +1152,14 @@ const AssignLead = ({
                     className="w-full flex flex-col items-start justify-between p-4 rounded-2xl"
                     style={{
                       border: CallLater
-                        ? "2px solid #7902DF"
-                        : "1px solid #00000040",
-                      height: "119px",
+                        ? `2px solid ${brandPrimaryColor}`
+                        : '1px solid #00000040',
+                      height: '119px',
                     }}
                     onClick={() => {
-                      setShowFromDatePicker(!showFromDatePicker);
-                      setCallNow("");
-                      setCallLater(true);
+                      setShowFromDatePicker(!showFromDatePicker)
+                      setCallNow('')
+                      setCallLater(true)
                     }}
                   >
                     <CalendarDots size={32} weight="bold" />
@@ -1117,7 +1187,7 @@ const AssignLead = ({
                     BackdropProps={{
                       timeout: 1000,
                       sx: {
-                        backgroundColor: "#00000020",
+                        backgroundColor: '#00000020',
                         // //backdropFilter: "blur(5px)",
                       },
                     }}
@@ -1130,9 +1200,9 @@ const AssignLead = ({
                         <div
                           className="w-full flex flex-row justify-center"
                           style={{
-                            backgroundColor: "#ffffff",
+                            backgroundColor: '#ffffff',
                             padding: 20,
-                            borderRadius: "13px",
+                            borderRadius: '13px',
                           }}
                         >
                           <div>
@@ -1153,81 +1223,81 @@ const AssignLead = ({
                                   //   value={value}
                                   sx={{
                                     // Date Picker (Large Screen)
-                                    "& .MuiPickersDay-root.Mui-selected": {
-                                      backgroundColor: "#7902DF !important", // Purple background for selected date
-                                      color: "white !important",
+                                    '& .MuiPickersDay-root.Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: 'white !important',
                                     },
-                                    "& .MuiPickersDay-root:hover": {
-                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    '& .MuiPickersDay-root:hover': {
+                                      backgroundColor: `${brandPrimaryColor}CC !important`, // Lighter on hover
                                     },
-                                    "& .Mui-selected": {
-                                      backgroundColor: "#7902DF !important",
-                                      color: "#fff !important",
+                                    '& .Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: '#fff !important',
                                     },
 
                                     // Time Picker (Large Screen)
-                                    "& .MuiClock-pin": {
-                                      backgroundColor: "#7902DF !important", // Change clock pin color
+                                    '& .MuiClock-pin': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
-                                    "& .MuiClockPointer-root": {
-                                      backgroundColor: "#7902DF !important", // Change clock pointer color
+                                    '& .MuiClockPointer-root': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
-                                    "& .MuiClockPointer-thumb": {
-                                      borderColor: "#7902DF !important", // Change pointer thumb color
+                                    '& .MuiClockPointer-thumb': {
+                                      borderColor: `${brandPrimaryColor} !important`,
                                     },
-                                    "& .MuiPickersToolbar-root": {
-                                      backgroundColor: "#7902DF !important", // Toolbar background purple
+                                    '& .MuiPickersToolbar-root': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
                                     },
-                                    "& .MuiTypography-root": {
-                                      color: "#7902DF !important", // Header text color
+                                    '& .MuiTypography-root': {
+                                      color: `${brandPrimaryColor} !important`,
                                     },
 
                                     // Time Selection List (Large Screen)
-                                    "& .MuiPickersTimeClock-root .Mui-selected":
-                                    {
-                                      backgroundColor: "#7902DF !important", // Purple selected time
-                                      color: "white !important",
-                                    },
-                                    "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                    {
-                                      backgroundColor: "#a352df !important", // Lighter purple on hover
-                                    },
+                                    '& .MuiPickersTimeClock-root .Mui-selected':
+                                      {
+                                        backgroundColor: `${brandPrimaryColor} !important`,
+                                        color: 'white !important',
+                                      },
+                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
+                                      {
+                                        backgroundColor: `${brandPrimaryColor}CC !important`,
+                                      },
 
                                     // Time Picker List (Dropdown List)
-                                    "& .MuiTimeClock-root .Mui-selected": {
-                                      backgroundColor: "#7902DF !important",
-                                      color: "white !important",
+                                    '& .MuiTimeClock-root .Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: 'white !important',
                                     },
-                                    "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                    {
-                                      backgroundColor: "#a352df !important",
-                                    },
+                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover':
+                                      {
+                                        backgroundColor: `${brandPrimaryColor}CC !important`,
+                                      },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
                                     <input
                                       {...params.inputProps}
                                       style={{
-                                        border: "none", // Disable border
-                                        outline: "none",
-                                        padding: "8px",
-                                        backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
+                                        border: 'none', // Disable border
+                                        outline: 'none',
+                                        padding: '8px',
+                                        backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
                                       }}
                                       onFocus={(e) => {
-                                        e.target.style.border = "none"; // Ensure no border on focus
-                                        e.target.style.outline = "none"; // Ensure no outline on focus
+                                        e.target.style.border = 'none' // Ensure no border on focus
+                                        e.target.style.outline = 'none' // Ensure no outline on focus
                                       }}
                                       onBlur={(e) => {
-                                        e.target.style.border = "none"; // Reset border on blur
-                                        e.target.style.outline = "none"; // Reset outline on blur
+                                        e.target.style.border = 'none' // Reset border on blur
+                                        e.target.style.outline = 'none' // Reset outline on blur
                                       }}
                                       onMouseEnter={(e) => {
-                                        e.target.style.border = "none"; // Remove border on hover
-                                        e.target.style.outline = "none"; // Remove outline on hover
+                                        e.target.style.border = 'none' // Remove border on hover
+                                        e.target.style.outline = 'none' // Remove outline on hover
                                       }}
                                       onMouseLeave={(e) => {
-                                        e.target.style.border = "none"; // Reset border on hover out
-                                        e.target.style.outline = "none"; // Reset outline on hover out
+                                        e.target.style.border = 'none' // Reset border on hover out
+                                        e.target.style.outline = 'none' // Reset outline on hover out
                                       }}
                                     />
                                   )}
@@ -1236,9 +1306,10 @@ const AssignLead = ({
                             </div>
                             <div className="w-full flex flex-row justify-center mt-6">
                               <button
-                                className="w-7/12 h-[50px] bg-purple rounded-xl text-white font-bold"
+                                className="w-7/12 h-[50px] rounded-xl text-white font-bold"
+                                style={{ backgroundColor: brandPrimaryColor }}
                                 onClick={() => {
-                                  setShowFromDatePicker(false);
+                                  setShowFromDatePicker(false)
                                 }}
                               >
                                 Select & close
@@ -1257,9 +1328,9 @@ const AssignLead = ({
                   <div
                     className="mt-4"
                     style={{
-                      fontWeight: "500",
+                      fontWeight: '500',
                       fontsize: 12,
-                      color: "#00000050",
+                      color: '#00000050',
                     }}
                   >
                     Select date & time
@@ -1274,80 +1345,80 @@ const AssignLead = ({
                         onChange={handleDateChange}
                         slotProps={{
                           textField: {
-                            variant: "outlined",
+                            variant: 'outlined',
                             sx: {
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: "10px",
-                                "& fieldset": {
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: '10px',
+                                '& fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? "#7902df"
-                                    : "#00000050", // Purple if selected, red otherwise
-                                  borderWidth: "2px",
+                                    ? brandPrimaryColor
+                                    : '#00000050',
+                                  borderWidth: '2px',
                                 },
-                                "&:hover fieldset": {
+                                '&:hover fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? "#7902df"
-                                    : "#00000050",
+                                    ? brandPrimaryColor
+                                    : '#00000050',
                                 },
-                                "&.Mui-focused fieldset": {
+                                '&.Mui-focused fieldset': {
                                   borderColor: hasUserSelectedDate
-                                    ? "#7902df"
-                                    : "#00000050",
+                                    ? brandPrimaryColor
+                                    : '#00000050',
                                 },
                               },
                             },
                           },
                         }}
                         sx={{
-                          "& .MuiPickersDay-root.Mui-selected": {
-                            backgroundColor: "#7902DF !important", // Change selected date color to purple
-                            color: "white !important",
+                          '& .MuiPickersDay-root.Mui-selected': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: 'white !important',
                           },
-                          "& .MuiPickersDay-root:hover": {
-                            backgroundColor: "#a352df !important", // Lighter purple on hover
+                          '& .MuiPickersDay-root:hover': {
+                            backgroundColor: `${brandPrimaryColor}CC !important`,
                           },
-                          "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                          {
-                            color: "#333 !important", // Default color for unselected dates
+                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
+                            {
+                              color: '#333 !important',
+                            },
+                          '& .Mui-selected': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: '#fff !important',
                           },
-                          "& .Mui-selected": {
-                            backgroundColor: "#7902DF !important",
-                            color: "#fff !important",
+                          '& .MuiClock-pin': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
                           },
-                          "& .MuiClock-pin": {
-                            backgroundColor: "#7902DF !important", // Change clock pin color
+                          '& .MuiClockPointer-root': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
                           },
-                          "& .MuiClockPointer-root": {
-                            backgroundColor: "#7902DF !important", // Change clock pointer color
-                          },
-                          "& .MuiClockPointer-thumb": {
-                            borderColor: "#7902DF !important", // Change pointer thumb color
+                          '& .MuiClockPointer-thumb': {
+                            borderColor: `${brandPrimaryColor} !important`,
                           },
                         }}
                         renderInput={(params) => (
                           <input
                             {...params.inputProps}
                             style={{
-                              border: "red", // Disable border
-                              outline: "none",
-                              padding: "8px",
-                              backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
+                              border: 'red', // Disable border
+                              outline: 'none',
+                              padding: '8px',
+                              backgroundColor: '#f9f9f9', // Optional: subtle background for better visibility
                             }}
                             onFocus={(e) => {
-                              e.target.style.border = "none"; // Ensure no border on focus
-                              e.target.style.outline = "none"; // Ensure no outline on focus
+                              e.target.style.border = 'none' // Ensure no border on focus
+                              e.target.style.outline = 'none' // Ensure no outline on focus
                             }}
                             onBlur={(e) => {
-                              e.target.style.border = "none"; // Reset border on blur
-                              e.target.style.outline = "none"; // Reset outline on blur
+                              e.target.style.border = 'none' // Reset border on blur
+                              e.target.style.outline = 'none' // Reset outline on blur
                             }}
                             onMouseEnter={(e) => {
-                              e.target.style.border = "none"; // Remove border on hover
-                              e.target.style.outline = "none"; // Remove outline on hover
+                              e.target.style.border = 'none' // Remove border on hover
+                              e.target.style.outline = 'none' // Remove outline on hover
                             }}
                             onMouseLeave={(e) => {
-                              e.target.style.border = "none"; // Reset border on hover out
-                              e.target.style.outline = "none"; // Reset outline on hover out
+                              e.target.style.border = 'none' // Reset border on hover out
+                              e.target.style.outline = 'none' // Reset outline on hover out
                             }}
                           />
                         )}
@@ -1364,21 +1435,22 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow ||
-                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                  (CallNow ||
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
-                      className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                      className="text-white w-full h-[50px] rounded-lg mt-4"
+                      style={{ backgroundColor: brandPrimaryColor }}
                       onClick={() => {
-                        const localData = localStorage.getItem("User");
+                        const localData = localStorage.getItem('User')
                         if (localData) {
-                          const UserDetails = JSON.parse(localData);
-                          console.log(UserDetails.user.smartRefill);
+                          const UserDetails = JSON.parse(localData)
+                          console.log(UserDetails.user.smartRefill)
                           if (UserDetails.user.smartRefill === false) {
-                            setShowSmartRefillPopUp(true);
-                            return;
+                            setShowSmartRefillPopUp(true)
+                            return
                           }
                         }
-                        handleAssignLead();
+                        handleAssignLead()
                         // handleAssigLead()
                       }}
                     >
@@ -1396,7 +1468,7 @@ const AssignLead = ({
               )}
 
               {/* <div className='mt-4 w-full'>
-                                  <button className="text-white bg-purple rounded-xl w-full h-[50px]" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
+                                  <button className="text-white rounded-xl w-full h-[50px]" style={{ ...styles.heading, backgroundColor: brandPrimaryColor }} onClick={() => { setLastStepModal(false) }}>
                                       Continue
                                   </button>
                               </div> */}
@@ -1408,7 +1480,7 @@ const AssignLead = ({
         </Box>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default AssignLead;
+export default AssignLead

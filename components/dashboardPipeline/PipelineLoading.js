@@ -1,10 +1,10 @@
-import React from "react";
-import { Skeleton, Box, Typography, Avatar } from "@mui/material";
+import { Avatar, Box, Skeleton, Typography } from '@mui/material'
+import React from 'react'
 
 function PipelineLoading({ fullScreen = true }) {
   return (
     <div className="w-full h-full flex flex-col items-start justify-start p-5">
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ width: '100%' }}>
         {fullScreen ? (
           <>
             <Skeleton
@@ -16,9 +16,9 @@ function PipelineLoading({ fullScreen = true }) {
 
             <Box
               sx={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 gap: 3,
-                display: "flex",
+                display: 'flex',
                 marginTop: 4,
               }}
             >
@@ -34,15 +34,15 @@ function PipelineLoading({ fullScreen = true }) {
 
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "row",
+            display: 'flex',
+            flexDirection: 'row',
             gap: 3,
           }}
         >
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              display: 'flex',
+              flexDirection: 'column',
               gap: 3,
             }}
           >
@@ -63,8 +63,8 @@ function PipelineLoading({ fullScreen = true }) {
 
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              display: 'flex',
+              flexDirection: 'column',
               gap: 3,
             }}
           >
@@ -85,8 +85,8 @@ function PipelineLoading({ fullScreen = true }) {
 
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              display: 'flex',
+              flexDirection: 'column',
               gap: 3,
             }}
           >
@@ -107,8 +107,8 @@ function PipelineLoading({ fullScreen = true }) {
 
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              display: 'flex',
+              flexDirection: 'column',
               gap: 3,
             }}
           >
@@ -129,7 +129,7 @@ function PipelineLoading({ fullScreen = true }) {
         </Box>
       </Box>
     </div>
-  );
+  )
 }
 
-export default PipelineLoading;
+export default PipelineLoading

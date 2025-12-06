@@ -1,27 +1,30 @@
+import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import LabelingHeader from './LabelingHeader';
-import AddEditTutorials from './AddEditTutorials';
-import TutorialViewCard from './TutorialViewCard';
-import VideoPlayerModal from './VideoPlayerModal';
-import { AuthToken } from '../plan/AuthDetails';
-import { HowtoVideos, HowToVideoTypes } from '@/constants/Constants';
-import axios from 'axios';
-import Apis from '@/components/apis/Apis';
-import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+
+import Apis from '@/components/apis/Apis'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
+
+import { AuthToken } from '../plan/AuthDetails'
+import AddEditTutorials from './AddEditTutorials'
+import LabelingHeader from './LabelingHeader'
+import TutorialViewCard from './TutorialViewCard'
+import VideoPlayerModal from './VideoPlayerModal'
 
 const TutorialConfig = () => {
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [selectedTutorial, setSelectedTutorial] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [tutorials, setTutorials] = useState([]);
-  const [isSaving, setIsSaving] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [selectedTutorial, setSelectedTutorial] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [tutorials, setTutorials] = useState([])
+  const [isSaving, setIsSaving] = useState(false)
   const [showSnack, setShowSnack] = useState({
     type: SnackbarTypes.Error,
-    message: "",
-    isVisible: false
-  });
-
+    message: '',
+    isVisible: false,
+  })
 
   let defaultTutorials = [
     {
@@ -136,99 +139,103 @@ const TutorialConfig = () => {
     },
   ]
 
-
   useEffect(() => {
-    getHowToVideos();
-  }, []);
+    getHowToVideos()
+  }, [])
 
   // Helper function to format duration from seconds to "M:SS" or "MM:SS" format
   const formatDuration = (seconds) => {
-    if (!seconds || seconds === 0) return "0:00";
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
+    if (!seconds || seconds === 0) return '0:00'
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
 
   const getHowToVideos = async () => {
     try {
-      let token = AuthToken();
+      let token = AuthToken()
       const response = await axios.get(Apis.getHowToVideo, {
         headers: {
-          "Authorization": "Bearer " + token,
-        }
-      });
-      console.log("response is of getHowToVideos", response.data);
-      
+          Authorization: 'Bearer ' + token,
+        },
+      })
+      console.log('response is of getHowToVideos', response.data)
+
       if (response.data.status === true) {
-        let uploadedVideos = response.data.data || [];
-        
+        let uploadedVideos = response.data.data || []
+
         // Merge: Start with defaults, replace with uploaded videos if videoType matches
-        const mergedTutorials = defaultTutorials.map(defaultTutorial => {
+        const mergedTutorials = defaultTutorials.map((defaultTutorial) => {
           const uploadedVideo = uploadedVideos.find(
-            uv => uv.videoType === defaultTutorial.videoType
-          );
-          
+            (uv) => uv.videoType === defaultTutorial.videoType,
+          )
+
           if (uploadedVideo) {
             // Use uploaded video, but preserve default thumbnailSrc if not provided
             return {
               ...uploadedVideo,
-              thumbnailSrc: uploadedVideo.thumbnailSrc || defaultTutorial.thumbnailSrc,
-              description: uploadedVideo.videoDuration 
-                ? formatDuration(uploadedVideo.videoDuration) 
-                : defaultTutorial.description
-            };
+              thumbnailSrc:
+                uploadedVideo.thumbnailSrc || defaultTutorial.thumbnailSrc,
+              description: uploadedVideo.videoDuration
+                ? formatDuration(uploadedVideo.videoDuration)
+                : defaultTutorial.description,
+            }
           }
-          
+
           // No uploaded video for this type, keep default
-          return defaultTutorial;
-        });
-        
-        setTutorials(mergedTutorials);
+          return defaultTutorial
+        })
+
+        setTutorials(mergedTutorials)
       } else {
         // If API fails, show defaults
-        console.log("error is of getHowToVideos", response.data.message);
-        setTutorials(defaultTutorials);
+        console.log('error is of getHowToVideos', response.data.message)
+        setTutorials(defaultTutorials)
       }
     } catch (error) {
-      console.log("error is of getHowToVideos", error);
-      setTutorials(defaultTutorials); // Fallback to defaults
+      console.log('error is of getHowToVideos', error)
+      setTutorials(defaultTutorials) // Fallback to defaults
     }
   }
 
   const handleEditClick = (tutorial) => {
-    setSelectedTutorial(tutorial);
-    setIsEditMode(true);
-    setShowEditModal(true);
-  };
+    setSelectedTutorial(tutorial)
+    setIsEditMode(true)
+    setShowEditModal(true)
+  }
 
   const handleAddNewTutorial = () => {
-    setSelectedTutorial(null);
-    setIsEditMode(false);
-    setShowEditModal(true);
-  };
+    setSelectedTutorial(null)
+    setIsEditMode(false)
+    setShowEditModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowEditModal(false);
-    setSelectedTutorial(null);
-    setIsEditMode(false);
-  };
+    setShowEditModal(false)
+    setSelectedTutorial(null)
+    setIsEditMode(false)
+  }
 
   const handleSaveTutorial = async (updatedData) => {
-    setIsSaving(true);
+    // Early return if nothing changed (title same and no new media)
+    if (selectedTutorial && updatedData.title === selectedTutorial.title && !updatedData.media) {
+      return
+    }
+    setIsSaving(true)
     try {
-      let token = AuthToken();
-      let response;
+      let token = AuthToken()
+      let response
 
-      console.log("updatedData is of handleSaveTutorial", updatedData);
-      console.log("selectedTutorial is", selectedTutorial);
-      console.log("isEditMode is", isEditMode);
+      console.log('updatedData is of handleSaveTutorial', updatedData)
+      console.log('selectedTutorial is', selectedTutorial)
+      console.log('isEditMode is', isEditMode)
 
-      const formData = new FormData();
-      
+      const formData = new FormData()
+
       // Check if this is an uploaded video (has database properties like uploadStatus, userId, or videoUrl from uploads)
       // Default tutorials have IDs like 1, 2, 3 and videoUrl from HowtoVideos constants
       // IMPORTANT: Default tutorials have numeric IDs (1-11) but are NOT uploaded videos
-      // Uploaded videos have database IDs (typically > 11) and uploadStatus/userId properties
+      // Uploaded videos have database IDs (typically > 100) and uploadStatus/userId properties
       const isUploadedVideo =
         selectedTutorial &&
         // Must have uploadStatus OR userId (database properties) OR uploaded videoUrl
@@ -261,24 +268,27 @@ const TutorialConfig = () => {
       } else {
         console.log('NOT appending videoId - using upload endpoint for default tutorial or new upload')
       }
-      
+
       // Only append media if a new file is selected
       if (updatedData.media) {
-        formData.append("media", updatedData.media);
+        formData.append('media', updatedData.media)
       }
-      
+
       // Only append videoType if we have it (for new uploads or when updating)
       if (selectedTutorial && selectedTutorial.videoType) {
-        formData.append("videoType", selectedTutorial.videoType);
+        formData.append('videoType', selectedTutorial.videoType)
       }
-      
-      formData.append("title", updatedData.title);
-      formData.append("enabled", isEditMode && selectedTutorial ? selectedTutorial.enabled : true);
+
+      formData.append('title', updatedData.title)
+      formData.append(
+        'enabled',
+        isEditMode && selectedTutorial ? selectedTutorial.enabled : true,
+      )
 
       formData.forEach((value, key) => {
-        console.log("key is of formData", key);
-        console.log("value is of formData", value);
-      });
+        console.log('key is of formData', key)
+        console.log('value is of formData', value)
+      })
 
       // Use update endpoint only if editing an existing uploaded video
       // Use upload endpoint for default tutorials (even in "edit" mode) or new uploads
@@ -292,35 +302,37 @@ const TutorialConfig = () => {
 
       response = await axios.post(apiEndpoint, formData, {
         headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "multipart/form-data",
-        }
-      });
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
 
       if (response.data.status === true) {
         // Refresh the list after saving to get updated data from server
-        await getHowToVideos();
+        await getHowToVideos()
         setShowSnack({
           type: SnackbarTypes.Success,
-          message: "Tutorial saved successfully!",
-          isVisible: true
-        });
+          message: 'Tutorial saved successfully!',
+          isVisible: true,
+        })
       }
 
-      setShowEditModal(false);
-      setSelectedTutorial(null);
-      setIsEditMode(false);
+      setShowEditModal(false)
+      setSelectedTutorial(null)
+      setIsEditMode(false)
     } catch (error) {
-      console.log("error saving tutorial:", error);
+      console.log('error saving tutorial:', error)
       setShowSnack({
         type: SnackbarTypes.Error,
-        message: error.response?.data?.message || "Failed to save tutorial. Please try again.",
-        isVisible: true
-      });
+        message:
+          error.response?.data?.message ||
+          'Failed to save tutorial. Please try again.',
+        isVisible: true,
+      })
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   // Toggle functionality commented out - toggle buttons removed
   // const handleToggleSwitch = async (tutorialId) => {
@@ -353,9 +365,9 @@ const TutorialConfig = () => {
   // };
 
   const handlePlayVideo = (tutorial) => {
-    setSelectedTutorial(tutorial);
-    setShowVideoModal(true);
-  };
+    setSelectedTutorial(tutorial)
+    setShowVideoModal(true)
+  }
   return (
     <div>
       <AgentSelectSnackMessage
@@ -364,18 +376,17 @@ const TutorialConfig = () => {
         isVisible={showSnack.isVisible}
         hide={() => {
           setShowSnack({
-            message: "",
+            message: '',
             isVisible: false,
             type: SnackbarTypes.Error,
-
-          });
+          })
         }}
       />
       {/* Banner Section */}
       <LabelingHeader
-        img={"/otherAssets/tutorialIcon.png"}
-        title={"Tutorial Videos"}
-        description={"Control the tutorial videos you display for your users."}
+        img={'/otherAssets/tutorialIcon.png'}
+        title={'Tutorial Videos'}
+        description={'Control the tutorial videos you display for your users.'}
       />
 
       {/* Brand Configuration Card */}
@@ -383,7 +394,6 @@ const TutorialConfig = () => {
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
           {/* Domain Title */}
           <div className="w-full flex flex-row items-center justify-between">
-
             {/*
               <button
                 onClick={handleAddNewTutorial}
@@ -424,8 +434,8 @@ const TutorialConfig = () => {
       <VideoPlayerModal
         open={showVideoModal}
         onClose={() => {
-          setShowVideoModal(false);
-          setSelectedTutorial(null);
+          setShowVideoModal(false)
+          setSelectedTutorial(null)
         }}
         videoTitle={selectedTutorial?.title}
         videoUrl={selectedTutorial?.videoUrl}
@@ -437,6 +447,6 @@ const TutorialConfig = () => {
 export default TutorialConfig
 
 const styles = {
-  semiBoldHeading: { fontSize: 18, fontWeight: "600" },
-  description: { fontSize: "14px", fontWeight: "500", color: "#616161" },
-};
+  semiBoldHeading: { fontSize: 18, fontWeight: '600' },
+  description: { fontSize: '14px', fontWeight: '500', color: '#616161' },
+}

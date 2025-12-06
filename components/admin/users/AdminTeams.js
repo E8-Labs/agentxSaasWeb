@@ -1,226 +1,252 @@
-"use client";
-import { Button, CircularProgress, colors, Fab, Tooltip } from "@mui/material";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { Modal, Box, Drawer } from "@mui/material";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
+'use client'
+
+import 'react-phone-input-2/lib/style.css'
+
+import { Button, CircularProgress, Fab, Tooltip, colors } from '@mui/material'
+import { Box, Drawer, Modal } from '@mui/material'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import axios from 'axios'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import DashboardSlider from '@/components/animations/DashboardSlider'
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import {
   checkPhoneNumber,
   getLocalLocation,
-} from "@/components/onboarding/services/apisServices/ApiService";
-import { formatPhoneNumber } from "@/utilities/agentUtilities";
-import { PersistanceKeys } from "@/constants/Constants";
-import { logout } from "@/utilities/UserUtility";
-import { useRouter } from "next/navigation";
-import DashboardSlider from "@/components/animations/DashboardSlider";
+} from '@/components/onboarding/services/apisServices/ApiService'
+import { PersistanceKeys } from '@/constants/Constants'
+import { logout } from '@/utilities/UserUtility'
+import { formatPhoneNumber } from '@/utilities/agentUtilities'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import UpgradeModal from '@/constants/UpgradeModal'
 
-function AdminTeam({ selectedUser }) {
-  const timerRef = useRef(null);
-  const router = useRouter();
-  const [teamDropdown, setteamDropdown] = useState(null);
-  const [openTeamDropdown, setOpenTeamDropdown] = useState(false);
-  const [moreDropdown, setMoreDropdown] = useState(null);
-  const [openMoreDropdown, setOpenMoreDropdown] = useState(false);
-  const [selectedItem, setSelectedItem] = useState("Noah's Team");
-  const [openInvitePopup, setOpenInvitePopup] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+function AdminTeam({ selectedUser, agencyUser }) {
+  const timerRef = useRef(null)
+  const router = useRouter()
+  const [teamDropdown, setteamDropdown] = useState(null)
+  const [openTeamDropdown, setOpenTeamDropdown] = useState(false)
+  const [moreDropdown, setMoreDropdown] = useState(null)
+  const [openMoreDropdown, setOpenMoreDropdown] = useState(false)
+  const [selectedItem, setSelectedItem] = useState("Noah's Team")
+  const [openInvitePopup, setOpenInvitePopup] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
 
-  const [showError, setShowError] = useState(false);
+  const [showError, setShowError] = useState(false)
 
-  const [myTeam, setMyTeam] = useState([]);
+  const [myTeam, setMyTeam] = useState([])
 
-  const [getTeamLoader, setGetTeamLoader] = useState(false);
-  const [inviteTeamLoader, setInviteTeamLoader] = useState(false);
-  const [reInviteTeamLoader, setReInviteTeamLoader] = useState(false);
+  const [getTeamLoader, setGetTeamLoader] = useState(false)
+  const [inviteTeamLoader, setInviteTeamLoader] = useState(false)
+  const [reInviteTeamLoader, setReInviteTeamLoader] = useState(false)
 
-  const [emailLoader, setEmailLoader] = useState(false);
-  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
-  const [validEmail, setValidEmail] = useState("");
+  const [emailLoader, setEmailLoader] = useState(false)
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null)
+  const [validEmail, setValidEmail] = useState('')
 
-  const [showSnak, setShowSnak] = useState(false);
-  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
+  const [showSnak, setShowSnak] = useState(false)
+  const [snackTitle, setSnackTitle] = useState('Team invite sent successfully')
 
   //variables for phone number err messages and checking
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [checkPhoneLoader, setCheckPhoneLoader] = useState(null);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [countryCode, setCountryCode] = useState(""); // Default country
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [checkPhoneLoader, setCheckPhoneLoader] = useState(null)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [countryCode, setCountryCode] = useState('') // Default country
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false) 
+
+  const [selectedUserDetails, setSelectedUserDetails] = useState(null)
+
+  let agencyData = null
+
+  useEffect(() => {
+  getUserDetails()
+  }, [selectedUser])
+
+  const getUserDetails = async () => {
+    try {
+      const response = await AdminGetProfileDetails(selectedUser.id)
+      setSelectedUserDetails(response)
+      agencyData = response
+    } catch (error) {
+      console.error('Error fetching user details:', error)
+    }
+  }
 
   const handleClick = (event) => {
-    setOpenTeamDropdown(true);
-    setteamDropdown(event.currentTarget);
-  };
+    setOpenTeamDropdown(true)
+    setteamDropdown(event.currentTarget)
+  }
 
   const handleClose = (event) => {
-    setSelectedItem(event.target.textContent);
-    setOpenTeamDropdown(false);
-  };
+    setSelectedItem(event.target.textContent)
+    setOpenTeamDropdown(false)
+  }
 
   const handleMoreClose = (event) => {
     // setSelectedItem(event.target.textContent)
-    setOpenMoreDropdown(false);
-  };
+    setOpenMoreDropdown(false)
+  }
 
   const data = [
     {
       id: 1,
-      name: "Noah",
-      email: "abc@gmail.com",
+      name: 'Noah',
+      email: 'abc@gmail.com',
     },
     {
       id: 2,
-      name: "Noah",
-      email: "abc@gmail.com",
+      name: 'Noah',
+      email: 'abc@gmail.com',
     },
     {
       id: 3,
-      name: "Noah",
-      email: "abc@gmail.com",
+      name: 'Noah',
+      email: 'abc@gmail.com',
     },
     {
       id: 4,
-      name: "Noah",
-      email: "abc@gmail.com",
+      name: 'Noah',
+      email: 'abc@gmail.com',
     },
     {
       id: 5,
-      name: "Noah",
-      email: "abc@gmail.com",
+      name: 'Noah',
+      email: 'abc@gmail.com',
     },
-  ];
+  ]
 
-  useEffect(() => { });
+  useEffect(() => { })
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      let loc = getLocalLocation();
-      setCountryCode(loc);
-      getMyteam();
+    if (typeof window !== 'undefined') {
+      let loc = getLocalLocation()
+      setCountryCode(loc)
+      getMyteam()
     }
-  }, [selectedUser]);
+  }, [selectedUser])
 
   //function to get team mebers api
   const getMyteam = async () => {
     try {
-      setGetTeamLoader(true);
-      const data = localStorage.getItem("User");
+      setGetTeamLoader(true)
+      const data = localStorage.getItem('User')
 
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.getTeam;
-        path = path + "?userId=" + selectedUser.id;
-        console.log("Api path for get admin team members is", path);
+        let path = Apis.getTeam
+        path = path + '?userId=' + selectedUser.id
+        console.log('Api path for get admin team members is', path)
 
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          setGetTeamLoader(false);
-          console.log("Response os get admin team members is", response?.data)
+          setGetTeamLoader(false)
+          console.log('Response os get admin team members is', response?.data)
           if (response.data.status === true) {
             //console.log;
-            let admin = response.data.admin;
+            let admin = response.data.admin
             let adminMember = {
               invitingUser: admin,
               invitedUser: admin,
               id: -1,
-              status: "Admin",
+              status: 'Admin',
               name: admin.name,
               email: admin.email,
               phone: admin.phone,
-            };
-            let array = [adminMember, ...response.data.data];
-            if (response.data.data.length == 0) {
-              array = [];
             }
-            setMyTeam(array);
+            let array = [adminMember, ...response.data.data]
+            if (response.data.data.length == 0) {
+              array = []
+            }
+            setMyTeam(array)
           } else {
             //console.log;
           }
         }
       }
     } catch (e) {
-      setGetTeamLoader(false);
+      setGetTeamLoader(false)
 
       //console.log;
     }
-  };
+  }
 
   //funcion to invitem tem member
   const inviteTeamMember = async (item) => {
     // //console.log;
     // return
     if (!item.name || !item.email || !item.phone) {
-      setShowError(true);
-      return;
+      setShowError(true)
+      return
     }
     try {
-      const data = localStorage.getItem("User");
-      setInviteTeamLoader(true);
+      const data = localStorage.getItem('User')
+      setInviteTeamLoader(true)
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.inviteTeamMember;
+        let path = Apis.inviteTeamMember
 
         let apidata = {
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId: selectedUser.id
-        };
+          userId: selectedUser.id,
+        }
 
-        console.log("api data is", apidata);
+        console.log('api data is', apidata)
 
         const response = await axios.post(path, apidata, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          console.log("response of invite team api is", response);
-          setInviteTeamLoader(false);
+          console.log('response of invite team api is', response)
+          setInviteTeamLoader(false)
           // return
           if (response.data.status === true) {
             // //console.log;
-            let newMember = response.data.data[0];
+            let newMember = response.data.data[0]
             // //console.log;
             // //console.log;
             setMyTeam((prev) => {
               // //console.log;
               // //console.log;
               const isAlreadyPresent = prev.some(
-                (member) => member.id === newMember.id
-              ); // Check by unique ID
+                (member) => member.id === newMember.id,
+              ) // Check by unique ID
               // //console.log;
               if (isAlreadyPresent) {
                 // //console.log;
-                return prev;
+                return prev
               }
-              return [...prev, newMember];
-            });
-            setSnackTitle("Team invite sent successfully");
-            setShowSnak(true);
-            setOpenInvitePopup(false);
-            setName("");
-            setEmail("");
-            setPhone("");
+              return [...prev, newMember]
+            })
+            setSnackTitle('Team invite sent successfully')
+            setShowSnak(true)
+            setOpenInvitePopup(false)
+            setName('')
+            setEmail('')
+            setPhone('')
             // getMyteam()
           } else {
             // //console.log;
@@ -228,164 +254,164 @@ function AdminTeam({ selectedUser }) {
         }
       }
     } catch (e) {
-      setInviteTeamLoader(false);
-      setReInviteTeamLoader(false);
+      setInviteTeamLoader(false)
+      setReInviteTeamLoader(false)
       // //console.log;
     }
-  };
+  }
 
   //email validation function
   const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
     // Check if email contains consecutive dots, which are invalid
     if (/\.\./.test(email)) {
-      return false;
+      return false
     }
 
     // Check the general pattern for a valid email
-    return emailPattern.test(email);
-  };
+    return emailPattern.test(email)
+  }
 
   //check email
   const checkEmail = async (value) => {
     try {
-      setValidEmail("");
-      setEmailLoader(true);
+      setValidEmail('')
+      setEmailLoader(true)
 
-      const ApiPath = Apis.CheckEmail;
+      const ApiPath = Apis.CheckEmail
 
       const ApiData = {
         email: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         } else {
-          setEmailCheckResponse(response.data);
+          setEmailCheckResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check email api is :", error);
     } finally {
-      setEmailLoader(false);
+      setEmailLoader(false)
     }
-  };
+  }
 
   //phone input change
   const handlePhoneNumberChange = (phone) => {
-    setPhone(phone);
-    setErrorMessage(null);
-    validatePhoneNumber(phone);
-    setCheckPhoneResponse(null);
+    setPhone(phone)
+    setErrorMessage(null)
+    validatePhoneNumber(phone)
+    setCheckPhoneResponse(null)
 
     if (!phone) {
-      setErrorMessage(null);
-      setCheckPhoneResponse(null);
+      setErrorMessage(null)
+      setCheckPhoneResponse(null)
     }
-  };
+  }
 
   //number validation
   const validatePhoneNumber = async (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`)
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       try {
-        setCheckPhoneLoader("Checking...");
-        let response = await checkPhoneNumber(phoneNumber);
+        setCheckPhoneLoader('Checking...')
+        let response = await checkPhoneNumber(phoneNumber)
         // //console.log;
         // setErrorMessage(null)
-        setCheckPhoneResponse(response.data);
+        setCheckPhoneResponse(response.data)
         if (response.data.status === false) {
-          setErrorMessage("Taken");
+          setErrorMessage('Taken')
         } else if (response.data.status === true) {
-          setErrorMessage("Available");
+          setErrorMessage('Available')
         }
       } catch (error) {
         // console.error("Error occured in api is", error);
-        setCheckPhoneLoader(null);
+        setCheckPhoneLoader(null)
       } finally {
-        setCheckPhoneLoader(null);
+        setCheckPhoneLoader(null)
       }
 
       // setCheckPhoneResponse(null);
       // //console.log;
     }
-  };
+  }
 
   async function DeleteTeamMember(team) {
     // //console.log;
     // return;
-    let phoneNumber = team.phone;
+    let phoneNumber = team.phone
     let apidata = {
       phone: phoneNumber,
-    };
+    }
 
     // //console.log;
     // return;
 
     try {
-      const data = localStorage.getItem("User");
-      setInviteTeamLoader(true);
+      const data = localStorage.getItem('User')
+      setInviteTeamLoader(true)
       if (data) {
-        let u = JSON.parse(data);
+        let u = JSON.parse(data)
 
-        let path = Apis.deleteTeamMember;
+        let path = Apis.deleteTeamMember
         // //console.log;
         const response = await axios.post(path, apidata, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          setInviteTeamLoader(false);
+          setInviteTeamLoader(false)
           if (response.data.status === true) {
             // Defensive: filter out team member by id, but handle possible null/undefined
             let teams = myTeam.filter((item) => {
               // If either item or team is null/undefined, skip comparison
-              if (!item || !team) return true;
+              if (!item || !team) return true
               // If either id is null/undefined, skip comparison
-              if (item.id == null || team.id == null) return true;
-              return item.id !== team.id;
-            });
-            setMyTeam(teams);
-            setSnackTitle("Team member removed");
-            setShowSnak(true);
+              if (item.id == null || team.id == null) return true
+              return item.id !== team.id
+            })
+            setMyTeam(teams)
+            setSnackTitle('Team member removed')
+            setShowSnak(true)
             // Defensive: check nested properties before accessing
             if (
               u &&
               u.user &&
               team &&
               team.invitedUser &&
-              typeof u.user.id !== "undefined" &&
-              typeof team.invitedUser.id !== "undefined" &&
+              typeof u.user.id !== 'undefined' &&
+              typeof team.invitedUser.id !== 'undefined' &&
               u.user.id === team.invitedUser.id
             ) {
               //if current user deleted himself from the team then logout
-              logout();
-              router.push("/");
+              logout()
+              router.push('/')
             }
           } else {
             // //console.log;
@@ -393,7 +419,7 @@ function AdminTeam({ selectedUser }) {
         }
       }
     } catch (e) {
-      setInviteTeamLoader(false);
+      setInviteTeamLoader(false)
       //// //console.log
       // //console.log;
     }
@@ -406,60 +432,60 @@ function AdminTeam({ selectedUser }) {
       name: item.name,
       email: item.email,
       phone: item.phone,
-    };
-    setReInviteTeamLoader(true);
-    await inviteTeamMember(data);
-    setReInviteTeamLoader(false);
-    setOpenMoreDropdown(false);
-  };
+    }
+    setReInviteTeamLoader(true)
+    await inviteTeamMember(data)
+    setReInviteTeamLoader(false)
+    setOpenMoreDropdown(false)
+  }
 
   function canShowMenuDots(team) {
-    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (user) {
-      user = JSON.parse(user);
-      user = user.user;
+      user = JSON.parse(user)
+      user = user.user
     }
     // //console.log;
     // //console.log;
-    if (user?.userRole == "Invitee") {
+    if (user?.userRole == 'Invitee') {
       if (team?.invitedUser?.id == user?.id) {
-        return true; // show menu at own profile
+        return true // show menu at own profile
       }
-      return false;
-    } else if (user?.userRole == "AgentX") {
+      return false
+    } else if (user?.userRole == 'AgentX') {
       if (team.invitedUser?.id == user.id) {
-        return false; // don't show menu at own profile for admin
+        return false // don't show menu at own profile for admin
       }
-      return true;
+      return true
     }
-    return true;
+    return true
   }
   function canShowResendOption(team) {
     // //console.log
 
-    if (team.status === "Accepted") {
-      return false;
+    if (team.status === 'Accepted') {
+      return false
     }
     // return
-    let user = localStorage.getItem("User");
+    let user = localStorage.getItem('User')
     if (user) {
-      user = JSON.parse(user);
-      user = user.user;
+      user = JSON.parse(user)
+      user = user.user
     }
-    if (user.userRole == "Invitee") {
+    if (user.userRole == 'Invitee') {
       if (team?.invitedUser?.id == user?.id) {
-        return false; // show menu at own profile
+        return false // show menu at own profile
       }
-      return true;
+      return true
     }
-    if (user.userRole == "AgentX") {
+    if (user.userRole == 'AgentX') {
       if (team?.invitedUser?.id == user?.id) {
-        return false; // show menu at own profile
+        return false // show menu at own profile
       }
-      return true;
+      return true
     }
 
-    return true;
+    return true
   }
   // function canShowInviteButton() {
   //  // //console.log
@@ -480,32 +506,31 @@ function AdminTeam({ selectedUser }) {
 
   function canShowInviteButton() {
     // //console.log;
-    if (typeof localStorage != "undefined") {
-      let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (typeof localStorage != 'undefined') {
+      let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
       if (user) {
-        user = JSON.parse(user);
-        user = user.user;
+        user = JSON.parse(user)
+        user = user.user
       }
       // //console.log;
-      if (user?.userRole == "AgentX" && myTeam.length > 0) {
-        return true;
+      if (user?.userRole == 'AgentX' && myTeam.length > 0) {
+        return true
       }
-      return false;
+      return false
     }
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center h-full">
       {/* Slider code */}
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           right: 0,
-          bottom: 0
-        }}>
-        <DashboardSlider
-          needHelp={false}
-          selectedUser={selectedUser} />
+          bottom: 0,
+        }}
+      >
+        <DashboardSlider needHelp={false} selectedUser={selectedUserDetails} />
       </div>
       {showSnak && (
         <AgentSelectSnackMessage
@@ -516,40 +541,41 @@ function AdminTeam({ selectedUser }) {
         />
       )}
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-4"
+        className=" w-full flex flex-row justify-between items-center px-4"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-
-
         <div className="flex flex-row items-center gap-3">
+          <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
+          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
+              <div
+                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+              >
+                {`${selectedUserDetails?.currentUsage?.maxTeamMembers}/${selectedUserDetails?.planCapabilities?.maxTeamMembers || 0} used`}
+              </div>
+            )}
 
-
-          <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {(selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
-            <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-              {`${selectedUser?.currentUsage?.maxTeamMembers}/${selectedUser?.planCapabilities?.maxTeamMembers || 0} used`}
-            </div>
-          )}
-
-          {
-            (selectedUser?.planCapabilities?.allowTeamCollaboration && selectedUser?.plan.planId != null && selectedUser?.planCapabilities?.maxTeamMembers < 1000) && (
+          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
               <Tooltip
-                title={`Additional team seats are $${selectedUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                title={`Additional team seats are $${selectedUserDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow
                 componentsProps={{
                   tooltip: {
                     sx: {
-                      backgroundColor: "#ffffff", // Ensure white background
-                      color: "#333", // Dark text color
-                      fontSize: "14px",
-                      padding: "10px 15px",
-                      borderRadius: "8px",
-                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                      backgroundColor: '#ffffff', // Ensure white background
+                      color: '#333', // Dark text color
+                      fontSize: '14px',
+                      padding: '10px 15px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                     },
                   },
                   arrow: {
                     sx: {
-                      color: "#ffffff", // Match tooltip background
+                      color: '#ffffff', // Match tooltip background
                     },
                   },
                 }}
@@ -557,19 +583,22 @@ function AdminTeam({ selectedUser }) {
                 <div
                   style={{
                     fontSize: 12,
-                    fontWeight: "600",
-                    color: "#000000",
-                    cursor: "pointer",
+                    fontWeight: '600',
+                    color: '#000000',
+                    cursor: 'pointer',
                   }}
                 >
-                  <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                  <Image
+                    src="/agencyIcons/InfoIcon.jpg"
+                    alt="info"
+                    width={16}
+                    height={16}
+                    className="cursor-pointer rounded-full"
                   // onClick={() => setIntroVideoModal2(true)}
                   />
                 </div>
               </Tooltip>
-            )
-          }
-
+            )}
         </div>
 
         {/* <div>
@@ -577,8 +606,8 @@ function AdminTeam({ selectedUser }) {
         </div> */}
       </div>
       <div
-        className="flex h-[60vh] w-full justify-center overflow-auto pb-50"
-        style={{ scrollbarWidth: "none" }}
+        className={`flex ${agencyUser ? 'h-screen' : 'h-[60vh]'} w-full justify-center overflow-auto pb-50`}
+        style={{ scrollbarWidth: 'none' }}
       >
         {getTeamLoader ? (
           <div className="w-full pt-[100px] flex flex-col items-center">
@@ -589,12 +618,12 @@ function AdminTeam({ selectedUser }) {
             {canShowInviteButton() && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
-                  className="rounded-lg text-white bg-purple mt-8"
+                  className="rounded-lg text-white bg-brand-primary mt-8"
                   style={{
-                    fontWeight: "500",
-                    fontSize: "16",
-                    height: "50px",
-                    width: "173px",
+                    fontWeight: '500',
+                    fontSize: '16',
+                    height: '50px',
+                    width: '173px',
                   }}
                   onClick={() => setOpenInvitePopup(true)}
                 >
@@ -606,7 +635,7 @@ function AdminTeam({ selectedUser }) {
             {myTeam?.length > 0 ? (
               <div
                 className="pt-3 flex flex-row justify-between w-full flex-wrap"
-                style={{ overflow: "auto", scrollbarWidth: "none" }}
+                style={{ overflow: 'auto', scrollbarWidth: 'none' }}
               >
                 {myTeam?.map((item, index) => {
                   // //console.log;
@@ -616,19 +645,19 @@ function AdminTeam({ selectedUser }) {
                         {item.invitedUser?.thumb_profile_image ? (
                           <div
                             style={{
-                              width: "37px",
-                              height: "37px",
-                              borderRadius: "50%", // Ensures circular shape
-                              overflow: "hidden", // Clips any overflow from the image
-                              display: "flex", // Centers the image if needed
-                              alignItems: "center",
-                              justifyContent: "center",
+                              width: '37px',
+                              height: '37px',
+                              borderRadius: '50%', // Ensures circular shape
+                              overflow: 'hidden', // Clips any overflow from the image
+                              display: 'flex', // Centers the image if needed
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}
                           >
                             <img
                               src={item.invitedUser?.thumb_profile_image}
                               alt="*"
-                              style={{ height: "100%", width: "100%" }}
+                              style={{ height: '100%', width: '100%' }}
                             />
                           </div>
                         ) : (
@@ -637,11 +666,11 @@ function AdminTeam({ selectedUser }) {
                             style={{
                               height: 37,
                               width: 37,
-                              textTransform: "capitalize",
+                              textTransform: 'capitalize',
                             }}
                           >
                             {/*item.name[0]*/}
-                            {item?.name?.[0] || "-"}
+                            {item?.name?.[0] || '-'}
                           </div>
                         )}
 
@@ -656,9 +685,9 @@ function AdminTeam({ selectedUser }) {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${item.status === "Pending"
-                              ? "text-red-500"
-                              : "text-green-500"
+                            className={`text-sm font-medium ${item.status === 'Pending'
+                              ? 'text-red-500'
+                              : 'text-green-500'
                               }`}
                           >
                             {item.status}
@@ -670,13 +699,13 @@ function AdminTeam({ selectedUser }) {
                             id={`dropdown-toggle-${item.id}`}
                             onClick={() =>
                               setMoreDropdown(
-                                moreDropdown === item.id ? null : item.id
+                                moreDropdown === item.id ? null : item.id,
                               )
                             }
                             className="relative"
                           >
                             <img
-                              src={"/otherAssets/threeDotsIcon.png"}
+                              src={'/otherAssets/threeDotsIcon.png'}
                               height={24}
                               width={24}
                               alt="threeDots"
@@ -689,14 +718,14 @@ function AdminTeam({ selectedUser }) {
                       {moreDropdown === item.id && (
                         <div
                           className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
-                          style={{ width: "200px" }}
+                          style={{ width: '200px' }}
                         >
                           {canShowResendOption(item) && (
                             <div
                               className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
                               onClick={() => {
-                                handleResendInvite(item);
-                                setMoreDropdown(null);
+                                handleResendInvite(item)
+                                setMoreDropdown(null)
                               }}
                             >
                               Resend Invite
@@ -706,8 +735,8 @@ function AdminTeam({ selectedUser }) {
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-red-500"
                             onClick={() => {
                               // //console.log;
-                              DeleteTeamMember(item);
-                              setMoreDropdown(null);
+                              DeleteTeamMember(item)
+                              setMoreDropdown(null)
                             }}
                           >
                             Delete
@@ -715,33 +744,137 @@ function AdminTeam({ selectedUser }) {
                         </div>
                       )}
                     </div>
-                  );
+                  )
                 })}
               </div>
             ) : (
-              <div className="h-screen w-full flex flex-col items-center justify-center">
-                <div>
-                  <Image
-                    src={"/svgIcons/noTeamIcon2.svg"}
-                    height={291}
-                    width={249}
-                    alt="*"
-                  />
-                </div>
+                  <div className={`w-full h-full flex flex-col items-center justify-center`}>
+                <Image
+                  src={'/otherAssets/noTemView.png'}
+                  height={280}
+                  width={240}
+                  alt="*"
+                />
+
+                {selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                  false ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <Image
+                      src={'/otherAssets/starsIcon2.png'}
+                      height={30}
+                      width={30}
+                      alt="*"
+                    />
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Unlock Teams
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 15,
+                        textAlign: 'center',
+                      }}
+                    >
+                      Upgrade to invite team members and manage
+                      <br /> agents in one place
+                    </div>
+                  </div>
+                ) : agencyData?.sellSeats ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Add Team (${agencyData.costPerSeat}/mo)
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 15 }}>
+                      Add Seats With Full Access
+                    </div>
+                    <div
+                      className="text-center"
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 15,
+                        width: '700px',
+                      }}
+                    >
+                      Unlock full access for your team by adding an extra seat
+                      to your account.{' '}
+                      <span className="text-brand-primary">
+                        For just ${agencyData.costPerSeat} per additional
+                        user
+                      </span>
+                      , per month. Your team member will have complete access to
+                      all features, allowing seamless collaboration, lead
+                      management, and AI agent usage. Empower your team to work
+                      smarter—add a seat and scale your success effortlessly.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Add Your Team
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 15 }}>
+                      Add team member to better manage your leads
+                    </div>
+                  </div>
+                )}
                 <div className="">
                   <button
-                    className="rounded-lg text-white bg-purple mt-8"
+                    className="rounded-lg text-white bg-brand-primary mt-8"
                     style={{
-                      fontWeight: "500",
-                      fontSize: "16",
-                      height: "50px",
-                      width: "173px",
+                      fontWeight: '500',
+                      fontSize: '16',
+                      height: '50px',
+                      width: '173px',
                     }}
-                    onClick={() => setOpenInvitePopup(true)}
+                    onClick={() => {
+                      // if (!selectedUserDetails?.plan?.price) {
+                      //   console.log("No plan price")
+                      //   setShowUpgradeModal(true)
+                      //   return
+                      // }
+
+                      if (
+                        selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                        false
+                      ) {
+                        console.log('should open upgrade plan')
+                        setShowUpgradeModal(true)
+                        return
+                      }
+                      console.log('Current team members are', selectedUserDetails?.currentUsage?.maxTeamMembers)
+                      console.log('MAx team members are', selectedUserDetails?.planCapabilities?.maxTeamMembers)
+
+                      if (
+                        selectedUserDetails?.currentUsage?.maxTeamMembers >=
+                        selectedUserDetails?.planCapabilities?.maxTeamMembers
+                      ) {
+                        console.log('should open upgrade more')
+                        setShowUpgradeModalMore(true)
+                        console.log('should open upgrade warning')
+                      } else {
+                        console.log('Should open invite')
+                        setOpenInvitePopup(true)
+                      }
+                    }}
                   >
-                    + Invite Team
+                    {selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
+                      false
+                      ? 'Upgrade Plan'
+                      : agencyData?.sellSeats
+                        ? `Add Team $${agencyData.costPerSeat}/mo`
+                        : '+ Invite Team'}
                   </button>
                 </div>
+
+                <UpgradeModal
+                  open={false}
+                  handleClose={() => {
+                    setShowUpgradeModal(false)
+                  }}
+                  title={"You've Hit Your Members Limit"}
+                  subTitle={'Upgrade to add more team members'}
+                  buttonTitle={'No Thanks'}
+                />
               </div>
             )}
           </div>
@@ -755,7 +888,7 @@ function AdminTeam({ selectedUser }) {
         BackdropProps={{
           timeout: 500,
           sx: {
-            backgroundColor: "#00000030",
+            backgroundColor: '#00000030',
             // backdropFilter: "blur(20px)",
           },
         }}
@@ -764,32 +897,32 @@ function AdminTeam({ selectedUser }) {
           <AgentSelectSnackMessage
             isVisible={showError}
             hide={() => setShowError(false)}
-            message={"Enter all credentials"}
+            message={'Enter all credentials'}
           />
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-full w-full p-8"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
 
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-3">
                   <div
-                    style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
+                    style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
                   >
                     New Invite
                   </div>
                 </div>
                 <button
                   onClick={() => {
-                    setOpenInvitePopup(false);
+                    setOpenInvitePopup(false)
                   }}
                 >
                   <Image
-                    src={"/otherAssets/crossIcon.png"}
+                    src={'/otherAssets/crossIcon.png'}
                     height={24}
                     width={24}
                     alt="*"
@@ -800,8 +933,8 @@ function AdminTeam({ selectedUser }) {
               <div
                 style={{
                   fontSize: 24,
-                  fontWeight: "700",
-                  color: "#000",
+                  fontWeight: '700',
+                  color: '#000',
                   marginTop: 20,
                 }}
               >
@@ -817,8 +950,8 @@ function AdminTeam({ selectedUser }) {
                 style={styles.inputStyle}
                 value={name}
                 onChange={(e) => {
-                  setName(e.target.value);
-                  setShowError(false);
+                  setName(e.target.value)
+                  setShowError(false)
                 }}
               />
 
@@ -827,7 +960,7 @@ function AdminTeam({ selectedUser }) {
               </div>
               <div className="text-end">
                 {emailLoader ? (
-                  <p style={{ ...styles.errmsg, color: "black" }}>
+                  <p style={{ ...styles.errmsg, color: 'black' }}>
                     Checking ...
                   </p>
                 ) : (
@@ -838,8 +971,8 @@ function AdminTeam({ selectedUser }) {
                           ...styles.errmsg,
                           color:
                             emailCheckResponse?.status === true
-                              ? "green"
-                              : "red",
+                              ? 'green'
+                              : 'red',
                         }}
                       >
                         {emailCheckResponse?.message
@@ -852,7 +985,7 @@ function AdminTeam({ selectedUser }) {
                     )}
                   </div>
                 )}
-                <div style={{ ...styles.errmsg, color: "red" }}>
+                <div style={{ ...styles.errmsg, color: 'red' }}>
                   {validEmail}
                 </div>
               </div>
@@ -862,35 +995,35 @@ function AdminTeam({ selectedUser }) {
                 style={styles.inputStyle}
                 value={email}
                 onChange={(e) => {
-                  let value = e.target.value;
-                  setEmail(value);
-                  setShowError(false);
+                  let value = e.target.value
+                  setEmail(value)
+                  setShowError(false)
                   if (timerRef.current) {
-                    clearTimeout(timerRef.current);
+                    clearTimeout(timerRef.current)
                   }
 
-                  setEmailCheckResponse(null);
+                  setEmailCheckResponse(null)
 
                   if (!value) {
                     // //console.log;
-                    setValidEmail("");
-                    return;
+                    setValidEmail('')
+                    return
                   }
 
                   if (!validateEmail(value)) {
                     // //console.log;
-                    setValidEmail("Invalid");
+                    setValidEmail('Invalid')
                   } else {
                     // //console.log;
                     if (value) {
                       // Set a new timeout
                       timerRef.current = setTimeout(() => {
-                        checkEmail(value);
-                      }, 300);
+                        checkEmail(value)
+                      }, 300)
                     } else {
                       // Reset the response if input is cleared
-                      setEmailCheckResponse(null);
-                      setValidEmail("");
+                      setEmailCheckResponse(null)
+                      setValidEmail('')
                     }
                   }
                 }}
@@ -908,7 +1041,7 @@ function AdminTeam({ selectedUser }) {
                       style={{
                         ...styles.errmsg,
                         color:
-                          checkPhoneResponse?.status === true ? "green" : "red",
+                          checkPhoneResponse?.status === true ? 'green' : 'red',
                       }}
                     >
                       {errorMessage}
@@ -931,42 +1064,42 @@ function AdminTeam({ selectedUser }) {
                   <div className="w-full">
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
-                      country={"us"} // restrict to US only
-                      onlyCountries={["us", "mx","ca"]}
+                      country={'us'} // restrict to US only
+                      onlyCountries={['us', 'mx']}
                       disableDropdown={true}
                       countryCodeEditable={false}
                       disableCountryCode={false} // Default country
                       value={phone}
                       onChange={handlePhoneNumberChange}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                      placeholder={"Type here"}
+                      placeholder={'Type here'}
                       // disabled={loading}
                       style={{
-                        borderRadius: "7px",
-                        outline: "none", // Ensure no outline on wrapper
-                        boxShadow: "none", // Remove any shadow
+                        borderRadius: '7px',
+                        outline: 'none', // Ensure no outline on wrapper
+                        boxShadow: 'none', // Remove any shadow
                       }}
                       inputStyle={{
-                        width: "100%",
-                        borderWidth: "0px",
-                        backgroundColor: "transparent",
-                        paddingLeft: "60px",
-                        paddingTop: "12px",
-                        paddingBottom: "12px",
+                        width: '100%',
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '60px',
+                        paddingTop: '12px',
+                        paddingBottom: '12px',
                         fontSize: 15,
-                        fontWeight: "500",
-                        height: "50px",
-                        outline: "none", // Remove outline on input
-                        boxShadow: "none", // Remove shadow as well
+                        fontWeight: '500',
+                        height: '50px',
+                        outline: 'none', // Remove outline on input
+                        boxShadow: 'none', // Remove shadow as well
                       }}
                       buttonStyle={{
-                        border: "none",
-                        backgroundColor: "transparent",
-                        outline: "none", // Ensure no outline on button
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        outline: 'none', // Ensure no outline on button
                       }}
                       dropdownStyle={{
-                        maxHeight: "150px",
-                        overflowY: "auto",
+                        maxHeight: '150px',
+                        overflowY: 'auto',
                       }}
                     // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
@@ -988,17 +1121,17 @@ function AdminTeam({ selectedUser }) {
                         !phone ||
                         emailCheckResponse?.status !== true ||
                         checkPhoneResponse?.status !== true
-                        ? "#00000020"
-                        : "",
+                        ? '#00000020'
+                        : '',
                   }}
-                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
                     let data = {
                       name: name,
                       email: email,
                       phone: phone,
-                    };
-                    inviteTeamMember(data);
+                    }
+                    inviteTeamMember(data)
                   }}
                   disabled={
                     !name ||
@@ -1011,15 +1144,15 @@ function AdminTeam({ selectedUser }) {
                   <div
                     style={{
                       fontSize: 16,
-                      fontWeight: "500",
+                      fontWeight: '500',
                       color:
                         !name ||
                           !email ||
                           !phone ||
                           emailCheckResponse?.status !== true ||
                           checkPhoneResponse?.status !== true
-                          ? "#000000"
-                          : "#ffffff",
+                          ? '#000000'
+                          : '#ffffff',
                     }}
                   >
                     Send Invite
@@ -1034,47 +1167,47 @@ function AdminTeam({ selectedUser }) {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default AdminTeam;
+export default AdminTeam
 
 const styles = {
   itemText: {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#000",
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#000',
   },
   deleteText: {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#FF4D4F", // Red color for delete
+    fontSize: '16px',
+    fontWeight: '500',
+    color: '#FF4D4F', // Red color for delete
   },
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-55%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 12,
-    fontWeight: "400",
-    color: "#00000050",
+    fontWeight: '400',
+    color: '#00000050',
   },
   inputStyle: {
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
     marginTop: 10,
-    border: "1px solid #00000010",
-    height: "50px",
+    border: '1px solid #00000010',
+    height: '50px',
   },
   errmsg: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
-};
+}

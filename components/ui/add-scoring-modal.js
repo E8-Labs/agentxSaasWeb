@@ -1,14 +1,15 @@
-"use client";
-import React from "react";
-import { Modal, Box } from "@mui/material";
-import Image from "next/image";
+'use client'
+
+import { Box, Modal } from '@mui/material'
+import Image from 'next/image'
+import React from 'react'
 
 const AddScoringModalBase = ({
   open,
   onClose,
-  title = "Add Scoring",
+  title = 'Add Scoring',
   children,
-  className = "",
+  className = '',
   ...props
 }) => {
   return (
@@ -18,7 +19,7 @@ const AddScoringModalBase = ({
       closeAfterTransition
       BackdropProps={{
         sx: {
-          backgroundColor: "#00000020",
+          backgroundColor: '#00000020',
         },
       }}
       {...props}
@@ -31,10 +32,10 @@ const AddScoringModalBase = ({
           left: '50%',
           transform: 'translate(-50%, -50%)',
           borderRadius: 3,
-          border: "none",
-          outline: "none",
-          scrollbarWidth: "none",
-          backgroundColor: "white",
+          border: 'none',
+          outline: 'none',
+          scrollbarWidth: 'none',
+          backgroundColor: 'white',
           '&::-webkit-scrollbar': {
             display: 'none',
           },
@@ -43,9 +44,7 @@ const AddScoringModalBase = ({
         <div className="w-full flex flex-col h-full">
           {/* Header */}
           <div className="flex flex-row items-center justify-between w-full mb-6">
-            <div className="text-lg font-semibold text-gray-900">
-              {title}
-            </div>
+            <div className="text-lg font-semibold text-gray-900">{title}</div>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -60,13 +59,11 @@ const AddScoringModalBase = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1">
-            {children}
-          </div>
+          <div className="flex-1">{children}</div>
         </div>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
-export default AddScoringModalBase;
+export default AddScoringModalBase

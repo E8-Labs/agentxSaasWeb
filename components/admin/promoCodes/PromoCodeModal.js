@@ -1,24 +1,44 @@
-"use client";
-import React, { useState, useEffect, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
-import axios from "axios";
-import Apis from "@/components/apis/Apis";
-import { CircularProgress } from "@mui/material";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Area, AreaChart, Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
+'use client'
+
+import { CircularProgress } from '@mui/material'
+import axios from 'axios'
+import { X } from 'lucide-react'
+import React, { useEffect, useMemo, useState } from 'react'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from 'recharts'
+
+import Apis from '@/components/apis/Apis'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 
 const PromoCodeModal = ({ promoCode, onClose }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    code: "",
-    promoType: "discount", // "discount" or "minutes"
-    discountType: "percentage", // "percentage" or "flat_amount"
+    code: '',
+    promoType: 'discount', // "discount" or "minutes"
+    discountType: 'percentage', // "percentage" or "flat_amount"
     discountValue: 0,
     discountDurationMonths: null, // null or 0 for one-time, > 0 for recurring
     redeemableMinutes: 0, // For minutes type
@@ -26,21 +46,21 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
     applicablePlans: [],
     applicableBillingCycles: [],
     maxRedemptions: null,
-    expirationDate: "",
+    expirationDate: '',
     isActive: true,
     appliesToSubscriptionsOnly: true,
-  });
+  })
 
-  const userTypes = ["Agency", "AgencySubAccount", "AgentX", "All"];
-  const plans = ["Starter", "Growth", "Scale", "Free", "All"];
-  const billingCycles = ["monthly", "quarterly", "yearly", "All"];
+  const userTypes = ['Agency', 'AgencySubAccount', 'AgentX', 'All']
+  const plans = ['Starter', 'Growth', 'Scale', 'Free', 'All']
+  const billingCycles = ['monthly', 'quarterly', 'yearly', 'All']
 
   useEffect(() => {
     if (promoCode) {
       setFormData({
-        code: promoCode.code || "",
-        promoType: promoCode.promoType || "discount",
-        discountType: promoCode.discountType || "percentage",
+        code: promoCode.code || '',
+        promoType: promoCode.promoType || 'discount',
+        discountType: promoCode.discountType || 'percentage',
         discountValue: promoCode.discountValue || 0,
         discountDurationMonths: promoCode.discountDurationMonths ?? null,
         redeemableMinutes: promoCode.redeemableMinutes || 0,
@@ -49,61 +69,64 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
         applicableBillingCycles: promoCode.applicableBillingCycles || [],
         maxRedemptions: promoCode.maxRedemptions || null,
         expirationDate: promoCode.expirationDate
-          ? new Date(promoCode.expirationDate).toISOString().split("T")[0]
-          : "",
+          ? new Date(promoCode.expirationDate).toISOString().split('T')[0]
+          : '',
         isActive: promoCode.isActive !== undefined ? promoCode.isActive : true,
         appliesToSubscriptionsOnly:
           promoCode.appliesToSubscriptionsOnly !== undefined
             ? promoCode.appliesToSubscriptionsOnly
             : true,
-      });
+      })
     }
-  }, [promoCode]);
+  }, [promoCode])
 
   // Chart data for recurring discounts
   const recurringDiscountData = useMemo(() => {
-    if (!formData.discountDurationMonths || formData.discountDurationMonths <= 0) {
-      return [];
+    if (
+      !formData.discountDurationMonths ||
+      formData.discountDurationMonths <= 0
+    ) {
+      return []
     }
-    const months = formData.discountDurationMonths;
+    const months = formData.discountDurationMonths
     return Array.from({ length: months }, (_, i) => ({
       month: `Month ${i + 1}`,
       discount: formData.discountValue,
-    }));
-  }, [formData.discountDurationMonths, formData.discountValue]);
+    }))
+  }, [formData.discountDurationMonths, formData.discountValue])
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-    }));
-  };
+    }))
+  }
 
   const handleArrayChange = (field, value, checked) => {
     setFormData((prev) => {
-      const currentArray = prev[field] || [];
+      const currentArray = prev[field] || []
       if (checked) {
         return {
           ...prev,
           [field]: [...currentArray, value],
-        };
+        }
       } else {
         return {
           ...prev,
           [field]: currentArray.filter((item) => item !== value),
-        };
+        }
       }
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const authToken = localStorage.getItem("User")
-        ? JSON.parse(localStorage.getItem("User")).token
-        : null;
+      const authToken = localStorage.getItem('User')
+        ? JSON.parse(localStorage.getItem('User')).token
+        : null
 
       // Prepare payload
       const payload = {
@@ -116,24 +139,25 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
         expirationDate: formData.expirationDate || null,
         isActive: formData.isActive,
         appliesToSubscriptionsOnly: formData.appliesToSubscriptionsOnly,
-      };
+      }
 
-      if (formData.promoType === "discount") {
-        payload.discountType = formData.discountType;
-        payload.discountValue = parseFloat(formData.discountValue);
+      if (formData.promoType === 'discount') {
+        payload.discountType = formData.discountType
+        payload.discountValue = parseFloat(formData.discountValue)
         payload.discountDurationMonths =
-          formData.discountDurationMonths === "" || formData.discountDurationMonths === null
+          formData.discountDurationMonths === '' ||
+          formData.discountDurationMonths === null
             ? null
-            : parseInt(formData.discountDurationMonths);
-      } else if (formData.promoType === "minutes") {
-        payload.redeemableMinutes = parseInt(formData.redeemableMinutes);
+            : parseInt(formData.discountDurationMonths)
+      } else if (formData.promoType === 'minutes') {
+        payload.redeemableMinutes = parseInt(formData.redeemableMinutes)
       }
 
       const url = promoCode
         ? `${Apis.updatePromoCode}/${promoCode.id}`
-        : Apis.createPromoCode;
+        : Apis.createPromoCode
 
-      const method = promoCode ? "PUT" : "POST";
+      const method = promoCode ? 'PUT' : 'POST'
 
       const response = await axios({
         method,
@@ -141,31 +165,32 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
         data: payload,
         headers: {
           Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response.data?.status) {
-        onClose();
+        onClose()
       } else {
-        alert(response.data?.message || "Error saving promo code");
+        alert(response.data?.message || 'Error saving promo code')
       }
     } catch (error) {
-      console.error("Error saving promo code:", error);
+      console.error('Error saving promo code:', error)
       alert(
-        error.response?.data?.message || "Error saving promo code. Please try again."
-      );
+        error.response?.data?.message ||
+          'Error saving promo code. Please try again.',
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b">
           <h2 className="text-xl font-semibold">
-            {promoCode ? "Edit Promo Code" : "Create New Promo Code"}
+            {promoCode ? 'Edit Promo Code' : 'Create New Promo Code'}
           </h2>
           <Button variant="ghost" onClick={onClose}>
             <X className="w-4 h-4" />
@@ -185,32 +210,40 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                   <Input
                     id="code"
                     value={formData.code}
-                    onChange={(e) => handleInputChange("code", e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      handleInputChange('code', e.target.value.toUpperCase())
+                    }
                     placeholder="SUMMER20"
                     required
                     disabled={!!promoCode}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {promoCode ? "Code cannot be changed after creation" : "Enter unique promo code"}
+                    {promoCode
+                      ? 'Code cannot be changed after creation'
+                      : 'Enter unique promo code'}
                   </p>
                 </div>
                 <div>
                   <Label htmlFor="promoType">Promo Type *</Label>
                   <Select
                     value={formData.promoType}
-                    onValueChange={(value) => handleInputChange("promoType", value)}
+                    onValueChange={(value) =>
+                      handleInputChange('promoType', value)
+                    }
                     disabled={!!promoCode}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="discount">Subscription Discount</SelectItem>
+                      <SelectItem value="discount">
+                        Subscription Discount
+                      </SelectItem>
                       <SelectItem value="minutes">Free Minutes</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-500 mt-1">
-                    {promoCode ? "Type cannot be changed after creation" : ""}
+                    {promoCode ? 'Type cannot be changed after creation' : ''}
                   </p>
                 </div>
               </div>
@@ -221,11 +254,11 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                   <Input
                     id="maxRedemptions"
                     type="number"
-                    value={formData.maxRedemptions || ""}
+                    value={formData.maxRedemptions || ''}
                     onChange={(e) =>
                       handleInputChange(
-                        "maxRedemptions",
-                        e.target.value === "" ? null : parseInt(e.target.value)
+                        'maxRedemptions',
+                        e.target.value === '' ? null : parseInt(e.target.value),
                       )
                     }
                     placeholder="Leave empty for unlimited"
@@ -238,7 +271,9 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                     id="expirationDate"
                     type="date"
                     value={formData.expirationDate}
-                    onChange={(e) => handleInputChange("expirationDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange('expirationDate', e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -247,7 +282,9 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => handleInputChange("isActive", checked)}
+                  onCheckedChange={(checked) =>
+                    handleInputChange('isActive', checked)
+                  }
                 />
                 <Label htmlFor="isActive">Active</Label>
               </div>
@@ -255,7 +292,7 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
           </Card>
 
           {/* Discount Configuration */}
-          {formData.promoType === "discount" && (
+          {formData.promoType === 'discount' && (
             <Card>
               <CardHeader>
                 <CardTitle>Discount Configuration</CardTitle>
@@ -266,7 +303,9 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                     <Label htmlFor="discountType">Discount Type *</Label>
                     <Select
                       value={formData.discountType}
-                      onValueChange={(value) => handleInputChange("discountType", value)}
+                      onValueChange={(value) =>
+                        handleInputChange('discountType', value)
+                      }
                       disabled={!!promoCode}
                     >
                       <SelectTrigger>
@@ -274,28 +313,37 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="percentage">Percentage</SelectItem>
-                        <SelectItem value="flat_amount">Flat Amount ($)</SelectItem>
+                        <SelectItem value="flat_amount">
+                          Flat Amount ($)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500 mt-1">
-                      {promoCode ? "Cannot be changed after creation" : ""}
+                      {promoCode ? 'Cannot be changed after creation' : ''}
                     </p>
                   </div>
                   <div>
                     <Label htmlFor="discountValue">
-                      Discount Value *{" "}
-                      {formData.discountType === "percentage" ? "(%)" : "($)"}
+                      Discount Value *{' '}
+                      {formData.discountType === 'percentage' ? '(%)' : '($)'}
                     </Label>
                     <Input
                       id="discountValue"
                       type="number"
                       value={formData.discountValue}
                       onChange={(e) =>
-                        handleInputChange("discountValue", parseFloat(e.target.value))
+                        handleInputChange(
+                          'discountValue',
+                          parseFloat(e.target.value),
+                        )
                       }
-                      placeholder={formData.discountType === "percentage" ? "20" : "50"}
+                      placeholder={
+                        formData.discountType === 'percentage' ? '20' : '50'
+                      }
                       min="0"
-                      step={formData.discountType === "percentage" ? "1" : "0.01"}
+                      step={
+                        formData.discountType === 'percentage' ? '1' : '0.01'
+                      }
                       required
                       disabled={!!promoCode}
                     />
@@ -303,15 +351,17 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                 </div>
 
                 <div>
-                  <Label htmlFor="discountDurationMonths">Discount Duration (Months)</Label>
+                  <Label htmlFor="discountDurationMonths">
+                    Discount Duration (Months)
+                  </Label>
                   <Input
                     id="discountDurationMonths"
                     type="number"
-                    value={formData.discountDurationMonths || ""}
+                    value={formData.discountDurationMonths || ''}
                     onChange={(e) =>
                       handleInputChange(
-                        "discountDurationMonths",
-                        e.target.value === "" ? null : parseInt(e.target.value)
+                        'discountDurationMonths',
+                        e.target.value === '' ? null : parseInt(e.target.value),
                       )
                     }
                     placeholder="Leave empty or 0 for one-time discount"
@@ -319,8 +369,8 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                     disabled={!!promoCode}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Leave empty or 0 for one-time discount. Enter number of months for recurring
-                    discount (e.g., 3 for 3 months).
+                    Leave empty or 0 for one-time discount. Enter number of
+                    months for recurring discount (e.g., 3 for 3 months).
                   </p>
                 </div>
 
@@ -335,40 +385,47 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                         <ChartContainer
                           config={{
                             discount: {
-                              label: formData.discountType === "percentage" 
-                                ? `Discount (%)` 
-                                : `Discount ($)`,
-                              color: "hsl(var(--chart-1))",
+                              label:
+                                formData.discountType === 'percentage'
+                                  ? `Discount (%)`
+                                  : `Discount ($)`,
+                              color: 'hsl(var(--chart-1))',
                             },
                           }}
                           className="h-[250px] w-full"
                         >
-                          {formData.discountDurationMonths && formData.discountDurationMonths > 0 ? (
+                          {formData.discountDurationMonths &&
+                          formData.discountDurationMonths > 0 ? (
                             // Recurring discount - show area chart over time
-                            <AreaChart
-                              data={recurringDiscountData}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                            <AreaChart data={recurringDiscountData}>
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                className="stroke-muted"
+                              />
                               <XAxis
                                 dataKey="month"
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
-                                tickFormatter={(value) => value.replace("Month ", "M")}
+                                tickFormatter={(value) =>
+                                  value.replace('Month ', 'M')
+                                }
                               />
                               <YAxis
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
                                 tickFormatter={(value) =>
-                                  formData.discountType === "percentage" ? `${value}%` : `$${value}`
+                                  formData.discountType === 'percentage'
+                                    ? `${value}%`
+                                    : `$${value}`
                                 }
                               />
                               <ChartTooltip
                                 content={
                                   <ChartTooltipContent
                                     formatter={(value) =>
-                                      formData.discountType === "percentage"
+                                      formData.discountType === 'percentage'
                                         ? `${value}%`
                                         : `$${value}`
                                     }
@@ -389,14 +446,19 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                             <BarChart
                               data={[
                                 {
-                                  type: formData.discountType === "percentage"
-                                    ? "Discount (%)"
-                                    : "Discount ($)",
+                                  type:
+                                    formData.discountType === 'percentage'
+                                      ? 'Discount (%)'
+                                      : 'Discount ($)',
                                   value: formData.discountValue,
                                 },
                               ]}
                             >
-                              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                className="stroke-muted"
+                                vertical={false}
+                              />
                               <XAxis
                                 dataKey="type"
                                 tickLine={false}
@@ -408,14 +470,16 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                                 axisLine={false}
                                 tickMargin={8}
                                 tickFormatter={(value) =>
-                                  formData.discountType === "percentage" ? `${value}%` : `$${value}`
+                                  formData.discountType === 'percentage'
+                                    ? `${value}%`
+                                    : `$${value}`
                                 }
                               />
                               <ChartTooltip
                                 content={
                                   <ChartTooltipContent
                                     formatter={(value) =>
-                                      formData.discountType === "percentage"
+                                      formData.discountType === 'percentage'
                                         ? `${value}%`
                                         : `$${value}`
                                     }
@@ -431,16 +495,21 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                           )}
                         </ChartContainer>
                         <div className="mt-4 text-sm text-gray-600 text-center">
-                          {formData.discountDurationMonths && formData.discountDurationMonths > 0 ? (
+                          {formData.discountDurationMonths &&
+                          formData.discountDurationMonths > 0 ? (
                             <p>
-                              This discount will apply for{" "}
+                              This discount will apply for{' '}
                               <span className="font-semibold">
                                 {formData.discountDurationMonths} month
-                                {formData.discountDurationMonths > 1 ? "s" : ""}
+                                {formData.discountDurationMonths > 1 ? 's' : ''}
                               </span>
                             </p>
                           ) : (
-                            <p>This is a <span className="font-semibold">one-time</span> discount</p>
+                            <p>
+                              This is a{' '}
+                              <span className="font-semibold">one-time</span>{' '}
+                              discount
+                            </p>
                           )}
                         </div>
                       </CardContent>
@@ -453,7 +522,7 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                     id="appliesToSubscriptionsOnly"
                     checked={formData.appliesToSubscriptionsOnly}
                     onCheckedChange={(checked) =>
-                      handleInputChange("appliesToSubscriptionsOnly", checked)
+                      handleInputChange('appliesToSubscriptionsOnly', checked)
                     }
                   />
                   <Label htmlFor="appliesToSubscriptionsOnly">
@@ -465,20 +534,25 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
           )}
 
           {/* Minutes Configuration */}
-          {formData.promoType === "minutes" && (
+          {formData.promoType === 'minutes' && (
             <Card>
               <CardHeader>
                 <CardTitle>Minutes Configuration</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="redeemableMinutes">Redeemable Minutes *</Label>
+                  <Label htmlFor="redeemableMinutes">
+                    Redeemable Minutes *
+                  </Label>
                   <Input
                     id="redeemableMinutes"
                     type="number"
                     value={formData.redeemableMinutes}
                     onChange={(e) =>
-                      handleInputChange("redeemableMinutes", parseInt(e.target.value))
+                      handleInputChange(
+                        'redeemableMinutes',
+                        parseInt(e.target.value),
+                      )
                     }
                     placeholder="100"
                     min="1"
@@ -500,12 +574,19 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                 <Label>Applicable User Types</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {userTypes.map((type) => (
-                    <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                    <label
+                      key={type}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         checked={formData.applicableUserTypes.includes(type)}
                         onChange={(e) =>
-                          handleArrayChange("applicableUserTypes", type, e.target.checked)
+                          handleArrayChange(
+                            'applicableUserTypes',
+                            type,
+                            e.target.checked,
+                          )
                         }
                         className="rounded"
                       />
@@ -519,12 +600,19 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                 <Label>Applicable Plans</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {plans.map((plan) => (
-                    <label key={plan} className="flex items-center space-x-2 cursor-pointer">
+                    <label
+                      key={plan}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
                         checked={formData.applicablePlans.includes(plan)}
                         onChange={(e) =>
-                          handleArrayChange("applicablePlans", plan, e.target.checked)
+                          handleArrayChange(
+                            'applicablePlans',
+                            plan,
+                            e.target.checked,
+                          )
                         }
                         className="rounded"
                       />
@@ -538,12 +626,21 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                 <Label>Applicable Billing Cycles</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {billingCycles.map((cycle) => (
-                    <label key={cycle} className="flex items-center space-x-2 cursor-pointer">
+                    <label
+                      key={cycle}
+                      className="flex items-center space-x-2 cursor-pointer"
+                    >
                       <input
                         type="checkbox"
-                        checked={formData.applicableBillingCycles.includes(cycle)}
+                        checked={formData.applicableBillingCycles.includes(
+                          cycle,
+                        )}
                         onChange={(e) =>
-                          handleArrayChange("applicableBillingCycles", cycle, e.target.checked)
+                          handleArrayChange(
+                            'applicableBillingCycles',
+                            cycle,
+                            e.target.checked,
+                          )
                         }
                         className="rounded"
                       />
@@ -557,27 +654,38 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
 
           {/* Actions */}
           <div className="flex justify-end space-x-4">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={loading}
+            >
               Cancel
             </Button>
-            <Button type="submit" className="bg-purple-600 hover:bg-purple-700" disabled={loading}>
+            <Button
+              type="submit"
+              className="bg-purple-600 hover:bg-purple-700"
+              disabled={loading}
+            >
               {loading ? (
                 <div className="flex items-center">
-                  <CircularProgress size={16} style={{ marginRight: 8, color: 'white' }} />
+                  <CircularProgress
+                    size={16}
+                    style={{ marginRight: 8, color: 'white' }}
+                  />
                   <span>Saving...</span>
                 </div>
               ) : promoCode ? (
-                "Update Promo Code"
+                'Update Promo Code'
               ) : (
-                "Create Promo Code"
+                'Create Promo Code'
               )}
             </Button>
           </div>
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PromoCodeModal;
-
+export default PromoCodeModal

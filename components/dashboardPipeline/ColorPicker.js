@@ -1,109 +1,126 @@
+import React, { forwardRef, useEffect, useState } from 'react'
 
-import React, { forwardRef, useEffect, useState } from 'react';
-
-const ColorPicker = forwardRef(({ setStageColor, setStageColor2, stageColor, onlyShowColorBox, updateOnchange, handleUpdateColor }, ref) => {
-
-
-    const [color, setColor] = useState(''); // Default color
-    const [showColorBox, setShowColorBox] = useState(true);
+const ColorPicker = forwardRef(
+  (
+    {
+      setStageColor,
+      setStageColor2,
+      stageColor,
+      onlyShowColorBox,
+      updateOnchange,
+      handleUpdateColor,
+    },
+    ref,
+  ) => {
+    const [color, setColor] = useState('') // Default color
+    const [showColorBox, setShowColorBox] = useState(true)
 
     const handleColorChange = (e) => {
-       // //console.log;
-        setColor(e.target.value);
-        setStageColor(e.target.value);
-        if (setStageColor2) {
-            setStageColor2(e.target.value);
-        }
-       // //console.log;
+      // //console.log;
+      setColor(e.target.value)
+      setStageColor(e.target.value)
+      if (setStageColor2) {
+        setStageColor2(e.target.value)
+      }
+      // //console.log;
 
-        // setTimeout(() => {
-        //    // //console.log;
-        //     if (updateOnchange) {
-        //         handleUpdateColor();
-        //     }
-        // }, 1000);
+      // setTimeout(() => {
+      //    // //console.log;
+      //     if (updateOnchange) {
+      //         handleUpdateColor();
+      //     }
+      // }, 1000);
 
-        // setShowColorBox(false);
-        // if (updateOnchange) {
-        //     handleUpdateColor();
-        // }
-    };
+      // setShowColorBox(false);
+      // if (updateOnchange) {
+      //     handleUpdateColor();
+      // }
+    }
 
     useEffect(() => {
-        if (stageColor) {
-            setColor(stageColor);
-        } else {
-            setColor("#000000");
-        }
-    }, []);
-
+      if (stageColor) {
+        setColor(stageColor)
+      } else {
+        setColor('#000000')
+      }
+    }, [])
 
     return (
-        <div>
-            {
-                onlyShowColorBox ?
-                    <div>
+      <div>
+        {onlyShowColorBox ? (
+          <div>
+            <input
+              ref={ref} //id="color-picker-input"
+              type="color"
+              value={color}
+              onChange={handleColorChange}
+              className="outline-none focus:ring-0"
+              // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
+              style={{
+                marginRight: '10px',
+                padding: '0',
+                border: 'none',
+                background: 'none',
+                height: '30px',
+                width: '36px',
+                borderRadius: '50px',
+                appearance: 'none', // General appearance override
+                WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
+                MozAppearance: 'none', // For Firefox
+                overflow: 'hidden', // Ensures rounded corners work correctly
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            className="h-[50px] rounded-lg px-2"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              border: '1px solid #00000020',
+              width: '',
+            }}
+          >
+            <input
+              type="color"
+              value={color}
+              onChange={handleColorChange}
+              className="outline-none focus:ring-0"
+              // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
+              style={{
+                marginRight: '10px',
+                padding: '0',
+                border: 'none',
+                background: 'none',
+                height: '30px',
+                width: '36px',
+                borderRadius: '5px',
+                appearance: 'none', // General appearance override
+                WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
+                MozAppearance: 'none', // For Firefox
+                overflow: 'hidden', // Ensures rounded corners work correctly
+              }}
+            />
+            <input
+              type="text"
+              value={color}
+              onChange={handleColorChange}
+              className="outline-none focus:ring-0"
+              style={{
+                width: '100px',
+                textTransform: 'uppercase',
+                border: 'none',
+              }}
+            />
+          </div>
+        )}
+      </div>
+    )
+  },
+)
 
-                        <input
-                            ref={ref} //id="color-picker-input"
-                            type="color"
-                            value={color}
-                            onChange={handleColorChange}
-                            className='outline-none focus:ring-0'
-                            // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
-                            style={{
-                                marginRight: '10px',
-                                padding: '0',
-                                border: 'none',
-                                background: 'none',
-                                height: '30px',
-                                width: '36px',
-                                borderRadius: '50px',
-                                appearance: 'none', // General appearance override
-                                WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
-                                MozAppearance: 'none', // For Firefox
-                                overflow: 'hidden', // Ensures rounded corners work correctly
-                            }}
-                        />
-                    </div>
-                    :
-                    <div className='h-[50px] rounded-lg px-2' style={{ display: 'flex', alignItems: 'center', border: "1px solid #00000020", width: "" }}>
-                        <input
-                            type="color"
-                            value={color}
-                            onChange={handleColorChange}
-                            className='outline-none focus:ring-0'
-                            // style={{ marginRight: '10px', padding: '0', border: 'none', background: 'none', height: "30px", width: "36px", borderRadius: "5px" }}
-                            style={{
-                                marginRight: '10px',
-                                padding: '0',
-                                border: 'none',
-                                background: 'none',
-                                height: '30px',
-                                width: '36px',
-                                borderRadius: '5px',
-                                appearance: 'none', // General appearance override
-                                WebkitAppearance: 'none', // For Webkit-based browsers (Chrome, Safari, etc.)
-                                MozAppearance: 'none', // For Firefox
-                                overflow: 'hidden', // Ensures rounded corners work correctly
-                            }}
-                        />
-                        <input
-                            type="text"
-                            value={color}
-                            onChange={handleColorChange}
-                            className='outline-none focus:ring-0'
-                            style={{ width: '100px', textTransform: 'uppercase', border: "none" }}
-                        />
-                    </div>
-            }
-        </div>
-    );
-});
-
-ColorPicker.displayName = 'ColorPicker';
-export default ColorPicker;
-
+ColorPicker.displayName = 'ColorPicker'
+export default ColorPicker
 
 // import React, { useState } from 'react';
 // import { ChromePicker } from 'react-color';
@@ -127,4 +144,3 @@ export default ColorPicker;
 // };
 
 // export default ColorPicker;
-

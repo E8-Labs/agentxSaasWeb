@@ -1,7 +1,3 @@
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import Apis from "../apis/Apis";
-import axios from "axios";
 import {
   Alert,
   Box,
@@ -10,74 +6,84 @@ import {
   Modal,
   Snackbar,
   TextField,
-} from "@mui/material";
-import { Elements } from "@stripe/react-stripe-js";
-import AddCardDetails from "../createagent/addpayment/AddCardDetails";
-import { loadStripe } from "@stripe/stripe-js";
-import moment from "moment";
-import getProfileDetails from "../apis/GetProfile";
+} from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { PersistanceKeys, XBarPlans } from '@/constants/Constants'
+import { GetFormattedDateString } from '@/utilities/utility'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { isLightColor } from '@/utilities/colorUtils'
+
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
+import AddCardDetails from '../createagent/addpayment/AddCardDetails'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { GetFormattedDateString } from "@/utilities/utility";
-import XBarConfirmationModal from "./XBarConfirmationModal";
-import { PersistanceKeys, XBarPlans } from "@/constants/Constants";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import XBarConfirmationModal from './XBarConfirmationModal'
 
 let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
+const stripePromise = loadStripe(stripePublickKey)
 
 function BarServices() {
   //stroes user cards list
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([])
 
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
   //userlocal data
-  const [userLocalData, setUserLocalData] = useState(null);
-  const [currentPlan, setCurrentPlan] = useState(null);
-  const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
-  const [redeemLoader, setRedeemLoader] = useState(false);
+  const [userLocalData, setUserLocalData] = useState(null)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [cancelPlanLoader, setCancelPlanLoader] = useState(false)
+  const [redeemLoader, setRedeemLoader] = useState(false)
 
   //stoores payment history
-  const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
-  const [historyLoader, setHistoryLoader] = useState(false);
+  const [PaymentHistoryData, setPaymentHistoryData] = useState([])
+  const [historyLoader, setHistoryLoader] = useState(false)
 
-  const [selectedCard, setSelectedCard] = useState(cards[0]);
-  const [getCardLoader, setGetCardLoader] = useState(false);
-  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(cards[0])
+  const [getCardLoader, setGetCardLoader] = useState(false)
+  const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false)
 
   //add card variables
-  const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
-  const [cardData, getcardData] = useState("");
+  const [addPaymentPopUp, setAddPaymentPopup] = useState(false)
+  const [cardData, getcardData] = useState('')
 
   //variables for selecting plans
-  const [togglePlan, setTogglePlan] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
+  const [togglePlan, setTogglePlan] = useState(null)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
 
   //snack messages variables
-  const [successSnack, setSuccessSnack] = useState(null);
-  const [errorSnack, setErrorSnack] = useState(null);
+  const [successSnack, setSuccessSnack] = useState(null)
+  const [errorSnack, setErrorSnack] = useState(null)
 
   //variables for cancel plan
-  const [giftPopup, setGiftPopup] = useState(false);
-  const [ScreenWidth, setScreenWidth] = useState(null);
+  const [giftPopup, setGiftPopup] = useState(false)
+  const [ScreenWidth, setScreenWidth] = useState(null)
   const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
-    useState(false);
+    useState(false)
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
-    useState(false);
-  const [role, setRole] = useState("")
+    useState(false)
+  const [role, setRole] = useState('')
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [textColor, setTextColor] = useState('#fff') // Default to white text
 
   useEffect(() => {
-    let screenWidth = 1000;
-    if (typeof window !== "undefined") {
-      screenWidth = window.innerWidth;
+    let screenWidth = 1000
+    if (typeof window !== 'undefined') {
+      screenWidth = window.innerWidth
     }
     // //console.log;
-    setScreenWidth(screenWidth);
-  }, []);
+    setScreenWidth(screenWidth)
+  }, [])
 
   //array of plans
   const plans = XBarPlans
@@ -122,93 +128,105 @@ function BarServices() {
   // ];
 
   useEffect(() => {
-    getProfile();
-    getCardsList();
-  }, []);
+    getProfile()
+    getCardsList()
+    
+    // Calculate text color based on background for subaccounts
+    if (typeof window !== 'undefined') {
+      const brandPrimary = getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand-primary')
+        .trim()
+      const opacity = 0.4
+      const isLight = isLightColor(brandPrimary, opacity)
+      setTextColor(isLight ? '#000' : '#fff')
+    }
+  }, [])
 
   const getProfile = async () => {
     try {
-
-      let data = localStorage.getItem("User")
+      let data = localStorage.getItem('User')
       if (data) {
         let user = JSON.parse(data)
         console.log('user', user)
-        let response = await getProfileDetails();
+        let response = await getProfileDetails()
 
         setRole(response?.data?.data?.userRole)
+        // Check if user is subaccount
+        if (response?.data?.data?.userRole === 'AgencySubAccount') {
+          setIsSubaccount(true)
+        }
         if (response) {
-          let togglePlan = response?.data?.data?.supportPlan;
-        console.log("response of get ",togglePlan)
+          let togglePlan = response?.data?.data?.supportPlan
+          console.log('response of get ', togglePlan)
 
           // let togglePlan = plan?.type;
-          let planType = null;
+          let planType = null
           // if (plan.status == "active") {
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
+          if (togglePlan === 'Starter') {
+            planType = 1
+          } else if (togglePlan === 'Professional') {
+            planType = 2
+          } else if (togglePlan === 'Enterprise') {
+            planType = 3
           }
           // }
-          setUserLocalData(response?.data?.data);
+          setUserLocalData(response?.data?.data)
           //console.log;
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          setTogglePlan(planType)
+          setCurrentPlan(planType)
         }
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
-  };
+  }
 
   useEffect(() => {
     // //console.log;
-  }, [userLocalData]);
+  }, [userLocalData])
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    setTogglePlan(item.id);
-    setSelectedPlan((prevId) => (prevId === item ? null : item));
+    setTogglePlan(item.id)
+    setSelectedPlan((prevId) => (prevId === item ? null : item))
     // setTogglePlan(prevId => (prevId === id ? null : id));
-  };
+  }
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
-
     console.log('try to subscribe')
     try {
-      let planType = null;
+      let planType = null
 
       //// //console.log;
-      if (role !== "AgencySubAccount") {
+      if (role !== 'AgencySubAccount') {
         if (togglePlan === 1) {
-          planType = "Starter";
+          planType = 'Starter'
         } else if (togglePlan === 2) {
-          planType = "Professional";
+          planType = 'Professional'
         } else if (togglePlan === 3) {
-          planType = "Enterprise";
+          planType = 'Enterprise'
         }
       } else {
-        let type = plans?.find((item) => item.title === togglePlan);
-        planType = type?.id;
+        let type = plans?.find((item) => item.title === togglePlan)
+        planType = type?.id
       }
       // console.log;
 
-      setSubscribePlanLoader(true);
-      let AuthToken = null;
-      let localDetails = null;
-      const localData = localStorage.getItem("User");
+      setSubscribePlanLoader(true)
+      let AuthToken = null
+      let localDetails = null
+      const localData = localStorage.getItem('User')
       if (localData) {
-        const LocalDetails = JSON.parse(localData);
-        localDetails = LocalDetails;
-        AuthToken = LocalDetails.token;
+        const LocalDetails = JSON.parse(localData)
+        localDetails = LocalDetails
+        AuthToken = LocalDetails.token
         if (cards.length > 0) {
           // //console.log;
         } else {
           //   setErrorSnack("No payment method added");
-          setAddPaymentPopup(true);
-          return;
+          setAddPaymentPopup(true)
+          return
         }
       }
 
@@ -216,133 +234,132 @@ function BarServices() {
 
       const ApiData = {
         supportPlan: planType,
-      };
+      }
 
-      console.log("apidata", ApiData)
+      console.log('apidata', ApiData)
 
-      const ApiPath = Apis.purchaseSupportPlan;
+      const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
 
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        console.log("response of subscribe support plan is", response.data)
+        console.log('response of subscribe support plan is', response.data)
         if (response.data.status === true) {
-          localDetails.user = response.data.data;
+          localDetails.user = response.data.data
           window.dispatchEvent(
-            new CustomEvent("hidePlanBar", { detail: { update: true } })
+            new CustomEvent('hidePlanBar', { detail: { update: true } }),
           )
           // //console.log;
 
           //   if (response2) {
-          let togglePlan = response?.data?.data?.supportPlan;
-          let planType = null;
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
+          let togglePlan = response?.data?.data?.supportPlan
+          let planType = null
+          if (togglePlan === 'Starter') {
+            planType = 1
+          } else if (togglePlan === 'Professional') {
+            planType = 2
+          } else if (togglePlan === 'Enterprise') {
+            planType = 3
           }
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          setTogglePlan(planType)
+          setCurrentPlan(planType)
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
 
-          let msg = togglePlan;
-          if(togglePlan == "Enterprise"){
-            msg = "Scale"
+          let msg = togglePlan
+          if (togglePlan == 'Enterprise') {
+            msg = 'Scale'
           }
-          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`)
         } else if (response.data.status === false) {
-          setErrorSnack(response.data.message);
+          setErrorSnack(response.data.message)
         }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
     } finally {
-      setSubscribePlanLoader(false);
+      setSubscribePlanLoader(false)
     }
-  };
+  }
   const handleClose = (data) => {
     // //console.log;
     if (data.status === true) {
-      let newCard = data.data;
-      setAddPaymentPopup(false);
-      setCards([newCard, ...cards]);
+      let newCard = data.data
+      setAddPaymentPopup(false)
+      setCards([newCard, ...cards])
     }
-  };
+  }
 
   //functiion to get cards list
   const getCardsList = async () => {
     try {
-      setGetCardLoader(true);
+      setGetCardLoader(true)
 
-      const localData = localStorage.getItem("User");
+      const localData = localStorage.getItem('User')
 
-      let AuthToken = null;
+      let AuthToken = null
 
       if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
+        const Data = JSON.parse(localData)
+        AuthToken = Data.token
       }
 
       // //console.log;
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      const ApiPath = Apis.getCardsList
 
       // //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${AuthToken}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setCards(response.data.data);
+          setCards(response.data.data)
         }
       }
     } catch (error) {
       // //console.log;
     } finally {
       // //console.log;
-      setGetCardLoader(false);
+      setGetCardLoader(false)
     }
-  };
+  }
 
   //function to get card brand image
   const getPlanFromId = () => {
-    let planType = "";
+    let planType = ''
     if (togglePlan === 1) {
-      planType = "Starter";
+      planType = 'Starter'
     } else if (togglePlan === 2) {
-      planType = "Professional";
+      planType = 'Professional'
     } else if (togglePlan === 3) {
-      planType = "Scale";
+      planType = 'Scale'
     }
-    return planType;
-  };
+    return planType
+  }
 
   return (
-    <div
-      className="w-full flex flex-col items-start px-8 py-2 h-[100%] overflow-none overflow-hidden">
+    <div className="w-full flex flex-col items-start px-8 py-2 h-[100%] overflow-none overflow-hidden">
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
-          setErrorSnack(null);
+          setErrorSnack(null)
         }}
         message={errorSnack}
         type={SnackbarTypes.Error}
@@ -350,7 +367,7 @@ function BarServices() {
       <AgentSelectSnackMessage
         isVisible={successSnack == null ? false : true}
         hide={() => {
-          setSuccessSnack(null);
+          setSuccessSnack(null)
         }}
         message={successSnack}
         type={SnackbarTypes.Success}
@@ -364,11 +381,11 @@ function BarServices() {
             className=""
             style={{
               fontSize: 22,
-              fontWeight: "700",
-              color: "#000",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              fontWeight: '700',
+              color: '#000',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             X Bar Services
@@ -378,10 +395,10 @@ function BarServices() {
             style={{
               fontSize: 12,
 
-              color: "#000",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              color: '#000',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
             {` Account > XBar Services`}
@@ -390,32 +407,33 @@ function BarServices() {
         <div
           className="w-10/12 p-4 rounded-lg flex flex-row items-center"
           style={{
-            backgroundImage: "url(/svgIcons/cardBg.svg)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            color: "#fff",
-            alignSelf: "center",
-            marginTop: "2vh",
+            backgroundImage: isSubaccount ? 'none' : 'url(/svgIcons/cardBg.svg)',
+            backgroundColor: isSubaccount ? 'hsl(var(--brand-primary) / 0.4)' : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            color: isSubaccount ? textColor : '#fff',
+            alignSelf: 'center',
+            marginTop: '2vh',
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           }}
         >
           <div className="flex flex-col">
             <div
               style={{
-                fontSize: "2vh",
-                fontWeight: "700",
-                marginBottom: "10px",
+                fontSize: '2vh',
+                fontWeight: '700',
+                marginBottom: '10px',
               }}
             >
               X Bar Services
             </div>
             <p
               style={{
-                fontSize: "15px",
-                fontWeight: "400",
+                fontSize: '15px',
+                fontWeight: '400',
                 // lineHeight: "1.5",
-                width: "90%",
+                width: '90%',
               }}
             >
               {`This is like the Apple Genius Bar but better. Get up and running
@@ -428,12 +446,13 @@ function BarServices() {
             <div className="flex flex-row justify-between mt-2">
               <div></div>
               <button
-                className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
+                className="px-4 py-2 rounded-lg bg-white text-brand-primary font-medium"
                 onClick={(e) => {
                   //console.log;
-                  let url = PersistanceKeys.GlobalConsultationUrl;
-                  if (typeof window !== "undefined") {
-                    window.open(url, "_blank");
+                  let url = PersistanceKeys.HireTeamUrl
+                  console.log('Hire Team url ', url)
+                  if (typeof window !== 'undefined') {
+                    window.open(url, '_blank')
                   }
                 }}
               >
@@ -443,17 +462,31 @@ function BarServices() {
           </div>
         </div>
 
-        <div className="w-9/12 max-h-[25%] overflow-y-auto scrollbar-hide md:max-h-[38%] lg:max-h-[50%]"
+        <RadioGroup
+          value={togglePlan?.toString() || ''}
+          onValueChange={(value) => {
+            const plan = plans.find((p) => p.id.toString() === value)
+            if (plan) {
+              handleTogglePlanClick(plan)
+            }
+          }}
+          className="w-9/12 max-h-[25%] overflow-y-auto scrollbar-hide md:max-h-[38%] lg:max-h-[50%]"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-          }}>
+          }}
+        >
           {plans.map((item, index) => (
-            <button
+            <label
               key={item.id}
-              className="w-full mt-4 outline-none"
-              onClick={(e) => handleTogglePlanClick(item)}
-              disabled={item.id === togglePlan}
+              htmlFor={`plan-${item.id}`}
+              className="w-full mt-4 cursor-pointer block"
+              onClick={(e) => {
+                if (e.target.closest('button') || e.target.closest('[role="radio"]')) {
+                  return
+                }
+                handleTogglePlanClick(item)
+              }}
             >
               <div
                 className="px-4 py-1 pb-4"
@@ -461,37 +494,28 @@ function BarServices() {
                   ...styles.pricingBox,
                   border:
                     item.id === togglePlan
-                      ? "2px solid #7902DF"
-                      : "1px solid #15151520",
-                  backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                      ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
+                      : '1px solid #15151520',
+                  backgroundColor: item.id === togglePlan ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)' : '',
                 }}
               >
                 <div
-                  style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                  style={{
+                    ...styles.triangleLabel,
+                    borderTopRightRadius: '7px',
+                  }}
                 ></div>
                 <span style={styles.labelText}>{item.planStatus}</span>
                 <div
                   className="flex flex-row items-start gap-3"
                   style={styles.content}
                 >
-                  <div className="mt-1">
-                    <div>
-                      {item.id === togglePlan ? (
-                        <Image
-                          src={"/svgIcons/checkMark.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={"/svgIcons/unCheck.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      )}
-                    </div>
+                  <div className="mt-1 flex items-center">
+                    <RadioGroupItem
+                      value={item.id.toString()}
+                      id={`plan-${item.id}`}
+                      className="h-6 w-6"
+                    />
                   </div>
                   <div className="w-full">
                     {/* {item.id === currentPlan && (
@@ -510,17 +534,17 @@ function BarServices() {
                     <div className="flex flex-row items-center gap-3">
                       <div
                         style={{
-                          color: "#151515",
+                          color: '#151515',
                           fontSize: 20,
-                          fontWeight: "600",
+                          fontWeight: '600',
                         }}
                       >
                         {item.PlanTitle}
                       </div>
                       {item.status && (
                         <div
-                          className="flex px-2 py-1 bg-purple rounded-full text-white"
-                          style={{ fontSize: 11.6, fontWeight: "500" }}
+                          className="flex px-2 py-1 bg-brand-primary rounded-full text-white"
+                          style={{ fontSize: 11.6, fontWeight: '500' }}
                         >
                           {item.status}
                         </div>
@@ -533,36 +557,38 @@ function BarServices() {
                             <div
                               className=""
                               style={{
-                                color: "#15151590",
+                                color: '#15151590',
                                 fontSize: 12,
                                 //   width: "60%",
-                                fontWeight: "600",
+                                fontWeight: '600',
                               }}
                               key={index}
                             >
                               {det}
                             </div>
-                          );
+                          )
                         })}
                       </div>
                       <div className="flex flex-row items-center">
                         <div style={styles.originalPrice}>
-                          {item.originalPrice && <div>${item.originalPrice}</div>}
+                          {item.originalPrice && (
+                            <div>${item.originalPrice}</div>
+                          )}
                         </div>
                         <div className="flex flex-row justify-start items-start ">
                           <div style={styles.discountedPrice}>
                             ${item.discountPrice}
                           </div>
-                          <p style={{ color: "#15151580" }}></p>
+                          <p style={{ color: '#15151580' }}></p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </button>
+            </label>
           ))}
-        </div>
+        </RadioGroup>
 
         <div className="flex flex-col w-full pb-6 items-center justify-center">
           {subscribePlanLoader ? (
@@ -574,16 +600,16 @@ function BarServices() {
               className="rounded-xl w-9/12 mt-8"
               disabled={togglePlan === currentPlan}
               style={{
-                height: "50px",
+                height: '50px',
                 fontSize: 16,
-                fontWeight: "700",
+                fontWeight: '700',
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                  togglePlan === currentPlan ? '#00000020' : 'hsl(var(--brand-primary, 270 75% 50%))',
+                color: togglePlan === currentPlan ? '#000000' : '#ffffff',
               }}
               onClick={() => {
-                setShowConfirmationModal(true);
+                setShowConfirmationModal(true)
               }}
             >
               Continue
@@ -596,11 +622,11 @@ function BarServices() {
         plan={getPlanFromId()}
         open={showConfirmationModal}
         onClose={() => {
-          setShowConfirmationModal(false);
+          setShowConfirmationModal(false)
         }}
         onConfirm={() => {
-          handleSubscribePlan();
-          setTimeout(() => setShowConfirmationModal(false), 0);
+          handleSubscribePlan()
+          setTimeout(() => setShowConfirmationModal(false), 0)
         }}
       />
       {/* Add Payment Modal */}
@@ -611,7 +637,7 @@ function BarServices() {
         BackdropProps={{
           timeout: 100,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -621,23 +647,23 @@ function BarServices() {
             <div
               className="sm:w-7/12 w-full"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
                     fontSize: 22,
-                    fontWeight: "600",
+                    fontWeight: '600',
                   }}
                 >
                   Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
-                    src={"/assets/crossIcon.png"}
+                    src={'/assets/crossIcon.png'}
                     height={40}
                     width={40}
                     alt="*"
@@ -650,8 +676,8 @@ function BarServices() {
                   stop={stop}
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
-                  togglePlan={""}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  togglePlan={''}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -659,90 +685,90 @@ function BarServices() {
         </Box>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default BarServices;
+export default BarServices
 const styles = {
   text: {
     fontSize: 12,
-    color: "#00000090",
+    color: '#00000090',
   },
   text2: {
-    textAlignLast: "left",
+    textAlignLast: 'left',
     fontSize: 15,
-    color: "#000000",
+    color: '#000000',
     fontWeight: 500,
-    whiteSpace: "nowrap", // Prevent text from wrapping
-    overflow: "hidden", // Hide overflow text
-    textOverflow: "ellipsis", // Add ellipsis for overflow text
+    whiteSpace: 'nowrap', // Prevent text from wrapping
+    overflow: 'hidden', // Hide overflow text
+    textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   paymentModal: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     // p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
   headingStyle: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   gitTextStyle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: '700',
   },
 
   //style for plans
   cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
+    fontSize: '14',
+    fontWeight: '500',
+    border: '1px solid #00000020',
   },
   pricingBox: {
-    position: "relative",
+    position: 'relative',
     // padding: '10px',
-    borderRadius: "10px",
+    borderRadius: '10px',
     // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
+    display: 'inline-block',
+    width: '100%',
   },
   triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    width: '0',
+    height: '0',
+    borderTop: '50px solid hsl(var(--brand-primary, 270 75% 50%))', // Increased height again for more padding
+    borderLeft: '50px solid transparent',
   },
   labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
+    position: 'absolute',
+    top: '10px', // Adjusted to keep the text centered within the larger triangle
+    right: '5px',
+    color: 'white',
+    fontSize: '10px',
+    fontWeight: 'bold',
+    transform: 'rotate(45deg)',
   },
   content: {
-    textAlign: "left",
-    paddingTop: "10px",
+    textAlign: 'left',
+    paddingTop: '10px',
   },
   originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
+    textDecoration: 'line-through',
+    color: 'hsl(var(--brand-primary, 270 75% 50%) / 0.4)',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   discountedPrice: {
-    color: "#000000",
-    fontWeight: "bold",
+    color: '#000000',
+    fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: "10px",
+    marginLeft: '10px',
   },
-};
+}

@@ -1,60 +1,62 @@
-"use client";
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import axios from 'axios';
-import Apis from '@/components/apis/Apis';
-import DOMPurify from 'dompurify';
+'use client'
+
+import axios from 'axios'
+import DOMPurify from 'dompurify'
+import { useParams, useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
 
 function PrivacyPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [privacyText, setPrivacyText] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const agencyUUID = params?.agencyUUID;
+  const params = useParams()
+  const router = useRouter()
+  const [privacyText, setPrivacyText] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const agencyUUID = params?.agencyUUID
 
   useEffect(() => {
     if (agencyUUID) {
-      fetchPrivacyText();
+      fetchPrivacyText()
     }
-  }, [agencyUUID]);
+  }, [agencyUUID])
 
   const fetchPrivacyText = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       const response = await axios.get(Apis.getAgencyPrivacyByUUID, {
         params: {
           agencyUUID: agencyUUID,
         },
-      });
+      })
 
       if (response?.data?.status === true) {
-        const customPrivacyText = response.data.data?.privacyText;
-        
+        const customPrivacyText = response.data.data?.privacyText
+
         if (customPrivacyText) {
           // Agency has custom privacy text
-          setPrivacyText(customPrivacyText);
+          setPrivacyText(customPrivacyText)
         } else {
           // No custom text, redirect to default URL
-          window.location.href = 'https://www.assignx.ai/agency-policy';
-          return;
+          window.location.href = 'https://www.assignx.ai/agency-policy'
+          return
         }
       } else {
         // Agency not found or error, redirect to default
-        window.location.href = 'https://www.assignx.ai/agency-policy';
-        return;
+        window.location.href = 'https://www.assignx.ai/agency-policy'
+        return
       }
     } catch (err) {
-      console.error('Error fetching privacy text:', err);
+      console.error('Error fetching privacy text:', err)
       // On error, redirect to default URL
-      window.location.href = 'https://www.assignx.ai/agency-policy';
-      return;
+      window.location.href = 'https://www.assignx.ai/agency-policy'
+      return
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -64,7 +66,7 @@ function PrivacyPage() {
           <p className="mt-4 text-gray-600">Loading privacy policy...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !privacyText) {
@@ -74,14 +76,31 @@ function PrivacyPage() {
           <p className="text-gray-600">Redirecting to privacy policy...</p>
         </div>
       </div>
-    );
+    )
   }
 
   // Sanitize HTML content
   const sanitizedContent = DOMPurify.sanitize(privacyText, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    ALLOWED_TAGS: [
+      'p',
+      'br',
+      'strong',
+      'em',
+      'u',
+      'ol',
+      'ul',
+      'li',
+      'a',
+      'span',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+    ],
     ALLOWED_ATTR: ['href', 'target', 'rel'],
-  });
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -94,10 +113,12 @@ function PrivacyPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default PrivacyPage;
+export default PrivacyPage
+
+
 
 
 

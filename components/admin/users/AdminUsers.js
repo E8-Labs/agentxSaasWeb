@@ -1,149 +1,151 @@
-"use client";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { GetFormattedDateString } from "@/utilities/utility";
-import SelectedUserDetails from "./SelectedUserDetails";
-import { UserFilterModal } from "./UserFilterModal";
-import UserActivityLogs from "./UserActivityLogs";
-import { Box, CircularProgress, Modal } from '@mui/material'
+'use client'
 
-import moment from "moment";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import React, { useEffect, useRef, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import Apis from '@/components/apis/Apis'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import SelectedUserDetails from './SelectedUserDetails'
+import UserActivityLogs from './UserActivityLogs'
+import { UserFilterModal } from './UserFilterModal'
 
 function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null); // For menu position
-  const [selectedUser, setSelectedUser] = useState(null); // To know which user is selected for action
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [anchorEl, setAnchorEl] = useState(null) // For menu position
+  const [selectedUser, setSelectedUser] = useState(null) // To know which user is selected for action
 
-  const [filters, setFilters] = useState({});
-  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState({})
+  const [showFilterModal, setShowFilterModal] = useState(false)
 
-  const [search, setSearch] = useState("");
-  const filterRef = useRef(null);
-  const [showUserDetails, setShowUserDetails] = useState(false);
-  const [showActivityLogs, setShowActivityLogs] = useState(false);
+  const [search, setSearch] = useState('')
+  const filterRef = useRef(null)
+  const [showUserDetails, setShowUserDetails] = useState(false)
+  const [showActivityLogs, setShowActivityLogs] = useState(false)
 
-  const [leadsSort, setLeadsSort] = useState(false);
-  const [minsSort, setMinsSort] = useState(false);
-  const [spentSort, setSpentSort] = useState(false);
-  const [balanceSort, setBalanceSort] = useState(false);
+  const [leadsSort, setLeadsSort] = useState(false)
+  const [minsSort, setMinsSort] = useState(false)
+  const [spentSort, setSpentSort] = useState(false)
+  const [balanceSort, setBalanceSort] = useState(false)
 
-  const [selectedSort, setSelectedSort] = useState(null);
-  const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
+  const [selectedSort, setSelectedSort] = useState(null)
+  const [selectedSortOrder, setSelectedSortOrder] = useState('ASC')
   const [initialLoader, setInitialLoader] = useState(true)
 
-  const LimitPerLoad = 30;
+  const LimitPerLoad = 30
 
-  let sortData = { sort: "", sortOrder: "" };
+  let sortData = { sort: '', sortOrder: '' }
 
   useEffect(() => {
-    getUsersList();
-  }, []);
+    getUsersList()
+  }, [])
 
   useEffect(() => {
     if (filterRef.current) {
-      clearTimeout(filterRef.current);
+      clearTimeout(filterRef.current)
     }
     filterRef.current = setTimeout(() => {
       //console.log;
-      setHasMore(true);
-      setUsers([]);
+      setHasMore(true)
+      setUsers([])
       let sortData = {
         sort: selectedSort,
         sortOrder: selectedSortOrder,
-      };
+      }
 
-      getUsersList(0, filters, sortData);
+      getUsersList(0, filters, sortData)
       // getUsersList();
-    }, 800);
-  }, [search]);
+    }, 800)
+  }, [search])
 
   const getUsersList = async (offset = 0, filters = null, sortData = null) => {
     //console.log;
     try {
-      setLoading(true);
-      const data = localStorage.getItem("User");
+      setLoading(true)
+      const data = localStorage.getItem('User')
       if (data) {
-        let u = JSON.parse(data);
-        let apiPath = Apis.getUsers + `?offset=${offset}`;
+        let u = JSON.parse(data)
+        let apiPath = Apis.getUsers + `?offset=${offset}`
         if (search && search.length > 0) {
-          apiPath = `${apiPath}&search=${search}`;
+          apiPath = `${apiPath}&search=${search}`
         }
 
         if (filters) {
           if (filters.agent) {
-            apiPath += `&minAgents=${filters.agent[0]}&maxAgents=${filters.agent[1]}`;
+            apiPath += `&minAgents=${filters.agent[0]}&maxAgents=${filters.agent[1]}`
           }
           if (filters.balance) {
-            apiPath += `&minBalance=${filters.balance[0]}&maxBalance=${filters.balance[1]}`;
+            apiPath += `&minBalance=${filters.balance[0]}&maxBalance=${filters.balance[1]}`
           }
           if (filters.minsUsed) {
-            apiPath += `&minMinsUsed=${filters.minsUsed[0]}&maxMinsUsed=${filters.minsUsed[1]}`;
+            apiPath += `&minMinsUsed=${filters.minsUsed[0]}&maxMinsUsed=${filters.minsUsed[1]}`
           }
           if (filters.teams) {
-            apiPath += `&minTeams=${filters.teams[0]}&maxTeams=${filters.teams[1]}`;
+            apiPath += `&minTeams=${filters.teams[0]}&maxTeams=${filters.teams[1]}`
           }
           if (filters.totalSpent) {
-            apiPath += `&minSpent=${filters.totalSpent[0]}&maxSpent=${filters.totalSpent[1]}`;
+            apiPath += `&minSpent=${filters.totalSpent[0]}&maxSpent=${filters.totalSpent[1]}`
           }
           if (filters.renewalFromDate) {
             apiPath += `&fromChargeDate=${moment(
-              filters.renewalFromDate
-            ).format("YYYY-MM-DD")}`;
+              filters.renewalFromDate,
+            ).format('YYYY-MM-DD')}`
           }
           if (filters.renewalToDate) {
             apiPath += `&toChargeDate=${moment(filters.renewalToDate).format(
-              "YYYY-MM-DD"
-            )}`;
+              'YYYY-MM-DD',
+            )}`
           }
           if (filters.selectedCreatedFromDate) {
             apiPath += `&fromCreatedDate=${moment(
-              filters.selectedCreatedFromDate
-            ).format("YYYY-MM-DD")}`;
+              filters.selectedCreatedFromDate,
+            ).format('YYYY-MM-DD')}`
           }
           if (filters.selectedCreatedToDate) {
             apiPath += `&toCreatedDate=${moment(
-              filters.selectedCreatedToDate
-            ).format("YYYY-MM-DD")}`;
+              filters.selectedCreatedToDate,
+            ).format('YYYY-MM-DD')}`
           }
           if (filters.selectedPlans && filters.selectedPlans.length > 0) {
-            const planString = filters.selectedPlans.join(",");
-            apiPath += `&plan=${planString}`;
+            const planString = filters.selectedPlans.join(',')
+            apiPath += `&plan=${planString}`
           }
           if (
             filters.selectedAffiliates &&
             filters.selectedAffiliates.length > 0
           ) {
-            const affiliates = filters.selectedAffiliates.join(",");
-            apiPath += `&closer=${affiliates}`;
+            const affiliates = filters.selectedAffiliates.join(',')
+            apiPath += `&closer=${affiliates}`
           }
         }
 
         if (sortData) {
-          apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
+          apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`
         }
 
         // return
         const response = await axios.get(apiPath, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
         // console.log("Userslist is", response);
 
         if (response.data?.status) {
           if (offset == 0) {
-            setUsers([...response.data.data]);
+            setUsers([...response.data.data])
           } else {
-            setUsers((prevUsers) => [...prevUsers, ...response.data.data]);
+            setUsers((prevUsers) => [...prevUsers, ...response.data.data])
           }
           if (response.data.data.length < LimitPerLoad) {
             //console.log;
-            setHasMore(false);
+            setHasMore(false)
           }
         }
       }
@@ -151,9 +153,9 @@ function AdminUsers() {
       //console.log;
     } finally {
       setInitialLoader(false)
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div style={{ zIndex: 1000 }} className="flex flex-col items-center w-full">
@@ -163,19 +165,19 @@ function AdminUsers() {
         updateFilters={(filter) => {
           //console.log;
           // let f = { ...filters, filter }
-          setFilters(filter);
+          setFilters(filter)
           if (filter?.finalUpdate === true) {
             let sortData = {
               sort: selectedSort,
               sortOrder: selectedSortOrder,
-            };
+            }
 
-            getUsersList(0, filter, sortData);
-            setShowFilterModal(false);
+            getUsersList(0, filter, sortData)
+            setShowFilterModal(false)
           }
         }}
         onDismissCallback={() => {
-          setShowFilterModal(false);
+          setShowFilterModal(false)
         }}
       />
 
@@ -188,13 +190,13 @@ function AdminUsers() {
             readOnly={loading}
             value={search}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setSearch(e.target.value)
               // Handle search input
             }}
           />
           <button className="outline-none border-none">
             <Image
-              src={"/assets/searchIcon.png"}
+              src={'/assets/searchIcon.png'}
               height={24}
               width={24}
               alt="*"
@@ -206,11 +208,11 @@ function AdminUsers() {
           onClick={() => {
             // //console.log
 
-            setShowFilterModal(true);
+            setShowFilterModal(true)
           }}
         >
           <Image
-            src={"/assets/filterIcon.png"}
+            src={'/assets/filterIcon.png'}
             height={16}
             width={16}
             alt="*"
@@ -220,24 +222,24 @@ function AdminUsers() {
       {/* Scrollable Table Wrapper */}
       <div
         className="h-[90svh] border overflow-auto pb-[100px] w-full"
-        style={{ scrollbarWidth: "none" }}
+        style={{ scrollbarWidth: 'none' }}
       >
         {users.length === 0 && loading ? (
           <div className="w-full flex flex-row justify-center my-2">
-            <CircularProgress size={50} sx={{ color: "#7902DF" }} />
+            <CircularProgress size={50} sx={{ color: '#7902DF' }} />
           </div>
-        ) :
+        ) : (
           <InfiniteScroll
             className="flex flex-col w-full"
             endMessage={
               <p
                 style={{
-                  textAlign: "center",
-                  paddingTop: "10px",
-                  fontWeight: "400",
-                  fontFamily: "inter",
+                  textAlign: 'center',
+                  paddingTop: '10px',
+                  fontWeight: '400',
+                  fontFamily: 'inter',
                   fontSize: 16,
-                  color: "#00000060",
+                  color: '#00000060',
                 }}
               >
                 {`You're all caught up`}
@@ -250,59 +252,66 @@ function AdminUsers() {
               let sortData = {
                 sort: selectedSort,
                 sortOrder: selectedSortOrder,
-              };
+              }
 
-              getUsersList(users.length, filters, sortData);
+              getUsersList(users.length, filters, sortData)
             }}
             hasMore={hasMore}
             loader={
               <div className="w-full flex flex-row justify-center mt-8">
                 {loading && hasMore && (
-                  <CircularProgress size={35} sx={{ color: "#7902DF" }} />
+                  <CircularProgress size={35} sx={{ color: '#7902DF' }} />
                 )}
               </div>
             }
-            style={{ overflow: "unset" }}
+            style={{ overflow: 'unset' }}
           >
-            <div className="h-[90svh] w-full overflow-auto pb-[100px]" id="scrollableDiv1">
+            <div
+              className="h-[90svh] w-full overflow-auto pb-[100px]"
+              id="scrollableDiv1"
+            >
               <table className="table-auto w-full border-collapse border border-none">
                 {/* Table Header */}
-                <thead className="w-full" style={{
-                  overflowX: 'auto',
-                  position: "sticky",
-                  top: 0,
-                  background: "white",
-                  zIndex: 10,
-                }}>
+                <thead
+                  className="w-full"
+                  style={{
+                    overflowX: 'auto',
+                    position: 'sticky',
+                    top: 0,
+                    background: 'white',
+                    zIndex: 10,
+                  }}
+                >
                   <tr className="bg-gray-100 text-sm font-semibold text-gray-600 ">
                     <th className="px-4 py-2 text-left">Name</th>
                     <th className="px-4 py-2 text-left">Email</th>
                     <th className=" py-2 text-left w-[110px] flex flex-row gap-2">
-                      <button className=""
+                      <button
+                        className=""
                         onClick={() => {
-
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "Leads") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'Leads') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
 
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
 
                           sortData = {
-                            sort: "Leads",
+                            sort: 'Leads',
                             sortOrder: sortOrder,
-                          };
-                          setSelectedSort("Leads");
-                          getUsersList(0, filters, sortData);
+                          }
+                          setSelectedSort('Leads')
+                          getUsersList(0, filters, sortData)
                         }}
                       >
                         Leads
-                        {selectedSort === "Leads" ? (
+                        {selectedSort === 'Leads' ? (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={10}
@@ -315,28 +324,30 @@ function AdminUsers() {
                     <th className="px-4 py-2 text-left">Plan</th>
                     <th className="px-4 py-2 text-left w-[100px]">Teams</th>
                     <th className=" py-2 text-left flex flex-row  w-[100px]">
-                      <button className=""
+                      <button
+                        className=""
                         onClick={() => {
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "TotalSpent") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'TotalSpent') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
                           sortData = {
-                            sort: "TotalSpent",
+                            sort: 'TotalSpent',
                             sortOrder: sortOrder,
-                          };
-                          setSelectedSort("TotalSpent");
-                          getUsersList(0, filters, sortData);
+                          }
+                          setSelectedSort('TotalSpent')
+                          getUsersList(0, filters, sortData)
                         }}
                       >
                         Total Spents
-                        {selectedSort === "TotalSpent" && (
+                        {selectedSort === 'TotalSpent' && (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={12}
@@ -347,28 +358,30 @@ function AdminUsers() {
                       </button>
                     </th>
                     <th className=" py-2 text-left w-[100px]">
-                      <button className="whitespace-nowrap"
+                      <button
+                        className="whitespace-nowrap"
                         onClick={() => {
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "MinutesUsed") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'MinutesUsed') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
                           sortData = {
-                            sort: "MinutesUsed",
+                            sort: 'MinutesUsed',
                             sortOrder: sortOrder,
-                          };
-                          getUsersList(0, filters, sortData);
-                          setSelectedSort("MinutesUsed");
+                          }
+                          getUsersList(0, filters, sortData)
+                          setSelectedSort('MinutesUsed')
                         }}
                       >
-                      Credits Used
-                        {selectedSort === "MinutesUsed" && (
+                        Credits Used
+                        {selectedSort === 'MinutesUsed' && (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={12}
@@ -379,29 +392,31 @@ function AdminUsers() {
                       </button>
                     </th>
                     <th className=" py-2 text-left  w-[150px]">
-                      <button className="whitespace-nowrap"
+                      <button
+                        className="whitespace-nowrap"
                         onClick={() => {
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "MinutesBalance") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'MinutesBalance') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
                           sortData = {
-                            sort: "MinutesBalance",
+                            sort: 'MinutesBalance',
                             sortOrder: sortOrder,
-                          };
-                          setSelectedSort("MinutesBalance");
+                          }
+                          setSelectedSort('MinutesBalance')
 
-                          getUsersList(0, filters, sortData);
+                          getUsersList(0, filters, sortData)
                         }}
                       >
                         Balance
-                        {selectedSort === "MinutesBalance" && (
+                        {selectedSort === 'MinutesBalance' && (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={12}
@@ -412,38 +427,39 @@ function AdminUsers() {
                       </button>
                     </th>
                     <th className=" py-2 text-left  w-[150px]">
-                      <button className="whitespace-nowrap"
+                      <button
+                        className="whitespace-nowrap"
                         onClick={() => {
-
-                          let sortOrder = selectedSortOrder;
-                          if (selectedSort == "Renewal") {
-                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          let sortOrder = selectedSortOrder
+                          if (selectedSort == 'Renewal') {
+                            sortOrder =
+                              selectedSortOrder == 'ASC' ? 'DESC' : 'ASC'
                           }
 
-                          setSelectedSortOrder(sortOrder);
+                          setSelectedSortOrder(sortOrder)
 
                           sortData = {
-                            sort: "Renewal",
+                            sort: 'Renewal',
                             sortOrder: sortOrder,
-                          };
-                          setSelectedSort("Renewal");
-                          getUsersList(0, filters, sortData);
-                        }}>
+                          }
+                          setSelectedSort('Renewal')
+                          getUsersList(0, filters, sortData)
+                        }}
+                      >
                         Renewal
-                        {selectedSort === "Renewal" ? (
+                        {selectedSort === 'Renewal' ? (
                           <Image
                             src={
-                              selectedSortOrder == "DESC"
-                                ? "/downArrow.png"
-                                : "/upArrow.png"
+                              selectedSortOrder == 'DESC'
+                                ? '/downArrow.png'
+                                : '/upArrow.png'
                             }
                             height={3}
                             width={10}
                             className="inline-block align-middle"
                             alt="*"
                           />
-                        ) : null
-                        }
+                        ) : null}
                       </button>
                     </th>
                     <th className="px-4 py-2 text-left w-[150px]">Agents</th>
@@ -459,12 +475,13 @@ function AdminUsers() {
                   {users.map((item, index) => (
                     <tr
                       key={index}
-                      className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
-                        }`}
+                      className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${
+                        index % 2 == 0 ? 'bg-gray-100' : ''
+                      }`}
                       onClick={() => {
-                        console.log("Selected user on users screen", item);
-                        setSelectedUser(item);
-                        setShowUserDetails(true);
+                        console.log('Selected user on users screen', item)
+                        setSelectedUser(item)
+                        setShowUserDetails(true)
                       }}
                     >
                       <td className="px-4 py-2">
@@ -475,15 +492,15 @@ function AdminUsers() {
                               height={40}
                               width={40}
                               className="rounded-full object-cover"
-                              style={{ minWidth: "40px", minHeight: "40px" }} // Ensures consistency
+                              style={{ minWidth: '40px', minHeight: '40px' }} // Ensures consistency
                               alt="User"
                             />
                           ) : (
                             <div
                               className="w-[40px] h-[40px] rounded-full bg-black flex items-center justify-center text-white text-lg font-meduim uppercase"
-                              style={{ minWidth: "40px", minHeight: "40px" }}
+                              style={{ minWidth: '40px', minHeight: '40px' }}
                             >
-                              {item.name?.charAt(0) || "U"}
+                              {item.name?.charAt(0) || 'U'}
                             </div>
                           )}
                           <span className="whitespace-nowrap">{item.name}</span>
@@ -491,23 +508,27 @@ function AdminUsers() {
                       </td>
 
                       <td className="px-4 py-2">{item.email}</td>
-                      <td className="px-4 py-2">{item.leads || "0"}</td>
-                      <td className="px-4 py-2">{item.plan || "-"}</td>
-                      <td className="px-4 py-2">{item.team || "-"}</td>
-                      <td className="px-4 py-2  ">${item.totalSpent || "0"}</td>
+                      <td className="px-4 py-2">{item.leads || '0'}</td>
+                      <td className="px-4 py-2">{item.plan || '-'}</td>
+                      <td className="px-4 py-2">{item.team || '-'}</td>
+                      <td className="px-4 py-2  ">${item.totalSpent || '0'}</td>
                       <td className="px-4 py-2 w-[100px] whitespace-nowrap">
-                        {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} credits
+                        {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)}{' '}
+                        credits
                       </td>
                       <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
-                        {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}credits
+                        {parseFloat(
+                          (item.totalSecondsAvailable / 60).toFixed(2),
+                        )}{' '}
+                        credits
                       </td>
                       <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
                         {GetFormattedDateString(item.nextChargeDate)}
                       </td>
-                      <td className="px-4 py-2">{item.agents || "-"}</td>
-                      <td className="px-4 py-2">{item.campaignee || "-"}</td>
-                      <td className="px-4 py-2">{item.closerName || "-"}</td>
-                      <td className="px-4 py-2">{item.uniqueUrl || "-"}</td>
+                      <td className="px-4 py-2">{item.agents || '-'}</td>
+                      <td className="px-4 py-2">{item.campaignee || '-'}</td>
+                      <td className="px-4 py-2">{item.closerName || '-'}</td>
+                      <td className="px-4 py-2">{item.uniqueUrl || '-'}</td>
                       <td className="px-4 py-2">
                         {GetFormattedDateString(item.createdAt)}
                       </td>
@@ -517,7 +538,7 @@ function AdminUsers() {
               </table>
             </div>
           </InfiniteScroll>
-        }
+        )}
       </div>
       {/* {selectedUser && (
         <SelectedUserDetails
@@ -532,87 +553,81 @@ function AdminUsers() {
       <Modal
         open={selectedUser ? true : false}
         onClose={() => {
-          setSelectedUser(null);
+          setSelectedUser(null)
         }}
         BackdropProps={{
           timeout: 200,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             zIndex: 1200, // Keep backdrop below Drawer
           },
         }}
         sx={{
           zIndex: 1300, // Keep Modal below the Drawer
         }}
-
       >
         <Box
           className="w-11/12  p-8 rounded-[15px]"
           sx={{
             ...styles.modalsStyle,
-            backgroundColor: "white",
-            position: "relative",
+            backgroundColor: 'white',
+            position: 'relative',
             zIndex: 1301, // Keep modal content above its backdrop
           }}
-
         >
           <SelectedUserDetails
             selectedUser={selectedUser}
             handleDel={() => {
-              setUsers((prev) => prev.filter((u) =>
-                u.id != selectedUser.id
-              ));
-              setSelectedUser(null);
+              setUsers((prev) => prev.filter((u) => u.id != selectedUser.id))
+              setSelectedUser(null)
             }}
             handlePauseUser={(d) => {
-              console.log("User paused");
+              console.log('User paused')
 
-              const updatedStatus = selectedUser.profile_status === "active" ? "paused" : "active";
+              const updatedStatus =
+                selectedUser.profile_status === 'active' ? 'paused' : 'active'
 
               const updatedUser = {
                 ...selectedUser,
-                profile_status: updatedStatus
-              };
+                profile_status: updatedStatus,
+              }
 
               // ✅ Update the user in the list
               setUsers((prev) =>
-                prev.map((u) =>
-                  u.id === updatedUser.id ? updatedUser : u
-                )
-              );
+                prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)),
+              )
 
               // ✅ Re-send updated user to child
-              setSelectedUser(updatedUser);
+              setSelectedUser(updatedUser)
             }}
             handleClose={() => {
-              setSelectedUser(null);
+              setSelectedUser(null)
             }}
 
-          // handlePauseUser={(d) => {
-          //   console.log("User paused");
-          //   if (selectedUser.profile_status === "active") {
-          //     setUsers((prev) =>
-          //       prev.map((u) =>
-          //         u.id === selectedUser.id
-          //           ? { ...u, profile_status: "paused" }
-          //           : u
-          //       )
-          //     );
-          //   } else if (selectedUser.profile_status === "paused") {
-          //     setUsers((prev) =>
-          //       prev.map((u) =>
-          //         u.id === selectedUser.id
-          //           ? { ...u, profile_status: "active" }
-          //           : u
-          //       )
-          //     );
-          //   }
-          //   setSelectedUser(null);
-          // }}
+            // handlePauseUser={(d) => {
+            //   console.log("User paused");
+            //   if (selectedUser.profile_status === "active") {
+            //     setUsers((prev) =>
+            //       prev.map((u) =>
+            //         u.id === selectedUser.id
+            //           ? { ...u, profile_status: "paused" }
+            //           : u
+            //       )
+            //     );
+            //   } else if (selectedUser.profile_status === "paused") {
+            //     setUsers((prev) =>
+            //       prev.map((u) =>
+            //         u.id === selectedUser.id
+            //           ? { ...u, profile_status: "active" }
+            //           : u
+            //       )
+            //     );
+            //   }
+            //   setSelectedUser(null);
+            // }}
           />
         </Box>
       </Modal>
-
 
       {/* User Activity Logs Modal */}
       <UserActivityLogs
@@ -622,21 +637,21 @@ function AdminUsers() {
         userName={selectedUser?.name}
       />
     </div>
-  );
+  )
 }
 
-export default AdminUsers;
+export default AdminUsers
 
 const styles = {
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
 }

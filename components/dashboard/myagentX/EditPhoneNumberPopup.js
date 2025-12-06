@@ -1,13 +1,15 @@
-import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
-import { CircularProgress, Modal, Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import PhoneInput from "react-phone-input-2";
-import Image from "next/image";
-import parsePhoneNumberFromString from "libphonenumber-js";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import parsePhoneNumberFromString from 'libphonenumber-js'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService'
+
 export const EditPhoneNumberModal = ({
-  title = "Call Back Number",
-  number = "",
+  title = 'Call Back Number',
+  number = '',
   open,
   close,
   loading,
@@ -15,22 +17,22 @@ export const EditPhoneNumberModal = ({
 }) => {
   // //console.log;
 
-  const [errorMessage, setErrorMessage] = useState("");
-  const [countryCode, setCountryCode] = useState("");
-  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [locationLoader, setLocationLoader] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('')
+  const [countryCode, setCountryCode] = useState('')
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [userPhoneNumber, setUserPhoneNumber] = useState('')
+  const [locationLoader, setLocationLoader] = useState(false)
 
   useEffect(() => {
-    setUserPhoneNumber(number || "");
-  }, [number]);
+    setUserPhoneNumber(number || '')
+  }, [number])
 
   //getlocation
   useEffect(() => {
-    let loc = getLocalLocation();
-    setCountryCode(loc);
-  }, []);
+    let loc = getLocalLocation()
+    setCountryCode(loc)
+  }, [])
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -38,29 +40,29 @@ export const EditPhoneNumberModal = ({
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
-    console.log("Parsed number is", parsedNumber);
-    if(!parsedNumber){
-      setErrorMessage("");
+      countryCode?.toUpperCase(),
+    )
+    console.log('Parsed number is', parsedNumber)
+    if (!parsedNumber) {
+      setErrorMessage('')
       return
     }
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
     }
-  };
+  }
   // Handle phone number change and validation
   const handlePhoneNumberChange = (phone) => {
-    setUserPhoneNumber(phone);
-    validatePhoneNumber(phone);
+    setUserPhoneNumber(phone)
+    validatePhoneNumber(phone)
 
     if (!phone) {
-      setErrorMessage("");
+      setErrorMessage('')
     }
-  };
+  }
   return (
     <Modal
       open={open != null}
@@ -68,77 +70,77 @@ export const EditPhoneNumberModal = ({
       BackdropProps={{
         timeout: 100,
         sx: {
-          backgroundColor: "#00000020",
+          backgroundColor: '#00000020',
           // //backdropFilter: "blur(20px)",
         },
       }}
     >
       <Box
         className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-4/12 p-8 rounded-[15px]"
-        sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
       >
         <div className="w-full flex flex-row items-center justify-between">
           <div className="w-10"></div>
-         <CloseBtn onClick={close}/>
+          <CloseBtn onClick={close} />
         </div>
 
         <div
           style={{
             fontSize: 22,
-            fontWeight: "700",
-            textAlign: "center",
-            color: "#151515",
+            fontWeight: '700',
+            textAlign: 'center',
+            color: '#151515',
           }}
         >
           {title}
         </div>
 
         <div className="w-full flex flex-col items-start gap-3">
-          <div style={{ fontSize: 16, fontWeight: "500", marginTop: 30 }}>
+          <div style={{ fontSize: 16, fontWeight: '500', marginTop: 30 }}>
             Number
           </div>
 
           <div className="w-full">
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
-              country={"us"} // restrict to US only
-              onlyCountries={["us", "mx", "ca"]}
+              country={'us'} // restrict to US only
+              onlyCountries={['us', 'mx']}
               disableDropdown={true}
               countryCodeEditable={false}
               disableCountryCode={false}
               value={userPhoneNumber}
               onChange={handlePhoneNumberChange}
               placeholder={
-                locationLoader ? "Loading location ..." : "Enter Phone Number"
+                locationLoader ? 'Loading location ...' : 'Enter Phone Number'
               }
               disabled={loading}
               style={{
-                borderRadius: "7px",
-                outline: "none", // Ensure no outline on wrapper
-                boxShadow: "none", // Remove any shadow
-                borderWidth: "1px",
+                borderRadius: '7px',
+                outline: 'none', // Ensure no outline on wrapper
+                boxShadow: 'none', // Remove any shadow
+                borderWidth: '1px',
               }}
               inputStyle={{
-                width: "100%",
-                borderWidth: "0px",
-                backgroundColor: "transparent",
-                paddingLeft: "60px",
-                paddingTop: "12px",
-                paddingBottom: "12px",
-                height: "50px",
-                outline: "none", // Remove outline on input
-                boxShadow: "none", // Remove shadow as well
+                width: '100%',
+                borderWidth: '0px',
+                backgroundColor: 'transparent',
+                paddingLeft: '60px',
+                paddingTop: '12px',
+                paddingBottom: '12px',
+                height: '50px',
+                outline: 'none', // Remove outline on input
+                boxShadow: 'none', // Remove shadow as well
               }}
               buttonStyle={{
-                border: "none",
-                backgroundColor: "transparent",
-                outline: "none", // Ensure no outline on button
+                border: 'none',
+                backgroundColor: 'transparent',
+                outline: 'none', // Ensure no outline on button
               }}
               dropdownStyle={{
-                maxHeight: "150px",
-                overflowY: "auto",
+                maxHeight: '150px',
+                overflowY: 'auto',
               }}
-              defaultMask={locationLoader ? "Loading..." : undefined}
+              defaultMask={locationLoader ? 'Loading...' : undefined}
             />
           </div>
           <div className="mt-2 text-sm font-medium text-red">
@@ -151,16 +153,16 @@ export const EditPhoneNumberModal = ({
             </div>
           ) : (
             <button
-              className={`w-full outline-none bg-purple h-[52px] rounded-lg ${errorMessage ? "bg-[#E0E0E0] text-black":"bg-purple text-white"}`}
+              className={`w-full outline-none bg-brand-primary h-[52px] rounded-lg ${errorMessage ? 'bg-[#E0E0E0] text-black' : 'bg-brand-primary text-white'}`}
               disabled={errorMessage}
               onClick={() => {
                 if (!errorMessage) {
-                  console.log("Phone number passing is", userPhoneNumber.length);
-                  if(userPhoneNumber.length > 2){
-                    update(userPhoneNumber);
-                  }else{
-                    let emptyPhone = "";
-                    update(emptyPhone);
+                  console.log('Phone number passing is', userPhoneNumber.length)
+                  if (userPhoneNumber.length > 2) {
+                    update(userPhoneNumber)
+                  } else {
+                    let emptyPhone = ''
+                    update(emptyPhone)
                   }
                 }
               }}
@@ -171,18 +173,18 @@ export const EditPhoneNumberModal = ({
         </div>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 const styles = {
   modalsStyle: {
-    height: "auto",
-    bgcolor: "transparent",
+    height: 'auto',
+    bgcolor: 'transparent',
     p: 2,
-    mx: "auto",
-    my: "50vh",
-    transform: "translateY(-50%)",
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-50%)',
     borderRadius: 2,
-    border: "none",
-    outline: "none",
+    border: 'none',
+    outline: 'none',
   },
-};
+}

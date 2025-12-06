@@ -1,13 +1,14 @@
 export const metadata = {
   title: 'Support Widget',
   viewport: 'width=device-width, initial-scale=1',
-};
+}
 
 export default function EmbedLayout({ children }) {
   return (
     <>
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           body {
             margin: 0 !important;
             padding: 0 !important;
@@ -18,9 +19,10 @@ export default function EmbedLayout({ children }) {
           * {
             box-sizing: border-box !important;
           }
-        `
-      }} />
+        `,
+        }}
+      />
       {children}
     </>
-  );
+  )
 }

@@ -1,74 +1,80 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
-import Apis from "../apis/Apis";
-import axios from "axios";
-import { Box, CircularProgress, Modal, Popover, Tooltip } from "@mui/material";
-import LoaderAnimation from "../animations/LoaderAnimation";
-// Removed Google Maps imports for simple string input
-import VideoCard from "./VideoCard";
-import IntroVideoModal from "./IntroVideoModal";
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import { Input } from '@/components/ui/input'
+import {
+  HowToVideoTypes,
+  HowtoVideos,
+  PersistanceKeys,
+} from '@/constants/Constants'
+import UnlockAgentModal from '@/constants/UnlockAgentModal'
+import { UserTypes } from '@/constants/UserTypes'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+
+import { useUser } from '../../hooks/redux-hooks'
+import { usePlanCapabilities } from '../../hooks/use-plan-capabilities'
+import LoaderAnimation from '../animations/LoaderAnimation'
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
+import MoreAgentsPopup from '../dashboard/MoreAgentsPopup'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { HowtoVideos, PersistanceKeys, HowToVideoTypes } from "@/constants/Constants";
-import { getVideoUrlByType, getTutorialByType } from "@/utils/tutorialVideos";
-import { UserTypes } from "@/constants/UserTypes";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
-import UpgradePlan from "../userPlans/UpgradePlan";
-import UnlockAgentModal from "@/constants/UnlockAgentModal";
-import MoreAgentsPopup from "../dashboard/MoreAgentsPopup";
-import { useUser } from "../../hooks/redux-hooks";
-import { usePlanCapabilities } from "../../hooks/use-plan-capabilities";
-import getProfileDetails from "../apis/GetProfile";
-import { isPlanActive } from "../userPlans/UserPlanServices";
-import { Input } from "@/components/ui/input"
-
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import UpgradePlan from '../userPlans/UpgradePlan'
+import { isPlanActive } from '../userPlans/UserPlanServices'
+import IntroVideoModal from './IntroVideoModal'
+// Removed Google Maps imports for simple string input
+import VideoCard from './VideoCard'
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
-  const router = useRouter();
-  const bottomRef = useRef();
-  const [loaderModal, setLoaderModal] = useState(false);
-  const [shouldContinue, setShouldContinue] = useState(true);
-  const [toggleClick, setToggleClick] = useState(false);
-  const [OutBoundCalls, setOutBoundCalls] = useState(false);
-  const [InBoundCalls, setInBoundCalls] = useState(false);
-  const [buildAgentLoader, setBuildAgentLoader] = useState(false);
-  const [agentObjective, setAgentObjective] = useState(null);
+  const router = useRouter()
+  const bottomRef = useRef()
+  const [loaderModal, setLoaderModal] = useState(false)
+  const [shouldContinue, setShouldContinue] = useState(true)
+  const [toggleClick, setToggleClick] = useState(false)
+  const [OutBoundCalls, setOutBoundCalls] = useState(false)
+  const [InBoundCalls, setInBoundCalls] = useState(false)
+  const [buildAgentLoader, setBuildAgentLoader] = useState(false)
+  const [agentObjective, setAgentObjective] = useState(null)
 
-  const [agentName, setAgentName] = useState("");
-  const [agentRole, setAgentRole] = useState("");
+  const [agentName, setAgentName] = useState('')
+  const [agentRole, setAgentRole] = useState('')
 
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
   //variable for video card
-  const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [introVideoModal, setIntroVideoModal] = useState(false)
 
   //sbakc message when agent builded
-  const [snackMessage, setSnackMessage] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
-  const [msgType, setMsgType] = useState(null);
+  const [snackMessage, setSnackMessage] = useState('')
+  const [isVisible, setIsVisible] = useState(false)
+  const [msgType, setMsgType] = useState(null)
 
   //other status
-  const [showSomtthingElse, setShowSomtthingElse] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(null);
-  const [otherStatus, setOtherStatus] = useState("");
+  const [showSomtthingElse, setShowSomtthingElse] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState(null)
+  const [otherStatus, setOtherStatus] = useState('')
   //get address
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState('')
 
-  const bottomToAddress = useRef(null); // Ref for scrolling
-  const [addressSelected, setAddressSelected] = useState(null);
+  const bottomToAddress = useRef(null) // Ref for scrolling
+  const [addressSelected, setAddressSelected] = useState(null)
 
   //code for address input (simple string)
-  const [addressValue, setAddressValue] = useState("");
+  const [addressValue, setAddressValue] = useState('')
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null)
+  const [isSubaccount, setIsSubaccount] = useState(false)
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
@@ -79,226 +85,244 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [hasAgreedToExtraCost, setHasAgreedToExtraCost] = useState(false) // Track if user agreed to pay extra
 
   // Redux state
-  const { user: reduxUser, setUser: setReduxUser } = useUser();
-  const { canCreateAgent, isFreePlan, currentAgents, maxAgents } = usePlanCapabilities();
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+  const { canCreateAgent, isFreePlan, currentAgents, maxAgents } =
+    usePlanCapabilities()
 
   // Removed address picker modal - no longer needed
 
   useEffect(() => {
-    refreshUserData();
+    refreshUserData()
     getSelectedUser()
+    // Check if user is subaccount
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          setIsSubaccount(
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+              parsedUser?.userRole === 'AgencySubAccount',
+          )
+        }
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
   }, [])
 
-
   const getSelectedUser = () => {
-    let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-    console.log("selected user in localstorage is", U)
+    let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    console.log('selected user in localstorage is', U)
     if (U) {
-      console.log("found selected user")
+      console.log('found selected user')
       setSelectedUser(JSON.parse(U))
     } else {
-      console.log("slected user not found")
+      console.log('slected user not found')
     }
   }
 
   useEffect(() => {
-    setAddress(address?.label);
-  }, [addressSelected]);
+    setAddress(address?.label)
+  }, [addressSelected])
 
   useEffect(() => {
-    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (userData) {
-      let d = JSON.parse(userData);
-      setUser(d);
+      let d = JSON.parse(userData)
+      setUser(d)
     }
   }, [])
   // const [scollAddress, setScollAddress] = useState("");
   //// //console.log;
 
   //other objective
-  const [showOtherObjective, setShowOtherObjective] = useState(false);
-  const [otherObjVal, setOtherObjVal] = useState("");
+  const [showOtherObjective, setShowOtherObjective] = useState(false)
+  const [otherObjVal, setOtherObjVal] = useState('')
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-
-
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const open = Boolean(anchorEl)
 
   const handlePopoverOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   //auto move to the bottom
   useEffect(() => {
-    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (userData) {
-      let d = JSON.parse(userData);
-      setUser(d);
+      let d = JSON.parse(userData)
+      setUser(d)
     }
     if (showOtherObjective && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [showOtherObjective]);
+  }, [showOtherObjective])
 
   useEffect(() => {
     if (
       OutBoundCalls ||
       (InBoundCalls === true && agentName && agentRole && toggleClick)
     ) {
-      setShouldContinue(false);
+      setShouldContinue(false)
       // //console.log;
     } else if (
       !OutBoundCalls ||
       (!InBoundCalls === true && !agentName && !agentRole && !toggleClick)
     ) {
-      setShouldContinue(true);
+      setShouldContinue(true)
       // //console.log;
     }
-  }, [agentName, agentRole, agentObjective, otherObjVal]);
+  }, [agentName, agentRole, agentObjective, otherObjVal])
 
   const handleToggleClick = (item) => {
-    setAgentObjective(item);
-    setToggleClick(item.id);
+    setAgentObjective(item)
+    setToggleClick(item.id)
     // setToggleClick(prevId => (prevId === item.id ? null : item.id));
 
     if (item.id === 3) {
-      setShowModal(true);
+      setShowModal(true)
     }
     if (item.id === 100) {
       // //console.log;
       // if (bottomRef.current) {
       //     bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       // }
-      setShowOtherObjective(true);
+      setShowOtherObjective(true)
     } else {
-      setShowOtherObjective("");
-      setOtherObjVal("");
+      setShowOtherObjective('')
+      setOtherObjVal('')
     }
-  };
+  }
 
   const AgentObjective = [
     {
       id: 1,
-      icon: "",
-      title: "Absentee Owners",
+      icon: '',
+      title: 'Absentee Owners',
       details:
-        "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
-      focusIcn: "/svgIcons/obj1F.svg",
-      unFocusIcon: "/objectiveIcons/obj1UF.png",
+        'Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.',
+      focusIcn: '/svgIcons/obj1F.svg',
+      unFocusIcon: '/objectiveIcons/obj1UF.png',
     },
     {
       id: 2,
-      icon: "",
-      title: "Circle Prospecting",
+      icon: '',
+      title: 'Circle Prospecting',
       details:
-        "Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.",
-      focusIcn: "/svgIcons/obj2F.svg",
-      unFocusIcon: "/objectiveIcons/obj2UF.png",
+        'Call homeowners in a specific farm to inform them about recent property activities, and gauge their interest in selling or buying.',
+      focusIcn: '/svgIcons/obj2F.svg',
+      unFocusIcon: '/objectiveIcons/obj2UF.png',
     },
     {
       id: 3,
-      icon: "",
-      title: "Community Update",
+      icon: '',
+      title: 'Community Update',
       details:
-        "Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ",
-      focusIcn: "/svgIcons/obj3F.svg",
-      unFocusIcon: "/objectiveIcons/obj3UF.png",
+        'Provide local homeowners with relevant updates on a property like just listed, just sold, in escrow or something else. ',
+      focusIcn: '/svgIcons/obj3F.svg',
+      unFocusIcon: '/objectiveIcons/obj3UF.png',
     },
     {
       id: 4,
-      icon: "",
-      title: "Lead Reactivation",
+      icon: '',
+      title: 'Lead Reactivation',
       details:
-        "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
-      focusIcn: "/svgIcons/obj3F.svg",
-      unFocusIcon: "/objectiveIcons/obj3UF.png",
+        'Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.',
+      focusIcn: '/svgIcons/obj3F.svg',
+      unFocusIcon: '/objectiveIcons/obj3UF.png',
     },
     {
       id: 5,
-      icon: "",
-      title: "Recruiting Agent",
+      icon: '',
+      title: 'Recruiting Agent',
       details:
-        "Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.",
-      focusIcn: "/svgIcons/obj5RAF.svg",
-      unFocusIcon: "/svgIcons/obj5RAU.svg",
+        'Identify, engage, and attract potential real estate agents to expand your team with top talent. Recruit new agents to your team.',
+      focusIcn: '/svgIcons/obj5RAF.svg',
+      unFocusIcon: '/svgIcons/obj5RAU.svg',
     },
     {
       id: 7,
-      icon: "",
-      title: "Receptionist",
+      icon: '',
+      title: 'Receptionist',
       details:
-        "Greet clients, manage appointments, and ensure smooth office operations. Provide front-desk support for incoming calls.",
-      focusIcn: "/svgIcons/reciptionistFC.svg",
-      unFocusIcon: "/svgIcons/reciptionistUFC.svg",
+        'Greet clients, manage appointments, and ensure smooth office operations. Provide front-desk support for incoming calls.',
+      focusIcn: '/svgIcons/reciptionistFC.svg',
+      unFocusIcon: '/svgIcons/reciptionistUFC.svg',
     },
     {
       id: 6,
-      icon: "",
-      title: "Expired Listing",
+      icon: '',
+      title: 'Expired Listing',
       details:
-        "Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.",
-      focusIcn: "/svgIcons/obj6FOCUS.svg",
-      unFocusIcon: "/svgIcons/obj6ELU.svg",
+        'Connect with homeowners whose listings have expired to understand their needs and offer solutions. Help relist their property and guide them toward a successful sale.',
+      focusIcn: '/svgIcons/obj6FOCUS.svg',
+      unFocusIcon: '/svgIcons/obj6ELU.svg',
     },
     {
       id: 8,
-      icon: "",
-      title: "Speed to Lead",
+      icon: '',
+      title: 'Speed to Lead',
       details:
-        "Instantly engage new leads from Zillow, Realtor.com, Facebook ads, and more the moment they enter your CRM to maximize conversion chances.",
-      focusIcn: "/svgIcons/obj5RAF.svg",
-      unFocusIcon: "/objectiveIcons/obj5UF.png",
+        'Instantly engage new leads from Zillow, Realtor.com, Facebook ads, and more the moment they enter your CRM to maximize conversion chances.',
+      focusIcn: '/svgIcons/obj5RAF.svg',
+      unFocusIcon: '/objectiveIcons/obj5UF.png',
     },
     {
       id: 9,
-      icon: "",
-      title: "FSBO (For Sale By Owner)",
+      icon: '',
+      title: 'FSBO (For Sale By Owner)',
       details:
-        "Connect with homeowners trying to sell on their own, offering professional guidance and solutions to help them successfully close.",
-      focusIcn: "/svgIcons/obj2F.svg",
-      unFocusIcon: "/objectiveIcons/obj2UF.png",
+        'Connect with homeowners trying to sell on their own, offering professional guidance and solutions to help them successfully close.',
+      focusIcn: '/svgIcons/obj2F.svg',
+      unFocusIcon: '/objectiveIcons/obj2UF.png',
     },
     {
       id: 10,
-      icon: "",
-      title: "Probate",
+      icon: '',
+      title: 'Probate',
       details:
-        "Reach out to property heirs navigating probate, providing support and options for handling inherited real estate during a difficult time.",
-      focusIcn: "/svgIcons/obj1F.svg",
-      unFocusIcon: "/objectiveIcons/obj1UF.png",
+        'Reach out to property heirs navigating probate, providing support and options for handling inherited real estate during a difficult time.',
+      focusIcn: '/svgIcons/obj1F.svg',
+      unFocusIcon: '/objectiveIcons/obj1UF.png',
     },
     {
       id: 100,
-      icon: "",
-      title: "Something Else",
-      details: "",
-      focusIcn: "/svgIcons/obj6F.svg",
-      unFocusIcon: "/objectiveIcons/obj6UF.png",
+      icon: '',
+      title: 'Something Else',
+      details: '',
+      focusIcn: '/svgIcons/obj6F.svg',
+      unFocusIcon: '/objectiveIcons/obj6UF.png',
     },
-  ];
+  ]
 
   function canShowObjectives() {
-    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-    let FromAdminOrAgency = null;
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    let FromAdminOrAgency = null
     if (U) {
-      const Data = JSON.parse(U);
-      FromAdminOrAgency = Data.subAccountData;
+      const Data = JSON.parse(U)
+      FromAdminOrAgency = Data.subAccountData
     }
     // console.log("U_Ser type is", FromAdminOrAgency);
-    if ((FromAdminOrAgency && FromAdminOrAgency?.userType && FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) || (user && user.user.userType == UserTypes.RealEstateAgent)) {
-      return true;
+    if (
+      (FromAdminOrAgency &&
+        FromAdminOrAgency?.userType &&
+        FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) ||
+      (user && user.user.userType == UserTypes.RealEstateAgent)
+    ) {
+      return true
     } else {
-      return false;
+      return false
     }
   }
 
   function canContinue() {
     if (!user) {
-      return false;
+      return false
     }
     // console.log("Details ", {
     //   agentName,
@@ -314,106 +338,126 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         agentObjective &&
         (InBoundCalls || OutBoundCalls)
       ) {
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
     } else {
       if (agentName && agentRole && (InBoundCalls || OutBoundCalls)) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   }
 
   //code for selecting inbound calls
   const handleInboundCallClick = () => {
-    const newInboundState = !InBoundCalls;
+    const newInboundState = !InBoundCalls
 
     // Always allow toggling OFF
     if (!newInboundState) {
-      setInBoundCalls(false);
-      setPendingAgentSelection(null);
-      return;
+      setInBoundCalls(false)
+      setPendingAgentSelection(null)
+      return
     }
 
     // Check limits when toggling ON
-    const limitResult = checkAgentLimits('inbound', newInboundState, OutBoundCalls);
-    console.log("limitResult is", limitResult)
+    const limitResult = checkAgentLimits(
+      'inbound',
+      newInboundState,
+      OutBoundCalls,
+    )
+    console.log('limitResult is', limitResult)
     if (limitResult.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
         type: 'inbound',
         inbound: newInboundState,
-        outbound: OutBoundCalls
-      });
-      return; // Don't toggle the state, just show the modal
+        outbound: OutBoundCalls,
+      })
+      return // Don't toggle the state, just show the modal
     } else {
-      setInBoundCalls(true);
+      setInBoundCalls(true)
     }
-  };
+  }
 
   //code for selecting outbound calls
   const handleOutBoundCallClick = () => {
-    const newOutboundState = !OutBoundCalls;
+    const newOutboundState = !OutBoundCalls
 
     // Always allow toggling OFF
     if (!newOutboundState) {
-      setOutBoundCalls(false);
-      setPendingAgentSelection(null);
-      return;
+      setOutBoundCalls(false)
+      setPendingAgentSelection(null)
+      return
     }
 
     // Check limits when toggling ON
-    const limitResult = checkAgentLimits('outbound', InBoundCalls, newOutboundState);
-    console.log("limitResult is", limitResult)
+    const limitResult = checkAgentLimits(
+      'outbound',
+      InBoundCalls,
+      newOutboundState,
+    )
+    console.log('limitResult is', limitResult)
     if (limitResult?.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
         type: 'outbound',
         inbound: InBoundCalls,
-        outbound: newOutboundState
-      });
-      return; // Don't toggle the state, just show the modal
+        outbound: newOutboundState,
+      })
+      return // Don't toggle the state, just show the modal
     } else {
-      setOutBoundCalls(true);
+      setOutBoundCalls(true)
     }
-  };
+  }
 
   // Comprehensive plan checking logic
   const checkAgentLimits = (agentType, wouldHaveInbound, wouldHaveOutbound) => {
-    console.log('🔍 [CREATE-AGENT] Checking agent limits');
-    console.log("Redux user", reduxUser)
+    console.log('🔍 [CREATE-AGENT] Checking agent limits')
+    console.log('Redux user', reduxUser)
 
     // Use Redux as primary source, localStorage as fallback
-    const planData = reduxUser?.planCapabilities ? {
-      isFreePlan: isFreePlan,
-      currentAgents: currentAgents,
-      maxAgents: maxAgents,
-      costPerAdditionalAgent: reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
-    } : {
-      isFreePlan: (() => {
-        const planType = user?.user?.plan?.type?.toLowerCase();
-        if (planType?.includes('free')) return true;
-        if (user?.user?.planCapabilities?.maxAgents > 1) return false;
-        return user?.user?.plan === null || user?.user?.plan?.price === 0;
-      })(),
-      currentAgents: user?.user?.currentUsage?.maxAgents || 0,
-      maxAgents: user?.user?.planCapabilities?.maxAgents || 1,
-      costPerAdditionalAgent: user?.user?.planCapabilities?.costPerAdditionalAgent || 10
-    };
+    const planData = reduxUser?.planCapabilities
+      ? {
+          isFreePlan: isFreePlan,
+          currentAgents: currentAgents,
+          maxAgents: maxAgents,
+          costPerAdditionalAgent:
+            reduxUser?.planCapabilities?.costPerAdditionalAgent || 10,
+        }
+      : {
+          isFreePlan: (() => {
+            const planType = user?.user?.plan?.type?.toLowerCase()
+            if (planType?.includes('free')) return true
+            if (user?.user?.planCapabilities?.maxAgents > 1) return false
+            return user?.user?.plan === null || user?.user?.plan?.price === 0
+          })(),
+          currentAgents: user?.user?.currentUsage?.maxAgents || 0,
+          maxAgents: user?.user?.planCapabilities?.maxAgents || 1,
+          costPerAdditionalAgent:
+            user?.user?.planCapabilities?.costPerAdditionalAgent || 10,
+        }
 
-    console.log("Plan data is", planData)
+    console.log('Plan data is', planData)
 
     // Calculate agents that would be created
-    let agentsToCreate = 0;
-    if (wouldHaveInbound) agentsToCreate++;
-    if (wouldHaveOutbound) agentsToCreate++;
+    let agentsToCreate = 0
+    if (wouldHaveInbound) agentsToCreate++
+    if (wouldHaveOutbound) agentsToCreate++
 
     // check if user already view pay per month window from agents page and agree it by clicking on the button
-    const isAlreadyViewedPayPerMonthWindow = localStorage.getItem("AddAgentByPayingPerMonth");
-    console.log("isAlreadyViewedPayPerMonthWindow is", isAlreadyViewedPayPerMonthWindow)
-    if (isAlreadyViewedPayPerMonthWindow != null && isAlreadyViewedPayPerMonthWindow?.status === true) {
+    const isAlreadyViewedPayPerMonthWindow = localStorage.getItem(
+      'AddAgentByPayingPerMonth',
+    )
+    console.log(
+      'isAlreadyViewedPayPerMonthWindow is',
+      isAlreadyViewedPayPerMonthWindow,
+    )
+    if (
+      isAlreadyViewedPayPerMonthWindow != null &&
+      isAlreadyViewedPayPerMonthWindow?.status === true
+    ) {
       return true
     }
 
@@ -451,18 +495,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       // console.log('🚫 [CREATE-AGENT] Paid plan user has reached limit');
       // if user is on free plan then show unlock modal
       if (planData.isFreePlan) {
-        setShowUnclockModal(true);
-        setModalDesc("The free plan only allows for 1 AI Agent.");
-        return { showModal: true };
+        setShowUnclockModal(true)
+        setModalDesc('The free plan only allows for 1 AI Agent.')
+        return { showModal: true }
       }
       // if user already view pay per month window from agents page then no need to show more agents modal
 
       if (isAlreadyViewedPayPerMonthWindow) {
-        console.log("no need to show more agents modal, user already view pay per month window from agents page")
+        console.log(
+          'no need to show more agents modal, user already view pay per month window from agents page',
+        )
         return { showModal: false }
       }
-      setShowMoreAgentsModal(true);
-      return { showModal: true };
+      setShowMoreAgentsModal(true)
+      return { showModal: true }
     }
 
     // Check if the selection would exceed the limit
@@ -470,305 +516,308 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       // console.log('🚫 [CREATE-AGENT] Selection would exceed limit');
       // if user is on free plan then show unlock modal
       if (planData.isFreePlan) {
-        setShowUnclockModal(true);
-        setModalDesc("The free plan only allows for 1 AI Agent.");
-        return { showModal: true };
+        setShowUnclockModal(true)
+        setModalDesc('The free plan only allows for 1 AI Agent.')
+        return { showModal: true }
       }
       // if user already view pay per month window from agents page then no need to show more agents modal
       if (isAlreadyViewedPayPerMonthWindow) {
         return
       }
-      setShowMoreAgentsModal(true);
-      return { showModal: true };
+      setShowMoreAgentsModal(true)
+      return { showModal: true }
     }
 
     // console.log('✅ [CREATE-AGENT] Selection allowed');
-    return { showModal: false };
-  };
+    return { showModal: false }
+  }
 
   // Function to apply the pending agent selection when user agrees to extra cost
   const applyPendingSelection = () => {
     if (pendingAgentSelection) {
       // console.log('💰 [CREATE-AGENT] Applying pending selection with extra cost');
-      setInBoundCalls(pendingAgentSelection.inbound);
-      setOutBoundCalls(pendingAgentSelection.outbound);
-      setHasAgreedToExtraCost(true);
-      setPendingAgentSelection(null);
+      setInBoundCalls(pendingAgentSelection.inbound)
+      setOutBoundCalls(pendingAgentSelection.outbound)
+      setHasAgreedToExtraCost(true)
+      setPendingAgentSelection(null)
     }
-  };
+  }
 
   useEffect(() => {
     //add interval here
-    console.log("reduxUser is", reduxUser)
-    let user = localStorage.getItem("User")
-    console.log("local user is", user)
+    console.log('reduxUser is', reduxUser)
+    let user = localStorage.getItem('User')
+    console.log('local user is', user)
   }, [reduxUser])
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED');
+    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...');
-      const profileResponse = await getProfileDetails();
-      console.log('🔄 getProfileDetails response:', profileResponse);
+      console.log('🔄 Calling getProfileDetails...')
+      const profileResponse = await getProfileDetails()
+      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
-        const freshUserData = profileResponse.data.data;
-        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        const freshUserData = profileResponse.data.data
+        const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
         // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
 
         // Update Redux and localStorage with fresh data
-        console.log("updating redux user", freshUserData)
+        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
-          user: freshUserData
-        };
+          user: freshUserData,
+        }
 
-        setReduxUser(updatedUserData);
+        setReduxUser(updatedUserData)
 
         // Update local state as well
-        setUser(updatedUserData);
+        setUser(updatedUserData)
 
-        return true;
+        return true
       }
-      return false;
+      return false
     } catch (error) {
-      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
-      return false;
+      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error)
+      return false
     }
-  };
-
+  }
 
   //code for creating agent api
   const handleBuildAgent = async () => {
-
     if (reduxUser?.plan && !isPlanActive(reduxUser?.plan)) {
-      setSnackMessage("Your plan is paused. Activate to create agents")
+      setSnackMessage('Your plan is paused. Activate to create agents')
       setIsVisible(true)
       setMsgType(SnackbarTypes.Error)
       return
     }
     // return
     try {
-      setBuildAgentLoader(true);
-      setLoaderModal(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      let LocalDetails = null;
+      setBuildAgentLoader(true)
+      setLoaderModal(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      let LocalDetails = null
       if (localData) {
-        const UserDetails = JSON.parse(localData);
+        const UserDetails = JSON.parse(localData)
         // //console.log;
-        AuthToken = UserDetails.token;
-        LocalDetails = UserDetails;
+        AuthToken = UserDetails.token
+        LocalDetails = UserDetails
       }
       // return
       // //console.log;
-      const ApiPath = Apis.buildAgent;
+      const ApiPath = Apis.buildAgent
       // //console.log;
-      const formData = new FormData();
+      const formData = new FormData()
 
       //code for sending the user  id if from agency subaccount flow
-      let userId = null;
+      let userId = null
 
       if (selectedUser && selectedUser?.subAccountData?.id) {
-
-        console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
-        userId = selectedUser.subAccountData.id;
+        console.log(
+          'Subaccount data recieved on createagent_1 screen is',
+          selectedUser,
+        )
+        userId = selectedUser.subAccountData.id
       }
 
       if (userId) {
-        console.log("User id to create new agent is", userId);
-        formData.append("userId", userId);
+        console.log('User id to create new agent is', userId)
+        formData.append('userId', userId)
       }
 
-      formData.append("name", agentName);
-      formData.append("agentRole", agentRole);
-      let agentType = null;
+      formData.append('name', agentName)
+      formData.append('agentRole', agentRole)
+      let agentType = null
       if (InBoundCalls && OutBoundCalls) {
-        agentType = "both";
+        agentType = 'both'
       } else if (InBoundCalls) {
-        agentType = "inbound";
+        agentType = 'inbound'
       } else if (OutBoundCalls) {
-        agentType = "outbound";
+        agentType = 'outbound'
       }
-      formData.append("agentType", agentType);
+      formData.append('agentType', agentType)
 
       // Include extra cost agreement information if user agreed to pay additional
       if (hasAgreedToExtraCost) {
-        formData.append("hasAgreedToExtraCost", "true");
-        formData.append("extraCostAmount", reduxUser?.planCapabilities?.costPerAdditionalAgent ||
-          user?.user?.planCapabilities?.costPerAdditionalAgent ||
-          10);
+        formData.append('hasAgreedToExtraCost', 'true')
+        formData.append(
+          'extraCostAmount',
+          reduxUser?.planCapabilities?.costPerAdditionalAgent ||
+            user?.user?.planCapabilities?.costPerAdditionalAgent ||
+            10,
+        )
         // console.log('💰 [CREATE-AGENT] Including extra cost agreement in API call');
       }
 
       if (selectedStatus) {
         if (selectedStatus.id === 5) {
-          formData.append("status", otherStatus);
+          formData.append('status', otherStatus)
         } else {
-          formData.append("status", selectedStatus.title);
+          formData.append('status', selectedStatus.title)
         }
       } else {
       }
       // return;
       if (addressValue) {
-        formData.append("address", addressValue);
+        formData.append('address', addressValue)
       }
       if (!canShowObjectives()) {
         //if the user type is not real estate then we don't show objectives to user
-        formData.append("agentObjective", "others");
-        formData.append("agentObjectiveDescription", "");
-        formData.append("agentObjectiveId", 100);
+        formData.append('agentObjective', 'others')
+        formData.append('agentObjectiveDescription', '')
+        formData.append('agentObjectiveId', 100)
       } else if (agentObjective.id === 100) {
-        formData.append("agentObjective", "others");
-        formData.append("agentObjectiveDescription", otherObjVal);
-        formData.append("agentObjectiveId", 100);
+        formData.append('agentObjective', 'others')
+        formData.append('agentObjectiveDescription', otherObjVal)
+        formData.append('agentObjectiveId', 100)
       } else {
-        formData.append("agentObjective", agentObjective.title);
-        formData.append("agentObjectiveDescription", agentObjective.details);
-        formData.append("agentObjectiveId", agentObjective.id);
+        formData.append('agentObjective', agentObjective.title)
+        formData.append('agentObjectiveDescription', agentObjective.details)
+        formData.append('agentObjectiveId', agentObjective.id)
       }
 
       // //console.log;
       for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`)
       }
 
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: 'Bearer ' + AuthToken,
         },
-      });
+      })
 
       if (response) {
         // //console.log;
-        setIsVisible(true);
+        setIsVisible(true)
         if (response.data.status === true) {
-          console.log("Response of add new agent is", response.data);
-          setSnackMessage("Agent created successfully.");
-          setMsgType(SnackbarTypes.Success);
+          console.log('Response of add new agent is', response.data)
+          setSnackMessage('Agent created successfully.')
+          setMsgType(SnackbarTypes.Success)
           localStorage.setItem(
             PersistanceKeys.LocalSavedAgentDetails,
-            JSON.stringify(response.data.data)
-          );
+            JSON.stringify(response.data.data),
+          )
 
-          let AT = { agentType, agentName };
-          localStorage.setItem("agentType", JSON.stringify(AT));
+          let AT = { agentType, agentName }
+          localStorage.setItem('agentType', JSON.stringify(AT))
 
-          const L = localStorage.getItem("isFromCheckList");
+          const L = localStorage.getItem('isFromCheckList')
 
-          const localData = localStorage.getItem("User");
+          const localData = localStorage.getItem('User')
           if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.agentCreated = true;
-            localStorage.setItem("User", JSON.stringify(D));
+            let D = JSON.parse(localData)
+            D.user.checkList.checkList.agentCreated = true
+            localStorage.setItem('User', JSON.stringify(D))
           }
           window.dispatchEvent(
-            new CustomEvent("UpdateCheckList", { detail: { update: true } })
-          );
-          handleContinue();
+            new CustomEvent('UpdateCheckList', { detail: { update: true } }),
+          )
+          handleContinue()
           // }
         } else if (response.data.status === false) {
-          setSnackMessage("Agent creation failed!");
-          setMsgType(SnackbarTypes.Error);
-          setBuildAgentLoader(false);
+          setSnackMessage('Agent creation failed!')
+          setMsgType(SnackbarTypes.Error)
+          setBuildAgentLoader(false)
         }
       }
     } catch (error) {
       // console.error("Error occured in build agent api is: ----", error);
-      setLoaderModal(false);
-      setBuildAgentLoader(false);
+      setLoaderModal(false)
+      setBuildAgentLoader(false)
     } finally {
     }
-  };
+  }
 
   //code to select the status
   const handleSelectStatus = (item) => {
     if (item.id === 5) {
-      setShowSomtthingElse(true);
+      setShowSomtthingElse(true)
     } else {
-      setShowSomtthingElse(false);
+      setShowSomtthingElse(false)
     }
-    setSelectedStatus((prevId) => (prevId === item ? null : item));
-  };
+    setSelectedStatus((prevId) => (prevId === item ? null : item))
+  }
 
   // Removed Google Places service - using simple string input
 
   // Simple address input handler
   const handleAddressChange = (evt) => {
-    setAddressValue(evt.target.value);
-  };
+    setAddressValue(evt.target.value)
+  }
 
   const status = [
     {
       id: 1,
-      title: "Coming soon",
+      title: 'Coming soon',
     },
     {
       id: 2,
-      title: "Just sold",
+      title: 'Just sold',
     },
     {
       id: 3,
-      title: "Just listed",
+      title: 'Just listed',
     },
     {
       id: 4,
-      title: "In escrow",
+      title: 'In escrow',
     },
     {
       id: 5,
-      title: "Something else",
+      title: 'Something else',
     },
-  ];
+  ]
 
   const styles = {
     headingStyle: {
       fontSize: 14,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 13,
-      fontWeight: "400",
-      width: "95%",
+      fontWeight: '400',
+      width: '95%',
     },
     headingTitle: {
       fontSize: 13,
-      fontWeight: "700",
-      width: "95%",
+      fontWeight: '700',
+      width: '95%',
     },
     modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
     >
       <div
         className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
-        style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        style={{ scrollbarWidth: 'none', backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
           message={snackMessage}
           type={msgType}
           isVisible={isVisible}
           hide={() => {
-            setIsVisible(false);
-            setSnackMessage("");
-            setMsgType(null);
+            setIsVisible(false)
+            setSnackMessage('')
+            setMsgType(null)
           }}
         />
 
@@ -778,8 +827,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
-            videoTitle={getTutorialByType(HowToVideoTypes.GettingStarted)?.title || "Learn about getting started"}
-            videoUrl={getVideoUrlByType(HowToVideoTypes.GettingStarted) || HowtoVideos.GettingStarted}
+            videoTitle={
+              getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
+              'Learn about getting started'
+            }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.GettingStarted) ||
+              HowtoVideos.GettingStarted
+            }
           />
 
           {/* header */}
@@ -788,94 +843,106 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           </div>
           {/* Body */}
           <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
             style={{
-              position: "absolute",
+              position: 'absolute',
               // left: "18%",
               // translate: "-50%",
               // left: "14%",
-              top: "20%",
+              top: '20%',
               // backgroundColor: "red"
             }}
           >
             <VideoCard
               duration={(() => {
-                const tutorial = getTutorialByType(HowToVideoTypes.GettingStarted);
-                return tutorial?.description || "1:47";
+                const tutorial = getTutorialByType(
+                  HowToVideoTypes.GettingStarted,
+                )
+                return tutorial?.description || '1:47'
               })()}
               horizontal={false}
               playVideo={() => {
-                setIntroVideoModal(true);
+                setIntroVideoModal(true)
               }}
-              title={getTutorialByType(HowToVideoTypes.GettingStarted)?.title || "Learn about getting started"}
+              title={
+                getTutorialByType(HowToVideoTypes.GettingStarted)?.title ||
+                'Learn about getting started'
+              }
             />
           </div>
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <button
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: "center" }}
-            // onClick={handleContinue}
+              className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
+              style={{
+                textAlign: 'center',
+                marginTop: isSubaccount ? '-40px' : undefined,
+              }}
+              // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
             <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
               <div
                 className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
-                style={{ scrollbarWidth: "none" }}
+                style={{ scrollbarWidth: 'none' }}
               >
                 <div className="w-[95%] flex flex-row items-center justify-between">
                   <div
                     style={styles.headingStyle}
                     className="flex flex-row items-center gap-2"
-                  // onClick={handleContinue}
+                    // onClick={handleContinue}
                   >
                     {`What's this AI agent's name?`}
                     <div
-                      aria-owns={open ? "mouse-over-popover" : undefined}
+                      aria-owns={open ? 'mouse-over-popover' : undefined}
                       aria-haspopup="true"
                       onMouseEnter={handlePopoverOpen}
                       onMouseLeave={handlePopoverClose}
-                      style={{ cursor: "pointer" }}
+                      style={{ cursor: 'pointer' }}
                     >
                       <Image
-                        src={"/svgIcons/infoIcon.svg"}
+                        src={'/svgIcons/infoIcon.svg'}
                         height={20}
                         width={20}
                         alt="*"
+                        style={{ filter: 'brightness(0)' }}
                       />
                     </div>
                   </div>
-                  <div className="text-[12px] font-[400]" style={{
-                    color: '#00000060'
-                  }}>
+                  <div
+                    className="text-[12px] font-[400]"
+                    style={{
+                      color: '#00000060',
+                    }}
+                  >
                     {agentName.length}/40
                   </div>
                 </div>
                 {/* Info popover */}
                 <Popover
                   id="mouse-over-popover"
-                  sx={{ pointerEvents: "none" }}
+                  sx={{ pointerEvents: 'none' }}
                   open={open}
                   anchorEl={anchorEl}
                   anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
+                    vertical: 'top',
+                    horizontal: 'center',
                   }}
                   transformOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
+                    vertical: 'bottom',
+                    horizontal: 'center',
                   }}
                   onClose={handlePopoverClose}
                   disableRestoreFocus
                 >
                   <div className="flex flex-row items-center px-2 h-[40px] gap-2">
                     <Image
-                      src={"/svgIcons/infoIcon.svg"}
+                      src={'/svgIcons/infoIcon.svg'}
                       height={20}
                       width={20}
                       alt="*"
                     />
-                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                    <div style={{ fontWeight: '600', fontSize: 15 }}>
                       Your AI will identify itself by this name
                     </div>
                   </div>
@@ -883,12 +950,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <Input
                   value={agentName}
                   onChange={(e) => {
-                    setAgentName(e.target.value);
+                    setAgentName(e.target.value)
                   }}
                   className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                   style={{
                     ...styles.inputStyle,
-                    border: "1px solid #00000020",
+                    border: '1px solid #00000020',
                   }}
                   placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
                   autoComplete="off"
@@ -906,28 +973,30 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   <div
                     className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
                     style={{
-                      borderRadius: "23px",
+                      borderRadius: '23px',
                       border: OutBoundCalls
-                        ? "2px solid #7902DF"
-                        : "2px solid #00000010",
+                        ? '2px solid hsl(var(--brand-primary))'
+                        : '2px solid #00000010',
                     }}
                     onClick={handleOutBoundCallClick}
                   >
-                    {OutBoundCalls ? (
-                      <Image
-                        src={"/svgIcons/callOutFocus.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/assets/callOut.png"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                    <div
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: OutBoundCalls
+                          ? 'hsl(var(--brand-primary))'
+                          : '#000000',
+                        WebkitMaskImage: 'url(/assets/callOut.png)',
+                        maskImage: 'url(/assets/callOut.png)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
+                    />
                     <div
                       className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
                       style={{
@@ -942,28 +1011,30 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   <div
                     className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
                     style={{
-                      borderRadius: "23px",
+                      borderRadius: '23px',
                       border: InBoundCalls
-                        ? "2px solid #7902DF"
-                        : "2px solid #00000010",
+                        ? '2px solid hsl(var(--brand-primary))'
+                        : '2px solid #00000010',
                     }}
                     onClick={handleInboundCallClick}
                   >
-                    {InBoundCalls ? (
-                      <Image
-                        src={"/svgIcons/callInFocus.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/assets/callIn.png"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                    <div
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: InBoundCalls
+                          ? 'hsl(var(--brand-primary))'
+                          : '#000000',
+                        WebkitMaskImage: 'url(/assets/callIn.png)',
+                        maskImage: 'url(/assets/callIn.png)',
+                        WebkitMaskSize: 'contain',
+                        maskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskPosition: 'center',
+                      }}
+                    />
                     <div
                       className="text-start ms-2 sm:text-center sm:ms-0"
                       style={styles.inputStyle}
@@ -974,7 +1045,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 </div>
 
                 <div className="mt-1 text-[13px] text-gray-500 font-[500]">
-                 {`*Inbound and Outbound calls need to be handled by different agents.`}
+                  {`*Inbound and Outbound calls need to be handled by different agents.`}
                 </div>
 
                 <div className="mt-2" style={styles.headingStyle}>
@@ -989,11 +1060,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black transition-colors"
                   style={{
                     ...styles.inputStyle,
-                    border: "1px solid #00000020",
+                    border: '1px solid #00000020',
                   }}
                   value={agentRole}
                   onChange={(e) => {
-                    setAgentRole(e.target.value);
+                    setAgentRole(e.target.value)
                   }}
                 />
 
@@ -1019,13 +1090,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         <button
                           className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
                           onClick={() => {
-                            handleToggleClick(item);
+                            handleToggleClick(item)
                           }}
                           style={{
                             borderColor:
-                              item.id === toggleClick ? "#7902DF" : "",
+                              item.id === toggleClick ? 'hsl(var(--brand-primary))' : '',
                             backgroundColor:
-                              item.id === toggleClick ? "#402FFF10 " : "",
+                              item.id === toggleClick ? 'hsl(var(--brand-primary) / 0.1)' : '',
                           }}
                         >
                           {item.id === toggleClick ? (
@@ -1048,7 +1119,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           </div>
                           <div
                             className="mt-4"
-                            style={{ fontSize: 11, fontWeight: "300" }}
+                            style={{ fontSize: 11, fontWeight: '300' }}
                           >
                             {item.details}
                           </div>
@@ -1074,7 +1145,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       className="border w-6/12 rounded px-3 py-2.5 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0 focus:border-black transition-colors"
                       style={{
                         ...styles.inputStyle,
-                        border: "1px solid #00000020",
+                        border: '1px solid #00000020',
                       }}
                       value={otherObjVal}
                       onChange={(e) => setOtherObjVal(e.target.value)}
@@ -1089,55 +1160,73 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     if (data) {
                       console.log('data', data)
                       // setSelectedUser(data)
-                      console.log("plan upgraded successfully")
+                      console.log('plan upgraded successfully')
                       // Refresh user data after upgrade to get new plan capabilities
-                      const refreshSuccess = await refreshUserData();
-                      console.log("refreshSuccess:", refreshSuccess);
+                      const refreshSuccess = await refreshUserData()
+                      console.log('refreshSuccess:', refreshSuccess)
                       if (refreshSuccess) {
-                        console.log('User data refreshed successfully after upgrade');
+                        console.log(
+                          'User data refreshed successfully after upgrade',
+                        )
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
-                          console.log('Retrying pending selection with new plan limits...');
+                          console.log(
+                            'Retrying pending selection with new plan limits...',
+                          )
 
                           // Check if user is still on free plan after upgrade
-                          const updatedUserData = reduxUser || user;
-                          const isStillFreePlan = (() => {
-                            if (updatedUserData?.user?.plan?.price === 0) return true;
-                            return false;
-                          })
+                          const updatedUserData = reduxUser || user
+                          const isStillFreePlan = () => {
+                            if (updatedUserData?.user?.plan?.price === 0)
+                              return true
+                            return false
+                          }
 
-                          console.log('🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:', {
-                            isStillFreePlan,
-                            planType: updatedUserData?.user?.plan?.type,
-                            maxAgents: updatedUserData?.user?.planCapabilities?.maxAgents,
-                            planPrice: updatedUserData?.user?.plan?.price
-                          });
+                          console.log(
+                            '🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:',
+                            {
+                              isStillFreePlan,
+                              planType: updatedUserData?.user?.plan?.type,
+                              maxAgents:
+                                updatedUserData?.user?.planCapabilities
+                                  ?.maxAgents,
+                              planPrice: updatedUserData?.user?.plan?.price,
+                            },
+                          )
 
                           // If still on free plan and trying to select both agents, deselect one
-                          if (isStillFreePlan && pendingAgentSelection.inbound && pendingAgentSelection.outbound) {
-                            console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound');
+                          if (
+                            isStillFreePlan &&
+                            pendingAgentSelection.inbound &&
+                            pendingAgentSelection.outbound
+                          ) {
+                            console.log(
+                              '🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound',
+                            )
                             // Keep only inbound, deselect outbound for free plan users
                             const modifiedSelection = {
                               ...pendingAgentSelection,
-                              inbound: false
-                            };
-                            setInBoundCalls(modifiedSelection.inbound);
-                            setOutBoundCalls(modifiedSelection.outbound);
-                            setPendingAgentSelection(null);
-                            return;
+                              inbound: false,
+                            }
+                            setInBoundCalls(modifiedSelection.inbound)
+                            setOutBoundCalls(modifiedSelection.outbound)
+                            setPendingAgentSelection(null)
+                            return
                           }
 
                           // Clear the pending selection and apply it
-                          const pendingSelection = pendingAgentSelection;
-                          setPendingAgentSelection(null);
+                          const pendingSelection = pendingAgentSelection
+                          setPendingAgentSelection(null)
 
                           // Apply the selection now that limits have been upgraded
-                          setInBoundCalls(pendingSelection.inbound);
-                          setOutBoundCalls(pendingSelection.outbound);
-                          console.log("Applied pending selection after upgrade");
+                          setInBoundCalls(pendingSelection.inbound)
+                          setOutBoundCalls(pendingSelection.outbound)
+                          console.log('Applied pending selection after upgrade')
                         }
                       } else {
-                        console.error("Failed to refresh user data after upgrade");
+                        console.error(
+                          'Failed to refresh user data after upgrade',
+                        )
                       }
                     }
                     setShowUnclockModal(false)
@@ -1148,20 +1237,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <MoreAgentsPopup
                   open={showMoreAgentsModal}
                   onClose={() => {
-                    setShowMoreAgentsModal(false);
-                    setPendingAgentSelection(null); // Clear pending selection if user cancels
+                    setShowMoreAgentsModal(false)
+                    setPendingAgentSelection(null) // Clear pending selection if user cancels
                   }}
                   onUpgrade={() => {
-                    setShowMoreAgentsModal(false);
-                    setShowUnclockModal(false); // Ensure unlock modal is closed
-                    setShowUpgradePlanModal(true);
+                    setShowMoreAgentsModal(false)
+                    setShowUnclockModal(false) // Ensure unlock modal is closed
+                    setShowUpgradePlanModal(true)
                     // Keep the pending selection so it can be applied after upgrade
-                    console.log('🔄 [CREATE-AGENT] User chose to upgrade plan');
+                    console.log('🔄 [CREATE-AGENT] User chose to upgrade plan')
                   }}
                   onAddAgent={() => {
                     // Handle "Add Agent with price" - apply the pending selection
-                    setShowMoreAgentsModal(false);
-                    applyPendingSelection(); // This will set the agent states and mark as agreed to extra cost
+                    setShowMoreAgentsModal(false)
+                    applyPendingSelection() // This will set the agent states and mark as agreed to extra cost
                     // console.log('💰 [CREATE-AGENT] User chose to add agent with additional cost');
                   }}
                   costPerAdditionalAgent={
@@ -1174,71 +1263,98 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <UpgradePlan
                   open={showUpgradePlanModal}
                   setSelectedPlan={() => {
-                    console.log("setSelectedPlan is called")
+                    console.log('setSelectedPlan is called')
                   }}
                   handleClose={async (result) => {
-                    console.log("🔥 HANDLECLOSE CALLED WITH RESULT:", result);
-                    console.log("🔥 HANDLECLOSE FUNCTION STARTED");
+                    console.log('🔥 HANDLECLOSE CALLED WITH RESULT:', result)
+                    console.log('🔥 HANDLECLOSE FUNCTION STARTED')
                     try {
-                      setShowUpgradePlanModal(false);
-                      setShowUnclockModal(false); // Also close the unlock modal
-                      console.log("in UpgradePlan result is", result)
+                      setShowUpgradePlanModal(false)
+                      setShowUnclockModal(false) // Also close the unlock modal
+                      console.log('in UpgradePlan result is', result)
                       if (result) {
-                        console.log("plan upgraded successfully")
+                        console.log('plan upgraded successfully')
                         // Refresh user data after upgrade to get new plan capabilities
-                        const refreshSuccess = await refreshUserData();
-                        console.log("refreshSuccess:", refreshSuccess);
+                        const refreshSuccess = await refreshUserData()
+                        console.log('refreshSuccess:', refreshSuccess)
                         if (refreshSuccess) {
-                          console.log('User data refreshed successfully after upgrade');
+                          console.log(
+                            'User data refreshed successfully after upgrade',
+                          )
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
-                            console.log('Retrying pending selection with new plan limits...');
+                            console.log(
+                              'Retrying pending selection with new plan limits...',
+                            )
 
                             // Check if user is still on free plan after upgrade
-                            const updatedUserData = reduxUser || user;
+                            const updatedUserData = reduxUser || user
                             const isStillFreePlan = (() => {
-                              const planType = updatedUserData?.user?.plan?.type?.toLowerCase();
-                              if (planType?.includes('free')) return true;
-                              if (updatedUserData?.user?.planCapabilities?.maxAgents > 1) return false;
-                              return updatedUserData?.user?.plan === null || updatedUserData?.user?.plan?.price === 0;
-                            })();
+                              const planType =
+                                updatedUserData?.user?.plan?.type?.toLowerCase()
+                              if (planType?.includes('free')) return true
+                              if (
+                                updatedUserData?.user?.planCapabilities
+                                  ?.maxAgents > 1
+                              )
+                                return false
+                              return (
+                                updatedUserData?.user?.plan === null ||
+                                updatedUserData?.user?.plan?.price === 0
+                              )
+                            })()
 
-                            console.log('🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:', {
-                              isStillFreePlan,
-                              planType: updatedUserData?.user?.plan?.type,
-                              maxAgents: updatedUserData?.user?.planCapabilities?.maxAgents,
-                              planPrice: updatedUserData?.user?.plan?.price
-                            });
+                            console.log(
+                              '🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:',
+                              {
+                                isStillFreePlan,
+                                planType: updatedUserData?.user?.plan?.type,
+                                maxAgents:
+                                  updatedUserData?.user?.planCapabilities
+                                    ?.maxAgents,
+                                planPrice: updatedUserData?.user?.plan?.price,
+                              },
+                            )
 
                             // If still on free plan and trying to select both agents, deselect one
-                            if (isStillFreePlan && pendingAgentSelection.inbound && pendingAgentSelection.outbound) {
-                              console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound');
+                            if (
+                              isStillFreePlan &&
+                              pendingAgentSelection.inbound &&
+                              pendingAgentSelection.outbound
+                            ) {
+                              console.log(
+                                '🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound',
+                              )
                               // Keep only inbound, deselect outbound for free plan users
                               const modifiedSelection = {
                                 ...pendingAgentSelection,
-                                inbound: false
-                              };
-                              setInBoundCalls(modifiedSelection.inbound);
-                              setOutBoundCalls(modifiedSelection.outbound);
-                              setPendingAgentSelection(null);
-                              return;
+                                inbound: false,
+                              }
+                              setInBoundCalls(modifiedSelection.inbound)
+                              setOutBoundCalls(modifiedSelection.outbound)
+                              setPendingAgentSelection(null)
+                              return
                             }
 
                             // Clear the pending selection and apply it
-                            const pendingSelection = pendingAgentSelection;
-                            setPendingAgentSelection(null);
+                            const pendingSelection = pendingAgentSelection
+                            setPendingAgentSelection(null)
 
                             // Apply the selection now that limits have been upgraded
-                            setInBoundCalls(pendingSelection.inbound);
-                            setOutBoundCalls(pendingSelection.outbound);
-                            console.log("Applied pending selection after upgrade");
+                            setInBoundCalls(pendingSelection.inbound)
+                            setOutBoundCalls(pendingSelection.outbound)
+                            console.log(
+                              'Applied pending selection after upgrade',
+                            )
                           }
                         } else {
-                          console.error("Failed to refresh user data after upgrade");
+                          console.error(
+                            'Failed to refresh user data after upgrade',
+                          )
                         }
                       }
                     } catch (error) {
-                      console.error("Error in UpgradePlan handleClose:", error);
+                      console.error('Error in UpgradePlan handleClose:', error)
                     }
                   }}
                 />
@@ -1269,7 +1385,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         closeAfterTransition
         BackdropProps={{
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
             // //backdropFilter: "blur(5px)",
           },
         }}
@@ -1279,24 +1395,24 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <div
               className="w-full overflow-auto"
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: '#ffffff',
                 padding: 20,
-                borderRadius: "13px",
+                borderRadius: '13px',
               }}
             >
               <div
                 className="w-full px-2 h-[90%] overflow-auto"
-                style={{ scrollbarWidth: "none", zIndex: 12 }}
+                style={{ scrollbarWidth: 'none', zIndex: 12 }}
               >
                 <div className="flex flex-row items-center justify-end w-full">
                   <button
                     className="outline-none border-none"
                     onClick={() => {
-                      setShowModal(false);
+                      setShowModal(false)
                     }}
                   >
                     <Image
-                      src={"/assets/crossIcon.png"}
+                      src={'/assets/crossIcon.png'}
                       height={40}
                       width={40}
                       alt="*"
@@ -1306,7 +1422,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 <div
                   className="text-center"
-                  style={{ fontWeight: "600", fontSize: 24 }}
+                  style={{ fontWeight: '600', fontSize: 24 }}
                 >
                   Community Update
                 </div>
@@ -1320,16 +1436,16 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     <button
                       key={item.id}
                       onClick={(e) => {
-                        handleSelectStatus(item);
+                        handleSelectStatus(item)
                       }}
                       className="px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none"
                       style={{
                         border:
                           selectedStatus?.id === item.id
-                            ? "2px solid #7902DF"
-                            : "",
+                            ? '2px solid hsl(var(--brand-primary))'
+                            : '',
                         backgroundColor:
-                          selectedStatus?.id === item.id ? "#402FFF15" : "",
+                          selectedStatus?.id === item.id ? 'hsl(var(--brand-primary) / 0.1)' : '',
                       }}
                     >
                       {item.title}
@@ -1351,10 +1467,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         onChange={(e) => setOtherStatus(e.target.value)}
                         style={{
                           ...styles.inputStyle,
-                          border: "1px solid #00000020",
+                          border: '1px solid #00000020',
                         }}
                       />
-
                     </div>
                   </div>
                 )}
@@ -1366,23 +1481,22 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div className="mt-1 pb-4">
                   <Input
                     className="w-full h-[50px] rounded-lg outline-none focus:ring-0 focus:border-black px-3 py-2.5 transition-colors"
-                    style={{ border: "1px solid #00000020" }}
+                    style={{ border: '1px solid #00000020' }}
                     placeholder="Enter property address..."
                     value={addressValue}
                     onChange={handleAddressChange}
                   />
                 </div>
-
               </div>
 
               <div
                 className="w-full flex flex-row items-center justify-center"
-                style={{ position: "absolute", bottom: 0, left: 0 }}
+                style={{ position: 'absolute', bottom: 0, left: 0 }}
               >
                 <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                  className="text-white w-11/12 h-[50px] rounded-lg bg-brand-primary mb-8"
                   onClick={() => {
-                    setShowModal(false);
+                    setShowModal(false)
                   }}
                 >
                   Continue
@@ -1397,7 +1511,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       </Modal>
 
       <LoaderAnimation loaderModal={loaderModal} />
-
 
       {/* <Modal
                 open={loaderModal}
@@ -1429,7 +1542,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 </Box>
             </Modal> */}
     </div>
-  );
-};
+  )
+}
 
-export default CreateAgent1;
+export default CreateAgent1

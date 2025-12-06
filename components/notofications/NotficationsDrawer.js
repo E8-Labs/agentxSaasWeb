@@ -1,63 +1,110 @@
-"use client";
-import React, { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
-import axios from "axios";
-import Apis from "../apis/Apis";
-import { CircularProgress, Drawer, Modal } from "@mui/material";
-import { NotificationTypes } from "@/constants/NotificationTypes";
-import moment from "moment";
-import getProfileDetails from "../apis/GetProfile";
-import { GetFormattedDateString } from "@/utilities/utility";
-import LeadDetails from "../dashboard/leads/extras/LeadDetails";
-import { useRouter } from "next/navigation";
-import InfiniteScroll from "react-infinite-scroll-component";
+'use client'
+
+import { CircularProgress, Drawer, Modal } from '@mui/material'
+import axios from 'axios'
+import moment from 'moment'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
+
+import { NotificationTypes } from '@/constants/NotificationTypes'
+import { getSupportUrlFor } from '@/utilities/UserUtility'
+import { GetFormattedDateString } from '@/utilities/utility'
+
+import Apis from '../apis/Apis'
+import getProfileDetails from '../apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../dashboard/leads/AgentSelectSnackMessage";
-import { getSupportUrlFor } from "@/utilities/UserUtility";
-import CloseBtn from "../globalExtras/CloseBtn";
+} from '../dashboard/leads/AgentSelectSnackMessage'
+import LeadDetails from '../dashboard/leads/extras/LeadDetails'
+import CloseBtn from '../globalExtras/CloseBtn'
+import { useUser } from '@/hooks/redux-hooks'
 
 function NotficationsDrawer({ close }) {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [loading, setLoading] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unread, setUnread] = useState(0);
+  const [loading, setLoading] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [unread, setUnread] = useState(0)
 
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
-  const [snackMessage, setSnackMessage] = useState("");
+  const [snackMessage, setSnackMessage] = useState('')
 
   //variables to show the lead details modal
-  const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+
+  const { user: reduxUser } = useUser()
+
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+
+    if (!brandColor || !brandColor.trim()) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor.trim()})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
 
   useEffect(() => {
-    getUserData();
-  }, []);
+    getUserData()
+  }, [])
   const getUserData = async () => {
     // let data = localStorage.getItem("User")
     // if(data){
     // let u = JSON.parse(data)
     //// //console.log
     // }
-    let data = await getProfileDetails();
+    let data = await getProfileDetails()
     // //console.log;
-    setUnread(data?.data?.data?.unread);
+    setUnread(data?.data?.data?.unread)
     // setUnread(12);
-  };
+  }
 
   const getNotifications = async () => {
     try {
-      let offset = notifications.length;
+      let offset = notifications.length
 
       //code for get and set data from local
-      const not = localStorage.getItem("userNotifications");
+      const not = localStorage.getItem('userNotifications')
       if (not) {
-        const D = JSON.parse(not);
+        const D = JSON.parse(not)
         // //console.log;
-        setNotifications(D);
+        setNotifications(D)
       }
 
       //code to stop if no more notifications
@@ -69,45 +116,45 @@ function NotficationsDrawer({ close }) {
       //   }
       // }
 
-      const user = localStorage.getItem("User");
+      const user = localStorage.getItem('User')
 
       if (user) {
-        let u = JSON.parse(user);
+        let u = JSON.parse(user)
         // //console.log;
 
         // if (hasMore === true) {
         if (!notifications.length > 0 && !not) {
-          setLoading(true);
+          setLoading(true)
         }
 
-        const ApiPath = `${Apis.getNotifications}?offset=${offset}`;
+        const ApiPath = `${Apis.getNotifications}?offset=${offset}`
         // //console.log;
 
         const response = await axios.get(ApiPath, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            Authorization: 'Bearer ' + u.token,
           },
-        });
+        })
 
         if (response) {
-          setLoading(false);
+          setLoading(false)
           if (response.data.status === true) {
             // //console.log;
             // setNotifications(response.data.data.notifications);
             localStorage.setItem(
-              "userNotifications",
+              'userNotifications',
               JSON.stringify([
                 ...notifications,
                 ...response.data.data.notifications,
-              ])
-            );
+              ]),
+            )
             setNotifications([
               ...notifications,
               ...response.data.data.notifications,
-            ]);
-            u.user.unread = 0;
-            localStorage.setItem("User", JSON.stringify(u));
-            setUnread(0);
+            ])
+            u.user.unread = 0
+            localStorage.setItem('User', JSON.stringify(u))
+            setUnread(0)
             // setUnread(response.data.data.unread)
             // console.log(
             //   "Length of notifications is",
@@ -115,10 +162,10 @@ function NotficationsDrawer({ close }) {
             // );
             if (response.data.data.notifications.length < 40) {
               localStorage.setItem(
-                "hasMoreNotification",
-                JSON.stringify("false")
-              );
-              setHasMore(false);
+                'hasMoreNotification',
+                JSON.stringify('false'),
+              )
+              setHasMore(false)
             }
           } else {
             // //console.log;
@@ -126,301 +173,174 @@ function NotficationsDrawer({ close }) {
         }
       }
     } catch (e) {
-      setLoading(false);
+      setLoading(false)
       // //console.log;
     }
-  };
+  }
 
   useEffect(() => {
     // //console.log;
-  }, [hasMore]);
+  }, [hasMore])
 
   //function to get support
   const getSupport = () => {
-    let url = getSupportUrlFor();
-    if (typeof window !== "undefined") {
-      window.open(url, "_blank");
+    let url = getSupportUrlFor()
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank')
     }
-  };
+  }
 
   function giveFeedback() {
-    router.push("/dashboard/myAccount?tab=5");
+    // Get user data from localStorage
+    const userData = localStorage.getItem('User')
+    let feedbackUrl = '/dashboard/myAccount?tab=5' // Default fallback
+
+    if (userData) {
+      try {
+        const user = JSON.parse(userData)
+        // Check agency settings first (for subaccounts)
+        if (user?.user?.agencySettings?.giveFeedbackUrl) {
+          feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+        }
+        // Then check user's own settings
+        else if (user?.user?.userSettings?.giveFeedbackUrl) {
+          feedbackUrl = user.user.userSettings.giveFeedbackUrl
+        }
+      } catch (error) {
+        console.error('Error parsing user data for feedback URL:', error)
+      }
+    }
+
+    // If it's an external URL, open in new tab, otherwise use router
+    if (feedbackUrl.startsWith('http://') || feedbackUrl.startsWith('https://')) {
+      window.open(feedbackUrl, '_blank')
+    } else {
+      router.push(feedbackUrl)
+    }
   }
 
   const getNotificationImage = (item) => {
     if (item.type === NotificationTypes.RedeemedAgentXCode) {
-      return (
-        <Image
-          src={"/svgIcons/minsNotIcon.svg"}
-          height={32}
-          width={32}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.RedeemedAgentXCodeMine) {
-      return (
-        <Image
-          src={"/svgIcons/minsNotIcon.svg"}
-          height={32}
-          width={32}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.NoCallsIn3Days) {
-      return (
-        <Image
-          src={"/svgIcons/callsNotIcon.svg"}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/callsNotIcon.svg', 37, 37)
     } else if (item.type === NotificationTypes.InviteAccepted) {
       return (
         <div
           className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          style={{ height: 37, width: 37, textTransform: 'capitalize' }}
         >
           {item.title[0]}
         </div>
-      );
+      )
     } else if (
       item.type === NotificationTypes.Hotlead ||
       item.type === NotificationTypes.FirstLeadUpload ||
       item.type === NotificationTypes.SocialProof
     ) {
-      return (
-        <Image
-          src={"/svgIcons/hotLeadNotIcon.svg"}
-          height={37}
-          width={37}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/hotLeadNotIcon.svg', 37, 37)
     } else if (item.type === NotificationTypes.TotalHotlead) {
       return (
         <div
           className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          style={{ height: 37, width: 37, textTransform: 'capitalize' }}
         >
           {item.title[0]}
         </div>
-      );
+      )
     } else if (item.type === NotificationTypes.MeetingBooked) {
       return (
         <div
           className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          style={{ height: 37, width: 37, textTransform: 'capitalize' }}
         >
           {item.title[0]}
         </div>
-      );
+      )
     } else if (item.type === NotificationTypes.PaymentFailed) {
-      return (
-        <Image
-          src={"/svgIcons/urgentNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/urgentNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.CallsMadeByAgent) {
-      return (
-        <Image src={"/svgIcons/aiNotIcon.svg"} height={40} width={40} alt="*" />
-      );
+      return renderBrandedIcon('/svgIcons/aiNotIcon.svg', 40, 40)
     } else if (item.type === NotificationTypes.LeadCalledBack) {
       return (
         <div
           className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"
-          style={{ height: 37, width: 37, textTransform: "capitalize" }}
+          style={{ height: 37, width: 37, textTransform: 'capitalize' }}
         >
           {item.title[0]}
         </div>
-      );
+      )
     } else if (item.type === NotificationTypes.Trial30MinTicking) {
-      return (
-        <Image
-          src={"/svgIcons/Trial30MinTickingNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/Trial30MinTickingNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.X3MoreLikeyToWin ||
       item.type === NotificationTypes.ThousandCalls ||
       item.type === NotificationTypes.CompetitiveEdge
     ) {
-      return (
-        <Image
-          src={"/svgIcons/3xMoreLikeyToWinNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/3xMoreLikeyToWinNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.NeedHand ||
       item.type === NotificationTypes.NeedHelpDontMissOut ||
       item.type === NotificationTypes.TrainingReminder ||
       item.type === NotificationTypes.Inactive5Days
     ) {
-      return (
-        <Image
-          src={"/svgIcons/NeedHandNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/NeedHandNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.TrialReminder) {
-      return (
-        <Image
-          src={"/svgIcons/TrialReminderNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/TrialReminderNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.LastChanceToAct ||
       item.type === NotificationTypes.FOMOAlert
     ) {
-      return (
-        <Image
-          src={"/svgIcons/LastChanceToActNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/LastChanceToActNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.LastDayToMakeItCount) {
-      return (
-        <Image
-          src={"/svgIcons/LastDayToMakeItCountNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/LastDayToMakeItCountNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.TrialTime2MinLeft ||
       item.type === NotificationTypes.TwoThousandCalls
     ) {
-      return (
-        <Image
-          src={"/svgIcons/TrialTime2MinLeftNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/TrialTime2MinLeftNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.PlanRenewed ||
       NotificationTypes.SubscriptionRenewed === item.type
     ) {
-      return (
-        <Image
-          src={"/svgIcons/PlanRenewedNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/PlanRenewedNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.FirstAppointment) {
-      return (
-        <Image
-          src={"/svgIcons/FirstAppointmentNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/FirstAppointmentNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.ThreeAppointments) {
-      return (
-        <Image
-          src={"/svgIcons/SevenAppointmentsNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/SevenAppointmentsNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.SevenAppointments) {
-      return (
-        <Image
-          src={"/svgIcons/SevenAppointmentsNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/SevenAppointmentsNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.Day14FeedbackRequest) {
-      return (
-        <Image
-          src={"/svgIcons/Day14FeedbackRequestNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/Day14FeedbackRequestNotIcon.svg', 22, 22)
     } else if (
       item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan
     ) {
-      return (
-        <Image
-          src={"/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/PlanUpgradeSuggestionFor30MinPlanNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.TestAINotification) {
-      return (
-        <Image
-          src={"/svgIcons/TestAINotificationNotIcon.svg"}
-          height={22}
-          width={22}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/TestAINotificationNotIcon.svg', 22, 22)
     } else if (item.type === NotificationTypes.Exclusivity) {
-      return (
-        <Image
-          src={"/svgIcons/TeritaryTraining.svg"}
-          height={22}
-          width={18}
-          alt="*"
-        />
-      );
+      return renderBrandedIcon('/svgIcons/TeritaryTraining.svg', 18, 22)
     } else if (item.type === NotificationTypes.TerritoryUpdate) {
-      return (
-        <Image src={"/svgIcons/2Listings.svg"} height={22} width={22} alt="*" />
-      );
-    }else if (item.type === NotificationTypes.PlanUpgraded || item.type === NotificationTypes.PlanSubscribed) {
-      return (
-        <Image src={"/svgIcons/chevrons-up.svg"} height={22} width={22} alt="*" />
-      );
-    }else if (item.type === NotificationTypes.PlanDowngraded) {
-      return (
-        <Image src={"/svgIcons/chevrons-down.svg"} height={22} width={22} alt="*" />
-      );
-    }else if (item.type === NotificationTypes.PlanCancelled) {
-      return (
-        <Image src={"/svgIcons/cancel.svg"} height={22} width={22} alt="*" />
-      );
-    }else if (item.type === NotificationTypes.AccountPaused) {
-      return (
-        <Image src={"/svgIcons/pause.svg"} height={22} width={22} alt="*" />
-      );
-    }
-    else if (item.type === NotificationTypes.AccountResumed) {
-      return (
-        <Image src={"/svgIcons/resume.svg"} height={22} width={22} alt="*" />
-      );
+      return renderBrandedIcon('/svgIcons/2Listings.svg', 22, 22)
+    } else if (
+      item.type === NotificationTypes.PlanUpgraded ||
+      item.type === NotificationTypes.PlanSubscribed
+    ) {
+      return renderBrandedIcon('/svgIcons/chevrons-up.svg', 22, 22)
+    } else if (item.type === NotificationTypes.PlanDowngraded) {
+      return renderBrandedIcon('/svgIcons/chevrons-down.svg', 22, 22)
+    } else if (item.type === NotificationTypes.PlanCancelled) {
+      return renderBrandedIcon('/svgIcons/cancel.svg', 22, 22)
+    } else if (item.type === NotificationTypes.AccountPaused) {
+      return renderBrandedIcon('/svgIcons/pause.svg', 22, 22)
+    } else if (item.type === NotificationTypes.AccountResumed) {
+      return renderBrandedIcon('/svgIcons/resume.svg', 22, 22)
     }
 
     //2Listings
-  };
+  }
 
   const handleShowDetails = useCallback((item) => {
     //console.log;
@@ -429,12 +349,12 @@ function NotficationsDrawer({ close }) {
       // item.id === undefined ||
       !item.lead
     ) {
-      setSnackMessage("Lead has been deleted");
+      setSnackMessage('Lead has been deleted')
     } else {
-      setselectedLeadsDetails(item);
-      setShowDetailsModal(true);
+      setselectedLeadsDetails(item)
+      setShowDetailsModal(true)
     }
-  }, []);
+  }, [])
 
   const getNotificationBtn = (item) => {
     if (
@@ -445,7 +365,7 @@ function NotficationsDrawer({ close }) {
       return (
         <button
           onClick={() => {
-            handleShowDetails(item);
+            handleShowDetails(item)
             // getSupport()
           }}
         >
@@ -453,23 +373,37 @@ function NotficationsDrawer({ close }) {
             View Now
           </div>
         </button>
-      );
+      )
     } else if (item.type === NotificationTypes.PaymentFailed) {
       return (
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
+            const openBilling = true
             // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount?tab=2");
-            setShowNotificationDrawer(false);
+            router.push('/dashboard/myAccount?tab=2')
+            setShowNotificationDrawer(false)
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Resolve Now
           </div>
         </button>
-      );
+      )
+    } else if (item.type === NotificationTypes.NoCallsIn3Days) {
+      return (
+        <button
+          className="outline-none"
+          onClick={() => {
+            router.push('/dashboard/myAgentX')
+            setShowNotificationDrawer(false)
+          }}
+        >
+          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+            View Agents
+          </div>
+        </button>
+      )
     } else if (
       NotificationTypes.Trial30MinTicking === item.type ||
       NotificationTypes.TrialReminder === item.type ||
@@ -481,14 +415,14 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            router.push("/dashboard/leads");
+            router.push('/dashboard/leads')
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Start Calling
           </div>
         </button>
-      );
+      )
     } else if (
       NotificationTypes.X3MoreLikeyToWin === item.type ||
       NotificationTypes.ThousandCalls === item.type
@@ -497,49 +431,48 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            router.push("/dashboard/leads");
+            router.push('/dashboard/leads')
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Upload Leads
           </div>
         </button>
-      );
+      )
     } else if (NotificationTypes.NeedHand === item.type) {
       return (
         <button
           className="outline-none"
           onClick={() => {
-            getSupport();
+            getSupport()
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Get Support
           </div>
         </button>
-      );
+      )
     } else if (NotificationTypes.NeedHelpDontMissOut === item.type) {
       return (
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
+            const openBilling = true
             // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount?tab=2");
-            setShowNotificationDrawer(false);
+            router.push('/dashboard/myAccount?tab=2')
+            setShowNotificationDrawer(false)
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Get Live Support
           </div>
         </button>
-      );
+      )
     } else if (
       NotificationTypes.LastChanceToAct === item.type ||
       NotificationTypes.FirstAppointment === item.type ||
       NotificationTypes.ThreeAppointments === item.type ||
-      NotificationTypes.SevenAppointments === item.type ||
-      NotificationTypes.Day14FeedbackRequest === item.type
+      NotificationTypes.SevenAppointments === item.type
     ) {
       return (
         <button
@@ -547,30 +480,49 @@ function NotficationsDrawer({ close }) {
           onClick={() => {
             item.type == NotificationTypes.Day14FeedbackRequest
               ? giveFeedback()
-              : getSupport();
+              : getSupport()
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Get Live Help
           </div>
         </button>
-      );
-    } else if (
+      )
+    } else if (NotificationTypes.Day14FeedbackRequest === item.type) {
+      return (
+        <button
+          className="outline-none"
+          onClick={() => {
+            if (reduxUser?.userSettings?.giveFeedbackUrl) {
+              router.push(reduxUser?.userSettings?.giveFeedbackUrl)
+            } else {
+              giveFeedback()
+            }
+          }}
+        >
+          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+            Get Live Help
+          </div>
+        </button>
+      )
+    }
+
+    else if (
       item.type === NotificationTypes.PlanUpgradeSuggestionFor30MinPlan
     ) {
       return (
         <button
           className="outline-none"
           onClick={(e) => {
-            e.preventDefault();
-            router.push("/dashboard/myAccount?tab=2");
+            e.preventDefault()
+            router.push('/dashboard/myAccount?tab=2')
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Get Live Help
           </div>
         </button>
-      );
+      )
     } else if (
       NotificationTypes.TrialTime2MinLeft === item.type ||
       NotificationTypes.PlanRenewed === item.type ||
@@ -580,21 +532,21 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            const openBilling = true;
+            const openBilling = true
             // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-            router.push("/dashboard/myAccount?tab=2");
-            setShowNotificationDrawer(false);
+            router.push('/dashboard/myAccount?tab=2')
+            setShowNotificationDrawer(false)
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
             Manage Plan
           </div>
         </button>
-      );
+      )
     } else {
-      return <div className="w-3/12"></div>;
+      return <div className="w-3/12"></div>
     }
-  };
+  }
 
   const renderItem = (item, index) => {
     return (
@@ -610,20 +562,20 @@ function NotficationsDrawer({ close }) {
               <div className="flex flex-col w-full gap-1">
                 <div
                   className="flex flex-wrap items-center"
-                  style={{ fontSize: 16, fontWeight: "600" }}
+                  style={{ fontSize: 16, fontWeight: '600' }}
                 >
                   {item.title}
                   {item.type === NotificationTypes.NoCallsIn3Days && (
                     <button
                       style={{
                         fontSize: 15,
-                        fontWeight: "500",
-                        color: "#7902DF",
-                        textDecorationLine: "underline",
-                        marginLeft: "8px", // Add some spacing between the title and button
+                        fontWeight: '500',
+                        color: '#7902DF',
+                        textDecorationLine: 'underline',
+                        marginLeft: '8px', // Add some spacing between the title and button
                       }}
                       onClick={() => {
-                        getSupport();
+                        getSupport()
                       }}
                     >
                       Need help?
@@ -635,14 +587,14 @@ function NotficationsDrawer({ close }) {
               {item.body && (
                 <div
                   className=" flex flex col gap-2"
-                  style={{ fontSize: 15, fontWeight: "500" }}
+                  style={{ fontSize: 15, fontWeight: '500' }}
                 >
                   {item.body}
                 </div>
               )}
 
               <div
-                style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}
+                style={{ fontSize: 13, fontWeight: '500', color: '#00000060' }}
               >
                 {GetFormattedDateString(item?.createdAt, true)}
               </div>
@@ -651,8 +603,8 @@ function NotficationsDrawer({ close }) {
         </div>
         <div className="w-[20%]">{getNotificationBtn(item)}</div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="w-full">
@@ -662,15 +614,15 @@ function NotficationsDrawer({ close }) {
           type={SnackbarTypes.Warning}
           isVisible={snackMessage}
           hide={() => {
-            setSnackMessage("");
+            setSnackMessage('')
           }}
         />
       )}
 
       <button
         onClick={() => {
-          setShowNotificationDrawer(true);
-          getNotifications();
+          setShowNotificationDrawer(true)
+          getNotifications()
         }}
       >
         <div className="flex flex-row ">
@@ -686,11 +638,11 @@ function NotficationsDrawer({ close }) {
               style={{
                 fontSize: 13,
                 marginTop: -13,
-                alignSelf: "flex-start",
+                alignSelf: 'flex-start',
                 marginLeft: -15,
               }}
             >
-              {unread < 100 ? unread : "99+"}
+              {unread < 100 ? unread : '99+'}
             </div>
           )}
         </div>
@@ -699,19 +651,19 @@ function NotficationsDrawer({ close }) {
       <Drawer
         anchor="right"
         sx={{
-          "& .MuiDrawer-paper": {
-            width: "35%", // Drawer width
-            boxSizing: "border-box", // Ensure padding doesn't shrink content
+          '& .MuiDrawer-paper': {
+            width: '35%', // Drawer width
+            boxSizing: 'border-box', // Ensure padding doesn't shrink content
           },
         }}
         open={showNotificationDrawer}
         onClose={() => {
-          setShowNotificationDrawer(false);
+          setShowNotificationDrawer(false)
         }}
         BackdropProps={{
           // timeout: 1000,
           sx: {
-            backgroundColor: "#00000020",
+            backgroundColor: '#00000020',
           },
         }}
       >
@@ -729,35 +681,35 @@ function NotficationsDrawer({ close }) {
                   <div
                     className="flex bg-red-500 rounded-full min-w-[24px] px-[2px] h-8 items-center justify-center text-white font-medium"
                     style={{
-                      fontSize: "12px", // Ensure font-size is smaller to fit within the circle
-                      marginTop: "-13px", // Adjust position as needed
-                      alignSelf: "flex-start",
-                      marginLeft: "-15px",
-                      lineHeight: "1", // Prevent extra spacing inside the circle
+                      fontSize: '12px', // Ensure font-size is smaller to fit within the circle
+                      marginTop: '-13px', // Adjust position as needed
+                      alignSelf: 'flex-start',
+                      marginLeft: '-15px',
+                      lineHeight: '1', // Prevent extra spacing inside the circle
                     }}
                   >
-                    {unread < 100 ? unread : "99+"}
+                    {unread < 100 ? unread : '99+'}
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: 22, fontWeight: "600" }}>
+              <div style={{ fontSize: 22, fontWeight: '600' }}>
                 Notifications
               </div>
             </div>
             <CloseBtn
               onClick={() => {
-                setShowNotificationDrawer(false);
+                setShowNotificationDrawer(false)
               }}
             />
           </div>
 
           <div
-            style={{ height: 1, width: "100%", background: "#00000010" }}
+            style={{ height: 1, width: '100%', background: '#00000010' }}
           ></div>
 
           <div
             className="flex flex-col px-6 overflow-y-auto"
-            style={{ height: "90vh", paddingBottom: 100 }}
+            style={{ height: '90vh', paddingBottom: 100 }}
             id="scrollableDiv1"
           >
             {loading ? (
@@ -769,7 +721,7 @@ function NotficationsDrawer({ close }) {
                 className="h-screen flex flex-col items-center justify-center w-full" //style={{ fontSize: 20, fontWeight: "700", padding: 20 }}
               >
                 <Image
-                  src={"/svgIcons/notNotificationImg.svg"}
+                  src={'/svgIcons/notNotificationImg.svg'}
                   height={297}
                   width={364}
                   alt="*"
@@ -778,7 +730,7 @@ function NotficationsDrawer({ close }) {
                   className="-mt-8"
                   style={{
                     fontSize: 16.8,
-                    fontWeight: "700",
+                    fontWeight: '700',
                   }}
                 >
                   Nothing to see here... yet!
@@ -787,25 +739,25 @@ function NotficationsDrawer({ close }) {
                   className="mt-2"
                   style={{
                     fontSize: 15,
-                    fontWeight: "500",
+                    fontWeight: '500',
                   }}
                 >
                   {`You’ll find all your notifications here`}
                 </div>
               </div>
             ) : (
-              <div style={{ scrollbarWidth: "none" }}>
+              <div style={{ scrollbarWidth: 'none' }}>
                 <InfiniteScroll
                   className="lg:flex hidden flex-col w-full h-[100%]"
                   endMessage={
                     <p
                       style={{
-                        textAlign: "center",
-                        paddingTop: "10px",
-                        fontWeight: "400",
-                        fontFamily: "inter",
+                        textAlign: 'center',
+                        paddingTop: '10px',
+                        fontWeight: '400',
+                        fontFamily: 'inter',
                         fontSize: 16,
-                        color: "#00000060",
+                        color: '#00000060',
                       }}
                     >
                       {`You're all caught up`}
@@ -815,7 +767,7 @@ function NotficationsDrawer({ close }) {
                   dataLength={notifications.length}
                   next={() => {
                     // //console.log;
-                    getNotifications();
+                    getNotifications()
                   }} // Fetch more when scrolled
                   hasMore={hasMore} // Check if there's more data
                   loader={
@@ -823,14 +775,14 @@ function NotficationsDrawer({ close }) {
                       <CircularProgress size={35} />
                     </div>
                   }
-                  style={{ overflow: "unset" }}
+                  style={{ overflow: 'unset' }}
                 >
                   {notifications.map((item, index) => {
                     return (
                       <div key={index} className="w-full h-[100%]">
                         {renderItem(item, index)}
                       </div>
-                    );
+                    )
                   })}
                   {showDetailsModal && (
                     <LeadDetails
@@ -849,11 +801,11 @@ function NotficationsDrawer({ close }) {
         </div>
       </Drawer>
     </div>
-  );
+  )
 }
 
-export default NotficationsDrawer;
+export default NotficationsDrawer
 
 export const notLeadDetails = () => {
-  return <div>Hamza</div>;
-};
+  return <div>Hamza</div>
+}

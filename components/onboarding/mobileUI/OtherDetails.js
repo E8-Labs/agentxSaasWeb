@@ -1,15 +1,5 @@
-import Body from "@/components/onboarding/Body";
-import Header from "@/components/onboarding/Header";
-import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { useRouter } from "next/navigation";
-import Footer from "@/components/onboarding/Footer";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import Apis from "@/components/apis/Apis";
-import axios from "axios";
+import 'react-phone-input-2/lib/style.css'
+
 import {
   Alert,
   Box,
@@ -17,30 +7,47 @@ import {
   Fade,
   Modal,
   Snackbar,
-} from "@mui/material";
-import VerificationCodeInput from "@/components/test/VerificationCodeInput";
-import SendVerificationCode from "../services/AuthVerification/AuthService";
-import SnackMessages from "../services/AuthVerification/SnackMessages";
-import { setCookie } from "@/utilities/cookies";
-import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
-import { PersistanceKeys } from "@/constants/Constants";
-import { UserTypes } from "@/constants/UserTypes";
-import RealEstateOtherDetails from "./RealEstateOtherDetails";
-import SolarRepAgentSignUp from "../otherAgentsSignUp/SolarRepAgentSignUp";
-import SolarRepOtherDetails from "./SalesRepOtherDetails";
-import SalesDevRepOtherDetails from "./SolerDevRepOtherDetails";
-import InsuranceOtherDetails from "./InsuranceOtherDetails";
-import MarketerOtherDetails from "./MarketerOtherDetails";
-import RecuiterOtherDetails from "./RecuiterOtherDetails";
-import DebtCollectorOtherDetails from "./DebtCollectorOtherDetails";
-import WebsiteAgentOtherDetails from "./WebsiteAgentOtherDetails";
-import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
-import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
-import LawAgentOtherDetails from "./LawAgentOtherDetails";
-import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
-import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { SnackMessageTitles } from "@/components/constants/constants";
-import GeneralAgentOtherDetails from "./GeneralAgentOtherDetails";
+} from '@mui/material'
+import axios from 'axios'
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
+import { parsePhoneNumberFromString } from 'libphonenumber-js'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+import PhoneInput from 'react-phone-input-2'
+
+import Apis from '@/components/apis/Apis'
+import { SnackMessageTitles } from '@/components/constants/constants'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import Body from '@/components/onboarding/Body'
+import Footer from '@/components/onboarding/Footer'
+import Header from '@/components/onboarding/Header'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import VerificationCodeInput from '@/components/test/VerificationCodeInput'
+import { PersistanceKeys } from '@/constants/Constants'
+import { UserTypes } from '@/constants/UserTypes'
+import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
+import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
+import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
+
+import SolarRepAgentSignUp from '../otherAgentsSignUp/SolarRepAgentSignUp'
+import SendVerificationCode from '../services/AuthVerification/AuthService'
+import SnackMessages from '../services/AuthVerification/SnackMessages'
+import DebtCollectorOtherDetails from './DebtCollectorOtherDetails'
+import GeneralAgentOtherDetails from './GeneralAgentOtherDetails'
+import InsuranceOtherDetails from './InsuranceOtherDetails'
+import LawAgentOtherDetails from './LawAgentOtherDetails'
+import LoanOfficerOtherDetails from './LoanOfficerOtherDetails'
+import MarketerOtherDetails from './MarketerOtherDetails'
+import MedSpaAgentOtherDetails from './MedSpaAgentOtherDetails'
+import RealEstateOtherDetails from './RealEstateOtherDetails'
+import RecuiterOtherDetails from './RecuiterOtherDetails'
+import SolarRepOtherDetails from './SalesRepOtherDetails'
+import SalesDevRepOtherDetails from './SolerDevRepOtherDetails'
+import WebsiteAgentOtherDetails from './WebsiteAgentOtherDetails'
 
 const OtherDetails = ({
   handleContinue,
@@ -50,113 +57,110 @@ const OtherDetails = ({
   userDetails,
   handleShowRedirectPopup,
 }) => {
-  const verifyInputRef = useRef([]);
-  const timerRef = useRef(null);
+  const verifyInputRef = useRef([])
+  const timerRef = useRef(null)
 
-  let inputsFields = useRef([]);
+  let inputsFields = useRef([])
 
-  const router = useRouter();
-  const [userName, setUserName] = useState("");
-  const [showVerifyPopup, setShowVerifyPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  let [response, setResponse] = useState({});
-  const [registerLoader, setRegisterLoader] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
+  const router = useRouter()
+  const [userName, setUserName] = useState('')
+  const [showVerifyPopup, setShowVerifyPopup] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  let [response, setResponse] = useState({})
+  const [registerLoader, setRegisterLoader] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
   // const [emailErr, setEmailCheckResponse] = useState(false);
-  const [userFarm, setUserFarm] = useState("");
-  const [userBrokage, setUserBrokage] = useState("");
-  const [userTransaction, setUserTransaction] = useState("");
+  const [userFarm, setUserFarm] = useState('')
+  const [userBrokage, setUserBrokage] = useState('')
+  const [userTransaction, setUserTransaction] = useState('')
   //phone number input variable
-  const [userPhoneNumber, setUserPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [sendcodeLoader, setSendcodeLoader] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userPhoneNumber, setUserPhoneNumber] = useState('')
+  const [countryCode, setCountryCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [sendcodeLoader, setSendcodeLoader] = useState(false)
+  const [userData, setUserData] = useState(null)
   const [phoneVerifiedSuccessSnack, setPhoneVerifiedSuccessSnack] =
-    useState(false);
+    useState(false)
   //verify code input fields
-  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(""));
+  const [VerifyCode, setVerifyCode] = useState(Array(length).fill(''))
   //check email availability
-  const [emailLoader, setEmailLoader] = useState(false);
-  const [emailCheckResponse, setEmailCheckResponse] = useState(null);
-  const [validEmail, setValidEmail] = useState("");
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errMessage, setErrMessage] = useState(null);
+  const [emailLoader, setEmailLoader] = useState(false)
+  const [emailCheckResponse, setEmailCheckResponse] = useState(null)
+  const [validEmail, setValidEmail] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errMessage, setErrMessage] = useState(null)
   //check phone number availability
-  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
-  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-  const [locationLoader, setLocationLoader] = useState(false);
-  const [shouldContinue, setShouldContinue] = useState(true);
+  const [phoneNumberLoader, setPhoneNumberLoader] = useState(false)
+  const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
+  const [locationLoader, setLocationLoader] = useState(false)
+  const [shouldContinue, setShouldContinue] = useState(true)
 
   //congrats popup for small size screens
-  const [congratsPopup, setCongratsPopup] = useState(false);
+  const [congratsPopup, setCongratsPopup] = useState(false)
 
   //code for other agents variables
 
   //for sales dev rep
-  const [service, setService] = useState("");
-  const [companyName, setCompanyName] = useState("");
+  const [service, setService] = useState('')
+  const [companyName, setCompanyName] = useState('')
 
   //for solar dev
-  const [installationVolume, setInstallationVolume] = useState("");
-  const [projectSize, setProjectSize] = useState("");
-  const [ClientType, setClientType] = useState(null);
-  const [collectionStretigy, setCollectionStretigy] = useState(null);
+  const [installationVolume, setInstallationVolume] = useState('')
+  const [projectSize, setProjectSize] = useState('')
+  const [ClientType, setClientType] = useState(null)
+  const [collectionStretigy, setCollectionStretigy] = useState(null)
 
   //for webURL
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [urlErrorMessage, setUrlErrorMessage] = useState("");
-
+  const [websiteUrl, setWebsiteUrl] = useState('')
+  const [urlErrorMessage, setUrlErrorMessage] = useState('')
 
   const [snackMessage, setSnackMessage] = useState(null)
-  const [territory, setTerritory] = useState("");
-  const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState("");
-  const [averageMonthlyClients, setAverageMonthlyClients] = useState("");
+  const [territory, setTerritory] = useState('')
+  const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState('')
+  const [averageMonthlyClients, setAverageMonthlyClients] = useState('')
 
-  const [consultation, setConsultation] = useState("");
-  const [caseVolume, setCaseVolume] = useState("");
-
-
+  const [consultation, setConsultation] = useState('')
+  const [caseVolume, setCaseVolume] = useState('')
 
   //array for the primary client types
   const primaryClientTypes = [
     {
       id: 1,
-      title: "Residential clients",
+      title: 'Residential clients',
     },
     {
       id: 2,
-      title: "Commercial clients",
+      title: 'Commercial clients',
     },
     {
       id: 3,
-      title: "Both",
+      title: 'Both',
     },
-  ];
+  ]
 
   useEffect(() => {
-    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails);
+    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails)
     if (storedData) {
-      let data = JSON.parse(storedData);
-      setUserData(data);
+      let data = JSON.parse(storedData)
+      setUserData(data)
     }
-  }, []);
+  }, [])
   //focus 1st field automaticallly
   useEffect(() => {
     // Focus the first input field on component load
     const registerationDetails = localStorage.getItem(
-      PersistanceKeys.RegisterDetails
-    );
-    inputsFields.current[0]?.focus();
+      PersistanceKeys.RegisterDetails,
+    )
+    inputsFields.current[0]?.focus()
     if (registerationDetails) {
-      const registerationData = JSON.parse(registerationDetails);
+      const registerationData = JSON.parse(registerationDetails)
       // //console.log;
-      setUserData(registerationData);
+      setUserData(registerationData)
     } else {
       // alert("Add details to continue");
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     //console.log
@@ -168,33 +172,26 @@ const OtherDetails = ({
   // Function to get the user's location and set the country code
   useEffect(() => {
     if (
-      userData?.userTypeTitle === "SalesDevRep" ||
-      userData?.userTypeTitle === "MarketerAgent"
+      userData?.userTypeTitle === 'SalesDevRep' ||
+      userData?.userTypeTitle === 'MarketerAgent'
     ) {
       if (service && companyName) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
     } else if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
-      console.log("Real Estate Agent Fields:", {
+      console.log('Real Estate Agent Fields:', {
         userFarm,
         userBrokage,
-        userTransaction
-      });
-      if (
-        userFarm &&
-        userBrokage &&
-        userTransaction
-
-      ) {
-        setShouldContinue(false);
+        userTransaction,
+      })
+      if (userFarm && userBrokage && userTransaction) {
+        setShouldContinue(false)
       } else if (!userFarm || !userBrokage || !userTransaction) {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
-    }
-
-    else if (userData?.userTypeTitle === "SolarRep") {
+    } else if (userData?.userTypeTitle === 'SolarRep') {
       if (
         service &&
         companyName &&
@@ -202,81 +199,93 @@ const OtherDetails = ({
         projectSize &&
         ClientType
       ) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
-    } else if (userData?.userTypeTitle === "InsuranceAgent") {
+    } else if (userData?.userTypeTitle === 'InsuranceAgent') {
       if (userFarm && userBrokage) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
     } else if (userData?.userTypeTitle === UserTypes.DebtCollectorAgent) {
       if (service && companyName && installationVolume && collectionStretigy) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
-    } else if (userData?.userTypeTitle === "WebsiteAgent") {
+    } else if (userData?.userTypeTitle === 'WebsiteAgent') {
       if (websiteUrl) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
     } else if (
-      userData?.userTypeTitle === "RecruiterAgent" ||
-      userData?.userTypeTitle === "TaxAgent"
+      userData?.userTypeTitle === 'RecruiterAgent' ||
+      userData?.userTypeTitle === 'TaxAgent'
     ) {
       if (service) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
     } else if (userData?.userTypeTitle === UserTypes.MedSpaAgent) {
       if (territory && firmOrCompanyAffiliation && averageMonthlyClients) {
-        setShouldContinue(false);
-      } else if (!territory || !firmOrCompanyAffiliation || !averageMonthlyClients) {
+        setShouldContinue(false)
+      } else if (
+        !territory ||
+        !firmOrCompanyAffiliation ||
+        !averageMonthlyClients
+      ) {
         {
-          setShouldContinue(true);
+          setShouldContinue(true)
         }
       }
-    }
-    else if (userData?.userTypeTitle === UserTypes.LawAgent) {
-      if (territory && firmOrCompanyAffiliation && caseVolume && consultation && ClientType) {
-        setShouldContinue(false);
-      } else if (!territory || !firmOrCompanyAffiliation || !caseVolume || !consultation || !ClientType) {
+    } else if (userData?.userTypeTitle === UserTypes.LawAgent) {
+      if (
+        territory &&
+        firmOrCompanyAffiliation &&
+        caseVolume &&
+        consultation &&
+        ClientType
+      ) {
+        setShouldContinue(false)
+      } else if (
+        !territory ||
+        !firmOrCompanyAffiliation ||
+        !caseVolume ||
+        !consultation ||
+        !ClientType
+      ) {
         {
-          setShouldContinue(true);
+          setShouldContinue(true)
         }
       }
-
-    }
-    else if (userData?.userTypeTitle === UserTypes.LoanOfficerAgent) {
+    } else if (userData?.userTypeTitle === UserTypes.LoanOfficerAgent) {
       if (territory && firmOrCompanyAffiliation && ClientType) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else if (!territory || !firmOrCompanyAffiliation || !ClientType) {
         {
-          setShouldContinue(true);
+          setShouldContinue(true)
         }
       }
-
-    } else if (userData?.userTypeTitle === UserTypes.General || userData?.userTypeTitle === UserTypes.Reception) {
+    } else if (
+      userData?.userTypeTitle === UserTypes.General ||
+      userData?.userTypeTitle === UserTypes.Reception
+    ) {
       if (companyName && userFarm) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else if (!companyName || !userFarm) {
         {
-          setShouldContinue(true);
+          setShouldContinue(true)
         }
       }
-
-    }
-
-    else {
+    } else {
       if (userFarm && userBrokage && userTransaction) {
-        setShouldContinue(false);
+        setShouldContinue(false)
       } else {
-        setShouldContinue(true);
+        setShouldContinue(true)
       }
     }
   }, [
@@ -296,27 +305,25 @@ const OtherDetails = ({
     averageMonthlyClients,
     caseVolume,
     consultation,
-  ]);
-
+  ])
 
   //code to focus the verify code input field
   useEffect(() => {
     if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus();
+      verifyInputRef.current[0].focus()
     }
-  }, [showVerifyPopup]);
+  }, [showVerifyPopup])
 
   //select client type function
   const handleSelectClientType = (item) => {
     // //console.log;
-    setClientType(item.title);
-  };
+    setClientType(item.title)
+  }
 
   const handleSelectCollectionStretigy = (item) => {
     // //console.log;
-    setCollectionStretigy(item.title);
-  };
-
+    setCollectionStretigy(item.title)
+  }
 
   // Function to validate phone number
   const validatePhoneNumber = (phoneNumber) => {
@@ -324,56 +331,56 @@ const OtherDetails = ({
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
     const parsedNumber = parsePhoneNumberFromString(
       `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
+      countryCode?.toUpperCase(),
+    )
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage('Invalid')
     } else {
-      setErrorMessage("");
+      setErrorMessage('')
 
       if (timerRef.current) {
-        clearTimeout(timerRef.current);
+        clearTimeout(timerRef.current)
       }
 
       // setCheckPhoneResponse(null);
       // //console.log;
 
       timerRef.current = setTimeout(() => {
-        checkPhoneNumber(phoneNumber);
+        checkPhoneNumber(phoneNumber)
         // //console.log;
-      }, 300);
+      }, 300)
     }
-  };
+  }
 
   //code for verify number popup
 
   const handleVerifyPopup = async () => {
     // let response = await SendVerificationCode(userPhoneNumber, true);
     try {
-      setShowVerifyPopup(true);
+      setShowVerifyPopup(true)
       setTimeout(() => {
         if (verifyInputRef.current[0]) {
-          verifyInputRef.current[0].focus();
+          verifyInputRef.current[0].focus()
         }
-      }, 100);
-      setSendcodeLoader(true);
-      let response = await SendVerificationCode(userDetails.phone, true);
-      setResponse(response);
-      setIsVisible(true);
+      }, 100)
+      setSendcodeLoader(true)
+      let response = await SendVerificationCode(userDetails.phone, true)
+      setResponse(response)
+      setIsVisible(true)
       // //console.log;
     } catch (error) {
       // console.error("Error occured", error);
     } finally {
-      setSendcodeLoader(false);
+      setSendcodeLoader(false)
     }
     // setResponse(response)
     // setIsVisible(true)
-  };
+  }
 
   const handleClose = () => {
-    setShowVerifyPopup(false);
-  };
+    setShowVerifyPopup(false)
+  }
 
   //code for handling verify code changes
 
@@ -397,59 +404,61 @@ const OtherDetails = ({
   // };
 
   const handleVerifyInputChange = (e, index) => {
-    const { value } = e.target;
+    const { value } = e.target
 
     // If value is longer than 1, assume it's a paste/autofill
     if (value.length > 1) {
-      const newValues = Array(length).fill('');
-      value.slice(0, length).split('').forEach((char, i) => {
-        if (/[0-9]/.test(char)) {
-          newValues[i] = char;
-        }
-      });
+      const newValues = Array(length).fill('')
+      value
+        .slice(0, length)
+        .split('')
+        .forEach((char, i) => {
+          if (/[0-9]/.test(char)) {
+            newValues[i] = char
+          }
+        })
 
-      setVerifyCode(newValues);
+      setVerifyCode(newValues)
 
       // Focus last filled or next empty
-      const lastFilledIndex = newValues.findLastIndex(val => val !== '');
-      const focusIndex = Math.min(lastFilledIndex + 1, length - 1);
-      verifyInputRef.current[focusIndex]?.focus();
+      const lastFilledIndex = newValues.findLastIndex((val) => val !== '')
+      const focusIndex = Math.min(lastFilledIndex + 1, length - 1)
+      verifyInputRef.current[focusIndex]?.focus()
 
       // Trigger onComplete if all fields filled
       if (newValues.every((num) => num !== '') && onComplete) {
-        onComplete(newValues.join(''));
+        onComplete(newValues.join(''))
       }
 
-      return;
+      return
     }
 
     // Normal single digit input
-    if (!/[0-9]/.test(value) && value !== '') return;
+    if (!/[0-9]/.test(value) && value !== '') return
 
-    const newValues = [...VerifyCode];
-    newValues[index] = value;
-    setVerifyCode(newValues);
+    const newValues = [...VerifyCode]
+    newValues[index] = value
+    setVerifyCode(newValues)
 
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1]?.focus();
+      verifyInputRef.current[index + 1]?.focus()
     }
 
     if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join(''));
+      onComplete(newValues.join(''))
     }
-  };
-
+  }
 
   const handleBackspace = (e, index) => {
-    if (e.key === "Backspace") {
-      if (VerifyCode[index] === "" && index > 0) {
-        verifyInputRef.current[index - 1].focus();
+    if (e.key === 'Backspace') {
+      if (VerifyCode[index] === '' && index > 0) {
+        verifyInputRef.current[index - 1].focus()
       }
-      const newValues = [...VerifyCode];
-      newValues[index] = "";
-      setVerifyCode(newValues);
+      const newValues = [...VerifyCode]
+      newValues[index] = ''
+      setVerifyCode(newValues)
     }
-  };
+  }
 
   // const handlePaste = (e) => {
   //   console.log("Handle paste trigered");
@@ -475,129 +484,137 @@ const OtherDetails = ({
   //code for number verification
 
   const handlePaste = (e) => {
-    e.preventDefault(); // Prevent default paste behavior
+    e.preventDefault() // Prevent default paste behavior
 
-    const pastedText = e.clipboardData.getData('text').slice(0, length);
-    const newValues = Array(length).fill(''); // Start with empty array
+    const pastedText = e.clipboardData.getData('text').slice(0, length)
+    const newValues = Array(length).fill('') // Start with empty array
 
     // Fill the array with pasted digits
     pastedText.split('').forEach((char, index) => {
       if (index < length && /[0-9]/.test(char)) {
-        newValues[index] = char;
+        newValues[index] = char
       }
-    });
+    })
 
-    setVerifyCode(newValues);
+    setVerifyCode(newValues)
 
     // Focus on the last filled input or the next empty one
-    const lastFilledIndex = newValues.findLastIndex(val => val !== '');
-    const focusIndex = lastFilledIndex === -1 ? 0 : Math.min(lastFilledIndex + 1, length - 1);
+    const lastFilledIndex = newValues.findLastIndex((val) => val !== '')
+    const focusIndex =
+      lastFilledIndex === -1 ? 0 : Math.min(lastFilledIndex + 1, length - 1)
 
     setTimeout(() => {
-      verifyInputRef.current[focusIndex]?.focus();
-    }, 0);
+      verifyInputRef.current[focusIndex]?.focus()
+    }, 0)
 
     // Trigger onComplete if all fields are filled
     if (newValues.every((num) => num !== '') && onComplete) {
-      onComplete(newValues.join(''));
+      onComplete(newValues.join(''))
     }
-  };
+  }
 
   const handleVerifyCode = () => {
     // //console.log);
-    setPhoneVerifiedSuccessSnack(true);
+    setPhoneVerifiedSuccessSnack(true)
 
-    handleRegister();
-  };
+    handleRegister()
+  }
 
   //code for registering user
   const handleRegister = async () => {
     try {
-      setRegisterLoader(true);
+      setRegisterLoader(true)
 
-      let agentTitle = userData.userTypeTitle;
+      let agentTitle = userData.userTypeTitle
 
-      const formData = new FormData();
-      const ApiPath = Apis.register;
-      let campainee = GetCampaigneeNameIfAvailable(window);
+      const formData = new FormData()
+      const ApiPath = Apis.register
+      let campainee = GetCampaigneeNameIfAvailable(window)
       if (campainee) {
-        formData.append("campaignee", campainee);
+        formData.append('campaignee', campainee)
+      }
+
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI()
+      if (agencyUuid) {
+        formData.append('agencyUuid', agencyUuid)
       }
 
       // Add hostname for auto-detecting agency from custom domain/subdomain
-      let hostname = null;
-      if (typeof window !== "undefined") {
-        hostname = window.location.hostname;
+      let hostname = null
+      if (typeof window !== 'undefined') {
+        hostname = window.location.hostname
         // Only send if not localhost/127.0.0.1
         if (
           hostname &&
-          !hostname.includes("localhost") &&
-          !hostname.includes("127.0.0.1")
+          !hostname.includes('localhost') &&
+          !hostname.includes('127.0.0.1')
         ) {
-          formData.append("hostname", hostname);
+          formData.append('hostname', hostname)
         }
       }
+
       // const formData = new FormData();
-      formData.append("name", userDetails.name);
-      formData.append("email", userDetails.email);
-      formData.append("phone", userDetails.phone);
+      formData.append('name', userDetails.name)
+      formData.append('email', userDetails.email)
+      formData.append('phone', userDetails.phone)
 
       if (userFarm) {
-        formData.append("farm", userFarm);
+        formData.append('farm', userFarm)
       }
       if (userBrokage) {
-        formData.append("brokerage", userBrokage);
+        formData.append('brokerage', userBrokage)
       }
       if (userTransaction) {
-        formData.append("averageTransactionPerYear", userTransaction);
+        formData.append('averageTransactionPerYear', userTransaction)
       }
       if (service) {
-        formData.append("areaOfService", service);
+        formData.append('areaOfService', service)
       }
       if (companyName) {
-        formData.append("company", companyName);
+        formData.append('company', companyName)
       }
       if (installationVolume) {
-        formData.append("projectsPerYear", installationVolume);
+        formData.append('projectsPerYear', installationVolume)
       }
       if (projectSize) {
-        formData.append("projectSizekw", projectSize);
+        formData.append('projectSizekw', projectSize)
       }
       if (websiteUrl) {
-        formData.append("website", websiteUrl);
+        formData.append('website', websiteUrl)
       }
       if (collectionStretigy) {
-        formData.append("collectionStrategy", collectionStretigy);
+        formData.append('collectionStrategy', collectionStretigy)
       }
       if (ClientType) {
-        formData.append("clientType", ClientType);
+        formData.append('clientType', ClientType)
       }
       if (territory) {
-        formData.append("territory", territory);
+        formData.append('territory', territory)
       }
       if (firmOrCompanyAffiliation) {
-        formData.append("firmOrCompanyAffiliation", firmOrCompanyAffiliation);
+        formData.append('firmOrCompanyAffiliation', firmOrCompanyAffiliation)
       }
       if (averageMonthlyClients) {
-        formData.append("averageMonthlyClients", averageMonthlyClients);
+        formData.append('averageMonthlyClients', averageMonthlyClients)
       }
       if (caseVolume) {
-        formData.append("caseVolume", caseVolume);
+        formData.append('caseVolume', caseVolume)
       }
       if (consultation) {
-        formData.append("consultationFormat", consultation);
+        formData.append('consultationFormat', consultation)
       }
 
-      formData.append("agentService", JSON.stringify(userData.serviceID));
-      formData.append("areaOfFocus", JSON.stringify(userData.focusAreaId));
-      formData.append("userType", agentTitle);
+      formData.append('agentService', JSON.stringify(userData.serviceID))
+      formData.append('areaOfFocus', JSON.stringify(userData.focusAreaId))
+      formData.append('userType', agentTitle)
 
-      formData.append("login", false);
+      formData.append('login', false)
       formData.append(
-        "timeZone",
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-      );
-      formData.append("verificationCode", VerifyCode.join(""));
+        'timeZone',
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      )
+      formData.append('verificationCode', VerifyCode.join(''))
 
       // //console.log;
       for (let [key, value] of formData.entries()) {
@@ -605,16 +622,16 @@ const OtherDetails = ({
       }
 
       // return;
-      const response = await axios.post(ApiPath, formData);
+      const response = await axios.post(ApiPath, formData)
       if (response) {
         // //console.log;
-        let result = response.data;
-        setResponse(result);
-        setIsVisible(true);
+        let result = response.data
+        setResponse(result)
+        setIsVisible(true)
         if (response.data.status === true) {
           // //console.log;
-          localStorage.removeItem(PersistanceKeys.RegisterDetails);
-          localStorage.setItem("User", JSON.stringify(response.data.data));
+          localStorage.removeItem(PersistanceKeys.RegisterDetails)
+          localStorage.setItem('User', JSON.stringify(response.data.data))
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
           //   JSON.stringify(response.data.data)
@@ -622,35 +639,42 @@ const OtherDetails = ({
 
           //check for document undefined issue
 
-          if (typeof document !== "undefined") {
-            setCookie(response.data.data.user, document);
+          if (typeof document !== 'undefined') {
+            setCookie(response.data.data.user, document)
           }
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
-            clearAgencyUUID();
+            clearAgencyUUID()
           }
 
           // handleContinue();
 
-          const screenWidth = window.innerWidth; // Get current screen width
-          const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          const screenWidth = window.innerWidth // Get current screen width
+          const SM_SCREEN_SIZE = 640 // Tailwind's sm breakpoint is typically 640px
           let user = response.data.data.user
           // return
-          if (user.userRole === "AgencySubAccount") {
-            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
-              JSON.stringify(response.data.data)
+          if (user.userRole === 'AgencySubAccount') {
+            localStorage.setItem(
+              PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data),
             )
+          }
+
+          // Force apply branding after registration (for subaccounts/agencies)
+          if (user.userRole === 'AgencySubAccount' || user.userRole === 'Agency') {
+            await forceApplyBranding(response.data)
           }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setShowVerifyPopup(false)
-            setCongratsPopup(true);
+            setCongratsPopup(true)
             // //console.log;
           } else {
             // //console.log;
             // handleContinue();
-            router.push("/createagent")
+            handleShowRedirectPopup()
+            router.push('/createagent')
           }
         } else {
           setSnackMessage(response.data.message)
@@ -659,83 +683,81 @@ const OtherDetails = ({
     } catch (error) {
       // console.error("Error occured in register api is: ", error);
     } finally {
-      setRegisterLoader(false);
+      setRegisterLoader(false)
     }
-  };
+  }
 
   //code to check email and phone
 
   const checkPhoneNumber = async (value) => {
     try {
-      setPhoneNumberLoader(true);
-      const ApiPath = Apis.CheckPhone;
+      setPhoneNumberLoader(true)
+      const ApiPath = Apis.CheckPhone
 
       const ApiData = {
         phone: value,
-      };
+      }
 
       // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         } else {
-          setCheckPhoneResponse(response.data);
+          setCheckPhoneResponse(response.data)
         }
       }
     } catch (error) {
       // console.error("Error occured in check phone api is :", error);
     } finally {
-      setPhoneNumberLoader(false);
+      setPhoneNumberLoader(false)
     }
-  };
+  }
 
   const styles = {
     headingStyle: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: '600',
     },
     inputStyle: {
       fontSize: 15,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     errmsg: {
       fontSize: 12,
-      fontWeight: "500",
-      borderRadius: "7px",
+      fontWeight: '500',
+      borderRadius: '7px',
     },
     verifyPopup: {
-      height: "auto",
-      bgcolor: "transparent",
+      height: 'auto',
+      bgcolor: 'transparent',
       // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
+      mx: 'auto',
+      my: '50vh',
+      transform: 'translateY(-55%)',
       borderRadius: 2,
-      border: "none",
-      outline: "none",
+      border: 'none',
+      outline: 'none',
     },
-  };
+  }
 
   const handleConsultationFormat = (item) => {
-    setConsultation(item.title);
-  };
-
+    setConsultation(item.title)
+  }
 
   const getOtherAgentDetailsComponent = () => {
     //console.log;
 
     if (userData?.userTypeTitle) {
-
       if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
         return (
           <RealEstateOtherDetails
@@ -747,12 +769,12 @@ const OtherDetails = ({
             setUserFarm={setUserFarm}
             setUserTransaction={setUserTransaction}
             handleVerifyPopup={handleVerifyPopup}
-
           />
         )
       }
-      if (userData?.userTypeTitle === UserTypes.General
-        || userData.userTypeTitle == UserTypes.Reception
+      if (
+        userData?.userTypeTitle === UserTypes.General ||
+        userData.userTypeTitle == UserTypes.Reception
       ) {
         return (
           <GeneralAgentOtherDetails
@@ -762,7 +784,6 @@ const OtherDetails = ({
             setCompany={setCompanyName}
             setUserFarm={setUserFarm}
             handleVerifyPopup={handleVerifyPopup}
-
           />
         )
       }
@@ -794,7 +815,6 @@ const OtherDetails = ({
             setClientType={setClientType}
             handleSelectClientType={(item) => handleSelectClientType(item)}
             handleVerifyPopup={handleVerifyPopup}
-
           />
         )
       }
@@ -826,8 +846,8 @@ const OtherDetails = ({
       }
       // tax and recruiter agent have same UI
 
-
-      if (userData?.userTypeTitle === UserTypes.RecruiterAgent ||
+      if (
+        userData?.userTypeTitle === UserTypes.RecruiterAgent ||
         userData?.userTypeTitle === UserTypes.TaxAgent
       ) {
         return (
@@ -918,8 +938,6 @@ const OtherDetails = ({
         )
       }
 
-
-
       // else {
 
       //   return (
@@ -940,7 +958,7 @@ const OtherDetails = ({
 
   return (
     <div
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <AgentSelectSnackMessage
@@ -959,19 +977,17 @@ const OtherDetails = ({
           <div className="flex flex-col items-center px-4 w-full h-[90%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: "center" }}
+              style={{ textAlign: 'center' }}
             >
               Your Contact Information
             </div>
             <div
               className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
-              style={{ scrollbarWidth: "none" }}
+              style={{ scrollbarWidth: 'none' }}
             >
               {/* Other Agents Other Details */}
 
-              {
-                getOtherAgentDetailsComponent()
-              }
+              {getOtherAgentDetailsComponent()}
 
               {/* Modal for verify number */}
 
@@ -982,7 +998,7 @@ const OtherDetails = ({
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     ////backdropFilter: "blur(5px)"
                   },
                 }}
@@ -995,15 +1011,15 @@ const OtherDetails = ({
                     <div
                       className="sm:w-7/12 w-full mx-2"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
                           <Image
-                            src={"/assets/crossIcon.png"}
+                            src={'/assets/crossIcon.png'}
                             height={40}
                             width={40}
                             alt="*"
@@ -1013,14 +1029,14 @@ const OtherDetails = ({
                       <div
                         style={{
                           fontSize: 26,
-                          fontWeight: "700",
+                          fontWeight: '700',
                         }}
                       >
                         Verify phone number
                       </div>
                       <div
                         className="mt-8"
-                        style={{ ...styles.inputStyle, color: "#00000060" }}
+                        style={{ ...styles.inputStyle, color: '#00000060' }}
                       >
                         Enter code that was sent to number ending with ***
                         {userDetails?.phone.slice(-4)}.
@@ -1028,7 +1044,7 @@ const OtherDetails = ({
                       {/* <VerificationCodeInput /> */}
                       <div
                         className="mt-8"
-                        style={{ display: "flex", gap: "8px" }}
+                        style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
                           <input
@@ -1048,21 +1064,21 @@ const OtherDetails = ({
                             onKeyUp={(e) => {
                               // Check if the Enter key is pressed and all inputs are filled
                               if (
-                                e.key === "Enter" &&
-                                VerifyCode.every((value) => value.trim() !== "")
+                                e.key === 'Enter' &&
+                                VerifyCode.every((value) => value.trim() !== '')
                               ) {
-                                handleVerifyCode();
+                                handleVerifyCode()
                               }
                             }}
                             onPaste={handlePaste}
                             placeholder="-"
                             style={{
-                              width: "40px",
-                              height: "40px",
-                              textAlign: "center",
-                              fontSize: "20px",
-                              border: "1px solid #ccc",
-                              borderRadius: "5px",
+                              width: '40px',
+                              height: '40px',
+                              textAlign: 'center',
+                              fontSize: '20px',
+                              border: '1px solid #ccc',
+                              borderRadius: '5px',
                             }}
                             className=" focus:outline-none focus:ring-0"
                           />
@@ -1091,7 +1107,7 @@ const OtherDetails = ({
                       ) : (
                         <button
                           className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                          style={{ height: "50px" }}
+                          style={{ height: '50px' }}
                           onClick={handleVerifyCode}
                         >
                           Continue
@@ -1110,7 +1126,7 @@ const OtherDetails = ({
                 BackdropProps={{
                   timeout: 1000,
                   sx: {
-                    backgroundColor: "#00000020",
+                    backgroundColor: '#00000020',
                     ////backdropFilter: "blur(5px)"
                   },
                 }}
@@ -1120,9 +1136,9 @@ const OtherDetails = ({
                     <div
                       className="w-full mx-4"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: '#ffffff',
                         padding: 20,
-                        borderRadius: "13px",
+                        borderRadius: '13px',
                       }}
                     >
                       <div className="flex flex-row justify-end">
@@ -1141,9 +1157,9 @@ const OtherDetails = ({
                           className=""
                           src="/agentXOrb.gif"
                           style={{
-                            height: "100px",
-                            width: "110px",
-                            resize: "contain",
+                            height: '100px',
+                            width: '110px',
+                            resize: 'contain',
                           }}
                           height={102}
                           width={102}
@@ -1154,8 +1170,8 @@ const OtherDetails = ({
                       <div
                         style={{
                           fontSize: 26,
-                          fontWeight: "700",
-                          textAlign: "center",
+                          fontWeight: '700',
+                          textAlign: 'center',
                           marginTop: 20,
                         }}
                       >
@@ -1165,10 +1181,10 @@ const OtherDetails = ({
                       <div
                         style={{
                           fontSize: 15,
-                          fontWeight: "600",
-                          textAlign: "center",
+                          fontWeight: '600',
+                          textAlign: 'center',
                           marginTop: 50,
-                          color: "#00000070",
+                          color: '#00000070',
                         }}
                       >
                         Your account is created!
@@ -1194,28 +1210,52 @@ const OtherDetails = ({
                         <button
                           className="text-white bg-purple outline-none rounded-xl w-full mt-8"
                           style={{
-                            height: "50px",
+                            height: '50px',
                             fontSize: 15,
-                            fontWeight: "700",
+                            fontWeight: '700',
                           }}
-                          onClick={() => {
-                            handleShowRedirectPopup()
-                            // router.push("/createagent");
-                            window.open("/embedCalendar", "_blank");
-                            // window.close();
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            
+                            // Check if user is on mobile - use both screen width and user agent
+                            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+                            const SM_SCREEN_SIZE = 640
+                            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                              typeof navigator !== 'undefined' ? navigator.userAgent : ''
+                            )
+                            
+                            console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
+                            
+                            // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
+                            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                              // Mobile: Navigate to payment step (step 4) to allow subscription
+                              console.log('Mobile detected - navigating to payment step')
+                              router.push('/createagent?step=4')
+                            } else {
+                              // Desktop: Navigate to createagent
+                              console.log('Desktop detected - navigating to createagent')
+                              if (handleShowRedirectPopup) {
+                                handleShowRedirectPopup()
+                              }
+                              // Small delay to ensure popup shows before navigation
+                              setTimeout(() => {
+                                router.push('/createagent')
+                              }, 100)
+                            }
                           }}
-                        // onClick={() => {
-                        //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
-                        //   handleShowRedirectPopup();
-                        //   if (newTab && typeof newTab.document !== 'undefined') {
-                        //     newTab.document.write(`
-                        //     <script>
-                        //       window.opener && window.opener.close();  // Step 2: close current tab
-                        //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
-                        //     </script>
-                        //   `);
-                        //   }
-                        // }}
+                          // onClick={() => {
+                          //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
+                          //   handleShowRedirectPopup();
+                          //   if (newTab && typeof newTab.document !== 'undefined') {
+                          //     newTab.document.write(`
+                          //     <script>
+                          //       window.opener && window.opener.close();  // Step 2: close current tab
+                          //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
+                          //     </script>
+                          //   `);
+                          //   }
+                          // }}
                         >
                           Get Started
                         </button>
@@ -1224,8 +1264,6 @@ const OtherDetails = ({
                   </div>
                 </Box>
               </Modal>
-
-
             </div>
           </div>
         </div>
@@ -1244,7 +1282,7 @@ const OtherDetails = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OtherDetails;
+export default OtherDetails

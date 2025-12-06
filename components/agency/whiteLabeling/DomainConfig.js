@@ -481,7 +481,7 @@ const DomainConfig = () => {
                 disabled={loading || !!domainStatus}
               />
               <button
-                className="bg-purple-600 text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px] flex-shrink-0"
+                className="bg-brand-primary text-white rounded-md px-6 py-2 text-center font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity min-w-[100px]"
                 onClick={handleAddDomain}
                 disabled={loading || !!domainStatus}
               >

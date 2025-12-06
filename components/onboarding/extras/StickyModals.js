@@ -1,34 +1,34 @@
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import Apis from "@/components/apis/Apis";
-import getProfileDetails from "@/components/apis/GetProfile";
+import { Box, CircularProgress, Modal } from '@mui/material'
+import axios from 'axios'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import CloseBtn from "@/components/globalExtras/CloseBtn";
-import { Box, CircularProgress, Modal } from "@mui/material";
-import axios from "axios";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export const TwilioWarning = ({
   // agencyData,
   showSuccess,
-  integration = "",
+  integration = '',
   isTwilioAdded,
 }) => {
-  const router = useRouter();
+  const router = useRouter()
 
   // console.log("User data passed to twilio is", agencyData);
 
   //code for modal
-  const [showAddKeyModal, setShowAddKeyModal] = useState(false);
-  const [showAddTwilioWarning, setShowAddTwiliowarning] = useState(false);
+  const [showAddKeyModal, setShowAddKeyModal] = useState(false)
+  const [showAddTwilioWarning, setShowAddTwiliowarning] = useState(false)
 
   useEffect(() => {
-
     // let data = localStorage.getItem("User");
     // if (data) {
     //   const agencyData = JSON.parse(data)
@@ -42,45 +42,49 @@ export const TwilioWarning = ({
     //   }
     // }
 
-    fetchData();
-    fetchProfileData();
+    fetchData()
+    fetchProfileData()
+  }, [])
 
-  }, []);
-
-  let attempts = 0;
-  const maxAttempts = 5;
+  let attempts = 0
+  const maxAttempts = 5
 
   const fetchData = () => {
-    attempts++;
-    const data = localStorage.getItem("User");
+    attempts++
+    const data = localStorage.getItem('User')
 
     if (data) {
-      const agencyData = JSON.parse(data);
-      console.log(`✅ Data fetched on ${attempts}${attempts === 1 ? "st" : attempts === 2 ? "nd" : attempts === 3 ? "rd" : "th"} try`);
-      console.log("Agency data for checking twilio is", agencyData.user.isTwilioConnected)
+      const agencyData = JSON.parse(data)
+      console.log(
+        `✅ Data fetched on ${attempts}${attempts === 1 ? 'st' : attempts === 2 ? 'nd' : attempts === 3 ? 'rd' : 'th'} try`,
+      )
+      console.log(
+        'Agency data for checking twilio is',
+        agencyData.user.isTwilioConnected,
+      )
       if (agencyData.user.isTwilioConnected === false) {
-        setShowAddTwiliowarning(true);
-        isTwilioAdded({ status: true });
+        setShowAddTwiliowarning(true)
+        isTwilioAdded({ status: true })
       } else {
-        setShowAddTwiliowarning(false);
-        isTwilioAdded({ status: false });
+        setShowAddTwiliowarning(false)
+        isTwilioAdded({ status: false })
       }
     } else {
       if (attempts < maxAttempts) {
-        console.log(`⏳ Data not found on try ${attempts}, retrying...`);
-        setTimeout(fetchData, 1000); // retry after 1 second
+        console.log(`⏳ Data not found on try ${attempts}, retrying...`)
+        setTimeout(fetchData, 1000) // retry after 1 second
       } else {
-        console.log("❌ Data not found after 5 tries");
-        alert("Data not fetched ⛔");
-        setShowAddTwiliowarning(true);
-        isTwilioAdded({ status: true });
+        console.log('❌ Data not found after 5 tries')
+        alert('Data not fetched ⛔')
+        setShowAddTwiliowarning(true)
+        isTwilioAdded({ status: true })
       }
     }
-  };
+  }
 
   const fetchProfileData = async () => {
-    const profileData = await getProfileDetails();
-    console.log("Response of user profile us", profileData)
+    const profileData = await getProfileDetails()
+    console.log('Response of user profile us', profileData)
   }
 
   return (
@@ -98,15 +102,15 @@ export const TwilioWarning = ({
           <div className="flex flex-row items-center bg-red shadow-lg p-2 w-full">
             <Image
               alt="error"
-              src={"/assets/salmanassets/danger_conflict.svg"}
+              src={'/assets/salmanassets/danger_conflict.svg'}
               height={40}
               width={40}
             />
             <div
               className="text-white"
               style={{
-                fontWeight: "500",
-                fontSize: "15px",
+                fontWeight: '500',
+                fontSize: '15px',
               }}
             >
               Add your Twilio API Keys to start calls
@@ -115,9 +119,9 @@ export const TwilioWarning = ({
               className="bg-none text-white text-lg outline-none border-b-4 border-white p-0 m-0 leading-none ms-2"
               onClick={() => setShowAddKeyModal(true)}
               style={{
-                fontWeight: "700",
-                fontSize: "15px",
-                lineHeight: "1", // Ensures no extra vertical space
+                fontWeight: '700',
+                fontSize: '15px',
+                lineHeight: '1', // Ensures no extra vertical space
               }}
             >
               Add Key
@@ -126,45 +130,49 @@ export const TwilioWarning = ({
           <AddAgencyTwilioKeyModal
             showAddKeyModal={showAddKeyModal}
             handleClose={(d) => {
-              setShowAddKeyModal(false);
+              setShowAddKeyModal(false)
               if (d) {
-                showSuccess(d);
-                setShowAddTwiliowarning(false);
-                isTwilioAdded({ status: false });
+                showSuccess(d)
+                setShowAddTwiliowarning(false)
+                isTwilioAdded({ status: false })
               }
             }}
           />
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selectedAgency }) => {
-  const [sid, setSid] = useState("");
-  const [twilioAuthToken, setTwilioAuthToken] = useState("");
-  const [canAddKey, setCanAddKey] = useState(false);
+export const AddAgencyTwilioKeyModal = ({
+  showAddKeyModal,
+  handleClose,
+  selectedAgency,
+}) => {
+  const [sid, setSid] = useState('')
+  const [twilioAuthToken, setTwilioAuthToken] = useState('')
+  const [canAddKey, setCanAddKey] = useState(false)
 
-  const [twillioLoader, setTwillioLoader] = useState(false);
-  const [showSnackMessage, setShowSnackMessage] = useState(null);
-  const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Error);
+  const [twillioLoader, setTwillioLoader] = useState(false)
+  const [showSnackMessage, setShowSnackMessage] = useState(null)
+  const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Error)
 
   //code for can add key
   useEffect(() => {
     if (sid && twilioAuthToken) {
-      setCanAddKey(true);
+      setCanAddKey(true)
     } else {
-      setCanAddKey(false);
+      setCanAddKey(false)
     }
-  }, [sid, twilioAuthToken]);
+  }, [sid, twilioAuthToken])
 
   //add twilio key
   const handleSetUpTwillio = async () => {
     try {
-      setTwillioLoader(true);
-      const Token = AuthToken();
+      setTwillioLoader(true)
+      const Token = AuthToken()
       // const ApiPAth = Apis.setUpAgencyTwilioKey;
-      const ApiPAth = Apis.addTwilio;
+      const ApiPAth = Apis.addTwilio
 
       // const formData = new FormData();
 
@@ -173,53 +181,57 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
 
       const ApiData = {
         twilioAccountSid: sid,
-        twilioAuthToken: twilioAuthToken
+        twilioAuthToken: twilioAuthToken,
       }
       if (selectedAgency) {
         ApiData = {
           ...ApiData,
-          userId: selectedAgency.id
+          userId: selectedAgency.id,
         }
       }
 
-      console.log("Api data sending in add twilio api", ApiData);
+      console.log('Api data sending in add twilio api', ApiData)
       // for (let [key, value] of formData.entries()) {
       //   console.log(`${key} = ${value}`);
       // }
 
       const response = await axios.post(ApiPAth, ApiData, {
         headers: {
-          Authorization: "Bearer " + Token,
+          Authorization: 'Bearer ' + Token,
         },
-      });
+      })
 
       if (response) {
-        console.log("Response of add twilio api is", response);
+        console.log('Response of add twilio api is', response)
         if (response.data.status === true) {
-          console.log("Sending the success message");
-          await getProfileDetails();
-          setTwillioLoader(false);
-          const localData = localStorage.getItem("User");
+          console.log('Sending the success message')
+          await getProfileDetails()
+          setTwillioLoader(false)
+          const localData = localStorage.getItem('User')
           if (localData) {
-            let d = JSON.parse(localData);
-            d.user.isTwilioConnected = true;
-            d.user.checkList.checkList.twilioConnected = true;
-            localStorage.setItem("User", JSON.stringify(d));
+            let d = JSON.parse(localData)
+            d.user.isTwilioConnected = true
+            d.user.checkList.checkList.twilioConnected = true
+            localStorage.setItem('User', JSON.stringify(d))
           }
-          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
-          handleClose(response.data.message);
-          handleResetValues();
+          window.dispatchEvent(
+            new CustomEvent('UpdateAgencyCheckList', {
+              detail: { update: true },
+            }),
+          )
+          handleClose(response.data.message)
+          handleResetValues()
         } else if (response.data.status === false) {
-          setShowSnackMessage(response.data.message);
-          setTwillioLoader(false);
+          setShowSnackMessage(response.data.message)
+          setTwillioLoader(false)
         }
       }
     } catch (error) {
-      console.error("Error occured in twillio api is", error);
-      setTwillioLoader(false);
+      console.error('Error occured in twillio api is', error)
+      setTwillioLoader(false)
       
       // Extract error message from response
-      let errorMessage = "An unexpected error occurred";
+      let errorMessage = 'An unexpected error occurred'
       
       if (axios.isAxiosError(error)) {
         if (error.response) {
@@ -228,34 +240,34 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
             error.response.data?.message || 
             error.response.data?.error ||
             JSON.stringify(error.response.data) ||
-            "An error occurred while connecting Twilio";
+            'An error occurred while connecting Twilio'
         } else if (error.request) {
           // Request was made but no response received
-          errorMessage = "No response received from server.";
+          errorMessage = 'No response received from server.'
         } else {
           // Something happened in setting up the request
-          errorMessage = error.message;
+          errorMessage = error.message
         }
       } else {
-        errorMessage = error.message || String(error);
+        errorMessage = error.message || String(error)
       }
       
-      setShowSnackMessage(errorMessage);
-      setShowSnackType(SnackbarTypes.Error);
+      setShowSnackMessage(errorMessage)
+      setShowSnackType(SnackbarTypes.Error)
     }
-  };
+  }
 
   //close modal
   const closeModal = () => {
-    handleClose();
-    setSid("");
-    setTwilioAuthToken("");
-  };
+    handleClose()
+    setSid('')
+    setTwilioAuthToken('')
+  }
 
   //reset values
   const handleResetValues = () => {
-    setSid("");
-    setTwilioAuthToken("");
+    setSid('')
+    setTwilioAuthToken('')
   }
 
   return (
@@ -263,7 +275,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
       open={showAddKeyModal}
       className="border-none outline-none"
       BackdropProps={{
-        style: { backgroundColor: "#00000020" },
+        style: { backgroundColor: '#00000020' },
       }}
     >
       <Box
@@ -274,7 +286,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
           <AgentSelectSnackMessage
             isVisible={showSnackMessage}
             hide={() => {
-              setShowSnackMessage(null);
+              setShowSnackMessage(null)
             }}
             type={showSnackType}
             message={showSnackMessage}
@@ -282,8 +294,8 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
           <div className="w-full flex flex-row items-center justify-between">
             <div
               style={{
-                fontWeight: "600",
-                fontSize: "22px",
+                fontWeight: '600',
+                fontSize: '22px',
               }}
             >
               Twilio API Key
@@ -291,27 +303,31 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
             <CloseBtn
               onClick={() => {
                 handleResetValues()
-                closeModal();
+                closeModal()
               }}
             />
           </div>
           <div className="mt-5">
-            <Label htmlFor="twilio-sid" style={styles.mediumTxt}>SID</Label>
+            <Label htmlFor="twilio-sid" style={styles.mediumTxt}>
+              SID
+            </Label>
             <Input
               value={sid}
               onChange={(e) => {
-                setSid(e.target.value);
+                setSid(e.target.value)
               }}
               placeholder="Paste SID"
               className="mt-2 focus-visible:ring-black focus-visible:border-black"
             />
           </div>
           <div className="mt-5">
-            <Label htmlFor="twilio-auth-token" style={styles.mediumTxt}>Auth Token</Label>
+            <Label htmlFor="twilio-auth-token" style={styles.mediumTxt}>
+              Auth Token
+            </Label>
             <Input
               value={twilioAuthToken}
               onChange={(e) => {
-                setTwilioAuthToken(e.target.value);
+                setTwilioAuthToken(e.target.value)
               }}
               placeholder="Paste Token"
               className="mt-2 focus-visible:ring-black focus-visible:border-black"
@@ -321,7 +337,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
             <button
               className="text-[#6b7280] w-1/2 p-2"
               onClick={() => {
-                closeModal();
+                closeModal()
               }}
             >
               Cancel
@@ -334,8 +350,9 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
                 <div className="w-full flex flex-row items-center justify-end">
                   <button
                     disabled={!canAddKey}
-                    className={`${canAddKey ? "bg-purple" : "bg-[#00000020]"
-                      } text-white p-2 rounded-md w-5/6`}
+                    className={`${
+                      canAddKey ? 'bg-purple' : 'bg-[#00000020]'
+                    } text-white p-2 rounded-md w-5/6`}
                     onClick={handleSetUpTwillio}
                   >
                     Save
@@ -347,84 +364,84 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
         </div>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
 // Modal for Up Sell Phones
 export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
-  const [price, setPrice] = useState("");
-  const [saveLoader, setSaveLoader] = useState(false);
+  const [price, setPrice] = useState('')
+  const [saveLoader, setSaveLoader] = useState(false)
 
   const handlePriceChange = (e) => {
-    let val = e.target.value;
+    let val = e.target.value
 
     // Allow empty input
-    if (val === "") {
-      setPrice("");
-      return;
+    if (val === '') {
+      setPrice('')
+      return
     }
 
     // Allow valid numbers only
-    const num = parseFloat(val);
-    if (isNaN(num)) return;
+    const num = parseFloat(val)
+    if (isNaN(num)) return
 
     // Format to 2 decimals immediately
-    const formatted = num.toFixed(2);
-    setPrice(formatted);
-  };
+    const formatted = num.toFixed(2)
+    setPrice(formatted)
+  }
 
   //handle save
   const handleSaveUpSell = async () => {
     try {
-      console.log("Which data to send in api is not confirmed");
+      console.log('Which data to send in api is not confirmed')
       // return
-      setSaveLoader(true);
-      const Auth = AuthToken();
-      const ApiPath = Apis.addUpSellPhone;
+      setSaveLoader(true)
+      const Auth = AuthToken()
+      const ApiPath = Apis.addUpSellPhone
       const ApiData = {
         price: price,
-      };
+      }
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + Auth,
-          "Content-Type": "application/json",
+          Authorization: 'Bearer ' + Auth,
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (response) {
-        await getProfileDetails();
-        console.log("Response of add upsell phone api is", response);
-        handleClose(response.data);
-        setSaveLoader(false);
+        await getProfileDetails()
+        console.log('Response of add upsell phone api is', response)
+        handleClose(response.data)
+        setSaveLoader(false)
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
-      setSaveLoader(false);
+      console.error('Error occured in api is', error)
+      setSaveLoader(false)
     } finally {
       // setSaveLoader(false);
     }
-  };
+  }
 
   return (
     <Modal
       open={allowUpSellPhone}
       className="border-none outline-none"
       BackdropProps={{
-        style: { backgroundColor: "#00000020" },
+        style: { backgroundColor: '#00000020' },
       }}
     >
       <Box className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <div>
           {/* Header */}
           <div className="w-full flex flex-row items-center justify-between">
-            <div style={{ fontWeight: "600", fontSize: 22 }}>
+            <div style={{ fontWeight: '600', fontSize: 22 }}>
               Upsell Phone Numbers
             </div>
             <button
               className="outline-none border-none"
               onClick={() => {
-                handleClose({ message: "notAdded" });
-                setPrice("");
+                handleClose({ message: 'notAdded' })
+                setPrice('')
               }}
             >
               <Image
@@ -451,16 +468,16 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
           <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
             <div>$</div>
             <input
-              style={{ fontSize: 15, fontWeight: "500" }}
+              style={{ fontSize: 15, fontWeight: '500' }}
               type="number"
               className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
               placeholder=""
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               onBlur={() => {
-                const num = parseFloat(price);
+                const num = parseFloat(price)
                 if (!isNaN(num)) {
-                  setPrice(num.toFixed(2));
+                  setPrice(num.toFixed(2))
                 }
               }}
             />
@@ -470,10 +487,10 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
           <div className="w-full flex flex-row items-center justify-between mt-12">
             <button
               className="h-[50px] w-[170px] rounded-md border outline-none text-center text-purple"
-              style={{ fontWeight: "600", fontSize: 17 }}
+              style={{ fontWeight: '600', fontSize: 17 }}
               onClick={() => {
-                handleClose({ message: "notAdded" });
-                setPrice("");
+                handleClose({ message: 'notAdded' })
+                setPrice('')
               }}
             >
               Cancel
@@ -487,7 +504,7 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
               <button
                 onClick={handleSaveUpSell}
                 className="h-[50px] w-[170px] rounded-md border-none outline-none text-white bg-purple text-center"
-                style={{ fontWeight: "600", fontSize: 17 }}
+                style={{ fontWeight: '600', fontSize: 17 }}
               >
                 Save
               </button>
@@ -496,17 +513,17 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
         </div>
       </Box>
     </Modal>
-  );
-};
+  )
+}
 
 const styles = {
   mediumTxt: {
-    fontWeight: "500",
-    fontSize: "15px",
+    fontWeight: '500',
+    fontSize: '15px',
     marginTop: 20,
   },
   inputTxt: {
-    fontWeight: "500",
-    fontSize: "15px",
+    fontWeight: '500',
+    fontSize: '15px',
   },
-};
+}

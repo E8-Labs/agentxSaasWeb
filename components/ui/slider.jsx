@@ -1,15 +1,18 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import * as SliderPrimitive from "@radix-ui/react-slider"
-import { cn } from "@/lib/utils" // if you have cn helper
+import * as SliderPrimitive from '@radix-ui/react-slider'
+import * as React from 'react'
+
+import { cn } from '@/lib/utils'
+
+// if you have cn helper
 
 export function Slider({ className, ...props }) {
   return (
     <SliderPrimitive.Root
       className={cn(
-        "relative flex w-full touch-none select-none items-center",
-        className
+        'relative flex w-full touch-none select-none items-center',
+        className,
       )}
       {...props}
     >

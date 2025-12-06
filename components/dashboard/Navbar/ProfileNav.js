@@ -48,6 +48,7 @@ import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
 import moment from "moment";
+import AppLogo from "@/components/common/AppLogo";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
@@ -666,6 +667,17 @@ const ProfileNav = () => {
       selected: "/svgIcons/selectedPiplineIcon.svg",
       uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
     },
+    // Show Messages menu only if not production
+    ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' ? [
+      {
+        id: 8,
+        name: "Messages",
+        isBeta: true,
+        href: "/dashboard/messages",
+        selected: "/messaging/icons_chat_menu.svg",
+        uneselected: "/messaging/icons_chat_menu.svg",
+      }
+    ] : []),
     {
       id: 5,
       name: "Activity",//"Call Log",
@@ -1214,7 +1226,7 @@ const ProfileNav = () => {
           showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
               {`Your account is paused. Click here to`} <span
-                className="text-purple underline cursor-pointer"
+                className="text-brand-primary underline cursor-pointer"
                 onClick={() => {
                   resumeAccount()
                 }}
@@ -1245,14 +1257,14 @@ const ProfileNav = () => {
                       {reduxUser?.plan?.price === 0 ? "You're out of Free AI Credits." :
                         `Action Needed! Your AI agents are paused. You don't have enough credits.`}
                       {reduxUser?.smartRefill === false && (<span
-                        className="text-purple underline cursor-pointer"
+                        className="text-brand-primary underline cursor-pointer"
                         onClick={() => {
                           handleSmartRefill();
                         }}
                       >
                       {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
                       </span>)}  <span
-                        className="text-purple underline cursor-pointer"
+                        className="text-brand-primary underline cursor-pointer"
                         onClick={() => {
                           setShowUpgradePlanModal2(true)
                         }}
@@ -1266,7 +1278,7 @@ const ProfileNav = () => {
                       <div style={{ fontSize: 15, fontWeight: '700', }}>
                         {`Your subscription payment could not be processed.`}
                         <span
-                          className="text-purple underline cursor-pointer"
+                          className="text-brand-primary underline cursor-pointer"
                           onClick={() => {
                             setShowUpgradePlanModal2(true)
                           }}
@@ -1329,42 +1341,22 @@ const ProfileNav = () => {
           }}
         >
           <div className="w-full flex flex-col gap-2">
-            {/* Show agency branding for subaccount users, otherwise show assignX */}
-            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding ? (
-              <>
-                {/* If logo exists, show only logo */}
-                {reduxUser.agencyBranding.logoUrl ? (
-                  <div className="w-full flex justify-start pl-6">
-                    <Image
-                      src={reduxUser.agencyBranding.logoUrl}
-                      alt="agency logo"
-                      height={40}
-                      width={140}
-                      objectFit="contain"
-                      style={{ maxHeight: "40px", marginLeft: "-8px" }}
-                    />
-                  </div>
-                ) : (
-                  /* If no logo, show only agency name */
-                  reduxUser.agencyBranding.companyName && (
-                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
-                      <div className="text-lg font-bold text-black truncate">
-                        {reduxUser.agencyBranding.companyName}
-                      </div>
-                    </div>
-                  )
-                )}
-              </>
+            {/* Show company name if no logo for subaccount users */}
+            {reduxUser && (reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee") && reduxUser?.agencyBranding && !reduxUser.agencyBranding.logoUrl && reduxUser.agencyBranding.companyName ? (
+              <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                <div className="text-lg font-bold text-black truncate">
+                  {reduxUser.agencyBranding.companyName}
+                </div>
+              </div>
             ) : (
-              /* Default assignX logo for regular users */
+              /* AppLogo handles logo display based on hostname */
               <div className="w-full flex justify-start pl-6">
-                <Image
-                  src={"/assets/assignX.png"}
-                  alt="profile"
-                  height={33}
+                <AppLogo
+                  height={reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee" ? 40 : 33}
                   width={140}
-                  objectFit="contain"
+                  maxWidth={200}
                   style={{ marginLeft: "-8px" }}
+                  alt="logo"
                 />
               </div>
             )}
@@ -1389,26 +1381,45 @@ const ProfileNav = () => {
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
                     style={{}}
                   >
-                    <Image
-                      src={
-                        pathname === item.href
-                          ? item.selected
-                          : item.uneselected
-                      }
-                      height={24}
-                      width={24}
-                      alt="icon"
-                    />
                     <div
                       className={
-                        pathname === item.href ? "text-purple" : "text-black"
+                        pathname === item.href
+                          ? "icon-brand-primary"
+                          : "icon-black"
+                      }
+                      style={
+                        pathname === item.href
+                          ? {
+                              '--icon-mask-image': `url(${
+                                pathname === item.href
+                                  ? item.selected
+                                  : item.uneselected
+                              })`,
+                            }
+                          : {}
+                      }
+                    >
+                      <Image
+                        src={
+                          pathname === item.href
+                            ? item.selected
+                            : item.uneselected
+                        }
+                        height={24}
+                        width={24}
+                        alt="icon"
+                      />
+                    </div>
+                    <div
+                      className={
+                        pathname === item.href ? "text-brand-primary" : "text-black"
                       }
                       style={{
                         fontSize: 15,
                         fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
                       }}
                     >
-                      {item.name}
+                      {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
                     </div>
                   </div>
                 </Link>
@@ -1483,7 +1494,7 @@ const ProfileNav = () => {
                       return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                     })()}
                   </div>
-                  <div className="text-xs font-medium text-purple">
+                  <div className="text-xs font-medium text-brand-primary">
                     {checkTrialDays(reduxUser) ? `${checkTrialDays(reduxUser)}` : ""}
                   </div>
                 </div>
@@ -1709,7 +1720,7 @@ const ProfileNav = () => {
                               {item.calls} Calls*
                               {item.status && (
                                 <div
-                                  className="flex hidden sm:flex px-2 py-1 bg-purple rounded-full text-white"
+                                  className="flex hidden sm:flex px-2 py-1 bg-brand-primary rounded-full text-white"
                                   style={{ fontSize: 11.6, fontWeight: "500" }}
                                 >
                                   {item.status}
@@ -1760,7 +1771,7 @@ const ProfileNav = () => {
                   ) : (
                     <button
                       disabled={!togglePlan}
-                      className="w-full flex flex-row items-center justify-center h-[50px] bg-purple rounded-lg text-white"
+                      className="w-full flex flex-row items-center justify-center h-[50px] bg-brand-primary rounded-lg text-white"
                       style={{
                         fontSize: 16.8,
                         fontWeight: "600",
