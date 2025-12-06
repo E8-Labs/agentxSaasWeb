@@ -46,8 +46,6 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
 
-  const [selectedUser, setSelectedUser] = useState(null);
-
   // Use ref to track initial mount
   const isInitialMount = useRef(true)
 

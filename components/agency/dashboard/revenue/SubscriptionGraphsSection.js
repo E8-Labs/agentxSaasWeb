@@ -136,52 +136,6 @@ const SubscriptionChartTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// Custom Tooltip Component for New Subscription Chart
-// Sorts plans by count (highest to lowest) for the selected day
-const SubscriptionChartTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    // Sort payload items by value (count) in descending order
-    const sortedPayload = [...payload].sort((a, b) => {
-      const aValue = a.value || 0;
-      const bValue = b.value || 0;
-      return bValue - aValue; // Descending order
-    });
-
-    return (
-      <div
-        style={{
-          backgroundColor: "white",
-          border: "1px solid #e5e7eb",
-          borderRadius: "8px",
-          padding: "12px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        }}
-      >
-        <div style={{ color: "#6b7280", fontWeight: "600", marginBottom: "8px", fontSize: "14px" }}>
-          {label}
-        </div>
-        {sortedPayload.map((item, index) => {
-          const planName = item.dataKey || item.name || "Unknown";
-          const count = item.value || 0;
-          return (
-            <div
-              key={item.dataKey || index}
-              style={{
-                color: "#111827",
-                fontSize: "13px",
-                marginBottom: index < sortedPayload.length - 1 ? "4px" : "0",
-              }}
-            >
-              {planName}: {count}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-  return null;
-};
-
 // Custom Tooltip Component for Reactivation Rate Chart
 const ReactivationChartTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {

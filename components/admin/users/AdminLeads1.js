@@ -990,48 +990,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                 </div>
               </div>
               <div className="flex flex-col items-center justify-center">
-              <div
-                className="mt-12 ms-8 text-center"
-                style={{ fontSize: 30, fontWeight: '700' }}
-              >
-                {`Looks like you don't have any leads yet`}
-              </div>
-
-              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddLeadModal(true)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/addManIcon.png'}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Upload Leads</span>
-                  </button>
-                </div>
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddNewSheetModal(true)
-                    }}
-                  >
-                    <Image
-                      src={'/assets/smartlistIcn.svg'}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Create Smartlist</span>
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center">
                 <div
                   className="mt-12 ms-8 text-center"
                   style={{ fontSize: 30, fontWeight: '700' }}
@@ -1039,34 +997,77 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   {`Looks like you don't have any leads yet`}
                 </div>
 
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '70px',
-                  left: '60%',
-                  transform: 'translateX(-50%)',
-                }}
-              >
-                <VideoCard
-                  duration={(() => {
-                    const tutorial = getTutorialByType(
-                      HowToVideoTypes.LeadsAndContacts,
-                    )
-                    return tutorial?.description || '11:27'
-                  })()}
-                  horizontal={false}
-                  playVideo={() => {
-                    setIntroVideoModal(true)
-                  }}
-                  title={
-                    getTutorialByType(HowToVideoTypes.LeadsAndContacts)
-                      ?.title || 'Learn how to add leads to your CRM'
-                  }
-                />
+                <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddLeadModal(true)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/addManIcon.png'}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Upload Leads</span>
+                    </button>
+                  </div>
+                  <div className="">
+                    <button
+                      className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
+                      onClick={() => {
+                        setShowAddNewSheetModal(true)
+                      }}
+                    >
+                      <Image
+                        src={'/assets/smartlistIcn.svg'}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                      <span style={styles.headingStyle}>Create Smartlist</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <div
+                    className="mt-12 ms-8 text-center"
+                    style={{ fontSize: 30, fontWeight: '700' }}
+                  >
+                    {`Looks like you don't have any leads yet`}
+                  </div>
+
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '70px',
+                      left: '60%',
+                      transform: 'translateX(-50%)',
+                    }}
+                  >
+                    <VideoCard
+                      duration={(() => {
+                        const tutorial = getTutorialByType(
+                          HowToVideoTypes.LeadsAndContacts,
+                        )
+                        return tutorial?.description || '11:27'
+                      })()}
+                      horizontal={false}
+                      playVideo={() => {
+                        setIntroVideoModal(true)
+                      }}
+                      title={
+                        getTutorialByType(HowToVideoTypes.LeadsAndContacts)
+                          ?.title || 'Learn how to add leads to your CRM'
+                      }
+                    />
+                  </div>
+
+
+                </div>
               </div>
-
-
-            </div>
             </div>
           )}
         </div>
@@ -2156,8 +2157,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   ) : (
                     <button
                       className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                          ? 'bg-brand-primary text-white'
-                          : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
+                        ? 'bg-brand-primary text-white'
+                        : 'bg-btngray text-gray-600 cursor-not-allowed' // Disabled state styling
                         }`}
                       style={{
                         fontWeight: '600',
