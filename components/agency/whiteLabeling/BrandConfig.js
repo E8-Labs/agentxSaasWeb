@@ -422,10 +422,18 @@ const BrandConfig = () => {
       // Upload favicon if new file selected
       let faviconUrl = originalValues.faviconUrl
       if (faviconFile) {
+        console.log('📤 [BrandConfig] Uploading favicon file:', faviconFile.name)
         faviconUrl = await uploadFavicon(authToken)
+        console.log('📥 [BrandConfig] Favicon upload response:', faviconUrl)
         if (!faviconUrl) {
+          console.error('❌ [BrandConfig] Favicon upload returned null/undefined')
           throw new Error('Failed to upload favicon')
         }
+        // Update preview immediately with server URL
+        setFaviconPreview(faviconUrl)
+        console.log('✅ [BrandConfig] Favicon preview updated to:', faviconUrl)
+      } else {
+        console.log('ℹ️ [BrandConfig] No favicon file to upload, keeping existing:', faviconUrl)
       }
 
       // Update colors if changed
@@ -446,10 +454,14 @@ const BrandConfig = () => {
         })
       }
 
+      // Store the uploaded faviconUrl before fetchBrandingData might overwrite it
+      const uploadedFaviconUrl = faviconUrl || originalValues.faviconUrl
+      const uploadedLogoUrl = logoUrl || originalValues.logoUrl
+
       // Update original values with new data
       setOriginalValues({
-        logoUrl: logoUrl || originalValues.logoUrl,
-        faviconUrl: faviconUrl || originalValues.faviconUrl,
+        logoUrl: uploadedLogoUrl,
+        faviconUrl: uploadedFaviconUrl,
         primaryColor: primaryColor,
         secondaryColor: secondaryColor,
       })
@@ -483,26 +495,59 @@ const BrandConfig = () => {
             freshResponse?.data?.data?.branding
           ) {
             const freshBranding = freshResponse.data.data.branding
+            
+            // Ensure we use the uploaded faviconUrl if the fresh response doesn't have it yet
+            // This handles race conditions where the server hasn't updated yet
+            const finalBranding = {
+              ...freshBranding,
+              // Use uploaded values if fresh response is missing them (race condition protection)
+              faviconUrl: freshBranding.faviconUrl || uploadedFaviconUrl,
+              logoUrl: freshBranding.logoUrl || uploadedLogoUrl,
+            }
+            
+            console.log('📦 [BrandConfig] Fresh branding from API:', {
+              faviconUrl: freshBranding.faviconUrl,
+              uploadedFaviconUrl: uploadedFaviconUrl,
+              finalFaviconUrl: finalBranding.faviconUrl,
+              logoUrl: freshBranding.logoUrl,
+              primaryColor: freshBranding.primaryColor,
+            })
 
             // Update cookie and localStorage with complete branding data
             const cookieValue = encodeURIComponent(
-              JSON.stringify(freshBranding),
+              JSON.stringify(finalBranding),
             )
             // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
             localStorage.setItem(
               'agencyBranding',
-              JSON.stringify(freshBranding),
+              JSON.stringify(finalBranding),
             )
+            console.log('💾 [BrandConfig] Updated localStorage with branding')
 
             // Dispatch custom event to notify other components (like LoginComponent)
             window.dispatchEvent(
               new CustomEvent('agencyBrandingUpdated', {
-                detail: freshBranding,
+                detail: finalBranding,
               }),
             )
 
             console.log(
-              '✅ [BrandConfig] Updated cookie and localStorage with fresh branding data',
+              '✅ [BrandConfig] Updated cookie and localStorage with fresh branding data, event dispatched',
+            )
+          } else {
+            console.warn('⚠️ [BrandConfig] Fresh branding response invalid:', freshResponse?.data)
+            // Fallback to uploaded values
+            const fallbackBranding = {
+              logoUrl: uploadedLogoUrl,
+              faviconUrl: uploadedFaviconUrl,
+              primaryColor: primaryColor,
+              secondaryColor: secondaryColor,
+            }
+            localStorage.setItem('agencyBranding', JSON.stringify(fallbackBranding))
+            window.dispatchEvent(
+              new CustomEvent('agencyBrandingUpdated', {
+                detail: fallbackBranding,
+              }),
             )
           }
         } catch (error) {
@@ -510,13 +555,18 @@ const BrandConfig = () => {
             'Error fetching fresh branding for cookie update:',
             error,
           )
-          // Fallback: update with what we have
+          // Fallback: update with what we have (use uploaded values)
           const updatedBranding = {
-            logoUrl: logoUrl || originalValues.logoUrl,
-            faviconUrl: faviconUrl || originalValues.faviconUrl,
+            logoUrl: uploadedLogoUrl,
+            faviconUrl: uploadedFaviconUrl,
             primaryColor: primaryColor,
             secondaryColor: secondaryColor,
           }
+          console.log('📦 [BrandConfig] Fallback branding (fresh fetch failed):', {
+            faviconUrl: updatedBranding.faviconUrl,
+            logoUrl: updatedBranding.logoUrl,
+            primaryColor: updatedBranding.primaryColor,
+          })
           const cookieValue = encodeURIComponent(
             JSON.stringify(updatedBranding),
           )
@@ -525,11 +575,13 @@ const BrandConfig = () => {
             'agencyBranding',
             JSON.stringify(updatedBranding),
           )
+          console.log('💾 [BrandConfig] Updated localStorage with fallback branding')
           window.dispatchEvent(
             new CustomEvent('agencyBrandingUpdated', {
               detail: updatedBranding,
             }),
           )
+          console.log('✅ [BrandConfig] Fallback branding event dispatched')
         }
       }
     } catch (error) {
