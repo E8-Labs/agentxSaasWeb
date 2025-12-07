@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "defaults": {
+    "env": {},
+    "restart": null
+  },
+  "secrets": {},
+  "inputs": {},
+  "servers": {}
+}
