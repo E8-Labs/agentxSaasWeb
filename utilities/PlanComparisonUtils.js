@@ -33,7 +33,7 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
   console.log('🔍 [DOWNGRADE] Current plan features:', currentPlan.features)
   console.log('🔍 [DOWNGRADE] Target plan features:', targetPlan.features)
 
-  const featuresToLose = []
+  let featuresToLose = []
 
   // Fix: Use capabilities for both plans, with proper fallback handling
   // Plans API returns capabilities in both currentPlan.capabilities and targetPlan.capabilities

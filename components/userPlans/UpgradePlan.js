@@ -943,7 +943,7 @@ function UpgradePlanContent({
       // setGetCardLoader(true);
       let token = AuthToken()
 
-      const ApiPath = Apis.getCardsList
+      let ApiPath = Apis.getCardsList
 
       if (selectedUser) {
         ApiPath = `${ApiPath}?userId=${selectedUser.id}`

@@ -391,7 +391,7 @@ const BasicDetails = ({
 
           // handleContinue();
 
-          const screenWidth = 1000
+          let screenWidth = 1000
           if (typeof window !== 'undefined') {
             screenWidth = window.innerWidth // Get current screen width
           }

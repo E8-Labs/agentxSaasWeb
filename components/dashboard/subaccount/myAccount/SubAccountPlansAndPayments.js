@@ -735,7 +735,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         AuthToken = LocalDetails.token
       }
 
-      const ApiPath = Apis.cancelPlan
+      let ApiPath = Apis.cancelPlan
 
       if (selectedUser) {
         ApiPath = `${ApiPath}?userId=${selectedUser.id}`

@@ -93,7 +93,7 @@ export function SupportWidget({
   const setLoadingMsg = async () => {
     try {
       const agent = await getAgentByVapiId()
-      const displayName = agent?.name || 'Sky'
+      let displayName = agent?.name || 'Sky'
       if (displayName.length > 10) {
         displayName = displayName.slice(0, 10) + '...'
       }

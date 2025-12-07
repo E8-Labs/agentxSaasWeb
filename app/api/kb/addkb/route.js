@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server'
 
 import Apis from '@/components/apis/Apis'
 
-export const config = {
-  api: {
-    bodyParser: false, // Required for multipart form-data
-  },
-}
-
 export async function POST(req) {
   try {
     //console.log;

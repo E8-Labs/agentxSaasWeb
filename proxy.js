@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { parseOAuthState } from '@/utils/oauthState'
 
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
