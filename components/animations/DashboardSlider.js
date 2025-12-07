@@ -135,29 +135,6 @@ const DashboardSlider = ({
     },
   ])
 
-  // Get brand primary color from CSS variable
-  useEffect(() => {
-    const updateBrandColor = () => {
-      if (typeof window !== 'undefined') {
-        const root = document.documentElement;
-        const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim();
-        if (brandPrimary) {
-          setBrandPrimaryColor(brandPrimary);
-        }
-      }
-    };
-    
-    updateBrandColor();
-    // Update on window resize or when CSS variables change
-    window.addEventListener('resize', updateBrandColor);
-    const interval = setInterval(updateBrandColor, 1000); // Check every second for dynamic updates
-    
-    return () => {
-      window.removeEventListener('resize', updateBrandColor);
-      clearInterval(interval);
-    };
-  }, []);
-
   //fetch local details
   useEffect(() => {
     initializeDashboardSlider()
@@ -264,57 +241,6 @@ const DashboardSlider = ({
   const handleCloseUpgrade = () => {
     setOpenUpgradePlan(false)
   }
-
-  // Helper function to convert HSL to RGB
-  const hslToRgb = (h, s, l) => {
-    s /= 100;
-    l /= 100;
-    const k = (n) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    return [255 * f(0), 255 * f(8), 255 * f(4)];
-  };
-
-  // Get brand color filter for icons
-  // This converts black/dark icons to brand color using CSS filters
-  const getBrandColorFilter = () => {
-    if (!brandPrimaryColor) return null;
-    
-    try {
-      // Parse HSL format: "h s% l%" or "h, s%, l%"
-      const hslMatch = brandPrimaryColor.match(/(\d+(?:\.\d+)?)\s*[,\s]\s*(\d+(?:\.\d+)?)%\s*[,\s]\s*(\d+(?:\.\d+)?)%/);
-      if (hslMatch) {
-        const h = parseFloat(hslMatch[1]);
-        const s = parseFloat(hslMatch[2]);
-        const l = parseFloat(hslMatch[3]);
-        
-        // For black icons, convert to brand color using:
-        // 1. brightness(0) - make it black first
-        // 2. sepia() - add sepia tone
-        // 3. saturate() - increase saturation
-        // 4. hue-rotate() - rotate to brand hue
-        // 5. brightness() - adjust lightness
-        
-        // Calculate sepia and saturation values based on brand color
-        const sepiaValue = Math.min(100, s * 1.5);
-        const saturateValue = Math.min(200, s * 2);
-        const brightnessValue = Math.max(50, Math.min(150, l * 2));
-        
-        const filter = `brightness(0) saturate(100%) sepia(${sepiaValue}%) saturate(${saturateValue}%) hue-rotate(${h}deg) brightness(${brightnessValue}%) contrast(100%)`;
-        return filter;
-      }
-    } catch (e) {
-      console.error('Error parsing brand color:', e);
-    }
-    return null;
-  };
-
-  // Get brand color as CSS color value
-  const getBrandColorValue = () => {
-    if (!brandPrimaryColor) return null;
-    return `hsl(${brandPrimaryColor})`;
-  };
 
   // Process user settings for dynamic buttons
   const processUserSettings = (user) => {
