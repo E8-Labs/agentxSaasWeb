@@ -148,6 +148,7 @@ const MessageComposer = ({
                 const receiverPhone = selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
                 setComposerData((prev) => ({ ...prev, to: receiverPhone }))
                 fetchPhoneNumbers()
+                setIsExpanded(true)
               }}
               className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
                 composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
@@ -167,6 +168,7 @@ const MessageComposer = ({
                 setComposerMode('email')
                 const receiverEmail = selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
                 setComposerData((prev) => ({ ...prev, to: receiverEmail }))
+                setIsExpanded(true)
                 fetchEmailAccounts()
               }}
               className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${

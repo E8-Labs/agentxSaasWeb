@@ -211,11 +211,11 @@ const ConversationView = ({
                       </div>
                     )}
                   <div
-                    className={`flex items-start gap-3 max-w-[75%] ${isOutbound ? 'flex-row-reverse' : 'flex-row'} relative`}
+                    className={`flex items-start gap-3 w-[40%] max-w-[40%] min-w-0 ${isOutbound ? 'flex-row-reverse' : 'flex-row'} relative`}
                   >
                     {!isOutbound && (
                       <div className="relative flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                        <div className="w-full h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
                           {getLeadName(selectedThread)}
                         </div>
                         {isEmail ? (
@@ -231,7 +231,7 @@ const ConversationView = ({
                     )}
 
                     <div
-                      className={`px-4 py-3 ${
+                      className={`px-4 py-3 flex-1 max-w-full ${
                         isOutbound
                           ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
                           : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
@@ -411,7 +411,7 @@ const ConversationView = ({
                           </button>
                         </div>
                       )}
-                      <div className={`text-xs mt-2 flex items-center gap-2 ${isOutbound ? 'text-white' : 'text-black'}`}>
+                      <div className={`text-xs mt-2 flex items-center justify-end gap-2 ${isOutbound ? 'text-white' : 'text-black'}`}>
                         <span>{moment(message.createdAt).format('h:mm A')}</span>
                       </div>
                     </div>

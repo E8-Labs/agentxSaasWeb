@@ -285,7 +285,7 @@ const EmailTimelineModal = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b">
           <div>
-            <h2 className="text-xl font-semibold">Email Timeline</h2>
+            <h2 className="text-xl font-semibold">{subject || 'Email Timeline'}</h2>
             {replyToMessage && (
               <p className="text-sm text-gray-500 mt-1">
                 Replying to {getReplySenderName()}
@@ -398,70 +398,7 @@ const EmailTimelineModal = ({
         {messages && messages.length > 0 && subject && leadId && (
           <div className="border-t pt-4 mt-4 bg-white">
             <div className="space-y-3">
-              {/* From and To fields */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 flex-1" ref={emailDropdownRef}>
-                  <label className="text-sm font-medium whitespace-nowrap">From:</label>
-                  <div className="flex-1 relative">
-                    <button
-                      type="button"
-                      onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-white text-left flex items-center justify-between"
-                      style={{ height: '42px' }}
-                    >
-                      <span className="text-sm text-gray-700 truncate">
-                        {selectedEmailAccount
-                          ? emailAccounts?.find((a) => a.id === parseInt(selectedEmailAccount))?.email || 'Select email account'
-                          : 'Select email account'}
-                      </span>
-                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    </button>
-                    {emailDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                        {emailAccounts && emailAccounts.map((account) => (
-                          <button
-                            key={account.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedEmailAccount(account.id.toString())
-                              setEmailDropdownOpen(false)
-                            }}
-                            className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                              selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                            }`}
-                          >
-                            {account.email}
-                          </button>
-                        ))}
-                        {onOpenAuthPopup && (
-                          <div className="border-t border-gray-200 p-2">
-                            <button
-                              onClick={() => {
-                                onOpenAuthPopup()
-                                setEmailDropdownOpen(false)
-                              }}
-                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Connect New Gmail
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-1">
-                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
-                  <Input
-                    value={getRecipientEmail()}
-                    readOnly
-                    className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                    style={{ height: '42px' }}
-                  />
-                </div>
-              </div>
-
+            
               {/* Subject field - show when in reply mode */}
               {replyToMessage && (
                 <div className="flex items-center gap-2">
