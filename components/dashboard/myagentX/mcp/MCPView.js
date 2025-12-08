@@ -451,16 +451,18 @@ function MCPView({
                             </div>
                         */}
           </div>
-          {mcpTools.length > 0 && (
-            <button
-              className="text-[13px] font-[500] text-brand-primary"
-              onClick={() => {
+          <button
+            className="text-[13px] font-[500] text-brand-primary hover:text-brand-primary/80 transition-colors"
+            onClick={() => {
+              if (user?.planCapabilities?.allowToolsAndActions === false) {
+                setShowUpgradeModal(true)
+              } else {
                 setShowAddMcpPopup(true)
-              }}
-            >
-              + Add Tool
-            </button>
-          )}
+              }
+            }}
+          >
+            + Add Tool
+          </button>
         </div>
 
         {showAddMcpPopup && (
@@ -701,6 +703,16 @@ function MCPView({
             />
           )
         }
+
+        <UpgradeModal
+          open={showUpgradeModal}
+          handleClose={() => {
+            setShowUpgradeModal(false)
+          }}
+          title={'Unlock Tools'}
+          subTitle={'Upgrade to unlock Tools'}
+          buttonTitle={'No Thanks'}
+        />
       </div >
     )
   }
