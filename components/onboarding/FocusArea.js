@@ -250,7 +250,10 @@ const FocusArea = ({
               </div>
             ) : (
               <div
-                className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+                style={{
+                  scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+                }}
                 // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (
@@ -265,11 +268,11 @@ const FocusArea = ({
                       className="border bg-white flex flex-row items-start pt-3 w-full rounded-2xl"
                       style={{
                         border: focusArea.includes(item.id)
-                          ? '2px solid #7902DF'
+                          ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                           : '',
                         scrollbarWidth: 'none',
                         backgroundColor: focusArea.includes(item.id)
-                          ? '#402FFF05'
+                          ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)'
                           : '',
                       }}
                     >
@@ -384,10 +387,12 @@ const FocusArea = ({
                     <div
                       className="border bg-white flex flex-row items-start pt-3 w-full rounded-2xl"
                       style={{
-                        border: checkOthersFocusArea ? '2px solid #7902DF' : '',
+                        border: checkOthersFocusArea
+                          ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
+                          : '',
                         scrollbarWidth: 'none',
                         backgroundColor: checkOthersFocusArea
-                          ? '#402FFF05'
+                          ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)'
                           : '',
                       }}
                     >

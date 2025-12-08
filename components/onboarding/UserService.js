@@ -170,7 +170,10 @@ const UserService = ({ handleContinue, handleBack }) => {
               </div>
             ) : (
               <div
-                className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+                style={{
+                  scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+                }}
                 // style={{ scrollbarWidth: "none" }}
               >
                 {servicesData.map((item, index) => (
@@ -185,11 +188,11 @@ const UserService = ({ handleContinue, handleBack }) => {
                       className="border bg-white flex flex-row items-center w-full rounded-2xl pt-3"
                       style={{
                         border: serviceId.includes(item.id)
-                          ? '2px solid #7902DF'
+                          ? '2px solid hsl(var(--brand-primary, 270 75% 50%))'
                           : '',
                         scrollbarWidth: 'none',
                         backgroundColor: serviceId.includes(item.id)
-                          ? '#402FFF05'
+                          ? 'hsl(var(--brand-primary, 270 75% 50%) / 0.05)'
                           : '',
                       }}
                     >
