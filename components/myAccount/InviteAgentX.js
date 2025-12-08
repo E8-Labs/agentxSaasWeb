@@ -3,8 +3,6 @@ import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-import PlansService from '@/utilities/PlansService'
-
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
@@ -12,6 +10,9 @@ import getProfileDetails from '../apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { getUserPlans } from '../userPlans/UserPlanServices'
+import { isSubaccountTeamMember } from '@/constants/teamTypes/TeamTypes'
+import { getUserLocalData } from '../constants/constants'
 
 function InviteAgentX({ isSubAccount }) {
   const [userDetails, setUserDetails] = useState(null)
@@ -28,11 +29,7 @@ function InviteAgentX({ isSubAccount }) {
   const [initialLoader, setInitialLoader] = useState(true)
 
   useEffect(() => {
-    if (isSubAccount) {
-      getPlans()
-    } else {
-      loadDefaultPlans()
-    }
+    loadPlans()
 
     const localData = localStorage.getItem('User')
 
@@ -44,20 +41,57 @@ function InviteAgentX({ isSubAccount }) {
     }
   }, [])
 
-  // Function to load default plans
-  const loadDefaultPlans = async () => {
+  // Function to load plans from API (same as NewBilling.js)
+  const loadPlans = async () => {
     try {
-      const plansData = await PlansService.getCachedPlans(
-        'invite_agentx_plans',
-        'regular',
-        'default',
-        false,
-      )
-      setPlans(plansData)
-      setInitialLoader(false)
+      setInitialLoader(true)
+      let plansList = await getUserPlans()
+      console.log('plansList are', plansList)
+      let userData = getUserLocalData()
+
+      console.log('isSubaccountTeamMember', isSubaccountTeamMember(userData))
+      let filteredPlans = []
+      
+      // Handle case where getUserPlans returns monthlyPlans array directly (for subAccount)
+      // or an object with monthlyPlans property (for regular users)
+      let plansArray = Array.isArray(plansList) 
+        ? plansList 
+        : plansList?.monthlyPlans || []
+
+      if (plansArray && plansArray.length > 0) {
+        // Filter features in each plan to only show features where thumb = true
+        if (!isSubaccountTeamMember(userData)) {
+          filteredPlans = plansArray?.map((plan) => ({
+            ...plan,
+            features:
+              plan.features && Array.isArray(plan.features)
+                ? plan.features.filter((feature) => feature.thumb === true)
+                : [],
+          }))
+        } else {
+          // filter the plans and show only first 6 features of each plan
+          filteredPlans = plansArray?.map((plan) => ({
+            ...plan,
+            features: plan.features ? plan.features.slice(0, 6) : [],
+          }))
+        }
+
+        console.log('filteredPlans after filtering', filteredPlans)
+
+        // Ensure we only show monthly plans
+        const monthlyPlans = filteredPlans.filter(
+          (plan) => plan.billingCycle === 'monthly' || !plan.billingCycle, // Include plans without billingCycle for backward compatibility
+        )
+
+        setPlans(monthlyPlans)
+        setInitialLoader(false)
+      } else {
+        setPlans([])
+        setInitialLoader(false)
+      }
     } catch (error) {
       console.error('Error loading InviteAgentX plans:', error)
-      setPlans(PlansService.getFallbackPlans('default', false))
+      setPlans([])
       setInitialLoader(false)
     }
   }
@@ -66,41 +100,26 @@ function InviteAgentX({ isSubAccount }) {
 
   //select the plan
   const handleTogglePlanClick = (item) => {
-    // if (togglePlan) {
-    //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    // } else {
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    //     setAddPaymentPopUp(true);
-    // }
-    // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    setTogglePlan(item.id)
-    setSelectedPlan((prevId) => (prevId === item ? null : item))
-    // setTogglePlan(prevId => (prevId === id ? null : id));
+    if (togglePlan === item.id) {
+      // If clicking the same plan, deselect it
+      setTogglePlan(null)
+      setSelectedPlan(null)
+    } else {
+      // Select the new plan
+      setTogglePlan(item.id)
+      setSelectedPlan(item)
+    }
   }
 
   //function to subscribe plan
   const handleSubScribePlan = async () => {
     try {
-      let planType = null
-
-      //// //console.log;
-
-      if (isSubAccount) {
-        planType = togglePlan
-      } else {
-        if (togglePlan === 1) {
-          planType = 'Plan30'
-        } else if (togglePlan === 2) {
-          planType = 'Plan120'
-        } else if (togglePlan === 3) {
-          planType = 'Plan360'
-        } else if (togglePlan === 4) {
-          planType = 'Plan720'
-        }
+      if (!selectedPlan) {
+        setErrorSnack('Please select a plan')
+        return
       }
 
-      // //console.log;
+      let planType = selectedPlan.planType
 
       setSubscribePlanLoader(true)
       let AuthToken = null
@@ -110,8 +129,6 @@ function InviteAgentX({ isSubAccount }) {
         AuthToken = LocalDetails.token
       }
 
-      // //console.log;
-
       let ApiData = {
         plan: planType,
         payNow: true,
@@ -119,11 +136,9 @@ function InviteAgentX({ isSubAccount }) {
 
       const formData = new FormData()
 
-      // //console.log;
-
       let ApiPath = Apis.subscribePlan
       if (isSubAccount) {
-        formData.append('planId', togglePlan)
+        formData.append('planId', selectedPlan.id)
         ApiPath = Apis.subAgencyAndSubAccountPlans
         ApiData = formData
       }
@@ -133,7 +148,7 @@ function InviteAgentX({ isSubAccount }) {
           console.log(`${key} = ${value}`)
         }
       }
-      // return
+
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -142,7 +157,6 @@ function InviteAgentX({ isSubAccount }) {
       })
 
       if (response) {
-        // //console.log;
         if (response.data.status === true) {
           setSuccessSnack(response?.data?.message)
           let response2 = await getProfileDetails()
@@ -152,42 +166,13 @@ function InviteAgentX({ isSubAccount }) {
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is:", error);
+      console.error('Error occurred in subscribe plan api:', error)
+      setErrorSnack('An error occurred while subscribing to the plan')
     } finally {
       setSubscribePlanLoader(false)
     }
   }
 
-  //get list of subaccount plans
-  const getPlans = async () => {
-    try {
-      setInitialLoader(true)
-      const Token = AuthToken()
-      // console.log("user id is", selectedUser?.id);
-      let ApiPath = null
-      // if (selectedUser) {
-      //   ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`;
-      // } else {
-      //   }
-      ApiPath = Apis.getSubAccountPlans
-      console.log('Api path of get plan is', ApiPath)
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: 'Bearer ' + Token,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response) {
-        console.log('Response of get plans api is', response.data.data)
-        setPlans(response.data.data.monthlyPlans)
-        setInitialLoader(false)
-      }
-    } catch (error) {
-      setInitialLoader(false)
-      console.error('Error occured in getting subaccount plans', error)
-    }
-  }
 
   const styles = {
     headingStyle: {
@@ -372,7 +357,7 @@ function InviteAgentX({ isSubAccount }) {
             <div className="w-full flex flex-row items-center justify-center mt-4">
               <CircularProgress size={30} />
             </div>
-          ) : isSubAccount ? (
+          ) : (
             <div className="w-full flex flex-col items-center">
               {plans.map((item, index) => (
                 <button
@@ -414,26 +399,26 @@ function InviteAgentX({ isSubAccount }) {
                           : '1px solid #15151520',
                       backgroundColor:
                         item.id === togglePlan ? '#402FFF05' : '',
-                      // borderRadius: item.hasTrial == true ? "" : "10px",
                       borderTopLeftRadius: item.hasTrial == true ? '' : '10px',
                       borderTopRightRadius: item.hasTrial == true ? '' : '10px',
                       borderBottomLeftRadius: '10px',
                       borderBottomRightRadius: '10px',
                     }}
                   >
-                    <div
-                      style={{
-                        ...styles.triangleLabel,
-                        borderTopRightRadius:
-                          item.hasTrial == true ? '' : '7px',
-                      }}
-                    ></div>
-                    <span style={styles.labelText}>
-                      {item?.percentageDiscount
-                        ? formatDecimalValue(item?.percentageDiscount)
-                        : 0}
-                      %
-                    </span>
+                    {item.percentageDiscount && (
+                      <>
+                        <div
+                          style={{
+                            ...styles.triangleLabel,
+                            borderTopRightRadius:
+                              item.hasTrial == true ? '' : '7px',
+                          }}
+                        ></div>
+                        <span style={styles.labelText}>
+                          {formatDecimalValue(item.percentageDiscount)}%
+                        </span>
+                      </>
+                    )}
                     <div
                       className="flex flex-row items-start gap-3"
                       style={styles.content}
@@ -478,13 +463,16 @@ function InviteAgentX({ isSubAccount }) {
                           }}
                           className="flex flex-row items-center gap-1"
                         >
-                          {item.title} | {item.minutes} mins{' '}
-                          <span
-                            className="px-2 py-1 bg-purple ms-2 rounded-full text-white"
-                            style={{ fontSize: '14px', fontWeight: '500' }}
-                          >
-                            {item.tag}
-                          </span>
+                          {item.name || item.title} | {item.mints || item.minutes}{' '}
+                          AI credits
+                          {item.tag && (
+                            <span
+                              className="px-2 py-1 bg-purple ms-2 rounded-full text-white"
+                              style={{ fontSize: '14px', fontWeight: '500' }}
+                            >
+                              {item.tag}
+                            </span>
+                          )}
                         </div>
                         <div className="flex flex-row items-center justify-between">
                           <div
@@ -496,121 +484,22 @@ function InviteAgentX({ isSubAccount }) {
                               fontWeight: '600',
                             }}
                           >
-                            {item.planDescription}
+                            {item.planDescription || item.details || ''}
                           </div>
                           <div className="flex flex-row items-center">
                             {item.originalPrice && (
                               <div style={styles.originalPrice}>
-                                ${item.originalPrice}
+                                ${formatDecimalValue(item.originalPrice)}
                               </div>
                             )}
                             <div className="flex flex-row justify-start items-start">
                               <div style={styles.discountedPrice}>
-                                {/*item.hasTrial ? "" : "$"*/}$
-                                {item?.discountedPrice
-                                  ? formatDecimalValue(item?.discountedPrice)
+                                $
+                                {item.discountPrice || item.discountedPrice
+                                  ? formatDecimalValue(
+                                      item.discountPrice || item.discountedPrice,
+                                    )
                                   : 0}
-                              </div>
-                              <p style={{ color: '#15151580' }}>/mo*</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="w-full flex flex-col items-center">
-              {plans.map((item, index) => (
-                <button
-                  key={item.id}
-                  className="w-10/12 mt-4"
-                  onClick={(e) => handleTogglePlanClick(item)}
-                >
-                  <div
-                    className="px-4 py-1 pb-4"
-                    style={{
-                      ...styles.pricingBox,
-                      border:
-                        item.id === togglePlan
-                          ? '2px solid #7902DF'
-                          : '1px solid #15151520',
-                      backgroundColor:
-                        item.id === togglePlan ? '#402FFF05' : '',
-                    }}
-                  >
-                    <div
-                      style={{
-                        ...styles.triangleLabel,
-                        borderTopRightRadius: '7px',
-                      }}
-                    ></div>
-                    <span style={styles.labelText}>{item.planStatus}</span>
-                    <div
-                      className="flex flex-row items-start gap-3"
-                      style={styles.content}
-                    >
-                      <div className="mt-1">
-                        <div>
-                          {item.id === togglePlan ? (
-                            <Image
-                              src={'/svgIcons/checkMark.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={'/svgIcons/unCheck.svg'}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-full">
-                        <div
-                          className="flex flex-row items-center gap-2"
-                          style={{
-                            color: '#151515',
-                            fontSize: 20,
-                            fontWeight: '600',
-                          }}
-                        >
-                          {item.mints}mins | {item.calls} Calls*
-                          {item.status && (
-                            <div
-                              className="flex px-2 py-1 bg-purple rounded-full text-white"
-                              style={{ fontSize: 11.6, fontWeight: '500' }}
-                            >
-                              {item.status}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-row items-center justify-between">
-                          <div
-                            className="mt-2"
-                            style={{
-                              color: '#15151590',
-                              fontSize: 12,
-                              width: '80%',
-                              fontWeight: '600',
-                            }}
-                          >
-                            {item.details}
-                          </div>
-                          <div className="flex flex-row items-center">
-                            {item.originalPrice && (
-                              <div style={styles.originalPrice}>
-                                ${item.originalPrice}
-                              </div>
-                            )}
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
-                                ${item.discountPrice}
                               </div>
                               <p style={{ color: '#15151580' }}>/mo*</p>
                             </div>
