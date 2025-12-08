@@ -217,22 +217,43 @@ const ThemeProvider = ({ children }) => {
         }
       }
 
-      // Additional fallback: Check user data for agencyBranding (for subaccounts and agencies)
-      if (!branding && (isSubaccount || isAgency)) {
+      // Additional fallback: Check user data for agencyBranding (always check, not just for subaccounts/agencies)
+      // This ensures branding is applied even if localStorage doesn't have it yet
+      if (!branding) {
         try {
           const userData = localStorage.getItem('User')
           if (userData) {
             const parsedUser = JSON.parse(userData)
             // Check multiple possible locations for agencyBranding
+            let foundBranding = null
+            let foundPath = null
+            
             if (parsedUser?.user?.agencyBranding) {
-              branding = parsedUser.user.agencyBranding
-              console.log('✅ [ThemeProvider] Found branding in user.user.agencyBranding')
+              foundBranding = parsedUser.user.agencyBranding
+              foundPath = 'user.user.agencyBranding'
             } else if (parsedUser?.agencyBranding) {
-              branding = parsedUser.agencyBranding
-              console.log('✅ [ThemeProvider] Found branding in user.agencyBranding')
+              foundBranding = parsedUser.agencyBranding
+              foundPath = 'user.agencyBranding'
             } else if (parsedUser?.user?.agency?.agencyBranding) {
-              branding = parsedUser.user.agency.agencyBranding
-              console.log('✅ [ThemeProvider] Found branding in user.agency.agencyBranding')
+              foundBranding = parsedUser.user.agency.agencyBranding
+              foundPath = 'user.agency.agencyBranding'
+            }
+            
+            if (foundBranding && typeof foundBranding === 'object' && Object.keys(foundBranding).length > 0) {
+              branding = foundBranding
+              console.log(`✅ [ThemeProvider] Found branding in ${foundPath}:`, branding)
+              
+              // Store in localStorage so it persists and is found on next check
+              localStorage.setItem('agencyBranding', JSON.stringify(branding))
+              console.log('✅ [ThemeProvider] Stored branding from user profile to localStorage')
+            } else {
+              console.log('🔍 [ThemeProvider] Checked user data but no valid branding found:', {
+                hasUser: !!parsedUser?.user,
+                hasAgencyBranding: !!parsedUser?.user?.agencyBranding,
+                hasTopLevelBranding: !!parsedUser?.agencyBranding,
+                hasAgencyNestedBranding: !!parsedUser?.user?.agency?.agencyBranding,
+                userKeys: parsedUser?.user ? Object.keys(parsedUser.user).slice(0, 10) : [],
+              })
             }
           }
         } catch (error) {
@@ -380,13 +401,19 @@ const ThemeProvider = ({ children }) => {
 
     // Listen for branding updates (same event as logo updates)
     const handleBrandingUpdate = (event) => {
-      console.log('🔄 [ThemeProvider] Branding updated, refreshing theme and favicon')
+      console.log('🔄 [ThemeProvider] Branding updated event received, refreshing theme and favicon')
       
       // Use event detail if available (faster), otherwise re-read from localStorage
       let brandingToUse = null
       if (event?.detail) {
         brandingToUse = event.detail
         console.log('✅ [ThemeProvider] Using branding from event detail:', brandingToUse)
+        
+        // If branding is in event detail, store it in localStorage for persistence
+        if (brandingToUse && typeof brandingToUse === 'object') {
+          localStorage.setItem('agencyBranding', JSON.stringify(brandingToUse))
+          console.log('✅ [ThemeProvider] Stored branding from event to localStorage')
+        }
       } else {
         // Fallback: read from localStorage
         const storedBranding = localStorage.getItem('agencyBranding')
@@ -411,10 +438,16 @@ const ThemeProvider = ({ children }) => {
         console.log('ℹ️ [ThemeProvider] No faviconUrl in event branding data')
       }
 
-      setBrandingFetched(false) // Reset to allow fresh fetch if needed
-      applyTheme(true).catch((error) => {
-        console.log('Error refreshing theme:', error)
-      })
+      // Reset brandingFetched to allow fresh fetch if needed
+      setBrandingFetched(false)
+      
+      // Force refresh theme with the new branding
+      // Use a small delay to ensure localStorage is updated
+      setTimeout(() => {
+        applyTheme(true).catch((error) => {
+          console.log('Error refreshing theme:', error)
+        })
+      }, 50)
     }
 
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)

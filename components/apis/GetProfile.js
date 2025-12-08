@@ -65,18 +65,42 @@ const getProfileDetails = async (selectedAgency) => {
             const userData = response.data.data // This is the user object directly
             
             // Extract branding from user object (response.data.data is the user)
-            const agencyBranding = 
+            // Check multiple possible locations
+            let agencyBranding = 
               userData?.agencyBranding ||
               userData?.agency?.agencyBranding
             
-            if (agencyBranding) {
-              console.log('🔄 [GET-PROFILE] Agency branding found in profile, updating localStorage...', agencyBranding)
+            // Also check the response structure directly
+            if (!agencyBranding) {
+              agencyBranding = 
+                response.data?.data?.agencyBranding ||
+                response.data?.data?.agency?.agencyBranding ||
+                response.data?.agencyBranding
+            }
+            
+            console.log('🔍 [GET-PROFILE] Checking for branding:', {
+              hasUserData: !!userData,
+              hasUserDataAgencyBranding: !!userData?.agencyBranding,
+              hasUserDataAgencyNested: !!userData?.agency?.agencyBranding,
+              hasResponseDataAgencyBranding: !!response.data?.data?.agencyBranding,
+              foundBranding: !!agencyBranding,
+              brandingKeys: agencyBranding ? Object.keys(agencyBranding) : [],
+            })
+            
+            if (agencyBranding && typeof agencyBranding === 'object' && Object.keys(agencyBranding).length > 0) {
+              console.log('✅ [GET-PROFILE] Agency branding found in profile, updating localStorage...', agencyBranding)
               // Use applyBrandingFromResponse to update branding and dispatch event
               // Pass response.data which has structure: { status: true, data: { ...userData with agencyBranding } }
-              applyBrandingFromResponse(response.data)
+              const applied = applyBrandingFromResponse(response.data)
+              if (!applied) {
+                // If applyBrandingFromResponse didn't find it, try direct application
+                console.log('⚠️ [GET-PROFILE] applyBrandingFromResponse returned false, trying direct application...')
+                applyBrandingFromResponse({ data: { agencyBranding } })
+              }
             } else {
               // If branding not in profile, check if user is subaccount/agency and fetch from API
               const userRole = userData?.userRole
+              console.log('🔍 [GET-PROFILE] No branding in profile, userRole:', userRole)
               if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
                 console.log('🔄 [GET-PROFILE] User is subaccount/agency but no branding in profile, fetching from API...')
                 // Import dynamically to avoid circular dependencies

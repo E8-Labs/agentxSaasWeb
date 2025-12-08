@@ -85,11 +85,15 @@ export const fetchAndApplyBranding = async () => {
 
     // Check if user is subaccount or agency
     const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
-
+    const isSubaccount = userRole === 'AgencySubAccount'
+    const isAgency = userRole === 'Agency'
 
     if (!isSubaccount && !isAgency) {
+      console.log('ℹ️ [applyBranding] User is not subaccount/agency, skipping branding fetch. userRole:', userRole)
       return false // Not an agency or subaccount, no branding to apply
     }
+    
+    console.log('🔍 [applyBranding] User is subaccount/agency, fetching branding. userRole:', userRole)
 
     console.log('🔄 [applyBranding] Fetching branding from API...')
     const response = await fetch(Apis.getAgencyBranding, {

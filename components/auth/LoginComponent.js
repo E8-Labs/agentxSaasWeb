@@ -777,45 +777,57 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // Extract and store agency branding immediately after login
             // This ensures branding is applied right away without requiring a page refresh
             const userData = response.data.data
-            const agencyBranding =
-              userData?.user?.agencyBranding ||
-              userData?.agencyBranding ||
-              userData?.user?.agency?.agencyBranding
-
-            if (agencyBranding) {
-              localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
-              console.log('✅ [LoginComponent] Stored agency branding from login response')
-
-              // Dispatch event to trigger ThemeProvider to apply branding immediately
-              if (typeof window !== 'undefined') {
-                window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
-                console.log('✅ [LoginComponent] Dispatched agencyBrandingUpdated event')
-              }
-            } else {
-              // If branding not in response, try to fetch it from API for subaccounts/agencies
-              const authToken = userData?.token || userData?.user?.token
-              const userRole = userData?.user?.userRole
-              if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
-                // Fetch branding in background - don't block navigation
-                fetch(Apis.getAgencyBranding, {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json',
-                  },
+            
+            // Use applyBrandingFromResponse utility which handles extraction, storage, and event dispatch
+            import('@/utilities/applyBranding').then(({ applyBrandingFromResponse, forceApplyBranding }) => {
+              // First try to apply from response
+              const applied = applyBrandingFromResponse(response.data)
+              
+              if (!applied) {
+                // If not in response, check if user is subaccount/agency and fetch from API
+                const authToken = userData?.token || userData?.user?.token
+                const userRole = userData?.user?.userRole || userData?.userRole
+                
+                console.log('🔍 [LoginComponent] Branding not in response, checking user role:', {
+                  userRole,
+                  isSubaccount: userRole === 'AgencySubAccount',
+                  isAgency: userRole === 'Agency',
+                  hasToken: !!authToken,
                 })
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data?.status === true && data?.data?.branding) {
-                      localStorage.setItem('agencyBranding', JSON.stringify(data.data.branding))
-                      if (typeof window !== 'undefined') {
-                        window.dispatchEvent(new CustomEvent('agencyBrandingUpdated'))
-                        console.log('✅ [LoginComponent] Fetched and applied branding from API')
+                
+                if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
+                  // Use forceApplyBranding which tries response first, then API
+                  // Small delay to ensure localStorage User is set
+                  setTimeout(() => {
+                    forceApplyBranding().then((fetched) => {
+                      if (fetched) {
+                        console.log('✅ [LoginComponent] Successfully applied branding from API')
+                      } else {
+                        console.log('⚠️ [LoginComponent] Could not fetch branding from API')
                       }
-                    }
-                  })
-                  .catch(err => console.log('Error fetching branding after login:', err))
+                    })
+                  }, 100)
+                } else {
+                  console.log('ℹ️ [LoginComponent] User is not subaccount/agency, skipping branding fetch')
+                }
+              } else {
+                console.log('✅ [LoginComponent] Successfully applied branding from login response')
               }
-            }
+            }).catch(err => {
+              console.error('Error importing applyBranding utility:', err)
+              // Fallback to manual extraction
+              const agencyBranding =
+                userData?.user?.agencyBranding ||
+                userData?.agencyBranding ||
+                userData?.user?.agency?.agencyBranding
+
+              if (agencyBranding) {
+                localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding }))
+                }
+              }
+            })
 
             //set cokie on locastorage to run middle ware
             if (typeof document !== 'undefined') {
