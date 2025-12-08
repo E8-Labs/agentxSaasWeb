@@ -113,12 +113,20 @@ const ThemeProvider = ({ children }) => {
 
     const applyTheme = async (forceRefresh = false) => {
       // Check if agency branding is disabled via environment variable
+      const envValue = process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING
       const isBrandingDisabled =
-        process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING === 'true' ||
-        process.env.NEXT_PUBLIC_DISABLE_AGENCY_BRANDING === '1'
+        envValue === 'true' ||
+        envValue === '1'
+
+      // Log the environment variable value for debugging
+      console.log('🔍 [ThemeProvider] Environment check:', {
+        NEXT_PUBLIC_DISABLE_AGENCY_BRANDING: envValue,
+        isBrandingDisabled,
+        type: typeof envValue,
+      })
 
       if (isBrandingDisabled) {
-        console.log('🚫 [ThemeProvider] Agency branding disabled via environment variable')
+        console.log('🚫 [ThemeProvider] Agency branding disabled via environment variable - skipping branding application')
         // Force assignx branding
         const defaultPrimary = getDefaultPrimaryColor()
         const defaultSecondary = getDefaultSecondaryColor()
