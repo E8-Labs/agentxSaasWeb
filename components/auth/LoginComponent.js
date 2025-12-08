@@ -74,7 +74,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [agencyBranding, setAgencyBranding] = useState(null)
   // Track if we've determined domain type (to prevent flash of Terms & Privacy)
   const [domainTypeDetermined, setDomainTypeDetermined] = useState(false)
-  const [isAssignxDomain, setIsAssignxDomain] = useState(true)
+  const [isAssignxDomain, setIsAssignxDomain] = useState(false)
 
 
   //code for detecting the window inner width
@@ -90,6 +90,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   // Get agency branding from cookie/localStorage (set by middleware) or fetch from API
   useEffect(() => {
     if (typeof window === 'undefined') return
+
+    // Determine if current domain is an assignx domain
+    const hostname = window.location.hostname
+    const isAssignx = hostname === 'dev.assignx.ai' || hostname === 'app.assignx.ai'
+    setIsAssignxDomain(isAssignx)
 
     // Helper to get cookie value
     const getCookie = (name) => {
@@ -111,7 +116,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               : 'https://apimyagentx.com/agentxtest/')
 
           const bodyData = {
-            // customDomain: window.location.hostname,
             customDomain: window.location.hostname,
           }
 
@@ -135,7 +139,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             if (lookupData.status && lookupData.data?.branding) {
               const brandingData = lookupData.data.branding
               // Store in both cookie and localStorage
-              // document.cookie = `agencyBranding=${encodeURIComponent(JSON.stringify(brandingData))}; path=/; max-age=${60 * 60 * 24}`
               localStorage.setItem(
                 'agencyBranding',
                 JSON.stringify(brandingData),
@@ -154,62 +157,37 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         return false
       }
 
-      // Try cookie first for immediate display (if available)
-      // const brandingCookie = getCookie('agencyBranding')
-      // if (brandingCookie) {
-      //   try {
-      //     const brandingData = JSON.parse(decodeURIComponent(brandingCookie))
-      //     // Store in localStorage for persistence
-      //     localStorage.setItem('agencyBranding', JSON.stringify(brandingData))
-      //     setAgencyBranding(brandingData)
-      //     console.log('✅ [LoginComponent] Using branding from cookie')
-
-      //     // Still fetch from API in background to ensure we have latest data
-      //     // This handles the case where branding was just updated
-      //     fetchFromAPI()
-      //     return
-      //   } catch (error) {
-      //     console.log('Error parsing agencyBranding cookie:', error)
-      //   }
-      // }
-
-      // Fallback to localStorage if cookie not found
+      // First, check localStorage for immediate display (works for both assignx and custom domains)
       const storedBranding = localStorage.getItem('agencyBranding')
       if (storedBranding) {
         try {
           const brandingData = JSON.parse(storedBranding)
           setAgencyBranding(brandingData)
-          console.log('✅ [LoginComponent] Using branding from localStorage')
+          console.log('✅ [LoginComponent] Using branding from localStorage:', brandingData)
 
-          // Still fetch from API in background
-          fetchFromAPI()
+          // For custom domains, still fetch from API in background to ensure latest data
+          if (!isAssignx) {
+            fetchFromAPI()
+          }
           return
         } catch (error) {
           console.log('Error parsing agencyBranding from localStorage:', error)
         }
       }
 
-      // If no branding found, fetch from API
-      const fetched = await fetchFromAPI()
-
-      // Determine if we should show Terms & Privacy
-      // Only show if it's an assignx domain AND no branding was found
-      if (isAssignxDomain && !fetched) {
+      // For custom domains, fetch from API if no localStorage branding found
+      if (!isAssignx) {
+        const fetched = await fetchFromAPI()
+        // Set domain type determined after checking for branding
         setDomainTypeDetermined(true)
-      } else if (isAssignxDomain) {
-        // It's assignx domain but we might have fetched branding (subaccount case)
-        // Wait a bit to check if branding was set
-        setTimeout(() => {
-          const currentBranding = localStorage.getItem('agencyBranding')
-          if (!currentBranding) {
-            setDomainTypeDetermined(true)
-          }
-        }, 300)
+      } else {
+        // For assignx domains, no branding means show Terms & Privacy
+        setDomainTypeDetermined(true)
       }
     }
-    if (window.location.hostname !== "dev.assignx.ai" && window.location.hostname !== "app.assignx.ai") {
-      fetchBranding()
-    }
+
+    // Always call fetchBranding to check localStorage and fetch if needed
+    fetchBranding()
     // Listen for branding updates from other components (e.g., BrandConfig)
     const handleBrandingUpdate = (event) => {
       console.log(
@@ -1306,7 +1284,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           <div className="flex-shrink-0">
             Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
-          {domainTypeDetermined && !agencyBranding && (
+          {domainTypeDetermined && isAssignxDomain && !agencyBranding && (
             <>
               <button
                 className="flex-shrink-0 outline-none"
@@ -1339,7 +1317,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         </div>
 
         <div className="h-[10%]  w-full flex flex-col items-center justify-center sm:hidden">
-          {domainTypeDetermined && !agencyBranding && (
+          {domainTypeDetermined && isAssignxDomain && !agencyBranding && (
             <div
               className="mt-6 flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0"
               style={{ fontWeight: '500', fontSize: 11.6 }}
