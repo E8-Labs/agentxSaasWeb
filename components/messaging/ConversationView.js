@@ -25,6 +25,7 @@ const ConversationView = ({
   setEmailTimelineLeadId,
   setEmailTimelineSubject,
   onReplyClick,
+  onOpenEmailTimeline,
 }) => {
   if (!selectedThread) return null
 
@@ -313,7 +314,10 @@ const ConversationView = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
+                              if (onOpenEmailTimeline && message.subject) {
+                                onOpenEmailTimeline(message.subject)
+                              } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
+                                // Fallback to old method if new handler not available
                                 setShowEmailTimeline(true)
                                 setEmailTimelineLeadId(selectedThread.lead.id)
                                 if (setEmailTimelineSubject && message.subject) {
@@ -394,7 +398,10 @@ const ConversationView = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
+                              if (onOpenEmailTimeline && message.subject) {
+                                onOpenEmailTimeline(message.subject)
+                              } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
+                                // Fallback to old method if new handler not available
                                 setShowEmailTimeline(true)
                                 setEmailTimelineLeadId(selectedThread.lead.id)
                                 if (setEmailTimelineSubject && message.subject) {

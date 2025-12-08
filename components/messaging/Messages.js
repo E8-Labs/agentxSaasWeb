@@ -666,6 +666,16 @@ const Messages = () => {
     })
   }
 
+  // Helper function to normalize email subject for threading
+  const normalizeSubject = (subject) => {
+    if (!subject) return ''
+    // Normalize subject by removing "Re:", "Fwd:", etc. for threading
+    return subject
+      .replace(/^(re|fwd|fw|aw):\s*/i, '')
+      .replace(/^\[.*?\]\s*/, '')
+      .trim()
+  }
+
   // Handle reply click
   const handleReplyClick = (message) => {
     if (!message || !selectedThread?.lead?.id) return
@@ -679,12 +689,27 @@ const Messages = () => {
     
     // Set subject for threading (normalize it)
     if (message.subject) {
-      // Normalize subject by removing "Re:", "Fwd:", etc. for threading
-      let normalizedSubject = message.subject
-        .replace(/^(re|fwd|fw|aw):\s*/i, '')
-        .replace(/^\[.*?\]\s*/, '')
-        .trim()
+      const normalizedSubject = normalizeSubject(message.subject)
       setEmailTimelineSubject(normalizedSubject)
+      // Also update composer subject for threading
+      setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
+    } else {
+      setEmailTimelineSubject(null)
+    }
+  }
+
+  // Handle opening email timeline (for Load More or subject click)
+  const handleOpenEmailTimeline = (subject) => {
+    if (!selectedThread?.lead?.id) return
+    
+    setShowEmailTimeline(true)
+    setEmailTimelineLeadId(selectedThread.lead.id)
+    
+    if (subject) {
+      const normalizedSubject = normalizeSubject(subject)
+      setEmailTimelineSubject(normalizedSubject)
+      // Update composer subject for threading when viewing email timeline
+      setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
     } else {
       setEmailTimelineSubject(null)
     }
@@ -809,9 +834,36 @@ const Messages = () => {
         }
       } else {
         // Send Email with attachments
+        // Determine subject for threading
+        let emailSubject = composerData.subject
+        
+        // If subject is empty, try to get subject from thread context
+        if (!emailSubject || emailSubject.trim() === '') {
+          // Check if we have emailTimelineSubject (from Load More or subject click)
+          if (emailTimelineSubject) {
+            emailSubject = emailTimelineSubject
+          } else {
+            // Try to get subject from messages in the thread
+            const emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+            if (emailMessages.length > 0) {
+              // Use the most recent email's subject (normalized)
+              const mostRecentEmail = emailMessages[emailMessages.length - 1]
+              emailSubject = normalizeSubject(mostRecentEmail.subject)
+            }
+          }
+        } else {
+          // Normalize the subject to ensure proper threading
+          emailSubject = normalizeSubject(emailSubject)
+        }
+        
+        // If still no subject, use a default
+        if (!emailSubject || emailSubject.trim() === '') {
+          emailSubject = 'No Subject'
+        }
+        
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
-        formData.append('subject', composerData.subject)
+        formData.append('subject', emailSubject)
         formData.append('body', composerData.body)
         // Join CC and BCC arrays into comma-separated strings
         const ccString = ccEmails.join(', ')
@@ -840,10 +892,13 @@ const Messages = () => {
 
         if (response.data?.status) {
           toast.success('Email sent successfully')
-          // Reset composer
+          // Reset composer but preserve subject if we're in an email thread context
+          // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
+          const preservedSubject = emailTimelineSubject || 
+            (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
           setComposerData({
             to: selectedThread.receiverEmail || selectedThread.lead?.email || '',
-            subject: '',
+            subject: preservedSubject,
             body: '',
             cc: '',
             bcc: '',
@@ -1216,6 +1271,7 @@ const Messages = () => {
                 setEmailTimelineLeadId={setEmailTimelineLeadId}
                 setEmailTimelineSubject={setEmailTimelineSubject}
                 onReplyClick={handleReplyClick}
+                onOpenEmailTimeline={handleOpenEmailTimeline}
               />
 
               {/* Composer */}
