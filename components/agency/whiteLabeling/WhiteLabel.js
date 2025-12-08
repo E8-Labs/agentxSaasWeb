@@ -139,9 +139,7 @@ const WhiteLabel = () => {
       id: 2,
       title: 'Domain',
       comingSoon:
-        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-          ? true
-          : false,
+        false,
     },
     { id: 3, title: 'Email Config', comingSoon: false },
     { id: 4, title: 'Notification Config', comingSoon: false },
