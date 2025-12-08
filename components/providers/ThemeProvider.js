@@ -335,10 +335,19 @@ const ThemeProvider = ({ children }) => {
                 ? 'https://apimyagentx.com/agentx/'
                 : 'https://apimyagentx.com/agentxtest/')
 
-            // For subdomains, extract the subdomain part (e.g., "eric" from "eric.assignx.ai")
+            // For subdomains, send the full subdomain (e.g., "eric.assignx.ai")
+            // The backend accepts either format, but sending full subdomain is more explicit
             const subdomain = isAssignxSubdomain 
-              ? hostname.split('.')[0] 
+              ? hostname  // Send full hostname like "eric.assignx.ai"
               : null
+
+            console.log('🔍 [ThemeProvider] Domain lookup request:', {
+              isCustomDomain,
+              isAssignxSubdomain,
+              hostname,
+              subdomain,
+              customDomain: isCustomDomain ? hostname : null,
+            })
 
             const lookupResponse = await fetch(
               `${baseUrl}api/agency/lookup-by-domain`,
@@ -353,6 +362,8 @@ const ThemeProvider = ({ children }) => {
                 }),
               },
             )
+
+            console.log('🔍 [ThemeProvider] Domain lookup response status:', lookupResponse.status)
 
             if (lookupResponse.ok) {
               const lookupData = await lookupResponse.json()
@@ -371,29 +382,61 @@ const ThemeProvider = ({ children }) => {
                 // Apply branding immediately after fetching (don't wait for function to continue)
                 // This ensures branding is applied right away for onboarding pages
                 if (freshBranding) {
+                  console.log('🎨 [ThemeProvider] Applying branding immediately:', {
+                    hasPrimaryColor: !!freshBranding.primaryColor,
+                    hasSecondaryColor: !!freshBranding.secondaryColor,
+                    hasFavicon: !!freshBranding.faviconUrl,
+                    primaryColor: freshBranding.primaryColor,
+                  })
+                  
                   // Update favicon
                   const faviconUrl = freshBranding.faviconUrl
                   if (faviconUrl) {
+                    console.log('🔄 [ThemeProvider] Updating favicon:', faviconUrl)
                     updateFavicon(faviconUrl)
                   }
                   
                   // Apply primary color
                   if (freshBranding.primaryColor) {
                     const primaryHsl = hexToHsl(freshBranding.primaryColor)
+                    console.log('🎨 [ThemeProvider] Applying primary color:', {
+                      hex: freshBranding.primaryColor,
+                      hsl: primaryHsl,
+                    })
                     document.documentElement.style.setProperty('--brand-primary', primaryHsl)
                     document.documentElement.style.setProperty('--primary', primaryHsl)
                     const iconFilter = calculateIconFilter(freshBranding.primaryColor)
                     document.documentElement.style.setProperty('--icon-filter', iconFilter)
+                    console.log('✅ [ThemeProvider] Primary color applied:', primaryHsl)
+                  } else {
+                    console.log('⚠️ [ThemeProvider] No primary color in branding')
                   }
                   
                   // Apply secondary color
                   if (freshBranding.secondaryColor) {
                     const secondaryHsl = hexToHsl(freshBranding.secondaryColor)
+                    console.log('🎨 [ThemeProvider] Applying secondary color:', {
+                      hex: freshBranding.secondaryColor,
+                      hsl: secondaryHsl,
+                    })
                     document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
                     document.documentElement.style.setProperty('--secondary', secondaryHsl)
+                    console.log('✅ [ThemeProvider] Secondary color applied:', secondaryHsl)
+                  } else {
+                    console.log('⚠️ [ThemeProvider] No secondary color in branding')
                   }
                   
+                  // Verify the colors were actually set
+                  const appliedPrimary = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary')
+                  const appliedSecondary = getComputedStyle(document.documentElement).getPropertyValue('--brand-secondary')
+                  console.log('✅ [ThemeProvider] Verified applied colors:', {
+                    primary: appliedPrimary,
+                    secondary: appliedSecondary,
+                  })
+                  
                   console.log('✅ [ThemeProvider] Applied branding immediately after fetch')
+                } else {
+                  console.log('⚠️ [ThemeProvider] No branding data to apply')
                 }
                 
                 // Also dispatch event as a backup to ensure any listeners get notified
