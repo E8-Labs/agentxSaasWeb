@@ -269,7 +269,12 @@ const ThemeProvider = ({ children }) => {
         }
       }
 
-      // Debug logging for subaccounts/agencies on localhost
+      // Check if we're on a custom domain (not assignx.ai and not localhost)
+      const isCustomDomain = !isAssignxDomain && 
+        hostname !== 'localhost' && 
+        !hostname.includes('127.0.0.1')
+
+      // Debug logging
       if ((isSubaccount || isAgency) && isAssignxDomain) {
         console.log('🔍 [ThemeProvider] User detected on assignx domain:', {
           hostname,
@@ -282,7 +287,88 @@ const ThemeProvider = ({ children }) => {
         })
       }
 
-      // For subaccounts/agencies on localhost, try to fetch fresh branding from API if not found or if forced
+      if (isCustomDomain) {
+        console.log('🔍 [ThemeProvider] Custom domain detected:', {
+          hostname,
+          hasBranding: !!branding,
+          brandingSource: branding
+            ? 'found'
+            : 'not found - will fetch from API',
+        })
+      }
+
+      // For custom domains when user is not logged in, fetch branding from domain lookup API
+      // This is critical for onboarding pages where users aren't logged in yet
+      if ((!branding || forceRefresh) && isCustomDomain && !brandingFetched) {
+        try {
+          // Check if user is logged in
+          const userData = localStorage.getItem('User')
+          const isLoggedIn = !!userData
+
+          // Only fetch from domain lookup if user is NOT logged in
+          // (If logged in, we'll use the authenticated API below)
+          if (!isLoggedIn) {
+            console.log('🔄 [ThemeProvider] User not logged in on custom domain, fetching branding from domain lookup API...')
+            setBrandingFetched(true) // Prevent multiple simultaneous requests
+
+            const baseUrl =
+              process.env.NEXT_PUBLIC_BASE_API_URL ||
+              (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+                ? 'https://apimyagentx.com/agentx/'
+                : 'https://apimyagentx.com/agentxtest/')
+
+            const lookupResponse = await fetch(
+              `${baseUrl}api/agency/lookup-by-domain`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  customDomain: hostname,
+                }),
+              },
+            )
+
+            if (lookupResponse.ok) {
+              const lookupData = await lookupResponse.json()
+              if (lookupData.status && lookupData.data?.branding) {
+                const freshBranding = lookupData.data.branding
+                branding = freshBranding
+
+                // Update localStorage with fresh data
+                localStorage.setItem(
+                  'agencyBranding',
+                  JSON.stringify(freshBranding),
+                )
+
+                console.log('✅ [ThemeProvider] Fetched and cached branding from domain lookup API:', freshBranding)
+                
+                // Dispatch event to trigger immediate theme application
+                // This ensures branding is applied even if function continues before fetch completes
+                if (typeof window !== 'undefined') {
+                  window.dispatchEvent(
+                    new CustomEvent('agencyBrandingUpdated', { detail: freshBranding })
+                  )
+                  console.log('✅ [ThemeProvider] Dispatched agencyBrandingUpdated event for immediate application')
+                }
+              } else {
+                console.log('⚠️ [ThemeProvider] Domain lookup API returned no branding data')
+              }
+            } else {
+              console.log('⚠️ [ThemeProvider] Domain lookup API failed:', lookupResponse.status)
+            }
+          } else {
+            console.log('ℹ️ [ThemeProvider] User is logged in on custom domain, will use authenticated API if needed')
+          }
+        } catch (error) {
+          console.log('❌ [ThemeProvider] Error fetching branding from domain lookup API:', error)
+          // Reset brandingFetched on error so it can retry
+          setBrandingFetched(false)
+        }
+      }
+
+      // For subaccounts/agencies on localhost/assignx domains, try to fetch fresh branding from API if not found or if forced
       if ((!branding || forceRefresh) && (isSubaccount || isAgency) && isAssignxDomain && !brandingFetched) {
         try {
           const userData = localStorage.getItem('User')
