@@ -316,7 +316,7 @@ const Page = ({ params }) => {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              backgroundColor: 'white',
+              // Don't override backgroundColor - let BackgroundVideo handle it
               zIndex: -1, // Ensure the video stays behind content
             }}
           >

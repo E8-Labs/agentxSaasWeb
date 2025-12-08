@@ -295,7 +295,10 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin"
+              style={{
+                scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
+              }}
               // style={{
               //   scrollbarWidth: "none",
               //   msOverflowStyle: "none",
@@ -342,17 +345,27 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   return (
                     <div key={index} className="flex w-6/12 md:w-4/12 p-2">
                       <button
-                        className="w-full outline-none rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90 overflow-hidden"
+                        className="w-full outline-none rounded-lg p-2 border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90 overflow-hidden"
+                        style={{
+                          borderColor: item.id === SelectUserType 
+                            ? 'hsl(var(--brand-primary, 270 75% 50%))'
+                            : 'rgba(0, 0, 0, 0.06)',
+                          borderWidth: item.id === SelectUserType ? '2px' : '1px',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (item.id !== SelectUserType) {
+                            e.currentTarget.style.borderColor = 'hsl(var(--brand-primary, 270 75% 50%))'
+                            e.currentTarget.style.borderWidth = '2px'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (item.id !== SelectUserType) {
+                            e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.06)'
+                            e.currentTarget.style.borderWidth = '1px'
+                          }
+                        }}
                         onClick={(e) => {
                           handleUserType(item)
-                        }}
-                        style={{
-                          border:
-                            item.id === SelectUserType
-                              ? '2px solid #7902DF'
-                              : '',
-                          // transform: "scale(0.99)",
-                          // transition: "0.4s ease",
                         }}
                       >
                         <div
