@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
+import { CircularProgress } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
