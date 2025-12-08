@@ -334,7 +334,7 @@ const FocusArea = ({
                           <div className="sm:hidden flex items-center">
                             <Checkbox
                               checked={focusArea.includes(item.id)}
-                              className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                              className="h-5 w-5 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                           </div>
 
@@ -342,7 +342,7 @@ const FocusArea = ({
                           <div className="flex items-center sm:flex hidden">
                             <Checkbox
                               checked={focusArea.includes(item.id)}
-                              className="h-7 w-7 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                              className="h-5 w-5 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                           </div>
 
@@ -417,7 +417,7 @@ const FocusArea = ({
                         <button onClick={handleSelectOthersField}>
                           <Checkbox
                             checked={checkOthersFocusArea}
-                            className="h-9 w-9 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                            className="h-5 w-5 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                           />
                         </button>
                       </div>

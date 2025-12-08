@@ -256,7 +256,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                           <div className="sm:hidden flex items-center">
                             <Checkbox
                               checked={serviceId.includes(item.id)}
-                              className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                              className="h-5 w-5 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                           </div>
 
@@ -264,7 +264,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                           <div className="flex items-center sm:flex hidden">
                             <Checkbox
                               checked={serviceId.includes(item.id)}
-                              className="h-7 w-7 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                              className="h-5 w-5 rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                           </div>
 
