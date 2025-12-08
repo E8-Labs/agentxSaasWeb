@@ -8,6 +8,7 @@ import ProgressBar from '@/components/onboarding/ProgressBar'
 import { PersistanceKeys } from '@/constants/Constants'
 import { UserTypes } from '@/constants/UserTypes'
 import { GetAreasOfFocusForUser } from '@/utilities/AreaOfFocus'
+import { Checkbox } from '@/components/ui/checkbox'
 
 import Apis from '../apis/Apis'
 import Footer from './Footer'
@@ -331,40 +332,18 @@ const FocusArea = ({
                         <div className="grid grid-cols-[auto_1fr] gap-2 items-start">
                           {/* Check mark for small screens*/}
                           <div className="sm:hidden flex items-center">
-                            {focusArea.includes(item.id) ? (
-                              <Image
-                                src={'/assets/charmTick.png'}
-                                alt="*"
-                                height={24}
-                                width={24}
-                              />
-                            ) : (
-                              <Image
-                                src={'/assets/charmUnMark.png'}
-                                alt="*"
-                                height={24}
-                                width={24}
-                              />
-                            )}
+                            <Checkbox
+                              checked={focusArea.includes(item.id)}
+                              className="h-6 w-6 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                            />
                           </div>
 
-                          {/*Check merk for large screens */}
+                          {/*Check mark for large screens */}
                           <div className="flex items-center sm:flex hidden">
-                            {focusArea.includes(item.id) ? (
-                              <Image
-                                src={'/assets/charmTick.png'}
-                                alt="*"
-                                height={28}
-                                width={28}
-                              />
-                            ) : (
-                              <Image
-                                src={'/assets/charmUnMark.png'}
-                                alt="*"
-                                height={28}
-                                width={28}
-                              />
-                            )}
+                            <Checkbox
+                              checked={focusArea.includes(item.id)}
+                              className="h-7 w-7 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                            />
                           </div>
 
                           {/* Title + Description */}
@@ -436,21 +415,10 @@ const FocusArea = ({
                           </div>
                         </div>
                         <button onClick={handleSelectOthersField}>
-                          {checkOthersFocusArea ? (
-                            <Image
-                              src={'/assets/charmTick.png'}
-                              alt="*"
-                              height={36}
-                              width={36}
-                            />
-                          ) : (
-                            <Image
-                              src={'/assets/charmUnMark.png'}
-                              alt="*"
-                              height={36}
-                              width={36}
-                            />
-                          )}
+                          <Checkbox
+                            checked={checkOthersFocusArea}
+                            className="h-9 w-9 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                          />
                         </button>
                       </div>
                     </div>
