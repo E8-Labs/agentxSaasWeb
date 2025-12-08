@@ -454,9 +454,19 @@ function MCPView({
           <button
             className="text-[13px] font-[500] text-brand-primary hover:text-brand-primary/80 transition-colors"
             onClick={() => {
-              if (user?.planCapabilities?.allowToolsAndActions === false) {
+              // Check if user is subaccount and agency has disabled the feature
+              const isSubaccount = user?.userRole === 'AgencySubAccount'
+              const agencyDisabled = user?.agencyCapabilities?.allowToolsAndActions === false
+              const planDisabled = user?.planCapabilities?.allowToolsAndActions === false
+              
+              if (isSubaccount && agencyDisabled) {
+                // Subaccount: agency hasn't enabled → Show "Request Feature"
+                setShowUpgradeModal(true)
+              } else if (planDisabled) {
+                // Regular user or subaccount with agency enabled but plan disabled → Show "Upgrade"
                 setShowUpgradeModal(true)
               } else {
+                // User has access → Open add tool popup
                 setShowAddMcpPopup(true)
               }
             }}
@@ -712,6 +722,13 @@ function MCPView({
           title={'Unlock Tools'}
           subTitle={'Upgrade to unlock Tools'}
           buttonTitle={'No Thanks'}
+          featureTitle={
+            // Show "Request Feature" if user is subaccount and agency has disabled the feature
+            user?.userRole === 'AgencySubAccount' && 
+            user?.agencyCapabilities?.allowToolsAndActions === false
+              ? 'Unlock Tools'
+              : undefined
+          }
         />
       </div >
     )
@@ -744,9 +761,19 @@ function MCPView({
           <button
             className="mt-2 flex items-center px-6 py-3 bg-brand-primary font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-brand-primary/50"
             onClick={() => {
-              if (user?.planCapabilities?.allowToolsAndActions === false) {
+              // Check if user is subaccount and agency has disabled the feature
+              const isSubaccount = user?.userRole === 'AgencySubAccount'
+              const agencyDisabled = user?.agencyCapabilities?.allowToolsAndActions === false
+              const planDisabled = user?.planCapabilities?.allowToolsAndActions === false
+              
+              if (isSubaccount && agencyDisabled) {
+                // Subaccount: agency hasn't enabled → Show "Request Feature"
+                setShowUpgradeModal(true)
+              } else if (planDisabled) {
+                // Regular user or subaccount with agency enabled but plan disabled → Show "Upgrade"
                 setShowUpgradeModal(true)
               } else {
+                // User has access → Open add tool popup
                 setShowAddMcpPopup(true)
               }
             }}
@@ -776,6 +803,13 @@ function MCPView({
             title={'Unlock Tools'}
             subTitle={'Upgrade to unlock Tools'}
             buttonTitle={'No Thanks'}
+            featureTitle={
+              // Show "Request Feature" if user is subaccount and agency has disabled the feature
+              user?.userRole === 'AgencySubAccount' && 
+              user?.agencyCapabilities?.allowToolsAndActions === false
+                ? 'Unlock Tools'
+                : undefined
+            }
           />
         </div>
         <div className="flex flex-col w-full flex-col items-center justify-center">
