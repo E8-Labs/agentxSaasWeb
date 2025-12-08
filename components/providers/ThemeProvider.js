@@ -273,6 +273,12 @@ const ThemeProvider = ({ children }) => {
       const isCustomDomain = !isAssignxDomain && 
         hostname !== 'localhost' && 
         !hostname.includes('127.0.0.1')
+      
+      // Check if we're on an assignx.ai subdomain (e.g., eric.assignx.ai)
+      const isAssignxSubdomain = isAssignxDomain && 
+        hostname !== 'assignx.ai' && 
+        !hostname.includes('localhost') &&
+        hostname.includes('.assignx.ai')
 
       // Debug logging
       if ((isSubaccount || isAgency) && isAssignxDomain) {
@@ -296,10 +302,21 @@ const ThemeProvider = ({ children }) => {
             : 'not found - will fetch from API',
         })
       }
+      
+      if (isAssignxSubdomain) {
+        console.log('🔍 [ThemeProvider] AssignX subdomain detected:', {
+          hostname,
+          hasBranding: !!branding,
+          brandingSource: branding
+            ? 'found'
+            : 'not found - will fetch from API',
+        })
+      }
 
-      // For custom domains when user is not logged in, fetch branding from domain lookup API
+      // For custom domains OR assignx subdomains when user is not logged in, fetch branding from domain lookup API
       // This is critical for onboarding pages where users aren't logged in yet
-      if ((!branding || forceRefresh) && isCustomDomain && !brandingFetched) {
+      // Subdomains like eric.assignx.ai should also fetch branding if user is not logged in
+      if ((!branding || forceRefresh) && (isCustomDomain || isAssignxSubdomain) && !brandingFetched) {
         try {
           // Check if user is logged in
           const userData = localStorage.getItem('User')
@@ -308,7 +325,8 @@ const ThemeProvider = ({ children }) => {
           // Only fetch from domain lookup if user is NOT logged in
           // (If logged in, we'll use the authenticated API below)
           if (!isLoggedIn) {
-            console.log('🔄 [ThemeProvider] User not logged in on custom domain, fetching branding from domain lookup API...')
+            const domainType = isCustomDomain ? 'custom domain' : 'subdomain'
+            console.log(`🔄 [ThemeProvider] User not logged in on ${domainType}, fetching branding from domain lookup API...`)
             setBrandingFetched(true) // Prevent multiple simultaneous requests
 
             const baseUrl =
@@ -316,6 +334,11 @@ const ThemeProvider = ({ children }) => {
               (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
                 ? 'https://apimyagentx.com/agentx/'
                 : 'https://apimyagentx.com/agentxtest/')
+
+            // For subdomains, extract the subdomain part (e.g., "eric" from "eric.assignx.ai")
+            const subdomain = isAssignxSubdomain 
+              ? hostname.split('.')[0] 
+              : null
 
             const lookupResponse = await fetch(
               `${baseUrl}api/agency/lookup-by-domain`,
@@ -325,7 +348,8 @@ const ThemeProvider = ({ children }) => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  customDomain: hostname,
+                  customDomain: isCustomDomain ? hostname : null,
+                  subdomain: subdomain,
                 }),
               },
             )
@@ -344,13 +368,40 @@ const ThemeProvider = ({ children }) => {
 
                 console.log('✅ [ThemeProvider] Fetched and cached branding from domain lookup API:', freshBranding)
                 
-                // Dispatch event to trigger immediate theme application
-                // This ensures branding is applied even if function continues before fetch completes
+                // Apply branding immediately after fetching (don't wait for function to continue)
+                // This ensures branding is applied right away for onboarding pages
+                if (freshBranding) {
+                  // Update favicon
+                  const faviconUrl = freshBranding.faviconUrl
+                  if (faviconUrl) {
+                    updateFavicon(faviconUrl)
+                  }
+                  
+                  // Apply primary color
+                  if (freshBranding.primaryColor) {
+                    const primaryHsl = hexToHsl(freshBranding.primaryColor)
+                    document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+                    document.documentElement.style.setProperty('--primary', primaryHsl)
+                    const iconFilter = calculateIconFilter(freshBranding.primaryColor)
+                    document.documentElement.style.setProperty('--icon-filter', iconFilter)
+                  }
+                  
+                  // Apply secondary color
+                  if (freshBranding.secondaryColor) {
+                    const secondaryHsl = hexToHsl(freshBranding.secondaryColor)
+                    document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+                    document.documentElement.style.setProperty('--secondary', secondaryHsl)
+                  }
+                  
+                  console.log('✅ [ThemeProvider] Applied branding immediately after fetch')
+                }
+                
+                // Also dispatch event as a backup to ensure any listeners get notified
                 if (typeof window !== 'undefined') {
                   window.dispatchEvent(
                     new CustomEvent('agencyBrandingUpdated', { detail: freshBranding })
                   )
-                  console.log('✅ [ThemeProvider] Dispatched agencyBrandingUpdated event for immediate application')
+                  console.log('✅ [ThemeProvider] Dispatched agencyBrandingUpdated event')
                 }
               } else {
                 console.log('⚠️ [ThemeProvider] Domain lookup API returned no branding data')
