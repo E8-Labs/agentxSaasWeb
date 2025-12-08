@@ -153,6 +153,18 @@ const ThemeProvider = ({ children }) => {
         hostname === 'assignx.ai' ||
         hostname.includes('localhost')
 
+      // Exclude app.assignx.ai and dev.assignx.ai from branding
+      const isExcludedSubdomain = hostname === 'app.assignx.ai' || hostname === 'dev.assignx.ai'
+
+      // Check if we're on an assignx.ai subdomain (e.g., eric.assignx.ai)
+      // This must be checked BEFORE the early return for assignx domains
+      // Exclude app.assignx.ai and dev.assignx.ai - these should not have branding
+      const isAssignxSubdomain = isAssignxDomain && 
+        hostname !== 'assignx.ai' && 
+        !hostname.includes('localhost') &&
+        hostname.includes('.assignx.ai') &&
+        !isExcludedSubdomain
+
       // Check if user is a subaccount or agency (for exception rule)
       let isSubaccount = false
       let isAgency = false
@@ -168,9 +180,11 @@ const ThemeProvider = ({ children }) => {
         console.log('Error parsing user data:', error)
       }
 
-      // If assignx domain AND not a subaccount AND not an agency, use default colors (don't override)
-      // Exception: If subaccount or agency, apply branding even on assignx.ai domains
-      if (isAssignxDomain && !isSubaccount && !isAgency) {
+      // If assignx domain AND not a subdomain AND not a subaccount AND not an agency, use default colors (don't override)
+      // Exception 1: Subdomains (like eric.assignx.ai, but NOT app.assignx.ai or dev.assignx.ai) should fetch branding even if user is not logged in
+      // Exception 2: If subaccount or agency, apply branding even on assignx.ai domains
+      // Note: app.assignx.ai and dev.assignx.ai are excluded and will use default colors
+      if (isAssignxDomain && !isAssignxSubdomain && !isSubaccount && !isAgency) {
         // Set defaults explicitly to ensure consistency
         const defaultPrimary = getDefaultPrimaryColor()
         const defaultSecondary = getDefaultSecondaryColor()
@@ -274,11 +288,7 @@ const ThemeProvider = ({ children }) => {
         hostname !== 'localhost' && 
         !hostname.includes('127.0.0.1')
       
-      // Check if we're on an assignx.ai subdomain (e.g., eric.assignx.ai)
-      const isAssignxSubdomain = isAssignxDomain && 
-        hostname !== 'assignx.ai' && 
-        !hostname.includes('localhost') &&
-        hostname.includes('.assignx.ai')
+      // Note: isAssignxSubdomain is already defined above (before the early return)
 
       // Debug logging
       if ((isSubaccount || isAgency) && isAssignxDomain) {
@@ -310,6 +320,13 @@ const ThemeProvider = ({ children }) => {
           brandingSource: branding
             ? 'found'
             : 'not found - will fetch from API',
+        })
+      }
+
+      if (isExcludedSubdomain) {
+        console.log('🔍 [ThemeProvider] Excluded subdomain detected (app/dev):', {
+          hostname,
+          willUseDefaults: true,
         })
       }
 
