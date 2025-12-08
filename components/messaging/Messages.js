@@ -837,23 +837,48 @@ const Messages = () => {
         // Determine subject for threading
         let emailSubject = composerData.subject
         
+        // Find the most recent message in the thread to use as replyToMessageId
+        // This ensures proper Gmail threading with In-Reply-To and References headers
+        let replyToMessageId = null
+        const emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+        
         // If subject is empty, try to get subject from thread context
         if (!emailSubject || emailSubject.trim() === '') {
           // Check if we have emailTimelineSubject (from Load More or subject click)
           if (emailTimelineSubject) {
             emailSubject = emailTimelineSubject
-          } else {
-            // Try to get subject from messages in the thread
-            const emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
-            if (emailMessages.length > 0) {
-              // Use the most recent email's subject (normalized)
-              const mostRecentEmail = emailMessages[emailMessages.length - 1]
-              emailSubject = normalizeSubject(mostRecentEmail.subject)
-            }
+          } else if (emailMessages.length > 0) {
+            // Use the most recent email's subject (normalized)
+            const mostRecentEmail = emailMessages[emailMessages.length - 1]
+            emailSubject = normalizeSubject(mostRecentEmail.subject)
           }
         } else {
           // Normalize the subject to ensure proper threading
           emailSubject = normalizeSubject(emailSubject)
+        }
+        
+        // If we have email messages in the thread, find the most recent one that matches the subject
+        // This ensures Gmail threads the email correctly by using the correct message for reply headers
+        if (emailMessages.length > 0 && emailSubject) {
+          // Filter messages that match the normalized subject (for proper threading)
+          const normalizedSubject = emailSubject.toLowerCase().trim()
+          const matchingMessages = emailMessages.filter(msg => {
+            const msgSubject = normalizeSubject(msg.subject).toLowerCase().trim()
+            return msgSubject === normalizedSubject
+          })
+          
+          if (matchingMessages.length > 0) {
+            // Get the most recent matching email message (messages are sorted oldest to newest)
+            const mostRecentEmail = matchingMessages[matchingMessages.length - 1]
+            replyToMessageId = mostRecentEmail.id
+            console.log(`📧 Using most recent matching message ${replyToMessageId} for threading with subject: ${emailSubject}`)
+          } else if (emailMessages.length > 0) {
+            // Fallback: use the most recent email even if subject doesn't match exactly
+            // This can happen if subjects have slight variations
+            const mostRecentEmail = emailMessages[emailMessages.length - 1]
+            replyToMessageId = mostRecentEmail.id
+            console.log(`📧 Using most recent message ${replyToMessageId} for threading (subject match not found)`)
+          }
         }
         
         // If still no subject, use a default
@@ -865,6 +890,11 @@ const Messages = () => {
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
         formData.append('body', composerData.body)
+        
+        // Add replyToMessageId if we found one (for proper Gmail threading)
+        if (replyToMessageId) {
+          formData.append('replyToMessageId', replyToMessageId.toString())
+        }
         // Join CC and BCC arrays into comma-separated strings
         const ccString = ccEmails.join(', ')
         const bccString = bccEmails.join(', ')
