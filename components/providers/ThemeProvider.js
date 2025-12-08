@@ -25,6 +25,92 @@ const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    // Shared favicon update function (moved outside applyTheme for reuse)
+    const updateFavicon = (faviconUrl) => {
+      // Remove ALL existing favicon and shortcut icon links (more comprehensive selector)
+      // This catches all possible favicon link variations
+      const existingLinks = document.querySelectorAll(
+        'link[rel*="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]',
+      )
+      existingLinks.forEach((link) => {
+        console.log('🗑️ [ThemeProvider] Removing existing favicon link:', link.href, link.rel)
+        link.remove()
+      })
+
+      // Also try to remove by href pattern (catches Next.js default favicon.ico)
+      const allLinks = document.querySelectorAll('link[href*="favicon"]')
+      allLinks.forEach((link) => {
+        console.log('🗑️ [ThemeProvider] Removing favicon by href pattern:', link.href)
+        link.remove()
+      })
+
+      if (faviconUrl && faviconUrl.trim() !== '') {
+        // Detect MIME type from file extension
+        const getMimeType = (url) => {
+          const lowerUrl = url.toLowerCase()
+          if (lowerUrl.includes('.png')) return 'image/png'
+          if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg')) return 'image/jpeg'
+          if (lowerUrl.includes('.svg')) return 'image/svg+xml'
+          if (lowerUrl.includes('.ico')) return 'image/x-icon'
+          if (lowerUrl.includes('.webp')) return 'image/webp'
+          // Default to png if unknown
+          return 'image/png'
+        }
+
+        const mimeType = getMimeType(faviconUrl)
+        
+        // Add timestamp and random number for aggressive cache busting
+        const separator = faviconUrl.includes('?') ? '&' : '?'
+        const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}&r=${Math.random().toString(36).substring(7)}`
+        
+        // Create primary favicon link
+        const link = document.createElement('link')
+        link.rel = 'icon'
+        link.type = mimeType
+        link.href = cacheBustedUrl
+        document.head.appendChild(link)
+        console.log('✅ [ThemeProvider] Added favicon link:', cacheBustedUrl, 'type:', mimeType)
+
+        // Also add shortcut icon for older browsers
+        const shortcutLink = document.createElement('link')
+        shortcutLink.rel = 'shortcut icon'
+        shortcutLink.type = mimeType
+        shortcutLink.href = cacheBustedUrl
+        document.head.appendChild(shortcutLink)
+
+        // Add apple-touch-icon for better mobile support
+        const appleIconLink = document.createElement('link')
+        appleIconLink.rel = 'apple-touch-icon'
+        appleIconLink.href = cacheBustedUrl
+        document.head.appendChild(appleIconLink)
+
+        // Force browser to reload favicon by creating an image and setting it
+        // This helps bypass aggressive browser caching
+        const img = new Image()
+        img.onload = () => {
+          console.log('✅ [ThemeProvider] Favicon image loaded successfully')
+          // Trigger a small DOM update to force browser refresh
+          if (document.querySelector('link[rel="icon"]')) {
+            const faviconLink = document.querySelector('link[rel="icon"]')
+            const currentHref = faviconLink.href
+            faviconLink.href = ''
+            setTimeout(() => {
+              faviconLink.href = currentHref
+            }, 10)
+          }
+        }
+        img.onerror = () => {
+          console.error('❌ [ThemeProvider] Failed to load favicon image:', cacheBustedUrl)
+        }
+        img.src = cacheBustedUrl
+
+        console.log('✅ [ThemeProvider] Favicon updated:', faviconUrl)
+      } else {
+        // If no favicon, browser will use default favicon.ico
+        console.log('ℹ️ [ThemeProvider] No favicon in branding, using default')
+      }
+    }
+
     const applyTheme = async (forceRefresh = false) => {
       // Check if agency branding is disabled via environment variable
       const isBrandingDisabled =
@@ -213,40 +299,6 @@ const ThemeProvider = ({ children }) => {
       }
 
       // Update favicon if branding exists and has faviconUrl
-      const updateFavicon = (faviconUrl) => {
-        // Remove ALL existing favicon and shortcut icon links
-        // We'll add a new one if faviconUrl is provided
-        const existingLinks = document.querySelectorAll(
-          'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]',
-        )
-        existingLinks.forEach((link) => {
-          link.remove()
-        })
-
-        if (faviconUrl && faviconUrl.trim() !== '') {
-          // Create new favicon link with cache busting to ensure it updates
-          const link = document.createElement('link')
-          link.rel = 'icon'
-          link.type = 'image/x-icon'
-          // Add timestamp to prevent caching issues
-          const separator = faviconUrl.includes('?') ? '&' : '?'
-          const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}`
-          link.href = cacheBustedUrl
-          document.head.appendChild(link)
-
-          // Also add apple-touch-icon for better mobile support
-          const appleIconLink = document.createElement('link')
-          appleIconLink.rel = 'apple-touch-icon'
-          appleIconLink.href = cacheBustedUrl
-          document.head.appendChild(appleIconLink)
-
-          console.log('✅ [ThemeProvider] Favicon updated:', faviconUrl)
-        } else {
-          // If no favicon, browser will use default favicon.ico
-          console.log('ℹ️ [ThemeProvider] No favicon in branding, using default')
-        }
-      }
-
       // Apply colors if branding exists
       if (branding) {
         // Always update favicon (pass null/undefined if not available)
@@ -353,40 +405,8 @@ const ThemeProvider = ({ children }) => {
       console.log('🔍 [ThemeProvider] Event faviconUrl:', faviconUrlFromEvent)
       
       if (faviconUrlFromEvent) {
-        const updateFaviconFromEvent = (faviconUrl) => {
-          // Remove ALL existing favicon links
-          const existingLinks = document.querySelectorAll(
-            'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]',
-          )
-          existingLinks.forEach((link) => {
-            console.log('🗑️ [ThemeProvider] Removing existing favicon link:', link.href)
-            link.remove()
-          })
-
-          if (faviconUrl && faviconUrl.trim() !== '') {
-            // Create new favicon link with cache busting
-            const link = document.createElement('link')
-            link.rel = 'icon'
-            link.type = 'image/x-icon'
-            const separator = faviconUrl.includes('?') ? '&' : '?'
-            const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}`
-            link.href = cacheBustedUrl
-            document.head.appendChild(link)
-            console.log('✅ [ThemeProvider] Added new favicon link:', cacheBustedUrl)
-
-            // Add apple-touch-icon
-            const appleIconLink = document.createElement('link')
-            appleIconLink.rel = 'apple-touch-icon'
-            appleIconLink.href = cacheBustedUrl
-            document.head.appendChild(appleIconLink)
-            console.log('✅ [ThemeProvider] Added apple-touch-icon:', cacheBustedUrl)
-
-            console.log('✅ [ThemeProvider] Favicon updated from event:', faviconUrl)
-          } else {
-            console.log('⚠️ [ThemeProvider] Favicon URL is empty or invalid:', faviconUrl)
-          }
-        }
-        updateFaviconFromEvent(faviconUrlFromEvent)
+        // Use the same updateFavicon function for consistency
+        updateFavicon(faviconUrlFromEvent)
       } else {
         console.log('ℹ️ [ThemeProvider] No faviconUrl in event branding data')
       }
