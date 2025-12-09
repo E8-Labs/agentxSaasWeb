@@ -657,52 +657,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const handleSmartListCreated = async (smartListData) => {
     console.log('🔧 ADMIN-WEB-AGENT - Smart list created:', smartListData)
     
-    // Determine agent type
-    const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
+    // Note: AddSmartList API already attached the smartlist with correct agentType
+    // So we don't need to call attachSmartList again here
+    // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData
+    const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
     
-    // Attach the smartlist to the agent with correct agentType
-    try {
-      let AuthToken = null
-      const localData = localStorage.getItem('User')
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      const response = await axios.post(
-        `${Apis.attachSmartList}`,
-        {
-          agentId: selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi,
-          smartListId: smartListId,
-          agentType: agentType,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${AuthToken}`,
-          },
-        },
-      )
-
-      if (response.data && response.data.status) {
-        console.log('🔧 ADMIN-WEB-AGENT - Smart list attached successfully')
-        // Update local agent state
-        if (selectedAgentForWebAgent) {
-          if (agentType === 'webhook') {
-            selectedAgentForWebAgent.smartListIdForWebhook = smartListId
-            selectedAgentForWebAgent.smartListEnabledForWebhook = true
-          } else {
-            selectedAgentForWebAgent.smartListIdForWeb = smartListId
-            selectedAgentForWebAgent.smartListEnabledForWeb = true
-          }
-        }
+    if (selectedAgentForWebAgent) {
+      if (agentType === 'webhook') {
+        selectedAgentForWebAgent.smartListIdForWebhook = smartListId
+        selectedAgentForWebAgent.smartListEnabledForWebhook = true
       } else {
-        throw new Error(response.data?.message || 'Failed to attach smart list')
+        selectedAgentForWebAgent.smartListIdForWeb = smartListId
+        selectedAgentForWebAgent.smartListEnabledForWeb = true
       }
-    } catch (error) {
-      console.error('🔧 ADMIN-WEB-AGENT - Error attaching smart list:', error)
-      // Still show success modal but log error
     }
     
     setShowNewSmartListModal(false)
@@ -725,45 +693,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const handleEmbedSmartListCreated = async (smartListData) => {
     console.log('🔧 ADMIN-EMBED-AGENT - Smart list created:', smartListData)
     
+    // Note: AddSmartList API already attached the smartlist with agentType='embed'
+    // So we don't need to call attachSmartList again here
+    // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
-    
-    // Attach the smartlist to the embed agent
-    try {
-      let AuthToken = null
-      const localData = localStorage.getItem('User')
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      const response = await axios.post(
-        `${Apis.attachSmartList}`,
-        {
-          agentId: selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi,
-          smartListId: smartListId,
-          agentType: 'embed',
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${AuthToken}`,
-          },
-        },
-      )
-
-      if (response.data && response.data.status) {
-        console.log('🔧 ADMIN-EMBED-AGENT - Smart list attached successfully')
-        // Update local agent state
-        if (selectedAgentForEmbed) {
-          selectedAgentForEmbed.smartListIdForEmbed = smartListId
-          selectedAgentForEmbed.smartListEnabledForEmbed = true
-        }
-      } else {
-        throw new Error(response.data?.message || 'Failed to attach smart list')
-      }
-    } catch (error) {
-      console.error('🔧 ADMIN-EMBED-AGENT - Error attaching smart list:', error)
-      // Continue anyway - the smartlist was created
+    if (selectedAgentForEmbed && smartListId) {
+      selectedAgentForEmbed.smartListIdForEmbed = smartListId
+      selectedAgentForEmbed.smartListEnabledForEmbed = true
     }
     
     setShowEmbedSmartListModal(false)

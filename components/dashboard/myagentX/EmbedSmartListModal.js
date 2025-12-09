@@ -214,6 +214,12 @@ const EmbedSmartListModal = ({
         '🔧 EMBED-SMARTLIST - Creating smart list with payload:',
         payload,
       )
+      console.log(
+        '🔧 EMBED-SMARTLIST - agentType in payload:',
+        payload.agentType,
+        'type:',
+        typeof payload.agentType,
+      )
 
       const response = await axios.post(
         'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
