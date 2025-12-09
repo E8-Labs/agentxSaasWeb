@@ -166,7 +166,7 @@ const MessageComposer = ({
                 fetchPhoneNumbers()
                 setIsExpanded(true)
               }}
-              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
                 composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >
@@ -187,7 +187,7 @@ const MessageComposer = ({
                 setIsExpanded(true)
                 fetchEmailAccounts()
               }}
-              className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
                 composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >

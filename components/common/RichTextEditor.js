@@ -151,7 +151,7 @@ const RichTextEditor = forwardRef(
           }
 
           .quill-editor-wrapper .ql-editor {
-            min-height: 200px;
+            min-height: 120px;
             max-height: 400px;
             overflow-y: auto;
           }

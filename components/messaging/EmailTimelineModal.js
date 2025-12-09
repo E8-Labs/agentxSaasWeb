@@ -14,6 +14,21 @@ import { Input } from '@/components/ui/input'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
+// Helper function to check if HTML body has actual text content
+const hasTextContent = (html) => {
+  if (!html) return false
+  // Create a temporary div to parse HTML
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const textContent = tempDiv.textContent || tempDiv.innerText || ''
+    return textContent.trim().length > 0
+  }
+  // Fallback for SSR: strip HTML tags and check
+  const textOnly = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+  return textOnly.length > 0
+}
+
 const EmailTimelineModal = ({
   open,
   onClose,
@@ -153,7 +168,7 @@ const EmailTimelineModal = ({
     // Use reply subject if in reply mode, otherwise use timeline subject
     const emailSubject = replyToMessage ? replySubject : (subject || '')
     
-    if (!replyBody.trim() || !selectedEmailAccount || !leadId || !emailSubject) {
+    if (!hasTextContent(replyBody) || !selectedEmailAccount || !leadId || !emailSubject) {
       toast.error('Please fill in all required fields')
       return
     }
@@ -396,8 +411,8 @@ const EmailTimelineModal = ({
 
         {/* Reply Composer */}
         {messages && messages.length > 0 && subject && leadId && (
-          <div className="border-t pt-4 mt-4 bg-white">
-            <div className="space-y-3">
+          <div className="border-t pt-2 mt-2 bg-white">
+            <div className="space-y-2">
             
               {/* Subject field - show when in reply mode */}
               {replyToMessage && (
@@ -413,47 +428,48 @@ const EmailTimelineModal = ({
               )}
 
               {/* Message body */}
-              <div className="border border-gray-200 rounded-lg">
+              <div className="relative border border-gray-200 rounded-lg">
                 <RichTextEditor
                   ref={richTextEditorRef}
                   value={replyBody}
                   onChange={(content) => setReplyBody(content)}
                   placeholder="Type your message..."
+                  toolbarPosition="bottom"
                   className="min-h-[80px]"
                 />
-              </div>
-
-              {/* Send button */}
-              <div className="flex items-center justify-end gap-4">
-                <button
-                  onClick={handleSend}
-                  disabled={sending || !replyBody.trim() || !selectedEmailAccount}
-                  className={`px-6 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2 ${
-                    sending || !replyBody.trim() || !selectedEmailAccount
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-brand-primary hover:bg-brand-primary/90'
-                  }`}
-                >
-                  {sending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send</span>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M1.5 8.5L14.5 1.5M14.5 1.5L9.5 14.5M14.5 1.5L1.5 8.5L6.5 11.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </>
-                  )}
-                </button>
+                
+                {/* Overlapping send button above toolbar */}
+                <div className="absolute bottom-[2px] right-0 flex items-center gap-2 z-10 pr-2">
+                  <button
+                    onClick={handleSend}
+                    disabled={sending || !hasTextContent(replyBody) || !selectedEmailAccount}
+                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors flex items-center gap-2 ${
+                      sending || !hasTextContent(replyBody) || !selectedEmailAccount
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-brand-primary hover:bg-brand-primary/90'
+                    }`}
+                  >
+                    {sending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M1.5 8.5L14.5 1.5M14.5 1.5L9.5 14.5M14.5 1.5L1.5 8.5L6.5 11.5"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
