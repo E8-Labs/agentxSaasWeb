@@ -2760,7 +2760,7 @@ const Pipeline1 = () => {
                   </div>
                   <div className="h-[36px] flex flex-row items-start justify-center">
                     <button
-                      className="h-[23px] text-purple outline-none mt-2"
+                      className="h-[23px] text-brand-primary outline-none mt-2"
                       style={{
                         width: '200px',
                         fontSize: '16.8',
