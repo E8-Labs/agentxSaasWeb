@@ -186,6 +186,11 @@ const EmbedModal = ({
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', requireForm.toString())
+      formData.append('agentType', 'embed') // Specify agent type for embed agents
+      // Also pass smartListId if available, so updateSupportButton can set it
+      if (selectedSmartList) {
+        formData.append('smartListId', selectedSmartList)
+      }
 
       console.log('🔧 EMBED-MODAL - Support button settings:', {
         agentId,

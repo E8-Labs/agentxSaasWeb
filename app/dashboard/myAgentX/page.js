@@ -783,26 +783,64 @@ function Page() {
     setShowNewSmartListModal(true)
   }
 
-  const handleSmartListCreated = (smartListData) => {
-    console.log('smartListData', smartListData)
-    let agent = {
-      ...selectedAgentForWebAgent,
-      smartListId: smartListData.id,
+  const handleSmartListCreated = async (smartListData) => {
+    console.log('🔧 WEB-AGENT - Smart list created:', smartListData)
+    
+    // Determine agent type
+    const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
+    
+    // Attach the smartlist to the agent with correct agentType
+    try {
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await axios.post(
+        `${Apis.attachSmartList}`,
+        {
+          agentId: selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi,
+          smartListId: smartListData.id,
+          agentType: agentType,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${AuthToken}`,
+          },
+        },
+      )
+
+      if (response.data && response.data.status) {
+        console.log('🔧 WEB-AGENT - Smart list attached successfully')
+        // Update local agent state
+        let agent = {
+          ...selectedAgentForWebAgent,
+          smartListId: smartListData.id,
+        }
+        if (agentType === 'webhook') {
+          agent.smartListIdForWebhook = smartListData.id
+          agent.smartListEnabledForWebhook = true
+        } else {
+          agent.smartListIdForWeb = smartListData.id
+          agent.smartListEnabledForWeb = true
+        }
+        setSelectedAgentForWebAgent(agent)
+        showDrawerSelectedAgent.smartListId = smartListData.id
+        setFetureType('webagent')
+        setShowNewSmartListModal(false)
+        setShowAllSetModal(true)
+      } else {
+        throw new Error(response.data?.message || 'Failed to attach smart list')
+      }
+    } catch (error) {
+      console.error('🔧 WEB-AGENT - Error attaching smart list:', error)
+      // Still show success modal but log error
+      setShowNewSmartListModal(false)
+      setShowAllSetModal(true)
     }
-    console.log('agent', agent)
-    setSelectedAgentForWebAgent(agent)
-    console.log(
-      'selectedAgentForWebAgent after updating',
-      selectedAgentForWebAgent,
-    )
-    showDrawerSelectedAgent.smartListId = smartListData.id
-    console.log(
-      'showDrawerSelectedAgent after updating',
-      showDrawerSelectedAgent,
-    )
-    setFetureType('webagent')
-    setShowNewSmartListModal(false)
-    setShowAllSetModal(true)
   }
 
   const handleCloseAllSetModal = () => {
@@ -838,7 +876,48 @@ function Page() {
     setShowEmbedSmartListModal(true)
   }
 
-  const handleEmbedSmartListCreated = (smartListData) => {
+  const handleEmbedSmartListCreated = async (smartListData) => {
+    console.log('🔧 EMBED-AGENT - Smart list created:', smartListData)
+    
+    // Attach the smartlist to the embed agent
+    try {
+      let AuthToken = null
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await axios.post(
+        `${Apis.attachSmartList}`,
+        {
+          agentId: selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi,
+          smartListId: smartListData.id,
+          agentType: 'embed',
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${AuthToken}`,
+          },
+        },
+      )
+
+      if (response.data && response.data.status) {
+        console.log('🔧 EMBED-AGENT - Smart list attached successfully')
+        // Update local agent state
+        if (selectedAgentForEmbed) {
+          selectedAgentForEmbed.smartListIdForEmbed = smartListData.id
+          selectedAgentForEmbed.smartListEnabledForEmbed = true
+        }
+      } else {
+        throw new Error(response.data?.message || 'Failed to attach smart list')
+      }
+    } catch (error) {
+      console.error('🔧 EMBED-AGENT - Error attaching smart list:', error)
+      // Continue anyway - the smartlist was created
+    }
+    
     setShowEmbedSmartListModal(false)
     setShowEmbedAllSetModal(true)
     // Generate embed code here
@@ -6684,6 +6763,7 @@ function Page() {
           selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
         }
         onSuccess={handleSmartListCreated}
+        agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
       />
 
       <AllSetModal

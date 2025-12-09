@@ -135,6 +135,7 @@ const EmbedSmartListModal = ({
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', 'true')
+      formData.append('agentType', 'embed') // Specify agent type for embed agents
 
       console.log('🔧 EMBED-SMARTLIST - Support button settings:', {
         agentId,
@@ -202,6 +203,7 @@ const EmbedSmartListModal = ({
         columns: allFields,
         tags: filteredTags,
         agentId: agentId,
+        agentType: 'embed', // Specify agent type for embed agents
       }
 
       if (selectedUser) {

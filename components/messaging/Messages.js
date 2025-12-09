@@ -1133,11 +1133,11 @@ const Messages = () => {
           })
 
           if (response.data?.status && response.data?.data) {
-            // Sort by date descending (newest first)
+            // Sort by date ascending (oldest first) - like a chat conversation
             const sortedMessages = [...response.data.data].sort((a, b) => {
               const dateA = new Date(a.createdAt)
               const dateB = new Date(b.createdAt)
-              return dateB - dateA
+              return dateA - dateB
             })
             setEmailTimelineMessages(sortedMessages)
           } else {
@@ -1194,11 +1194,11 @@ const Messages = () => {
           }
         }
 
-        // Sort by date descending (newest first)
+        // Sort by date ascending (oldest first) - like a chat conversation
         allEmailMessages.sort((a, b) => {
           const dateA = new Date(a.createdAt)
           const dateB = new Date(b.createdAt)
-          return dateB - dateA
+          return dateA - dateB
         })
 
         setEmailTimelineMessages(allEmailMessages)
