@@ -14,7 +14,13 @@ const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false })
 
 const RichTextEditor = forwardRef(
   (
-    { value, onChange, placeholder = 'Enter text...', availableVariables = [] },
+    {
+      value,
+      onChange,
+      placeholder = 'Enter text...',
+      availableVariables = [],
+      toolbarPosition = 'top',
+    },
     ref,
   ) => {
     const quillRef = useRef(null)
@@ -81,7 +87,11 @@ const RichTextEditor = forwardRef(
     return (
       <div className="rich-text-editor-container">
         {/* Rich Text Editor */}
-        <div className="quill-editor-wrapper">
+        <div
+          className={`quill-editor-wrapper ${
+            toolbarPosition === 'bottom' ? 'toolbar-bottom' : 'toolbar-top'
+          }`}
+        >
           <ReactQuill
             ref={quillRef}
             theme="snow"
@@ -105,10 +115,33 @@ const RichTextEditor = forwardRef(
             margin-top: 8px;
           }
 
+          /* ReactQuill root element - needs flex display */
+          .quill-editor-wrapper .quill {
+            display: flex;
+            flex-direction: column;
+          }
+
+          /* Toolbar at top (default) */
+          .quill-editor-wrapper.toolbar-top .quill {
+            flex-direction: column;
+          }
+
+          /* Toolbar at bottom - reverse the order */
+          .quill-editor-wrapper.toolbar-bottom .quill {
+            flex-direction: column-reverse;
+          }
+
           .quill-editor-wrapper .ql-toolbar {
             background: #f9fafb;
             border: none;
+          }
+
+          .quill-editor-wrapper.toolbar-top .ql-toolbar {
             border-bottom: 1px solid #e5e7eb;
+          }
+
+          .quill-editor-wrapper.toolbar-bottom .ql-toolbar {
+            border-top: 1px solid #e5e7eb;
           }
 
           .quill-editor-wrapper .ql-container {
@@ -196,10 +229,10 @@ const RichTextEditor = forwardRef(
             font-style: italic;
           }
 
-          /* Purple theme for active buttons */
+          /* Brand theme for active buttons */
           .quill-editor-wrapper .ql-toolbar button:hover,
           .quill-editor-wrapper .ql-toolbar button.ql-active {
-            color: #7902df;
+            color: hsl(var(--brand-primary, 270 75% 50%));
           }
 
           .quill-editor-wrapper .ql-toolbar .ql-stroke {
@@ -208,7 +241,7 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-toolbar button:hover .ql-stroke,
           .quill-editor-wrapper .ql-toolbar button.ql-active .ql-stroke {
-            stroke: #7902df;
+            stroke: hsl(var(--brand-primary, 270 75% 50%));
           }
 
           .quill-editor-wrapper .ql-toolbar .ql-fill {
@@ -217,12 +250,12 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-toolbar button:hover .ql-fill,
           .quill-editor-wrapper .ql-toolbar button.ql-active .ql-fill {
-            fill: #7902df;
+            fill: hsl(var(--brand-primary, 270 75% 50%));
           }
 
           .quill-editor-wrapper .ql-toolbar .ql-picker-label:hover,
           .quill-editor-wrapper .ql-toolbar .ql-picker-label.ql-active {
-            color: #7902df;
+            color: hsl(var(--brand-primary, 270 75% 50%));
           }
 
           .quill-editor-wrapper .ql-toolbar .ql-picker-label:hover .ql-stroke,
@@ -230,7 +263,29 @@ const RichTextEditor = forwardRef(
             .ql-toolbar
             .ql-picker-label.ql-active
             .ql-stroke {
-            stroke: #7902df;
+            stroke: hsl(var(--brand-primary, 270 75% 50%));
+          }
+
+          /* Dropdown positioning - default (toolbar at top) */
+          .quill-editor-wrapper.toolbar-top .ql-picker-options {
+            top: 100% !important;
+            bottom: auto !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+          }
+
+          /* Dropdown positioning - when toolbar is at bottom, open upwards */
+          .quill-editor-wrapper.toolbar-bottom .ql-picker-options {
+            bottom: 100% !important;
+            top: auto !important;
+            margin-top: 0 !important;
+            margin-bottom: 4px !important;
+          }
+
+          /* Ensure dropdown is visible and properly positioned */
+          .quill-editor-wrapper .ql-picker.ql-expanded .ql-picker-options {
+            display: block;
+            z-index: 1000;
           }
         `}</style>
       </div>

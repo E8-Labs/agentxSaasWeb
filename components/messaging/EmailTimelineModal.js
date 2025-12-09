@@ -281,13 +281,13 @@ const EmailTimelineModal = ({
         },
       }}
     >
-      <div className="flex flex-col w-full h-full py-2 px-5 rounded-xl">
+      <div className="flex flex-col w-full h-full py-1 px-4 rounded-xl">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b">
+        <div className="flex items-center justify-between pb-2 border-b">
           <div>
             <h2 className="text-xl font-semibold">{subject || 'Email Timeline'}</h2>
             {replyToMessage && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Replying to {getReplySenderName()}
               </p>
             )}
@@ -296,7 +296,7 @@ const EmailTimelineModal = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-4">
+        <div className="flex-1 overflow-y-auto py-2">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -309,7 +309,7 @@ const EmailTimelineModal = ({
               <p className="text-gray-500">No emails found</p>
             </div>
           ) : (
-            <div className="space-y-6 pb-4">
+            <div className="space-y-3 pb-2">
               {messages.map((message, index) => {
                 const showDateSeparator =
                   index === 0 ||
@@ -321,7 +321,7 @@ const EmailTimelineModal = ({
                 return (
                   <React.Fragment key={message.id}>
                     {showDateSeparator && (
-                      <div className="flex items-center justify-center my-6">
+                      <div className="flex items-center justify-center my-3">
                         <div className="border-t border-gray-200 flex-1"></div>
                         <span className="px-4 text-xs text-gray-400">
                           {moment(message.createdAt).format('MMMM DD, YYYY')}
@@ -348,7 +348,7 @@ const EmailTimelineModal = ({
 
                       {/* Message Content */}
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-0.5">
                           <span className="font-semibold text-sm">{senderName}</span>
                           <span className="text-xs text-gray-500">
                             {moment(message.createdAt).format('h:mm A')}
@@ -356,12 +356,12 @@ const EmailTimelineModal = ({
                         </div>
 
                         {message.subject && (
-                          <div className="font-semibold mb-2 text-sm">
+                          <div className="font-semibold mb-1 text-sm">
                             Subject: {message.subject}
                           </div>
                         )}
 
-                        <div className="bg-gray-100 rounded-lg px-4 py-3 mb-2">
+                        <div className="bg-gray-100 rounded-lg px-3 py-2 mb-1">
                           <div className="text-sm text-gray-700 whitespace-pre-wrap">
                             {htmlToPlainText(message.content || '')}
                           </div>
@@ -369,7 +369,7 @@ const EmailTimelineModal = ({
 
                         {/* Attachments */}
                         {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
-                          <div className="flex flex-col gap-2 mt-2">
+                          <div className="flex flex-col gap-1 mt-1">
                             {message.metadata.attachments.map((attachment, idx) => (
                               <div key={idx} className="flex items-center gap-2 text-sm text-brand-primary">
                                 <Paperclip size={14} />

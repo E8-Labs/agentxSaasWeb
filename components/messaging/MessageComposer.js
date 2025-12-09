@@ -51,6 +51,21 @@ const getBrandPrimaryHex = () => {
   return '#7902DF'
 }
 
+// Helper function to check if HTML body has actual text content
+const hasTextContent = (html) => {
+  if (!html) return false
+  // Create a temporary div to parse HTML
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const textContent = tempDiv.textContent || tempDiv.innerText || ''
+    return textContent.trim().length > 0
+  }
+  // Fallback for SSR: strip HTML tags and check
+  const textOnly = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+  return textOnly.length > 0
+}
+
 const MessageComposer = ({
   composerMode,
   setComposerMode,
@@ -140,8 +155,8 @@ const MessageComposer = ({
 
   return (
     <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
-      <div className="px-6 py-4">
-        <div className="flex items-center justify-between border-b mb-4">
+      <div className="px-4 py-2">
+        <div className="flex items-center justify-between border-b mb-2">
           <div className="flex items-center gap-6">
             <button
               onClick={() => {
@@ -201,7 +216,7 @@ const MessageComposer = ({
 
         {!isExpanded ? (
           // Collapsed view - show text input with send button
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             <Input
               value={composerData.body}
               onChange={(e) => {
@@ -216,7 +231,7 @@ const MessageComposer = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  if (composerData.body.trim() && 
+                  if (hasTextContent(composerData.body) && 
                       ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
                     handleSendMessage()
@@ -231,7 +246,7 @@ const MessageComposer = ({
               onClick={handleSendMessage}
               disabled={
                 sendingMessage ||
-                !composerData.body.trim() ||
+                !hasTextContent(composerData.body) ||
                 (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
                 (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
               }
@@ -261,7 +276,7 @@ const MessageComposer = ({
               </div>
             ) : (
               <>
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center gap-2 flex-1">
                 <label className="text-sm font-medium whitespace-nowrap">From:</label>
                 {composerMode === 'sms' ? (
@@ -428,7 +443,7 @@ const MessageComposer = ({
             {composerMode === 'email' && (
               <>
                 {showCC && (
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <label className="text-sm font-medium w-16">Cc:</label>
                     <div className="relative flex-1">
                       <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
@@ -455,7 +470,7 @@ const MessageComposer = ({
                 )}
 
                 {showBCC && (
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <label className="text-sm font-medium w-16">Bcc:</label>
                     <div className="relative flex-1">
                       <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
@@ -481,7 +496,7 @@ const MessageComposer = ({
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-2">
                   <label className="text-sm font-medium w-16">Subject:</label>
                   <Input
                     value={composerData.subject}
@@ -494,11 +509,11 @@ const MessageComposer = ({
               )}
 
               {/* Message Body and Send Button */}
-              <div className="mb-4">
+              <div className="mb-2">
                 {composerMode === 'email' ? (
                   <>
                     {composerData.attachments.length > 0 && (
-                      <div className="mb-2 flex flex-col gap-1">
+                      <div className="mb-1 flex flex-col gap-1">
                         {composerData.attachments.map((file, idx) => (
                           <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
                             <Paperclip size={14} className="text-gray-500" />
@@ -512,76 +527,106 @@ const MessageComposer = ({
                       </div>
                     )}
 
-                    <RichTextEditor
-                      ref={richTextEditorRef}
-                      value={composerData.body}
-                      onChange={(html) => setComposerData({ ...composerData, body: html })}
-                      placeholder="Type your message..."
-                      availableVariables={[]}
-                    />
+                    {/* Relative container for RichTextEditor and overlapping buttons */}
+                    <div className="relative">
+                      <RichTextEditor
+                        ref={richTextEditorRef}
+                        value={composerData.body}
+                        onChange={(html) => setComposerData({ ...composerData, body: html })}
+                        placeholder="Type your message..."
+                        availableVariables={[]}
+                        toolbarPosition="bottom"
+                      />
+                      
+                      {/* Overlapping buttons above toolbar */}
+                      <div className="absolute bottom-[2px] right-0 flex items-center gap-2 z-10 pr-2">
+                        <label className="cursor-pointer">
+                          <button 
+                            type="button" 
+                            className="p-2 hover:bg-white/80 rounded-lg transition-colors bg-white/90 shadow-sm border border-gray-200" 
+                            onClick={() => document.getElementById('attachment-input')?.click()}
+                          >
+                            <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                          </button>
+                          <input
+                            id="attachment-input"
+                            type="file"
+                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <button
+                          onClick={handleSendMessage}
+                          disabled={
+                            sendingMessage ||
+                            !hasTextContent(composerData.body) ||
+                            (composerMode === 'email' && (!selectedEmailAccount || !composerData.to))
+                          }
+                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {sendingMessage ? (
+                            <>
+                              <CircularProgress size={16} className="text-white" />
+                              <span className="text-sm">Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-sm">Send</span>
+                              <PaperPlaneTilt size={16} />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </>
                 ) : (
-                  <textarea
-                    value={composerData.body}
-                    onChange={(e) => {
-                      if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                        setComposerData({ ...composerData, body: e.target.value })
-                      }
-                    }}
-                    placeholder="Type your message..."
-                    maxLength={SMS_CHAR_LIMIT}
-                    className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                  />
-                )}
-              </div>
-
-              <div className="flex items-center justify-end gap-4 mt-4">
-                {composerMode === 'sms' && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <span>
-                      {composerData.body.length}/{SMS_CHAR_LIMIT} char
-                    </span>
-                    <span className="text-gray-300">|</span>
-                    <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
-                  </div>
-                )}
-                {composerMode === 'email' && (
-                  <label className="cursor-pointer">
-                    <button type="button" className="p-2 hover:bg-brand-primary/10 rounded-lg transition-colors" onClick={() => document.getElementById('attachment-input')?.click()}>
-                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
-                    </button>
-                    <input
-                      id="attachment-input"
-                      type="file"
-                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileChange}
+                  <>
+                    <textarea
+                      value={composerData.body}
+                      onChange={(e) => {
+                        if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                          setComposerData({ ...composerData, body: e.target.value })
+                        }
+                      }}
+                      placeholder="Type your message..."
+                      maxLength={SMS_CHAR_LIMIT}
+                      className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
                     />
-                  </label>
+                    
+                    <div className="flex items-center justify-end gap-2 mt-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <span>
+                          {composerData.body.length}/{SMS_CHAR_LIMIT} char
+                        </span>
+                        <span className="text-gray-300">|</span>
+                        <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
+                      </div>
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={
+                          sendingMessage ||
+                          !hasTextContent(composerData.body) ||
+                          (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                        }
+                        className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      >
+                        {sendingMessage ? (
+                          <>
+                            <CircularProgress size={16} className="text-white" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            Send
+                            <PaperPlaneTilt size={16} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
                 )}
-                <button
-                  onClick={handleSendMessage}
-                  disabled={
-                    sendingMessage ||
-                    !composerData.body.trim() ||
-                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-                    (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
-                  }
-                  className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {sendingMessage ? (
-                    <>
-                      <CircularProgress size={16} className="text-white" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      Send
-                      <PaperPlaneTilt size={16} />
-                    </>
-                  )}
-                </button>
               </div>
             </>
           )}

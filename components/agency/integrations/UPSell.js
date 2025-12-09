@@ -154,11 +154,11 @@ const UPSell = () => {
   const checkPrice = (price, from) => {
     // enrichment : 0.05
     // dnc : 0.03
-    // phone price: 1.15
+    // phone price: 1.50
     if (from === 'phonePrice') {
-      if (price < 1.15) {
+      if (price < 1.50) {
         setSnackBannerMsg(
-          `Upsell Price cannot be less than $ ${(1.15).toFixed(2)}`,
+          `Upsell Price cannot be less than $ ${(1.50).toFixed(2)}`,
         )
         setSnackBannerMsgType(SnackbarTypes.Warning)
       } else {
@@ -316,6 +316,18 @@ const UPSell = () => {
   //user settings api
   const handleUserSettings = async (from) => {
     try {
+      // Validate phone price before saving
+      if (from === 'phonePrice') {
+        const price = parseFloat(phonePrice)
+        if (isNaN(price) || price < 1.50) {
+          setShowSnackMessage(
+            `Phone price must be at least $1.50. Please enter a valid price.`,
+          )
+          setShowSnackType(SnackbarTypes.Error)
+          return
+        }
+      }
+
       const Auth = AuthToken()
       const ApiPath = Apis.userSettings
       // const ApiData = userSettingDataUpgrade(from);
@@ -593,7 +605,12 @@ const UPSell = () => {
                           onClick={() => {
                             handleUserSettings('phonePrice')
                           }}
-                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl`}
+                          disabled={
+                            !phonePrice ||
+                            parseFloat(phonePrice) < 1.50 ||
+                            isNaN(parseFloat(phonePrice))
+                          }
+                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed`}
                           style={{ fontSize: '15px', fontWeight: '500' }}
                         >
                           Save

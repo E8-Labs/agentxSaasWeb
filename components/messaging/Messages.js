@@ -1269,14 +1269,14 @@ const Messages = () => {
           {selectedThread ? (
             <>
               {/* Messages Header */}
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+              {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
                 <div>
                   <h2 className="text-lg font-semibold text-black">
                     {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
                   </h2>
                   <p className="text-sm text-gray-500 mt-0.5">Click here for more info</p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Messages Container */}
               <ConversationView

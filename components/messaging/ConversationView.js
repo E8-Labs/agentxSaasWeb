@@ -254,7 +254,7 @@ const ConversationView = ({
                             Subject:{' '}
                             {openEmailDetailId === message.id && (
                               <div
-                                className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded-2xl shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
+                                className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
                                   isOutbound ? 'right-0' : 'left-0'
                                 }`}
                                 onMouseEnter={(e) => {
@@ -270,7 +270,7 @@ const ConversationView = ({
                               >
                                 <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                                   <span className="text-sm font-semibold text-gray-800">Message details</span>
-                                  <button
+                                  {/* <button
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       setOpenEmailDetailId(null)
@@ -278,7 +278,7 @@ const ConversationView = ({
                                     className="text-xs text-gray-500 hover:text-gray-700"
                                   >
                                     Close
-                                  </button>
+                                  </button> */}
                                 </div>
                                 {(() => {
                                   const details = getEmailDetails(message)

@@ -255,11 +255,12 @@ const WhiteLabel = () => {
 
         {/* Copy Agency Link - Fixed Overlay Panel */}
         <div
-          className="fixed right-4 bg-gray-100 shadow-lg rounded-lg"
+          className="fixed right-4 shadow-lg rounded-lg"
           style={{
             zIndex: 10,
             top: 'calc(10svh + 16px)',
             width: '420px',
+            backgroundColor: 'hsl(var(--brand-primary))',
           }}
         >
           <div className="w-full flex flex-row items-center justify-between px-4 py-4 gap-4">
@@ -277,21 +278,20 @@ const WhiteLabel = () => {
                   style={{
                     fontSize: '16px',
                     fontWeight: 'bold',
-                    color: '#000',
+                    color: '#ffffff',
                   }}
                 >
                   Agency Link
                 </div>
                 <div
-                  style={{ fontSize: '12px', fontWeight: '400', color: '#666' }}
+                  style={{ fontSize: '12px', fontWeight: '400', color: '#ffffffcc' }}
                 >
                   Use this link to sign up users
                 </div>
               </div>
             </div>
             <button
-              className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0"
-              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+              className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0 bg-white hover:bg-gray-50"
               onClick={async () => {
                 if (!reduxUser?.twilio?.twilAuthToken) {
                   setShowSnackMessage({
@@ -319,9 +319,7 @@ const WhiteLabel = () => {
               }}
             >
               <div
-                className="icon-brand-primary"
                 style={{
-                  '--icon-mask-image': `url(/assets/copyIconPurple.png)`,
                   width: '16px',
                   height: '16px',
                 }}
@@ -334,8 +332,7 @@ const WhiteLabel = () => {
                 />
               </div>
               <div
-                className="text-brand-primary"
-                style={{ fontSize: '14px', fontWeight: '500' }}
+                style={{ fontSize: '14px', fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
               >
                 {linkCopied ? 'Link Copied' : 'Copy Link'}
               </div>
