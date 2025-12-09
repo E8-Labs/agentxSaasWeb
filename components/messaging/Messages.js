@@ -466,6 +466,12 @@ const Messages = () => {
       markThreadAsRead(thread.id)
     }
     
+    // Clear email timeline state when switching threads
+    setEmailTimelineSubject(null)
+    setEmailTimelineMessages([])
+    setEmailTimelineLeadId(null)
+    setReplyToMessage(null)
+    
     // Set composer data based on current mode
     const receiverEmail = thread.receiverEmail || thread.lead?.email || ''
     const receiverPhone = thread.receiverPhoneNumber || thread.lead?.phone || ''
@@ -840,7 +846,42 @@ const Messages = () => {
         // Find the most recent message in the thread to use as replyToMessageId
         // This ensures proper Gmail threading with In-Reply-To and References headers
         let replyToMessageId = null
-        const emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+        
+        // Use emailTimelineMessages if available (from Load More or subject click), otherwise use messages from thread
+        let emailMessages = emailTimelineMessages.length > 0 
+          ? emailTimelineMessages 
+          : messages.filter(msg => msg.messageType === 'email' && msg.subject)
+        
+        // If we have emailTimelineSubject but no emailTimelineMessages, try to fetch them
+        if (emailTimelineSubject && emailTimelineMessages.length === 0 && selectedThread?.leadId) {
+          try {
+            const localData = localStorage.getItem('User')
+            if (localData) {
+              const userData = JSON.parse(localData)
+              const token = userData.token
+              
+              const response = await axios.get(Apis.getEmailsBySubject, {
+                params: {
+                  leadId: selectedThread.leadId,
+                  subject: emailTimelineSubject,
+                },
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+              
+              if (response.data?.status && response.data?.data) {
+                emailMessages = response.data.data
+                console.log(`📧 Fetched ${emailMessages.length} emails by subject for threading`)
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching emails by subject:', error)
+            // Fallback to messages from thread
+            emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+          }
+        }
         
         // If subject is empty, try to get subject from thread context
         if (!emailSubject || emailSubject.trim() === '') {
@@ -849,6 +890,7 @@ const Messages = () => {
             emailSubject = emailTimelineSubject
           } else if (emailMessages.length > 0) {
             // Use the most recent email's subject (normalized)
+            // emailTimelineMessages are sorted oldest to newest, regular messages are oldest to newest
             const mostRecentEmail = emailMessages[emailMessages.length - 1]
             emailSubject = normalizeSubject(mostRecentEmail.subject)
           }
@@ -857,7 +899,7 @@ const Messages = () => {
           emailSubject = normalizeSubject(emailSubject)
         }
         
-        // If we have email messages in the thread, find the most recent one that matches the subject
+        // If we have email messages, find the most recent one that matches the subject
         // This ensures Gmail threads the email correctly by using the correct message for reply headers
         if (emailMessages.length > 0 && emailSubject) {
           // Filter messages that match the normalized subject (for proper threading)
@@ -894,6 +936,9 @@ const Messages = () => {
         // Add replyToMessageId if we found one (for proper Gmail threading)
         if (replyToMessageId) {
           formData.append('replyToMessageId', replyToMessageId.toString())
+          console.log(`📧 Sending email with replyToMessageId: ${replyToMessageId} for subject: ${emailSubject}`)
+        } else {
+          console.warn(`⚠️ No replyToMessageId found for subject: ${emailSubject}. Email may create a new thread. Available messages: ${emailMessages.length}`)
         }
         // Join CC and BCC arrays into comma-separated strings
         const ccString = ccEmails.join(', ')
@@ -1500,8 +1545,10 @@ const Messages = () => {
         onClose={() => {
           setShowEmailTimeline(false)
           setEmailTimelineLeadId(null)
-          setEmailTimelineSubject(null)
-          setEmailTimelineMessages([])
+          // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+          // when sending from the main composer. They'll be cleared when a new thread is selected.
+          // setEmailTimelineSubject(null)
+          // setEmailTimelineMessages([])
           setReplyToMessage(null)
         }}
         leadId={emailTimelineLeadId}
