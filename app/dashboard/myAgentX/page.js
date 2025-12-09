@@ -722,6 +722,15 @@ function Page() {
           'Bring your AI agent to your website allowing them to engage with leads and customers',
         )
       } else {
+        console.log('🔍 WEB-AGENT - Agent data being passed to modal:', {
+          agent,
+          smartListEnabledForWeb: agent?.smartListEnabledForWeb,
+          smartListIdForWeb: agent?.smartListIdForWeb,
+          smartListEnabledForEmbed: agent?.smartListEnabledForEmbed,
+          smartListIdForEmbed: agent?.smartListIdForEmbed,
+          smartListEnabled: agent?.smartListEnabled, // Legacy field
+          smartListId: agent?.smartListId, // Legacy field
+        })
         setSelectedAgentForWebAgent(agent)
         setShowWebAgentModal(true)
         setFetureType('webagent')
@@ -6665,6 +6674,7 @@ function Page() {
         onCopyUrl={handleWebhookClick}
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
+        agent={selectedAgentForWebAgent} // Pass full agent object
       />
 
       <NewSmartListModal

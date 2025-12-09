@@ -5486,6 +5486,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         onCopyUrl={handleWebhookClick}
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
+        agent={selectedAgentForWebAgent} // Pass full agent object
       />
 
       <NewSmartListModal
