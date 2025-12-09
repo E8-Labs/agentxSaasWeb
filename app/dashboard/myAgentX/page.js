@@ -817,6 +817,18 @@ function Page() {
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
+    console.log('🔍 EMBED-CLICK - Agent data:', {
+      agent,
+      smartListEnabledForEmbed: agent?.smartListEnabledForEmbed,
+      smartListIdForEmbed: agent?.smartListIdForEmbed,
+      smartListEnabled: agent?.smartListEnabled, // Legacy
+      smartListId: agent?.smartListId, // Legacy
+      hasNewFields: {
+        smartListEnabledForEmbed: agent?.smartListEnabledForEmbed !== undefined,
+        smartListIdForEmbed: agent?.smartListIdForEmbed !== undefined,
+      },
+    })
+    
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle('Unlock your Web Agent')
@@ -847,12 +859,20 @@ function Page() {
     console.log('🔧 EMBED-AGENT - Smart list created:', smartListData)
     
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
-    // So we don't need to call attachSmartList again here
-    // Just update local state for UI consistency
+    // Update local agent state so the modal shows correct state if reopened
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
     if (selectedAgentForEmbed && smartListId) {
-      selectedAgentForEmbed.smartListIdForEmbed = smartListId
-      selectedAgentForEmbed.smartListEnabledForEmbed = true
+      // Update the agent object with new embed-specific fields
+      const updatedAgent = {
+        ...selectedAgentForEmbed,
+        smartListIdForEmbed: smartListId,
+        smartListEnabledForEmbed: true,
+      }
+      setSelectedAgentForEmbed(updatedAgent)
+      console.log('🔧 EMBED-AGENT - Updated local agent state:', {
+        smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
+        smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
+      })
     }
     
     setShowEmbedSmartListModal(false)
@@ -6720,9 +6740,13 @@ function Page() {
         agentId={
           selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
         }
-        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
         onShowSmartList={handleShowEmbedSmartList}
         agent={selectedAgentForEmbed}
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached
+          setSelectedAgentForEmbed(updatedAgent)
+        }}
         onShowAllSet={() => {
           setShowEmbedModal(false)
           setShowEmbedAllSetModal(true)

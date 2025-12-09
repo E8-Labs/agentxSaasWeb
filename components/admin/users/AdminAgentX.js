@@ -5545,10 +5545,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         agentId={
           selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
         }
-        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
         onShowSmartList={handleShowEmbedSmartList}
         selectedUser={selectedUser}
         agent={selectedAgentForEmbed}
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached
+          setSelectedAgentForEmbed(updatedAgent)
+        }}
         onShowAllSet={() => {
           setShowEmbedModal(false)
           // Save drawer state before closing it

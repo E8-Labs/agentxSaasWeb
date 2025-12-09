@@ -31,6 +31,7 @@ const EmbedModal = ({
   agentSmartRefill,
   selectedUser,
   agent,
+  onAgentUpdate, // Callback to update parent's agent state
 }) => {
   const [buttonLabel, setButtonLabel] = useState('Get Help')
   const [requireForm, setRequireForm] = useState(false)
@@ -88,10 +89,18 @@ const EmbedModal = ({
         response.data.data.length > 0
       ) {
         setSmartLists(response.data.data)
-        // Use agent's smartListId if available, otherwise use agentSmartRefill or first item
-        const smartListIdToSet =
-          agent?.smartListId || agentSmartRefill || response.data.data[0].id
-        setSelectedSmartList(smartListIdToSet)
+        // Use agent's embed-specific smartListId if available
+        // Only set if we don't already have a selectedSmartList from useEffect
+        if (!selectedSmartList) {
+          const smartListIdToSet =
+            agent?.smartListIdForEmbed || // NEW: Check embed-specific field first
+            agent?.smartListId || // Legacy fallback
+            agentSmartRefill || 
+            (requireForm && response.data.data.length > 0 ? response.data.data[0].id : null)
+          if (smartListIdToSet) {
+            setSelectedSmartList(smartListIdToSet)
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error)
@@ -110,21 +119,48 @@ const EmbedModal = ({
         setLogoPreview(agent.supportButtonAvatar)
       }
       // Check embed-specific smartlist settings
-      const embedSmartListEnabled =
-        agent.smartListEnabledForEmbed !== undefined
-          ? agent.smartListEnabledForEmbed
-          : agent.smartListEnabled // Fallback to legacy field
-      const embedSmartListId =
+      // IMPORTANT: Prioritize new fields, only use legacy if new fields don't exist
+      const hasNewFields = 
+        agent.smartListEnabledForEmbed !== undefined || 
         agent.smartListIdForEmbed !== undefined
-          ? agent.smartListIdForEmbed
-          : agent.smartListId // Fallback to legacy field
+
+      let embedSmartListEnabled = false
+      let embedSmartListId = null
+
+      if (hasNewFields) {
+        // New fields exist - use them exclusively (ignore legacy fields)
+        embedSmartListEnabled = agent.smartListEnabledForEmbed ?? false
+        embedSmartListId = agent.smartListIdForEmbed || null
+        console.log('🔍 EmbedModal - Using NEW embed-specific fields:', {
+          smartListEnabledForEmbed: embedSmartListEnabled,
+          smartListIdForEmbed: embedSmartListId,
+        })
+      } else {
+        // No new fields - fallback to legacy (for backward compatibility before migration)
+        embedSmartListEnabled = agent.smartListEnabled ?? false
+        embedSmartListId = agent.smartListId || null
+        console.warn('⚠️ EmbedModal - Using LEGACY fields (migration may not have run):', {
+          smartListEnabled: embedSmartListEnabled,
+          smartListId: embedSmartListId,
+        })
+      }
 
       if (embedSmartListEnabled) {
-        setRequireForm(embedSmartListEnabled)
+        setRequireForm(true)
         // Fetch smart lists if form is required
         fetchSmartLists()
+        // Set selected smartlist if we have an ID
+        if (embedSmartListId) {
+          setSelectedSmartList(embedSmartListId)
+        }
       } else if (embedSmartListId) {
+        // Has smartlist ID but not enabled - set the ID but don't enable form
         setSelectedSmartList(embedSmartListId)
+        setRequireForm(false)
+      } else {
+        // No smartlist configured
+        setRequireForm(false)
+        setSelectedSmartList('')
       }
     } else if (open && !agent) {
       // Reset to defaults when modal opens without agent data
@@ -191,6 +227,14 @@ const EmbedModal = ({
       if (selectedSmartList) {
         formData.append('smartListId', selectedSmartList)
       }
+      
+      console.log('🔧 EMBED-MODAL - updateSupportButton payload:', {
+        agentId,
+        supportButtonText: buttonLabel,
+        smartListEnabled: requireForm,
+        agentType: 'embed',
+        smartListId: selectedSmartList || 'none',
+      })
 
       console.log('🔧 EMBED-MODAL - Support button settings:', {
         agentId,
@@ -260,6 +304,22 @@ const EmbedModal = ({
 
       if (response.data?.status === true) {
         console.log('🔧 EMBED-MODAL - Smart list attached successfully')
+        // Update local agent state if agent prop is provided
+        if (agent && selectedSmartList) {
+          const updatedAgent = {
+            ...agent,
+            smartListIdForEmbed: selectedSmartList,
+            smartListEnabledForEmbed: true,
+          }
+          console.log('🔧 EMBED-MODAL - Updated local agent state:', {
+            smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
+            smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
+          })
+          // Notify parent to update agent state
+          if (onAgentUpdate) {
+            onAgentUpdate(updatedAgent)
+          }
+        }
         return true
       } else {
         throw new Error(response.data?.message || 'Failed to attach smart list')
