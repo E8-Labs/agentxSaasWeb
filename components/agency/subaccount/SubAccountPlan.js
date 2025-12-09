@@ -207,9 +207,12 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           
           // Use window.location.href for hard redirect to ensure clean page reload
           // This prevents DOM cleanup errors during navigation
-          setPlanSubscribed(true)
+          // Don't set state before redirect - it causes React cleanup errors during navigation
           console.log('✅ Subscription successful, redirecting to:', redirectPath)
-          window.location.href = redirectPath
+          // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
+          setTimeout(() => {
+            window.location.href = redirectPath
+          }, 0)
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Error)
@@ -325,15 +328,19 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             // For mobile subaccounts, redirect to continue to desktop screen
             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
               console.log('Mobile subaccount - redirecting to continue to desktop screen')
-              setPlanSubscribed(true)
-              router.push('/createagent/desktop')
+              // Use window.location.href for hard redirect to prevent React cleanup errors
+              setTimeout(() => {
+                window.location.href = '/createagent/desktop'
+              }, 0)
             } else if (handleContinue && subaccount) {
               // Only call handleContinue if it exists and subaccount is from onboarding flow
               handleContinue()
             } else {
               // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
-              setPlanSubscribed(true)
-              router.push('/dashboard')
+              // Use window.location.href for hard redirect to prevent React cleanup errors
+              setTimeout(() => {
+                window.location.href = '/dashboard'
+              }, 0)
             }
           }
         }}

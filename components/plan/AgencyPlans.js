@@ -443,9 +443,12 @@ function AgencyPlans({
             
             // Use window.location.href for hard redirect to ensure clean page reload
             // This prevents DOM cleanup errors during navigation
-            setIsRedirecting(true)
+            // Don't set state before redirect - it causes React cleanup errors during navigation
             console.log('✅ Subscription successful, redirecting to:', redirectPath)
-            window.location.href = redirectPath
+            // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
+            setTimeout(() => {
+              window.location.href = redirectPath
+            }, 0)
             return
           } else if (response.data.status === false) {
             // Check if this is a subscription payment failure (not renewal)
