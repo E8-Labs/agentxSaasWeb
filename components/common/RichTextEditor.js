@@ -112,13 +112,15 @@ const RichTextEditor = forwardRef(
             border: 1px solid #e5e7eb;
             border-radius: 0.375rem;
             overflow: hidden;
-            margin-top: 8px;
+            margin-top: 0;
           }
 
           /* ReactQuill root element - needs flex display */
           .quill-editor-wrapper .quill {
             display: flex;
             flex-direction: column;
+            border: none !important;
+            box-shadow: none !important;
           }
 
           /* Toolbar at top (default) */
@@ -133,19 +135,23 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-toolbar {
             background: #f9fafb;
-            border: none;
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
           }
 
           .quill-editor-wrapper.toolbar-top .ql-toolbar {
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb !important;
           }
 
           .quill-editor-wrapper.toolbar-bottom .ql-toolbar {
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #e5e7eb !important;
           }
 
           .quill-editor-wrapper .ql-container {
-            border: none;
+            border: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
             font-size: 16px;
             font-family: Arial, sans-serif;
           }

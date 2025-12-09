@@ -428,7 +428,7 @@ const EmailTimelineModal = ({
               )}
 
               {/* Message body */}
-              <div className="relative border border-gray-200 rounded-lg">
+              <div className="relative">
                 <RichTextEditor
                   ref={richTextEditorRef}
                   value={replyBody}
