@@ -291,9 +291,9 @@ const Creator = ({ agentId, name }) => {
   const getUserByAgentId = async () => {
     try {
       setProfileLoader(true)
-      const response = await callApiGet(
-        `${Apis.getUserByAgentVapiId}/${agentId}`,
-      )
+      // Add agentType query parameter for web agents
+      const apiPath = `${Apis.getUserByAgentVapiId}/${agentId}?agentType=web`
+      const response = await callApiGet(apiPath)
       // await axios.get(
       //   `${Apis.getUserByAgentVapiId}/${agentId}`
       // );

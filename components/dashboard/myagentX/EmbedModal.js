@@ -109,38 +109,22 @@ const EmbedModal = ({
       if (agent.supportButtonAvatar) {
         setLogoPreview(agent.supportButtonAvatar)
       }
-      if (agent.smartListEnabled) {
-        setRequireForm(agent.smartListEnabled)
-        // Fetch smart lists if form is required
-        fetchSmartLists()
-      } else if (agent.smartListId) {
-        setSelectedSmartList(agent.smartListId)
-      }
-    } else if (open && !agent) {
-      // Reset to defaults when modal opens without agent data
-      setButtonLabel('Get Help')
-      setLogoPreview(null)
-      setRequireForm(false)
-      setSelectedSmartList('')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, agent])
+      // Check embed-specific smartlist settings
+      const embedSmartListEnabled =
+        agent.smartListEnabledForEmbed !== undefined
+          ? agent.smartListEnabledForEmbed
+          : agent.smartListEnabled // Fallback to legacy field
+      const embedSmartListId =
+        agent.smartListIdForEmbed !== undefined
+          ? agent.smartListIdForEmbed
+          : agent.smartListId // Fallback to legacy field
 
-  // Initialize with existing agent data when modal opens
-  useEffect(() => {
-    if (open && agent) {
-      if (agent.supportButtonText) {
-        setButtonLabel(agent.supportButtonText)
-      }
-      if (agent.supportButtonAvatar) {
-        setLogoPreview(agent.supportButtonAvatar)
-      }
-      if (agent.smartListEnabled) {
-        setRequireForm(agent.smartListEnabled)
+      if (embedSmartListEnabled) {
+        setRequireForm(embedSmartListEnabled)
         // Fetch smart lists if form is required
         fetchSmartLists()
-      } else if (agent.smartListId) {
-        setSelectedSmartList(agent.smartListId)
+      } else if (embedSmartListId) {
+        setSelectedSmartList(embedSmartListId)
       }
     } else if (open && !agent) {
       // Reset to defaults when modal opens without agent data
@@ -249,6 +233,7 @@ const EmbedModal = ({
       const payload = {
         agentId: agentId,
         smartListId: selectedSmartList,
+        agentType: 'embed', // Specify agent type for embed agents
       }
 
       if (selectedUser?.id) {

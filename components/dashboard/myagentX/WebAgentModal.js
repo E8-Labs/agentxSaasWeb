@@ -101,6 +101,8 @@ const WebAgentModal = ({
         console.log('agentSmartRefillId', agentSmartRefillId)
         console.log('agentSmartRefill', agentSmartRefill)
 
+        // Check if agent has web/webhook-specific smartlist settings
+        // This would need to be passed from parent component, but for now use agentSmartRefill
         if (typeof agentSmartRefillId !== 'undefined' || agentSmartRefill) {
           setRequireForm(true)
         }
@@ -139,6 +141,7 @@ const WebAgentModal = ({
           {
             agentId: agentId,
             smartListId: null,
+            agentType: fetureType === 'webhook' ? 'webhook' : 'web', // Specify agent type
           },
           {
             headers: {
@@ -191,6 +194,7 @@ const WebAgentModal = ({
           {
             agentId: agentId,
             smartListId: selectedSmartList,
+            agentType: fetureType === 'webhook' ? 'webhook' : 'web', // Specify agent type
           },
           {
             headers: {
