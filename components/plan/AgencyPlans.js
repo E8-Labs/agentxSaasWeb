@@ -416,29 +416,37 @@ function AgencyPlans({
             if (isFrom === 'addPlan') {
               console.log('call handleCloseModal')
               handleCloseModal(response.data.message)
-            } else if (isFrom === 'page') {
+              return
+            }
+            
+            // Determine redirect path
+            let redirectPath = '/agency/dashboard'
+            if (isFrom === 'page') {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                 console.log('Mobile agency - redirecting to continue to desktop screen')
-                setIsRedirecting(true)
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else {
                 console.log('Desktop agency - redirecting to dashboard')
-                setIsRedirecting(true)
-                router.push('/agency/dashboard')
+                redirectPath = '/agency/dashboard'
               }
             } else {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                 console.log('Mobile agency - redirecting to continue to desktop screen')
-                setIsRedirecting(true)
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else {
                 console.log('Desktop agency - redirecting to verify')
-                setIsRedirecting(true)
-                router.push('/agency/verify')
+                redirectPath = '/agency/verify'
               }
             }
+            
+            // Use window.location.href for hard redirect to ensure clean page reload
+            // This prevents DOM cleanup errors during navigation
+            setIsRedirecting(true)
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            window.location.href = redirectPath
+            return
           } else if (response.data.status === false) {
             // Check if this is a subscription payment failure (not renewal)
             const isSubscriptionFailure =

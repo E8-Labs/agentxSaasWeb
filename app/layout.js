@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner'
 
 import { ReduxProvider } from '../components/providers/redux-provider'
 import ThemeProvider from '../components/providers/ThemeProvider'
+import DynamicTitle from '../components/common/DynamicTitle'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -227,7 +228,10 @@ export default function RootLayout({ children }) {
         style={{ fontFamily: 'Inter' }}
       >
         <ThemeProvider>
-          <ReduxProvider>{children}</ReduxProvider>
+          <ReduxProvider>
+            <DynamicTitle />
+            {children}
+          </ReduxProvider>
           <Toaster />
         </ThemeProvider>
 

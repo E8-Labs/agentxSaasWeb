@@ -348,28 +348,13 @@ function UserPlans({
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
           
+          // Determine redirect path
+          let redirectPath = null
+          
           if (reduxUser?.userRole === 'Agency') {
-            setShowRoutingLoader(true)
-            router.push('/agency/dashboard')
-            setTimeout(() => {
-              setShowRoutingLoader(false)
-            }, 3000)
-            return
-          }
-          if (from === 'dashboard' || isFrom === 'SubAccount') {
-            setShowRoutingLoader(true)
-            router.push('/dashboard')
-            console.log('route to dashboard - from:', from, 'isFrom:', isFrom)
-            // Fallback redirect after a short delay to ensure navigation
-            setTimeout(() => {
-              if (window.location.pathname !== '/dashboard') {
-                console.log('Fallback redirect to dashboard')
-                window.location.href = '/dashboard'
-              }
-              // Hide loader after navigation completes
-              setShowRoutingLoader(false)
-            }, 3000)
-            return
+            redirectPath = '/agency/dashboard'
+          } else if (from === 'dashboard' || isFrom === 'SubAccount') {
+            redirectPath = '/dashboard'
           } else {
             // Check if user is on mobile (for normal users and subaccounts)
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
@@ -382,13 +367,22 @@ function UserPlans({
             if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
                 (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
               console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
-              router.push('/createagent/desktop')
+              redirectPath = '/createagent/desktop'
             } else {
               console.log('handle continue ')
               if (handleContinue) {
                 handleContinue()
+                return // Exit early if handleContinue is called
               }
             }
+          }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          if (redirectPath) {
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            window.location.href = redirectPath
+            return
           }
         } else if (response.data.status === false) {
           // Handle subscription failure - check if it's due to missing payment method

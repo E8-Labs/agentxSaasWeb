@@ -249,8 +249,11 @@ function UserPlansMobile({
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
           
+          // Determine redirect path
+          let redirectPath = null
+          
           if (from === 'dashboard') {
-            router.push('/dashboard')
+            redirectPath = '/dashboard'
           } else {
             // Check if user is on mobile
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
@@ -261,17 +264,26 @@ function UserPlansMobile({
             
             // For mobile users (all types including agencies), redirect to continue to desktop screen
             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-              router.push('/createagent/desktop')
+              redirectPath = '/createagent/desktop'
             } else {
               // Desktop: Agencies go to agency dashboard, others continue
               if (reduxUser?.userRole === 'Agency' || isFrom === 'Agency' || routedFrom === 'Agency') {
-                router.push('/agency/dashboard')
+                redirectPath = '/agency/dashboard'
               } else {
                 if (handleContinue) {
                   handleContinue()
+                  return // Exit early if handleContinue is called
                 }
               }
             }
+          }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          if (redirectPath) {
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            window.location.href = redirectPath
+            return
           }
         }
       }

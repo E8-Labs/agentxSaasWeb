@@ -415,7 +415,11 @@ const GeneralAgentSignUp = ({
             //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            router.push('/createagent')
+            // Use window.location.href for hard redirect to ensure clean page reload
+            // This prevents DOM cleanup errors during navigation
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            window.location.href = '/createagent'
+            return
           }
         }
       }
@@ -1073,21 +1077,25 @@ const GeneralAgentSignUp = ({
                             console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
                             
                             // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
+                            // Determine redirect path
+                            let redirectPath = '/createagent'
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                               // Mobile: Navigate to payment step (step 4) to allow subscription
                               console.log('Mobile detected - navigating to payment step')
-                              router.push('/createagent?step=4')
+                              redirectPath = '/createagent?step=4'
                             } else {
                               // Desktop: Navigate to createagent
                               console.log('Desktop detected - navigating to createagent')
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
-                              // Small delay to ensure popup shows before navigation
-                              setTimeout(() => {
-                                router.push('/createagent')
-                              }, 100)
                             }
+                            
+                            // Use window.location.href for hard redirect to ensure clean page reload
+                            // This prevents DOM cleanup errors during navigation
+                            console.log('✅ Registration successful, redirecting to:', redirectPath)
+                            window.location.href = redirectPath
+                            return
                           }}
                         >
                           Get Started

@@ -150,6 +150,7 @@ const Userleads = ({
   const [needHelp, setNeedHelp] = useState(false)
 
   const requestVersion = useRef(0)
+  const isFilteringRef = useRef(false) // Track if filtering is in progress
 
   const [filtersSelected, setFiltersSelected] = useState([])
 
@@ -379,8 +380,8 @@ const Userleads = ({
   }, [shouldSet])
 
   useEffect(() => {
-    //////console.log;
-    //////console.log;
+    // Empty effect - kept for potential future use
+    // Removed logging to prevent unnecessary re-renders
   }, [LeadsList, FilterLeads])
 
   //code to scroll to the bottom
@@ -392,16 +393,43 @@ const Userleads = ({
   }, [inputs])
 
   useEffect(() => {
-    // Scroll to the bottom when inputs change
+    // Prevent infinite loops by checking if filtering is already in progress
+    if (isFilteringRef.current) {
+      return
+    }
+    
+    // Don't run if SelectedSheetId is not set yet
+    if (!SelectedSheetId) {
+      return
+    }
+
+    // Use a timeout to debounce and prevent rapid successive calls
+    isFilteringRef.current = true
     setFilterLeads([])
     setLeadsList([])
-    // console.log("Hello here");
-    // return;
+    
     let filterText = getFilterText()
 
-    // //console.log;
-    handleFilterLeads(filterText)
+    // Use setTimeout to defer the async call and prevent React scheduler conflicts
+    // This ensures state updates complete before starting the async operation
+    const timeoutId = setTimeout(() => {
+      Promise.resolve(handleFilterLeads(filterText))
+        .catch((error) => {
+          console.error('Error in handleFilterLeads:', error)
+        })
+        .finally(() => {
+          // Reset the flag after filtering completes
+          setTimeout(() => {
+            isFilteringRef.current = false
+          }, 100)
+        })
+    }, 0)
+    
     setShowNoLeadsLabel(false)
+    
+    return () => {
+      clearTimeout(timeoutId)
+    }
   }, [filtersSelected, SelectedSheetId])
 
   //Caching & refresh logic

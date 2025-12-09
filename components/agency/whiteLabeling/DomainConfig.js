@@ -571,7 +571,7 @@ const DomainConfig = () => {
                                     onClick={() =>
                                       handleCopyField(record.value, valueFieldId)
                                     }
-                                    className="text-purple hover:text-purple-700 text-xs font-medium px-2 py-1 rounded transition-colors flex-shrink-0"
+                                    className="text-brand-primary hover:text-brand-primary/80 text-xs font-medium px-2 py-1 rounded transition-colors flex-shrink-0"
                                     title="Copy value"
                                   >
                                     {copiedFields[valueFieldId] ? 'Copied' : 'Copy'}

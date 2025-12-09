@@ -25,13 +25,17 @@ const Congrats = () => {
       typeof navigator !== 'undefined' ? navigator.userAgent : ''
     )
     
+    // Determine redirect path
+    let redirectPath = '/createagent'
     if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
       // Mobile: Navigate to payment step (step 4) to allow subscription
-      router.push('/createagent?step=4')
-    } else {
-      // Desktop: Navigate to createagent
-      router.push('/createagent')
+      redirectPath = '/createagent?step=4'
     }
+    
+    // Use window.location.href for hard redirect to ensure clean page reload
+    // This prevents DOM cleanup errors during navigation
+    console.log('✅ Redirecting to:', redirectPath)
+    window.location.href = redirectPath
   }
 
   return (

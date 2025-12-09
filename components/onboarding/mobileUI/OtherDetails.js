@@ -674,7 +674,11 @@ const OtherDetails = ({
             // //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            router.push('/createagent')
+            // Use window.location.href for hard redirect to ensure clean page reload
+            // This prevents DOM cleanup errors during navigation
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            window.location.href = '/createagent'
+            return
           }
         } else {
           setSnackMessage(response.data.message)
@@ -1238,10 +1242,11 @@ const OtherDetails = ({
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
-                              // Small delay to ensure popup shows before navigation
-                              setTimeout(() => {
-                                router.push('/createagent')
-                              }, 100)
+                              // Use window.location.href for hard redirect to ensure clean page reload
+                              // This prevents DOM cleanup errors during navigation
+                              console.log('✅ Registration successful, redirecting to: /createagent')
+                              window.location.href = '/createagent'
+                              return
                             }
                           }}
                           // onClick={() => {

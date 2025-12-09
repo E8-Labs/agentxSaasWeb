@@ -625,7 +625,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              router.push('/onboarding/WaitList')
+              // Use window.location.href for hard redirect to ensure clean page reload
+              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
+              window.location.href = '/onboarding/WaitList'
+              return
             }
           } else {
             // //console.log;
@@ -766,7 +769,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              router.push('/onboarding/WaitList')
+              // Use window.location.href for hard redirect to ensure clean page reload
+              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
+              window.location.href = '/onboarding/WaitList'
+              return
             }
           } else {
             // //console.log;
@@ -835,45 +841,43 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
               setCookie(response.data.data.user, document)
               let w = innerWidth
+              
+              // Determine redirect path
+              let redirectPath = '/dashboard/myAgentX'
+              
               if (w < 540) {
-                // //console.log;
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else if (w > 540) {
-                // //console.log;
-
                 if (redirect) {
-                  router.push(redirect)
+                  redirectPath = redirect
                 } else {
                   console.log('user role is', response.data.data.user.userRole)
-                  // return
                   if (response.data.data.user.userType == 'admin') {
-                    router.push('/admin')
+                    redirectPath = '/admin'
                   } else if (
                     response.data.data.user.userRole == 'AgencySubAccount'
                   ) {
                     if (response.data.data.user.plan) {
-                      router.push('/dashboard')
+                      redirectPath = '/dashboard'
                     } else {
-                      router.push('/subaccountInvite/subscribeSubAccountPlan')
+                      redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                     }
                   } else if (
                     response.data.data.user.userRole == 'Agency' ||
                     response.data.data.user.agencyTeammember === true
                   ) {
-                    router.push('/agency/dashboard')
+                    redirectPath = '/agency/dashboard'
                   } else {
-                    router.push('/dashboard/myAgentX')
+                    redirectPath = '/dashboard/myAgentX'
                   }
-                  return
-                  // if (data.data.user.userType == "admin") {
-                  //   router.push("/admin");
-                  // }
-
-                  // else {
-                  //   router.push("/dashboard/leads");
-                  // }
                 }
               }
+
+              // Use window.location.href for hard redirect to ensure clean page reload
+              // This prevents DOM cleanup errors during navigation
+              console.log('✅ Login successful, redirecting to:', redirectPath)
+              window.location.href = redirectPath
+              return
             } else {
               // //console.log;
             }
@@ -883,6 +887,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         }
       } else {
         // console.error("Login failed:", data.error);
+        setLoginLoader(false)
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -893,6 +898,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       } else {
         console.error('General error while login api:', error)
       }
+      setLoginLoader(false)
     }
   }
 

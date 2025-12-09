@@ -4067,7 +4067,7 @@ const Pipeline1 = () => {
                       <div>
                         <button
                           disabled={!showReorderBtn}
-                          className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                          className="w-full bg-brand-primary text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
                           onClick={() => {
                             handleReorder()
                           }}

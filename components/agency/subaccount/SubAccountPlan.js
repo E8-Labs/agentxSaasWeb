@@ -192,19 +192,24 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             typeof navigator !== 'undefined' ? navigator.userAgent : ''
           )
           
+          // Determine redirect path
+          let redirectPath = '/dashboard'
+          
           // For mobile subaccounts, redirect to continue to desktop screen
           if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
             console.log('Mobile subaccount - redirecting to continue to desktop screen')
-            setPlanSubscribed(true)
-            router.push('/createagent/desktop')
+            redirectPath = '/createagent/desktop'
           } else if (handleContinue && subaccount) {
             // Only call handleContinue if it exists and subaccount is from onboarding flow
             handleContinue()
-          } else {
-            // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
-            setPlanSubscribed(true)
-            router.push('/dashboard')
+            return // Exit early if handleContinue is called
           }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          setPlanSubscribed(true)
+          console.log('✅ Subscription successful, redirecting to:', redirectPath)
+          window.location.href = redirectPath
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Error)
