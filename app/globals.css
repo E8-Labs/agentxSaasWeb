@@ -565,4 +565,16 @@ a.text-red:hover {
   }
 }
 
+/* Lock icon with transparent fill and brand color stroke */
+.lock-icon-outline svg {
+  color: hsl(var(--brand-primary));
+}
+
+.lock-icon-outline svg path {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5;
+  color: hsl(var(--brand-primary));
+}
+
 

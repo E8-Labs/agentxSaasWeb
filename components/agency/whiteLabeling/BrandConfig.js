@@ -20,6 +20,7 @@ const BrandConfig = () => {
 
   const [logoPreview, setLogoPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
+  const [faviconText, setFaviconText] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
   const [secondaryColor, setSecondaryColor] = useState('#8B5CF6')
 
@@ -44,6 +45,7 @@ const BrandConfig = () => {
   const [originalValues, setOriginalValues] = useState({
     logoUrl: null,
     faviconUrl: null,
+    faviconText: '',
     primaryColor: '#7902DF',
     secondaryColor: '#8B5CF6',
   })
@@ -97,11 +99,16 @@ const BrandConfig = () => {
         if (branding.faviconUrl) {
           setFaviconPreview(branding.faviconUrl)
         }
+        // Set favicon text if exists
+        if (branding.faviconText) {
+          setFaviconText(branding.faviconText)
+        }
 
         // Store original values - use defaults if no branding exists
         setOriginalValues({
           logoUrl: branding.logoUrl || null,
           faviconUrl: branding.faviconUrl || null,
+          faviconText: branding.faviconText || '',
           primaryColor: branding.primaryColor || defaultPrimary,
           secondaryColor: branding.secondaryColor || defaultSecondary,
         })
@@ -111,9 +118,11 @@ const BrandConfig = () => {
         const defaultSecondary = '#8B5CF6'
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
+        setFaviconText('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
+          faviconText: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -126,9 +135,11 @@ const BrandConfig = () => {
         const defaultSecondary = '#8B5CF6'
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
+        setFaviconText('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
+          faviconText: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -270,7 +281,10 @@ const BrandConfig = () => {
       (faviconPreview !== null && originalValues.faviconUrl === null) ||
       (faviconPreview === null && originalValues.faviconUrl !== null)
 
-    return colorsChanged || logoChanged || faviconChanged
+    // Check if favicon text has changed
+    const faviconTextChanged = faviconText !== originalValues.faviconText
+
+    return colorsChanged || logoChanged || faviconChanged || faviconTextChanged
   }
 
   //reset all the values to original and save defaults
@@ -284,6 +298,7 @@ const BrandConfig = () => {
     setSecondaryColor(defaultSecondary)
     setLogoPreview(originalValues.logoUrl)
     setFaviconPreview(originalValues.faviconUrl)
+    setFaviconText(originalValues.faviconText)
     setLogoFile(null)
     setFaviconFile(null)
 
@@ -454,6 +469,20 @@ const BrandConfig = () => {
         })
       }
 
+      // Update favicon text if changed
+      if (faviconText !== originalValues.faviconText) {
+        const companyData = {
+          faviconText: faviconText,
+        }
+
+        await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      }
+
       // Store the uploaded faviconUrl before fetchBrandingData might overwrite it
       const uploadedFaviconUrl = faviconUrl || originalValues.faviconUrl
       const uploadedLogoUrl = logoUrl || originalValues.logoUrl
@@ -462,6 +491,7 @@ const BrandConfig = () => {
       setOriginalValues({
         logoUrl: uploadedLogoUrl,
         faviconUrl: uploadedFaviconUrl,
+        faviconText: faviconText,
         primaryColor: primaryColor,
         secondaryColor: secondaryColor,
       })
@@ -679,6 +709,29 @@ const BrandConfig = () => {
             <UploadImageButton
               onFileSelect={handleFaviconUpload}
               preview={faviconPreview}
+            />
+          </div>
+
+          {/* Favicon Text Input */}
+          <div className="self-stretch inline-flex justify-between items-center gap-[3px]">
+            <div className="inline-flex flex-col justify-start items-start">
+              <div className="inline-flex justify-start items-center gap-[3px]">
+                <div className="text-black text-base font-normal leading-normal">
+                  Favicon Text
+                </div>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              value={faviconText}
+              onChange={(e) => setFaviconText(e.target.value)}
+              placeholder="Enter favicon text"
+              className="w-64 px-3 py-2 border border-neutral-900/10 rounded-[10px] outline-none focus:outline-none focus:ring-0 focus:border-brand-primary text-black text-base font-normal"
+              style={{
+                fontSize: '15px',
+                fontWeight: '500',
+              }}
             />
           </div>
 

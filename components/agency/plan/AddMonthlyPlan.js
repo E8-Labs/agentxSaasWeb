@@ -304,7 +304,8 @@ export default function AddMonthlyPlan({
         DiscountedPrice !== null
       ) {
         // Set discountedPrice even if it's 0, so the form is properly initialized
-        setDiscountedPrice(formatFractional2(DiscountedPrice))
+        // Use 3 decimal places to preserve values like 0.998
+        setDiscountedPrice(formatFractional2(DiscountedPrice, 3))
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -337,7 +338,8 @@ export default function AddMonthlyPlan({
       if (selectedPlan?.discountedPrice && selectedPlan?.minutes) {
         const DiscountedPrice =
           selectedPlan.discountedPrice / selectedPlan.minutes
-        setDiscountedPrice(formatFractional2(DiscountedPrice))
+        // Use 3 decimal places to preserve values like 0.998
+        setDiscountedPrice(formatFractional2(DiscountedPrice, 3))
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -880,10 +882,20 @@ export default function AddMonthlyPlan({
                         const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid =
+                        let valid =
                           sanitized.split('.')?.length > 2
                             ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                             : sanitized
+                        
+                        // Cap decimal places to maximum 3
+                        if (valid.includes('.')) {
+                          const parts = valid.split('.')
+                          if (parts[1] && parts[1].length > 3) {
+                            // Truncate to 3 decimal places
+                            valid = `${parts[0]}.${parts[1].substring(0, 3)}`
+                          }
+                        }
+                        
                         const UpdatedValue = handlePricePerMinInputValue(valid)
                         setDiscountedPrice(UpdatedValue)
                       }}
@@ -949,7 +961,7 @@ export default function AddMonthlyPlan({
                     <div>
                       $
                       {discountedPrice
-                        ? formatFractional2(discountedPrice)
+                        ? formatFractional2(discountedPrice, 3)
                         : '0.00'}
                       /Credit
                     </div>

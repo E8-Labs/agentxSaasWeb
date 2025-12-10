@@ -27,24 +27,30 @@ const ThemeProvider = ({ children }) => {
 
     // Shared favicon update function (moved outside applyTheme for reuse)
     const updateFavicon = (faviconUrl) => {
-      // Remove ALL existing favicon and shortcut icon links (more comprehensive selector)
-      // This catches all possible favicon link variations
-      const existingLinks = document.querySelectorAll(
-        'link[rel*="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]',
-      )
-      existingLinks.forEach((link) => {
-        console.log('🗑️ [ThemeProvider] Removing existing favicon link:', link.href, link.rel)
-        link.remove()
-      })
-
-      // Also try to remove by href pattern (catches Next.js default favicon.ico)
-      const allLinks = document.querySelectorAll('link[href*="favicon"]')
-      allLinks.forEach((link) => {
-        console.log('🗑️ [ThemeProvider] Removing favicon by href pattern:', link.href)
-        link.remove()
-      })
-
       if (faviconUrl && faviconUrl.trim() !== '') {
+        // Remove ALL existing favicon and shortcut icon links BEFORE setting new one
+        // This prevents the flash of default favicon
+        const existingLinks = document.querySelectorAll(
+          'link[rel*="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]',
+        )
+        existingLinks.forEach((link) => {
+          console.log('🗑️ [ThemeProvider] Removing existing favicon link:', link.href, link.rel)
+          link.remove()
+        })
+
+        // Also try to remove by href pattern (catches Next.js default favicon.ico)
+        const allLinks = document.querySelectorAll('link[href*="favicon"]')
+        allLinks.forEach((link) => {
+          console.log('🗑️ [ThemeProvider] Removing favicon by href pattern:', link.href)
+          link.remove()
+        })
+
+        // Remove any default favicon.ico that might be in the head
+        const defaultFavicon = document.querySelector('link[href="/favicon.ico"]')
+        if (defaultFavicon) {
+          console.log('🗑️ [ThemeProvider] Removing default /favicon.ico')
+          defaultFavicon.remove()
+        }
         // Detect MIME type from file extension
         const getMimeType = (url) => {
           const lowerUrl = url.toLowerCase()
@@ -599,7 +605,52 @@ const ThemeProvider = ({ children }) => {
       }
     }
 
-    // Apply theme on mount
+    // Check for custom favicon immediately on mount to prevent flash
+    // This runs synchronously before any async operations
+    if (typeof document !== 'undefined') {
+      const setFaviconImmediately = () => {
+        try {
+          // Check localStorage first (fastest)
+          const storedBranding = localStorage.getItem('agencyBranding')
+          let faviconUrl = null
+          
+          if (storedBranding) {
+            try {
+              const branding = JSON.parse(storedBranding)
+              faviconUrl = branding?.faviconUrl
+            } catch (e) {
+              // Ignore parse errors
+            }
+          }
+          
+          // If we have a custom favicon, set it immediately
+          if (faviconUrl && faviconUrl.trim() !== '') {
+            console.log('⚡ [ThemeProvider] Setting custom favicon immediately on mount:', faviconUrl)
+            updateFavicon(faviconUrl)
+          } else {
+            // If no custom favicon, remove defaults to prevent flash
+            const existingLinks = document.querySelectorAll(
+              'link[rel*="icon"], link[rel="shortcut icon"]',
+            )
+            existingLinks.forEach((link) => {
+              const href = link.getAttribute('href') || ''
+              // Only remove if it's a default/relative path
+              if (href.includes('/favicon.ico') || (!href.startsWith('http') && !href.startsWith('//'))) {
+                console.log('🗑️ [ThemeProvider] Removing default favicon on mount:', href)
+                link.remove()
+              }
+            })
+          }
+        } catch (error) {
+          console.log('Error in setFaviconImmediately:', error)
+        }
+      }
+      
+      // Run immediately
+      setFaviconImmediately()
+    }
+
+    // Apply theme on mount (this will also update favicon if needed)
     applyTheme().catch((error) => {
       console.log('Error applying theme:', error)
     })

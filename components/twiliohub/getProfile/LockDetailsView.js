@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { Lock } from '@phosphor-icons/react'
 import React from 'react'
 
 const LockDetailsView = ({
@@ -26,12 +26,15 @@ const LockDetailsView = ({
     >
       <div className="flex flex-row items-center gap-2">
         {!showBtn && profileStatus ? (
-          <Image
-            src={'/twiliohubassets/lock.jpg'}
-            alt="lock"
-            width={16}
-            height={18}
-          />
+          <div className="lock-icon-outline">
+            <Lock
+              size={18}
+              weight="regular"
+              style={{
+                color: 'hsl(var(--brand-primary))',
+              }}
+            />
+          </div>
         ) : (
           ''
         )}

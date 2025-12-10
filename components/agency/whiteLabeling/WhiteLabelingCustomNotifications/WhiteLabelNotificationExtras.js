@@ -79,6 +79,16 @@ export const StandardNotificationsList = [
       "Hey Visionary, Welcome to AssignX, where we redefine what's possible in real estate. You've just taken the first step toward building your own AI—a tool so powerful, it could reshape how you do business. Continue your journey on desktop for the full experience. Best regards, The AssignX Team",
     CTA: 'Continue on Desktop',
   },
+  {
+    id: 9,
+    title: 'Subaccount Invitation email',
+    description: '{{ When email is sent }}',
+    tootTip: 'Sent when an agency creates a subaccount',
+    subject: "Welcome to {Agency Name}'s Team on AssignX!",
+    subjectDescription:
+      'Hi [Subaccount Name], [Agency Name] has created a subaccount for you on AssignX. You\'re now part of their team and have access to powerful AI tools to help grow your business. Here\'s what you can do: Access AI-powered calling and messaging tools, Manage your leads and pipeline, Track your performance and results, Collaborate with your team. If you have any questions, feel free to reach out to [Agency Name] or contact our support team for assistance. Welcome aboard! Best, The AssignX Team',
+    CTA: 'Get Started',
+  },
 ]
 
 //trial period notifications

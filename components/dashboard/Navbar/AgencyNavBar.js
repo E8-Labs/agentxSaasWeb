@@ -97,6 +97,9 @@ const AgencyNavBar = () => {
 
   // Branding state for powered by icon
   const [poweredByIconUrl, setPoweredByIconUrl] = useState('/agencyIcons/poweredByIcon.png')
+  
+  // Branding state for logo
+  const [agencyLogoUrl, setAgencyLogoUrl] = useState(null)
 
   //check stripe
   useEffect(() => {
@@ -355,7 +358,7 @@ const AgencyNavBar = () => {
     }
   }, [setReduxUser])
 
-  // Listen for branding updates and update powered by icon
+  // Listen for branding updates and update powered by icon and logo
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -384,6 +387,7 @@ const AgencyNavBar = () => {
       // If assignx domain AND not a subaccount AND not an agency, use default icon
       if (isAssignxDomain && !isSubaccount && !isAgency) {
         setPoweredByIconUrl('/agencyIcons/poweredByIcon.png')
+        setAgencyLogoUrl(null)
         return
       }
 
@@ -439,6 +443,13 @@ const AgencyNavBar = () => {
         } catch (error) {
           console.log('Error parsing user data for agencyBranding:', error)
         }
+      }
+
+      // Set logo URL if available
+      if (branding?.logoUrl) {
+        setAgencyLogoUrl(branding.logoUrl)
+      } else {
+        setAgencyLogoUrl(null)
       }
 
       // Use default icon if no branding found or no custom powered by icon
@@ -707,17 +718,33 @@ const AgencyNavBar = () => {
         >
           <div className="w-full flex flex-row gap-3 items-center justify-start">
             <div className="w-10/12 flex flex-col items-end">
-              <div className="w-full">
-                {/*userDetails?.user?.name || "Agency Name"*/}
-                <EditAgencyName />
-              </div>
-              <Image
-                src={'/agencyIcons/poweredByIcon.png'}
-                alt="powered by logo"
-                height={33}
-                width={140}
-                objectFit="contain"
-              />
+              {agencyLogoUrl ? (
+                // Show logo if available
+                <div className="w-full flex justify-start items-center">
+                  <Image
+                    src={agencyLogoUrl}
+                    alt="agency logo"
+                    height={32}
+                    width={120}
+                    style={{ objectFit: 'contain', maxHeight: '32px', maxWidth: '120px' }}
+                  />
+                </div>
+              ) : (
+                // Show agency name if no logo
+                <div className="w-full">
+                  <EditAgencyName />
+                </div>
+              )}
+              {/* Only show "Powered by" label if no logo is present */}
+              {!agencyLogoUrl && (
+                <Image
+                  src={'/agencyIcons/poweredByIcon.png'}
+                  alt="powered by logo"
+                  height={33}
+                  width={140}
+                  objectFit="contain"
+                />
+              )}
             </div>
           </div>
 
