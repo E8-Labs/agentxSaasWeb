@@ -3021,22 +3021,22 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         <Box
           sx={{
             position: 'fixed',
-            top: 14,
-            right: 25,
-            width: '50vw', // Adjust width as needed
-            maxWidth: '600px',
-            height: '95vh',
+            top: { xs: 0, sm: 14 },
+            right: { xs: 0, sm: 25 },
+            width: { xs: '100vw', sm: '90vw', md: '70vw', lg: '50vw' },
+            maxWidth: { xs: '100vw', sm: '600px' },
+            height: { xs: '100vh', sm: '95vh' },
             bgcolor: 'white',
             boxShadow: 3,
-            p: 3,
+            p: { xs: 2, sm: 3 },
             display: 'flex',
             flexDirection: 'column',
             transition: 'transform 0.7s ease-in-out',
-            borderRadius: 5,
+            borderRadius: { xs: 0, sm: 5 },
           }}
         >
           <div
-            className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
+            className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
           // style={{  }}
           >
             <div

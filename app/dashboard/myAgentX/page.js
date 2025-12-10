@@ -4193,13 +4193,14 @@ function Page() {
         }}
         PaperProps={{
           sx: {
-            width: '45%', // Adjust width as needed
-            borderRadius: '20px', // Rounded corners
+            width: { xs: '100%', sm: '90%', md: '70%', lg: '50%', xl: '45%' }, // Responsive width
+            maxWidth: '100vw', // Prevent overflow
+            borderRadius: { xs: '0px', sm: '20px' }, // No border radius on mobile
             padding: '0px', // Internal padding
             boxShadow: 3, // Light shadow
-            margin: '1%', // Small margin for better appearance
+            margin: { xs: '0%', sm: '1%' }, // No margin on mobile
             backgroundColor: 'white', // Ensure it's visible
-            height: '96.5vh',
+            height: { xs: '100vh', sm: '96.5vh' }, // Full height on mobile
             overflow: 'hidden',
             scrollbarWidth: 'none',
           },
@@ -4213,7 +4214,7 @@ function Page() {
         }}
       >
         <div
-          className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
+          className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
           // style={{  }}
         >
           <div
