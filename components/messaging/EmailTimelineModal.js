@@ -311,7 +311,7 @@ const EmailTimelineModal = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -344,60 +344,94 @@ const EmailTimelineModal = ({
                         <div className="border-t border-gray-200 flex-1"></div>
                       </div>
                     )}
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-                          {senderName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={16}
-                            height={16}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Message Content */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-sm">{senderName}</span>
-                          <span className="text-xs text-gray-500">
-                            {moment(message.createdAt).format('h:mm A')}
-                          </span>
-                        </div>
-
-                        {message.subject && (
-                          <div className="font-semibold mb-1 text-sm">
-                            Subject: {message.subject}
+                    <div className="flex flex-col w-full">
+                      <div
+                        className={`flex items-start gap-3 w-full ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        {message.direction !== 'outbound' && (
+                          <div className="relative flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                              {senderName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                              <Image
+                                src="/messaging/email message type icon.svg"
+                                width={16}
+                                height={16}
+                                alt="Email"
+                                className="object-contain"
+                              />
+                            </div>
                           </div>
                         )}
 
-                        <div className="bg-gray-100 rounded-lg px-3 py-2 mb-1">
-                          <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                            {htmlToPlainText(message.content || '')}
+                        <div className="flex flex-col max-w-[80%] min-w-[240px]">
+                          <div
+                            className={`px-4 py-3 rounded-2xl ${
+                              message.direction === 'outbound' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="font-semibold text-sm">{senderName}</span>
+                              <span className={`text-xs ${message.direction === 'outbound' ? 'text-white' : 'text-gray-600'}`}>
+                                {moment(message.createdAt).format('h:mm A')}
+                              </span>
+                            </div>
+
+                            <div className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white' : 'text-gray-800'}`}>
+                              {htmlToPlainText(message.content || '')}
+                            </div>
+
+                            {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
+                              <div className="flex flex-col gap-1 mt-3">
+                                {message.metadata.attachments.map((attachment, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`flex items-center gap-2 text-sm ${
+                                      message.direction === 'outbound' ? 'text-white' : 'text-brand-primary'
+                                    }`}
+                                  >
+                                    <Paperclip size={14} />
+                                    <span className="underline">
+                                      {attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`}
+                                    </span>
+                                    {attachment.size && (
+                                      <span
+                                        className={`text-xs ${
+                                          message.direction === 'outbound' ? 'text-white/70' : 'text-gray-500'
+                                        }`}
+                                      >
+                                        ({formatFileSize(attachment.size)})
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Attachments */}
-                        {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
-                          <div className="flex flex-col gap-1 mt-1">
-                            {message.metadata.attachments.map((attachment, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm text-brand-primary">
-                                <Paperclip size={14} />
-                                <span className="underline">
-                                  {attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`}
-                                </span>
-                                {attachment.size && (
-                                  <span className="text-xs text-gray-500">
-                                    ({formatFileSize(attachment.size)})
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                        {message.direction === 'outbound' && (
+                          <div className="flex-shrink-0">
+                            {(() => {
+                              const avatarLetter = senderName.charAt(0).toUpperCase()
+                              return (
+                                <div className="relative">
+                                  <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                                    {avatarLetter}
+                                  </div>
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                    <Image
+                                      src="/messaging/email message type icon.svg"
+                                      width={16}
+                                      height={16}
+                                      alt="Email"
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </div>
                         )}
                       </div>
@@ -480,4 +514,3 @@ const EmailTimelineModal = ({
 }
 
 export default EmailTimelineModal
-

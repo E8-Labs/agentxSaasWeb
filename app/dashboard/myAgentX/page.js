@@ -6384,7 +6384,7 @@ function Page() {
                     </div>
 
                     <div className="w-full">
-                      <div className="w-5/12">
+                      <div className="flex">
                         <VideoCard
                           duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
                           width="60"

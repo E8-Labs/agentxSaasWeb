@@ -439,6 +439,8 @@ const AgentsListPaginated = ({
                         }
 
                         setSelectedAgent(item)
+                        // Reset keys array for each agent to avoid accumulating variables from previous agents
+                        keys = []
                         const callScript =
                           item.prompt.callScript + ' ' + item.prompt.greeting
                         const regex = /\{(.*?)\}/g
@@ -469,9 +471,10 @@ const AgentsListPaginated = ({
                             'CU_address',
                             'CU_status',
                           ]
+                          // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
                           if (
                             !defaultVariables.includes(match[1]) &&
-                            match[1]?.length < 15
+                            match[1]?.trim().length > 0
                           ) {
                             if (
                               !keys.includes(match[1]) &&
