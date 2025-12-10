@@ -4,7 +4,7 @@
 
 let BasePath =
   // process.env.NEXT_PUBLIC_BASE_API_URL ||
-  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
 

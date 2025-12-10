@@ -4193,8 +4193,14 @@ function Page() {
         }}
         PaperProps={{
           sx: {
-            width: { xs: '100%', sm: '90%', md: '70%', lg: '50%', xl: '45%' }, // Responsive width
-            maxWidth: '100vw', // Prevent overflow
+            width: { 
+              xs: '100%', 
+              sm: '85%', 
+              md: '70%', 
+              lg: '50%', 
+              xl: '40%' 
+            },
+            maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' }, // Prevent overflow with max widths
             borderRadius: { xs: '0px', sm: '20px' }, // No border radius on mobile
             padding: '0px', // Internal padding
             boxShadow: 3, // Light shadow
@@ -4203,6 +4209,15 @@ function Page() {
             height: { xs: '100vh', sm: '96.5vh' }, // Full height on mobile
             overflow: 'hidden',
             scrollbarWidth: 'none',
+            '@media (max-width: 1600px)': {
+              maxWidth: '650px',
+            },
+            '@media (max-width: 1440px)': {
+              maxWidth: '600px',
+            },
+            '@media (max-width: 1200px)': {
+              maxWidth: '550px',
+            },
           },
         }}
         BackdropProps={{

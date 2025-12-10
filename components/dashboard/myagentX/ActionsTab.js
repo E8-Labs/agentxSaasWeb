@@ -70,14 +70,15 @@ const ActionsTab = ({
     <div className="w-full overflow-x-hidden">
       <div className="w-full flex flex-row items-center justify-center px-2 sm:px-0">
         <div
-          className="border bg-neutral-100 px-2 flex flex-row items-center gap-[4px] sm:gap-[8px] rounded-full py-1.5 mb-4 flex-wrap justify-center"
+          className="border bg-neutral-100 px-1 sm:px-2 flex flex-row items-center gap-[2px] sm:gap-[8px] rounded-full py-1.5 mb-4 flex-wrap justify-center"
           style={{ width: 'fit-content', maxWidth: '100%' }}
         >
           {actionsTab.map((item) => {
             return (
               <button
                 key={item.id}
-                className={`px-3 sm:px-4 py-1 text-sm sm:text-base whitespace-nowrap ${selectedActionTab === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'} border-none outline-none`}
+                className={`px-2 sm:px-4 py-1 text-xs sm:text-sm md:text-base whitespace-nowrap min-w-fit ${selectedActionTab === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'} border-none outline-none`}
+                style={{ minWidth: 'fit-content' }}
                 onClick={() => setSelectedActionTab(item.id)}
               >
                 {item.title}
