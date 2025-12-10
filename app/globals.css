@@ -126,9 +126,32 @@ input[type="date"]::-moz-datetime-edit-year-field {
   }
 
   #__next {
-    background-color: hsl(var(--background, 0 0% 100%)) !important;
-    background: hsl(var(--background, 0 0% 100%)) !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
     min-height: 100vh;
+  }
+
+  /* Ensure all layout wrappers have white background */
+  .flex.flex-col.w-full {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  /* Prevent any black space at top - ensure body and html are white */
+  html, body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  /* Ensure no black backgrounds on any fixed elements at top */
+  [class*="fixed"][class*="top-0"] {
+    background-color: transparent !important;
+  }
+
+  /* Service banner should be purple, not black */
+  .bg-purple {
+    background-color: #7902DF !important;
+    background: #7902DF !important;
   }
 
   /* ✅ Remove number input spinner arrows */

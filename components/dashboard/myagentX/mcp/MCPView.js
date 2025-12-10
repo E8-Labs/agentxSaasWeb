@@ -737,7 +737,7 @@ function MCPView({
   const noMcpView = ({ setShowAddMcpPopup }) => {
     return (
       <div>
-        <div className="flex flex-col items-center justify-center h-[20] mb-4">
+        <div className="flex flex-col items-center justify-center mb-4">
           {/* Icon Section */}
           <div className="flex items-center justify-center w-24 h-24 mt-3 rounded-lg">
             <img

@@ -30,10 +30,17 @@ export default function DashboardLayout({ children }) {
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full" style={{ backgroundColor: '#ffffff', background: '#ffffff' }}>
         {/* Service Banner */}
         {shouldShowServiceBanner && (
-          <div className="pt-2 fixed top-0 left-0 w-full  bg-purple text-white z-[9999] flex flex-col items-center justify-center">
+          <div 
+            className="pt-2 fixed top-0 left-0 w-full bg-purple text-white z-[9999] flex flex-col items-center justify-center"
+            style={{ 
+              backgroundColor: '#7902DF',
+              background: '#7902DF',
+              display: shouldShowServiceBanner ? 'flex' : 'none'
+            }}
+          >
             <p className=" text-md font-bold text-center">
               🚧 Maintenance Notice 🚧
             </p>
@@ -46,6 +53,7 @@ export default function DashboardLayout({ children }) {
           className={`flex flex-row w-full ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
+          style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5' }}
         >
           {/* Sidebar */}
           <div
@@ -59,7 +67,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="w-[85%]">
+          <div className="w-[85%]" style={{ backgroundColor: '#f5f5f5', background: '#f5f5f5', minHeight: '100vh' }}>
             <div>
               {/* <NoPlanPopup /> */}
               <GhlOauthWatcher />
