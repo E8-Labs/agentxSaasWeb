@@ -49,7 +49,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" style={{ backgroundColor: '#ffffff', background: '#ffffff' }}>
       <head>
         <link rel="manifest" href="/manifest.json" />
 
@@ -225,7 +225,11 @@ export default function RootLayout({ children }) {
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ fontFamily: 'Inter' }}
+        style={{ 
+          fontFamily: 'Inter',
+          backgroundColor: '#ffffff',
+          background: '#ffffff',
+        }}
       >
         <ThemeProvider>
           <ReduxProvider>

@@ -4192,7 +4192,14 @@ function Page() {
           handleDrawerClose()
         }}
         PaperProps={{
+          className: 'responsive-drawer-paper',
           sx: {
+            padding: '0px', // Internal padding
+            boxShadow: 3, // Light shadow
+            backgroundColor: 'white', // Ensure it's visible
+            overflow: 'hidden',
+            scrollbarWidth: 'none',
+            // Keep sx props as fallback, but CSS class will override
             width: { 
               xs: '100%', 
               sm: '85%', 
@@ -4200,24 +4207,10 @@ function Page() {
               lg: '50%', 
               xl: '40%' 
             },
-            maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' }, // Prevent overflow with max widths
-            borderRadius: { xs: '0px', sm: '20px' }, // No border radius on mobile
-            padding: '0px', // Internal padding
-            boxShadow: 3, // Light shadow
-            margin: { xs: '0%', sm: '1%' }, // No margin on mobile
-            backgroundColor: 'white', // Ensure it's visible
-            height: { xs: '100vh', sm: '96.5vh' }, // Full height on mobile
-            overflow: 'hidden',
-            scrollbarWidth: 'none',
-            '@media (max-width: 1600px)': {
-              maxWidth: '650px',
-            },
-            '@media (max-width: 1440px)': {
-              maxWidth: '600px',
-            },
-            '@media (max-width: 1200px)': {
-              maxWidth: '550px',
-            },
+            maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
+            borderRadius: { xs: '0px', sm: '20px' },
+            margin: { xs: '0%', sm: '1%' },
+            height: { xs: '100vh', sm: '96.5vh' },
           },
         }}
         BackdropProps={{

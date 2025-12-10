@@ -3019,28 +3019,22 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }}
       >
         <Box
+          className="responsive-agent-modal"
           sx={{
             position: 'fixed',
+            bgcolor: 'white',
+            boxShadow: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            transition: 'transform 0.7s ease-in-out',
+            // Keep sx props as fallback
             top: { xs: 0, sm: 14 },
             right: { xs: 0, sm: 25 },
             width: { xs: '100vw', sm: '85vw', md: '70vw', lg: '50vw' },
             maxWidth: { xs: '100vw', sm: '550px', md: '650px', lg: '750px' },
             height: { xs: '100vh', sm: '95vh' },
-            bgcolor: 'white',
-            boxShadow: 3,
             p: { xs: 2, sm: 3 },
-            display: 'flex',
-            flexDirection: 'column',
-            transition: 'transform 0.7s ease-in-out',
             borderRadius: { xs: 0, sm: 5 },
-            '@media (max-width: 1500px)': {
-              width: '45vw',
-              maxWidth: '650px',
-            },
-            '@media (max-width: 1200px)': {
-              width: '55vw',
-              maxWidth: '600px',
-            },
           }}
         >
           <div
