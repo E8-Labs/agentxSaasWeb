@@ -293,6 +293,7 @@ function UpgradePlanContent({
   const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] =
     useState(false)
   const [loading, setLoading] = useState(false)
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('hsl(270, 75%, 50%)')
 
   let haveCards = cards && cards.length > 0 ? true : false
 
@@ -391,6 +392,38 @@ function UpgradePlanContent({
   //     console.log('setCurrentUserPlan', currentUserPlan)
   // }
   //     , [currentSelectedPlan, currentFullPlan])
+
+  // Get brand primary color on mount and when modal opens
+  useEffect(() => {
+    const getBrandColor = () => {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        try {
+          const brandColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--brand-primary')
+            .trim()
+          if (brandColor) {
+            // Handle both formats: "270 75% 50%" or "hsl(270, 75%, 50%)"
+            if (brandColor.startsWith('hsl')) {
+              setBrandPrimaryColor(brandColor)
+            } else {
+              setBrandPrimaryColor(`hsl(${brandColor})`)
+            }
+          }
+        } catch (error) {
+          console.log('Error getting brand color:', error)
+        }
+      }
+    }
+    getBrandColor()
+    // Also listen for branding updates
+    const handleBrandingUpdate = () => {
+      getBrandColor()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [open])
 
   // Handle pre-selected plan from previous screen
   useEffect(() => {
@@ -1387,6 +1420,22 @@ function UpgradePlanContent({
       return 'same'
     }
 
+    // Get billing cycle order (monthly < quarterly < yearly)
+    const billingCycleOrder = {
+      monthly: 1,
+      quarterly: 2,
+      yearly: 3,
+    }
+
+    const currentBillingOrder =
+      billingCycleOrder[currentPlan.billingCycle] ||
+      billingCycleOrder[currentPlan.duration] ||
+      1
+    const targetBillingOrder =
+      billingCycleOrder[targetPlan.billingCycle] ||
+      billingCycleOrder[targetPlan.duration] ||
+      1
+
     // Define tier ranking: Starter < Growth < Scale
     const tierRanking = {
       Starter: 1,
@@ -1419,29 +1468,15 @@ function UpgradePlanContent({
       }
     }
 
-    // Get billing cycle order (monthly < quarterly < yearly)
-    const billingCycleOrder = {
-      monthly: 1,
-      quarterly: 2,
-      yearly: 3,
-    }
-
-    const currentBillingOrder =
-      billingCycleOrder[currentPlan.billingCycle] ||
-      billingCycleOrder[currentPlan.duration] ||
-      1
-    const targetBillingOrder =
-      billingCycleOrder[targetPlan.billingCycle] ||
-      billingCycleOrder[targetPlan.duration] ||
-      1
-
-    console.log('🔍 [comparePlans] Tier comparison:', {
+    console.log('🔍 [comparePlans] Comparison:', {
       currentTitle: currentPlan.title || currentPlan.name,
       currentTierRank,
       targetTitle: targetPlan.title || targetPlan.name,
       targetTierRank,
       currentBillingCycle: currentPlan.billingCycle || currentPlan.duration,
       targetBillingCycle: targetPlan.billingCycle || targetPlan.duration,
+      currentBillingOrder,
+      targetBillingOrder,
     })
 
     // If we can determine tier ranks, compare them first
@@ -1474,7 +1509,22 @@ function UpgradePlanContent({
       }
     }
 
-    // Fall back to price comparison if tier can't be determined
+    // If tier can't be determined, compare billing cycles first
+    // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
+    // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
+    if (targetBillingOrder > currentBillingOrder) {
+      console.log(
+        '🔍 [comparePlans] Result: UPGRADE (longer billing cycle, tier unknown)',
+      )
+      return 'upgrade'
+    } else if (targetBillingOrder < currentBillingOrder) {
+      console.log(
+        '🔍 [comparePlans] Result: DOWNGRADE (shorter billing cycle, tier unknown)',
+      )
+      return 'downgrade'
+    }
+
+    // Fall back to price comparison if billing cycles are the same
     const currentPrice =
       currentPlan.discountPrice ||
       currentPlan.discountedPrice ||
@@ -1509,14 +1559,8 @@ function UpgradePlanContent({
     } else if (targetPrice < currentPrice) {
       return 'downgrade'
     } else {
-      // Same price, different plans - consider billing cycle
-      if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade'
-      } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade'
-      } else {
-        return 'same'
-      }
+      // Same price, same billing cycle - must be the same plan
+      return 'same'
     }
   }
 
@@ -2199,21 +2243,35 @@ function UpgradePlanContent({
                         <CircularProgress size={25} />
                       </div>
                     ) : (
-                      <button
-                        className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${isUpgradeButtonEnabled()
-                            ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
-                            : 'text-black bg-[#00000050] cursor-not-allowed'
-                          }`}
-                        disabled={!isUpgradeButtonEnabled()}
-                        onClick={() => {
-                          if (isUpgradeButtonEnabled()) {
-                            handleSubscribePlan()
-                          }
-                        }}
-                      >
-                        {getButtonText()}
-                      </button>
+                      <div 
+                      className={`flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white ${isUpgradeButtonEnabled ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                      onClick={() => {
+                        if (isUpgradeButtonEnabled()) {
+                          handleSubscribePlan()
+                        }
+                      }}
+                      >{getButtonText()}</div>
+                      // <button
+                      //   className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold
+                      //                               ${isUpgradeButtonEnabled()
+                      //       ? 'hover:opacity-90'
+                      //       : 'cursor-not-allowed opacity-60'
+                      //     }`}
+                      //   style={{
+                      //     backgroundColor: isUpgradeButtonEnabled()
+                      //       ? (brandPrimaryColor || 'hsl(270, 75%, 50%)')
+                      //       : '#9CA3AF',
+                      //     color: '#FFFFFF',
+                      //   }}
+                      //   disabled={!isUpgradeButtonEnabled()}
+                        // onClick={() => {
+                        //   if (isUpgradeButtonEnabled()) {
+                        //     handleSubscribePlan()
+                        //   }
+                        // }}
+                      // >
+                      //   {getButtonText()}
+                      // </button>
                     )}
                   </div>
                 </div>
