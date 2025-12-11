@@ -2385,7 +2385,7 @@ const LeadDetails = ({
                             height: 20,
                             backgroundColor: showPerplexityDetails
                               ? 'hsl(var(--brand-primary))'
-                              : 'transparent',
+                              : '#000000',
                             WebkitMaskImage: `url(${
                               showPerplexityDetails
                                 ? '/svgIcons/sparklesPurple.svg'

@@ -3287,9 +3287,7 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
-                              <MenuItem value="">
-                                <em>Delete</em>
-                              </MenuItem>
+                              
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
@@ -3496,7 +3494,7 @@ const Pipeline1 = () => {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 outline-none  bg-purple"
+                    className="mt-4 outline-none  bg-brand-primary"
                     style={{
                       // backgroundColor: "#402FFF",
                       color: 'white',
@@ -3954,7 +3952,7 @@ const Pipeline1 = () => {
                       </div>
                     ) : (
                       <button
-                        className="w-full h-[50px] rounded-xl bg-purple text-white mt-12"
+                        className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-12"
                         style={{
                           fontWeight: '600',
                           fontSize: 16.8,
@@ -4326,9 +4324,9 @@ const Pipeline1 = () => {
                             While you were away
                           </div>
                         </button>
-                        <div className="flex flex-col items-start ml-[30px] border border-purple rounded">
+                        <div className="flex flex-col items-start ml-[30px] border border-brand-primary rounded">
                           <button
-                            className="text-purple  px-2"
+                            className="text-brand-primary  px-2"
                             onClick={() => {
                               // setExpandSideView(false);
                               setOpenCallWorthyPopup(true)

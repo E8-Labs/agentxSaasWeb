@@ -8,7 +8,7 @@ import {
   Select,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2, Paperclip, X } from 'lucide-react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
@@ -668,7 +668,7 @@ function EmailTempletePopup({
         className="w-full h-[100vh] py-4 flex flex-col items-center justify-center"
         sx={{ ...styles.modalsStyle }}
       >
-        <div className="flex flex-col justify-between w-5/12  px-8 py-6 bg-white max-h-[80svh] rounded-2xl gap-2 overflow-y-hidden">
+        <div className="flex flex-col justify-between w-auto max-w-2xl min-w-[600px] px-6 py-4 bg-white max-h-[80svh] rounded-2xl gap-2 overflow-y-hidden">
           <div
             className="flex flex-col w-full h-[80%] gap-2 overflow-y-auto"
             style={{ scrollbarWidth: 'none' }}
@@ -683,7 +683,7 @@ function EmailTempletePopup({
                 })
               }}
             />
-            <div className="flex flex-row items-center justify-between border-b pb-3">
+            <div className="flex flex-row items-center justify-between border-b pb-2">
               <div className="text-xl font-semibold color-black">
                 {isLeadEmail
                   ? `Send Email to ${leadEmail}`
@@ -750,13 +750,9 @@ function EmailTempletePopup({
                                   e.preventDefault()
                                   handleDelete(e, item)
                                 }}
+                                className="text-brand-primary hover:text-brand-primary/80 transition-colors"
                               >
-                                <Image
-                                  src={'/otherAssets/delIcon.png'}
-                                  alt="*"
-                                  height={16}
-                                  width={16}
-                                />
+                                <Trash2 size={16} />
                               </button>
                             )}
                           </div>
@@ -771,7 +767,7 @@ function EmailTempletePopup({
             </div>
 
             {/* CC and BCC toggle buttons - above From field */}
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-2 mt-2">
               <button
                 onClick={() => setShowCC(!showCC)}
                 className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -789,7 +785,7 @@ function EmailTempletePopup({
             </div>
 
             {/* From Field with Dropdown */}
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-1">
               <label className="text-sm font-medium whitespace-nowrap">From:</label>
               <div className="flex-1 relative">
                 {googleAccountLoader ? (
@@ -910,11 +906,11 @@ function EmailTempletePopup({
 
             {!isLeadEmail && (
               <>
-                <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                <div className="text-[15px] font-[400] text-[#00000080] mt-3">
                   Template Name
                 </div>
 
-                <div className="w-full px-[0.5%] mt-2">
+                <div className="w-full px-[0.5%] mt-1">
                   <Input
                     placeholder="Template Name"
                     value={tempName || ''}
@@ -929,7 +925,7 @@ function EmailTempletePopup({
               </>
             )}
 
-            <div className="space-y-2 mt-4">
+            <div className="space-y-2 mt-3">
               <div className="flex flex-row items-center justify-between">
                 <label className="text-[15px] font-[400] text-[#00000080]">
                   Subject
@@ -994,7 +990,7 @@ function EmailTempletePopup({
               </div>
             </div>
 
-            <div className="space-y-2 mt-4">
+            <div className="space-y-2 mt-3">
               <div className="flex flex-row items-center justify-between">
                 <label className="text-[15px] font-[400] text-[#00000080]">
                   Body
@@ -1054,12 +1050,7 @@ function EmailTempletePopup({
                 <div className="text-[15px] font-[500] text-brand-primary underline">
                   Add Attachments
                 </div>
-                <Image
-                  src={'/otherAssets/blueAttechmentIcon.png'}
-                  alt="*"
-                  height={24}
-                  width={24}
-                />
+                <Paperclip className="text-brand-primary" size={24} />
                 <input
                   type="file"
                   accept="
@@ -1095,19 +1086,17 @@ function EmailTempletePopup({
                   <span className="text-xs text-gray-500">
                     {formatDecimalValue(file.size / 1024)} KB
                   </span>
-                  <button onClick={() => removeAttachment(idx)}>
-                    <Image
-                      src={'/assets/cross.png'}
-                      height={14}
-                      width={14}
-                      alt="remove"
-                    />
+                  <button 
+                    onClick={() => removeAttachment(idx)}
+                    className="text-brand-primary hover:text-brand-primary/80 transition-colors"
+                  >
+                    <X size={14} />
                   </button>
                 </div>
               ))}
             </div>
           </div>
-          <div className="w-full flex flex-row items-center justify-between w-full gap-6 mt-4 h-[20%]">
+          <div className="w-full flex flex-row items-center justify-between gap-6 mt-3 pt-3 border-t">
             <button className="text-[#6b7280] outline-none  h-[50px] outline-none"
               onClick={onClose}
             >
@@ -1152,6 +1141,7 @@ const styles = {
     borderRadius: 2,
     border: 'none',
     outline: 'none',
+    width: '40%',
   },
 }
 

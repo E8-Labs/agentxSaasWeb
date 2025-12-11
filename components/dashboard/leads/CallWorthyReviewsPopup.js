@@ -16,6 +16,7 @@ import React, { useEffect, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { GetFormattedDateString } from '@/utilities/utility'
+import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 
 function CallWorthyReviewsPopup({ open, close }) {
   const [importantCalls, setImportantCalls] = useState([])
@@ -28,6 +29,22 @@ function CallWorthyReviewsPopup({ open, close }) {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
 
+  const [primaryColor, setPrimaryColor] = useState('#7902DF')
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    // Set initial color
+    updateBrandColor()
+    
+    // Listen for branding updates
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
   useEffect(() => {
     getImportantCalls()
   }, [])
@@ -165,7 +182,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                 style={{
                                   borderColor:
                                     selectedCall.id === item.id
-                                      ? '#7902df'
+                                      ? primaryColor
                                       : '',
                                 }}
                               >
@@ -221,7 +238,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                         style={{
                                           fontSize: 13,
                                           fontWeight: '600',
-                                          color: '#7902df',
+                                          color: primaryColor,
                                           textDecorationLine: 'underline',
                                           marginRight: 30,
                                         }}
@@ -257,9 +274,17 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                   key={index}
                                                   className="flex flex-row items-center gap-4"
                                                 >
-                                                  <div className="flex flex-row items-center gap-4 bg-[#7902df05] px-2 py-1 rounded-lg">
+                                                  <div 
+                                                    className="px-2 py-1 rounded-lg"
+                                                    style={{
+                                                      backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
+                                                    }}
+                                                  >
                                                     <div
-                                                      className="text-purple text-[13px]" //1C55FF10
+                                                      className="text-[13px]"
+                                                      style={{
+                                                        color: `hsl(var(--brand-primary, 270 75% 50%))`,
+                                                      }}
                                                     >
                                                       {tag}
                                                     </div>
@@ -412,9 +437,17 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                       key={index}
                                                       className="flex flex-row items-center gap-4"
                                                     >
-                                                      <div className="flex flex-row items-center gap-4 bg-[#402FFF17] px-2 py-1 rounded-lg">
+                                                      <div 
+                                                        className="px-2 py-1 rounded-lg"
+                                                        style={{
+                                                          backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.09)`,
+                                                        }}
+                                                      >
                                                         <div
-                                                          className="text-purple text-[13px]" //1C55FF10
+                                                          className="text-[13px]"
+                                                          style={{
+                                                            color: `hsl(var(--brand-primary, 270 75% 50%))`,
+                                                          }}
                                                         >
                                                           {tag}
                                                         </div>
@@ -881,13 +914,14 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           audio element.
                                         </audio>
                                         <button
-                                          className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+                                          className="text-white w-full h-[50px] rounded-lg mt-4"
                                           onClick={() => {
                                             setShowAudioPlay(null)
                                           }}
                                           style={{
                                             fontWeight: '600',
                                             fontSize: 15,
+                                            backgroundColor: primaryColor,
                                           }}
                                         >
                                           Close
