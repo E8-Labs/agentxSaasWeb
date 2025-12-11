@@ -66,6 +66,8 @@ const Messages = () => {
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
   const [replyToMessage, setReplyToMessage] = useState(null)
+  const [searchValue, setSearchValue] = useState('')
+  const threadsRequestIdRef = useRef(0)
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -307,23 +309,44 @@ const Messages = () => {
   }
 
   // Fetch threads
-  const fetchThreads = useCallback(async () => {
+  const fetchThreads = useCallback(async (searchQuery = '') => {
+    const requestId = ++threadsRequestIdRef.current
     try {
       setLoading(true)
+      // Clear threads immediately when starting a new fetch to prevent showing stale data
+      // Only clear if there's a search query (to avoid flicker on initial load)
+      if (searchQuery && searchQuery.trim()) {
+        setThreads([])
+      }
+      
       const localData = localStorage.getItem('User')
-      if (!localData) return
+      if (!localData) {
+        setThreads([])
+        return
+      }
 
       const userData = JSON.parse(localData)
       const token = userData.token
 
+      const params = {}
+      if (searchQuery && searchQuery.trim()) {
+        params.search = searchQuery.trim()
+      }
+
       const response = await axios.get(Apis.getMessageThreads, {
+        params,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
 
-      if (response.data?.status && response.data?.data) {
+      // Ignore responses for stale requests so older calls can't overwrite newer results
+      if (requestId !== threadsRequestIdRef.current) {
+        return
+      }
+
+      if (response.data?.status && Array.isArray(response.data?.data)) {
         // Sort by lastMessageAt descending
         const sortedThreads = response.data.data.sort((a, b) => {
           const dateA = new Date(a.lastMessageAt || a.createdAt)
@@ -331,11 +354,21 @@ const Messages = () => {
           return dateB - dateA
         })
         setThreads(sortedThreads)
+      } else {
+        // Clear threads if no valid response or empty results
+        setThreads([])
       }
     } catch (error) {
       console.error('Error fetching threads:', error)
+      // Clear threads on error only if this is the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setThreads([])
+      }
     } finally {
-      setLoading(false)
+      // Only clear loading state for the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setLoading(false)
+      }
     }
   }, [])
 
@@ -587,7 +620,30 @@ const Messages = () => {
     if (thread.receiverPhoneNumber) {
       return thread.receiverPhoneNumber.slice(-1)
     }
+    if (thread.receiverEmail) {
+      return thread.receiverEmail.charAt(0).toUpperCase()
+    }
     return 'L'
+  }
+
+  // Get display name for thread (full name, not just initial)
+  const getThreadDisplayName = (thread) => {
+    // Try lead name first
+    if (thread.lead?.firstName) {
+      const lastName = thread.lead?.lastName ? ` ${thread.lead.lastName}` : ''
+      return `${thread.lead.firstName}${lastName}`
+    }
+    if (thread.lead?.name) {
+      return thread.lead.name
+    }
+    // Fallback to email or phone if lead is null
+    if (thread.receiverEmail) {
+      return thread.receiverEmail
+    }
+    if (thread.receiverPhoneNumber) {
+      return thread.receiverPhoneNumber
+    }
+    return 'Unknown Contact'
   }
 
   // Get most recent message type
@@ -833,7 +889,7 @@ const Messages = () => {
           // Refresh messages and threads
           setTimeout(() => {
             fetchMessages(selectedThread.id, 0, false)
-            fetchThreads()
+            fetchThreads(searchValue || "")
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -991,7 +1047,7 @@ const Messages = () => {
           // Refresh messages and threads
           setTimeout(() => {
             fetchMessages(selectedThread.id, 0, false)
-            fetchThreads()
+            fetchThreads(searchValue || "")
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -1263,12 +1319,66 @@ const Messages = () => {
     }
   }, [showEmailTimeline, emailTimelineLeadId, emailTimelineSubject, fetchEmailTimeline])
 
-  // Initial load
+  // Initial load for phone numbers and email accounts
   useEffect(() => {
-    fetchThreads()
     fetchPhoneNumbers()
     fetchEmailAccounts()
-  }, [fetchThreads, fetchPhoneNumbers, fetchEmailAccounts])
+  }, [fetchPhoneNumbers, fetchEmailAccounts])
+
+  // Handle search with debounce and initial load
+  useEffect(() => {
+    // Clear threads immediately when search value changes (before debounce)
+    // This prevents showing stale threads while the new search is loading
+    if (searchValue && searchValue.trim()) {
+      setThreads([])
+    }
+    
+    const timeoutId = setTimeout(() => {
+      // Fetch threads with search query (empty string for all threads)
+      fetchThreads(searchValue || '')
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [searchValue, fetchThreads])
+
+  // Delete thread handler
+  const handleDeleteThread = useCallback(async (leadId, threadId) => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Delete the lead
+      const response = await axios.post(
+        Apis.deleteLead,
+        { leadId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        toast.success('Lead deleted successfully')
+        // Refresh threads
+        fetchThreads(searchValue)
+        // Clear selected thread if it was deleted
+        if (selectedThread?.id === threadId) {
+          setSelectedThread(null)
+          setMessages([])
+        }
+      } else {
+        toast.error(response.data?.message || 'Failed to delete lead')
+      }
+    } catch (error) {
+      console.error('Error deleting lead:', error)
+      toast.error('Error deleting lead')
+    }
+  }, [searchValue, selectedThread, fetchThreads])
 
   // Setup scroll listener
   useEffect(() => {
@@ -1305,8 +1415,12 @@ const Messages = () => {
           onSelectThread={handleThreadSelect}
           onNewMessage={() => setShowNewMessageModal(true)}
           getLeadName={getLeadName}
+          getThreadDisplayName={getThreadDisplayName}
           getRecentMessageType={getRecentMessageType}
           formatUnreadCount={formatUnreadCount}
+          onDeleteThread={handleDeleteThread}
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
         />
 
         {/* Right Side - Messages View */}
@@ -1418,7 +1532,7 @@ const Messages = () => {
           // Refresh threads after sending (even if partial success)
           if (result.sent > 0) {
             setTimeout(() => {
-              fetchThreads()
+              fetchThreads(searchValue || "")
             }, 1000)
           }
         }}

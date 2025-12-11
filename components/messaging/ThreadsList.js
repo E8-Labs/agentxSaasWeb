@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
-import { Search } from 'lucide-react'
+import { Search, MoreVertical, Trash2 } from 'lucide-react'
 
 const ThreadsList = ({
   loading,
@@ -10,9 +10,15 @@ const ThreadsList = ({
   onSelectThread,
   onNewMessage,
   getLeadName,
+  getThreadDisplayName,
   getRecentMessageType,
   formatUnreadCount,
+  onDeleteThread,
+  searchValue,
+  onSearchChange,
 }) => {
+  console.log('threads count is:', threads.length)
+  const [openMenuId, setOpenMenuId] = useState(null)
   return (
     <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
       <div className="px-6 pt-8 pb-6">
@@ -25,6 +31,8 @@ const ThreadsList = ({
             <input
               type="text"
               placeholder="Search"
+              value={searchValue || ''}
+              onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -117,11 +125,50 @@ const ThreadsList = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-bold text-sm text-black truncate">
-                        {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
+                        {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Contact')}
                       </h3>
-                      <span className="text-xs text-gray-500 ml-2 flex-shrink-0 pr-2">
-                        {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
-                      </span>
+                      <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                        <span className="text-xs text-gray-500">
+                          {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
+                        </span>
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenMenuId(openMenuId === thread.id ? null : thread.id)
+                            }}
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
+                          >
+                            <MoreVertical size={16} className="text-gray-500" />
+                          </button>
+                          {openMenuId === thread.id && (
+                            <>
+                              <div
+                                className="fixed inset-0 z-10"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenMenuId(null)
+                                }}
+                              />
+                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    if (onDeleteThread && thread.lead?.id) {
+                                      onDeleteThread(thread.lead.id, thread.id)
+                                    }
+                                    setOpenMenuId(null)
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  <Trash2 size={16} />
+                                  Delete Lead
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <p className="text-sm text-gray-500 truncate">
                       {(() => {

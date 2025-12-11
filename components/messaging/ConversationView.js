@@ -76,69 +76,8 @@ const EmailBubble = ({
       }`}
     >
       {message.subject && (
-        <div className="font-semibold mb-2 relative">
-          <span
-            className="font-normal cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis block"
-            onMouseEnter={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(message.id)
-            }}
-            onMouseLeave={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(null)
-            }}
-          >
-            Subject:{' '}
-            {openEmailDetailId === message.id && (
-              <div
-                className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
-                  isOutbound ? 'right-0' : 'left-0'
-                }`}
-                onMouseEnter={(e) => {
-                  e.stopPropagation()
-                  setOpenEmailDetailId(message.id)
-                }}
-                onMouseLeave={(e) => {
-                  e.stopPropagation()
-                  setOpenEmailDetailId(null)
-                }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-800">Message details</span>
-                </div>
-                {(() => {
-                  const details = getEmailDetails(message)
-                  const rows = [
-                    { label: 'from', value: details.from },
-                    { label: 'to', value: details.to },
-                    { label: 'cc', value: details.cc },
-                    { label: 'date', value: details.date },
-                    { label: 'subject', value: details.subject },
-                    { label: 'mailed-by', value: details.mailedBy },
-                    { label: 'signed-by', value: details.signedBy },
-                    { label: 'security', value: details.security },
-                  ].filter((row) => row.value)
-
-                  return (
-                    <div className="px-4 py-3 text-sm text-gray-700 space-y-2">
-                      {rows.length === 0 ? (
-                        <div className="text-xs text-gray-500">No metadata available.</div>
-                      ) : (
-                        rows.map((row) => (
-                          <div key={row.label} className="flex gap-3">
-                            <span className="w-24 text-right text-gray-500 capitalize">{row.label}:</span>
-                            <span className="flex-1 font-medium break-words">{row.value}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
-            )}
-          </span>
+        <div className="font-semibold mb-2 relative flex items-center gap-2">
+          <span className="font-normal">Subject:</span>
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -152,11 +91,68 @@ const EmailBubble = ({
                 }
               }
             }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full"
+            onMouseEnter={(e) => {
+              e.stopPropagation()
+              setOpenEmailDetailId(message.id)
+            }}
+            onMouseLeave={(e) => {
+              e.stopPropagation()
+              setOpenEmailDetailId(null)
+            }}
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1"
             title={message.subject}
           >
             {message.subject}
           </button>
+          {openEmailDetailId === message.id && (
+            <div
+              className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
+                isOutbound ? 'right-0' : 'left-0'
+              }`}
+              onMouseEnter={(e) => {
+                e.stopPropagation()
+                setOpenEmailDetailId(message.id)
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation()
+                setOpenEmailDetailId(null)
+              }}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-800">Message details</span>
+              </div>
+              {(() => {
+                const details = getEmailDetails(message)
+                const rows = [
+                  { label: 'from', value: details.from },
+                  { label: 'to', value: details.to },
+                  { label: 'cc', value: details.cc },
+                  { label: 'date', value: details.date },
+                  { label: 'subject', value: details.subject },
+                  { label: 'mailed-by', value: details.mailedBy },
+                  { label: 'signed-by', value: details.signedBy },
+                  { label: 'security', value: details.security },
+                ].filter((row) => row.value)
+
+                return (
+                  <div className="px-4 py-3 text-sm text-gray-700 space-y-2">
+                    {rows.length === 0 ? (
+                      <div className="text-xs text-gray-500">No metadata available.</div>
+                    ) : (
+                      rows.map((row) => (
+                        <div key={row.label} className="flex gap-3">
+                          <span className="w-24 text-right text-gray-500 capitalize">{row.label}:</span>
+                          <span className="flex-1 font-medium break-words">{row.value}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
+          )}
         </div>
       )}
       <div
@@ -174,24 +170,6 @@ const EmailBubble = ({
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
       <div className="mt-3 flex items-center justify-end gap-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            if (onOpenEmailTimeline && message.subject) {
-              onOpenEmailTimeline(message.subject)
-            } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
-              setShowEmailTimeline(true)
-              setEmailTimelineLeadId(selectedThread.lead.id)
-              if (setEmailTimelineSubject && message.subject) {
-                setEmailTimelineSubject(message.subject)
-              }
-            }
-          }}
-          type="button"
-          className={`text-xs font-bold underline ${isOutbound ? 'text-white hover:text-white/80' : 'text-black hover:text-gray-800'}`}
-        >
-          {'Load more'}
-        </button>
         <span className={`text-xs ${isOutbound ? 'text-white' : 'text-black'}`}>{moment(message.createdAt).format('h:mm A')}</span>
       </div>
     </div>
@@ -448,7 +426,7 @@ const ConversationView = ({
                       </div>
                     )}
 
-                    <div className="flex flex-col max-w-[70%] min-w-[220px]">
+                    <div className="flex flex-col max-w-[75%] min-w-[220px]">
                       {isEmail ? (
                         <EmailBubble
                           message={message}

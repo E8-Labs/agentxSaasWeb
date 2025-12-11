@@ -245,6 +245,20 @@ export const getGmailAccounts = async (id) => {
 
 export const connectGmailAccount = async (data, selectedUser) => {
   try {
+    // Check if we're in production environment - Gmail connection only available in test
+    const isProduction =
+      typeof window !== 'undefined' &&
+      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+
+    if (isProduction) {
+      return {
+        data: {
+          status: false,
+          message: 'Gmail connection is only available in test environment',
+        },
+      }
+    }
+
     let token = AuthToken()
     // console.log('data', data)
 

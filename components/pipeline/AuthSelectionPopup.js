@@ -46,8 +46,22 @@ function AuthSelectionPopup({
   const [loginLoader, setLoginLoader] = useState(false)
   const [delLoader, setDelLoader] = useState(null)
 
+  // Check if we're in production environment
+  const isProduction =
+    typeof window !== 'undefined' &&
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+
   //google calendar click
   const handleGoogleOAuthClick = async () => {
+    // Prevent Gmail connection in production
+    if (isProduction) {
+      setShowSnack({
+        message: 'Gmail connection is only available in test environment',
+        type: SnackbarTypes.Error,
+        isVisible: true,
+      })
+      return
+    }
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
@@ -291,19 +305,40 @@ function AuthSelectionPopup({
             </div>
           ) : (
             <div className="flex flex-col gap-6 w-full items-center mt-7">
-              <button
-                onClick={handleGoogleOAuthClick}
-                className="disabled:opacity-60"
-              >
-                <Image
-                  src={'/otherAssets/gmailIcon.png'}
-                  height={90}
-                  width={90}
-                  alt="*"
-                />
-              </button>
-
-              <div className="text-[15px] font-[400]">Gmail</div>
+              {isProduction ? (
+                <div className="flex flex-col gap-3 items-center">
+                  <div className="text-[14px] font-[500] text-gray-600 text-center">
+                    Gmail connection is only available in test environment
+                  </div>
+                  <button
+                    disabled
+                    className="opacity-40 cursor-not-allowed"
+                  >
+                    <Image
+                      src={'/otherAssets/gmailIcon.png'}
+                      height={90}
+                      width={90}
+                      alt="*"
+                    />
+                  </button>
+                  <div className="text-[15px] font-[400] opacity-40">Gmail</div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleGoogleOAuthClick}
+                    className="disabled:opacity-60"
+                  >
+                    <Image
+                      src={'/otherAssets/gmailIcon.png'}
+                      height={90}
+                      width={90}
+                      alt="*"
+                    />
+                  </button>
+                  <div className="text-[15px] font-[400]">Gmail</div>
+                </>
+              )}
             </div>
           )}
         </div>
