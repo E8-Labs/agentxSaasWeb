@@ -35,7 +35,12 @@ import IntroVideoModal from './IntroVideoModal'
 // Removed Google Maps imports for simple string input
 import VideoCard from './VideoCard'
 
-const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
+const CreateAgent1 = ({
+  handleContinue,
+  handleSkipAddPayment,
+  isSubaccountContext = false,
+  isAgencyContext = false,
+}) => {
   // Removed Google Maps API key - no longer needed
   const router = useRouter()
   const bottomRef = useRef()
@@ -801,6 +806,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     },
   }
 
+  const isAgencyUser =
+    user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+  const useTransparentBackground =
+    isSubaccount || isAgencyUser || isSubaccountContext || isAgencyContext
+
   return (
     <div
       style={{ width: '100%' }}
@@ -808,7 +818,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     >
       <div
         className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
-        style={{ scrollbarWidth: 'none', backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        style={{
+          scrollbarWidth: 'none',
+          backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
+        }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
           message={snackMessage}

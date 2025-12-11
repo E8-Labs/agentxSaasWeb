@@ -587,7 +587,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
+        className="relative bg-white sm:rounded-2xl w-10/12 h-[90vh] py-4 px-4 sm:px-6 flex flex-col overflow-hidden"
         // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
@@ -598,7 +598,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShowSnackMsg({ type: null, message: '', isVisible: false })
           }
         />
-        <div>
+        <div className="flex-1 flex flex-col h-[90svh] overflow-y-auto">
           {/* Video Card */}
           <IntroVideoModal
             open={introVideoModal}
@@ -609,51 +609,26 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           {/* header */}
           <Header />
           {/* Body */}
-          <div
-            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
-            style={{
-              position: 'absolute',
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: '20%',
-              // backgroundColor: "red"
-            }}
-          >
-            <VideoCard
-              duration={'1:52'}
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true)
-              }}
-              title="Learn about phone numbers"
-            />
-          </div>
-          <div
-            className="flex flex-col items-center px-4 w-full"
-            style={{
-              paddingTop: isSubaccount ? '50px' : undefined,
-            }}
-          >
-            <div
-              className="w-11/12 md:text-4xl text-lg font-[600]"
-              style={{
-                textAlign: 'center',
-                marginTop: isSubaccount ? '-80px' : '24px',
-                marginBottom: '16px',
-              }}
-              // onClick={handleContinue}
-            >
-              {`Let's talk digits`}
-            </div>
-            <div
-              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-auto overflow-auto"
-              // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div style={styles.headingStyle}>
-                {`Select a phone number you'd like to use to call with`}
+          <div className="flex flex-col items-center px-4 w-full">
+            <div className="w-full flex flex-col gap-8 items-center">
+              <div className="w-11/12 md:text-4xl text-xl font-[700] text-center">
+                {`Let's talk digits`}
               </div>
+              <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10">
+                <div className="hidden lg:block shrink-0 w-[240px] xl:w-[260px]">
+                  <VideoCard
+                    duration={'1:52'}
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal(true)
+                    }}
+                    title="Learn about phone numbers"
+                  />
+                </div>
+                <div className="flex flex-col gap-6 w-11/12 lg:w-8/12 max-w-4xl">
+                  <div style={styles.headingStyle}>
+                    {`Select a phone number you'd like to use to call with`}
+                  </div>
 
               <div
                 className="border rounded-lg focus-within:border-black transition-colors"
@@ -900,10 +875,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 className="flex flex-row items-center overflow-x-auto"
                 style={{
                   scrollbarWidth: 'none',
-                  overflowY: 'hidden',
-                  height: 'clamp(40px, 45px, 50px)',
+                  overflowY: 'visible',
                   flexShrink: 0,
-                  paddingBottom: '3px',
+                  paddingTop: '6px',
+                  paddingBottom: '6px',
                   gap: 'clamp(5px, 1.2vw, 10px)',
                 }}
               >
@@ -975,9 +950,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     disableCountryCode={false}
                     value={officeNumber}
                     onChange={handleOfficeNumberChange}
-                    // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
                     placeholder={'Enter Phone Number'}
-                    // disabled={loading} // Disable input if still loading
                     style={{
                       borderRadius: '7px',
                       border: '1px solid #00000020',
@@ -989,9 +962,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       borderWidth: '0px',
                       backgroundColor: 'transparent',
                       paddingLeft: '60px',
-                      paddingTop: '10px',
-                      paddingBottom: '10px',
-                      paddingRight: '12px',
+                      paddingTop: '14px',
+                      paddingBottom: '14px',
+                      paddingRight: '16px',
                       outline: 'none',
                       boxShadow: 'none',
                     }}
@@ -1004,7 +977,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       maxHeight: '150px',
                       overflowY: 'auto',
                     }}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                   {officeErrorMessage && (
                     <div
@@ -1217,13 +1189,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   </div>
                 </div>
               )}
-
               {/* <Body /> */}
             </div>
           </div>
         </div>
+        </div>
+        </div>
 
-        <div>
+        <div className="mt-auto sticky bottom-0 left-0 right-0 bg-white pt-4">
           <div>
             <ProgressBar value={33} />
           </div>

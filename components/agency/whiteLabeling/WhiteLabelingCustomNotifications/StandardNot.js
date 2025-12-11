@@ -12,7 +12,9 @@ import {
 import {
   createOrUpdateNotificationCustomization,
   deleteNotificationCustomization,
+  setNotificationEnabled,
   toggleNotificationCustomization,
+  toggleNotificationEnabled,
 } from '@/services/notificationServices/NotificationCustomizationService'
 
 import EditEmailNotification from './EditEmailNotification'
@@ -30,6 +32,7 @@ const StandardNot = ({
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [toggling, setToggling] = useState(null)
+  const [togglingEnabled, setTogglingEnabled] = useState(null)
 
   // Sanitize HTML for safe rendering
   const sanitizeHTML = (html) => {
@@ -113,6 +116,7 @@ const StandardNot = ({
           '',
         isActive: item.isActive,
         isCustomized: item.isCustomized,
+        isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
         availableVariables: item.metadata?.availableVariables || [],
         supportsCTA: item.metadata?.supportsCTA || false,
       }))
@@ -274,6 +278,26 @@ const StandardNot = ({
     }
   }
 
+  const handleToggleEnabled = async (notification) => {
+    try {
+      setTogglingEnabled(notification.notificationType)
+
+      await toggleNotificationEnabled(notification.notificationType)
+
+      console.log('Notification enabled status toggled successfully')
+
+      // Refresh the data
+      if (onRefresh) {
+        await onRefresh()
+      }
+    } catch (error) {
+      console.error('Error toggling notification enabled status:', error)
+      alert('Failed to toggle notification enabled status. Please try again.')
+    } finally {
+      setTogglingEnabled(null)
+    }
+  }
+
   return (
     <>
       {saving && (
@@ -289,7 +313,28 @@ const StandardNot = ({
                 {item.title || 'Team member Invite email'}
               </div>
               <div className="flex items-center gap-3">
-                {/* Toggle Switch */}
+                {/* Enable/Disable Toggle Switch */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    {item.isNotificationEnabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                  <Tooltip
+                    title={
+                      item.isNotificationEnabled
+                        ? 'Disable this notification for subaccounts'
+                        : 'Enable this notification for subaccounts'
+                    }
+                    placement="top"
+                  >
+                    <Switch
+                      checked={item.isNotificationEnabled ?? true}
+                      onChange={() => handleToggleEnabled(item)}
+                      disabled={togglingEnabled === item.notificationType}
+                      color="primary"
+                      size="small"
+                    />
+                  </Tooltip>
+                </div>
 
                 {/* Delete Button */}
                 {item.isCustomized && (

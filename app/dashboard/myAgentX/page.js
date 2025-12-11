@@ -2974,10 +2974,11 @@ function Page() {
 
       console.log('routing to createagent from add new agent function')
 
-      // Use setTimeout to ensure state updates complete before navigation
+      // Use window.location.href for hard redirect to ensure page loads properly
+      // This prevents navigation issues where URL changes but page doesn't render
       setTimeout(() => {
-        router.push('/createagent')
-      }, 0)
+        window.location.href = '/createagent'
+      }, 100)
     } catch (error) {
       console.error('Error in handleAddAgentByMoreAgentsPopup:', error)
     }
@@ -3734,8 +3735,8 @@ function Page() {
 
         {/* code to add new agent */}
         {agentsListSeparated.length > 0 && (
-          <Link
-            className="w-full py-6 flex justify-center items-center"
+          <div
+            className="w-full py-6 flex justify-center items-center h-[70px] cursor-pointer"
             href=""
             prefetch={true}
             style={{
@@ -3752,13 +3753,13 @@ function Page() {
               className="flex flex-row items-center gap-1"
               style={{
                 fontSize: 20,
-                fontWeight: '600',
+                fontWeight: '500',
                 color: '#000',
               }}
             >
               <Plus weight="bold" size={22} /> Add New Agent
             </div>
-          </Link>
+          </div>
         )}
       </div>
 
@@ -4147,26 +4148,30 @@ function Page() {
 
       <MoreAgentsPopup
         open={showMoreAgentsPopup}
-        onClose={() => setShowMoreAgentsPopup(false)}
-        onUpgrade={() => {
+        onClose={() => {
           setShowMoreAgentsPopup(false)
-          setShowUpgradePlanModal(true)
+        }}
+        onUpgrade={() => {
+          // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          setTimeout(() => {
+            setShowUpgradePlanModal(true)
+          }, 150)
         }}
         onAddAgent={() => {
           console.log('moreAgentsPopupType', moreAgentsPopupType)
-          if (moreAgentsPopupType === 'duplicate') {
-            setShowMoreAgentsPopup(false)
-            handleDuplicate()
-          } else if (moreAgentsPopupType === 'newagent') {
-            handleAddAgentByMoreAgentsPopup()
-
-            // router.push('/createagent')
-            // setShowMoreAgentsPopup(false);
-          } else {
-            //  router.push('/createagent')
-            //  setShowMoreAgentsPopup(false);
-            handleAddAgentByMoreAgentsPopup()
-          }
+          // Close modal first to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          // Execute action after a small delay
+          setTimeout(() => {
+            if (moreAgentsPopupType === 'duplicate') {
+              handleDuplicate()
+            } else if (moreAgentsPopupType === 'newagent') {
+              handleAddAgentByMoreAgentsPopup()
+            } else {
+              handleAddAgentByMoreAgentsPopup()
+            }
+          }, 150)
         }}
         costPerAdditionalAgent={
           reduxUser?.planCapabilities?.costPerAdditionalAgent || 10

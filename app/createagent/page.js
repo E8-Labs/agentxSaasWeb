@@ -72,8 +72,16 @@ const Page = () => {
   const [windowSize, setWindowSize] = useState(null)
   const [subAccount, setSubaccount] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [componentsReady, setComponentsReady] = useState(false)
+  const [pageReady, setPageReady] = useState(false)
+  const [shouldShowGradient, setShouldShowGradient] = useState(false)
+  const [gradientBackground, setGradientBackground] = useState(null)
+  const isAgencyUser = user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
 
-  let CurrentComp = components[index - 1] || EmptyPage
+  // Only calculate CurrentComp when components are ready to prevent removeChild errors
+  const CurrentComp = componentsReady && components.length > 0 
+    ? (components[index - 1] || EmptyPage)
+    : EmptyPage
   useEffect(() => {
     const currentStep = searchParams.get('step')
     if (currentStep !== index.toString()) {
@@ -84,52 +92,72 @@ const Page = () => {
   // console.log("Rendering step:", index, components[index]);
 
   useEffect(() => {
-    let size = null
-    if (typeof window !== 'undefined') {
-      size = window.innerWidth
-      setWindowSize(size)
-      
-      // Redirect mobile users (including subaccounts) to desktop page on initial load
-      // Only redirect if we're on step 1 (initial landing after registration)
-      if (size < 640 && stepFromUrl === 1) {
-        router.push('/createagent/desktop')
-        return
+    // Wait for page to be ready and ThemeProvider to finish DOM manipulation
+    // Use multiple delays to ensure React and ThemeProvider have both finished
+    const readyTimer1 = setTimeout(() => {
+      setPageReady(true)
+    }, 100)
+    
+    const initTimer = setTimeout(() => {
+      let size = null
+      if (typeof window !== 'undefined') {
+        size = window.innerWidth
+        setWindowSize(size)
+        
+        // Redirect mobile users (including subaccounts) to desktop page on initial load
+        // Only redirect if we're on step 1 (initial landing after registration)
+        if (size < 640 && stepFromUrl === 1) {
+          router.push('/createagent/desktop')
+          return
+        }
+      } else {
+        // //console.log;
       }
-    } else {
-      // //console.log;
-    }
-    let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
-    if (user) {
-      let parsed = JSON.parse(user)
-      setUser(parsed)
-      // Check if user is subaccount
-      if (
-        parsed?.user?.userRole === 'AgencySubAccount' ||
-        parsed?.userRole === 'AgencySubAccount'
-      ) {
-        setIsSubaccount(true)
-      }
-    }
-    // Also check User localStorage
-    const userData = localStorage.getItem('User')
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData)
+      let user = localStorage.getItem(PersistanceKeys.LocalStorageUser)
+      if (user) {
+        let parsed = JSON.parse(user)
+        setUser(parsed)
+        // Check if user is subaccount
         if (
-          parsedUser?.user?.userRole === 'AgencySubAccount' ||
-          parsedUser?.userRole === 'AgencySubAccount'
+          parsed?.user?.userRole === 'AgencySubAccount' ||
+          parsed?.userRole === 'AgencySubAccount'
         ) {
+          console.log('User is subaccount', true)
           setIsSubaccount(true)
         }
-      } catch (error) {
-        console.log('Error parsing User data:', error)
       }
-    }
-    // //console.log;
+      // Also check User localStorage
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          if (
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          ) {
+            setIsSubaccount(true)
+          }
+        } catch (error) {
+          console.log('Error parsing User data:', error)
+        }
+      }
+      // //console.log;
+    }, 300) // Delay to allow ThemeProvider to finish DOM manipulation
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearTimeout(initTimer)
+      clearTimeout(readyTimer1)
+    }
   }, [])
 
   useEffect(() => {
+    console.log('windowSize', windowSize)
+    // Wait for windowSize to be set before determining components
+    if (windowSize === null) {
+      return
+    }
+    
     // //console.log;
     const localData = localStorage.getItem('User')
 
@@ -144,72 +172,87 @@ const Page = () => {
         fromAdmin = JSON.parse(d)
       }
       console.log('data form admin is', fromAdmin)
-      if (!fromAdmin) {
-        if (Data.user.plan) {
-          if (windowSize < 640) {
-            //console.log;
-            setComponents([
-              BuildAgentName,
-              BuildAgentTask,
-              BuildAgentObjective,
-
-              // CreatAgent3,
-              // CreateAgent4,
-              // CreateAgentVoice,
-            ])
-          } else {
-            setComponents([
-              CreateAgent1,
-              // CreatAgent3,
-              // UserPlans,
-              CreateAgent4,
-              CreateAgentVoice,
-            ])
-            // setIndex(1)
-          }
-        } else {
-          if (windowSize < 640) {
-            // Use UserPlansMobile for all users (normal, subaccounts, and agencies) on mobile
-            setComponents([
-              BuildAgentName,
-              BuildAgentTask,
-              BuildAgentObjective,
-              UserPlansMobile,
-              // CreateAgent4,
-              // CreateAgentVoice,
-            ])
-            // setIndex(3)
-          } else {
-            if (subAccount) {
+      
+      // Set componentsReady to false before changing components to prevent removeChild errors
+      setComponentsReady(false)
+      
+      // Use setTimeout to ensure DOM cleanup completes before setting new components
+      setTimeout(() => {
+        if (!fromAdmin) {
+          if (Data.user.plan) {
+            if (windowSize < 640) {
+              //console.log;
               setComponents([
-                CreateAgent1,
-                SubAccountPlan,
-                CreateAgent4,
-                CreateAgentVoice,
-                // setIndex(3)
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+
+                // CreatAgent3,
+                // CreateAgent4,
+                // CreateAgentVoice,
               ])
             } else {
               setComponents([
                 CreateAgent1,
-                UserPlans,
+                // CreatAgent3,
+                // UserPlans,
                 CreateAgent4,
                 CreateAgentVoice,
-                // setIndex(3)
               ])
+              // setIndex(1)
+            }
+          } else {
+            if (windowSize < 640) {
+              // Use UserPlansMobile for all users (normal, subaccounts, and agencies) on mobile
+              setComponents([
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+                UserPlansMobile,
+                // CreateAgent4,
+                // CreateAgentVoice,
+              ])
+              // setIndex(3)
+            } else {
+              if (subAccount) {
+                setComponents([
+                  CreateAgent1,
+                  SubAccountPlan,
+                  CreateAgent4,
+                  CreateAgentVoice,
+                  // setIndex(3)
+                ])
+              } else {
+                setComponents([
+                  CreateAgent1,
+                  UserPlans,
+                  CreateAgent4,
+                  CreateAgentVoice,
+                  // setIndex(3)
+                ])
+              }
             }
           }
+        } else {
+          setComponents([
+            CreateAgent1,
+            // CreatAgent3,
+            CreateAgent4,
+            CreateAgentVoice,
+          ])
+          console.log('This is admin')
         }
-      } else {
-        setComponents([
-          CreateAgent1,
-          // CreatAgent3,
-          CreateAgent4,
-          CreateAgentVoice,
-        ])
-        console.log('This is admin')
-      }
+        
+        // Mark components as ready after a small delay to ensure React has processed the changes
+        setTimeout(() => {
+          setComponentsReady(true)
+        }, 50)
+      }, 100)
+    } else {
+      // If no user data, still mark as ready to show EmptyPage
+      setComponentsReady(true)
     }
-  }, [windowSize])
+  }, [windowSize, subAccount])
 
   useEffect(() => {
     checkIsFromOnboarding()
@@ -220,6 +263,7 @@ const Page = () => {
     if (data) {
       let subAcc = JSON.parse(data)
       setSubaccount(subAcc)
+      setIsSubaccount(true)
     }
   }
 
@@ -247,6 +291,111 @@ const Page = () => {
     })
   }
 
+  // Function to get brand primary color from CSS variable
+  const getBrandColor = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return 'hsl(270, 75%, 50%)'
+    try {
+      const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
+      if (computedColor) {
+        if (computedColor.startsWith('hsl')) {
+          return computedColor
+        } else {
+          return `hsl(${computedColor})`
+        }
+      }
+    } catch (error) {
+      console.log('Error getting brand color:', error)
+    }
+    return 'hsl(270, 75%, 50%)'
+  }
+
+  // Function to create gradient string
+  const getGradientString = (brandColor) => {
+    const hslMatch = brandColor.match(/hsl\(([^)]+)\)/)
+    if (hslMatch) {
+      let hslValues = hslMatch[1].trim()
+      if (!hslValues.includes(',')) {
+        const parts = hslValues.split(/\s+/)
+        hslValues = parts.join(', ')
+      }
+      const baseColor = `hsl(${hslValues})`
+      const colorWithOpacity = `hsla(${hslValues}, 0.4)`
+      const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+        ? 'linear-gradient(to bottom left'
+        : 'radial-gradient(circle at top right'
+      return `${gradientType}, ${baseColor} 0%, ${colorWithOpacity} 100%)`
+    }
+    const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+      ? 'linear-gradient(to bottom left'
+      : 'radial-gradient(circle at top right'
+    return `${gradientType}, hsl(270, 75%, 50%) 0%, hsla(270, 75%, 50%, 0.4) 100%)`
+  }
+
+  // Check if user is subaccount or agency
+  useEffect(() => {
+    const checkUserRole = () => {
+      if (typeof window === 'undefined') return false
+      
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing User data:', error)
+        }
+      }
+      
+      const localUser = localStorage.getItem('LocalStorageUser')
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser)
+          const userRole = parsed?.user?.userRole || parsed?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing LocalStorageUser:', error)
+        }
+      }
+      
+      const subAccountData = localStorage.getItem('SubaccoutDetails')
+      if (subAccountData) {
+        try {
+          const parsed = JSON.parse(subAccountData)
+          if (parsed) {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing SubaccoutDetails:', error)
+        }
+      }
+      
+      return false
+    }
+
+    const initGradient = () => {
+      const isSubaccountOrAgency = checkUserRole()
+      if (isSubaccountOrAgency) {
+        const brandColor = getBrandColor()
+        const gradientStr = getGradientString(brandColor)
+        setShouldShowGradient(true)
+        setGradientBackground(gradientStr)
+      } else {
+        setShouldShowGradient(false)
+        setGradientBackground(null)
+      }
+    }
+
+    initGradient()
+    const timeout = setTimeout(initGradient, 500)
+    
+    return () => clearTimeout(timeout)
+  }, [isSubaccount, subAccount, isAgencyUser])
+
   const backgroundImage = {
     // backgroundImage: 'url("/assets/background.png")',
     backgroundSize: 'cover',
@@ -255,16 +404,18 @@ const Page = () => {
     width: '100%',
     height: '100svh',
     overflow: 'hidden',
+    position: 'relative',
+    ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div></div>}>
+      <Suspense fallback={<div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}>
         <div
           style={backgroundImage}
-          className="overflow-y-none flex flex-row justify-center items-center"
+          className={`main-div overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
         >
-          {windowSize > 640 && (
+          {!shouldShowGradient && (
             <div
               style={{
                 position: 'absolute',
@@ -272,44 +423,41 @@ const Page = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
                 zIndex: -1, // Ensure the video stays behind content
               }}
             >
-              {isSubaccount ? (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    background:
-                      process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
-                        ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
-                        : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
-                  }}
-                />
-              ) : (
-                <BackgroundVideo />
-              )}
+              <BackgroundVideo />
             </div>
           )}
-          <CurrentComp
-            handleContinue={handleContinue}
-            handleBack={handleBack}
-            handleSkipAddPayment={handleSkipAddPayment}
-            getAgentDetails={getAgentDetails}
-            AgentDetails={AgentDetails}
-            user={user}
-            screenWidth={windowSize}
-            isFrom={
-              subAccount 
-                ? 'SubAccount' 
-                : isSubaccount 
-                  ? 'SubAccount' 
-                  : user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
-                    ? 'Agency'
-                    : undefined
-            }
-          />
+          {pageReady && componentsReady ? (
+            <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+              <CurrentComp
+                handleContinue={handleContinue}
+                handleBack={handleBack}
+                handleSkipAddPayment={handleSkipAddPayment}
+                getAgentDetails={getAgentDetails}
+                AgentDetails={AgentDetails}
+                user={user}
+                screenWidth={windowSize}
+                isFrom={
+                  subAccount 
+                    ? 'SubAccount' 
+                    : isSubaccount 
+                      ? 'SubAccount' 
+                      : user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+                        ? 'Agency'
+                        : undefined
+                }
+                // Explicit flags for background decisions in child components
+                isSubaccountContext={isSubaccount || Boolean(subAccount)}
+                isAgencyContext={isAgencyUser}
+              />
+            </div>
+          ) : (
+            <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+              Loading...
+            </div>
+          )}
         </div>
       </Suspense>
     </ErrorBoundary>

@@ -9,6 +9,7 @@ interface NotificationCustomizationData {
   customEmailBody?: string;
   customEmailCTA?: string;
   isActive?: boolean;
+  isNotificationEnabled?: boolean;
 }
 
 /**
@@ -181,6 +182,67 @@ export const previewNotificationTemplate = async (
     }
   } catch (error: any) {
     console.error("previewNotificationTemplate error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle notification enable/disable status
+ */
+export const toggleNotificationEnabled = async (notificationType: string) => {
+  try {
+    const response = await axios.patch(
+      `${Apis.toggleNotificationCustomization}/${notificationType}/toggle-enabled`,
+      {},
+      {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      console.log("toggleNotificationEnabled response:", response.data);
+      return response.data;
+    } else {
+      console.error("toggleNotificationEnabled error:", response.data);
+      throw new Error(response.data.message || "Failed to toggle notification enabled status");
+    }
+  } catch (error: any) {
+    console.error("toggleNotificationEnabled error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Set notification enable/disable status explicitly
+ */
+export const setNotificationEnabled = async (
+  notificationType: string,
+  isNotificationEnabled: boolean
+) => {
+  try {
+    const response = await axios.patch(
+      `${Apis.toggleNotificationCustomization}/${notificationType}/set-enabled`,
+      { isNotificationEnabled },
+      {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      console.log("setNotificationEnabled response:", response.data);
+      return response.data;
+    } else {
+      console.error("setNotificationEnabled error:", response.data);
+      throw new Error(response.data.message || "Failed to set notification enabled status");
+    }
+  } catch (error: any) {
+    console.error("setNotificationEnabled error:", error);
     throw error;
   }
 };

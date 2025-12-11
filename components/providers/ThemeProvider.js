@@ -25,96 +25,86 @@ const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Shared favicon update function (moved outside applyTheme for reuse)
+    // Shared favicon update function - React-friendly approach that updates href instead of removing nodes
     const updateFavicon = (faviconUrl) => {
-      if (faviconUrl && faviconUrl.trim() !== '') {
-        // Remove ALL existing favicon and shortcut icon links BEFORE setting new one
-        // This prevents the flash of default favicon
-        const existingLinks = document.querySelectorAll(
-          'link[rel*="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]',
-        )
-        existingLinks.forEach((link) => {
-          console.log('🗑️ [ThemeProvider] Removing existing favicon link:', link.href, link.rel)
-          link.remove()
-        })
-
-        // Also try to remove by href pattern (catches Next.js default favicon.ico)
-        const allLinks = document.querySelectorAll('link[href*="favicon"]')
-        allLinks.forEach((link) => {
-          console.log('🗑️ [ThemeProvider] Removing favicon by href pattern:', link.href)
-          link.remove()
-        })
-
-        // Remove any default favicon.ico that might be in the head
-        const defaultFavicon = document.querySelector('link[href="/favicon.ico"]')
-        if (defaultFavicon) {
-          console.log('🗑️ [ThemeProvider] Removing default /favicon.ico')
-          defaultFavicon.remove()
-        }
-        // Detect MIME type from file extension
-        const getMimeType = (url) => {
-          const lowerUrl = url.toLowerCase()
-          if (lowerUrl.includes('.png')) return 'image/png'
-          if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg')) return 'image/jpeg'
-          if (lowerUrl.includes('.svg')) return 'image/svg+xml'
-          if (lowerUrl.includes('.ico')) return 'image/x-icon'
-          if (lowerUrl.includes('.webp')) return 'image/webp'
-          // Default to png if unknown
-          return 'image/png'
-        }
-
-        const mimeType = getMimeType(faviconUrl)
-        
-        // Add timestamp and random number for aggressive cache busting
-        const separator = faviconUrl.includes('?') ? '&' : '?'
-        const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}&r=${Math.random().toString(36).substring(7)}`
-        
-        // Create primary favicon link
-        const link = document.createElement('link')
-        link.rel = 'icon'
-        link.type = mimeType
-        link.href = cacheBustedUrl
-        document.head.appendChild(link)
-        console.log('✅ [ThemeProvider] Added favicon link:', cacheBustedUrl, 'type:', mimeType)
-
-        // Also add shortcut icon for older browsers
-        const shortcutLink = document.createElement('link')
-        shortcutLink.rel = 'shortcut icon'
-        shortcutLink.type = mimeType
-        shortcutLink.href = cacheBustedUrl
-        document.head.appendChild(shortcutLink)
-
-        // Add apple-touch-icon for better mobile support
-        const appleIconLink = document.createElement('link')
-        appleIconLink.rel = 'apple-touch-icon'
-        appleIconLink.href = cacheBustedUrl
-        document.head.appendChild(appleIconLink)
-
-        // Force browser to reload favicon by creating an image and setting it
-        // This helps bypass aggressive browser caching
-        const img = new Image()
-        img.onload = () => {
-          console.log('✅ [ThemeProvider] Favicon image loaded successfully')
-          // Trigger a small DOM update to force browser refresh
-          if (document.querySelector('link[rel="icon"]')) {
-            const faviconLink = document.querySelector('link[rel="icon"]')
-            const currentHref = faviconLink.href
-            faviconLink.href = ''
-            setTimeout(() => {
-              faviconLink.href = currentHref
-            }, 10)
-          }
-        }
-        img.onerror = () => {
-          console.error('❌ [ThemeProvider] Failed to load favicon image:', cacheBustedUrl)
-        }
-        img.src = cacheBustedUrl
-
-        console.log('✅ [ThemeProvider] Favicon updated:', faviconUrl)
-      } else {
-        // If no favicon, browser will use default favicon.ico
+      if (!faviconUrl || faviconUrl.trim() === '') {
         console.log('ℹ️ [ThemeProvider] No favicon in branding, using default')
+        return
       }
+
+      // Use setTimeout to avoid conflicts with React's DOM management
+      setTimeout(() => {
+        try {
+          if (!document.head) {
+            console.warn('🗑️ [ThemeProvider] document.head not available')
+            return
+          }
+
+          // Detect MIME type from file extension
+          const getMIME = (url) => {
+            const lowerUrl = url.toLowerCase()
+            if (lowerUrl.includes('.png')) return 'image/png'
+            if (lowerUrl.includes('.jpg') || lowerUrl.includes('.jpeg')) return 'image/jpeg'
+            if (lowerUrl.includes('.svg')) return 'image/svg+xml'
+            if (lowerUrl.includes('.ico')) return 'image/x-icon'
+            if (lowerUrl.includes('.webp')) return 'image/webp'
+            return 'image/png'
+          }
+
+          const mimeType = getMIME(faviconUrl)
+          
+          // Add timestamp for cache busting
+          const separator = faviconUrl.includes('?') ? '&' : '?'
+          const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}&r=${Math.random().toString(36).substring(7)}`
+
+          // Update existing favicon links instead of removing them (avoids removeChild errors)
+          const updateOrCreateLink = (rel, type = null) => {
+            let link = document.querySelector(`link[rel="${rel}"]`)
+            
+            if (link) {
+              // Update existing link - this is safe and doesn't cause removeChild errors
+              link.href = cacheBustedUrl
+              if (type) {
+                link.type = type
+              }
+              console.log(`✅ [ThemeProvider] Updated existing ${rel} link:`, cacheBustedUrl)
+            } else {
+              // Only create new link if one doesn't exist
+              link = document.createElement('link')
+              link.rel = rel
+              if (type) {
+                link.type = type
+              }
+              link.href = cacheBustedUrl
+              document.head.appendChild(link)
+              console.log(`✅ [ThemeProvider] Created new ${rel} link:`, cacheBustedUrl)
+            }
+          }
+
+          // Update or create primary favicon
+          updateOrCreateLink('icon', mimeType)
+          
+          // Update or create shortcut icon for older browsers
+          updateOrCreateLink('shortcut icon', mimeType)
+          
+          // Update or create apple-touch-icon
+          updateOrCreateLink('apple-touch-icon')
+
+          // Preload image to ensure it's ready (prevents flash)
+          const img = new Image()
+          img.onload = () => {
+            console.log('✅ [ThemeProvider] Favicon image preloaded successfully')
+          }
+          img.onerror = () => {
+            console.error('❌ [ThemeProvider] Failed to preload favicon image:', cacheBustedUrl)
+          }
+          img.src = cacheBustedUrl
+
+          console.log('✅ [ThemeProvider] Favicon updated:', faviconUrl)
+        } catch (error) {
+          console.error('❌ [ThemeProvider] Error updating favicon:', error)
+        }
+      }, 100) // Small delay to avoid React DOM conflicts
     }
 
     const applyTheme = async (forceRefresh = false) => {
@@ -627,19 +617,6 @@ const ThemeProvider = ({ children }) => {
           if (faviconUrl && faviconUrl.trim() !== '') {
             console.log('⚡ [ThemeProvider] Setting custom favicon immediately on mount:', faviconUrl)
             updateFavicon(faviconUrl)
-          } else {
-            // If no custom favicon, remove defaults to prevent flash
-            const existingLinks = document.querySelectorAll(
-              'link[rel*="icon"], link[rel="shortcut icon"]',
-            )
-            existingLinks.forEach((link) => {
-              const href = link.getAttribute('href') || ''
-              // Only remove if it's a default/relative path
-              if (href.includes('/favicon.ico') || (!href.startsWith('http') && !href.startsWith('//'))) {
-                console.log('🗑️ [ThemeProvider] Removing default favicon on mount:', href)
-                link.remove()
-              }
-            })
           }
         } catch (error) {
           console.log('Error in setFaviconImmediately:', error)
@@ -717,4 +694,3 @@ const ThemeProvider = ({ children }) => {
 }
 
 export default ThemeProvider
-

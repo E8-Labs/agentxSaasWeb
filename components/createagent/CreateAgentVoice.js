@@ -36,6 +36,113 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   const [audio, setAudio] = useState(null)
 
   const [showNoAudioModal, setShowNoAudioModal] = useState(null)
+  const [shouldShowGradient, setShouldShowGradient] = useState(false)
+  const [gradientBackground, setGradientBackground] = useState(null)
+
+  // Function to get brand primary color from CSS variable
+  const getBrandColor = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return 'hsl(270, 75%, 50%)'
+    try {
+      const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
+      if (computedColor) {
+        if (computedColor.startsWith('hsl')) {
+          return computedColor
+        } else {
+          return `hsl(${computedColor})`
+        }
+      }
+    } catch (error) {
+      console.log('Error getting brand color:', error)
+    }
+    return 'hsl(270, 75%, 50%)'
+  }
+
+  // Function to create gradient string
+  const getGradientString = (brandColor) => {
+    const hslMatch = brandColor.match(/hsl\(([^)]+)\)/)
+    if (hslMatch) {
+      let hslValues = hslMatch[1].trim()
+      if (!hslValues.includes(',')) {
+        const parts = hslValues.split(/\s+/)
+        hslValues = parts.join(', ')
+      }
+      const baseColor = `hsl(${hslValues})`
+      const colorWithOpacity = `hsla(${hslValues}, 0.4)`
+      const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+        ? 'linear-gradient(to bottom left'
+        : 'radial-gradient(circle at top right'
+      return `${gradientType}, ${baseColor} 0%, ${colorWithOpacity} 100%)`
+    }
+    const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+      ? 'linear-gradient(to bottom left'
+      : 'radial-gradient(circle at top right'
+    return `${gradientType}, hsl(270, 75%, 50%) 0%, hsla(270, 75%, 50%, 0.4) 100%)`
+  }
+
+  // Check if user is subaccount or agency and set gradient
+  useEffect(() => {
+    const checkUserRole = () => {
+      if (typeof window === 'undefined') return false
+      
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing User data:', error)
+        }
+      }
+      
+      const localUser = localStorage.getItem('LocalStorageUser')
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser)
+          const userRole = parsed?.user?.userRole || parsed?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing LocalStorageUser:', error)
+        }
+      }
+      
+      const subAccountData = localStorage.getItem('SubaccoutDetails')
+      if (subAccountData) {
+        try {
+          const parsed = JSON.parse(subAccountData)
+          if (parsed) {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing SubaccoutDetails:', error)
+        }
+      }
+      
+      return false
+    }
+
+    const initGradient = () => {
+      const isSubaccountOrAgency = checkUserRole()
+      if (isSubaccountOrAgency) {
+        const brandColor = getBrandColor()
+        const gradientStr = getGradientString(brandColor)
+        setShouldShowGradient(true)
+        setGradientBackground(gradientStr)
+      } else {
+        setShouldShowGradient(false)
+        setGradientBackground(null)
+      }
+    }
+
+    initGradient()
+    const timeout = setTimeout(initGradient, 500)
+    
+    return () => clearTimeout(timeout)
+  }, [isSubaccount])
 
   useEffect(() => {
     setVoices(voicesList)
@@ -315,15 +422,19 @@ const CreateAgentVoice = ({ handleBack, user }) => {
 
   return (
     <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
+      }}
+      className={`overflow-y-hidden flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
     >
       <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between">
-        <div className="flex flex-col h-[90svh]">
+        <div className="flex flex-col flex-1 min-h-0">
           {/* header */}
           <Header />
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
+          <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
             <div
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
@@ -333,9 +444,9 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             >
               Choose a voice for {agentDetails?.name}
             </div>
-            <div className="w-full flex flex-row justify-center">
+            <div className="w-full flex flex-row justify-center flex-1 min-h-0">
               <div
-                className="pt-8 w-6/12 gap-1 flex flex-col h-[580px] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="pt-8 pb-2 w-full max-w-2xl gap-1 flex flex-col flex-1 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: 'none' }}
               >
                 {voices.map((item, index) => (

@@ -1,4 +1,4 @@
-import { Tooltip } from '@mui/material'
+import { Switch, Tooltip } from '@mui/material'
 import DOMPurify from 'dompurify'
 import Image from 'next/image'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/accordion'
 import {
   createOrUpdateNotificationCustomization,
+  toggleNotificationEnabled,
 } from '@/services/notificationServices/NotificationCustomizationService'
 
 import EditEmailNotification from './EditEmailNotification'
@@ -31,6 +32,7 @@ const TrialPeriodNot = ({
   const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [togglingEnabled, setTogglingEnabled] = useState(null)
 
   // Determine category based on notificationsListArray
   const category = useMemo(() => {
@@ -134,6 +136,7 @@ const TrialPeriodNot = ({
           '',
         isActive: item.isActive,
         isCustomized: item.isCustomized,
+        isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
         availableVariables: item.metadata?.availableVariables || [],
         supportsCTA: item.metadata?.supportsCTA || false,
         actualNotificationType: item.notificationType,
@@ -313,6 +316,38 @@ const TrialPeriodNot = ({
     setSelectedNotification(null)
   }
 
+  const handleToggleEnabled = async (notification) => {
+    try {
+      setTogglingEnabled(notification.notificationType)
+
+      const notificationType =
+        notification?.actualNotificationType ||
+        notification?.notificationType ||
+        getNotificationTypeFromId(notification?.id, category)
+
+      if (!notificationType) {
+        alert(
+          'Unable to determine notification type. Please refresh and try again.',
+        )
+        return
+      }
+
+      await toggleNotificationEnabled(notificationType)
+
+      console.log('Notification enabled status toggled successfully')
+
+      // Refresh the data
+      if (onRefresh) {
+        await onRefresh()
+      }
+    } catch (error) {
+      console.error('Error toggling notification enabled status:', error)
+      alert('Failed to toggle notification enabled status. Please try again.')
+    } finally {
+      setTogglingEnabled(null)
+    }
+  }
+
   return (
     <>
       {saving && (
@@ -326,6 +361,33 @@ const TrialPeriodNot = ({
             <div className="flex flex-row items-center justify-between mb-2">
               <div style={styles.semiBoldHeading}>
                 {item.title || 'Notification'}
+              </div>
+              <div className="flex items-center gap-3">
+                {/* Enable/Disable Toggle Switch */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    {item.isNotificationEnabled ?? true ? 'Enabled' : 'Disabled'}
+                  </span>
+                  <Tooltip
+                    title={
+                      item.isNotificationEnabled ?? true
+                        ? 'Disable this notification for subaccounts'
+                        : 'Enable this notification for subaccounts'
+                    }
+                    placement="top"
+                  >
+                    <Switch
+                      checked={item.isNotificationEnabled ?? true}
+                      onChange={() => handleToggleEnabled(item)}
+                      disabled={
+                        togglingEnabled === item.notificationType ||
+                        togglingEnabled === item.actualNotificationType
+                      }
+                      color="primary"
+                      size="small"
+                    />
+                  </Tooltip>
+                </div>
               </div>
             </div>
             <div className="flex flex-row items-center gap-2 mb-4">
