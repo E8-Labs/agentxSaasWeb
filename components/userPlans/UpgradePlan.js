@@ -599,15 +599,17 @@ function UpgradePlanContent({
             )
             setSelectedPlanIndex(planIndex)
             setTogglePlan(matchingPlan.id)
-          } else {
+          } else if (currentPlans.length > 0) {
             setCurrentSelectedPlan(currentPlans[0])
             setSelectedPlanIndex(0)
             setTogglePlan(currentPlans[0]?.id)
-            console.log('no matching plan found')
+            console.log('no matching plan found, setting first plan')
           }
+          setLoading(false)
         }, 100)
+      } else {
+        setLoading(false)
       }
-      setLoading(false)
     }
   }
 
@@ -2191,35 +2193,29 @@ function UpgradePlanContent({
 
                 <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
                   <div className="w-1/2"></div>
-                  {subscribeLoader ? (
-                    <div className="w-full flex flex-col items-center justify-center h-[53px]">
-                      <CircularProgress size={25} />
-                    </div>
-                  ) : (
-                    <div className="w-1/2">
-                      {subscribeLoader ? (
-                        <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                  <div className="w-1/2">
+                    {subscribeLoader ? (
+                      <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <button
+                        className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
                                                     ${isUpgradeButtonEnabled()
-                              ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
-                              : 'text-black bg-[#00000050] cursor-not-allowed'
-                            }`}
-                          disabled={!isUpgradeButtonEnabled()}
-                          onClick={() => {
-                            if (isUpgradeButtonEnabled()) {
-                              handleSubscribePlan()
-                            }
-                          }}
-                        >
-                          {getButtonText()}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                            ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
+                            : 'text-black bg-[#00000050] cursor-not-allowed'
+                          }`}
+                        disabled={!isUpgradeButtonEnabled()}
+                        onClick={() => {
+                          if (isUpgradeButtonEnabled()) {
+                            handleSubscribePlan()
+                          }
+                        }}
+                      >
+                        {getButtonText()}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
