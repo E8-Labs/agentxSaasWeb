@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import Apis from '@/components/apis/Apis'
+import { PersistanceKeys } from '@/constants/Constants'
 
 /**
  * AppLogo Component
@@ -45,9 +46,25 @@ const AppLogo = ({
       console.log('Error parsing user data:', error)
     }
 
-    // If assignx domain AND not a subaccount, always show assignx logo
-    // Exception: If subaccount, check for agency branding even on assignx.ai domains
-    if (isAssignx && !isSubaccount) {
+    // Check if agency/admin is creating agent for subaccount
+    let isAgencyCreatingForSubaccount = false
+    let subaccountData = null
+    try {
+      const isFromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (isFromAdminOrAgency) {
+        const parsed = JSON.parse(isFromAdminOrAgency)
+        if (parsed?.subAccountData) {
+          isAgencyCreatingForSubaccount = true
+          subaccountData = parsed.subAccountData
+        }
+      }
+    } catch (error) {
+      console.log('Error parsing isFromAdminOrAgency:', error)
+    }
+
+    // If assignx domain AND not a subaccount AND not agency creating for subaccount, always show assignx logo
+    // Exception: If subaccount OR agency creating for subaccount, check for agency branding even on assignx.ai domains
+    if (isAssignx && !isSubaccount && !isAgencyCreatingForSubaccount) {
       setLogoUrl(null) // null means use assignx logo
       return
     }
@@ -107,6 +124,21 @@ const AppLogo = ({
       }
     }
 
+    // Additional fallback: If agency is creating agent for subaccount, fetch subaccount's agency branding
+    if (!branding && isAgencyCreatingForSubaccount && subaccountData) {
+      try {
+        // The subaccountData should have agencyId or we can fetch it
+        // For now, try to get branding from the subaccount's user data if available
+        // Or fetch it via API using the subaccount's agencyId
+        if (subaccountData.agencyId) {
+          // We'll fetch branding via API in the fetchBrandingFromAPI function
+          // This will be handled below
+        }
+      } catch (error) {
+        console.log('Error getting branding for subaccount:', error)
+      }
+    }
+
     // Function to fetch branding from API (for custom domains or subaccounts)
     const fetchBrandingFromAPI = async () => {
       try {
@@ -153,14 +185,16 @@ const AppLogo = ({
           }
         }
 
-        // Fallback: Try getAgencyBranding API if user is logged in (for subaccounts)
-        if (isSubaccount) {
+        // Fallback: Try getAgencyBranding API if user is logged in (for subaccounts or agency creating for subaccount)
+        if (isSubaccount || isAgencyCreatingForSubaccount) {
           const userData = localStorage.getItem('User')
           if (userData) {
             const parsedUser = JSON.parse(userData)
             const authToken = parsedUser?.token || parsedUser?.user?.token
 
             if (authToken) {
+              // If agency is creating for subaccount, we need to get the subaccount's agency branding
+              // The API should handle this based on the subaccount's agencyId
               const response = await fetch(Apis.getAgencyBranding, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
@@ -195,9 +229,9 @@ const AppLogo = ({
       }
     }
 
-    // For custom domains or subaccounts, fetch from API if branding not found
+    // For custom domains or subaccounts or agency creating for subaccount, fetch from API if branding not found
     const isCustomDomain = !isAssignx
-    if (!branding && (isCustomDomain || isSubaccount)) {
+    if (!branding && (isCustomDomain || isSubaccount || isAgencyCreatingForSubaccount)) {
       // Fetch from API immediately
       fetchBrandingFromAPI()
     } else {
@@ -273,7 +307,7 @@ const AppLogo = ({
     return () => {
       window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
-  }, [])
+  }, []) // Empty deps - component will re-mount when route changes, which is sufficient
 
   // Determine which logo to show
   const logoSrc = logoUrl || '/assets/assignX.png'

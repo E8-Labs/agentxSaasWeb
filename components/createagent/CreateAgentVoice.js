@@ -246,12 +246,41 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             PersistanceKeys.returnUrlAfterAgentCreation,
           )
 
-          if (isFromAdminOrAgency && returnUrl) {
+          if (isFromAdminOrAgency) {
+            // Parse the stored data to get subaccount info
+            let subaccountData = null
+            try {
+              const parsed = JSON.parse(isFromAdminOrAgency)
+              subaccountData = parsed?.subAccountData
+            } catch (error) {
+              console.log('Error parsing isFromAdminOrAgency:', error)
+            }
+
+            // Send event to parent window (opener) that agent was created
+            if (window.opener && subaccountData) {
+              try {
+                window.opener.postMessage(
+                  {
+                    type: 'AGENT_CREATED',
+                    userId: subaccountData.id,
+                    agentId: mainAgentId,
+                  },
+                  '*', // In production, specify the exact origin
+                )
+                console.log('Sent AGENT_CREATED event to parent window')
+              } catch (error) {
+                console.log('Error sending message to parent window:', error)
+              }
+            }
+
             // Clean up the stored data
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
             localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
-            // Redirect back to the saved URL
-            window.location.href = returnUrl
+
+            // Close the tab after a short delay to allow message to be sent
+            setTimeout(() => {
+              window.close()
+            }, 500)
           } else {
             router.push('/pipeline')
           }

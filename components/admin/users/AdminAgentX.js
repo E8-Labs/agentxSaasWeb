@@ -1983,6 +1983,41 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     getAgents()
   }, [selectedUser])
 
+  // Listen for agent created event from child window
+  useEffect(() => {
+    const handleMessage = async (event) => {
+      // Verify message type and userId matches selectedUser
+      if (
+        event.data?.type === 'AGENT_CREATED' &&
+        event.data?.userId === selectedUser?.id
+      ) {
+        console.log('Received AGENT_CREATED event, reloading agents...')
+        
+        // Clear current agents list to force fresh fetch
+        setMainAgentsList([])
+        setAgentsListSeparated([])
+        localStorage.removeItem(PersistanceKeys.LocalStoredAgentsListMain)
+        
+        // Reload agents from the beginning (offset 0)
+        setInitialLoader(true)
+        getAgents(false, null, false)
+        
+        // Dispatch custom event for parent component to refresh selectedUser
+        window.dispatchEvent(
+          new CustomEvent('refreshSelectedUser', {
+            detail: { userId: selectedUser.id },
+          }),
+        )
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [selectedUser])
+
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click()
   }
@@ -2020,7 +2055,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     console.log('Pagination status passed is', paginationStatus)
     // console.log('search', search)
     try {
-      let offset = mainAgentsList.length
+      // If mainAgentsList is empty (fresh reload), start from offset 0
+      let offset = mainAgentsList.length > 0 ? mainAgentsList.length : 0
       let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}` //?agentType=outbound
 
       if (search) {
@@ -2126,8 +2162,42 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         )
       }
 
-      // router.push("/createagent");
-      window.location.href = '/createagent'
+      // Check if current logged-in user is Admin or Agency
+      let isAdminOrAgency = false
+      
+      // Check from Redux first
+      if (reduxUser) {
+        const userType = reduxUser?.userType
+        const userRole = reduxUser?.userRole
+        isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+        console.log('handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
+      }
+      
+      // Fallback to localStorage if Redux doesn't have the data
+      if (!isAdminOrAgency && typeof window !== 'undefined') {
+        try {
+          const localUserData = localStorage.getItem('User')
+          if (localUserData) {
+            const parsedUser = JSON.parse(localUserData)
+            const userType = parsedUser?.user?.userType || parsedUser?.userType
+            const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+            isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+            console.log('handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
+          }
+        } catch (error) {
+          console.log('Error parsing localStorage User data:', error)
+        }
+      }
+      
+      // Open in new tab if current user is Admin or Agency
+      if (isAdminOrAgency) {
+        console.log('Opening /createagent in new tab (user is Admin or Agency)')
+        window.open('/createagent', '_blank')
+      } else {
+        console.log('Opening /createagent in same tab')
+        // router.push("/createagent");
+        window.location.href = '/createagent'
+      }
     } else {
       console.log('User has no plan subscribed')
       setIsVisibleSnack2(true)

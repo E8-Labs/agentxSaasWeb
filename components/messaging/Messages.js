@@ -310,6 +310,7 @@ const Messages = () => {
 
   // Fetch threads
   const fetchThreads = useCallback(async (searchQuery = '') => {
+    console.log('fetchThreads is called')
     const requestId = ++threadsRequestIdRef.current
     try {
       setLoading(true)
@@ -340,19 +341,25 @@ const Messages = () => {
           'Content-Type': 'application/json',
         },
       })
+      console.log("Api path is ", Apis.getMessageThreads)
+      console.log("params is ", params)
+      console.log("response is ", response)
 
       // Ignore responses for stale requests so older calls can't overwrite newer results
       if (requestId !== threadsRequestIdRef.current) {
+        console.log('requestId is not the current requestId, returning')
         return
       }
 
       if (response.data?.status && Array.isArray(response.data?.data)) {
+        console.log('response.data.data is:', response.data.data)
         // Sort by lastMessageAt descending
         const sortedThreads = response.data.data.sort((a, b) => {
           const dateA = new Date(a.lastMessageAt || a.createdAt)
           const dateB = new Date(b.lastMessageAt || b.createdAt)
           return dateB - dateA
         })
+        console.log('sortedThreads is:', sortedThreads)
         setThreads(sortedThreads)
       } else {
         // Clear threads if no valid response or empty results

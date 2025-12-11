@@ -138,6 +138,31 @@ function SelectedUserDetails({
     getData()
   }, [selectedUser])
 
+  // Listen for refresh event from AdminAgentX when agent is created
+  useEffect(() => {
+    const handleRefreshUser = async (event) => {
+      if (event.detail?.userId === selectedUser?.id) {
+        console.log('Refreshing selectedUser profile after agent creation...')
+        try {
+          const refreshedData = await AdminGetProfileDetails(selectedUser.id)
+          if (refreshedData) {
+            setUser(refreshedData)
+            // Update selectedUser to trigger re-render of child components
+            // This will update the usage count in AdminAgentX
+          }
+        } catch (error) {
+          console.error('Error refreshing user profile:', error)
+        }
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshUser)
+
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshUser)
+    }
+  }, [selectedUser])
+
   const handleManuClick = (item) => {
     setSelectedManu(item)
   }
