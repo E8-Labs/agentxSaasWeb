@@ -126,6 +126,7 @@ const DuplicateButton = dynamic(
     ssr: false,
   },
 )
+
 function Page() {
   // IMMEDIATE POPUP HANDLING - Run before React renders to preserve popup context
   // This must run synchronously when component loads, before any state updates
@@ -1306,6 +1307,86 @@ function Page() {
 
   //   return model;
   // }
+
+
+/**
+ * Renders the live call transfer number section with appropriate upgrade/request feature modals
+ * @param {Object} params - Function parameters
+ * @param {Object} params.reduxUser - The current user from Redux store
+ * @param {Function} params.setReduxUser - Function to update Redux user state
+ * @param {Object} params.showDrawerSelectedAgent - The selected agent object
+ * @param {Function} params.setShowEditNumberPopup - Function to show edit number popup
+ * @param {Function} params.setSelectedNumber - Function to set selected number type
+ * @returns {JSX.Element} The rendered component
+ */
+function renderLiveCallTransferSection({
+  reduxUser,
+  setReduxUser,
+  showDrawerSelectedAgent,
+  setShowEditNumberPopup,
+  setSelectedNumber,
+}) {
+  const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
+
+  // For subaccount: check agency capabilities first
+  if (isSubaccount) {
+    // If agency has disabled the feature, show request feature button
+    if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
+      return (
+        <UpgradeTagWithModal
+          reduxUser={reduxUser}
+          setReduxUser={setReduxUser}
+          requestFeature={true}
+        />
+      )
+    }
+    // If agency allows it, check plan capabilities
+    if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+      return (
+        <UpgradeTagWithModal
+          reduxUser={reduxUser}
+          setReduxUser={setReduxUser}
+        />
+      )
+    }
+  } else {
+    // For normal user: check plan capabilities directly
+    if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+      return (
+        <UpgradeTagWithModal
+          reduxUser={reduxUser}
+          setReduxUser={setReduxUser}
+        />
+      )
+    }
+  }
+
+  // Show live transfer number and edit button if feature is enabled
+  return (
+    <div className="flex flex-row items-center justify-between gap-2">
+      <div>
+        {showDrawerSelectedAgent?.liveTransferNumber ? (
+          <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+        ) : (
+          '-'
+        )}
+      </div>
+      <button
+        onClick={() => {
+          setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
+          setSelectedNumber('Calltransfer')
+        }}
+      >
+        <Image
+          src={'/svgIcons/editIcon2.svg'}
+          height={24}
+          width={24}
+          alt="*"
+        />
+      </button>
+    </div>
+  )
+}
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -5751,47 +5832,13 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-                    {reduxUser?.agencyCapabilities?.allowLiveCallTransfer ===
-                    false ? (
-                      <UpgradeTagWithModal
-                        reduxUser={reduxUser}
-                        setReduxUser={setReduxUser}
-                        requestFeature={true}
-                      />
-                    ) : !reduxUser?.agencyCapabilities
-                        ?.allowLiveCallTransfer ? (
-                      <UpgradeTagWithModal
-                        reduxUser={reduxUser}
-                        setReduxUser={setReduxUser}
-                      />
-                    ) : (
-                      <div className="flex flex-row items-center justify-between gap-2">
-                        <div>
-                          {showDrawerSelectedAgent?.liveTransferNumber ? (
-                            <div>
-                              {showDrawerSelectedAgent?.liveTransferNumber}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </div>
-                        <button
-                          onClick={() => {
-                            setShowEditNumberPopup(
-                              showDrawerSelectedAgent?.liveTransferNumber,
-                            )
-                            setSelectedNumber('Calltransfer')
-                          }}
-                        >
-                          <Image
-                            src={'/svgIcons/editIcon2.svg'}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    )}
+                    {renderLiveCallTransferSection({
+                      reduxUser,
+                      setReduxUser,
+                      showDrawerSelectedAgent,
+                      setShowEditNumberPopup,
+                      setSelectedNumber,
+                    })}
                   </div>
                 </div>
 

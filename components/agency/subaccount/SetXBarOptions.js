@@ -4,6 +4,9 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import UserType from '@/components/onboarding/UserType'
 
 import { AuthToken } from '../plan/AuthDetails'
@@ -24,6 +27,7 @@ export default function SetXBarOptions({
   const [subAccountLoader, setSubAccountLoader] = useState(false)
 
   const [loading, setLoading] = useState(false)
+  const [showErrorSnack, setShowErrorSnack] = useState(null)
 
   //getting the plans list
   useEffect(() => {
@@ -55,6 +59,12 @@ export default function SetXBarOptions({
 
   //code to create sub acoount
   const handleCreateSubAccount = async () => {
+    // Validate that at least one xbar plan is selected
+    if (selectedXBarPlans.length === 0) {
+      setShowErrorSnack('Please select at least one XBar plan')
+      return
+    }
+
     try {
       setSubAccountLoader(true)
 
@@ -134,6 +144,12 @@ export default function SetXBarOptions({
 
   return (
     <div>
+      <AgentSelectSnackMessage
+        isVisible={showErrorSnack != null ? true : false}
+        hide={() => setShowErrorSnack(null)}
+        type={SnackbarTypes.Error}
+        message={showErrorSnack}
+      />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
           Select XBar Options
@@ -207,8 +223,8 @@ export default function SetXBarOptions({
               console.log('close all')
               handleCreateSubAccount()
             }}
-            // className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
-            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
+            disabled={selectedXBarPlans.length === 0}
+            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? 'bg-[#00000020] text-black cursor-not-allowed' : 'bg-brand-primary text-white'}`}
           >
             Continue
           </button>

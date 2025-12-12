@@ -150,7 +150,7 @@ const ThreadsList = ({
                                   setOpenMenuId(null)
                                 }}
                               />
-                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
+                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px]">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -159,10 +159,10 @@ const ThreadsList = ({
                                     }
                                     setOpenMenuId(null)
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 whitespace-nowrap"
                                 >
                                   <Trash2 size={16} />
-                                  Delete Lead
+                                  <span>Delete Lead</span>
                                 </button>
                               </div>
                             </>
