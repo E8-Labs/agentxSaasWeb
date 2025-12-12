@@ -336,8 +336,8 @@ const StandardNot = ({
                   </Tooltip>
                 </div>
 
-                {/* Delete Button */}
-                {item.isCustomized && (
+                {/* Delete Button - Only show if notification is enabled and customized */}
+                {item.isCustomized && item.isNotificationEnabled && (
                   <button
                     onClick={() => handleDelete(item)}
                     disabled={deleting === item.notificationType}

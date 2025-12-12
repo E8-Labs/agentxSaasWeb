@@ -21,7 +21,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 
 import { GreetingTagInput } from '../tagInputs/GreetingTagInput'
 import { PromptTagInput } from '../tagInputs/PromptTagInput'
-import EditModal from './EditModal'
+import EditModal from './EditObjectionGuardrailModal'
 
 const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
   const [ObjectionsList, setObjectionsList] = useState([])

@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import axios from 'axios'
@@ -978,8 +978,44 @@ const CreateAgent1 = ({
                   maxLength={40}
                 />
 
-                <div className="mt-2" style={styles.headingStyle}>
+                <div
+                  className="mt-2 flex flex-row items-center gap-2"
+                  style={styles.headingStyle}
+                >
                   {`What's this AI agent's task?`}
+                  <Tooltip
+                    title="Inbound and Outbound calls need to be handled by different agents."
+                    arrow
+                    placement="top"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: '#ffffff',
+                          color: '#333',
+                          fontSize: '13px',
+                          padding: '10px 15px',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+                          maxWidth: '300px',
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: '#ffffff',
+                        },
+                      },
+                    }}
+                  >
+                    <div style={{ cursor: 'pointer' }}>
+                      <Image
+                        src={'/svgIcons/infoIcon.svg'}
+                        height={20}
+                        width={20}
+                        alt="info"
+                        style={{ filter: 'brightness(0)' }}
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
 
                 <div className="sm:flex sm:flex-row items-center gap-4">
@@ -1055,10 +1091,6 @@ const CreateAgent1 = ({
                       Taking Inbound Calls
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-1 text-[13px] text-gray-500 font-[500]">
-                  {`*Inbound and Outbound calls need to be handled by different agents.`}
                 </div>
 
                 <div className="mt-2" style={styles.headingStyle}>

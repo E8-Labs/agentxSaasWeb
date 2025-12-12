@@ -545,6 +545,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
+          overflow: 'visible', // Allow tooltips to escape modal bounds
+          zIndex: 1300, // Ensure modal is above other content
         }}
       >
         {/* Header */}
@@ -554,7 +556,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
           {/* Mode Tabs */}
           <div className="flex items-center justify-between border-b">
             <div className="flex items-center gap-6">
@@ -933,6 +935,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 onChange={setMessageBody}
                 placeholder="Type your message..."
                 availableVariables={[]}
+                toolbarPosition="bottom"
               />
             ) : (
               <textarea

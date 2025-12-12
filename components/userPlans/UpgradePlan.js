@@ -1352,6 +1352,7 @@ function UpgradePlanContent({
     // If selected plan is the current plan, show "Cancel Subscription"
     if (isCurrentPlan) {
       console.log('🔍 [getButtonText] Same plan, returning Cancel Subscription')
+      //let's not return any title and disable the button
       return 'Cancel Subscription'
     }
 
@@ -2235,46 +2236,49 @@ function UpgradePlanContent({
                   </div>
                 </div>
 
-                <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
-                  <div className="w-1/2"></div>
-                  <div className="w-1/2">
-                    {subscribeLoader ? (
-                      <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
-                        <CircularProgress size={25} />
-                      </div>
-                    ) : (
-                      <div 
-                      className={`flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white ${isUpgradeButtonEnabled ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                      onClick={() => {
-                        if (isUpgradeButtonEnabled()) {
-                          handleSubscribePlan()
-                        }
-                      }}
-                      >{getButtonText()}</div>
-                      // <button
-                      //   className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold
-                      //                               ${isUpgradeButtonEnabled()
-                      //       ? 'hover:opacity-90'
-                      //       : 'cursor-not-allowed opacity-60'
-                      //     }`}
-                      //   style={{
-                      //     backgroundColor: isUpgradeButtonEnabled()
-                      //       ? (brandPrimaryColor || 'hsl(270, 75%, 50%)')
-                      //       : '#9CA3AF',
-                      //     color: '#FFFFFF',
-                      //   }}
-                      //   disabled={!isUpgradeButtonEnabled()}
-                        // onClick={() => {
-                        //   if (isUpgradeButtonEnabled()) {
-                        //     handleSubscribePlan()
-                        //   }
-                        // }}
-                      // >
-                      //   {getButtonText()}
-                      // </button>
-                    )}
+                {/* Hide button if selected plan is the current plan */}
+                {currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' && (
+                  <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
+                    <div className="w-1/2"></div>
+                    <div className="w-1/2">
+                      {subscribeLoader ? (
+                        <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
+                          <CircularProgress size={25} />
+                        </div>
+                      ) : (
+                        <div 
+                        className={`flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white ${isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                        onClick={() => {
+                          if (isUpgradeButtonEnabled()) {
+                            handleSubscribePlan()
+                          }
+                        }}
+                        >{getButtonText()}</div>
+                        // <button
+                        //   className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold
+                        //                               ${isUpgradeButtonEnabled()
+                        //       ? 'hover:opacity-90'
+                        //       : 'cursor-not-allowed opacity-60'
+                        //     }`}
+                        //   style={{
+                        //     backgroundColor: isUpgradeButtonEnabled()
+                        //       ? (brandPrimaryColor || 'hsl(270, 75%, 50%)')
+                        //       : '#9CA3AF',
+                        //     color: '#FFFFFF',
+                        //   }}
+                        //   disabled={!isUpgradeButtonEnabled()}
+                          // onClick={() => {
+                          //   if (isUpgradeButtonEnabled()) {
+                          //     handleSubscribePlan()
+                          //   }
+                          // }}
+                        // >
+                        //   {getButtonText()}
+                        // </button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

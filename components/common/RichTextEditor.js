@@ -68,6 +68,130 @@ const RichTextEditor = forwardRef(
       lastHtmlRef.current = value || ''
     }, [value])
 
+    // Handle link tooltip positioning to prevent clipping
+    useEffect(() => {
+      if (!quillRef.current) return
+
+      const adjustTooltipPosition = () => {
+        // Find tooltip within the current editor instance
+        const editor = quillRef.current?.getEditor()
+        if (!editor) return
+
+        const editorContainer = editor.container
+        if (!editorContainer) return
+
+        const editorWrapper = editorContainer.closest('.quill-editor-wrapper')
+        if (!editorWrapper) return
+
+        const tooltip = editorWrapper.querySelector('.ql-tooltip')
+        if (!tooltip) return
+
+        // Only show and adjust tooltip if it's in editing mode
+        // Quill manages visibility - we should not force it to be visible
+        if (!tooltip.classList.contains('ql-editing')) {
+          // Hide tooltip if it's not in editing mode
+          return
+        }
+
+        const tooltipRect = tooltip.getBoundingClientRect()
+        const viewportWidth = window.innerWidth
+        const viewportHeight = window.innerHeight
+        const wrapperRect = editorWrapper.getBoundingClientRect()
+
+        // Get current position relative to wrapper
+        const currentLeft = tooltipRect.left - wrapperRect.left
+        const currentTop = tooltipRect.top - wrapperRect.top
+        const tooltipWidth = tooltipRect.width || 300 // Default width if not calculated
+        const tooltipHeight = tooltipRect.height || 50 // Default height if not calculated
+
+        // Ensure input field is visible
+        const input = tooltip.querySelector('input[type="text"]')
+        if (input) {
+          input.style.visibility = 'visible'
+          input.style.opacity = '1'
+          input.style.display = 'block'
+          input.style.color = '#000'
+          input.style.background = '#fff'
+        }
+
+        // Fix left clipping - ensure at least 10px from left edge of viewport
+        if (tooltipRect.left < 10) {
+          const newLeft = 10 - wrapperRect.left
+          tooltip.style.left = `${Math.max(0, newLeft)}px`
+          tooltip.style.right = 'auto'
+        }
+
+        // Fix right clipping - ensure at least 10px from right edge of viewport
+        if (tooltipRect.right > viewportWidth - 10) {
+          const newLeft = viewportWidth - 10 - wrapperRect.left - tooltipWidth
+          tooltip.style.left = `${Math.max(0, newLeft)}px`
+          tooltip.style.right = 'auto'
+        }
+
+        // Fix bottom clipping
+        if (tooltipRect.bottom > viewportHeight - 10) {
+          // Try to position above the editor
+          const spaceAbove = wrapperRect.top
+          if (spaceAbove >= tooltipHeight + 10) {
+            // Position above editor
+            tooltip.style.top = `-${tooltipHeight + 8}px`
+            tooltip.style.bottom = 'auto'
+          } else {
+            // Not enough space above, position at top of viewport relative to wrapper
+            const topOffset = 10 - wrapperRect.top
+            tooltip.style.top = `${Math.max(0, topOffset)}px`
+            tooltip.style.bottom = 'auto'
+          }
+        }
+
+        // Fix top clipping
+        if (tooltipRect.top < 10) {
+          // Position below the editor
+          const spaceBelow = viewportHeight - wrapperRect.bottom
+          if (spaceBelow >= tooltipHeight + 10) {
+            tooltip.style.top = `${wrapperRect.height + 8}px`
+            tooltip.style.bottom = 'auto'
+          }
+        }
+      }
+
+      // Use MutationObserver to watch for tooltip appearance
+      const observer = new MutationObserver(() => {
+        // Small delay to ensure tooltip is fully rendered
+        setTimeout(adjustTooltipPosition, 50)
+      })
+
+      // Observe the editor wrapper for tooltip changes
+      const editor = quillRef.current?.getEditor()
+      const editorContainer = editor?.container
+      const editorWrapper = editorContainer?.closest('.quill-editor-wrapper')
+      
+      if (editorWrapper) {
+        observer.observe(editorWrapper, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class', 'style'],
+        })
+      }
+
+      // Also adjust on window resize and scroll
+      window.addEventListener('resize', adjustTooltipPosition)
+      window.addEventListener('scroll', adjustTooltipPosition, true)
+
+      // Initial adjustment with delay to catch tooltip after it appears
+      const intervalId = setInterval(() => {
+        adjustTooltipPosition()
+      }, 100)
+
+      return () => {
+        observer.disconnect()
+        clearInterval(intervalId)
+        window.removeEventListener('resize', adjustTooltipPosition)
+        window.removeEventListener('scroll', adjustTooltipPosition, true)
+      }
+    }, [toolbarPosition])
+
     // Insert variable at cursor position
     const insertVariable = (variable) => {
       if (quillRef.current) {
@@ -111,8 +235,10 @@ const RichTextEditor = forwardRef(
           .quill-editor-wrapper {
             border: 1px solid #e5e7eb;
             border-radius: 0.375rem;
-            overflow: hidden;
+            overflow: visible;
             margin-top: 0;
+            position: relative;
+            z-index: 1;
           }
 
           /* ReactQuill root element - needs flex display */
@@ -292,6 +418,70 @@ const RichTextEditor = forwardRef(
           .quill-editor-wrapper .ql-picker.ql-expanded .ql-picker-options {
             display: block;
             z-index: 1000;
+          }
+
+          /* Link tooltip positioning - prevent clipping */
+          /* Only style when tooltip is actually visible (Quill manages visibility) */
+          .quill-editor-wrapper .ql-tooltip.ql-editing {
+            z-index: 10000 !important;
+            position: absolute !important;
+            background: white !important;
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            padding: 8px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+          }
+          
+          /* Hide tooltip when not in editing mode */
+          .quill-editor-wrapper .ql-tooltip:not(.ql-editing) {
+            display: none !important;
+          }
+
+          /* Ensure link tooltip input is visible and properly styled when tooltip is active */
+          .quill-editor-wrapper .ql-tooltip.ql-editing input[type="text"] {
+            min-width: 200px !important;
+            max-width: calc(100vw - 40px) !important;
+            width: 200px !important;
+            box-sizing: border-box !important;
+            padding: 4px 8px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 4px !important;
+            font-size: 14px !important;
+            color: #000 !important;
+            background: white !important;
+          }
+
+          /* Ensure tooltip buttons are visible when tooltip is active */
+          .quill-editor-wrapper .ql-tooltip.ql-editing a {
+            display: inline-block !important;
+            color: #06c !important;
+            text-decoration: none !important;
+            margin-left: 8px !important;
+            padding: 4px 12px !important;
+            border: 1px solid #06c !important;
+            border-radius: 4px !important;
+            background: white !important;
+          }
+
+          .quill-editor-wrapper .ql-tooltip.ql-editing a:hover {
+            background: #06c !important;
+            color: white !important;
+          }
+
+          /* Container needs to allow overflow for tooltips */
+          .rich-text-editor-container {
+            position: relative;
+            overflow: visible;
+          }
+
+          /* Editor container should clip content but allow tooltips */
+          .quill-editor-wrapper .ql-container {
+            overflow: visible;
+          }
+
+          .quill-editor-wrapper .ql-editor {
+            overflow-y: auto;
+            overflow-x: hidden;
           }
         `}</style>
       </div>

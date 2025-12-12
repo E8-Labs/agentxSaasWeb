@@ -3828,74 +3828,96 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       flexDirection: 'row',
                                       alignItems: 'center',
                                       justifyContent: 'space-between',
+                                      marginLeft:
+                                        item.name === 'Max' ||
+                                        item.name === 'Axel'
+                                          ? 5
+                                          : 0,
+                                      padding: '8px 16px',
+                                      width: '100%',
                                     }}
                                     value={item.name}
                                     key={index}
                                     disabled={SelectedVoice === item.name}
                                   >
-                                    <Image
-                                      src={item.img}
-                                      height={40}
-                                      width={35}
-                                      alt="*"
-                                    />
-                                    <div>{item.name}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                                      <Image
+                                        src={item.img}
+                                        height={
+                                          item.name === 'Axel' ||
+                                          item.name === 'Max'
+                                            ? 40
+                                            : 35
+                                        }
+                                        width={
+                                          item.name === 'Axel' ||
+                                          item.name === 'Max'
+                                            ? 22
+                                            : 35
+                                        }
+                                        alt="*"
+                                        style={{ flexShrink: 0 }}
+                                      />
+                                      <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                                    </div>
 
                                     {/* Play/Pause Button (Prevents dropdown close) */}
-                                    {item.preview ? (
-                                      <div //style={{marginLeft:15}}
-                                        onClick={(e) => {
-                                          console.log(
-                                            'audio preview ',
-                                            item.preview,
-                                          )
-                                          e.stopPropagation() // Prevent dropdown from closing
-                                          e.preventDefault() // Prevent selection event
+                                    <div style={{ flexShrink: 0 }}>
+                                      {item.preview ? (
+                                        <div
+                                          onClick={(e) => {
+                                            console.log(
+                                              'audio preview ',
+                                              item.preview,
+                                            )
+                                            e.stopPropagation() // Prevent dropdown from closing
+                                            e.preventDefault() // Prevent selection event
 
-                                          if (preview === item.preview) {
-                                            if (audio) {
-                                              audio.pause()
-                                              audio.removeEventListener(
-                                                'ended',
-                                                () => { },
-                                              )
+                                            if (preview === item.preview) {
+                                              if (audio) {
+                                                audio.pause()
+                                                audio.removeEventListener(
+                                                  'ended',
+                                                  () => { },
+                                                )
+                                              }
+                                              setPreview(null)
+                                            } else {
+                                              playVoice(item.preview)
                                             }
-                                            setPreview(null)
-                                          } else {
-                                            playVoice(item.preview)
-                                          }
-                                        }}
-                                      >
-                                        {preview === item.preview ? (
-                                          <PauseCircle
-                                            size={38}
-                                            weight="regular"
-                                          />
-                                        ) : (
+                                          }}
+                                        >
+                                          {preview === item.preview ? (
+                                            <PauseCircle
+                                              size={38}
+                                              weight="regular"
+                                            />
+                                          ) : (
+                                            <Image
+                                              src={'/assets/play.png'}
+                                              height={25}
+                                              width={25}
+                                              alt="*"
+                                            />
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            setShowNoAudioModal(item)
+                                          }}
+                                        >
                                           <Image
                                             src={'/assets/play.png'}
                                             height={25}
                                             width={25}
                                             alt="*"
                                           />
-                                        )}
-                                      </div>
-                                    ) : (
-                                      <div
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          e.preventDefault()
-                                          setShowNoAudioModal(item)
-                                        }}
-                                      >
-                                        <Image
-                                          src={'/assets/play.png'}
-                                          height={25}
-                                          width={25}
-                                          alt="*"
-                                        />
-                                      </div>
-                                    )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </MenuItem>
                                 )
                               })}
