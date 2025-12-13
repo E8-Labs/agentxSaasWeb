@@ -21,6 +21,7 @@ const BrandConfig = () => {
   const [logoPreview, setLogoPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
   const [faviconText, setFaviconText] = useState('')
+  const [xbarTitle, setXbarTitle] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
   const [secondaryColor, setSecondaryColor] = useState('#8B5CF6')
 
@@ -103,12 +104,17 @@ const BrandConfig = () => {
         if (branding.faviconText) {
           setFaviconText(branding.faviconText)
         }
+        // Set xbar title if exists
+        if (branding.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+        }
 
         // Store original values - use defaults if no branding exists
         setOriginalValues({
           logoUrl: branding.logoUrl || null,
           faviconUrl: branding.faviconUrl || null,
           faviconText: branding.faviconText || '',
+          xbarTitle: branding.xbarTitle || '',
           primaryColor: branding.primaryColor || defaultPrimary,
           secondaryColor: branding.secondaryColor || defaultSecondary,
         })
@@ -119,10 +125,12 @@ const BrandConfig = () => {
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
         setFaviconText('')
+        setXbarTitle('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
           faviconText: '',
+          xbarTitle: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -136,10 +144,12 @@ const BrandConfig = () => {
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
         setFaviconText('')
+        setXbarTitle('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
           faviconText: '',
+          xbarTitle: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -283,8 +293,10 @@ const BrandConfig = () => {
 
     // Check if favicon text has changed
     const faviconTextChanged = faviconText !== originalValues.faviconText
+    // Check if xbar title has changed
+    const xbarTitleChanged = xbarTitle !== originalValues.xbarTitle
 
-    return colorsChanged || logoChanged || faviconChanged || faviconTextChanged
+    return colorsChanged || logoChanged || faviconChanged || faviconTextChanged || xbarTitleChanged
   }
 
   //reset all the values to original and save defaults
@@ -299,6 +311,7 @@ const BrandConfig = () => {
     setLogoPreview(originalValues.logoUrl)
     setFaviconPreview(originalValues.faviconUrl)
     setFaviconText(originalValues.faviconText)
+    setXbarTitle(originalValues.xbarTitle)
     setLogoFile(null)
     setFaviconFile(null)
 
@@ -475,12 +488,34 @@ const BrandConfig = () => {
           faviconText: faviconText,
         }
 
-        await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
+        const response = await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
           headers: {
             Authorization: `Bearer ${authToken}`,
             'Content-Type': 'application/json',
           },
         })
+
+        if (!response?.data?.status) {
+          throw new Error(response?.data?.message || 'Failed to update favicon text')
+        }
+      }
+
+      // Update xbar title if changed
+      if (xbarTitle !== originalValues.xbarTitle) {
+        const companyData = {
+          xbarTitle: xbarTitle,
+        }
+
+        const response = await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response?.data?.status) {
+          throw new Error(response?.data?.message || 'Failed to update xbar title')
+        }
       }
 
       // Store the uploaded faviconUrl before fetchBrandingData might overwrite it
@@ -492,6 +527,7 @@ const BrandConfig = () => {
         logoUrl: uploadedLogoUrl,
         faviconUrl: uploadedFaviconUrl,
         faviconText: faviconText,
+        xbarTitle: xbarTitle,
         primaryColor: primaryColor,
         secondaryColor: secondaryColor,
       })
@@ -500,14 +536,24 @@ const BrandConfig = () => {
       setLogoFile(null)
       setFaviconFile(null)
 
-      setShowSnackMessage({
-        type: SnackbarTypes.Success,
-        message: 'Branding settings saved successfully',
-        isVisible: true,
-      })
-
       // Refresh data to get latest from server
-      await fetchBrandingData()
+      try {
+        await fetchBrandingData()
+      } catch (error) {
+        console.error('Error refreshing branding data after save:', error)
+        // Continue even if refresh fails - save was successful
+      }
+
+      // Show success snackbar after all updates and refresh complete
+      // Use setTimeout to ensure it shows even if state updates are batched
+      setTimeout(() => {
+        console.log('✅ [BrandConfig] Setting success snackbar')
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: 'Branding settings saved successfully',
+          isVisible: true,
+        })
+      }, 100)
 
       // Update cookie and localStorage with new branding so login page shows it immediately
       if (typeof window !== 'undefined') {
@@ -533,6 +579,9 @@ const BrandConfig = () => {
               // Use uploaded values if fresh response is missing them (race condition protection)
               faviconUrl: freshBranding.faviconUrl || uploadedFaviconUrl,
               logoUrl: freshBranding.logoUrl || uploadedLogoUrl,
+              // Explicitly include xbarTitle and faviconText from current state (they were just saved)
+              xbarTitle: freshBranding.xbarTitle || xbarTitle,
+              faviconText: freshBranding.faviconText || faviconText,
             }
             
             console.log('📦 [BrandConfig] Fresh branding from API:', {
@@ -552,7 +601,11 @@ const BrandConfig = () => {
               'agencyBranding',
               JSON.stringify(finalBranding),
             )
-            console.log('💾 [BrandConfig] Updated localStorage with branding')
+            console.log('💾 [BrandConfig] Updated localStorage with branding:', {
+              xbarTitle: finalBranding.xbarTitle,
+              faviconText: finalBranding.faviconText,
+              primaryColor: finalBranding.primaryColor,
+            })
 
             // Dispatch custom event to notify other components (like LoginComponent)
             window.dispatchEvent(
@@ -560,6 +613,7 @@ const BrandConfig = () => {
                 detail: finalBranding,
               }),
             )
+            console.log('📢 [BrandConfig] Dispatched agencyBrandingUpdated event with xbarTitle:', finalBranding.xbarTitle)
 
             console.log(
               '✅ [BrandConfig] Updated cookie and localStorage with fresh branding data, event dispatched',
@@ -570,6 +624,8 @@ const BrandConfig = () => {
             const fallbackBranding = {
               logoUrl: uploadedLogoUrl,
               faviconUrl: uploadedFaviconUrl,
+              faviconText: faviconText,
+              xbarTitle: xbarTitle,
               primaryColor: primaryColor,
               secondaryColor: secondaryColor,
             }
@@ -589,6 +645,8 @@ const BrandConfig = () => {
           const updatedBranding = {
             logoUrl: uploadedLogoUrl,
             faviconUrl: uploadedFaviconUrl,
+            faviconText: faviconText,
+            xbarTitle: xbarTitle,
             primaryColor: primaryColor,
             secondaryColor: secondaryColor,
           }
@@ -717,16 +775,16 @@ const BrandConfig = () => {
             <div className="inline-flex flex-col justify-start items-start">
               <div className="inline-flex justify-start items-center gap-[3px]">
                 <div className="text-black text-base font-normal leading-normal">
-                  Favicon Text
+                  xbar title
                 </div>
               </div>
             </div>
 
             <input
               type="text"
-              value={faviconText}
-              onChange={(e) => setFaviconText(e.target.value)}
-              placeholder="Enter favicon text"
+              value={xbarTitle}
+              onChange={(e) => setXbarTitle(e.target.value)}
+              placeholder="Enter xbar title"
               className="w-64 px-3 py-2 border border-neutral-900/10 rounded-[10px] outline-none focus:outline-none focus:ring-0 focus:border-brand-primary text-black text-base font-normal"
               style={{
                 fontSize: '15px',

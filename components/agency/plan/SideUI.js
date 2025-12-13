@@ -19,8 +19,9 @@ const SideUI = ({
   originalPrice,
   allowedFeatures,
 }) => {
-  const price = discountedPrice * minutes
-  console.log('discountedPrice is', price)
+  // discountedPrice is now the total price per month (not price per credit)
+  const price = discountedPrice || 0
+  console.log('Total price per month is', price)
   const [isAgency, setIsAgency] = useState(false)
 
   useEffect(() => {

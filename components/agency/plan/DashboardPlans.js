@@ -394,24 +394,40 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
       if (response) {
         console.log('Response of del plans api is', response.data)
-        if (response.data.status === true) {
-          // if (planType === "monthly") {
-          //     // setInitialLoader(true);
-          //     getMonthlyPlan();
-          // } else if (planType === "Xbar") {
-          //     getXBarOptions()
-          // }
-          setSnackMsg(response.data.message)
-          setSnackMsgType(SnackbarTypes.Success)
-          getPlanApiTrigerer()
+        if (response.data?.status === true) {
+          // Close modal and clear selections first
+          setShowDeleteModal(false)
           setSelectedPlan(null)
           setSelectedPlanDetails(null)
           setmoreDropdown(null)
           setAnchorEl(null)
+          
+          // Refresh plans list
+          getPlanApiTrigerer()
+          
+          // Set snackbar message after a small delay to ensure it shows after modal closes
+          setTimeout(() => {
+            const message = response.data?.message || 'Plan deleted successfully'
+            console.log('Setting success snackbar:', message)
+            setSnackMsg(message)
+            setSnackMsgType(SnackbarTypes.Success)
+          }, 100)
+        } else if (response.data?.status === false) {
           setShowDeleteModal(false)
-        } else if (response.data.status === false) {
-          setSnackMsg(response.data.message)
-          setSnackMsgType(SnackbarTypes.Error)
+          setTimeout(() => {
+            const message = response.data?.message || 'Failed to delete plan'
+            console.log('Setting error snackbar:', message)
+            setSnackMsg(message)
+            setSnackMsgType(SnackbarTypes.Error)
+          }, 100)
+        } else {
+          // Handle unexpected response structure
+          setShowDeleteModal(false)
+          setTimeout(() => {
+            console.log('Setting fallback snackbar')
+            setSnackMsg('Plan deleted successfully')
+            setSnackMsgType(SnackbarTypes.Success)
+          }, 100)
         }
       }
     } catch (error) {

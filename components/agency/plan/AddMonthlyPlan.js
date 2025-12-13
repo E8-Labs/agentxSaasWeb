@@ -11,7 +11,6 @@ import AgentSelectSnackMessage, {
 
 import {
   formatDecimalValue,
-  handlePricePerMinInputValue,
 } from '../agencyServices/CheckAgencyData'
 import { formatFractional2 } from './AgencyUtilities'
 import { AuthToken } from './AuthDetails'
@@ -303,9 +302,9 @@ export default function AddMonthlyPlan({
         DiscountedPrice !== undefined &&
         DiscountedPrice !== null
       ) {
+        // basicsData.discountedPrice is now total price per month (not price per credit)
         // Set discountedPrice even if it's 0, so the form is properly initialized
-        // Use 3 decimal places to preserve values like 0.998
-        setDiscountedPrice(formatFractional2(DiscountedPrice, 3))
+        setDiscountedPrice(formatFractional2(DiscountedPrice, 2))
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -335,11 +334,10 @@ export default function AddMonthlyPlan({
         setOriginalPrice('')
       }
 
-      if (selectedPlan?.discountedPrice && selectedPlan?.minutes) {
-        const DiscountedPrice =
-          selectedPlan.discountedPrice / selectedPlan.minutes
-        // Use 3 decimal places to preserve values like 0.998
-        setDiscountedPrice(formatFractional2(DiscountedPrice, 3))
+      if (selectedPlan?.discountedPrice) {
+        // selectedPlan.discountedPrice is the total price per month (stored in DB)
+        // No need to divide by minutes anymore
+        setDiscountedPrice(formatFractional2(selectedPlan.discountedPrice, 2))
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -379,14 +377,15 @@ export default function AddMonthlyPlan({
     }
   }, [minutes, discountedPrice])
 
-  // Check profit margin
+  // Check profit margin - now using price per credit derived from total price
   useEffect(() => {
-    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0 || !minutes || Number(minutes) === 0) {
       setProfitMarginErr(false)
       return
     }
+    const pricePerCredit = Number(discountedPrice) / Number(minutes)
     const margin =
-      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+      ((pricePerCredit - Number(agencyPlanCost)) /
         Number(agencyPlanCost)) *
       100
     if (margin < 10) {
@@ -403,48 +402,27 @@ export default function AddMonthlyPlan({
     }
   }, [discountedPrice, agencyPlanCost, minutes, snackBannerMsg])
 
-  // Check profit margin
-  useEffect(() => {
-    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
-      setProfitMarginErr(false);
-      return;
-    }
-    const margin =
-      ((Number(discountedPrice) - Number(agencyPlanCost)) /
-        Number(agencyPlanCost)) *
-      100;
-    if (margin < 10) {
-      setProfitMarginErr(true);
-      setSnackBannerMsg(
-        `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
-      );
-      setSnackBannerMsgType(SnackbarTypes.Error);
-    } else {
-      setProfitMarginErr(false);
-      if (snackBannerMsg && snackBannerMsg.includes('Profit margin')) {
-        setSnackBannerMsg(null);
-      }
-    }
-  }, [discountedPrice, agencyPlanCost, minutes, snackBannerMsg]);
+  // Check profit margin - now using price per credit derived from total price (duplicate removed)
 
   //check percentage calculation
   const checkCalulations = () => {
     if (originalPrice > 0) {
       console.log('OP ===', originalPrice) //updated
-      console.log('DP ===', discountedPrice * minutes)
+      console.log('DP ===', discountedPrice) // discountedPrice is now total price per month
       const percentage =
-        ((originalPrice - discountedPrice * minutes) / originalPrice) * 100 //replace the op * min done
+        ((originalPrice - Number(discountedPrice)) / originalPrice) * 100
       console.log('Percenage of addmonthly plan is', percentage)
     }
   }
 
-  // Calculate profit margin percentage
+  // Calculate profit margin percentage - now using price per credit derived from total price
   const calculateProfitMargin = () => {
-    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0) {
+    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0 || !minutes || Number(minutes) === 0) {
       return null
     }
+    const pricePerCredit = Number(discountedPrice) / Number(minutes)
     const margin =
-      ((Number(discountedPrice) - Number(agencyPlanCost)) /
+      ((pricePerCredit - Number(agencyPlanCost)) /
         Number(agencyPlanCost)) *
       100
     return margin
@@ -496,10 +474,14 @@ export default function AddMonthlyPlan({
     })
   }
 
-  //profit text color
+  //profit text color - now using price per credit derived from total price
   const getClr = () => {
+    if (!discountedPrice || !minutes || Number(minutes) === 0 || !agencyPlanCost) {
+      return '#000000'
+    }
+    const pricePerCredit = Number(discountedPrice) / Number(minutes)
     const percentage =
-      ((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100
+      ((pricePerCredit - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100
 
     if (percentage >= 0 && percentage <= 50) {
       return '#FF4E4E'
@@ -846,13 +828,12 @@ export default function AddMonthlyPlan({
 
               <div className="w-full flex flex-row items-center gap-2">
                 <div className="w-6/12">
-                  {/* Price */}
+                  {/* Price - Now Total Price Per Month */}
                   <label style={styles.labels}>
-                    {agencyPlanCost &&
-                      `Price per credit $${agencyPlanCost.toFixed(2)}`}
+                    Total price per month
                   </label>
                   <div
-                    className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                    className={`border ${minCostErr || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
                   >
                     <div className="" style={styles.inputs}>
                       $
@@ -866,18 +847,16 @@ export default function AddMonthlyPlan({
                       placeholder="0.00"
                       value={discountedPrice}
                       onChange={(e) => {
-                        // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
                         const value = e.target.value
-                        if (value && value < agencyPlanCost) {
+                        const minTotalPrice = agencyPlanCost && minutes ? Number(agencyPlanCost) * Number(minutes) : 0
+                        if (value && minTotalPrice > 0 && Number(value) < minTotalPrice) {
                           setSnackBannerMsg(
-                            `Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`,
+                            `Total price per month cannot be less than $${minTotalPrice.toFixed(2)} (${agencyPlanCost.toFixed(2)}/credit × ${minutes} credits)`,
                           )
                           setSnackBannerMsgType(SnackbarTypes.Warning)
                         } else {
                           setSnackBannerMsg(null)
                         }
-                        // setDiscountedPrice(UpdatedValue);
-                        // const value = e.target.value;
                         // Allow only digits and one optional period
                         const sanitized = value.replace(/[^0-9.]/g, '')
 
@@ -887,17 +866,18 @@ export default function AddMonthlyPlan({
                             ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                             : sanitized
                         
-                        // Cap decimal places to maximum 3
+                        // Cap decimal places to maximum 2 (for total price)
                         if (valid.includes('.')) {
                           const parts = valid.split('.')
-                          if (parts[1] && parts[1].length > 3) {
-                            // Truncate to 3 decimal places
-                            valid = `${parts[0]}.${parts[1].substring(0, 3)}`
+                          if (parts[1] && parts[1].length > 2) {
+                            // Truncate to 2 decimal places
+                            valid = `${parts[0]}.${parts[1].substring(0, 2)}`
                           }
                         }
                         
-                        const UpdatedValue = handlePricePerMinInputValue(valid)
-                        setDiscountedPrice(UpdatedValue)
+                        // Don't use handlePricePerMinInputValue for total price - it converts whole numbers to decimals
+                        // Total price per month can be whole numbers like 45, 100, etc.
+                        setDiscountedPrice(valid)
                       }}
                     />
                   </div>
@@ -960,14 +940,14 @@ export default function AddMonthlyPlan({
                     <div>Your Credit</div>
                     <div>
                       $
-                      {discountedPrice
-                        ? formatFractional2(discountedPrice, 3)
+                      {discountedPrice && minutes && Number(minutes) > 0
+                        ? formatFractional2(Number(discountedPrice) / Number(minutes), 3)
                         : '0.00'}
                       /Credit
                     </div>
-                    {discountedPrice && minutes && (
+                    {discountedPrice && (
                       <div>
-                        ${formatFractional2(discountedPrice * minutes)}
+                        ${formatFractional2(discountedPrice)}
                       </div>
                     )}
                   </div>
@@ -1003,16 +983,16 @@ export default function AddMonthlyPlan({
                           <div>
                             $
                             {formatFractional2(
-                              Number(discountedPrice) - Number(agencyPlanCost),
+                              (Number(discountedPrice) / Number(minutes)) - Number(agencyPlanCost),
+                              3
                             )}
                             /Credit
                           </div>
                           <div>
                             $
                             {formatFractional2(
-                              (Number(discountedPrice) -
-                                Number(agencyPlanCost)) *
-                                Number(minutes),
+                              Number(discountedPrice) -
+                                (Number(agencyPlanCost) * Number(minutes)),
                             )}
                           </div>
                         </div>
@@ -1021,7 +1001,7 @@ export default function AddMonthlyPlan({
                           style={{ color: getClr() }}
                         >
                           {formatFractional2(
-                            ((Number(discountedPrice) -
+                            (((Number(discountedPrice) / Number(minutes)) -
                               Number(agencyPlanCost)) /
                               Number(agencyPlanCost)) *
                               100,

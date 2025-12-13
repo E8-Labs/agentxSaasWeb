@@ -8,14 +8,63 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 export default function XBarConfirmationModal({
   plan,
   open,
   onClose,
   onConfirm,
+  xbarTitle: propXbarTitle, // Optional prop
 }) {
+  const [xbarTitle, setXbarTitle] = useState(propXbarTitle || 'X Bar Services')
+
+  // Get Xbar title from branding if not provided as prop
+  useEffect(() => {
+    if (propXbarTitle) {
+      setXbarTitle(propXbarTitle)
+      return
+    }
+    
+    const getXbarTitle = () => {
+      try {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          const branding = JSON.parse(storedBranding)
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+        // Fallback: check user data
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+      } catch (error) {
+        console.log('Error getting xbar title from branding:', error)
+      }
+      // Default title
+      setXbarTitle('X Bar Services')
+    }
+    
+    getXbarTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = () => {
+      getXbarTitle()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [propXbarTitle])
   return (
     <Dialog
       open={open}
@@ -44,7 +93,7 @@ export default function XBarConfirmationModal({
 
       {/* Modal Title */}
       <DialogTitle sx={{ fontWeight: 'bold', fontSize: '18px', mt: 1 }}>
-        X Bar Services
+        {xbarTitle}
       </DialogTitle>
 
       {/* Modal Content */}

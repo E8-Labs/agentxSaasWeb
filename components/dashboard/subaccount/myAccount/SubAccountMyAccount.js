@@ -37,6 +37,49 @@ function SubAccountMyAccount() {
   const [tabSelected, setTabSelected] = useState(2) // Default to ID 2 (Plans & Payment)
   const [initialLoader, setInitialLoader] = useState(true)
   const [navBar, setNavBar] = useState([])
+  const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
+
+  // Get Xbar title from branding
+  useEffect(() => {
+    const getXbarTitle = () => {
+      try {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          const branding = JSON.parse(storedBranding)
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+        // Fallback: check user data
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+      } catch (error) {
+        console.log('Error getting xbar title from branding:', error)
+      }
+      // Default title
+      setXbarTitle('Bar Services')
+    }
+    
+    getXbarTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = () => {
+      getXbarTitle()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
 
   const manuBar = [
     {
@@ -59,7 +102,7 @@ function SubAccountMyAccount() {
     },
     {
       id: 4,
-      heading: 'Bar Services',
+      heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
       icon: '/assets/X.svg',
     },
@@ -134,7 +177,7 @@ function SubAccountMyAccount() {
     },
     {
       id: 4,
-      heading: 'Bar Services',
+      heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
       icon: '/assets/X.svg',
     },
@@ -198,13 +241,21 @@ function SubAccountMyAccount() {
       console.log(
         `user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`,
       )
+      // Update menu arrays with current xbar title
+      const updatedManuBar = manuBar.map(item => 
+        item.id === 4 ? { ...item, heading: xbarTitle } : item
+      )
+      const updatedManuBar2 = manuBar2.map(item => 
+        item.id === 4 ? { ...item, heading: xbarTitle } : item
+      )
+      
       if (
         D.userRole === UserRole.AgencySubAccount &&
         D.allowSubaccountTwilio === false
       ) {
-        setNavBar(manuBar2)
+        setNavBar(updatedManuBar2)
       } else {
-        setNavBar(manuBar)
+        setNavBar(updatedManuBar)
       }
       setInitialLoader(false)
     } else {
@@ -212,7 +263,7 @@ function SubAccountMyAccount() {
       console.log('couldNotFetch local data')
     }
     // console.log("Test check fail")
-  }, [])
+  }, [xbarTitle])
 
   useEffect(() => {
     const tab = searchParams.get('tab') // Get the value of 'tab'

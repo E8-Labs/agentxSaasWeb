@@ -152,9 +152,8 @@ const ConfigureSideUI = ({
                 >
                   $
                   {formatFractional2(
-                    from === 'addPlan'
-                      ? basicsData?.discountedPrice * basicsData?.minutes
-                      : basicsData?.discountedPrice || 0,
+                    // basicsData.discountedPrice is now the total price per month (not price per credit)
+                    basicsData?.discountedPrice || 0,
                   )}
                 </span>
               </div>

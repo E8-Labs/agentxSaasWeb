@@ -78,6 +78,9 @@ function AdminXbarServices({ selectedUser }) {
 
   const [role, setRole] = useState('')
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
+  const [xbarTitle, setXbarTitle] = useState('X Bar Services') // Default title
+  const xbarDescription = "We'll help you launch the right way, integrating your systems and optimizing everything for success from day one. Get faster results, close more deals, and do it all at a price that fits your budget."
+  
   useEffect(() => {
     let screenWidth = 1000
     if (typeof window !== 'undefined') {
@@ -95,6 +98,46 @@ function AdminXbarServices({ selectedUser }) {
   useEffect(() => {
     getProfile()
     getCardsList()
+    
+    // Get Xbar title from branding
+    const getXbarTitle = () => {
+      try {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          const branding = JSON.parse(storedBranding)
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+        // Fallback: check user data
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+      } catch (error) {
+        console.log('Error getting xbar title from branding:', error)
+      }
+      // Default title
+      setXbarTitle('X Bar Services')
+    }
+    
+    getXbarTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = () => {
+      getXbarTitle()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
   }, [])
 
   useEffect(() => {
@@ -411,7 +454,7 @@ function AdminXbarServices({ selectedUser }) {
               textOverflow: 'ellipsis',
             }}
           >
-            X Bar Services
+            {xbarTitle}
           </div>
           <div
             className=" "
@@ -448,7 +491,7 @@ function AdminXbarServices({ selectedUser }) {
                 marginBottom: '10px',
               }}
             >
-              X Bar Services
+              {xbarTitle}
             </div>
             <p
               style={{
@@ -458,12 +501,7 @@ function AdminXbarServices({ selectedUser }) {
                 width: '90%',
               }}
             >
-              {` This is like the Apple Genius Bar but better. Get up and running
-              the right way. We'll work alongside to set up your entire AI sales
-              system. This can include integrating your systems, ensuring
-              everything is optimized for success from the start. See results
-              faster and start closing more deals with confidence—all at
-              affordable rates to meet you where you are.`}
+              {xbarDescription}
             </p>
             <div className="flex flex-row justify-between">
               <div></div>
@@ -684,6 +722,7 @@ function AdminXbarServices({ selectedUser }) {
       <XBarConfirmationModal
         plan={getPlanFromId()}
         open={showConfirmationModal}
+        xbarTitle={xbarTitle}
         onClose={() => {
           setShowConfirmationModal(false)
         }}

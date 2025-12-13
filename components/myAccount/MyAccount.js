@@ -31,7 +31,51 @@ function MyAccount() {
   const router = useRouter()
 
   const [tabSelected, setTabSelected] = useState(6)
+  const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
 
+  // Get Xbar title from branding
+  useEffect(() => {
+    const getXbarTitle = () => {
+      try {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          const branding = JSON.parse(storedBranding)
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+        // Fallback: check user data
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+          if (branding?.xbarTitle) {
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+      } catch (error) {
+        console.log('Error getting xbar title from branding:', error)
+      }
+      // Default title
+      setXbarTitle('Bar Services')
+    }
+    
+    getXbarTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = () => {
+      getXbarTitle()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
+
+  // Create menu bar dynamically with current xbar title
   const manuBar = [
     {
       id: 1,
@@ -53,7 +97,7 @@ function MyAccount() {
     },
     {
       id: 4,
-      heading: 'Bar Services',
+      heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
       icon: '/assets/X.svg',
     },
@@ -107,7 +151,7 @@ function MyAccount() {
     },
   ]
 
-  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
+  const [selectedManu, setSelectedManu] = useState(null)
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
   const [userLocalData, setUserLocalData] = useState(null)
   //select the invite teams by default
@@ -121,12 +165,14 @@ function MyAccount() {
     const exists = manuBar.find((item) => item.id === number)
     if (exists) {
       setTabSelected(number)
+      setSelectedManu(exists)
     } else {
       setTabSelected(6) // Default to Invite Agents
       setParamsInSearchBar(6)
+      setSelectedManu(manuBar.find(item => item.id === 6))
       // console.log("Setting the tab value");
     }
-  }, [])
+  }, [xbarTitle])
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify

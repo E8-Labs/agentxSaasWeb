@@ -641,14 +641,20 @@ const AgencyNavBar = () => {
   return (
     <div>
       <AgentSelectSnackMessage
-        isVisible={true}
-        hide={() => setShowSuccessSnack(false)}
+        isVisible={showsuccessSnack}
+        hide={() => {
+          setShowSuccessSnack(false)
+          setSuccessSnack(null)
+        }}
         message={successSnack}
         type={SnackbarTypes.Success}
       />
       <AgentSelectSnackMessage
         isVisible={showerrorSnack}
-        hide={() => setShowErrorSnack(false)}
+        hide={() => {
+          setShowErrorSnack(false)
+          setErrorSnack(null)
+        }}
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
@@ -961,9 +967,11 @@ const AgencyNavBar = () => {
                     if (result) {
                       setShowAddPaymentPopup(false)
                       setSuccessSnack('Payment method updated')
+                      setShowSuccessSnack(true)
                     } else {
                       setShowAddPaymentPopup(false)
-                      setShowErrorSnack('Failed to update payment method')
+                      setErrorSnack('Failed to update payment method')
+                      setShowErrorSnack(true)
                     }
                   }}
                   // togglePlan={""}

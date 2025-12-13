@@ -85,6 +85,8 @@ function SubAccountBarServices({ selectedUser }) {
   //subaccount detection
   const [isSubaccount, setIsSubaccount] = useState(true) // This is already a subaccount component
   const [textColor, setTextColor] = useState('#fff') // Default to white text
+  const [xbarTitle, setXbarTitle] = useState('X Bar Services') // Default title
+  const xbarDescription = "We'll help you launch the right way, integrating your systems and optimizing everything for success from day one. Get faster results, close more deals, and do it all at a price that fits your budget."
 
   //variables for hireTeamUrl
   const [hireTeamUrl, setHireTeamUrl] = useState(null)
@@ -113,6 +115,50 @@ function SubAccountBarServices({ selectedUser }) {
     getCardsList()
     getUserSettings()
     
+    // Get Xbar title from branding
+    const getXbarTitle = () => {
+      try {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          const branding = JSON.parse(storedBranding)
+          console.log('📦 [SubAccountBarServices] Found branding in localStorage:', {
+            xbarTitle: branding?.xbarTitle,
+            hasXbarTitle: !!branding?.xbarTitle,
+          })
+          if (branding?.xbarTitle) {
+            console.log('✅ [SubAccountBarServices] Setting xbarTitle to:', branding.xbarTitle)
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+        // Fallback: check user data
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+          if (branding?.xbarTitle) {
+            console.log('✅ [SubAccountBarServices] Setting xbarTitle from user data:', branding.xbarTitle)
+            setXbarTitle(branding.xbarTitle)
+            return
+          }
+        }
+      } catch (error) {
+        console.log('❌ [SubAccountBarServices] Error getting xbar title from branding:', error)
+      }
+      // Default title
+      console.log('⚠️ [SubAccountBarServices] Using default xbarTitle: X Bar Services')
+      setXbarTitle('X Bar Services')
+    }
+    
+    getXbarTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      console.log('📢 [SubAccountBarServices] Received agencyBrandingUpdated event:', event?.detail?.xbarTitle)
+      getXbarTitle()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
     // Calculate text color based on background
     if (typeof window !== 'undefined') {
       const brandPrimary = getComputedStyle(document.documentElement)
@@ -121,6 +167,10 @@ function SubAccountBarServices({ selectedUser }) {
       const opacity = 0.4
       const isLight = isLightColor(brandPrimary, opacity)
       setTextColor(isLight ? '#000' : '#fff')
+    }
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
   }, [])
 
@@ -437,7 +487,7 @@ function SubAccountBarServices({ selectedUser }) {
               textOverflow: 'ellipsis',
             }}
           >
-            X Bar Services
+            {xbarTitle}
           </div>
           <div
             className=" "
@@ -475,7 +525,7 @@ function SubAccountBarServices({ selectedUser }) {
                 marginBottom: '10px',
               }}
             >
-              X Bar Services
+              {xbarTitle}
             </div>
             <p
               style={{
@@ -485,12 +535,7 @@ function SubAccountBarServices({ selectedUser }) {
                 width: '90%',
               }}
             >
-              {`This is like the Apple Genius Bar but better. Get up and running
-              the right way. We'll work alongside to set up your entire AI sales
-              system. This can include integrating your systems, ensuring
-              everything is optimized for success from the start. See results
-              faster and start closing more deals with confidence—all at
-              affordable rates to meet you where you are.`}
+              {xbarDescription}
             </p>
             <div className="flex flex-row justify-between">
               <div></div>
@@ -698,6 +743,7 @@ function SubAccountBarServices({ selectedUser }) {
       <XBarConfirmationModal
         plan={getPlanFromId()}
         open={showConfirmationModal}
+        xbarTitle={xbarTitle}
         onClose={() => {
           setShowConfirmationModal(false)
         }}

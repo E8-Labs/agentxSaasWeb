@@ -56,10 +56,8 @@ export default function AddMonthlyPlanAnimation({
         planDuration:
           selectedPlan?.duration || selectedPlan?.billingCycle || 'monthly',
         originalPrice: selectedPlan?.originalPrice || 0,
-        discountedPrice:
-          selectedPlan?.discountedPrice && selectedPlan?.minutes
-            ? selectedPlan.discountedPrice / selectedPlan.minutes
-            : 0,
+        // selectedPlan.discountedPrice is now the total price per month (not price per credit)
+        discountedPrice: selectedPlan?.discountedPrice || 0,
         minutes: selectedPlan?.minutes || 0,
         isDefault: selectedPlan?.isDefault || false,
       }
