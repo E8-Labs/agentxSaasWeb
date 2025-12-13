@@ -35,6 +35,7 @@ import {
   getUserLocalData,
   getUserPlans,
 } from './UserPlanServices'
+import { cn } from '@/lib/utils'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -2246,35 +2247,14 @@ function UpgradePlanContent({
                           <CircularProgress size={25} />
                         </div>
                       ) : (
-                        <div 
-                        className={`flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white ${isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                        <button 
+                        className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
                         onClick={() => {
                           if (isUpgradeButtonEnabled()) {
                             handleSubscribePlan()
                           }
                         }}
-                        >{getButtonText()}</div>
-                        // <button
-                        //   className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold
-                        //                               ${isUpgradeButtonEnabled()
-                        //       ? 'hover:opacity-90'
-                        //       : 'cursor-not-allowed opacity-60'
-                        //     }`}
-                        //   style={{
-                        //     backgroundColor: isUpgradeButtonEnabled()
-                        //       ? (brandPrimaryColor || 'hsl(270, 75%, 50%)')
-                        //       : '#9CA3AF',
-                        //     color: '#FFFFFF',
-                        //   }}
-                        //   disabled={!isUpgradeButtonEnabled()}
-                          // onClick={() => {
-                          //   if (isUpgradeButtonEnabled()) {
-                          //     handleSubscribePlan()
-                          //   }
-                          // }}
-                        // >
-                        //   {getButtonText()}
-                        // </button>
+                        >{getButtonText()}</button>
                       )}
                     </div>
                   </div>

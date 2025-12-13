@@ -51,7 +51,7 @@ export const applyBrandingFromResponse = (responseData) => {
           console.error('Error applying branding CSS variables:', error)
         }
         
-        // Also dispatch event for ThemeProvider to handle any additional logic
+        // Dispatch event for any components listening for branding updates
         window.dispatchEvent(
           new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding })
         )
@@ -137,7 +137,7 @@ export const fetchAndApplyBranding = async () => {
           }
         }
         
-        // Dispatch event to trigger ThemeProvider update
+        // Dispatch event for any components listening for branding updates
         if (typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('agencyBrandingUpdated', { detail: branding })
