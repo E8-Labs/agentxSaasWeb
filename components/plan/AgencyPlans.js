@@ -1074,8 +1074,10 @@ function AgencyPlans({
 
                         {/* Pricing */}
                         <div className="flex flex-row items-center gap-2">
-                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-brand-primary to-brand-primary/40 bg-clip-text text-transparent">
+                          <span className="text-4xl mt-4 font-semibold text-brand-primary  bg-clip-text ">
+                            ${formatDecimalValue(getMonthlyPrice(item))}
                           </span>
+                          
                         </div>
 
                         <div
