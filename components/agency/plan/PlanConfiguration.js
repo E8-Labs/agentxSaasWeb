@@ -825,7 +825,7 @@ export default function PlanConfiguration({
   const handleBackClick = () => {
     setConfigurationData({
       maxAgents: noOfAgents,
-      maxLeads: noOfAgents,
+      maxLeads: noOfContacts, // Store noOfContacts, not noOfAgents
       costPerAdditionalAgent: costPerAdditionalAgent,
       costPerAdditionalSeat: costPerAdditionalSeat,
       language: language,

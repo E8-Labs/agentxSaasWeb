@@ -1,9 +1,12 @@
 'use client'
 
 import { Button, CircularProgress, Drawer } from '@mui/material'
+import axios from 'axios'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
+
+import Apis from '@/components/apis/Apis'
 
 import BarServices from '@/components/myAccount/BarServices'
 import BasicInfo from '@/components/myAccount/BasicInfo'
@@ -41,38 +44,101 @@ function SubAccountMyAccount() {
 
   // Get Xbar title from branding
   useEffect(() => {
-    const getXbarTitle = () => {
+    // Fetch branding from API and update xbar title
+    const fetchBrandingAndUpdateTitle = async () => {
       try {
-        const storedBranding = localStorage.getItem('agencyBranding')
-        if (storedBranding) {
-          const branding = JSON.parse(storedBranding)
-          if (branding?.xbarTitle) {
-            setXbarTitle(branding.xbarTitle)
-            return
-          }
+        const localData = localStorage.getItem('User')
+        let authToken = null
+
+        if (localData) {
+          const userData = JSON.parse(localData)
+          authToken = userData.token
         }
-        // Fallback: check user data
-        const userData = localStorage.getItem('User')
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
-          if (branding?.xbarTitle) {
-            setXbarTitle(branding.xbarTitle)
-            return
+
+        if (authToken) {
+          try {
+            const response = await axios.get(Apis.getAgencyBranding, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response?.data?.status === true && response?.data?.data?.branding) {
+              const branding = response.data.data.branding
+              
+              // Update localStorage with fresh branding data
+              localStorage.setItem('agencyBranding', JSON.stringify(branding))
+              
+              // Update xbar title if available
+              if (branding?.xbarTitle) {
+                console.log('✅ [SubAccountMyAccount] Fetched xbarTitle from API:', branding.xbarTitle)
+                setXbarTitle(branding.xbarTitle)
+                return
+              }
+            }
+          } catch (error) {
+            console.log('⚠️ [SubAccountMyAccount] Error fetching branding from API:', error)
+            // Fall through to localStorage check
           }
         }
       } catch (error) {
-        console.log('Error getting xbar title from branding:', error)
+        console.log('❌ [SubAccountMyAccount] Error in fetchBrandingAndUpdateTitle:', error)
       }
-      // Default title
-      setXbarTitle('Bar Services')
+      
+      // Fallback: Get Xbar title from localStorage
+      const getXbarTitle = () => {
+        try {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            const branding = JSON.parse(storedBranding)
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+          // Fallback: check user data
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+        } catch (error) {
+          console.log('Error getting xbar title from branding:', error)
+        }
+        // Default title
+        setXbarTitle('Bar Services')
+      }
+      
+      getXbarTitle()
     }
     
-    getXbarTitle()
+    // Fetch branding on mount
+    fetchBrandingAndUpdateTitle()
     
     // Listen for branding updates
-    const handleBrandingUpdate = () => {
-      getXbarTitle()
+    const handleBrandingUpdate = (event) => {
+      if (event?.detail?.xbarTitle) {
+        setXbarTitle(event.detail.xbarTitle)
+        // Also update localStorage
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            const branding = JSON.parse(storedBranding)
+            const updatedBranding = { ...branding, xbarTitle: event.detail.xbarTitle }
+            localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
+          } catch (error) {
+            console.error('Error updating localStorage from event:', error)
+          }
+        }
+      } else {
+        // Fallback: re-fetch from localStorage
+        fetchBrandingAndUpdateTitle()
+      }
     }
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     
@@ -104,7 +170,7 @@ function SubAccountMyAccount() {
       id: 4,
       heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
-      icon: '/assets/X.svg',
+      icon: '/svgIcons/agentXIcon.svg',
     },
     {
       id: 5,
@@ -179,7 +245,7 @@ function SubAccountMyAccount() {
       id: 4,
       heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
-      icon: '/assets/X.svg',
+      icon: '/svgIcons/agentXIcon.svg',
     },
     {
       id: 5,
@@ -241,13 +307,10 @@ function SubAccountMyAccount() {
       console.log(
         `user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`,
       )
-      // Update menu arrays with current xbar title
-      const updatedManuBar = manuBar.map(item => 
-        item.id === 4 ? { ...item, heading: xbarTitle } : item
-      )
-      const updatedManuBar2 = manuBar2.map(item => 
-        item.id === 4 ? { ...item, heading: xbarTitle } : item
-      )
+      // manuBar and manuBar2 already have the current xbarTitle since they're recreated on each render
+      // Just use them directly - no need to map since xbarTitle is already in the arrays
+      const updatedManuBar = manuBar
+      const updatedManuBar2 = manuBar2
       
       if (
         D.userRole === UserRole.AgencySubAccount &&

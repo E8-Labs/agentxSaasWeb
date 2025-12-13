@@ -115,47 +115,110 @@ function SubAccountBarServices({ selectedUser }) {
     getCardsList()
     getUserSettings()
     
-    // Get Xbar title from branding
-    const getXbarTitle = () => {
+    // Fetch branding from API and update xbar title
+    const fetchBrandingAndUpdateTitle = async () => {
       try {
-        const storedBranding = localStorage.getItem('agencyBranding')
-        if (storedBranding) {
-          const branding = JSON.parse(storedBranding)
-          console.log('📦 [SubAccountBarServices] Found branding in localStorage:', {
-            xbarTitle: branding?.xbarTitle,
-            hasXbarTitle: !!branding?.xbarTitle,
-          })
-          if (branding?.xbarTitle) {
-            console.log('✅ [SubAccountBarServices] Setting xbarTitle to:', branding.xbarTitle)
-            setXbarTitle(branding.xbarTitle)
-            return
-          }
+        const localData = localStorage.getItem('User')
+        let authToken = null
+
+        if (localData) {
+          const userData = JSON.parse(localData)
+          authToken = userData.token
         }
-        // Fallback: check user data
-        const userData = localStorage.getItem('User')
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
-          if (branding?.xbarTitle) {
-            console.log('✅ [SubAccountBarServices] Setting xbarTitle from user data:', branding.xbarTitle)
-            setXbarTitle(branding.xbarTitle)
-            return
+
+        if (authToken) {
+          try {
+            const response = await axios.get(Apis.getAgencyBranding, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response?.data?.status === true && response?.data?.data?.branding) {
+              const branding = response.data.data.branding
+              
+              // Update localStorage with fresh branding data
+              localStorage.setItem('agencyBranding', JSON.stringify(branding))
+              
+              // Update xbar title if available
+              if (branding?.xbarTitle) {
+                console.log('✅ [SubAccountBarServices] Fetched xbarTitle from API:', branding.xbarTitle)
+                setXbarTitle(branding.xbarTitle)
+                return
+              }
+            }
+          } catch (error) {
+            console.log('⚠️ [SubAccountBarServices] Error fetching branding from API:', error)
+            // Fall through to localStorage check
           }
         }
       } catch (error) {
-        console.log('❌ [SubAccountBarServices] Error getting xbar title from branding:', error)
+        console.log('❌ [SubAccountBarServices] Error in fetchBrandingAndUpdateTitle:', error)
       }
-      // Default title
-      console.log('⚠️ [SubAccountBarServices] Using default xbarTitle: X Bar Services')
-      setXbarTitle('X Bar Services')
+      
+      // Fallback: Get Xbar title from localStorage
+      const getXbarTitle = () => {
+        try {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            const branding = JSON.parse(storedBranding)
+            console.log('📦 [SubAccountBarServices] Found branding in localStorage:', {
+              xbarTitle: branding?.xbarTitle,
+              hasXbarTitle: !!branding?.xbarTitle,
+            })
+            if (branding?.xbarTitle) {
+              console.log('✅ [SubAccountBarServices] Setting xbarTitle to:', branding.xbarTitle)
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+          // Fallback: check user data
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+            if (branding?.xbarTitle) {
+              console.log('✅ [SubAccountBarServices] Setting xbarTitle from user data:', branding.xbarTitle)
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+        } catch (error) {
+          console.log('❌ [SubAccountBarServices] Error getting xbar title from branding:', error)
+        }
+        // Default title
+        console.log('⚠️ [SubAccountBarServices] Using default xbarTitle: X Bar Services')
+        setXbarTitle('X Bar Services')
+      }
+      
+      getXbarTitle()
     }
     
-    getXbarTitle()
+    // Fetch branding on mount
+    fetchBrandingAndUpdateTitle()
     
     // Listen for branding updates
     const handleBrandingUpdate = (event) => {
       console.log('📢 [SubAccountBarServices] Received agencyBrandingUpdated event:', event?.detail?.xbarTitle)
-      getXbarTitle()
+      if (event?.detail?.xbarTitle) {
+        console.log('✅ [SubAccountBarServices] Setting xbarTitle from event:', event.detail.xbarTitle)
+        setXbarTitle(event.detail.xbarTitle)
+        // Also update localStorage
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            const branding = JSON.parse(storedBranding)
+            const updatedBranding = { ...branding, xbarTitle: event.detail.xbarTitle }
+            localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
+          } catch (error) {
+            console.error('Error updating localStorage from event:', error)
+          }
+        }
+      } else {
+        // Fallback: re-fetch from localStorage
+        fetchBrandingAndUpdateTitle()
+      }
     }
     window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     

@@ -957,19 +957,25 @@ export default function AddMonthlyPlan({
                   >
                     <div>Your Cost</div>
                     <div>
-                      {agencyPlanCost
+                      {agencyPlanCost && Number(agencyPlanCost) > 0
                         ? `$${formatFractional2(agencyPlanCost)}`
                         : '$0.00'}
                       /Credit
                     </div>
-                    {discountedPrice && minutes && agencyPlanCost ? (
+                    {discountedPrice && minutes && agencyPlanCost && Number(agencyPlanCost) > 0 ? (
                       <div>
                         $
                         {formatFractional2(
                           Number(agencyPlanCost) * Number(minutes),
                         )}
                       </div>
-                    ) : null}
+                    ) : (
+                      agencyPlanCost !== undefined && agencyPlanCost !== null && Number(agencyPlanCost) === 0 ? (
+                        <div style={{ color: '#999', fontSize: '12px' }}>
+                          Not set
+                        </div>
+                      ) : null
+                    )}
                   </div>
                   {discountedPrice &&
                     minutes &&
