@@ -26,14 +26,14 @@ const ThemeProvider = ({ children }) => {
     if (typeof window === 'undefined') return
 
     // Shared favicon update function - React-friendly approach that updates href instead of removing nodes
-    const updateFavicon = (faviconUrl) => {
+    // This function updates favicon links synchronously to prevent flash
+    const updateFavicon = (faviconUrl, immediate = false) => {
       if (!faviconUrl || faviconUrl.trim() === '') {
         console.log('ℹ️ [ThemeProvider] No favicon in branding, using default')
         return
       }
 
-      // Use setTimeout to avoid conflicts with React's DOM management
-      setTimeout(() => {
+      const updateFaviconLinks = () => {
         try {
           if (!document.head) {
             console.warn('🗑️ [ThemeProvider] document.head not available')
@@ -58,14 +58,28 @@ const ThemeProvider = ({ children }) => {
           const cacheBustedUrl = `${faviconUrl}${separator}t=${Date.now()}&r=${Math.random().toString(36).substring(7)}`
 
           // Update existing favicon links instead of removing them (avoids removeChild errors)
+          // This function finds and updates any existing favicon link, or creates a new one
           const updateOrCreateLink = (rel, type = null) => {
+            // Try to find existing link - check both exact rel and variations
             let link = document.querySelector(`link[rel="${rel}"]`)
+            
+            // Also check for links with rel="icon" that might be the default Next.js favicon
+            if (!link && rel === 'icon') {
+              // Check for any icon link (Next.js might use different rel values)
+              link = document.querySelector('link[rel*="icon"]') || 
+                     document.querySelector('link[rel="shortcut icon"]')
+            }
             
             if (link) {
               // Update existing link - this is safe and doesn't cause removeChild errors
+              // We update the href directly, which prevents the flash
               link.href = cacheBustedUrl
               if (type) {
                 link.type = type
+              }
+              // Ensure rel is correct
+              if (link.rel !== rel) {
+                link.rel = rel
               }
               console.log(`✅ [ThemeProvider] Updated existing ${rel} link:`, cacheBustedUrl)
             } else {
@@ -104,7 +118,15 @@ const ThemeProvider = ({ children }) => {
         } catch (error) {
           console.error('❌ [ThemeProvider] Error updating favicon:', error)
         }
-      }, 100) // Small delay to avoid React DOM conflicts
+      }
+
+      // For immediate updates (initial load), run synchronously to prevent flash
+      // For subsequent updates, use setTimeout to avoid React DOM conflicts
+      if (immediate) {
+        updateFaviconLinks()
+      } else {
+        setTimeout(updateFaviconLinks, 100)
+      }
     }
 
     const applyTheme = async (forceRefresh = false) => {
@@ -402,11 +424,11 @@ const ThemeProvider = ({ children }) => {
                     primaryColor: freshBranding.primaryColor,
                   })
                   
-                  // Update favicon
+                  // Update favicon immediately to prevent flash
                   const faviconUrl = freshBranding.faviconUrl
                   if (faviconUrl) {
                     console.log('🔄 [ThemeProvider] Updating favicon:', faviconUrl)
-                    updateFavicon(faviconUrl)
+                    updateFavicon(faviconUrl, true) // Immediate update to prevent flash
                   }
                   
                   // Apply primary color
@@ -526,7 +548,8 @@ const ThemeProvider = ({ children }) => {
         // Always update favicon (pass null/undefined if not available)
         const faviconUrl = branding.faviconUrl
         console.log('🔍 [ThemeProvider] Branding faviconUrl:', faviconUrl)
-        updateFavicon(faviconUrl || null)
+        // Use delayed update for async branding fetch (React is already mounted)
+        updateFavicon(faviconUrl || null, false)
 
         // Convert and apply primary color
         if (branding.primaryColor) {
@@ -597,9 +620,17 @@ const ThemeProvider = ({ children }) => {
 
     // Check for custom favicon immediately on mount to prevent flash
     // This runs synchronously before any async operations
+    // We need to set the favicon as early as possible to prevent the default favicon from showing
     if (typeof document !== 'undefined') {
       const setFaviconImmediately = () => {
         try {
+          // Check if document.head is ready
+          if (!document.head) {
+            // If head isn't ready yet, wait a tiny bit and try again
+            setTimeout(setFaviconImmediately, 0)
+            return
+          }
+
           // Check localStorage first (fastest)
           const storedBranding = localStorage.getItem('agencyBranding')
           let faviconUrl = null
@@ -613,17 +644,19 @@ const ThemeProvider = ({ children }) => {
             }
           }
           
-          // If we have a custom favicon, set it immediately
+          // If we have a custom favicon, set it immediately (synchronously to prevent flash)
           if (faviconUrl && faviconUrl.trim() !== '') {
             console.log('⚡ [ThemeProvider] Setting custom favicon immediately on mount:', faviconUrl)
-            updateFavicon(faviconUrl)
+            // Update favicon immediately without any delay to prevent flash
+            updateFavicon(faviconUrl, true) // Pass true for immediate update
           }
         } catch (error) {
           console.log('Error in setFaviconImmediately:', error)
         }
       }
       
-      // Run immediately
+      // Run immediately - this executes as soon as the component mounts
+      // If document.head isn't ready, it will retry
       setFaviconImmediately()
     }
 
@@ -665,8 +698,8 @@ const ThemeProvider = ({ children }) => {
       console.log('🔍 [ThemeProvider] Event faviconUrl:', faviconUrlFromEvent)
       
       if (faviconUrlFromEvent) {
-        // Use the same updateFavicon function for consistency
-        updateFavicon(faviconUrlFromEvent)
+        // Use immediate update for event-based changes to prevent flash
+        updateFavicon(faviconUrlFromEvent, true)
       } else {
         console.log('ℹ️ [ThemeProvider] No faviconUrl in event branding data')
       }
