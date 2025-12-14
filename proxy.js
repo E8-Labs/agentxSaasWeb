@@ -135,6 +135,19 @@ export async function proxy(request) {
     }
   }
 
+  // For favicon routes, always check the branding cookie even without user
+  // This ensures the correct favicon is served based on stored branding
+  if (!agencyBranding && (pathname === '/icon' || pathname === '/apple-icon')) {
+    const brandingCookie = request.cookies.get('agencyBranding')
+    if (brandingCookie?.value) {
+      try {
+        agencyBranding = JSON.parse(decodeURIComponent(brandingCookie.value))
+      } catch (e) {
+        // Invalid cookie, will use default
+      }
+    }
+  }
+
   // For logged-in agency/subaccount users, ensure branding is available
   // First check cookie cache, then fetch from API if needed
   if (user && !agencyBranding) {
@@ -279,7 +292,7 @@ export async function proxy(request) {
     return res
   }
 
-  // ---- Public paths ----
+  // ---- Public paths (including favicon routes) ----
   if (
     pathname === '/' ||
     pathname === '/onboarding' ||
@@ -289,7 +302,9 @@ export async function proxy(request) {
     pathname.startsWith('/agency/verify') ||
     (pathname.startsWith('/agency/') &&
       (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
-    pathname.startsWith('/recordings/')
+    pathname.startsWith('/recordings/') ||
+    pathname === '/icon' || // favicon - needs branding but no auth redirect
+    pathname === '/apple-icon' // apple touch icon - needs branding but no auth redirect
   ) {
     // Create response with branding in request headers (for immediate access by getServerBranding)
     const publicResponse = createResponseWithBrandingHeaders(
@@ -480,7 +495,9 @@ export async function proxy(request) {
     pathname.startsWith('/pipeline') ||
     pathname.startsWith('/plan') ||
     pathname.startsWith('/web-agent') ||
-    pathname.startsWith('/embedCalendar')
+    pathname.startsWith('/embedCalendar') ||
+    pathname === '/icon' ||
+    pathname === '/apple-icon'
   ) {
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }
@@ -589,5 +606,7 @@ export const config = {
     '/admin/:path*',
     '/embedCalendar/:path*',
     '/agency/dashboard/:path*', // subpaths processed normally
+    '/icon', // favicon - needs branding header
+    '/apple-icon', // apple touch icon - needs branding header
   ],
 }

@@ -34,13 +34,18 @@ const geistMono = localFont({
 export async function generateMetadata() {
   const branding = await getServerBranding()
 
+  // Create a cache-busting hash from faviconUrl to force browser refetch when branding changes
+  const faviconHash = branding?.faviconUrl
+    ? Buffer.from(branding.faviconUrl).toString('base64').slice(0, 8)
+    : 'default'
+
   return {
     title: branding?.companyName || 'AssignX',
     description: 'AI Agents Platform',
     manifest: '/manifest.json',
     icons: {
-      icon: '/icon', // Points to our dynamic favicon route
-      apple: '/apple-icon', // Points to our dynamic apple icon route
+      icon: `/icon?v=${faviconHash}`, // Cache-busting query param based on faviconUrl
+      apple: `/apple-icon?v=${faviconHash}`, // Cache-busting query param based on faviconUrl
     },
     openGraph: {
       title: branding?.companyName

@@ -29,7 +29,7 @@ export default async function Icon() {
       const branding = JSON.parse(brandingHeader)
       faviconUrl = branding?.faviconUrl
     } catch (e) {
-      console.log('[icon.js] Error parsing branding header:', e.message)
+      // Invalid header, fall through to cookie
     }
   }
 
@@ -44,7 +44,6 @@ export default async function Icon() {
         faviconUrl = branding?.faviconUrl
       } catch (e) {
         // Invalid JSON in cookie, fall through to default
-        console.log('[icon.js] Error parsing branding cookie:', e.message)
       }
     }
   }
@@ -53,7 +52,7 @@ export default async function Icon() {
   if (faviconUrl && faviconUrl.trim() !== '') {
     try {
       const response = await fetch(faviconUrl, {
-        next: { revalidate: 3600 } // Cache for 1 hour
+        next: { revalidate: 300 } // Cache for 5 minutes
       })
 
       if (response.ok) {
@@ -63,29 +62,29 @@ export default async function Icon() {
         return new Response(arrayBuffer, {
           headers: {
             'Content-Type': contentTypeHeader,
-            'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400'
+            'Cache-Control': 'private, max-age=300, must-revalidate',
+            'Vary': 'Cookie'
           }
         })
       }
     } catch (e) {
       // Fetch failed, fall through to default
-      console.log('[icon.js] Error fetching custom favicon:', e.message)
     }
   }
 
   // Return default favicon from app folder
   try {
-    const defaultFaviconPath = path.join(process.cwd(), 'app', 'favicon.ico')
+    const defaultFaviconPath = path.join(process.cwd(), 'app', 'default-favicon.ico')
     const defaultFavicon = await readFile(defaultFaviconPath)
 
     return new Response(defaultFavicon, {
       headers: {
         'Content-Type': 'image/x-icon',
-        'Cache-Control': 'public, max-age=86400'
+        'Cache-Control': 'private, max-age=300, must-revalidate',
+        'Vary': 'Cookie'
       }
     })
   } catch (e) {
-    console.error('[icon.js] Error reading default favicon:', e.message)
     // Return empty response if even default fails
     return new Response(null, { status: 404 })
   }
