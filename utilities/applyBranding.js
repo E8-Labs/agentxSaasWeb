@@ -3,11 +3,26 @@ import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 import { UserRole } from '@/constants/UserRole'
 
 /**
+ * Check if server already applied branding via SSR
+ * Returns true if we should skip client-side branding application
+ */
+const isServerBrandingApplied = () => {
+  if (typeof document === 'undefined') return false
+  return document.documentElement.dataset.brandingApplied === 'server'
+}
+
+/**
  * Apply agency branding after registration or login
  * Extracts branding from response data, stores it, and dispatches event
  */
 export const applyBrandingFromResponse = (responseData) => {
   if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding
+  if (isServerBrandingApplied()) {
+    console.log('✅ [applyBranding] Server already applied branding, skipping client-side application')
+    return true
+  }
 
   try {
     // Extract branding from various possible locations in response
@@ -74,6 +89,12 @@ export const applyBrandingFromResponse = (responseData) => {
  */
 export const fetchAndApplyBranding = async () => {
   if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding
+  if (isServerBrandingApplied()) {
+    console.log('✅ [applyBranding] Server already applied branding, skipping API fetch')
+    return true
+  }
 
   try {
     const userData = localStorage.getItem('User')

@@ -2,6 +2,8 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
+
 const LoaderAnimation = ({
   loaderModal,
   isOpen,
@@ -62,13 +64,10 @@ const LoaderAnimation = ({
             >
               <div className="flex flex-row items-start mt-12 justify-center">
                 {/* <CircularProgress size={200} thickness={1} /> */}
-                <Image
-                  className=""
-                  src="/agentXOrb.gif"
-                  style={{ height: '142px', width: '152px', resize: 'contain' }}
+                <AgentXOrb
+                  width={152}
                   height={142}
-                  width={142}
-                  alt="*"
+                  style={{ height: '142px', width: '152px', resize: 'contain' }}
                 />
               </div>
 

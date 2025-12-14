@@ -19,6 +19,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
@@ -1143,10 +1144,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               />
               {/* Hide orb gif if agency has logo (for subaccounts) */}
               {!agencyBranding?.logoUrl && (
-                <Image
-                  src={'/agentXOrb.gif'}
-                  height={69}
-                  width={69}
+                <AgentXOrb
+                  size={69}
                   alt="gif"
                 />
               )}

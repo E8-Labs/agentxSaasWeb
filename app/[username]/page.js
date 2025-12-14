@@ -19,6 +19,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
@@ -501,10 +502,8 @@ const Page = ({ length = 6, onComplete }) => {
                   width={260}
                   alt="avtr"
                 />
-                <Image
-                  src={'/agentXOrb.gif'}
-                  height={69}
-                  width={69}
+                <AgentXOrb
+                  size={69}
                   alt="gif"
                 />
               </div>

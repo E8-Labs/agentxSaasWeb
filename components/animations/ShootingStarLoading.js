@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
+
 function ShootingStarLoading({ open }) {
   const [authProgressValue, setAuthProgressValue] = useState(0)
   // Animate progress bar for indeterminate effect when checking auth
@@ -28,10 +30,9 @@ function ShootingStarLoading({ open }) {
         <div className="flex flex-col items-center w-full max-w-md px-8">
           {/* Orb Image */}
           <div className="mb-16 bg-white rounded-md p-4">
-            <Image
-              src="/agentXOrb.gif"
-              height={142}
+            <AgentXOrb
               width={152}
+              height={142}
               alt="Loading"
               style={{ height: '142px', width: '152px', resize: 'contain' }}
             />

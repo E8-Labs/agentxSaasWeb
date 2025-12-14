@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server'
 import { parseOAuthState } from '@/utils/oauthState'
 
+/**
+ * Creates a NextResponse.next() with branding data passed via request headers.
+ * This ensures getServerBranding() can read branding in the same request cycle
+ * (not just on subsequent requests via cookies).
+ *
+ * @param {Request} request - The incoming request
+ * @param {Object|null} agencyBranding - The branding data to pass
+ * @returns {NextResponse} Response with modified request headers
+ */
+function createResponseWithBrandingHeaders(request, agencyBranding) {
+  if (agencyBranding) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-agency-branding', JSON.stringify(agencyBranding))
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  }
+  return NextResponse.next()
+}
+
 export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
@@ -97,10 +119,6 @@ export async function proxy(request) {
   const userCookie = request.cookies.get('User')
   let user = null
 
-  if (user === null) {
-    console.log('not found user')
-  }
-
   if (userCookie) {
     try {
       user = JSON.parse(decodeURIComponent(userCookie.value))
@@ -114,6 +132,65 @@ export async function proxy(request) {
       console.error('🍪 Cookie value that failed to parse:', userCookie.value)
       // Don't immediately logout on parsing errors - could be temporary corruption
       user = null
+    }
+  }
+
+  // For logged-in agency/subaccount users, ensure branding is available
+  // First check cookie cache, then fetch from API if needed
+  if (user && !agencyBranding) {
+    const userRole = user.userRole
+    if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+      // First check if branding cookie exists (cache)
+      const brandingCookie = request.cookies.get('agencyBranding')
+      if (brandingCookie?.value) {
+        try {
+          agencyBranding = JSON.parse(decodeURIComponent(brandingCookie.value))
+        } catch (e) {
+          // Invalid cookie, will fetch fresh
+        }
+      }
+
+      // If no cached branding, fetch from API with timeout
+      if (!agencyBranding) {
+        try {
+          const baseUrl =
+            process.env.NEXT_PUBLIC_BASE_API_URL ||
+            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+              ? 'https://apimyagentx.com/agentx/'
+              : 'https://apimyagentx.com/agentxtest/')
+
+          const tokenCookie = request.cookies.get('token')
+          const authToken = tokenCookie?.value || user.token
+          if (authToken) {
+            // Add timeout to prevent slow API from blocking page load
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 3000)
+
+            try {
+              const response = await fetch(`${baseUrl}api/agency/branding`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  'Content-Type': 'application/json',
+                },
+                signal: controller.signal,
+              })
+              clearTimeout(timeoutId)
+
+              if (response.ok) {
+                const data = await response.json()
+                if (data?.status && data?.data?.branding) {
+                  agencyBranding = data.data.branding
+                }
+              }
+            } catch (fetchError) {
+              clearTimeout(timeoutId)
+              // Silent fail on timeout or network error
+            }
+          }
+        } catch (error) {
+          // Silent fail, will use default branding
+        }
+      }
     }
   }
 
@@ -166,7 +243,8 @@ export async function proxy(request) {
 
   // ---- Security headers for embed ----
   if (pathname.startsWith('/embed/vapi')) {
-    const res = NextResponse.next()
+    // Create response with branding in request headers (for immediate access by getServerBranding)
+    const res = createResponseWithBrandingHeaders(request, agencyBranding)
     res.headers.set('X-Frame-Options', 'ALLOWALL')
     res.headers.set(
       'Content-Security-Policy',
@@ -213,7 +291,11 @@ export async function proxy(request) {
       (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
     pathname.startsWith('/recordings/')
   ) {
-    const publicResponse = NextResponse.next()
+    // Create response with branding in request headers (for immediate access by getServerBranding)
+    const publicResponse = createResponseWithBrandingHeaders(
+      request,
+      agencyBranding,
+    )
     if (agencyId) {
       publicResponse.headers.set('x-agency-id', agencyId.toString())
       publicResponse.headers.set('x-agency-domain', hostname)
@@ -225,6 +307,7 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
+        // Also set cookie for future requests
         publicResponse.cookies.set(
           'agencyBranding',
           JSON.stringify(agencyBranding),
@@ -363,13 +446,6 @@ export async function proxy(request) {
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
-    console.log(
-      '🔄 MIDDLEWARE REDIRECT - Time:',
-      new Date().toISOString(),
-      'Reason: No user found',
-      'Path:',
-      pathname,
-    )
     const redirectResponse = NextResponse.redirect(new URL('/', request.url))
     if (agencyId) {
       redirectResponse.headers.set('x-agency-id', agencyId.toString())
@@ -385,12 +461,6 @@ export async function proxy(request) {
     return redirectResponse
   }
 
-  // 🚨 Force re-login if cookie is outdated (missing userRole or userType)
-  // if (!user.userRole || !user.userType) {
-  //   // Allow request to proceed without deleting cookie to avoid instant logout on fresh login
-  //   return NextResponse.next();
-  // }
-  console.log('User data is', user)
   // ---- Centralized redirect rule ----
   let expectedPath = null
 
@@ -412,37 +482,20 @@ export async function proxy(request) {
     pathname.startsWith('/web-agent') ||
     pathname.startsWith('/embedCalendar')
   ) {
-    return NextResponse.next()
+    return createResponseWithBrandingHeaders(request, agencyBranding)
   }
-
-  // ---- Prevent redirect loops ----
-  const isExactMatch = pathname === expectedPath
-  const isSubPath = pathname.startsWith(expectedPath + '/')
-
-  console.log(
-    '🔍 MIDDLEWARE DEBUG - Path:',
-    pathname,
-    'Expected:',
-    expectedPath,
-    'IsExact:',
-    isExactMatch,
-    'IsSubPath:',
-    isSubPath,
-    'UserType:',
-    user.userType,
-    'UserRole:',
-    user.userRole,
-  )
 
   if (
     pathname !== expectedPath && // exact base mismatch
     !pathname.startsWith(expectedPath + '/') // allow deeper subpaths
   ) {
-    console.log('Path mismatch detected')
     if (pathname === '/createagent' && user.userType === 'admin') {
       // allowed createagent for admin
-      console.log('Accessing /createagent as admin, allowing')
-      const adminResponse = NextResponse.next()
+      // Create response with branding in request headers (for immediate access by getServerBranding)
+      const adminResponse = createResponseWithBrandingHeaders(
+        request,
+        agencyBranding,
+      )
       if (agencyId) {
         adminResponse.headers.set('x-agency-id', agencyId.toString())
         adminResponse.headers.set('x-agency-domain', hostname)
@@ -467,19 +520,6 @@ export async function proxy(request) {
       }
       return adminResponse
     }
-    console.log(
-      '🔄 MIDDLEWARE REDIRECT - Time:',
-      new Date().toISOString(),
-      'Reason: Path mismatch',
-      'Current:',
-      pathname,
-      'Expected:',
-      expectedPath,
-      'UserType:',
-      user.userType,
-      'UserRole:',
-      user.userRole,
-    )
     const redirectResponse = NextResponse.redirect(
       new URL(expectedPath, request.url),
     )
@@ -509,7 +549,8 @@ export async function proxy(request) {
     return redirectResponse
   }
 
-  const response = NextResponse.next()
+  // Create response with branding in request headers (for immediate access by getServerBranding)
+  const response = createResponseWithBrandingHeaders(request, agencyBranding)
   // Inject agency headers if found
   if (agencyId) {
     response.headers.set('x-agency-id', agencyId.toString())
@@ -521,14 +562,15 @@ export async function proxy(request) {
       httpOnly: false,
       sameSite: 'lax',
     })
-    // Store branding in cookie for client-side access
-    if (agencyBranding) {
-      response.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
-        httpOnly: false,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24, // 24 hours
-      })
-    }
+  }
+  // Store branding in cookie for client-side access (cache for subsequent requests)
+  // This is set regardless of agencyId to support logged-in agency/subaccount users on localhost
+  if (agencyBranding) {
+    response.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+      httpOnly: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24, // 24 hours
+    })
   }
   return response
 }

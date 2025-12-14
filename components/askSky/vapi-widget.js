@@ -5,6 +5,7 @@ import { Loader2, X } from 'lucide-react'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { PersistanceKeys } from '@/constants/Constants'
 
 import Apis from '../apis/Apis'
@@ -291,14 +292,10 @@ export function VapiWidget({
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
 
                     {/* Image */}
-                    <img
-                      src="/agentXOrb.gif"
+                    <AgentXOrb
+                      size={120}
                       alt="AgentX Orb"
                       className="relative z-10 rounded-full bg-white shadow-lg object-cover"
-                      style={{
-                        height: '120px',
-                        width: '120px',
-                      }}
                     />
                   </div>
                   {loadingMessage && (

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CreatAgent3 from '@/components/createagent/CreatAgent3'
 import CreateAgent1 from '@/components/createagent/CreateAgent1'
 import CreateAgent2 from '@/components/createagent/CreateAgent2'
@@ -208,9 +209,10 @@ const DesktopView = ({ width, isSubAccount = false }) => {
           </div>
 
           <div className="w-full flex flex-row justify-center  ">
-            <Image
+            <AgentXOrb
               className="mix-blend-multiply" //mix-blend-multiply
-              src="/agentXOrb.gif"
+              width={145}
+              height={140}
               style={{
                 position: 'absolute',
                 top: '37%', // Adjust this value to move it higher
@@ -222,8 +224,6 @@ const DesktopView = ({ width, isSubAccount = false }) => {
                 width: '145px',
                 resize: 'contain',
               }}
-              height={69}
-              width={69}
               alt="*"
             />
           </div>

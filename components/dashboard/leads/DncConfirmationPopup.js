@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -31,11 +31,7 @@ export default function DncConfirmationPopup({
   leadsCount,
 }) {
   //console.log;
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)

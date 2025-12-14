@@ -164,12 +164,12 @@ function SheduledCalls({ user }) {
       if (response) {
         console.log('response is of gat active calls', response.data.data)
 
-        let newData = response.data.data
+        let newData = response.data?.data || []
 
         if (offset === 0) {
-          setFilteredAgentsList(response.data.data)
-          setCallDetails(response.data.data)
-          setAgentsList(response.data.data)
+          setFilteredAgentsList(newData)
+          setCallDetails(newData)
+          setAgentsList(newData)
         } else {
           setFilteredAgentsList((prev) => [...prev, ...newData])
           setCallDetails((prev) => [...prev, ...newData])
@@ -780,13 +780,13 @@ function SheduledCalls({ user }) {
               className={`h-[70vh] overflow-auto`}
               style={{ scrollbarWidth: 'none' }}
             >
-              {filteredAgentsList.length > 0 ? (
+              {filteredAgentsList?.length > 0 ? (
                 <div>
                   <InfiniteScroll
-                    dataLength={filteredAgentsList.length}
+                    dataLength={filteredAgentsList?.length || 0}
                     next={() => {
                       getScheduledOrOngoingActivityCalls(
-                        filteredAgentsList.length,
+                        filteredAgentsList?.length || 0,
                       )
                     }}
                     hasMore={hasMoreCalls}
@@ -808,10 +808,10 @@ function SheduledCalls({ user }) {
                     }
                     scrollableTarget="scrollableDivMain"
                   >
-                    {filteredAgentsList.map((item, index) => {
+                    {filteredAgentsList?.map((item, index) => {
                       return (
                         <div key={index}>
-                          {item.agents.map((agent, index) => {
+                          {item?.agents?.map((agent, index) => {
                             return (
                               <div key={index}>
                                 <div

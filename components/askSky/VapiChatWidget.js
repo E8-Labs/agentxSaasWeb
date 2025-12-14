@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 import Apis from '../apis/Apis'
@@ -240,14 +241,10 @@ export default function VapiChatWidget({
 
         {loading ? (
           <div className="w-full flex items-center justify-center pb-4">
-            <img
-              src="/agentXOrb.gif"
+            <AgentXOrb
+              size={120}
               alt="AgentX Orb"
               className="relative z-10 rounded-full bg-white shadow-lg object-cover"
-              style={{
-                height: '120px',
-                width: '120px',
-              }}
             />
           </div>
         ) : (

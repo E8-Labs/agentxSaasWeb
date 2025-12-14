@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress, LinearProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -23,11 +23,7 @@ import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
 import { AuthToken } from '../plan/AuthDetails'
 
 //code for add card
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   const router = useRouter()

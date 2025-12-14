@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
@@ -8,26 +8,44 @@ export const size = { width: 32, height: 32 }
 /**
  * Dynamic Favicon Route Handler
  *
- * Serves the appropriate favicon based on agency branding from cookies.
- * - If branding cookie exists with faviconUrl, fetches and returns that favicon
- * - Falls back to default AssignX favicon if no branding or fetch fails
+ * Serves the appropriate favicon based on agency branding from headers or cookies.
+ * - First checks for branding in request headers (set by middleware in same request)
+ * - Falls back to branding cookie (set by middleware in previous requests)
+ * - Returns default AssignX favicon if no branding or fetch fails
  *
  * This runs server-side, eliminating the favicon flash that occurred
  * with client-side DOM manipulation in ThemeProvider.
  */
 export default async function Icon() {
-  const cookieStore = await cookies()
-  const brandingCookie = cookieStore.get('agencyBranding')
-
   let faviconUrl = null
 
-  if (brandingCookie?.value) {
+  // First, try to read from request headers (set by middleware in the same request)
+  // This is the primary source and prevents the "first visit" issue
+  const headerStore = await headers()
+  const brandingHeader = headerStore.get('x-agency-branding')
+
+  if (brandingHeader) {
     try {
-      const branding = JSON.parse(decodeURIComponent(brandingCookie.value))
+      const branding = JSON.parse(brandingHeader)
       faviconUrl = branding?.faviconUrl
     } catch (e) {
-      // Invalid JSON in cookie, fall through to default
-      console.log('[icon.js] Error parsing branding cookie:', e.message)
+      console.log('[icon.js] Error parsing branding header:', e.message)
+    }
+  }
+
+  // Fallback: Try to read from cookies (set by middleware in previous requests)
+  if (!faviconUrl) {
+    const cookieStore = await cookies()
+    const brandingCookie = cookieStore.get('agencyBranding')
+
+    if (brandingCookie?.value) {
+      try {
+        const branding = JSON.parse(decodeURIComponent(brandingCookie.value))
+        faviconUrl = branding?.faviconUrl
+      } catch (e) {
+        // Invalid JSON in cookie, fall through to default
+        console.log('[icon.js] Error parsing branding cookie:', e.message)
+      }
     }
   }
 

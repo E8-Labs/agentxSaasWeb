@@ -1,6 +1,6 @@
 import { CircularProgress } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -61,11 +61,7 @@ function UpgardView({
   // handleContinue
 }) {
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
   const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] =

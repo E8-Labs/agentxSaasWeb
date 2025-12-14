@@ -1,7 +1,7 @@
 import { Box, Modal, Slider } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -90,11 +90,7 @@ const UpgradeModal = ({
     }
   }, [])
   console.log('SelectedPlan in UpgradeModal is ', selectedPlan)
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   // Get features based on functionality or use provided features
   const getFeaturesByFunctionality = (func) => {

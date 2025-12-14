@@ -3,6 +3,7 @@ import { ArrowUpRight, Copy, X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 import AgentSelectSnackMessage, {
@@ -107,11 +108,9 @@ const AllSetModal = ({
 
         {/* Animated Orb */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-          <Image
-            src="/agentXOrb.gif"
+          <AgentXOrb
+            size={120}
             alt="AgentX Orb"
-            width={120}
-            height={120}
           />
         </Box>
 

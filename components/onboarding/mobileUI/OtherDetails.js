@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { SnackMessageTitles } from '@/components/constants/constants'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -1164,17 +1165,13 @@ const OtherDetails = ({
                       </div>
 
                       <div className="w-full mt-2 flex flex-row justify-center">
-                        <Image
-                          className=""
-                          src="/agentXOrb.gif"
+                        <AgentXOrb
+                          size={102}
                           style={{
                             height: '100px',
                             width: '110px',
                             resize: 'contain',
                           }}
-                          height={102}
-                          width={102}
-                          alt="*"
                         />
                       </div>
 

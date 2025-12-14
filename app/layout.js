@@ -98,10 +98,17 @@ export default async function RootLayout({ children }) {
   `
 
   return (
-    <html lang="en" style={{ backgroundColor: '#ffffff', background: '#ffffff' }}>
+    <html
+      lang="en"
+      style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
+      data-branding-applied={branding ? 'server' : 'none'}
+    >
       <head>
         {/* Brand colors injected server-side to prevent flash */}
-        <style dangerouslySetInnerHTML={{ __html: brandStyles }} />
+        <style
+          id="brand-colors"
+          dangerouslySetInnerHTML={{ __html: brandStyles }}
+        />
         <link rel="manifest" href="/manifest.json" />
 
         {/* Fonts */}
