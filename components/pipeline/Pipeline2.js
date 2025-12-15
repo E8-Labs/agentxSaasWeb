@@ -1201,7 +1201,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         {/* Modal for video */}
 
         <div>
-          <div>{/* <ProgressBar value={33} /> */}</div>
+          <div> <ProgressBar value={100} /> </div>
 
           <Footer
             handleContinue={handleNextClick}

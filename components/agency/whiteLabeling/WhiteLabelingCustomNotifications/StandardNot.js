@@ -60,6 +60,30 @@ const StandardNot = ({
     })
   }
 
+  // Helper function to check if notification has actual content customizations
+  const hasActualCustomizations = (item) => {
+    if (!item.customization) return false
+    
+    const customization = item.customization
+    const metadata = item.metadata
+    
+    // Check if any custom field differs from default
+    const hasCustomPushTitle = customization.customPushTitle && 
+      customization.customPushTitle !== metadata?.defaultPushTitle
+    const hasCustomPushBody = customization.customPushBody && 
+      customization.customPushBody !== metadata?.defaultPushBody
+    const hasCustomEmailSubject = customization.customEmailSubject && 
+      customization.customEmailSubject !== metadata?.defaultEmailSubject
+    const hasCustomEmailBody = customization.customEmailBody && 
+      customization.customEmailBody !== metadata?.defaultEmailBody
+    const hasCustomCTA = customization.customEmailCTA && 
+      customization.customEmailCTA !== metadata?.defaultEmailCTA
+    
+    // Return true if any content field is actually customized
+    return hasCustomPushTitle || hasCustomPushBody || hasCustomEmailSubject || 
+           hasCustomEmailBody || hasCustomCTA
+  }
+
   // Transform API data to match the expected UI format
   const transformedNotifications = useMemo(() => {
     if (!notificationsData || notificationsData.length === 0) {
@@ -69,57 +93,64 @@ const StandardNot = ({
     // Filter notifications by category
     return notificationsData
       .filter((item) => item.metadata?.category === category)
-      .map((item, index) => ({
-        id: index + 1,
-        notificationType: item.notificationType,
-        title: item.metadata?.name || 'Notification',
-        description: item.metadata?.description || '',
-        tootTip: item.metadata?.description || '',
-        // App Notification (Push) fields
-        appNotficationTitle:
-          item.customization?.customPushTitle ||
-          item.metadata?.defaultPushTitle ||
-          '',
-        appNotficationBody:
-          item.customization?.customPushBody ||
-          item.metadata?.defaultPushBody ||
-          '',
-        appNotficationCTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        // Email Template fields
-        emailNotficationTitle:
-          item.customization?.customEmailSubject ||
-          item.metadata?.defaultEmailSubject ||
-          '',
-        emailNotficationBody:
-          item.customization?.customEmailBody ||
-          item.metadata?.defaultEmailBody ||
-          '',
-        emailNotficationCTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        // Legacy fields for backward compatibility
-        subject:
-          item.customization?.customEmailSubject ||
-          item.metadata?.defaultEmailSubject ||
-          '',
-        subjectDescription:
-          item.customization?.customEmailBody ||
-          item.metadata?.defaultEmailBody ||
-          '',
-        CTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        isActive: item.isActive,
-        isCustomized: item.isCustomized,
-        isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
-        availableVariables: item.metadata?.availableVariables || [],
-        supportsCTA: item.metadata?.supportsCTA || false,
-      }))
+      .map((item, index) => {
+        // Check if there are actual content customizations (not just toggle changes)
+        const hasContentCustomizations = hasActualCustomizations(item)
+        
+        return {
+          id: index + 1,
+          notificationType: item.notificationType,
+          title: item.metadata?.name || 'Notification',
+          description: item.metadata?.description || '',
+          tootTip: item.metadata?.description || '',
+          // App Notification (Push) fields
+          appNotficationTitle:
+            item.customization?.customPushTitle ||
+            item.metadata?.defaultPushTitle ||
+            '',
+          appNotficationBody:
+            item.customization?.customPushBody ||
+            item.metadata?.defaultPushBody ||
+            '',
+          appNotficationCTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          // Email Template fields
+          emailNotficationTitle:
+            item.customization?.customEmailSubject ||
+            item.metadata?.defaultEmailSubject ||
+            '',
+          emailNotficationBody:
+            item.customization?.customEmailBody ||
+            item.metadata?.defaultEmailBody ||
+            '',
+          emailNotficationCTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          // Legacy fields for backward compatibility
+          subject:
+            item.customization?.customEmailSubject ||
+            item.metadata?.defaultEmailSubject ||
+            '',
+          subjectDescription:
+            item.customization?.customEmailBody ||
+            item.metadata?.defaultEmailBody ||
+            '',
+          CTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          isActive: item.isActive,
+          isCustomized: hasContentCustomizations, // Only true if content is actually customized
+          isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
+          availableVariables: item.metadata?.availableVariables || [],
+          supportsCTA: item.metadata?.supportsCTA || false,
+          // Store original item for reference
+          originalItem: item,
+        }
+      })
   }, [notificationsData, category])
 
   const handleEditPushClick = (notification) => {

@@ -97,6 +97,8 @@ const CreateAgent1 = ({
   // Removed address picker modal - no longer needed
 
   useEffect(() => {
+    // Clear pipeline cadence data when creating a new agent
+    localStorage.removeItem('AddCadenceDetails')
     refreshUserData()
     getSelectedUser()
     // Check if user is subaccount

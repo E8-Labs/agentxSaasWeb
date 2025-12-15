@@ -17,6 +17,7 @@ const Header = ({
 }) => {
   const router = useRouter()
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
 
   // Ensure branding variables are applied when onboarding screens mount
   useEffect(() => {
@@ -36,6 +37,36 @@ const Header = ({
               parsedUser?.userRole === 'AgencySubAccount',
           )
         }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+
+        // Also check user data for agencyBranding
+        if (!branding && userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) {
+            console.log('Error parsing user data for agencyBranding:', error)
+          }
+        }
+
+        // Set hasAgencyLogo if logoUrl exists
+        setHasAgencyLogo(!!branding?.logoUrl)
       } catch (error) {
         console.log('Error parsing user data:', error)
       }
@@ -62,7 +93,7 @@ const Header = ({
           </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
-          {!isSubaccount && (
+          {!isSubaccount && !hasAgencyLogo && (
             <Image
               className=""
               src="/agentXOrb.gif"

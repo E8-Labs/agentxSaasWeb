@@ -587,7 +587,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className="relative bg-white sm:rounded-2xl w-10/12 h-[90vh] py-4 px-4 sm:px-6 flex flex-col overflow-hidden"
+        className="relative bg-white sm:rounded-2xl w-10/12 h-[90vh] py-4 px-4 sm:px-6 flex flex-col"
+        style={{ overflowY: 'hidden', overflowX: 'visible' }}
         // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
@@ -598,7 +599,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShowSnackMsg({ type: null, message: '', isVisible: false })
           }
         />
-        <div className="flex-1 flex flex-col h-[90svh] overflow-y-auto">
+        <div className="flex-1 flex flex-col h-[90svh] overflow-y-auto" style={{ overflowX: 'visible' }}>
           {/* Video Card */}
           <IntroVideoModal
             open={introVideoModal}
@@ -609,13 +610,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           {/* header */}
           <Header />
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
-            <div className="w-full flex flex-col gap-8 items-center">
+          <div className="flex flex-col items-center w-full relative" style={{ overflowX: 'visible' }}>
+            <div className="w-full flex flex-col gap-8 items-center px-4">
               <div className="w-11/12 md:text-4xl text-xl font-[700] text-center">
                 {`Let's talk digits`}
               </div>
-              <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10">
-                <div className="hidden lg:block shrink-0 w-[240px] xl:w-[260px]">
+              
+              <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10 relative" style={{ overflowX: 'visible' }}>
+                {/* Video positioned outside left border */}
+                <div className="hidden lg:block shrink-0 w-[240px] xl:w-[260px]" style={{ position: 'absolute', left: '-60px', top: '0', zIndex: 10 }}>
                   <VideoCard
                     duration={'1:52'}
                     horizontal={false}
@@ -625,13 +628,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     title="Learn about phone numbers"
                   />
                 </div>
-                <div className="flex flex-col gap-6 w-11/12 lg:w-8/12 max-w-4xl">
-                  <div style={styles.headingStyle}>
+                
+                {/* Centered form content - container is centered, but items inside are left-aligned */}
+                <div className="flex flex-col gap-6 w-full lg:w-auto items-start" style={{ maxWidth: '600px' }}>
+                  <div style={styles.headingStyle} className="w-full text-left">
                     {`Select a phone number you'd like to use to call with`}
                   </div>
 
               <div
-                className="border rounded-lg focus-within:border-black transition-colors"
+                className="border rounded-lg focus-within:border-black transition-colors w-full"
                 style={{
                   height: 'clamp(45px, 50px, 55px)',
                   fontSize: 'clamp(11px, 2vw, 13px)',
@@ -865,14 +870,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   // setOpenPurchaseSuccessModal(true);
                 }}
                 style={styles.headingStyle}
-                className="text-start"
+                className="text-left w-full"
               >
                 What callback number should we use if someone requests one
                 during a call?
               </button>
 
               <div
-                className="flex flex-row items-center overflow-x-auto"
+                className="flex flex-row items-center overflow-x-auto justify-start w-full"
                 style={{
                   scrollbarWidth: 'none',
                   overflowY: 'visible',
@@ -935,7 +940,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </div>
 
               {showOfficeNumberInput ? (
-                <div className="w-full">
+                <div className="w-full flex flex-col items-start">
                   <div className="mt-2" style={styles.dropdownMenu}>
                     Enter your cell or office number
                   </div>
@@ -956,6 +961,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       border: '1px solid #00000020',
                       outline: 'none',
                       boxShadow: 'none',
+                      width: '100%',
                     }}
                     inputStyle={{
                       width: '100%',
@@ -1048,9 +1054,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 (!isFromAgencyOrAdmin &&
                   userData?.planCapabilities?.allowLiveCallTransfer ===
                     true) ? (
-                <div className="">
-                  <div className="w-full">
-                    <div style={styles.headingStyle}>
+                <div className="w-full">
+                  <div className="w-full flex flex-col items-start">
+                    <div style={styles.headingStyle} className="text-left w-full">
                       What number should we forward live transfers to when a
                       lead wants to talk to you?
                     </div>
@@ -1072,6 +1078,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         border: '1px solid #00000020',
                         outline: 'none',
                         boxShadow: 'none',
+                        width: '100%',
                       }}
                       inputStyle={{
                         width: '100%',
@@ -1101,7 +1108,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       {errorMessage}
                     </div>
                   </div>
-                  <div className="flex flex-row items-center gap-4 justify-start">
+                  <div className="flex flex-row items-center gap-4 justify-start w-full">
                     <button onClick={handleToggleClick}>
                       {toggleClick ? (
                         <div
