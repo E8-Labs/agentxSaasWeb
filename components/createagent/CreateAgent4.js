@@ -583,9 +583,29 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   return (
     <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      
+      className="relative overflow-y-hidden flex flex-row justify-center items-center"
+      style={{ with: '100%', overflowY: 'hidden', overflowX: 'visible' }}
     >
+      {/* Video positioned outside left border - similar to CreateAgent1 */}
+      <div
+            className="hidden lg:block -ml-4 xl:w-[260px] lg:w-[240px] "
+            style={{
+              position: 'absolute',
+              top: '20%',
+              zIndex: 1000,
+              left: '8%',
+            }}
+          >
+            <VideoCard
+              duration={'1:52'}
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal(true)
+              }}
+              title="Learn about phone numbers"
+            />
+          </div>
       <div
         className="relative bg-white sm:rounded-2xl w-10/12 h-[90vh] py-4 px-4 sm:px-6 flex flex-col"
         style={{ overflowY: 'hidden', overflowX: 'visible' }}
@@ -599,14 +619,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShowSnackMsg({ type: null, message: '', isVisible: false })
           }
         />
-        <div className="flex-1 flex flex-col h-[90svh] overflow-y-auto" style={{ overflowX: 'visible' }}>
-          {/* Video Card */}
+        <div className="flex-1 flex flex-col h-[90svh] overflow-y-auto relative" style={{ overflowX: 'visible' }}>
+          {/* Video Card - positioned on main div with high z-index */}
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
             videoTitle="Learn about phone numbers"
             videoUrl={HowtoVideos.LetsTalkDigits}
           />
+          
+          
+          
           {/* header */}
           <Header />
           {/* Body */}
@@ -617,17 +640,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </div>
               
               <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10 relative" style={{ overflowX: 'visible' }}>
-                {/* Video positioned outside left border */}
-                <div className="hidden lg:block shrink-0 w-[240px] xl:w-[260px]" style={{ position: 'absolute', left: '-60px', top: '0', zIndex: 10 }}>
-                  <VideoCard
-                    duration={'1:52'}
-                    horizontal={false}
-                    playVideo={() => {
-                      setIntroVideoModal(true)
-                    }}
-                    title="Learn about phone numbers"
-                  />
-                </div>
                 
                 {/* Centered form content - container is centered, but items inside are left-aligned */}
                 <div className="flex flex-col gap-6 w-full lg:w-auto items-start" style={{ maxWidth: '600px' }}>
