@@ -4257,7 +4257,7 @@ function renderLiveCallTransferSection({
         costPerAdditionalAgent={
           reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
         }
-        from={'myAgentX'}
+        from={'agents'}
       />
 
       <AskToUpgrade

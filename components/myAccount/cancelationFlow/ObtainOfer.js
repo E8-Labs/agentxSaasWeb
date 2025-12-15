@@ -81,7 +81,7 @@ const ObtainOffer = ({ handleContinue, setShowSnak }) => {
   // Function to handle delete agents and redirect
   const handleDeleteAgents = () => {
     setShowDeleteAgentsModal(false)
-    window.location.href = 'http://localhost:3000/dashboard/myAgentX'
+    window.location.href = 'http://localhost:3000/dashboard/agents'
   }
 
   // console.log('mins', mins)

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
 import AppLogo from '@/components/common/AppLogo'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 const Header = ({
   skipSellerKYC,
@@ -16,6 +17,13 @@ const Header = ({
 }) => {
   const router = useRouter()
   const [isSubaccount, setIsSubaccount] = useState(false)
+
+  // Ensure branding variables are applied when onboarding screens mount
+  useEffect(() => {
+    forceApplyBranding().catch((err) =>
+      console.error('Error applying branding in Header:', err),
+    )
+  }, [])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

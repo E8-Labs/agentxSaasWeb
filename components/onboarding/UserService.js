@@ -145,19 +145,19 @@ const UserService = ({ handleContinue, handleBack }) => {
   return (
     <div
       style={{ width: '100%' }}
-      className="overflow-y-none flex flex-row justify-center items-center"
+      className="overflow-y-none flex flex-row justify-center items-center "
     >
       <div
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
         style={{ scrollbarWidth: 'none' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[90svh] sm:h-[82svh]">
+        <div className="h-[95svh] sm:h-[90svh]">
           {/* header84svh */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[80%]">
             <div
               className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: 'center' }}

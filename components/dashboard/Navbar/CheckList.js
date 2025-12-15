@@ -113,7 +113,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           id: 2,
           label: 'Review your script',
           status: T?.scriptReviewed,
-          route: '/dashboard/myAgentX',
+          route: '/dashboard/agents',
         },
         {
           id: 3,

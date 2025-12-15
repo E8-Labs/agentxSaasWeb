@@ -351,7 +351,34 @@ const UserAddCard = ({
         plan: planType,
       }
 
-      if (isFrom == 'SubAccount' || isFrom == 'Agency') {
+      // Get user's actual role to verify before making API call
+      let userRole = null
+      if (localData) {
+        const LocalDetails = JSON.parse(localData)
+        userRole = LocalDetails?.user?.userRole || LocalDetails?.userRole
+      }
+      const reduxUserRole = reduxUser?.userRole || reduxUser?.user?.userRole
+      const actualUserRole = userRole || reduxUserRole
+
+      // Debug logging to identify the issue
+      console.log('🔍 [UserAddCardModal] isFrom value:', isFrom, 'Type:', typeof isFrom)
+      console.log('🔍 [UserAddCardModal] Actual user role:', actualUserRole)
+      console.log('🔍 [UserAddCardModal] Comparison checks:', {
+        isSubAccount: isFrom === 'SubAccount',
+        isAgency: isFrom === 'Agency',
+        isAgencyLowercase: isFrom === 'agency',
+        isAgents: isFrom === 'agents',
+        actualRoleIsSubAccount: actualUserRole === 'AgencySubAccount',
+        actualRoleIsAgency: actualUserRole === 'Agency',
+      })
+
+      // Only use agency API if user is actually an agency or subaccount
+      const isActuallySubAccount = actualUserRole === 'AgencySubAccount'
+      const isActuallyAgency = actualUserRole === 'Agency'
+      const shouldUseAgencyAPI = (isFrom === 'SubAccount' && isActuallySubAccount) || 
+                                  (isFrom === 'Agency' && isActuallyAgency)
+
+      if (shouldUseAgencyAPI) {
         ApiData = {
           planId: selectedPlan.id,
         }
@@ -360,10 +387,14 @@ const UserAddCard = ({
       // //console.log;
 
       let ApiPath = Apis.subscribePlan
-      if (isFrom == 'SubAccount') {
+      // Only call agency API if user is actually an agency or subaccount
+      if (isFrom === 'SubAccount' && isActuallySubAccount) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
-      } else if (isFrom == 'Agency') {
+      } else if (isFrom === 'Agency' && isActuallyAgency) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
+      } else {
+        // Default to normal user subscription API
+        ApiPath = Apis.subscribePlan
       }
       // //console.log;
       console.log('Api data', ApiData)
@@ -457,7 +488,7 @@ const UserAddCard = ({
         className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} ${isMobile ? 'items-stretch' : 'items-center'}`}
         style={{ backgroundColor: 'transparent' }}
       >
-        {/* Left side with orb - Hidden on mobile */}
+        {/* Left side with orb and form fields - Hidden on mobile */}
         {!isMobile && (
           <div
             className="flex w-[55%] flex-row LeftDiv"
@@ -479,50 +510,28 @@ const UserAddCard = ({
               style={{ width: '75%', marginLeft: '-100px' }}
             >
               <div className="flex w-full flex-col items-start">
-                <div style={{ fontWeight: '600', fontSize: 28 }}>
+                <div style={{ fontWeight: '600', fontSize: 28, whiteSpace: 'nowrap' }}>
                   Continue to Payment
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Right side - Full width on mobile */}
-        <div
-          className={`${isMobile ? 'w-full px-0' : 'w-[45%]'} flex flex-col`}
-        >
-          {/* Mobile header */}
-          {isMobile && (
-            <div className="mb-6 px-4">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Continue to Payment
-              </h2>
-              <p className="text-sm text-gray-600 mt-2">
-                Add your payment method to continue
-              </p>
-            </div>
-          )}
-          
-          {/* Desktop Form Fields */}
-          {!isMobile && (
-            <div className="flex w-full flex-col items-start mt-4">
-              <div
-                style={{
-                  fontWeight: '400',
-
-                  fontSize: 14,
-                  color: '#4F5B76',
-                }}
-              >
-                Card Number
-              </div>
-              <div
-                className="mt-1 px-3 py-1 border relative flex items-center"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  borderRadius: '8px',
-                }}
-              >
+                
+                {/* Desktop Form Fields - directly below the title */}
+                <div className="flex w-full flex-col items-start mt-6">
+                  <div
+                    style={{
+                      fontWeight: '400',
+                      fontSize: 14,
+                      color: '#4F5B76',
+                    }}
+                  >
+                    Card Number
+                  </div>
+                  <div
+                    className="mt-1 px-3 py-1 border relative flex items-center"
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      borderRadius: '8px',
+                    }}
+                  >
                 <div className="flex-1 w-[20vw]">
                   <CardNumberElement
                     options={elementOptions}
@@ -569,144 +578,154 @@ const UserAddCard = ({
                     height={20}
                   />
                 </div>
-              </div>
-              <div className="flex flex-row gap-2 w-full mt-4">
-                <div className="w-6/12">
+                  </div>
+                  <div className="flex flex-row gap-2 w-full mt-4">
+                    <div className="w-6/12">
+                      <div
+                        style={{
+                          fontWeight: '400',
+                          fontSize: 14,
+                          color: '#4F5B76',
+                        }}
+                      >
+                        Exp Date
+                      </div>
+                      <div
+                        className="mt-1 px-3 py-1 border"
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <CardExpiryElement
+                          options={elementOptions}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            color: 'white',
+                            fontSize: '22px',
+                            border: '1px solid blue',
+                            borderRadius: '4px',
+                          }}
+                          onChange={(event) => {
+                            handleFieldChange(event, cardCvcRef)
+                            if (event.complete) {
+                              // //console.log;
+                              setCardExpiry(true)
+                            } else {
+                              setCardExpiry(false)
+                            }
+                          }}
+                          ref={cardExpiryRef}
+                          onReady={(element) => {
+                            cardExpiryRef.current = element
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-6/12">
+                      <div
+                        style={{
+                          fontWeight: '400',
+                          fontSize: 14,
+                          color: '#4F5B76',
+                        }}
+                      >
+                        CVV
+                      </div>
+                      <div
+                        className="mt-1 px-3 py-1 border"
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                          borderRadius: '8px',
+                        }}
+                      >
+                        <CardCvcElement
+                          // options={elementOptions}
+                          options={{
+                            ...elementOptions,
+                            placeholder: 'CVV', // 👈 add this
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            color: 'white',
+                            fontSize: '22px',
+                            border: '1px solid blue',
+                            borderRadius: '4px',
+                          }}
+                          ref={cardCvcRef}
+                          onReady={(element) => {
+                            cardCvcRef.current = element
+                          }}
+                          onChange={(event) => {
+                            // handleFieldChange(event, cardCvcRef);
+                            if (event.complete) {
+                              // //console.log;
+                              setCVC(true)
+                            } else {
+                              setCVC(false)
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Optional input field for agent x invite code */}
                   <div
+                    className="mt-4"
                     style={{
                       fontWeight: '400',
-
                       fontSize: 14,
                       color: '#4F5B76',
                     }}
                   >
-                    Exp Date
+                    {`Referral Code (optional)`}
                   </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardExpiryElement
-                      options={elementOptions}
+
+                  <div className="mt-1 w-full">
+                    <input
+                      value={inviteCode}
+                      onChange={(e) => {
+                        setInviteCode(e.target.value)
+                      }}
+                      className="outline-none focus:ring-0 w-full h-[50px]"
                       style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
+                        color: '#000000',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        borderRadius: '8px',
+                        border: '1px solid #00000020',
+                        fontSize: 15,
+                        fontWeight: '500',
                       }}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardCvcRef)
-                        if (event.complete) {
-                          // //console.log;
-                          setCardExpiry(true)
-                        } else {
-                          setCardExpiry(false)
-                        }
-                      }}
-                      ref={cardExpiryRef}
-                      onReady={(element) => {
-                        cardExpiryRef.current = element
-                      }}
+                      placeholder="Enter Referral code"
                     />
+                    <style jsx>{`
+                      input::placeholder {
+                        olor: #00000050; /* Set placeholder text color to red */
+                      }
+                    `}</style>
                   </div>
                 </div>
-                <div className="w-6/12">
-                  <div
-                    style={{
-                      fontWeight: '400',
-
-                      fontSize: 14,
-                      color: '#4F5B76',
-                    }}
-                  >
-                    CVV
-                  </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardCvcElement
-                      // options={elementOptions}
-                      options={{
-                        ...elementOptions,
-                        placeholder: 'CVV', // 👈 add this
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
-                      }}
-                      ref={cardCvcRef}
-                      onReady={(element) => {
-                        cardCvcRef.current = element
-                      }}
-                      onChange={(event) => {
-                        // handleFieldChange(event, cardCvcRef);
-                        if (event.complete) {
-                          // //console.log;
-                          setCVC(true)
-                        } else {
-                          setCVC(false)
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Optional input field for agent x invite code */}
-
-              <div
-                className="mt-4"
-                style={{
-                  fontWeight: '400',
-
-                  fontSize: 14,
-                  color: '#4F5B76',
-                }}
-              >
-                {`Referral Code (optional)`}
-              </div>
-
-              <div className="mt-1 w-full">
-                <input
-                  value={inviteCode}
-                  onChange={(e) => {
-                    setInviteCode(e.target.value)
-                  }}
-                  className="outline-none focus:ring-0 w-full h-[50px]"
-                  style={{
-                    color: '#000000',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    borderRadius: '8px',
-                    border: '1px solid #00000020',
-                    fontSize: 15,
-                    fontWeight: '500',
-                  }}
-                  placeholder="Enter Referral code"
-                />
-                <style jsx>{`
-                  input::placeholder {
-                    olor: #00000050; /* Set placeholder text color to red */
-                  }
-                `}</style>
               </div>
             </div>
-          )}
-          
-          {/* Mobile Form Fields */}
-          {isMobile && (
+          </div>
+        )}
+        
+        {/* Mobile header and form fields */}
+        {isMobile && (
+          <div className="w-full px-0 flex flex-col">
+            <div className="mb-6 px-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Continue to Payment
+              </h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Add your payment method to continue
+              </p>
+            </div>
+            
+            {/* Mobile Form Fields */}
             <div className="flex w-full flex-col items-start mb-4 space-y-4 px-4">
               <div className="w-full">
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -849,8 +868,8 @@ const UserAddCard = ({
                 />
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
         
         {/* Order Summary - Desktop */}
         {!isMobile && (
@@ -873,11 +892,9 @@ const UserAddCard = ({
                   </div>
                   <div className=" text-xs font-regular capitalize">
                     {selectedPlan
-                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription`
+                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'} Subscription`
                       : ''}
-                    {'subscription'}
                   </div>
-                  {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                 </div>
                 <div className="" style={{ fontWeight: '600', fontSize: 15 }}>
                   {selectedPlan
@@ -889,10 +906,9 @@ const UserAddCard = ({
               <div className="flex flex-row items-start justify-between w-full mt-6">
                 <div>
                   <div
-                    className="capitalize"
                     style={{ fontWeight: '600', fontSize: 15 }}
                   >
-                    {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                    {`Total Billed ${(selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly').charAt(0).toUpperCase() + (selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly').slice(1)}`}
                   </div>
                   <div
                     className=""
@@ -1041,12 +1057,12 @@ const UserAddCard = ({
                 <div>
                   <div className="text-lg font-semibold">
                     {selectedPlan
-                      ? `${selectedPlan?.name || selectedPlan?.title}`
+                      ? `${reduxUser?.name ? `${reduxUser.name}'s Plan` : selectedPlan?.name || selectedPlan?.title}`
                       : 'No Plan Selected'}
                   </div>
                   <div className="text-xs font-regular capitalize text-gray-600">
                     {selectedPlan
-                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription`
+                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'} Subscription`
                       : ''}
                   </div>
                 </div>
@@ -1059,8 +1075,8 @@ const UserAddCard = ({
 
               <div className="flex flex-row items-start justify-between w-full mb-4">
                 <div>
-                  <div className="capitalize font-semibold text-sm">
-                    {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                  <div className="font-semibold text-sm">
+                    {`Total Billed ${(selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly').charAt(0).toUpperCase() + (selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly').slice(1)}`}
                   </div>
                   <div className="text-xs text-gray-600 mt-1">
                     Next Charge Date {getNextChargeDate(selectedPlan)}

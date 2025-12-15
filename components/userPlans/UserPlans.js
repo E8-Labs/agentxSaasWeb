@@ -153,26 +153,41 @@ function UserPlans({
         handleContinue()
       }
     }
-    if (!isFrom) {
+    
+    // Determine user type - use prop if provided, otherwise detect from user data
+    let detectedFrom = isFrom
+    if (!detectedFrom) {
       let data = localStorage.getItem('User')
       if (data) {
         let user = JSON.parse(data)
-        console.log('user.user.userRole', user.user.userRole)
-        if (isTeamMember(user.user)) {
+        const userRole = user?.user?.userRole
+        console.log('user.user.userRole', userRole)
+        
+        // Only set to SubAccount if user is actually a subaccount
+        if (userRole === 'AgencySubAccount') {
+          detectedFrom = 'SubAccount'
+        } else if (isTeamMember(user.user)) {
+          // For team members, check their team type
           if (isSubaccountTeamMember(user.user)) {
-            isFrom = 'SubAccount'
+            detectedFrom = 'SubAccount'
+          } else {
+            // Team member but not subaccount - treat as normal user
+            detectedFrom = 'User'
           }
-        } else if (user.user.userRole === 'AgencySubAccount') {
-          isFrom = 'SubAccount'
-        } else if (user.user.userRole === 'Agency') {
-          isFrom = 'Agency'
+        } else if (userRole === 'Agency') {
+          detectedFrom = 'Agency'
         } else {
-          isFrom = 'User'
+          // Default to User for normal agents
+          detectedFrom = 'User'
         }
+      } else {
+        // No user data, default to User
+        detectedFrom = 'User'
       }
     }
-    setRoutedFrom(isFrom)
-    getPlans()
+    setRoutedFrom(detectedFrom)
+    // Call getPlans with the detected user type
+    getPlans(detectedFrom)
   }, [])
 
   const handleClose = async (data) => {
@@ -407,15 +422,18 @@ function UserPlans({
     }
   }
 
-  const getPlans = async () => {
-    let plansList = await getUserPlans(isFrom, selectedUser)
+  const getPlans = async (overrideFrom = null) => {
+    const fromValue = overrideFrom || isFrom || routedFrom
+    console.log('getPlans is called', fromValue)
+    console.log('selectedUser is', selectedUser)
+    let plansList = await getUserPlans(fromValue, selectedUser)
     console.log('Plans list found is', plansList)
     if (plansList) {
-      console.log('isFrom is', isFrom)
+      console.log('isFrom is', fromValue)
       // Filter features in each plan to only show features where thumb = false
       let filteredPlans = []
 
-      if (isFrom !== 'SubAccount') {
+      if (fromValue !== 'SubAccount') {
         filteredPlans = plansList?.map((plan) => ({
           ...plan,
           features:
@@ -424,7 +442,7 @@ function UserPlans({
               : [],
         }))
       }
-      if (isFrom === 'Agency') {
+      if (fromValue === 'Agency') {
         filteredPlans = plansList?.map((plan) => ({
           ...plan,
           features:
@@ -436,45 +454,29 @@ function UserPlans({
       const quarterly = []
       const yearly = []
       let freePlan = null
-      console.log('Status f is from is', isFrom)
-      if (isFrom == 'SubAccount') {
-        console.log('My condition should run 😲')
-        plansList?.forEach((plan) => {
-          switch (plan.duration) {
-            case 'monthly':
-              monthly.push(plan)
-              break
-            case 'quarterly':
-              quarterly.push(plan)
-              break
-            case 'yearly':
-              yearly.push(plan)
-              break
-            default:
-              break
-          }
-        })
-      } else {
-        console.log('else condition is running', filteredPlans)
-        filteredPlans.forEach((plan) => {
-          switch (plan.billingCycle) {
-            case 'monthly':
-              monthly.push(plan)
-              if (plan.discountedPrice == 0) {
-                freePlan = plan
-              }
-              break
-            case 'quarterly':
-              quarterly.push(plan)
-              break
-            case 'yearly':
-              yearly.push(plan)
-              break
-            default:
-              break
-          }
-        })
-      }
+      console.log('Status f is from is', fromValue)
+      // Handle both SubAccount plans (with duration) and normal plans (with billingCycle)
+      const plansToProcess = fromValue === 'SubAccount' ? plansList : filteredPlans
+      plansToProcess?.forEach((plan) => {
+        // SubAccount plans use 'duration', normal plans use 'billingCycle'
+        const cycle = plan.duration || plan.billingCycle
+        switch (cycle) {
+          case 'monthly':
+            monthly.push(plan)
+            if (plan.discountedPrice == 0) {
+              freePlan = plan
+            }
+            break
+          case 'quarterly':
+            quarterly.push(plan)
+            break
+          case 'yearly':
+            yearly.push(plan)
+            break
+          default:
+            break
+        }
+      })
 
       // if (freePlan) {
       //     quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
@@ -482,8 +484,8 @@ function UserPlans({
       // }
 
       //select duration selection dynamically
-      console.log('Isfrom is', isFrom)
-      if (isFrom === 'SubAccount') {
+      console.log('Isfrom is', fromValue)
+      if (fromValue === 'SubAccount') {
         if (
           monthly.length > 0 &&
           quarterly.length === 0 &&

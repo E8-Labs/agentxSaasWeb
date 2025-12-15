@@ -540,8 +540,8 @@ const GeneralAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[84svh] sm:h-[82svh]">
+      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4">
+        <div className="h-[84svh] sm:h-[90svh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
@@ -1125,7 +1125,7 @@ const GeneralAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
+        <div className="h-[10%] flex flex-col justify-end">
           <div>
             <ProgressBar value={80} />
           </div>

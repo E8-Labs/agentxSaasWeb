@@ -38,15 +38,28 @@ const ActionsTab = ({
 
   // Check if user has access to Lead Scoring
   const hasLeadScoringAccess = useMemo(() => {
-    // For agency subaccounts, check agency capabilities
+    // For agency subaccounts
     if (reduxUser?.userRole === 'AgencySubAccount') {
-      return reduxUser?.agencyCapabilities?.allowLeadScoring === true
+      // If agencyCapabilities.allowLeadScoring === false, show "Request Feature" button
+      if (reduxUser?.agencyCapabilities?.allowLeadScoring === false) {
+        return false // Will show UpgardView with "Request Feature" button
+      }
+      // If agencyCapabilities.allowLeadScoring === true, check planCapabilities
+      if (reduxUser?.agencyCapabilities?.allowLeadScoring === true) {
+        // If planCapabilities.allowLeadScoring === true, show lead scoring UI
+        // Else show upgrade UI
+        return reduxUser?.planCapabilities?.allowLeadScoring === true
+      }
+      // If agencyCapabilities.allowLeadScoring is undefined/null, default to false
+      return false
     }
-    // For normal users, check plan capabilities
-    // If allowLeadScoring doesn't exist, default to true
-    if (reduxUser?.planCapabilities?.allowLeadScoring === undefined || reduxUser?.planCapabilities?.allowLeadScoring === null) {
+    // For normal users
+    // If planCapabilities doesn't have allowLeadScoring, return true
+    if (reduxUser?.planCapabilities?.allowLeadScoring === undefined || 
+        reduxUser?.planCapabilities?.allowLeadScoring === null) {
       return true
     }
+    // Else return the actual value
     return reduxUser?.planCapabilities?.allowLeadScoring === true
   }, [reduxUser])
 

@@ -182,6 +182,40 @@ const PipelineAndStage = ({
                 PersistanceKeys.selectedUser,
                 JSON.stringify(selectedUser),
               )
+              
+              // Store agent details for pipeline update page
+              if (mainAgent?.id) {
+                localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
+              }
+              
+              // Store cadence data in the format expected by Pipeline1.js
+              if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
+                const cadenceDetails = agentCadence.map((stage) => ({
+                  stage: stage.cadence.stage?.id,
+                  calls: stage.calls.map((call) => ({
+                    id: call.id,
+                    waitTimeDays: call.waitTimeDays || 0,
+                    waitTimeHours: call.waitTimeHours || 0,
+                    waitTimeMinutes: call.waitTimeMinutes || 0,
+                    communicationType: call.communicationType || 'call',
+                    // Include template data if present
+                    ...(call.templateId && { templateId: call.templateId }),
+                    ...(call.templateName && { templateName: call.templateName }),
+                    ...(call.subject && { subject: call.subject }),
+                    ...(call.content && { content: call.content }),
+                  })),
+                  moveToStage: stage.cadence.moveToStage?.id || null,
+                }))
+                
+                const cadenceData = {
+                  pipelineID: mainAgent.pipeline.id,
+                  cadenceDetails: cadenceDetails,
+                }
+                
+                localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
+                console.log('Stored cadence data for pipeline update:', cadenceData)
+              }
+              
               if (agentCadence.length === 0) {
                 // router.push("/pipeline/update");
                 window.location.href = '/pipeline/update'
@@ -213,6 +247,40 @@ const PipelineAndStage = ({
             setShowConfirmationPopup(false)
             console.log('selectedAgent.id', selectedAgent.id)
             console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
+            
+            // Store agent details for pipeline update page
+            if (mainAgent?.id) {
+              localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
+            }
+            
+            // Store cadence data in the format expected by Pipeline1.js
+            if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
+              const cadenceDetails = agentCadence.map((stage) => ({
+                stage: stage.cadence.stage?.id,
+                calls: stage.calls.map((call) => ({
+                  id: call.id,
+                  waitTimeDays: call.waitTimeDays || 0,
+                  waitTimeHours: call.waitTimeHours || 0,
+                  waitTimeMinutes: call.waitTimeMinutes || 0,
+                  communicationType: call.communicationType || 'call',
+                  // Include template data if present
+                  ...(call.templateId && { templateId: call.templateId }),
+                  ...(call.templateName && { templateName: call.templateName }),
+                  ...(call.subject && { subject: call.subject }),
+                  ...(call.content && { content: call.content }),
+                })),
+                moveToStage: stage.cadence.moveToStage?.id || null,
+              }))
+              
+              const cadenceData = {
+                pipelineID: mainAgent.pipeline.id,
+                cadenceDetails: cadenceDetails,
+              }
+              
+              localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
+              console.log('Stored cadence data for pipeline update:', cadenceData)
+            }
+            
             if (selectedUser) {
               let u = {
                 subAccountData: selectedUser,

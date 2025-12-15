@@ -263,14 +263,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       className="overflow-y-none flex flex-row justify-center items-center"
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
+        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 min-h-[88svh] max-h-[90svh] shadow-lg overflow-hidden py-4"
         style={{ scrollbarWidth: 'none' }}
         //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
-        <div
-          className={`h-[90svh] sm:h-[80svh] `}
-          //84svh
-        >
+        <div className="flex-1 overflow-auto px-4 h-[90%]">
           {/* header */}
           <div className="w-full h-[10%]">
             <Header />
@@ -402,12 +399,9 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
           </div>
         </div>
 
-        <div className=" h-[10%] flex flex-col justify-end w-full ">
-          <div>
-            <ProgressBar value={value} />
-          </div>
-
-          <div className="mb-4" style={{ height: '35px' }}>
+        <div className="flex-shrink-0 flex flex-col gap-1 w-full pb-4 pt-1 bg-white max-h-[10%]">
+          <ProgressBar value={value} />
+          <div className="h-[40px] flex items-center justify-end">
             <Footer
               handleContinue={handleNext}
               donotShowBack={true}

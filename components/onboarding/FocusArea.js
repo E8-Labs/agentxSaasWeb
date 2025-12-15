@@ -228,16 +228,16 @@ const FocusArea = ({
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 sm:h-[90%] py-4 "
+        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 min-h-[90svh] max-h-[96svh] shadow-lg overflow-hidden py-4"
         style={{ scrollbarWidth: 'none' }} //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[90svh] sm:h-[82svh]">
+        <div className="flex-1 overflow-auto px-4">
           {/* header 84svh */}
-          <div className="h-[10%]">
+          <div className="w-full h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full min-h-[90%]">
             <div
               className="mt-6 w-9/12 sm:w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -431,56 +431,56 @@ const FocusArea = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
-          <div>
-            <ProgressBar value={60} />
-          </div>
+        <div className="flex-shrink-0 flex flex-col gap-3 w-full pb-4 pt-1 bg-white">
+          <ProgressBar value={60} />
 
-          <Footer
-            handleContinue={() => {
-              let windowWidth = 1000
-              if (typeof window !== 'undefined') {
-                windowWidth = window.innerWidth
-              }
-              if (windowWidth < 640) {
-                const data = localStorage.getItem(
-                  PersistanceKeys.RegisterDetails,
-                )
-
-                if (data) {
-                  const LocalDetails = JSON.parse(data)
-                  // //console.log;
-                  let agentType = LocalDetails.userTypeTitle
-
-                  let details = LocalDetails
-                  // details.focusAreaId = focusArea;
-
-                  if (Array.isArray(focusArea)) {
-                    // Append otherType only if it has a value
-                    details.focusAreaId = otherType.trim()
-                      ? [...focusArea, otherType]
-                      : [...focusArea]
-                  } else {
-                    // Initialize focusAreaId with otherType only if it has a value
-                    details.focusAreaId = otherType.trim() ? [otherType] : []
-                  }
-
-                  // //console.log;
-
-                  // return
-                  localStorage.setItem(
-                    PersistanceKeys.RegisterDetails,
-                    JSON.stringify(details),
-                  )
+          <div className="h-[40px]">
+            <Footer
+              handleContinue={() => {
+                let windowWidth = 1000
+                if (typeof window !== 'undefined') {
+                  windowWidth = window.innerWidth
                 }
-                handleContinue()
-              } else {
-                handleNext()
-              }
-            }}
-            handleBack={handleBack}
-            shouldContinue={shouldContinue}
-          />
+                if (windowWidth < 640) {
+                  const data = localStorage.getItem(
+                    PersistanceKeys.RegisterDetails,
+                  )
+
+                  if (data) {
+                    const LocalDetails = JSON.parse(data)
+                    // //console.log;
+                    let agentType = LocalDetails.userTypeTitle
+
+                    let details = LocalDetails
+                    // details.focusAreaId = focusArea;
+
+                    if (Array.isArray(focusArea)) {
+                      // Append otherType only if it has a value
+                      details.focusAreaId = otherType.trim()
+                        ? [...focusArea, otherType]
+                        : [...focusArea]
+                    } else {
+                      // Initialize focusAreaId with otherType only if it has a value
+                      details.focusAreaId = otherType.trim() ? [otherType] : []
+                    }
+
+                    // //console.log;
+
+                    // return
+                    localStorage.setItem(
+                      PersistanceKeys.RegisterDetails,
+                      JSON.stringify(details),
+                    )
+                  }
+                  handleContinue()
+                } else {
+                  handleNext()
+                }
+              }}
+              handleBack={handleBack}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

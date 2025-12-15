@@ -3,14 +3,13 @@
 import axios from 'axios'
 import dynamic from 'next/dynamic.js'
 import { useRouter } from 'next/navigation.js'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import Apis from '@/components/apis/Apis.js'
 import getProfileDetails from '@/components/apis/GetProfile.js'
 // const Pipeline2 = dynamic(() =>
 //   import("../../components/pipeline/Pipeline2.js")
 // );
-import BackgroundVideo from '@/components/general/BackgroundVideo.js'
 import { PersistanceKeys } from '@/constants/Constants.js'
 import { useUser } from '@/hooks/redux-hooks.js'
 
@@ -26,6 +25,8 @@ const Pipeline1 = dynamic(
 const Page = () => {
   const router = useRouter()
   const [index, setIndex] = useState(0)
+  const [shouldShowGradient, setShouldShowGradient] = useState(false)
+  const [gradientBackground, setGradientBackground] = useState(null)
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
@@ -34,6 +35,146 @@ const Page = () => {
   let components = [Pipeline1]
 
   let CurrentComp = components[index]
+
+  // Function to get brand primary color from CSS variable
+  const getBrandColor = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return 'hsl(270, 75%, 50%)'
+    try {
+      const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
+      if (computedColor) {
+        if (computedColor.startsWith('hsl')) {
+          return computedColor
+        } else {
+          return `hsl(${computedColor})`
+        }
+      }
+    } catch (error) {
+      console.log('Error getting brand color:', error)
+    }
+    return 'hsl(270, 75%, 50%)'
+  }
+
+  // Function to create gradient string
+  const getGradientString = (brandColor) => {
+    const hslMatch = brandColor.match(/hsl\(([^)]+)\)/)
+    if (hslMatch) {
+      let hslValues = hslMatch[1].trim()
+      if (!hslValues.includes(',')) {
+        const parts = hslValues.split(/\s+/)
+        hslValues = parts.join(', ')
+      }
+      const baseColor = `hsl(${hslValues})`
+      const colorWithOpacity = `hsla(${hslValues}, 0.4)`
+      const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+        ? 'linear-gradient(to bottom left'
+        : 'radial-gradient(circle at top right'
+      return `${gradientType}, ${baseColor} 0%, ${colorWithOpacity} 100%)`
+    }
+    const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+      ? 'linear-gradient(to bottom left'
+      : 'radial-gradient(circle at top right'
+    return `${gradientType}, hsl(270, 75%, 50%) 0%, hsla(270, 75%, 50%, 0.4) 100%)`
+  }
+
+  // Check if user is subaccount or agency and set gradient
+  useEffect(() => {
+    const checkUserRole = () => {
+      if (typeof window === 'undefined') return false
+      
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing User data:', error)
+        }
+      }
+      
+      const localUser = localStorage.getItem('LocalStorageUser')
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser)
+          const userRole = parsed?.user?.userRole || parsed?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing LocalStorageUser:', error)
+        }
+      }
+      
+      const subAccountData = localStorage.getItem('SubaccoutDetails')
+      if (subAccountData) {
+        try {
+          const parsed = JSON.parse(subAccountData)
+          if (parsed) {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing SubaccoutDetails:', error)
+        }
+      }
+      
+      // Check if we're on a custom domain or subdomain and have branding
+      const hostname = window.location.hostname
+      const isDevDomain = hostname === 'dev.assignx.ai'
+      const isProdDomain = hostname === 'app.assignx.ai'
+      const isLocalhost = hostname === 'localhost' || hostname.includes('127.0.0.1')
+      const isCustomDomain = !hostname.includes('.assignx.ai') && hostname !== 'assignx.ai' && !isLocalhost
+      const isAssignxSubdomain = hostname.includes('.assignx.ai') && 
+                                 hostname !== 'assignx.ai' && 
+                                 !isDevDomain && 
+                                 !isProdDomain && 
+                                 !isLocalhost
+      
+      const branding = localStorage.getItem('agencyBranding')
+      if (branding) {
+        try {
+          const brandingData = JSON.parse(branding)
+          if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing branding:', error)
+        }
+      }
+      
+      return false
+    }
+
+    const initGradient = () => {
+      const isSubaccountOrAgency = checkUserRole()
+      
+      if (isSubaccountOrAgency) {
+        const brandColor = getBrandColor()
+        const gradientStr = getGradientString(brandColor)
+        setShouldShowGradient(true)
+        setGradientBackground(gradientStr)
+      } else {
+        setShouldShowGradient(false)
+        setGradientBackground(null)
+      }
+    }
+
+    initGradient()
+    const timeout = setTimeout(initGradient, 500)
+    
+    // Listen for branding updates
+    const handleUpdate = () => {
+      initGradient()
+    }
+    
+    window.addEventListener('agencyBrandingUpdated', handleUpdate)
+    
+    return () => {
+      clearTimeout(timeout)
+      window.removeEventListener('agencyBrandingUpdated', handleUpdate)
+    }
+  }, [])
 
   // Function to proceed to the next step
   const handleContinue = () => {
@@ -171,7 +312,7 @@ const Page = () => {
           }
 
           console.log('🔥 PIPELINE-UPDATE - Routing to dashboard')
-          router.push('/dashboard/myAgentX')
+          router.push('/dashboard/agents')
         } else {
           // setLoader(false);
         }
@@ -185,34 +326,37 @@ const Page = () => {
   }
 
   const backgroundImage = {
-    // backgroundImage: 'url("/assets/background.png")',
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     width: '100%',
     height: '100vh',
     overflow: 'none',
-    // backgroundColor: 'red'
+    ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
   }
 
   return (
     <div
-      style={{ ...backgroundImage }}
-      className="overflow-y-none flex flex-row justify-center items-center"
+      style={backgroundImage}
+      className={`overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          zIndex: -1, // Ensure the video stays behind content
-        }}
-      >
-        <BackgroundVideo />
-      </div>
+      {!shouldShowGradient && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: -1, // Ensure the video stays behind content
+            backgroundImage: 'url("/assets/background.png")',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+          }}
+        />
+      )}
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
     // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>

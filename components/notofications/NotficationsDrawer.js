@@ -426,7 +426,7 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            router.push('/dashboard/myAgentX')
+            router.push('/dashboard/agents')
             setShowNotificationDrawer(false)
           }}
         >

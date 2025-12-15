@@ -93,7 +93,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const localAgentData = localStorage.getItem('agentDetails')
     if (localAgentData && localAgentData != 'undefined') {
       const Data = JSON.parse(localAgentData)
-      if (Data.agents.length === 1 && Data.agents[0].agentType == 'inbound') {
+      if (Data?.agents?.length === 1 && Data.agents[0]?.agentType == 'inbound') {
         return
       } else {
         // //console.log;
@@ -123,6 +123,7 @@ const Pipeline1 = ({ handleContinue }) => {
         const restoredAssignedLeads = {}
         const restoredRowsByIndex = {}
         const restoredNextStage = {}
+        const restoredNextStageTitles = {} // For dropdown values
 
         storedCadenceDetails?.forEach((cadence) => {
           const stageIndex = selectedPipeline.stages.findIndex(
@@ -138,6 +139,8 @@ const Pipeline1 = ({ handleContinue }) => {
               )
               if (nextStage) {
                 restoredNextStage[stageIndex] = nextStage
+                // Also set the stage title for the dropdown
+                restoredNextStageTitles[stageIndex] = nextStage.stageTitle || nextStage.title
               }
             }
           }
@@ -146,6 +149,7 @@ const Pipeline1 = ({ handleContinue }) => {
         setAssignedLeads(restoredAssignedLeads)
         setRowsByIndex(restoredRowsByIndex)
         setSelectedNextStage(restoredNextStage)
+        setNextStage(restoredNextStageTitles) // Set dropdown values
       } else {
         // //console.log;
       }
@@ -257,10 +261,34 @@ const Pipeline1 = ({ handleContinue }) => {
       if (response) {
         console.log('Response is of get pipelines', response.data.data)
         setPipelinesDetails(response.data.data)
-        setSelectPipleLine(response.data.data[0].title)
-        setSelectedPipelineItem(response.data.data[0])
-        setSelectedPipelineStages(response.data.data[0].stages)
-        setOldStages(response.data.data[0].stages)
+        
+        // Check if there's stored cadence data and select that pipeline
+        const localCadences = localStorage.getItem('AddCadenceDetails')
+        let pipelineToSelect = response.data.data[0] // Default to first pipeline
+        
+        if (localCadences && localCadences !== 'null') {
+          try {
+            const localCadenceDetails = JSON.parse(localCadences)
+            const storedPipelineId = localCadenceDetails.pipelineID
+            
+            // Find the pipeline that matches the stored cadence
+            const matchingPipeline = response.data.data.find(
+              (pipeline) => pipeline.id === storedPipelineId,
+            )
+            
+            if (matchingPipeline) {
+              pipelineToSelect = matchingPipeline
+              console.log('Found matching pipeline for cadence:', matchingPipeline.title)
+            }
+          } catch (error) {
+            console.log('Error parsing cadence details:', error)
+          }
+        }
+        
+        setSelectPipleLine(pipelineToSelect.title)
+        setSelectedPipelineItem(pipelineToSelect)
+        setSelectedPipelineStages(pipelineToSelect.stages)
+        setOldStages(pipelineToSelect.stages)
         localStorage.setItem(
           'pipelinesData',
           JSON.stringify(response.data.data),
@@ -442,8 +470,8 @@ const Pipeline1 = ({ handleContinue }) => {
       const agentData = JSON.parse(agentDetails)
       // //console.log;
       if (
-        agentData.agents.length === 1 &&
-        agentData.agents[0].agentType === 'inbound'
+        agentData?.agents?.length === 1 &&
+        agentData.agents[0]?.agentType === 'inbound'
       ) {
         cadenceData = {
           pipelineID: selectedPipelineItem?.id,

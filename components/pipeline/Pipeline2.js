@@ -617,7 +617,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             router.push('/agency/dashboard/subAccounts') //agency
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
           } else {
-            router.push('/dashboard/myAgentX')
+            router.push('/dashboard/agents')
           }
         } else {
           // setLoader(false);
@@ -933,10 +933,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               </div> */}
               <div
                 style={{ fontSize: 24, fontWeight: '700' }}
-                className="flex flex-row items-center center w-full justify-between"
+                className="flex flex-row items-center center w-full"
               >
                 <div>{AgentDetails?.name} Script</div>
-                <div>
+              </div>
+              <div style={styles.headingStyle} className="mt-4">Greeting</div>
+              <div className="relative w-full mt-2">
+                <div className="absolute top-2 right-2 z-10">
                   <button
                     className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                     style={{
@@ -954,19 +957,18 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     <ArrowUpRight size={20} color="white" />
                   </button>
                 </div>
+                {loadingAgentDetails ? (
+                  <ScriptLoader height={50} />
+                ) : (
+                  <GreetingTagInput
+                    greetTag={greetingTagInput}
+                    kycsList={kycsData}
+                    uniqueColumns={uniqueColumns}
+                    tagValue={setGreetingTagInput}
+                    scrollOffset={scrollOffset}
+                  />
+                )}
               </div>
-              <div style={styles.headingStyle}>Greeting</div>
-              {loadingAgentDetails ? (
-                <ScriptLoader height={50} />
-              ) : (
-                <GreetingTagInput
-                  greetTag={greetingTagInput}
-                  kycsList={kycsData}
-                  uniqueColumns={uniqueColumns}
-                  tagValue={setGreetingTagInput}
-                  scrollOffset={scrollOffset}
-                />
-              )}
 
               {/* <MentionsInputTest /> <TagInput /> */}
 

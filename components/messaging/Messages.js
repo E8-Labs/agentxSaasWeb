@@ -102,26 +102,60 @@ const Messages = () => {
         return String(val)
       }
 
-      return {
-        from:
-          ensureString(
+      const isOutbound = message.direction === 'outbound'
+
+      // For outgoing messages: from = sender (user/agent), to = recipient (lead)
+      // For incoming messages: from = sender (lead), to = recipient (user/agent)
+      let fromEmail = ''
+      let toEmail = ''
+
+      if (isOutbound) {
+        // Outgoing: from is the sender (user/agent email), to is the recipient (lead email)
+        fromEmail = ensureString(
+          message.fromEmail ||
             message.from ||
-              message.sender ||
-              message.senderEmail ||
-              message.metadata?.from ||
-              getHeader('from') ||
-              // fallback to lead email (treat the thread lead as sender for inbound)
-              selectedThread?.lead?.email,
-          ) || 'Unknown sender',
-        to: ensureString(
-          message.to ||
-            message.toEmail ||
+            message.sender ||
+            message.senderEmail ||
+            message.metadata?.from ||
+            getHeader('from') ||
+            userData?.user?.email ||
+            ''
+        )
+        toEmail = ensureString(
+          message.toEmail ||
+            message.to ||
             message.receiverEmail ||
             message.metadata?.to ||
             getHeader('to') ||
-            // fallback to current user email if available
-            userData?.user?.email,
-        ),
+            selectedThread?.lead?.email ||
+            ''
+        )
+      } else {
+        // Incoming: from is the sender (lead email), to is the recipient (user/agent email)
+        fromEmail = ensureString(
+          message.fromEmail ||
+            message.from ||
+            message.sender ||
+            message.senderEmail ||
+            message.metadata?.from ||
+            getHeader('from') ||
+            selectedThread?.lead?.email ||
+            ''
+        )
+        toEmail = ensureString(
+          message.toEmail ||
+            message.to ||
+            message.receiverEmail ||
+            message.metadata?.to ||
+            getHeader('to') ||
+            userData?.user?.email ||
+            ''
+        )
+      }
+
+      return {
+        from: fromEmail || 'Unknown sender',
+        to: toEmail || 'Unknown recipient',
         cc: ensureString(message.metadata?.cc || message.cc || getHeader('cc')),
         subject: ensureString(message.subject || getHeader('subject')),
         date: message.createdAt ? moment(message.createdAt).format('MMM D, YYYY, h:mm A') : '',
@@ -675,9 +709,46 @@ const Messages = () => {
     if (!content || typeof window === 'undefined') return content
     if (typeof content !== 'string') return content
     
+    // Extract plain text from HTML if needed for pattern matching
     let text = content
+    if (typeof document !== 'undefined' && content.includes('<')) {
+      try {
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = content
+        text = tempDiv.textContent || tempDiv.innerText || content
+      } catch (e) {
+        // If HTML parsing fails, use original content
+        text = content
+      }
+    }
     
-    // Pattern 1: "On [date] [time] [sender] wrote:" and everything after
+    // Pattern 1: "Replying to [subject] [sender]" - Gmail style
+    // Match patterns like "Replying to test Noah Nega Technical Developer"
+    // This pattern indicates the start of quoted/signature content
+    const replyingToPattern = /Replying\s+to\s+[^\n]+/i
+    const replyingToMatch = text.match(replyingToPattern)
+    if (replyingToMatch) {
+      const matchIndex = text.indexOf(replyingToMatch[0])
+      // If there's content before "Replying to", that's the actual reply
+      if (matchIndex > 0) {
+        text = text.substring(0, matchIndex).trim()
+      } else {
+        // "Replying to" is at the start - check if there's actual reply content
+        // Look for the pattern and see what comes after
+        const afterHeader = text.substring(replyingToMatch[0].length).trim()
+        // If what follows is clearly quoted content (quotes, phone, URLs), remove everything
+        if (afterHeader.match(/^["'].*["']|^\(?\d{3}\)?|^www\.|^http/i)) {
+          // This is all quoted/signature content, return empty
+          text = ''
+        } else {
+          // Might have some content, but "Replying to" header should be removed
+          // The actual reply would be before this, so if it's at start, there's no reply
+          text = ''
+        }
+      }
+    }
+    
+    // Pattern 2: "On [date] [time] [sender] wrote:" and everything after
     // Match patterns like "On Fri, Nov 28, 2025 at 7:18 AM Tech Connect wrote:"
     const onDatePattern = /On\s+\w+,\s+\w+\s+\d+,\s+\d+\s+at\s+\d+:\d+\s+(?:AM|PM)\s+[^:]+:\s*/i
     const onDateMatch = text.match(onDatePattern)
@@ -688,7 +759,7 @@ const Messages = () => {
       }
     }
     
-    // Pattern 2: Remove lines starting with ">" (quoted lines)
+    // Pattern 3: Remove lines starting with ">" (quoted lines)
     if (text.includes('>')) {
       const lines = text.split('\n')
       const cleanedLines = []
@@ -709,12 +780,83 @@ const Messages = () => {
       text = cleanedLines.join('\n').trim()
     }
     
-    // Pattern 3: Remove "-----Original Message-----" and everything after
+    // Pattern 4: Remove "-----Original Message-----" and everything after
     const originalMessagePattern = /-----Original Message-----/i
     if (text.match(originalMessagePattern)) {
       const index = text.toLowerCase().indexOf('-----original message-----')
       if (index > 0) {
         text = text.substring(0, index).trim()
+      }
+    }
+    
+    // Pattern 5: Remove signature blocks and quoted content (phone numbers, URLs, quotes, etc.)
+    // Look for patterns like phone numbers, URLs, quoted text, or common signature indicators
+    const lines = text.split('\n')
+    const cleanedLines = []
+    let foundSignature = false
+    
+    // Common signature indicators
+    const signaturePatterns = [
+      /^[\s]*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/, // Phone numbers like (408) 679.9068
+      /^[\s]*(www\.|http:\/\/|https:\/\/)/i, // URLs
+      /^[\s]*Best\s+regards/i,
+      /^[\s]*Sincerely/i,
+      /^[\s]*Thanks/i,
+      /^[\s]*Regards/i,
+    ]
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const trimmedLine = line.trim()
+      
+      // Skip empty lines if we haven't found signature yet
+      if (!trimmedLine && !foundSignature) {
+        cleanedLines.push(line)
+        continue
+      }
+      
+      // Check if this line matches a signature pattern
+      const isSignatureLine = signaturePatterns.some(pattern => pattern.test(trimmedLine))
+      
+      // Check if line contains quoted text in quotes (like "Don't postpone...")
+      // This often indicates quoted content from the original email
+      const isQuotedText = trimmedLine.match(/^["'].*["']$/) && trimmedLine.length > 15
+      
+      // Check if line looks like a standalone quote (starts and ends with quotes)
+      if (isQuotedText) {
+        foundSignature = true
+        break
+      }
+      
+      if (isSignatureLine) {
+        foundSignature = true
+        break
+      }
+      
+      // If we haven't found signature yet, keep the line
+      if (!foundSignature) {
+        cleanedLines.push(line)
+      }
+    }
+    
+    text = cleanedLines.join('\n').trim()
+    
+    // Pattern 6: Remove content after common email separators
+    const separators = [
+      /^From:.*$/m,
+      /^Sent:.*$/m,
+      /^To:.*$/m,
+      /^Subject:.*$/m,
+      /^Date:.*$/m,
+    ]
+    
+    for (const separator of separators) {
+      const match = text.match(separator)
+      if (match) {
+        const index = text.indexOf(match[0])
+        if (index > 0) {
+          text = text.substring(0, index).trim()
+        }
       }
     }
     
@@ -882,7 +1024,13 @@ const Messages = () => {
         )
 
         if (response.data?.status) {
-          toast.success('Message sent successfully')
+          toast.success('Message sent successfully', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
           // Reset composer
           setComposerData({
             to: selectedThread.receiverPhoneNumber || '',
@@ -1029,7 +1177,13 @@ const Messages = () => {
         )
 
         if (response.data?.status) {
-          toast.success('Email sent successfully')
+          toast.success('Email sent successfully', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
           // Reset composer but preserve subject if we're in an email thread context
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
           const preservedSubject = emailTimelineSubject || 
@@ -1357,10 +1511,9 @@ const Messages = () => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      // Delete the lead
-      const response = await axios.post(
-        Apis.deleteLead,
-        { leadId },
+      // Delete the thread (not the lead)
+      const response = await axios.delete(
+        `${Apis.deleteThread}/${threadId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1370,7 +1523,13 @@ const Messages = () => {
       )
 
       if (response.data?.status) {
-        toast.success('Lead deleted successfully')
+        toast.success('Thread deleted successfully', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
         // Refresh threads
         fetchThreads(searchValue)
         // Clear selected thread if it was deleted
@@ -1379,11 +1538,11 @@ const Messages = () => {
           setMessages([])
         }
       } else {
-        toast.error(response.data?.message || 'Failed to delete lead')
+        toast.error(response.data?.message || 'Failed to delete thread')
       }
     } catch (error) {
-      console.error('Error deleting lead:', error)
-      toast.error('Error deleting lead')
+      console.error('Error deleting thread:', error)
+      toast.error(error.response?.data?.message || 'Error deleting thread')
     }
   }, [searchValue, selectedThread, fetchThreads])
 

@@ -110,24 +110,31 @@ export const getUserPlans = async (from, selectedUser) => {
     // If cache is stale or doesn't exist, make API call
     let token = AuthToken()
 
-    let path = Apis.getPlans
+    // If no auth token, avoid hitting protected endpoints
+    if (!token) {
+      console.log('⚠️ [getUserPlans] No auth token found, skipping plan fetch')
+      return null
+    }
 
-    if (isTeamMember(UserLocalData)) {
-      if (isAgencyTeamMember(UserLocalData)) {
-        path = Apis.getPlansForAgency
-      } else if (isSubaccountTeamMember(UserLocalData)) {
-        path = Apis.getSubAccountPlans
-      }
+    let path = Apis.getPlans
+    const role = UserLocalData?.userRole
+    const isAgency = role === 'Agency'
+    const isSubAccount = role === 'AgencySubAccount'
+    const teamAgency =
+      isTeamMember(UserLocalData) && isAgencyTeamMember(UserLocalData)
+    const teamSub =
+      isTeamMember(UserLocalData) && isSubaccountTeamMember(UserLocalData)
+
+    if (isAgency || teamAgency) {
+      path = Apis.getPlansForAgency
+    } else if (isSubAccount || teamSub) {
+      path = Apis.getSubAccountPlans
+    } else if ((from === 'agency' || from === 'Agency') && (isAgency || teamAgency)) {
+      path = Apis.getPlansForAgency
+    } else if (from === 'SubAccount' && (isSubAccount || teamSub)) {
+      path = Apis.getSubAccountPlans
     } else {
-      if (UserLocalData?.userRole === 'AgencySubAccount') {
-        path = Apis.getSubAccountPlans
-      } else if (UserLocalData?.userRole === 'Agency') {
-        path = Apis.getPlansForAgency
-      } else if (from === 'SubAccount') {
-        path = Apis.getSubAccountPlans
-      } else if (from === 'agency' || from === 'Agency') {
-        path = Apis.getPlansForAgency
-      }
+      path = Apis.getPlans
     }
 
     console.log('path of get plans', path)

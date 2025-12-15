@@ -259,11 +259,11 @@ function CalendarModal(props) {
     const currentPath = window.location.origin + window.location.pathname
     
     // Use existing approved redirect URI (no approval needed)
-    // Use /dashboard/myAgentX which is already approved in GHL console
+    // Use /dashboard/agents which is already approved in GHL console
     const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     const GHL_REDIRECT_URI = isProduction
-      ? 'https://app.assignx.ai/dashboard/myAgentX'
-      : 'https://dev.assignx.ai/dashboard/myAgentX'
+      ? 'https://app.assignx.ai/dashboard/agents'
+      : 'https://dev.assignx.ai/dashboard/agents'
 
     // Get agency custom domain from API
     const { agencyId, customDomain, subaccountId: apiSubaccountId } = await getAgencyCustomDomain()

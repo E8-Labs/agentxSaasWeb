@@ -830,7 +830,7 @@ export default function AddMonthlyPlan({
                 <div className="w-6/12">
                   {/* Price - Now Total Price Per Month */}
                   <label style={styles.labels}>
-                    Total price per month
+                    Price per month
                   </label>
                   <div
                     className={`border ${minCostErr || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}

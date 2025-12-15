@@ -263,24 +263,7 @@ const Page = () => {
                   width={20}
                   alt="*"
                 />
-                {/* <Popover
- id="mouse-over-popover"
- sx={{ pointerEvents: 'none' }}
- open={open}
- anchorEl={anchorEl}
- anchorOrigin={{
- vertical: 'bottom',
- horizontal: 'left',
- }}
- transformOrigin={{
- vertical: 'top',
- horizontal: 'left',
- }}
- onClose={handlePopoverClose}
- disableRestoreFocus
- >
- <Typography sx={{ p: 1 }}>I use Popover.</Typography>
- </Popover> */}
+                
               </div>
             )}
           </div>
@@ -333,7 +316,7 @@ const Page = () => {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col mt-12 items-center w-full h-[100%]">
+        <div className="flex flex-col items-center w-full h-[100%] relative">
           <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
             style={{
               position: 'absolute',
@@ -342,26 +325,27 @@ const Page = () => {
               width: '100%',
               height: '20%',
               objectFit: 'cover',
-              zIndex: -1, // Ensure the video stays behind content
+              zIndex: 0, // Behind content but visible
               overflow: 'hidden',
-
             }}
           >
           </div>
-          <div className="w-9/12 flex flex-col items-center h-[100%]">
+          {/* Notification icon positioned at the right edge of the screen */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 25,
+              right: 20,
+              zIndex: 20,
+            }}
+          >
+            <NotficationsDrawer />
+          </div>
+          <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 25,
-                right: 50,
-              }}
-            >
-              <NotficationsDrawer />
-            </div>
-            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl">
+            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl mt-12">
               <div className="w-11/12 h-[100%]">
                 <div className="w-full flex flex-row items-center justify-between h-[30%]">
                   <div className="w-2/12 flex flex-col gap-1">

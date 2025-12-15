@@ -766,23 +766,7 @@ function EmailTempletePopup({
               </FormControl>
             </div>
 
-            {/* CC and BCC toggle buttons - above From field */}
-            <div className="flex items-center gap-2 mt-2">
-              <button
-                onClick={() => setShowCC(!showCC)}
-                className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                Cc
-              </button>
-              <button
-                onClick={() => setShowBCC(!showBCC)}
-                className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                Bcc
-              </button>
-            </div>
+
 
             {/* From Field with Dropdown */}
             <div className="flex items-center gap-2 mt-1">
@@ -858,6 +842,23 @@ function EmailTempletePopup({
                     </Select>
                   </FormControl>
                 )}
+              </div>
+              {/* CC and BCC toggle buttons - above From field */}
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() => setShowCC(!showCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Cc
+                </button>
+                <button
+                  onClick={() => setShowBCC(!showBCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Bcc
+                </button>
               </div>
             </div>
 
@@ -1086,7 +1087,7 @@ function EmailTempletePopup({
                   <span className="text-xs text-gray-500">
                     {formatDecimalValue(file.size / 1024)} KB
                   </span>
-                  <button 
+                  <button
                     onClick={() => removeAttachment(idx)}
                     className="text-brand-primary hover:text-brand-primary/80 transition-colors"
                   >

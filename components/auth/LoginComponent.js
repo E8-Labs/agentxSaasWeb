@@ -539,11 +539,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
   }
 
-  //focus the first input field
+  // focus the first verification input when popup opens (after portal mounts)
   useEffect(() => {
-    if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus()
-    }
+    if (!showVerifyPopup) return
+    const focusTimer = setTimeout(() => {
+      verifyInputRef.current[0]?.focus()
+    }, 50)
+    return () => clearTimeout(focusTimer)
   }, [showVerifyPopup])
 
   //code to show verify popup
@@ -843,7 +845,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               let w = innerWidth
               
               // Determine redirect path
-              let redirectPath = '/dashboard/myAgentX'
+              let redirectPath = '/dashboard/agents'
               
               if (w < 540) {
                 redirectPath = '/createagent/desktop'
@@ -868,7 +870,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   ) {
                     redirectPath = '/agency/dashboard'
                   } else {
-                    redirectPath = '/dashboard/myAgentX'
+                    redirectPath = '/dashboard/agents'
                   }
                 }
               }
@@ -1441,6 +1443,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     className=" focus:outline-none focus:ring-0"
                     key={index}
                     ref={(el) => (verifyInputRef.current[index] = el)}
+                    autoFocus={index === 0}
                     type="tel"
                     inputMode="numeric"
                     // type="tel"

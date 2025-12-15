@@ -135,9 +135,8 @@ const EmailTimelineModal = ({
         setReplySubject('')
       }
       
-      // Format quoted message content
-      const quotedContent = formatQuotedMessage(replyToMessage)
-      setReplyBody(quotedContent)
+      // Keep reply body blank - user will type their own reply
+      setReplyBody('')
       
       // Focus the editor after a short delay
       setTimeout(() => {
@@ -166,10 +165,21 @@ const EmailTimelineModal = ({
 
   const handleSend = async () => {
     // Use reply subject if in reply mode, otherwise use timeline subject
-    const emailSubject = replyToMessage ? replySubject : (subject || '')
+    // If replySubject is empty but we're in reply mode, regenerate it from replyToMessage
+    let emailSubject = replyToMessage ? replySubject : (subject || '')
+    if (replyToMessage && !emailSubject && replyToMessage.subject) {
+      emailSubject = formatReplySubject(replyToMessage.subject)
+      setReplySubject(emailSubject) // Save it for next time
+    }
     
     if (!hasTextContent(replyBody) || !selectedEmailAccount || !leadId || !emailSubject) {
-      toast.error('Please fill in all required fields')
+      toast.error('Please fill in all required fields', {
+        style: {
+          width: 'fit-content',
+          maxWidth: '400px',
+          whiteSpace: 'nowrap',
+        },
+      })
       return
     }
 
@@ -177,7 +187,13 @@ const EmailTimelineModal = ({
       setSending(true)
       const localData = localStorage.getItem('User')
       if (!localData) {
-        toast.error('Please log in')
+        toast.error('Please log in', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
         return
       }
 
@@ -203,10 +219,21 @@ const EmailTimelineModal = ({
       })
 
       if (response.data?.status) {
-        toast.success('Email sent successfully')
+        toast.success('Email sent successfully', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
+        // Clear reply body but keep subject and email for next reply
         setReplyBody('')
-        setReplyToEmail('')
-        setReplySubject('')
+        // Don't clear replySubject - keep it for subsequent replies in the same thread
+        // Only regenerate if it's empty (shouldn't happen, but safety check)
+        if (!replySubject && replyToMessage?.subject) {
+          setReplySubject(formatReplySubject(replyToMessage.subject))
+        }
+        // Don't clear replyToEmail either - keep it for subsequent replies
         if (onSendSuccess) {
           await onSendSuccess()
         }
@@ -214,11 +241,23 @@ const EmailTimelineModal = ({
           fetchThreads()
         }
       } else {
-        toast.error(response.data?.message || 'Failed to send email')
+        toast.error(response.data?.message || 'Failed to send email', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
       }
     } catch (error) {
       console.error('Error sending email:', error)
-      toast.error(error.response?.data?.message || 'Failed to send email')
+      toast.error(error.response?.data?.message || 'Failed to send email', {
+        style: {
+          width: 'fit-content',
+          maxWidth: '400px',
+          whiteSpace: 'nowrap',
+        },
+      })
     } finally {
       setSending(false)
     }

@@ -76,9 +76,21 @@ const EmailBubble = ({
       }`}
     >
       {message.subject && (
-        <div className="font-semibold mb-2 relative flex items-center gap-2">
-          <span className="font-normal">Subject:</span>
-          <button
+        <div className="font-semibold mb-2 relative flex items-start">
+          <span 
+            className="font-normal cursor-pointer"
+            onMouseEnter={(e) => {
+              e.stopPropagation()
+              setOpenEmailDetailId(message.id)
+            }}
+            onMouseLeave={(e) => {
+              e.stopPropagation()
+              setOpenEmailDetailId(null)
+            }}
+          >
+            Subject:
+          </span>
+          <div
             onClick={(e) => {
               e.stopPropagation()
               if (onOpenEmailTimeline && message.subject) {
@@ -91,19 +103,11 @@ const EmailBubble = ({
                 }
               }
             }}
-            onMouseEnter={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(message.id)
-            }}
-            onMouseLeave={(e) => {
-              e.stopPropagation()
-              setOpenEmailDetailId(null)
-            }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1"
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1"
             title={message.subject}
           >
             {message.subject}
-          </button>
+          </div>
           {openEmailDetailId === message.id && (
             <div
               className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
@@ -142,9 +146,9 @@ const EmailBubble = ({
                       <div className="text-xs text-gray-500">No metadata available.</div>
                     ) : (
                       rows.map((row) => (
-                        <div key={row.label} className="flex gap-3">
-                          <span className="w-24 text-right text-gray-500 capitalize">{row.label}:</span>
-                          <span className="flex-1 font-medium break-words">{row.value}</span>
+                        <div key={row.label} className="flex items-start gap-2">
+                          <span className="text-gray-500 capitalize whitespace-nowrap">{row.label}:</span>
+                          <span className="font-medium break-words text-left">{row.value}</span>
                         </div>
                       ))
                     )}
@@ -215,6 +219,15 @@ const ConversationView = ({
   onReplyClick,
   onOpenEmailTimeline,
 }) => {
+  // Helper function to normalize email subject for threading comparison
+  const normalizeSubject = (subject) => {
+    if (!subject) return ''
+    // Normalize subject by removing "Re:", "Fwd:", etc. for threading
+    return subject
+      .replace(/^(re|fwd|fw|aw):\s*/i, '')
+      .replace(/^\[.*?\]\s*/, '')
+      .trim()
+  }
   if (!selectedThread) return null
 
   const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
@@ -366,8 +379,20 @@ const ConversationView = ({
             return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
             const isOutbound = message.direction === 'outbound'
             const isEmail = message.messageType === 'email'
-              const isReply = !!replyToId
               const parentMessage = replyToId ? messageMap.get(replyToId) : null
+              
+              // For email messages, only show "Replying to" if the normalized subjects match
+              // If subjects don't match, it's a new thread, not a reply
+              let isReply = false
+              if (replyToId && parentMessage && isEmail) {
+                const currentSubject = normalizeSubject(message.subject || '')
+                const parentSubject = normalizeSubject(parentMessage.subject || '')
+                // Only consider it a reply if subjects match (same thread)
+                isReply = currentSubject.toLowerCase() === parentSubject.toLowerCase() && currentSubject !== ''
+              } else if (replyToId && !isEmail) {
+                // For non-email messages (SMS), use the original logic
+                isReply = true
+              }
               
             const showDateSeparator =
               index === 0 ||
