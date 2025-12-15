@@ -292,8 +292,7 @@ export default function BackgroundVideo({
           left: 0,
           width: '100%',
           height: '100%',
-          // background: gradientStr,
-          backgroundColor: 'red', // Temporary test - remove this
+          background: gradientStr,
         }}
       />
     )
@@ -314,7 +313,6 @@ export default function BackgroundVideo({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          backgroundColor: 'blue', // Temporary test - remove this
         }}
       >
         <source src="/banerVideo.mp4" type="video/mp4" />
@@ -336,7 +334,6 @@ export default function BackgroundVideo({
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundColor: 'green', // Temporary test - remove this
       }}
     />
   )

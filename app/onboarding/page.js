@@ -332,7 +332,6 @@ const Page = ({ params }) => {
             <BackgroundVideo />
           </div>
         )}
-        <div className="absolute inset-0 z-10 bg-gradient-to-br from-slate-950 via-purple-900/35 to-slate-900" />
         <div className="relative z-20 flex w-full justify-center">
           <CurrentComp
             handleContinue={handleContinue}
