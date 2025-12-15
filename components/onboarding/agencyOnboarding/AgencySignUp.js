@@ -951,9 +951,9 @@ const AgencySignUp = ({
                   </Select>
                 </FormControl>
 
-                <button
+                <div
                   disabled={shouldContinue}
-                  className="rounded-lg text-white bg-purple mt-4"
+                  className="flex items-center justify-center rounded-lg text-white bg-purple mt-4 text-center cursor-pointer"
                   style={{
                     fontWeight: '700',
                     fontSize: '16',
@@ -965,8 +965,8 @@ const AgencySignUp = ({
                   }}
                   onClick={handleVerifyPopup}
                 >
-                  Continue
-                </button>
+                  <span className="text-white">Continue</span>
+                </div>
                 {/* Modal for verify number */}
 
                 <Modal

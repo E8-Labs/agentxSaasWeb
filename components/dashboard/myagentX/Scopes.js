@@ -12,16 +12,18 @@ const baseScopes = [
   'https://www.googleapis.com/auth/calendar.events.owned',
 ]
 
-// Gmail scopes (only in test environment)
-const gmailScopes = [
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.readonly', // Required for Gmail watch/push notifications
-]
+// Gmail send scope (available in all environments - approved)
+const gmailSendScope = 'https://www.googleapis.com/auth/gmail.send'
+
+// Gmail readonly scope (only in test environment - not approved for production)
+const gmailReadonlyScope = 'https://www.googleapis.com/auth/gmail.readonly'
 
 // Export scopes based on environment
+// Production: base scopes + gmail.send (but NOT gmail.readonly)
+// Test: base scopes + gmail.send + gmail.readonly
 export const Scopes = isProduction
-  ? baseScopes
-  : [...baseScopes, ...gmailScopes]
+  ? [...baseScopes, gmailSendScope]
+  : [...baseScopes, gmailSendScope, gmailReadonlyScope]
 
 // export const Scopes = [
 //     "openid",

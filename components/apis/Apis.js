@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  // process.env.NEXT_PUBLIC_BASE_API_URL ||
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -359,6 +359,7 @@ const Apis = {
   updateAgencyTermsPrivacy: `${BasePath}api/agency/branding/terms-privacy`,
   getAgencyTermsByUUID: `${BasePath}api/agency/getTermsByUUID`,
   getAgencyPrivacyByUUID: `${BasePath}api/agency/getPrivacyByUUID`,
+  getAgencyCancellationByUUID: `${BasePath}api/agency/getCancellationByUUID`,
 
   // Agency Global Phone Number APIs
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,

@@ -775,7 +775,7 @@ const BrandConfig = () => {
             <div className="inline-flex flex-col justify-start items-start">
               <div className="inline-flex justify-start items-center gap-[3px]">
                 <div className="text-black text-base font-normal leading-normal">
-                  xbar title
+                  Xbar title
                 </div>
               </div>
             </div>
