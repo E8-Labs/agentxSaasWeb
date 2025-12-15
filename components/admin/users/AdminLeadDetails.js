@@ -58,7 +58,7 @@ import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import ConfirmPerplexityModal from '@/components/dashboard/leads/extras/CofirmPerplexityModal'
 import DeleteCallLogConfimation from '@/components/dashboard/leads/extras/DeleteCallLogConfimation'
 import NoPerplexity from '@/components/dashboard/leads/extras/NoPerplexity'
@@ -168,11 +168,7 @@ const AdminLeadDetails = ({
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
   // Stripe configuration for upgrade modal
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)

@@ -27,7 +27,7 @@ import {
 } from '@phosphor-icons/react'
 import { setUser } from '@sentry/nextjs'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
 import { Phone, View } from 'lucide-react'
@@ -187,11 +187,7 @@ const LeadDetails = ({
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
   // Stripe configuration for upgrade modal
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)

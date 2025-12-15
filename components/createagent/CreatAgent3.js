@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -18,12 +18,7 @@ import CycleArray from '../onboarding/extras/CycleArray'
 import PricingBox from '../test/PricingBox'
 import AddCardDetails from './addpayment/AddCardDetails'
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-// //console.log;
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 const CreatAgent3 = ({
   handleContinue,

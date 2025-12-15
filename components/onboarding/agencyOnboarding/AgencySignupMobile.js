@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
@@ -997,17 +998,13 @@ const AgencySignupMobile = ({
               </div>
 
               <div className="w-full mt-8 flex flex-row justify-center">
-                <Image
-                  className=""
-                  src="/agentXOrb.gif"
+                <AgentXOrb
+                  size={102}
                   style={{
                     height: '100px',
                     width: '110px',
                     resize: 'contain',
                   }}
-                  height={102}
-                  width={102}
-                  alt="*"
                 />
               </div>
 

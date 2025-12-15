@@ -1,5 +1,6 @@
 import Image from 'next/image'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { AudioWaveActivity } from './askskycomponents/AudioWaveActivity'
 import { VoiceWavesComponent } from './askskycomponents/voice-waves'
 import { MYAGENTX_URL } from './constants'
@@ -13,14 +14,10 @@ export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
           {/* <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div> */}
 
           {/* Image */}
-          <img
-            src="/agentXOrb.gif"
+          <AgentXOrb
+            size={120}
             alt="AgentX Orb"
             className="relative z-10 rounded-full bg-white shadow-lg object-cover"
-            style={{
-              height: '120px',
-              width: '120px',
-            }}
           />
         </div>
         {loading ? (

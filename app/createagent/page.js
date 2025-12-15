@@ -92,8 +92,7 @@ const Page = () => {
   // console.log("Rendering step:", index, components[index]);
 
   useEffect(() => {
-    // Wait for page to be ready and ThemeProvider to finish DOM manipulation
-    // Use multiple delays to ensure React and ThemeProvider have both finished
+    // Wait for page to be ready and React to finish hydration
     const readyTimer1 = setTimeout(() => {
       setPageReady(true)
     }, 100)
@@ -142,7 +141,7 @@ const Page = () => {
         }
       }
       // //console.log;
-    }, 300) // Delay to allow ThemeProvider to finish DOM manipulation
+    }, 300) // Delay to allow page initialization
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {

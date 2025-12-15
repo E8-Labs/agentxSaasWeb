@@ -28,8 +28,8 @@ import { requestToken } from "@/components/firbase";
 import { initializeApp } from "firebase/app";
 import { UpdateProfile } from "@/components/apis/UpdateProfile";
 
-import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import { getStripe } from "@/lib/stripe";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
@@ -52,11 +52,7 @@ import AppLogo from "@/components/common/AppLogo";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+const stripePromise = getStripe();
 
 // Plans will now be loaded dynamically from API
 //banner

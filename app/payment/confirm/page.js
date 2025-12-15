@@ -7,20 +7,15 @@ import {
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import Apis from '@/components/apis/Apis'
+import { getStripe } from '@/lib/stripe'
 
-const stripePublicKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-
-const stripePromise = loadStripe(stripePublicKey)
+const stripePromise = getStripe()
 
 function ConfirmPayment() {
   return (

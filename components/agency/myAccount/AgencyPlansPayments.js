@@ -8,7 +8,7 @@ import {
   TextField,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -38,11 +38,7 @@ import SmartRefillCard from '../agencyExtras.js/SmartRefillCard'
 import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
 import AgencyCancelConfirmation from './AgencyCancelConfirmation'
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 function AgencyPlansPayments({ selectedAgency }) {
   //stores redux user data

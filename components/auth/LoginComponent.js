@@ -19,6 +19,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
@@ -777,70 +778,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               return
             }
           } else {
-            // //console.log;
-            // let routeTo = ""
-
             localStorage.setItem('User', JSON.stringify(response.data.data))
 
-            // Extract and store agency branding immediately after login
-            // This ensures branding is applied right away without requiring a page refresh
-            const userData = response.data.data
-            
-            // Use applyBrandingFromResponse utility which handles extraction, storage, and event dispatch
-            import('@/utilities/applyBranding').then(({ applyBrandingFromResponse, forceApplyBranding }) => {
-              // First try to apply from response
-              const applied = applyBrandingFromResponse(response.data)
-              
-              if (!applied) {
-                // If not in response, check if user is subaccount/agency and fetch from API
-                const authToken = userData?.token || userData?.user?.token
-                const userRole = userData?.user?.userRole || userData?.userRole
-                
-                console.log('🔍 [LoginComponent] Branding not in response, checking user role:', {
-                  userRole,
-                  isSubaccount: userRole === 'AgencySubAccount',
-                  isAgency: userRole === 'Agency',
-                  hasToken: !!authToken,
-                })
-                
-                if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
-                  // Use forceApplyBranding which tries response first, then API
-                  // Small delay to ensure localStorage User is set
-                  setTimeout(() => {
-                    forceApplyBranding().then((fetched) => {
-                      if (fetched) {
-                        console.log('✅ [LoginComponent] Successfully applied branding from API')
-                      } else {
-                        console.log('⚠️ [LoginComponent] Could not fetch branding from API')
-                      }
-                    })
-                  }, 100)
-                } else {
-                  console.log('ℹ️ [LoginComponent] User is not subaccount/agency, skipping branding fetch')
-                }
-              } else {
-                console.log('✅ [LoginComponent] Successfully applied branding from login response')
-              }
-            }).catch(err => {
-              console.error('Error importing applyBranding utility:', err)
-              // Fallback to manual extraction
-              const agencyBranding =
-                userData?.user?.agencyBranding ||
-                userData?.agencyBranding ||
-                userData?.user?.agency?.agencyBranding
-
-              if (agencyBranding) {
-                localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding }))
-                }
-              }
-            })
-
-            //set cokie on locastorage to run middle ware
+            // Set user cookie for middleware
             if (typeof document !== 'undefined') {
-              // //console.log;
-
               setCookie(response.data.data.user, document)
               let w = innerWidth
               
@@ -880,9 +821,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               console.log('✅ Login successful, redirecting to:', redirectPath)
               window.location.href = redirectPath
               return
-            } else {
-              // //console.log;
             }
+
+            // For non-agency users, redirect immediately
+            window.location.href = redirectPath
+            return
           }
         } else {
           setLoginLoader(false)
@@ -1145,10 +1088,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               />
               {/* Hide orb gif if agency has logo (for subaccounts) */}
               {!agencyBranding?.logoUrl && (
-                <Image
-                  src={'/agentXOrb.gif'}
-                  height={69}
-                  width={69}
+                <AgentXOrb
+                  size={69}
                   alt="gif"
                 />
               )}

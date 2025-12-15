@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import React from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
+
 const Page = () => {
   const router = useRouter()
   return (
     <div className="w-full h-[100svh] flex flex-col items-center justify-between">
       <div className="w-11/12 h-[90%] bg-white">
         <div className="flex items-center justify-center mt-6">
-          <Image src={'/agentXOrb.gif'} alt="orb" width={80} height={80} />
+          <AgentXOrb size={80} alt="orb" />
         </div>
         {/*
                     <div className="self-stretch text-center justify-center text-black text-xl font-semibold font-['Inter'] leading-relaxed">Join the AI Workshop</div>

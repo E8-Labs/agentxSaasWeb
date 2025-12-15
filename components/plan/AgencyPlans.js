@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -27,11 +27,7 @@ import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '../ui/checkbox'
 
 //code for add card
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 function AgencyPlans({
   isFrom,

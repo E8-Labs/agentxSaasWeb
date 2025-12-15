@@ -3,6 +3,7 @@ import Image from 'next/image'
 
 import voicesList from '@/components/createagent/Voices'
 import { models } from '@/constants/Constants'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 
 export const getAgentImage = (item) => {
   //// //console.log;
@@ -79,16 +80,7 @@ export const getAgentImage = (item) => {
   // Fallback image
   return (
     <div className="rounded-full flex flex-row items-center justify-center">
-      <Image
-        src="/agentXOrb.gif"
-        height={42}
-        width={42}
-        className="rounded-full"
-        alt="*"
-        style={{
-          margin: '18px',
-        }}
-      />
+      <AgentXOrb size={42} style={{ margin: '18px' }} />
     </div>
   )
 }
@@ -278,7 +270,7 @@ export const getAgentsListImage = (
     <div
       className={`h-[${height}] w-[${width}] rounded-full flex flex-row items-center justify-center`}
     >
-      <Image src="/agentXOrb.gif" height={height} width={width} alt="*" />
+      <AgentXOrb width={height} height={width} />
     </div>
   )
 }
@@ -413,16 +405,7 @@ export const getAgentProfileImage = (subAgent) => {
   // Fallback image
   return (
     <div className="rounded-full flex flex-row items-center justify-center">
-      <Image
-        src="/agentXOrb.gif"
-        height={42}
-        width={42}
-        className="rounded-full"
-        alt="*"
-        style={{
-          margin: '18px',
-        }}
-      />
+      <AgentXOrb size={42} style={{ margin: '18px' }} />
     </div>
   )
 }

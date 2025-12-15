@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { UserTypes } from '@/constants/UserTypes'
 import AppLogo from '@/components/common/AppLogo'
 import { forceApplyBranding } from '@/utilities/applyBranding'
@@ -93,14 +94,10 @@ const Header = ({
           </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
-          {!isSubaccount && !hasAgencyLogo && (
-            <Image
-              className=""
-              src="/agentXOrb.gif"
+          {!isSubaccount && (
+            <AgentXOrb
+              size={69}
               style={{ height: '69px', width: '75px', resize: 'contain' }}
-              height={69}
-              width={69}
-              alt="*"
             />
           )}
         </div>

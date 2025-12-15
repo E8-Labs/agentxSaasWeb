@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -42,13 +42,7 @@ function UserPlansMobile({
 }) {
   const router = useRouter()
 
-  const stripePromise = useMemo(() => {
-    const stripePublickKey =
-      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-        ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-        : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-    return loadStripe(stripePublickKey)
-  }, [])
+  const stripePromise = getStripe()
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 

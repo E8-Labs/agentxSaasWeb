@@ -99,7 +99,7 @@ module.exports = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
-        // Agency branding colors (dynamically set by ThemeProvider)
+        // Agency branding colors (set server-side in layout.js)
         // Falls back to default purple if not set
         brand: {
           primary: 'hsl(var(--brand-primary, 270 75% 50%))', // Default: #7902DF
