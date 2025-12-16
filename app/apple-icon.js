@@ -17,6 +17,14 @@ export const size = { width: 180, height: 180 }
  */
 export default async function AppleIcon() {
   let faviconUrl = null
+  const decodeValue = (value) => {
+    if (!value) return value
+    try {
+      return decodeURIComponent(value)
+    } catch (err) {
+      return value
+    }
+  }
 
   // First, try to read from request headers (set by middleware in the same request)
   // This is the primary source and prevents the "first visit" issue
@@ -25,7 +33,7 @@ export default async function AppleIcon() {
 
   if (brandingHeader) {
     try {
-      const branding = JSON.parse(brandingHeader)
+      const branding = JSON.parse(decodeValue(brandingHeader))
       faviconUrl = branding?.faviconUrl
     } catch (e) {
       // Invalid header, fall through to cookie
@@ -39,7 +47,7 @@ export default async function AppleIcon() {
 
     if (brandingCookie?.value) {
       try {
-        const branding = JSON.parse(decodeURIComponent(brandingCookie.value))
+        const branding = JSON.parse(decodeValue(brandingCookie.value))
         faviconUrl = branding?.faviconUrl
       } catch (e) {
         // Invalid JSON in cookie, fall through to default

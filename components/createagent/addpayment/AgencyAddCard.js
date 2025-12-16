@@ -579,28 +579,35 @@ const AgencyAddCard = ({
       />
 
       <div
-        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-center`}
+        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-start gap-6`}
         style={{ backgroundColor: 'transparent' }}
       >
-        {/* Left side with orb - Hidden on mobile */}
-        {!isSmallScreen && (
-          <div
-            className=" flex w-[25%] flex-row items-center LeftDiv "
-            style={{ backgroundColor: 'transparent' }}
-          >
+        <div
+          className={`${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : 'relative flex-1'}`}
+          style={
+            isSmallScreen
+              ? {}
+              : {
+                  minWidth: 0,
+                  maxWidth: '720px',
+                }
+          }
+        >
+          {/* Orb */}
+          {!isSmallScreen && (
             <div
-              className="LeftInnerDiv1"
+              className="absolute left-0 top-1/2 -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
-                backgroundColor: 'transparent',
-                flexShrink: 0,
-                width: '320px',
+                width: isMediumScreen ? '170px' : '190px',
+                height: isMediumScreen ? '170px' : '190px',
+                marginLeft: '-22px',
               }}
             >
               <Image
                 alt="*"
                 src={'/otherAssets/paymentCircle2.png'}
-                height={240}
-                width={190}
+                height={isMediumScreen ? 170 : 190}
+                width={isMediumScreen ? 170 : 190}
                 style={{
                   borderTopRightRadius: '200px',
                   borderBottomRightRadius: '200px',
@@ -608,34 +615,47 @@ const AgencyAddCard = ({
                 }}
               />
             </div>
-          </div>
-        )}
-        <div
-          className={`flex flex-col justify-start ${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : '-mt-[22vh]'}`}
-          style={isSmallScreen ? {} : { width: '55%', marginLeft:  '-100px' }}
-        >
-            {isSmallScreen && (
+          )}
+
+          {/* Form */}
+          <div
+            className="flex flex-col justify-start flex-1 min-w-0"
+            style={
+              isSmallScreen
+                ? {}
+                : {
+                    paddingLeft: isMediumScreen ? '140px' : '185px',
+                  }
+            }
+          >
+            {isSmallScreen ? (
               <div className="mb-6">
                 <div style={{ fontWeight: '600', fontSize: 24 }}>
                   Continue to Payment
                 </div>
-                <div style={{ fontWeight: '400', fontSize: 14, color: '#4F5B76', marginTop: 8 }}>
+                <div
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 14,
+                    color: '#4F5B76',
+                    marginTop: 8,
+                  }}
+                >
                   Add your payment method to continue
                 </div>
               </div>
-            )}
-            {!isSmallScreen && (
-            <div className="flex w-full flex-col items-start">
-              <div style={{ fontWeight: '600', fontSize: 28 }}>
-                Continue to Payment
+            ) : (
+              <div className="flex w-full flex-col items-start">
+                <div style={{ fontWeight: '600', fontSize: 28 }}>
+                  Continue to Payment
+                </div>
               </div>
-            </div>
             )}
+
             <div className="flex w-full flex-col items-start mt-4">
               <div
                 style={{
                   fontWeight: '400',
-
                   fontSize: 14,
                   color: '#4F5B76',
                 }}
@@ -650,14 +670,13 @@ const AgencyAddCard = ({
                   borderRadius: '8px',
                 }}
               >
-                <div className="flex-1 w-[20vw]">
+                <div className="flex-1 min-w-0 w-full">
                   <CardNumberElement
                     options={elementOptions}
                     autoFocus={true}
                     onChange={(event) => {
                       handleFieldChange(event, cardExpiryRef)
                       if (event.complete) {
-                        // //console.log;
                         setCardAdded(true)
                       } else {
                         setCardAdded(false)
@@ -670,40 +689,42 @@ const AgencyAddCard = ({
                     }}
                   />
                 </div>
-                <div className="flex items-center gap-1 ml-2">
+                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                   <Image
                     src="/svgIcons/Visa.svg"
                     alt="Visa"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Mastercard.svg"
                     alt="Mastercard"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Amex.svg"
                     alt="American Express"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Discover.svg"
                     alt="Discover"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                 </div>
               </div>
             </div>
-            <div className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}>
+
+            <div
+              className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}
+            >
               <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
                 <div
                   style={{
                     fontWeight: '400',
-
                     fontSize: 14,
                     color: '#4F5B76',
                   }}
@@ -730,7 +751,6 @@ const AgencyAddCard = ({
                     onChange={(event) => {
                       handleFieldChange(event, cardCvcRef)
                       if (event.complete) {
-                        // //console.log;
                         setCardExpiry(true)
                       } else {
                         setCardExpiry(false)
@@ -747,7 +767,6 @@ const AgencyAddCard = ({
                 <div
                   style={{
                     fontWeight: '400',
-
                     fontSize: 14,
                     color: '#4F5B76',
                   }}
@@ -762,10 +781,9 @@ const AgencyAddCard = ({
                   }}
                 >
                   <CardCvcElement
-                    // options={elementOptions}
                     options={{
                       ...elementOptions,
-                      placeholder: 'CVV', // 👈 add this
+                      placeholder: 'CVV',
                     }}
                     style={{
                       width: '100%',
@@ -780,9 +798,7 @@ const AgencyAddCard = ({
                       cardCvcRef.current = element
                     }}
                     onChange={(event) => {
-                      // handleFieldChange(event, cardCvcRef);
                       if (event.complete) {
-                        // //console.log;
                         setCVC(true)
                       } else {
                         setCVC(false)
@@ -799,7 +815,6 @@ const AgencyAddCard = ({
               className="mt-4"
               style={{
                 fontWeight: '400',
-
                 fontSize: 14,
                 color: '#4F5B76',
               }}
@@ -859,16 +874,29 @@ const AgencyAddCard = ({
               </div>
             ) : null}
           </div>
-        
+        </div>
+
         {/* Mobile Continue Button - Fixed at bottom */}
         {isSmallScreen && (
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
             <div className="max-w-md mx-auto px-4 py-4">
               <button
                 onClick={handleAddCard}
-                disabled={!CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current}
+                disabled={
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current
+                }
                 className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
-                  !CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current
                     ? 'bg-gray-300 cursor-not-allowed'
                     : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
                 }`}
@@ -886,7 +914,10 @@ const AgencyAddCard = ({
                 By continuing you agree to{' '}
                 <a
                   href="https://www.myagentx.com/terms-and-condition"
-                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }}
+                  style={{
+                    textDecoration: 'underline',
+                    color: 'hsl(var(--brand-primary))',
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold"
@@ -897,15 +928,15 @@ const AgencyAddCard = ({
             </div>
           </div>
         )}
-        
+
         {/* Order Summary - Desktop only */}
         {!isSmallScreen && (
           <div
-            className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg"
+            className="w-[42%] flex flex-col justify-start items-center pe-4 rounded-lg"
             style={{ backgroundColor: 'transparent' }}
           >
           <div
-            className=" rounded-lg p-4 w-[85%]"
+            className=" rounded-lg p-4 w-[90%]"
             style={{ backgroundColor: '#ffffffcc' }}
           >
             <div style={{ fontSize: 22, fontWeight: '600' }}>Order Summary</div>
