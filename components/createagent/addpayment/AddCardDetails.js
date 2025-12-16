@@ -26,6 +26,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 import { checkReferralCode } from '@/components/userPlans/UserPlanServices'
 
 // import Apis from '../Apis/Apis';
@@ -595,9 +596,13 @@ const AddCardDetails = ({
         >
           <div>I agree to</div>
           <a
-            href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-            style={{ textDecoration: 'underline', color: 'black' }} // Underline and color styling
-            target="_blank" // Opens in a new tab (optional)
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              const { termsUrl } = getPolicyUrls()
+              window.open(termsUrl, '_blank')
+            }}
+            style={{ textDecoration: 'underline', color: 'black', cursor: 'pointer' }} // Underline and color styling
             rel="noopener noreferrer" // Security for external links
           >
             Terms & Conditions

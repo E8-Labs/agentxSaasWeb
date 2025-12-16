@@ -33,6 +33,7 @@ const StandardNot = ({
   const [deleting, setDeleting] = useState(null)
   const [toggling, setToggling] = useState(null)
   const [togglingEnabled, setTogglingEnabled] = useState(null)
+  const notificationRefs = React.useRef({})
 
   // Sanitize HTML for safe rendering
   const sanitizeHTML = (html) => {
@@ -167,6 +168,10 @@ const StandardNot = ({
     try {
       setSaving(true)
 
+      // Store the notification type to scroll to after refresh
+      const notificationType = selectedNotification.actualNotificationType ||
+        selectedNotification.notificationType
+
       // Prepare data for API with push notification fields
       // Only include fields that are explicitly provided (not undefined)
       // Allow null and empty strings to clear fields, but don't send undefined fields
@@ -188,8 +193,7 @@ const StandardNot = ({
 
       // Call API to save customization
       await createOrUpdateNotificationCustomization(
-        selectedNotification.actualNotificationType ||
-          selectedNotification.notificationType,
+        notificationType,
         apiData,
       )
 
@@ -199,6 +203,14 @@ const StandardNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving push notification:', error)
       alert('Failed to save push notification. Please try again.')
@@ -210,6 +222,10 @@ const StandardNot = ({
   const handleSaveEmailNotification = async (updatedData) => {
     try {
       setSaving(true)
+
+      // Store the notification type to scroll to after refresh
+      const notificationType = selectedNotification.actualNotificationType ||
+        selectedNotification.notificationType
 
       // Prepare data for API with email fields
       // Only include fields that are explicitly provided (not undefined)
@@ -232,8 +248,7 @@ const StandardNot = ({
 
       // Call API to save customization
       await createOrUpdateNotificationCustomization(
-        selectedNotification.actualNotificationType ||
-          selectedNotification.notificationType,
+        notificationType,
         apiData,
       )
 
@@ -243,6 +258,14 @@ const StandardNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving email notification:', error)
       alert('Failed to save email notification. Please try again.')
@@ -338,7 +361,15 @@ const StandardNot = ({
       )}
       {transformedNotifications.map((item) => {
         return (
-          <div key={item.id} className="w-full border-b px-4 pb-4 mb-4">
+          <div 
+            key={item.id} 
+            ref={(el) => {
+              if (el) {
+                notificationRefs.current[item.notificationType] = el
+              }
+            }}
+            className="w-full border-b px-4 pb-4 mb-4"
+          >
             <div className="flex flex-row items-center justify-between mb-2">
               <div style={styles.semiBoldHeading}>
                 {item.title || 'Team member Invite email'}

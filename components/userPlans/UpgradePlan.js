@@ -14,6 +14,7 @@ import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -2182,11 +2183,13 @@ function UpgradePlanContent({
                           >
                             <div>I agree to</div>
                             <a
-                              href={
-                                'https://www.myagentx.com/terms-and-condition'
-                              }
-                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200"
-                              target="_blank"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                const { termsUrl } = getPolicyUrls()
+                                window.open(termsUrl, '_blank')
+                              }}
+                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
                               rel="noopener noreferrer"
                             >
                               Terms & Conditions

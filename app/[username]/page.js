@@ -27,6 +27,7 @@ import SnackMessages from '@/components/onboarding/services/AuthVerification/Sna
 import { getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService'
 import { PersistanceKeys } from '@/constants/Constants'
 import { setCookie } from '@/utilities/cookies'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 const Page = ({ length = 6, onComplete }) => {
   let width = 3760
@@ -655,10 +656,8 @@ const Page = ({ length = 6, onComplete }) => {
               className="flex-shrink-0 outline-none"
               onClick={() => {
                 if (typeof window !== 'undefined') {
-                  window.open(
-                    'https://www.myagentx.com/terms-and-condition',
-                    '_blank',
-                  )
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
                 }
               }}
             >
@@ -668,10 +667,8 @@ const Page = ({ length = 6, onComplete }) => {
               className="flex-shrink-0 outline-none"
               onClick={() => {
                 if (typeof window !== 'undefined') {
-                  window.open(
-                    'https://www.myagentx.com/terms-and-condition',
-                    '_blank',
-                  )
+                  const { privacyUrl } = getPolicyUrls()
+                  window.open(privacyUrl, '_blank')
                 }
               }}
             >
@@ -687,10 +684,8 @@ const Page = ({ length = 6, onComplete }) => {
               <button
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
-                  window.open(
-                    'https://www.myagentx.com/terms-and-condition',
-                    '_blank',
-                  )
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
                 }}
               >
                 Terms & Conditions
@@ -699,10 +694,8 @@ const Page = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { privacyUrl } = getPolicyUrls()
+                    window.open(privacyUrl, '_blank')
                   }
                 }}
               >

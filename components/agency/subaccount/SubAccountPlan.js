@@ -18,6 +18,7 @@ import AgentSelectSnackMessage, {
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import UserPlans from '@/components/userPlans/UserPlans'
 import { PersistanceKeys } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
 import { AuthToken } from '../plan/AuthDetails'
@@ -422,10 +423,14 @@ function TermsText() {
     >
       <p style={{ color: '#15151580' }}>
         I agree to{' '}
-        <a
-          href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-          style={{ textDecoration: 'underline', color: 'black' }} // Underline and color styling
-          target="_blank" // Opens in a new tab (optional)
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              const { termsUrl } = getPolicyUrls()
+              window.open(termsUrl, '_blank')
+            }}
+          style={{ textDecoration: 'underline', color: 'black', cursor: 'pointer' }} // Underline and color styling
           rel="noopener noreferrer" // Security for external links
         >
           Terms & Conditions

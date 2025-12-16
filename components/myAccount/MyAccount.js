@@ -10,12 +10,8 @@ import Apis from '@/components/apis/Apis'
 
 import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments'
 import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
-import {
-  CancellationAndRefundUrl,
-  privacyPollicyUrl,
-  termsAndConditionUrl,
-} from '@/constants/Constants'
 import { isSubaccountTeamMember } from '@/constants/teamTypes/TeamTypes'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { getUserLocalData } from '../constants/constants'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
@@ -281,14 +277,16 @@ function MyAccount() {
   }
 
   const handleTabSelect = (item, index) => {
+    const { termsUrl, privacyUrl, cancellationUrl } = getPolicyUrls()
+    
     if (item.id === 8) {
-      window.open(termsAndConditionUrl, '_blank')
+      window.open(termsUrl, '_blank')
       return
     } else if (item.id === 9) {
-      window.open(privacyPollicyUrl, '_blank')
+      window.open(privacyUrl, '_blank')
       return
     } else if (item.id === 10) {
-      window.open(CancellationAndRefundUrl, '_blank')
+      window.open(cancellationUrl, '_blank')
       return
     }
     console.log('Index is', index)

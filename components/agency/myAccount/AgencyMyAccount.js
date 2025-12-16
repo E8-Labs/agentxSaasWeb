@@ -14,11 +14,7 @@ import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
 import SendFeedback from '@/components/myAccount/SendFeedback'
 import Support from '@/components/myAccount/Support'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
-import {
-  agencyCancellationAndRefundUrl,
-  agencyPrivacyPolicyUrl,
-  agencyTermsAndConditionUrl,
-} from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import AgencyBarServices from './AgencyBarServices'
 import AgencyBasicInfo from './AgencyBasicInfo'
@@ -161,14 +157,16 @@ function AgencyMyAccount({ selectedAgency }) {
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
+                  const { termsUrl, privacyUrl, cancellationUrl } = getPolicyUrls()
+                  
                   if (item.id === 5) {
-                    window.open(agencyTermsAndConditionUrl, '_blank')
+                    window.open(termsUrl, '_blank')
                     return
                   } else if (item.id === 6) {
-                    window.open(agencyPrivacyPolicyUrl, '_blank')
+                    window.open(privacyUrl, '_blank')
                     return
                   } else if (item.id === 7) {
-                    window.open(agencyCancellationAndRefundUrl, '_blank')
+                    window.open(cancellationUrl, '_blank')
                     return
                   }
                   setTabSelected(item.id)

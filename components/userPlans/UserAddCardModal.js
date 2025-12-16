@@ -27,6 +27,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useUser } from '@/hooks/redux-hooks'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 // import Apis from '../Apis/Apis';
@@ -72,6 +73,8 @@ const UserAddCard = ({
   const cardExpiryRef = useRef(null)
   const cardCvcRef = useRef(null)
   const isSubscribingRef = useRef(false) // Prevent duplicate subscription calls
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
 
   //check for button
   const [CardAdded, setCardAdded] = useState(false)
@@ -84,6 +87,57 @@ const UserAddCard = ({
   //disable continue btn after the card added
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
+
+  // Check if user is subaccount and if agency has branding
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        let isSub = false
+        let hasLogo = false
+        
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          isSub =
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+        }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+
+        // Also check user data for agencyBranding
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) {
+            console.log('Error parsing user data for agencyBranding:', error)
+          }
+        }
+
+        hasLogo = !!branding?.logoUrl
+        setHasAgencyLogo(hasLogo)
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -475,7 +529,9 @@ const UserAddCard = ({
     return (
       <div className="flex items-center justify-center p-8 min-h-[200px]">
         <div className="text-center">
-          <CircularProgress />
+          <CircularProgress 
+            sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))' }}
+          />
           <p className="mt-4 text-gray-600">Loading payment form...</p>
         </div>
       </div>
@@ -494,17 +550,20 @@ const UserAddCard = ({
             className="flex w-[55%] flex-row LeftDiv"
             style={{ backgroundColor: 'transparent' }}
           >
-            <div
-              className="LeftInnerDiv1"
-              style={{ backgroundColor: 'transparent', flexShrink: 0 }}
-            >
-              <Image
-                alt="*"
-                src={'/otherAssets/paymentCircle.png'}
-                height={320}
-                width={320}
-              />
-            </div>
+            {/* Hide orb for subaccounts if agency has branding logo */}
+            {!(isSubaccount && hasAgencyLogo) && (
+              <div
+                className="LeftInnerDiv1"
+                style={{ backgroundColor: 'transparent', flexShrink: 0 }}
+              >
+                <Image
+                  alt="*"
+                  src={'/otherAssets/paymentCircle.png'}
+                  height={320}
+                  width={320}
+                />
+              </div>
+            )}
             <div
               className="mt-[7vh]"
               style={{ width: '75%', marginLeft: '-100px' }}
@@ -997,7 +1056,10 @@ const UserAddCard = ({
               <div className="flex flex-col items-center w-full">
                 {addCardLoader ? (
                   <div className="flex flex-row justify-center items-center w-full">
-                    <CircularProgress size={30} />
+                    <CircularProgress 
+                      size={30} 
+                      sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))' }}
+                    />
                   </div>
                 ) : (
                   <div className="w-full">
@@ -1007,7 +1069,7 @@ const UserAddCard = ({
                         disabled={addCardLoader || disableContinue || isSubscribingRef.current}
                         className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{
-                          backgroundColor: '#7902DF',
+                          backgroundColor: 'hsl(var(--brand-primary, 270 75% 50%))',
                           fontWeight: '600',
                           fontSize: 17,
                         }}
@@ -1035,9 +1097,13 @@ const UserAddCard = ({
               >
                 <div>By continuing you agree to our</div>
                 <a
-                  href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                  style={{ textDecoration: 'underline', color: '#7902DF' }} // Underline and color styling
-                  target="_blank" // Opens in a new tab (optional)
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary, 270 75% 50%))', cursor: 'pointer' }} // Underline and color styling
                   rel="noopener noreferrer" // Security for external links
                 >
                   Terms & Conditions
@@ -1125,7 +1191,10 @@ const UserAddCard = ({
               <div className="w-full">
                 {addCardLoader ? (
                   <div className="flex flex-row justify-center items-center w-full py-4">
-                    <CircularProgress size={30} />
+                    <CircularProgress 
+                      size={30} 
+                      sx={{ color: 'hsl(var(--brand-primary, 270 75% 50%))' }}
+                    />
                   </div>
                 ) : (
                   <div className="w-full">
@@ -1153,9 +1222,13 @@ const UserAddCard = ({
               <div className="flex flex-row items-center gap-1 w-full justify-center mt-4 text-xs text-gray-600">
                 <div>By continuing you agree to our</div>
                 <a
-                  href="https://www.myagentx.com/terms-and-condition"
-                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }}
-                  target="_blank"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary, 270 75% 50%))', cursor: 'pointer' }}
                   rel="noopener noreferrer"
                 >
                   Terms & Conditions

@@ -27,50 +27,78 @@ const Header = ({
     )
   }, [])
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const userData = localStorage.getItem('User')
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          setIsSubaccount(
-            parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
-          )
-        }
+  const checkBranding = () => {
+    if (typeof window === 'undefined') return
 
-        // Check if agency has branding logo
-        let branding = null
-        const storedBranding = localStorage.getItem('agencyBranding')
-        if (storedBranding) {
-          try {
-            branding = JSON.parse(storedBranding)
-          } catch (error) {
-            console.log('Error parsing agencyBranding from localStorage:', error)
-          }
-        }
-
-        // Also check user data for agencyBranding
-        if (!branding && userData) {
-          try {
-            const parsedUser = JSON.parse(userData)
-            if (parsedUser?.user?.agencyBranding) {
-              branding = parsedUser.user.agencyBranding
-            } else if (parsedUser?.agencyBranding) {
-              branding = parsedUser.agencyBranding
-            } else if (parsedUser?.user?.agency?.agencyBranding) {
-              branding = parsedUser.user.agency.agencyBranding
-            }
-          } catch (error) {
-            console.log('Error parsing user data for agencyBranding:', error)
-          }
-        }
-
-        // Set hasAgencyLogo if logoUrl exists
-        setHasAgencyLogo(!!branding?.logoUrl)
-      } catch (error) {
-        console.log('Error parsing user data:', error)
+    try {
+      const userData = localStorage.getItem('User')
+      let isSub = false
+      
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        isSub =
+          parsedUser?.user?.userRole === 'AgencySubAccount' ||
+          parsedUser?.userRole === 'AgencySubAccount'
+        setIsSubaccount(isSub)
       }
+
+      // Check if agency has branding logo
+      let branding = null
+      const storedBranding = localStorage.getItem('agencyBranding')
+      if (storedBranding) {
+        try {
+          branding = JSON.parse(storedBranding)
+        } catch (error) {
+          console.log('Error parsing agencyBranding from localStorage:', error)
+        }
+      }
+
+      // Also check user data for agencyBranding
+      if ( userData) {
+        
+        try {
+          const parsedUser = JSON.parse(userData)
+          console.log('🔍 [Header] User data:', parsedUser)
+          if (parsedUser?.user?.agencyBranding) {
+            console.log('🔍 [Header] User agencyBranding:', parsedUser.user.agencyBranding)
+            branding = parsedUser.user.agencyBranding
+          } else if (parsedUser?.agencyBranding) {
+            branding = parsedUser.agencyBranding
+          } else if (parsedUser?.user?.agency?.agencyBranding) {
+            branding = parsedUser.user.agency.agencyBranding
+          }
+        } catch (error) {
+          console.log('Error parsing user data for agencyBranding:', error)
+        }
+      }
+
+      // Set hasAgencyLogo if logoUrl exists
+      const hasLogo = branding?.logoUrl
+      setHasAgencyLogo(hasLogo)
+      
+      console.log('🔍 [Header] Branding check:', {
+        isSubaccount: isSub,
+        hasAgencyLogo: hasLogo,
+        logoUrl: branding?.logoUrl,
+        branding: branding
+      })
+    } catch (error) {
+      console.log('Error parsing user data:', error)
+    }
+  }
+
+  useEffect(() => {
+    checkBranding()
+
+    // Listen for branding updates
+    const handleBrandingUpdate = () => {
+      checkBranding()
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
   }, [])
 
@@ -94,12 +122,21 @@ const Header = ({
           </div>
         </div>
         <div className="w-4/12 flex flex-row justify-center">
-          {!isSubaccount && (
-            <AgentXOrb
-              size={69}
-              style={{ height: '69px', width: '75px', resize: 'contain' }}
-            />
-          )}
+          {(() => {
+            const shouldShowOrb = !isSubaccount || (isSubaccount && !hasAgencyLogo)
+            console.log('🎯 [Header] Orb visibility:', {
+              isSubaccount,
+              hasAgencyLogo,
+              shouldShowOrb,
+              condition: !isSubaccount || (isSubaccount && !hasAgencyLogo)
+            })
+            return shouldShowOrb ? (
+              <AgentXOrb
+                size={69}
+                style={{ height: '69px', width: '75px', resize: 'contain' }}
+              />
+            ) : null
+          })()}
         </div>
         <div className="w-4/12 flex felx-row items-start h-full justify-end">
           {skipSellerKYC && shouldContinue && (

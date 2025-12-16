@@ -30,6 +30,7 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { PersistanceKeys, setUserType, userType } from '@/constants/Constants'
 import { setCookie } from '@/utilities/cookies'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import ShootingStarLoading from '../animations/ShootingStarLoading'
 import getProfileDetails from '../apis/GetProfile'
@@ -1251,10 +1252,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
                   }
                 }}
               >
@@ -1264,10 +1263,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { privacyUrl } = getPolicyUrls()
+                    window.open(privacyUrl, '_blank')
                   }
                 }}
               >
@@ -1287,10 +1284,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
                   }
                 }}
               >
@@ -1300,10 +1295,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { privacyUrl } = getPolicyUrls()
+                    window.open(privacyUrl, '_blank')
                   }
                 }}
               >

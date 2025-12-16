@@ -33,6 +33,7 @@ const TrialPeriodNot = ({
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [saving, setSaving] = useState(false)
   const [togglingEnabled, setTogglingEnabled] = useState(null)
+  const notificationRefs = React.useRef({})
 
   // Determine category based on notificationsListArray
   const category = useMemo(() => {
@@ -271,6 +272,14 @@ const TrialPeriodNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving push notification:', error)
       alert('Failed to save push notification. Please try again.')
@@ -327,6 +336,14 @@ const TrialPeriodNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving email notification:', error)
       alert('Failed to save email notification. Please try again.')
@@ -385,8 +402,17 @@ const TrialPeriodNot = ({
         </div>
       )}
       {notificationsList.map((item) => {
+        const notificationType = item.actualNotificationType || item.notificationType
         return (
-          <div key={item.id} className="w-full border-b px-4 pb-4 mb-4">
+          <div 
+            key={item.id} 
+            ref={(el) => {
+              if (el && notificationType) {
+                notificationRefs.current[notificationType] = el
+              }
+            }}
+            className="w-full border-b px-4 pb-4 mb-4"
+          >
             <div className="flex flex-row items-center justify-between mb-2">
               <div style={styles.semiBoldHeading}>
                 {item.title || 'Notification'}

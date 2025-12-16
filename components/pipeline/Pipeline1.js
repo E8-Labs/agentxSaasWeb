@@ -40,6 +40,8 @@ const Pipeline1 = ({ handleContinue }) => {
 
   const [shouldContinue, setShouldContinue] = useState(true)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [showOrb, setShowOrb] = useState(true)
   const [toggleClick, setToggleClick] = useState(false)
   const [selectedPipelineItem, setSelectedPipelineItem] = useState(null)
   const [selectPipleLine, setSelectPipleLine] = useState('')
@@ -68,17 +70,53 @@ const Pipeline1 = ({ handleContinue }) => {
   }, [reorderSuccessBarMessage])
 
   useEffect(() => {
-    // Check if user is subaccount
+    // Check if user is subaccount and if agency has logo
     if (typeof window !== 'undefined') {
       try {
         const userData = localStorage.getItem('User')
+        let isSub = false
+        let hasLogo = false
+        
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          setIsSubaccount(
+          isSub =
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
-          )
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
         }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+
+        // Also check user data for agencyBranding
+        if ( userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) {
+            console.log('Error parsing user data for agencyBranding:', error)
+          }
+        }
+
+        hasLogo = !!branding?.logoUrl
+        setHasAgencyLogo(hasLogo)
+
+        // Show orb if: not subaccount OR (subaccount but no logo)
+        setShowOrb(!isSub || (isSub && !hasLogo))
       } catch (error) {
         console.log('Error parsing user data:', error)
       }
@@ -728,14 +766,14 @@ const Pipeline1 = ({ handleContinue }) => {
       >
         <div className="w-full flex-1 flex flex-col min-h-0">
           {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0">
+          <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
             <div
-              className="absolute left-1/2 transform -translate-x-1/2 md:text-4xl text-lg font-[700]"
+              className="absolute left-1/2 md:text-4xl text-lg font-[700]"
               style={{
-                top: '50%',
+                top: showOrb ? 'calc(50% + 45px)' : '50%',
                 transform: 'translate(-50%, -50%)',
-                zIndex: 10,
+                zIndex: 50,
                 pointerEvents: 'none',
               }}
             >
@@ -792,7 +830,7 @@ const Pipeline1 = ({ handleContinue }) => {
           >
 
             <div
-              className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple ${showOrb ? 'mt-6' : 'mt-4'}`}
               style={{ scrollbarWidth: 'none', minHeight: 0 }}
             >
               {pipelinesDetails.length > 1 && (

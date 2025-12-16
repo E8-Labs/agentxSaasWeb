@@ -26,6 +26,7 @@ import { toast } from 'sonner'
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import Apis from '@/components/apis/Apis'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
@@ -1141,10 +1142,14 @@ const AgencyAddCard = ({
             >
               By continuing you agree to our
               <a
-                href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }} // Underline and color styling
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
+                }}
+                style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }} // Underline and color styling
                 className="ms-1 me-1"
-                target="_blank" // Opens in a new tab (optional)
                 rel="noopener noreferrer" // Security for external links
               >
                 Terms & Conditions

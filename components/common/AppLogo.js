@@ -64,10 +64,10 @@ const AppLogo = ({
 
     // If assignx domain AND not a subaccount AND not agency creating for subaccount, always show assignx logo
     // Exception: If subaccount OR agency creating for subaccount, check for agency branding even on assignx.ai domains
-    if (isAssignx && !isSubaccount && !isAgencyCreatingForSubaccount) {
-      setLogoUrl(null) // null means use assignx logo
-      return
-    }
+    // if (isAssignx && !isSubaccount && !isAgencyCreatingForSubaccount) {
+    //   setLogoUrl(null) // null means use assignx logo
+    //   return
+    // }
 
     // For custom domains OR subaccounts on assignx.ai domains, check agency branding
     const getCookie = (name) => {
@@ -105,7 +105,7 @@ const AppLogo = ({
     }
 
     // Additional fallback: Check user data for agencyBranding (for subaccounts)
-    if (!branding && isSubaccount) {
+    if ( isSubaccount) {
       try {
         const userData = localStorage.getItem('User')
         if (userData) {

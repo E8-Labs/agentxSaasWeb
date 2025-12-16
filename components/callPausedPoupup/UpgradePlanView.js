@@ -5,7 +5,7 @@ import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-import { termsAndConditionUrl } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -297,7 +297,8 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
               href="#"
               className="text-purple "
               onClick={() => {
-                window.open(termsAndConditionUrl)
+                const { termsUrl } = getPolicyUrls()
+                window.open(termsUrl, '_blank')
               }}
             >
               Terms & Conditions
