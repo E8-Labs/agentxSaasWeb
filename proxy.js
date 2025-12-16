@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
 import { parseOAuthState } from '@/utils/oauthState'
+import {
+  encodeBrandingHeader,
+  encodeBrandingCookie,
+} from '@/lib/branding-transport'
 
 /**
  * Creates a NextResponse.next() with branding data passed via request headers.
@@ -13,7 +17,10 @@ import { parseOAuthState } from '@/utils/oauthState'
 function createResponseWithBrandingHeaders(request, agencyBranding) {
   if (agencyBranding) {
     const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-agency-branding', JSON.stringify(agencyBranding))
+    const encoded = encodeBrandingHeader(agencyBranding)
+    if (encoded) {
+      requestHeaders.set('x-agency-branding', encoded)
+    }
     return NextResponse.next({
       request: {
         headers: requestHeaders,
@@ -225,15 +232,14 @@ export async function proxy(request) {
           sameSite: 'lax',
         })
         if (agencyBranding) {
-          redirectResponse.cookies.set(
-            'agencyBranding',
-            JSON.stringify(agencyBranding),
-            {
+          const cookieVal = encodeBrandingCookie(agencyBranding)
+          if (cookieVal) {
+            redirectResponse.cookies.set('agencyBranding', cookieVal, {
               httpOnly: false,
               sameSite: 'lax',
               maxAge: 60 * 60 * 24,
-            },
-          )
+            })
+          }
         }
       }
       return redirectResponse
@@ -282,11 +288,14 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
-        res.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
-          httpOnly: false,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24,
-        })
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          res.cookies.set('agencyBranding', cookieVal, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          })
+        }
       }
     }
     return res
@@ -323,15 +332,14 @@ export async function proxy(request) {
       })
       if (agencyBranding) {
         // Also set cookie for future requests
-        publicResponse.cookies.set(
-          'agencyBranding',
-          JSON.stringify(agencyBranding),
-          {
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          publicResponse.cookies.set('agencyBranding', cookieVal, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
-          },
-        )
+          })
+        }
       }
     }
     return publicResponse
@@ -523,17 +531,16 @@ export async function proxy(request) {
           httpOnly: false,
           sameSite: 'lax',
         })
-        if (agencyBranding) {
-          adminResponse.cookies.set(
-            'agencyBranding',
-            JSON.stringify(agencyBranding),
-            {
-              httpOnly: false,
-              sameSite: 'lax',
-              maxAge: 60 * 60 * 24,
-            },
-          )
+      if (agencyBranding) {
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          adminResponse.cookies.set('agencyBranding', cookieVal, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          })
         }
+      }
       }
       return adminResponse
     }
@@ -552,15 +559,14 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
-        redirectResponse.cookies.set(
-          'agencyBranding',
-          JSON.stringify(agencyBranding),
-          {
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          redirectResponse.cookies.set('agencyBranding', cookieVal, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
-          },
-        )
+          })
+        }
       }
     }
     return redirectResponse
@@ -583,11 +589,14 @@ export async function proxy(request) {
   // Store branding in cookie for client-side access (cache for subsequent requests)
   // This is set regardless of agencyId to support logged-in agency/subaccount users on localhost
   if (agencyBranding) {
-    response.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
-      httpOnly: false,
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
-    })
+    const cookieVal = encodeBrandingCookie(agencyBranding)
+    if (cookieVal) {
+      response.cookies.set('agencyBranding', cookieVal, {
+        httpOnly: false,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24, // 24 hours
+      })
+    }
   }
   return response
 }
