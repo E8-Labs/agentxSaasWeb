@@ -93,6 +93,12 @@ const AgencyAddCard = ({
     }
     return false
   })
+  const [isMediumScreen, setIsMediumScreen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1200
+    }
+    return false
+  })
   const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] =
     useState(false)
   const [loading, setLoading] = useState(false)
@@ -108,7 +114,9 @@ const AgencyAddCard = ({
     
     // Check screen size on mount and resize
     const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 640)
+      const width = window.innerWidth
+      setIsSmallScreen(width < 640)
+      setIsMediumScreen(width < 1200)
     }
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
@@ -577,7 +585,7 @@ const AgencyAddCard = ({
         {/* Left side with orb - Hidden on mobile */}
         {!isSmallScreen && (
           <div
-            className="flex w-[55%] flex-row items-center LeftDiv"
+            className=" flex w-[25%] flex-row items-center LeftDiv "
             style={{ backgroundColor: 'transparent' }}
           >
             <div
@@ -604,7 +612,7 @@ const AgencyAddCard = ({
         )}
         <div
           className={`flex flex-col justify-start ${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : '-mt-[22vh]'}`}
-          style={isSmallScreen ? {} : { width: '75%', marginLeft: '-100px' }}
+          style={isSmallScreen ? {} : { width: '55%', marginLeft:  '-100px' }}
         >
             {isSmallScreen && (
               <div className="mb-6">
