@@ -531,14 +531,14 @@ const TaxAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4">
-        <div className="h-[84svh] sm:h-[90svh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[80%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -922,17 +922,19 @@ const TaxAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%] flex flex-col justify-end">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={80} />
           </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleTaxAgentBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleVerifyPopup}
+              handleBack={handleTaxAgentBack}
+              registerLoader={registerLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

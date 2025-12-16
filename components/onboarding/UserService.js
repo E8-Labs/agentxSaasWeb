@@ -148,10 +148,10 @@ const UserService = ({ handleContinue, handleBack }) => {
       className="overflow-y-none flex flex-row justify-center items-center "
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
         style={{ scrollbarWidth: 'none' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[95svh] sm:h-[90svh]">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header84svh */}
           <div className="h-[10%]">
             <Header />
@@ -287,12 +287,12 @@ const UserService = ({ handleContinue, handleBack }) => {
           </div>
         </div>
 
-        <div className="mb-6 h-[10%] flex flex-col justify-end">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <div style={{ height: '35px' }}>
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
             <Footer
               handleContinue={handleNext}
               handleBack={handleBack}
