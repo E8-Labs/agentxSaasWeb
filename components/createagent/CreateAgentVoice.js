@@ -361,7 +361,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const getImageHeight = (item) => {
-    console.log('item is', item.name)
+    // console.log('item is', item.name)
+    return 45
     if (item.name === 'Ava') {
       return 50
     } else if (item.name === 'Zane') {
@@ -387,6 +388,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     return 70
   }
   const getImageWidth = (item) => {
+    return 45
     if (item.name === 'Ava') {
       return 50
     } else if (item.name === 'Zane') {
@@ -413,6 +415,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const addMarginTop = (item) => {
+    return 0
     if (item.name === 'Trinity') {
       return 5
     } else if (item.name === 'Dax') {
@@ -435,6 +438,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const addMariginLeft = (item) => {
+    return 0
     if (item.name === 'Niko') {
       return 4
     } else if (item.name === 'Lex') {
@@ -458,12 +462,14 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       }}
       className={`overflow-y-hidden flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
     >
-      <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between">
-        <div className="flex flex-col flex-1 min-h-0">
+      <div className="bg-white rounded-2xl w-10/12 h-[100%] sm:h-[95%] py-4 flex flex-col relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header */}
-          <Header />
+          <div className="h-[10%]">
+            <Header />
+          </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
+          <div className="flex flex-col items-center px-4 w-full h-[80%]">
             <div
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
@@ -517,8 +523,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           style={{
                             // backgroundColor:'red',
                             borderRadius: '50%',
-                            marginTop: addMarginTop(item),
-                            marginLeft: addMariginLeft(item),
+                            // marginTop: addMarginTop(item),
+                            // marginLeft: addMariginLeft(item),
                           }}
                           alt="*"
                         />
@@ -675,17 +681,19 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           </Box>
         </Modal>
 
-        <div className="flex flex-col h-[7svh] ">
-          <div className="">
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={handleContinue}
-            handleBack={handleBack}
-            registerLoader={voicesLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleContinue}
+              handleBack={handleBack}
+              registerLoader={voicesLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

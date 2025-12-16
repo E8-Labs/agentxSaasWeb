@@ -62,7 +62,7 @@ const Page = ({ params }) => {
     <Suspense>
       <div
         style={backgroundImage}
-        className="overflow-y-none flex flex-row justify-center items-center"
+        className="overflow-y-none flex flex-row justify-center items-center bg-white"
       >
         <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
       </div>

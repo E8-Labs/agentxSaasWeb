@@ -31,6 +31,8 @@ import { Progress } from '@/components/ui/progress'
 import { PersistanceKeys, setUserType, userType } from '@/constants/Constants'
 import { setCookie } from '@/utilities/cookies'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { forceApplyBranding } from '@/utilities/applyBranding'
+import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import ShootingStarLoading from '../animations/ShootingStarLoading'
 import getProfileDetails from '../apis/GetProfile'
@@ -146,6 +148,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 JSON.stringify(brandingData),
               )
               setAgencyBranding(brandingData)
+              
+              // Apply branding CSS variables
+              if (typeof document !== 'undefined') {
+                try {
+                  const primaryColor = brandingData.primaryColor || '#7902DF'
+                  const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+                  const primaryHsl = hexToHsl(primaryColor)
+                  const secondaryHsl = hexToHsl(secondaryColor)
+                  document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+                  document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+                  document.documentElement.style.setProperty('--primary', primaryHsl)
+                  document.documentElement.style.setProperty('--secondary', secondaryHsl)
+                  const iconFilter = calculateIconFilter(primaryColor)
+                  document.documentElement.style.setProperty('--icon-filter', iconFilter)
+                } catch (error) {
+                  console.log('Error applying branding styles:', error)
+                }
+              }
+              
               console.log(
                 '✅ [LoginComponent] Fetched fresh branding from API:',
                 brandingData,
@@ -159,6 +180,39 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         return false
       }
 
+      // Helper function to apply branding CSS variables
+      const applyBrandingStyles = (brandingData) => {
+        if (!brandingData || typeof document === 'undefined') return
+        
+        try {
+          const primaryColor = brandingData.primaryColor || '#7902DF'
+          const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+
+          // Convert hex to HSL
+          const primaryHsl = hexToHsl(primaryColor)
+          const secondaryHsl = hexToHsl(secondaryColor)
+
+          // Set CSS variables immediately
+          document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+          document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+          document.documentElement.style.setProperty('--primary', primaryHsl)
+          document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+          // Calculate and set icon filter
+          const iconFilter = calculateIconFilter(primaryColor)
+          document.documentElement.style.setProperty('--icon-filter', iconFilter)
+          
+          console.log('✅ [LoginComponent] Applied branding CSS variables:', {
+            primaryColor,
+            secondaryColor,
+            primaryHsl,
+            secondaryHsl
+          })
+        } catch (error) {
+          console.log('Error applying branding styles:', error)
+        }
+      }
+
       // First, check localStorage for immediate display (works for both assignx and custom domains)
       const storedBranding = localStorage.getItem('agencyBranding')
       if (storedBranding) {
@@ -167,9 +221,22 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setAgencyBranding(brandingData)
           console.log('✅ [LoginComponent] Using branding from localStorage:', brandingData)
 
+          // Apply branding styles if it's a custom domain
+          if (!isAssignx && brandingData) {
+            applyBrandingStyles(brandingData)
+          }
+
           // For custom domains, still fetch from API in background to ensure latest data
           if (!isAssignx) {
-            fetchFromAPI()
+            fetchFromAPI().then((fetched) => {
+              if (fetched) {
+                const updatedBranding = JSON.parse(localStorage.getItem('agencyBranding'))
+                if (updatedBranding) {
+                  setAgencyBranding(updatedBranding)
+                  applyBrandingStyles(updatedBranding)
+                }
+              }
+            })
           }
           return
         } catch (error) {
@@ -180,6 +247,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // For custom domains, fetch from API if no localStorage branding found
       if (!isAssignx) {
         const fetched = await fetchFromAPI()
+        if (fetched) {
+          const brandingData = JSON.parse(localStorage.getItem('agencyBranding'))
+          if (brandingData) {
+            applyBrandingStyles(brandingData)
+          }
+        }
         // Set domain type determined after checking for branding
         setDomainTypeDetermined(true)
       } else {
@@ -203,6 +276,28 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
         localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
         setAgencyBranding(updatedBranding)
+        
+        // Apply branding styles if it's a custom domain
+        if (!isAssignxDomain) {
+          const applyBrandingStyles = (brandingData) => {
+            if (!brandingData || typeof document === 'undefined') return
+            try {
+              const primaryColor = brandingData.primaryColor || '#7902DF'
+              const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+              const primaryHsl = hexToHsl(primaryColor)
+              const secondaryHsl = hexToHsl(secondaryColor)
+              document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+              document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+              document.documentElement.style.setProperty('--primary', primaryHsl)
+              document.documentElement.style.setProperty('--secondary', secondaryHsl)
+              const iconFilter = calculateIconFilter(primaryColor)
+              document.documentElement.style.setProperty('--icon-filter', iconFilter)
+            } catch (error) {
+              console.log('Error applying branding styles:', error)
+            }
+          }
+          applyBrandingStyles(updatedBranding)
+        }
       }
     }
 
@@ -212,6 +307,34 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
   }, [])
+
+  // Apply branding CSS variables when agencyBranding is set and it's a custom domain
+  useEffect(() => {
+    if (!agencyBranding || isAssignxDomain || typeof document === 'undefined') return
+
+    try {
+      const primaryColor = agencyBranding.primaryColor || '#7902DF'
+      const secondaryColor = agencyBranding.secondaryColor || '#8B5CF6'
+      const primaryHsl = hexToHsl(primaryColor)
+      const secondaryHsl = hexToHsl(secondaryColor)
+
+      document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+      document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+      document.documentElement.style.setProperty('--primary', primaryHsl)
+      document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+      const iconFilter = calculateIconFilter(primaryColor)
+      document.documentElement.style.setProperty('--icon-filter', iconFilter)
+
+      console.log('✅ [LoginComponent] Applied branding CSS variables on custom domain:', {
+        primaryColor,
+        secondaryColor,
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
+      })
+    } catch (error) {
+      console.log('Error applying branding styles:', error)
+    }
+  }, [agencyBranding, isAssignxDomain])
 
   useEffect(() => {
     //console.log;
@@ -1087,8 +1210,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 width={260}
                 alt="avtr"
               />
-              {/* Hide orb gif if agency has logo (for subaccounts) */}
-              {!agencyBranding?.logoUrl && (
+              {/* Hide orb gif if agency has logo (for subaccounts) or if it's a custom domain */}
+              {!agencyBranding?.logoUrl && isAssignxDomain && (
                 <AgentXOrb
                   size={69}
                   alt="gif"

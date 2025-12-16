@@ -351,9 +351,35 @@ export const UpgradeTag = ({
   requestFeature = false,
 }) => {
   console.log('request feature in upgrade tag is', requestFeature)
+  
+  // Get brand color for styling
+  const getBrandColor = () => {
+    if (typeof window === 'undefined') {
+      return '#7902df' // Default purple
+    }
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return '#7902df' // Default purple
+    }
+    return `hsl(${brandColor})`
+  }
+
+  const brandColor = getBrandColor()
+  
   return (
     <div
-      className={`bg-[#7902df10] items-center gap-2 p-2 rounded-lg text-purple text-[12px] cursor-pointer hover:bg-[#7902df20] transition-colors ${className}`}
+      className={`items-center gap-2 p-2 rounded-lg text-[12px] cursor-pointer transition-colors ${className}`}
+      style={{
+        backgroundColor: `${brandColor}10`,
+        color: brandColor,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = `${brandColor}20`
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = `${brandColor}10`
+      }}
       onClick={onClick}
     >
       {requestFeature ? 'Request Feature' : 'Upgrade'}

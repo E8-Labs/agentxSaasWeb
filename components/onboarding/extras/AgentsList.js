@@ -622,16 +622,16 @@ let agents = [
 ]
 
 const images = [
-  '/voicesIcons/dax.svg',
-  '/voicesIcons/mia.svg',
-  '/voicesIcons/xen.svg',
-  '/voicesIcons/zane.svg',
-  '/voicesIcons/aria.svg',
-  '/voicesIcons/kala.svg',
-  '/voicesIcons/cade.svg',
-  '/voicesIcons/axel.svg',
-  '/voicesIcons/ava.svg',
-  '/voicesIcons/luna.svg',
+  '/voicesIcons/dax.png',
+  '/voicesIcons/mia.png',
+  '/voicesIcons/xen.png',
+  '/voicesIcons/zane.png',
+  '/voicesIcons/aria.png',
+  '/voicesIcons/kala.png',
+  '/voicesIcons/cade.png',
+  '/voicesIcons/axel.png',
+  '/voicesIcons/ava.png',
+  '/voicesIcons/luna.png',
 ]
 
 // Randomly assign an image to each agent

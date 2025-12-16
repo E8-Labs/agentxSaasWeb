@@ -114,6 +114,8 @@ import {
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import { parseOAuthState } from '@/utils/oauthState'
+import { forceApplyBranding } from '@/utilities/applyBranding'
+import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
 
@@ -137,11 +139,11 @@ function Page() {
     const locationId = params.get('locationId')
     const code = params.get('code')
     const error = params.get('error')
-    
+
     // Check if we're in a popup window
     const isPopup = window.opener !== null && window.opener !== window
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
-    
+
     // If in popup and GHL OAuth success, close immediately
     if (ghlOauthSuccess === 'success' && (isPopup || hasOpener)) {
       shouldClosePopup = true
@@ -150,9 +152,9 @@ function Page() {
         // Send message to parent window
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage(
-            { 
-              type: 'GHL_OAUTH_SUCCESS', 
-              locationId: locationId || null 
+            {
+              type: 'GHL_OAUTH_SUCCESS',
+              locationId: locationId || null
             },
             window.location.origin,
           )
@@ -161,7 +163,7 @@ function Page() {
       } catch (e) {
         console.error('🚨 IMMEDIATE: Error sending message:', e)
       }
-      
+
       // Close popup immediately - try multiple times
       const closePopup = () => {
         try {
@@ -189,15 +191,15 @@ function Page() {
           }
         }
       }
-      
+
       // Try closing immediately
       closePopup()
-      
+
       // Try again after a short delay (some browsers need this)
       setTimeout(closePopup, 100)
       setTimeout(closePopup, 300)
     }
-    
+
     // Also handle initial OAuth callback in popup (code parameter)
     if ((code || error) && (isPopup || hasOpener)) {
       console.log('🚨 IMMEDIATE: OAuth callback detected in popup')
@@ -212,6 +214,10 @@ function Page() {
   // Add flags to prevent infinite loops
   const [isInitializing, setIsInitializing] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
+
+  // Custom domain detection and branding
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
+  const [agencyBranding, setAgencyBranding] = useState(null)
 
   // Handle OAuth callbacks - redirect to handler if OAuth parameters are present
   // Also handle GHL OAuth success redirect from exchange route
@@ -229,27 +235,27 @@ function Page() {
     // Check if we're in a popup window - check multiple ways
     const isPopup = window.opener !== null && window.opener !== window
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
-    
+
     // Handle GHL OAuth success redirect (after token exchange)
     if (ghlOauthSuccess === 'success') {
       console.log('✅ GHL OAuth successful, triggering calendar refresh')
       console.log('- Is popup:', isPopup)
       console.log('- Has opener:', hasOpener)
       console.log('- window.opener:', window.opener)
-      
+
       // If in popup, send message to parent and close immediately
       if (isPopup || hasOpener) {
         console.log('✅ Detected popup context, sending message to parent and closing')
-        
+
         // Function to close popup and notify parent
         const closePopupAndNotify = () => {
           try {
             // Send message to parent window first
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(
-                { 
-                  type: 'GHL_OAUTH_SUCCESS', 
-                  locationId: locationId || null 
+                {
+                  type: 'GHL_OAUTH_SUCCESS',
+                  locationId: locationId || null
                 },
                 window.location.origin,
               )
@@ -258,12 +264,12 @@ function Page() {
           } catch (e) {
             console.error('Error sending message to parent:', e)
           }
-          
+
           // Close popup
           try {
             window.close()
             console.log('✅ Popup close attempted')
-            
+
             // If window didn't close (some browsers block it), focus parent as fallback
             setTimeout(() => {
               if (!window.closed && window.opener && !window.opener.closed) {
@@ -287,22 +293,22 @@ function Page() {
             }
           }
         }
-        
+
         // Close immediately (don't wait)
         closePopupAndNotify()
         return
       }
-      
+
       // If not in popup, trigger calendar refresh via event
       const cleanUrl = new URL(window.location.href)
       cleanUrl.searchParams.delete('ghl_oauth')
       cleanUrl.searchParams.delete('locationId')
       window.history.replaceState({}, '', cleanUrl.toString())
 
-      window.dispatchEvent(new CustomEvent('ghl-oauth-success', { 
-        detail: { locationId } 
+      window.dispatchEvent(new CustomEvent('ghl-oauth-success', {
+        detail: { locationId }
       }))
-      
+
       return
     }
 
@@ -322,7 +328,7 @@ function Page() {
             console.error('Error parsing state:', e)
           }
         }
-        
+
         // If custom domain in state, redirect to custom domain exchange route
         if (stateData?.customDomain && stateData?.provider === 'ghl') {
           const isLocalhost = stateData.customDomain.includes('localhost') || stateData.customDomain.includes('127.0.0.1')
@@ -331,12 +337,12 @@ function Page() {
           exchangeUrl.searchParams.set('code', code)
           if (state) exchangeUrl.searchParams.set('state', state)
           if (redirectUri) exchangeUrl.searchParams.set('redirect_uri', redirectUri)
-          
+
           console.log('🔄 Redirecting popup to custom domain exchange:', exchangeUrl.toString())
           window.location.href = exchangeUrl.toString()
           return
         }
-        
+
         // Fallback: redirect to OAuth handler
         const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
         if (code) oauthHandlerUrl.searchParams.set('code', code)
@@ -346,11 +352,11 @@ function Page() {
           oauthHandlerUrl.searchParams.set('error_description', params.get('error_description'))
         }
         if (redirectUri) oauthHandlerUrl.searchParams.set('redirect_uri', redirectUri)
-        
+
         window.location.href = oauthHandlerUrl.toString()
         return
       }
-      
+
       // Not in popup - use normal redirect
       const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
       if (code) oauthHandlerUrl.searchParams.set('code', code)
@@ -758,8 +764,8 @@ function Page() {
     if (selectedAgentForWebAgent) {
       const modelId = encodeURIComponent(
         selectedAgentForWebAgent?.modelIdVapi ||
-          selectedAgentForWebAgent?.agentUuid ||
-          '',
+        selectedAgentForWebAgent?.agentUuid ||
+        '',
       )
       // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
       console.log(
@@ -786,13 +792,13 @@ function Page() {
 
   const handleSmartListCreated = async (smartListData) => {
     console.log('🔧 WEB-AGENT - Smart list created:', smartListData)
-    
+
     // Note: AddSmartList API already attached the smartlist with correct agentType
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData
     const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
-    
+
     let agent = {
       ...selectedAgentForWebAgent,
       smartListId: smartListId,
@@ -829,7 +835,7 @@ function Page() {
         smartListIdForEmbed: agent?.smartListIdForEmbed !== undefined,
       },
     })
-    
+
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle('Unlock your Web Agent')
@@ -858,7 +864,7 @@ function Page() {
 
   const handleEmbedSmartListCreated = async (smartListData) => {
     console.log('🔧 EMBED-AGENT - Smart list created:', smartListData)
-    
+
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // Update local agent state so the modal shows correct state if reopened
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
@@ -875,7 +881,7 @@ function Page() {
         smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
       })
     }
-    
+
     setShowEmbedSmartListModal(false)
     setShowEmbedAllSetModal(true)
     // Generate embed code here
@@ -1200,6 +1206,120 @@ function Page() {
 
   ////// //console.log;
 
+  // Function to render icon with branding using mask-image (same logic as NotificationsDrawer.js)
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    // Check for empty string, null, undefined, or if it doesn't contain valid color values
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
+  // Custom domain detection and branding application
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Check if current domain is a custom domain (not dev.assignx.ai or app.assignx.ai)
+    const hostname = window.location.hostname
+    const isCustom = hostname !== 'dev.assignx.ai' && hostname !== 'app.assignx.ai'
+    setIsCustomDomain(isCustom)
+
+    // Get agency branding from localStorage
+    const storedBranding = localStorage.getItem('agencyBranding')
+    if (storedBranding) {
+      try {
+        const brandingData = JSON.parse(storedBranding)
+        setAgencyBranding(brandingData)
+
+        // Apply branding CSS variables if it's a custom domain
+        if (isCustom && brandingData) {
+          try {
+            const primaryColor = brandingData.primaryColor || '#7902DF'
+            const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+            const primaryHsl = hexToHsl(primaryColor)
+            const secondaryHsl = hexToHsl(secondaryColor)
+
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+            document.documentElement.style.setProperty('--primary', primaryHsl)
+            document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+
+            console.log('✅ [Agents Page] Applied branding CSS variables:', {
+              primaryColor,
+              hostname
+            })
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      } catch (error) {
+        console.log('Error parsing agencyBranding from localStorage:', error)
+      }
+    }
+
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      const updatedBranding = event.detail
+      if (updatedBranding) {
+        setAgencyBranding(updatedBranding)
+        if (isCustom) {
+          try {
+            const primaryColor = updatedBranding.primaryColor || '#7902DF'
+            const primaryHsl = hexToHsl(primaryColor)
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
+
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn()
@@ -1309,84 +1429,80 @@ function Page() {
   // }
 
 
-/**
- * Renders the live call transfer number section with appropriate upgrade/request feature modals
- * @param {Object} params - Function parameters
- * @param {Object} params.reduxUser - The current user from Redux store
- * @param {Function} params.setReduxUser - Function to update Redux user state
- * @param {Object} params.showDrawerSelectedAgent - The selected agent object
- * @param {Function} params.setShowEditNumberPopup - Function to show edit number popup
- * @param {Function} params.setSelectedNumber - Function to set selected number type
- * @returns {JSX.Element} The rendered component
- */
-function renderLiveCallTransferSection({
-  reduxUser,
-  setReduxUser,
-  showDrawerSelectedAgent,
-  setShowEditNumberPopup,
-  setSelectedNumber,
-}) {
-  const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
+  /**
+   * Renders the live call transfer number section with appropriate upgrade/request feature modals
+   * @param {Object} params - Function parameters
+   * @param {Object} params.reduxUser - The current user from Redux store
+   * @param {Function} params.setReduxUser - Function to update Redux user state
+   * @param {Object} params.showDrawerSelectedAgent - The selected agent object
+   * @param {Function} params.setShowEditNumberPopup - Function to show edit number popup
+   * @param {Function} params.setSelectedNumber - Function to set selected number type
+   * @returns {JSX.Element} The rendered component
+   */
+  function renderLiveCallTransferSection({
+    reduxUser,
+    setReduxUser,
+    showDrawerSelectedAgent,
+    setShowEditNumberPopup,
+    setSelectedNumber,
+  }) {
+    const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
 
-  // For subaccount: check agency capabilities first
-  if (isSubaccount) {
-    // If agency has disabled the feature, show request feature button
-    if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
-      return (
-        <UpgradeTagWithModal
-          reduxUser={reduxUser}
-          setReduxUser={setReduxUser}
-          requestFeature={true}
-        />
-      )
+    // For subaccount: check agency capabilities first
+    if (isSubaccount) {
+      // If agency has disabled the feature, show request feature button
+      if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+            requestFeature={true}
+          />
+        )
+      }
+      // If agency allows it, check plan capabilities
+      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+          />
+        )
+      }
+    } else {
+      // For normal user: check plan capabilities directly
+      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+          />
+        )
+      }
     }
-    // If agency allows it, check plan capabilities
-    if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
-      return (
-        <UpgradeTagWithModal
-          reduxUser={reduxUser}
-          setReduxUser={setReduxUser}
-        />
-      )
-    }
-  } else {
-    // For normal user: check plan capabilities directly
-    if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
-      return (
-        <UpgradeTagWithModal
-          reduxUser={reduxUser}
-          setReduxUser={setReduxUser}
-        />
-      )
-    }
-  }
 
-  // Show live transfer number and edit button if feature is enabled
-  return (
-    <div className="flex flex-row items-center justify-between gap-2">
-      <div>
-        {showDrawerSelectedAgent?.liveTransferNumber ? (
-          <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
-        ) : (
-          '-'
-        )}
+    // Show live transfer number and edit button if feature is enabled
+    // Note: This function has access to isCustomDomain and agencyBranding from parent scope
+    return (
+      <div className="flex flex-row items-center justify-between gap-2">
+        <div>
+          {showDrawerSelectedAgent?.liveTransferNumber ? (
+            <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+          ) : (
+            '-'
+          )}
+        </div>
+        <button
+          onClick={() => {
+            setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
+            setSelectedNumber('Calltransfer')
+          }}
+        >
+          {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
+        </button>
       </div>
-      <button
-        onClick={() => {
-          setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
-          setSelectedNumber('Calltransfer')
-        }}
-      >
-        <Image
-          src={'/svgIcons/editIcon2.svg'}
-          height={24}
-          width={24}
-          alt="*"
-        />
-      </button>
-    </div>
-  )
-}
+    )
+  }
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -3683,7 +3799,7 @@ function renderLiveCallTransferSection({
                     width={16}
                     height={16}
                     className="cursor-pointer rounded-full"
-                    // onClick={() => setIntroVideoModal2(true)}
+                  // onClick={() => setIntroVideoModal2(true)}
                   />
                 </div>
               </Tooltip>
@@ -3714,34 +3830,34 @@ function renderLiveCallTransferSection({
                   getAgents(false, e.target.value, searchLoader)
                 }, 500)
               }}
-              //test code 2 failed
-              // onChange={(e) => {
-              //   const a = e.target.value;
-              //   setSearch(a);
+            //test code 2 failed
+            // onChange={(e) => {
+            //   const a = e.target.value;
+            //   setSearch(a);
 
-              //   if (a) {
-              //     console.log("There was some value");
+            //   if (a) {
+            //     console.log("There was some value");
 
-              //     // ✅ Only save original list once
-              //     if (agentsBeforeSearch.length === 0) {
-              //       setAgentsBeforeSearch(agentsListSeparated);
-              //     }
+            //     // ✅ Only save original list once
+            //     if (agentsBeforeSearch.length === 0) {
+            //       setAgentsBeforeSearch(agentsListSeparated);
+            //     }
 
-              //     clearTimeout(searchTimeoutRef.current);
-              //     searchTimeoutRef.current = setTimeout(() => {
-              //       const searchLoader = true;
-              //       getAgents(false, a, searchLoader);
-              //     }, 500);
-              //   } else {
-              //     console.log("There was no value");
+            //     clearTimeout(searchTimeoutRef.current);
+            //     searchTimeoutRef.current = setTimeout(() => {
+            //       const searchLoader = true;
+            //       getAgents(false, a, searchLoader);
+            //     }, 500);
+            //   } else {
+            //     console.log("There was no value");
 
-              //     // ✅ Restore the original list when search is cleared
-              //     setAgentsListSeparated(agentsBeforeSearch);
-              //   }
+            //     // ✅ Restore the original list when search is cleared
+            //     setAgentsListSeparated(agentsBeforeSearch);
+            //   }
 
-              //   // ✅ Optional: toggle loading based on canGetMore
-              //   setCanKeepLoading(canGetMore === true);
-              // }}
+            //   // ✅ Optional: toggle loading based on canGetMore
+            //   setCanKeepLoading(canGetMore === true);
+            // }}
             />
             <button className="outline-none border-none">
               <Image
@@ -4103,7 +4219,7 @@ function renderLiveCallTransferSection({
                       maxHeight: '150px',
                       overflowY: 'auto',
                     }}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -4134,9 +4250,8 @@ function renderLiveCallTransferSection({
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? 'mb-16' : ''
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: '1px solid #00000010',
@@ -4210,7 +4325,7 @@ function renderLiveCallTransferSection({
 
       <UpgradePlan
         selectedPlan={null}
-        setSelectedPlan={() => {}}
+        setSelectedPlan={() => { }}
         open={showUpgradePlanModal}
         handleClose={async (upgradeResult) => {
           setShowUpgradePlanModal(false)
@@ -4286,12 +4401,12 @@ function renderLiveCallTransferSection({
             overflow: 'hidden',
             scrollbarWidth: 'none',
             // Keep sx props as fallback, but CSS class will override
-            width: { 
-              xs: '100%', 
-              sm: '85%', 
-              md: '70%', 
-              lg: '50%', 
-              xl: '40%' 
+            width: {
+              xs: '100%',
+              sm: '85%',
+              md: '70%',
+              lg: '50%',
+              xl: '40%'
             },
             maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
             borderRadius: { xs: '0px', sm: '20px' },
@@ -4309,7 +4424,7 @@ function renderLiveCallTransferSection({
       >
         <div
           className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -4401,12 +4516,7 @@ function renderLiveCallTransferSection({
                       }}
                     >
                       <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={'/svgIcons/editIcon2.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
+                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
                         <div className="relative group max-w-[150px]">
                           <div className="truncate font-semibold text-[22px]">
                             {showDrawerSelectedAgent?.name
@@ -4653,12 +4763,7 @@ function renderLiveCallTransferSection({
                         handleWebAgentClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/assets/openVoice.png'}
-                        alt="*"
-                        height={18}
-                        width={18}
-                      />
+                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
                     </button>
                   </Tooltip>
                   <Tooltip
@@ -4688,12 +4793,7 @@ function renderLiveCallTransferSection({
                         handleEmbedClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/embedIcon.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
                     </button>
                   </Tooltip>
 
@@ -4750,12 +4850,7 @@ function renderLiveCallTransferSection({
                         }
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/webhook.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
                     </button>
                   </Tooltip>
                 </div>
@@ -4768,7 +4863,7 @@ function renderLiveCallTransferSection({
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     '-'
@@ -4777,12 +4872,14 @@ function renderLiveCallTransferSection({
                 icon="/svgIcons/selectedCallIcon.svg"
                 bgColor="bg-blue-100"
                 iconColor="text-blue-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     '-'
@@ -4791,6 +4888,8 @@ function renderLiveCallTransferSection({
                 icon="/svgIcons/convosIcon2.svg"
                 bgColor="bg-brand-primary/10"
                 iconColor="text-brand-primary"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Hot Leads"
@@ -4804,6 +4903,8 @@ function renderLiveCallTransferSection({
                 icon="/otherAssets/hotLeadsIcon2.png"
                 bgColor="bg-orange-100"
                 iconColor="text-orange-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Booked"
@@ -4817,21 +4918,23 @@ function renderLiveCallTransferSection({
                 icon="/otherAssets/greenCalenderIcon.png"
                 bgColor="bg-green-100"
                 iconColor="text-green-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                                1000,
-                            )
-                            .format('HH:mm:ss')
+                          .utc(
+                            (showDrawerSelectedAgent?.totalDuration || 0) *
+                            1000,
+                          )
+                          .format('HH:mm:ss')
                         : '-'}
                     </div>
                   ) : (
@@ -4841,6 +4944,8 @@ function renderLiveCallTransferSection({
                 icon="/otherAssets/minsCounter.png"
                 bgColor="bg-green-100"
                 iconColor="text-green-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
             </div>
             {/* Bottom Agent Info */}
@@ -4849,11 +4954,10 @@ function renderLiveCallTransferSection({
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
+                  className={`${activeTab === tab
                       ? 'text-brand-primary border-b-2 border-brand-primary'
                       : 'text-black-500'
-                  }`}
+                    }`}
                   style={{
                     fontSize: 15,
                     fontWeight: '500',
@@ -4953,9 +5057,9 @@ function renderLiveCallTransferSection({
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -4980,8 +5084,8 @@ function renderLiveCallTransferSection({
                                   // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
                                   style={
                                     item.value === 'multi' &&
-                                    reduxUser?.planCapabilities
-                                      ?.allowLanguageSelection === false
+                                      reduxUser?.planCapabilities
+                                        ?.allowLanguageSelection === false
                                       ? { pointerEvents: 'auto' }
                                       : {}
                                   }
@@ -5146,32 +5250,31 @@ function renderLiveCallTransferSection({
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    marginLeft:
-                                      item.name === 'Max' ||
-                                      item.name === 'Axel'
-                                        ? 5
-                                        : 0,
+                                    
                                   }}
                                   value={item.name}
                                   key={index}
                                   disabled={SelectedVoice === item.name}
                                 >
-                                  <Image
-                                    src={item.img}
-                                    height={
-                                      item.name === 'Axel' ||
-                                      item.name === 'Max'
-                                        ? 40
-                                        : 35
-                                    }
-                                    width={
-                                      item.name === 'Axel' ||
-                                      item.name === 'Max'
-                                        ? 22
-                                        : 35
-                                    }
-                                    alt="*"
-                                  />
+                                  <div className="flex flex-row items-center justify-center">
+                                    <Image
+                                      src={item.img}
+                                      height={
+                                        // item.name === 'Axel' ||
+                                        // item.name === 'Max'
+                                        //   ? 40
+                                        // :
+                                        35
+                                      }
+                                      width={
+                                        // item.name === 'Axel' ||
+                                        // item.name === 'Max'
+                                        //   ? 22: 
+                                        35
+                                      }
+                                      alt="*"
+                                    />
+                                  </div>
                                   <div>{item.name}</div>
 
                                   {/* Play/Pause Button (Prevents dropdown close) */}
@@ -5190,7 +5293,7 @@ function renderLiveCallTransferSection({
                                             audio.pause()
                                             audio.removeEventListener(
                                               'ended',
-                                              () => {},
+                                              () => { },
                                             )
                                           }
                                           setPreview(null)
@@ -5302,9 +5405,9 @@ function renderLiveCallTransferSection({
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5401,9 +5504,9 @@ function renderLiveCallTransferSection({
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5505,9 +5608,9 @@ function renderLiveCallTransferSection({
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5669,37 +5772,37 @@ function renderLiveCallTransferSection({
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-brand-primary underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation()
-                                                      setShowConfirmationModal(
-                                                        item,
-                                                      )
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-brand-primary underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setShowConfirmationModal(
+                                                          item,
+                                                        )
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -5712,22 +5815,22 @@ function renderLiveCallTransferSection({
                                 value={
                                   showGlobalBtn
                                     ? getGlobalPhoneNumber(reduxUser).replace(
-                                        '+',
-                                        '',
-                                      )
+                                      '+',
+                                      '',
+                                    )
                                     : ''
                                 }
                                 // disabled={!showGlobalBtn}
                                 disabled={
                                   (assignNumber &&
                                     assignNumber.replace('+', '') ===
-                                      getGlobalPhoneNumber(reduxUser).replace(
-                                        '+',
-                                        '',
-                                      )) ||
+                                    getGlobalPhoneNumber(reduxUser).replace(
+                                      '+',
+                                      '',
+                                    )) ||
                                   (showDrawerSelectedAgent &&
                                     showDrawerSelectedAgent.agentType ===
-                                      'inbound')
+                                    'inbound')
                                 }
                                 onClick={() => {
                                   // console.log(
@@ -5811,12 +5914,7 @@ function renderLiveCallTransferSection({
                           setSelectedNumber('Callback')
                         }}
                       >
-                        <Image
-                          src={'/svgIcons/editIcon2.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
+                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
                       </button>
                     </div>
                   </div>
@@ -5875,7 +5973,7 @@ function renderLiveCallTransferSection({
               </div>
             ) : activeTab === 'Actions' ? (
               !allowToolsAndActions &&
-              reduxUser?.userRole !== 'AgencySubAccount' ? (
+                reduxUser?.userRole !== 'AgencySubAccount' ? (
                 <UpgardView
                   setShowSnackMsg={setShowSnackMsg}
                   title={'Unlock Actions'}
@@ -6836,18 +6934,59 @@ function renderLiveCallTransferSection({
         agentName={selectedAgentForEmbed?.name || ''}
         isEmbedFlow={true}
         embedCode={embedCode}
-        // fetureType={fetureType}
-        // onCopyUrl={handleWebhookClick}
+      // fetureType={fetureType}
+      // onCopyUrl={handleWebhookClick}
       />
     </div>
   )
 }
 
-const Card = ({ name, value, icon, bgColor, iconColor }) => {
+const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBranding }) => {
+  // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
+  const renderIcon = () => {
+    if (typeof window === 'undefined') {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: 24,
+          height: 24,
+          minWidth: 24,
+          minHeight: 24,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${icon})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${icon})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
+      {renderIcon()}
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}

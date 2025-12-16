@@ -656,13 +656,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const handleSmartListCreated = async (smartListData) => {
     console.log('🔧 ADMIN-WEB-AGENT - Smart list created:', smartListData)
-    
+
     // Note: AddSmartList API already attached the smartlist with correct agentType
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData
     const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
-    
+
     if (selectedAgentForWebAgent) {
       if (agentType === 'webhook') {
         selectedAgentForWebAgent.smartListIdForWebhook = smartListId
@@ -672,7 +672,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         selectedAgentForWebAgent.smartListEnabledForWeb = true
       }
     }
-    
+
     setShowNewSmartListModal(false)
     setSelectedSmartList(smartListId)
     setShowAllSetModal(true)
@@ -692,7 +692,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const handleEmbedSmartListCreated = async (smartListData) => {
     console.log('🔧 ADMIN-EMBED-AGENT - Smart list created:', smartListData)
-    
+
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
@@ -701,7 +701,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       selectedAgentForEmbed.smartListIdForEmbed = smartListId
       selectedAgentForEmbed.smartListEnabledForEmbed = true
     }
-    
+
     setShowEmbedSmartListModal(false)
     const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
@@ -1992,16 +1992,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         event.data?.userId === selectedUser?.id
       ) {
         console.log('Received AGENT_CREATED event, reloading agents...')
-        
+
         // Clear current agents list to force fresh fetch
         setMainAgentsList([])
         setAgentsListSeparated([])
         localStorage.removeItem(PersistanceKeys.LocalStoredAgentsListMain)
-        
+
         // Reload agents from the beginning (offset 0)
         setInitialLoader(true)
         getAgents(false, null, false)
-        
+
         // Dispatch custom event for parent component to refresh selectedUser
         window.dispatchEvent(
           new CustomEvent('refreshSelectedUser', {
@@ -2164,7 +2164,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       // Check if current logged-in user is Admin or Agency
       let isAdminOrAgency = false
-      
+
       // Check from Redux first
       if (reduxUser) {
         const userType = reduxUser?.userType
@@ -2172,7 +2172,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
         console.log('handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
       }
-      
+
       // Fallback to localStorage if Redux doesn't have the data
       if (!isAdminOrAgency && typeof window !== 'undefined') {
         try {
@@ -2188,7 +2188,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           console.log('Error parsing localStorage User data:', error)
         }
       }
-      
+
       // Open in new tab if current user is Admin or Agency
       if (isAdminOrAgency) {
         console.log('Opening /createagent in new tab (user is Admin or Agency)')
@@ -3534,8 +3534,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
-                        ? 'text-brand-primary border-b-2 border-brand-primary'
-                        : 'text-black-500'
+                      ? 'text-brand-primary border-b-2 border-brand-primary'
+                      : 'text-black-500'
                       }`}
                     style={{ fontSize: 15, fontWeight: '500' }}
                   >
@@ -3828,11 +3828,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       flexDirection: 'row',
                                       alignItems: 'center',
                                       justifyContent: 'space-between',
-                                      marginLeft:
-                                        item.name === 'Max' ||
-                                        item.name === 'Axel'
-                                          ? 5
-                                          : 0,
+                                      
                                       padding: '8px 16px',
                                       width: '100%',
                                     }}
@@ -3841,23 +3837,25 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     disabled={SelectedVoice === item.name}
                                   >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                                      <Image
-                                        src={item.img}
-                                        height={
-                                          item.name === 'Axel' ||
-                                          item.name === 'Max'
-                                            ? 40
-                                            : 35
-                                        }
-                                        width={
-                                          item.name === 'Axel' ||
-                                          item.name === 'Max'
-                                            ? 22
-                                            : 35
-                                        }
-                                        alt="*"
-                                        style={{ flexShrink: 0 }}
-                                      />
+                                      <div className="flex flex-row items-center justify-center">
+                                        <Image
+                                          src={item.img}
+                                          height={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 40
+                                            // :
+                                            35
+                                          }
+                                          width={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 22: 
+                                            35
+                                          }
+                                          alt="*"
+                                        />
+                                      </div>
                                       <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
                                     </div>
 

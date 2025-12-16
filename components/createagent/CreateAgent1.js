@@ -819,11 +819,11 @@ const CreateAgent1 = ({
       className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
     >
       <div
-        className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
         style={{
           scrollbarWidth: 'none',
           backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
-        }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        }}
       >
         <AgentSelectSnackMessage
           message={snackMessage}
@@ -836,7 +836,7 @@ const CreateAgent1 = ({
           }}
         />
 
-        <div className="w-full h-[90%]">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* Video card */}
 
           <IntroVideoModal
@@ -1412,17 +1412,19 @@ const CreateAgent1 = ({
           </div>
         </div>
 
-        <div className="w-full h-[10%] ">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={handleBuildAgent}
-            donotShowBack={true}
-            registerLoader={buildAgentLoader}
-            shouldContinue={!canContinue()}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleBuildAgent}
+              donotShowBack={true}
+              registerLoader={buildAgentLoader}
+              shouldContinue={!canContinue()}
+            />
+          </div>
         </div>
       </div>
 
