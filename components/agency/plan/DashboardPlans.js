@@ -564,21 +564,9 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
           style={{
-            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            background: `linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-primary) / 0.8))`,
           }}
         >
-          {/* Brand Color Overlay */}
-          {isAgency && (
-            <div
-              className="absolute inset-0 rounded-lg"
-              style={{
-                backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-                mixBlendMode: 'multiply',
-              }}
-            />
-          )}
           {/* Content */}
           <div className="relative z-10 flex flex-row items-center justify-between w-full">
             <div

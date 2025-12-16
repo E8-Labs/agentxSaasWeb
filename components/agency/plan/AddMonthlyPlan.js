@@ -549,9 +549,31 @@ export default function AddMonthlyPlan({
 
   //handle next
   const handleNext = () => {
+    // Validate price is greater than 0 - explicit check
+    const priceNum = Number(discountedPrice)
+    if (!discountedPrice || isNaN(priceNum) || priceNum <= 0) {
+      setSnackMsg('Price per month must be greater than $0')
+      setSnackMsgType(SnackbarTypes.Error)
+      return
+    }
+
+    // Validate credits is greater than 0 - explicit check
+    const creditsNum = Number(minutes)
+    if (!minutes || isNaN(creditsNum) || creditsNum <= 0) {
+      setSnackMsg('Credits must be greater than 0')
+      setSnackMsgType(SnackbarTypes.Error)
+      return
+    }
+
     // Validate profit margin before continuing
     const margin = calculateProfitMargin()
-    if (margin !== null && margin < 10) {
+    if (margin === null) {
+      setSnackMsg('Unable to calculate profit margin. Please check price and credits.')
+      setSnackMsgType(SnackbarTypes.Error)
+      return
+    }
+    
+    if (margin < 10) {
       setSnackMsg(
         `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
       )
@@ -669,6 +691,11 @@ export default function AddMonthlyPlan({
       minutes&&
       planDuration
 
+    // Ensure price and credits are greater than 0 - explicitly check for 0
+    const priceNum = Number(discountedPrice)
+    const creditsNum = Number(minutes)
+    const priceValid = discountedPrice && !isNaN(priceNum) && priceNum > 0
+    const creditsValid = minutes && !isNaN(creditsNum) && creditsNum > 0
 
     let trialValid = true
 
@@ -677,12 +704,14 @@ export default function AddMonthlyPlan({
       trialValid = trialDays > 0 && trialDays <= 14
     }
 
-    // Check profit margin
+    // Check profit margin - must be calculated and >= 10%
     const margin = calculateProfitMargin()
-    const marginValid = margin === null || margin >= 10
+    const marginValid = margin !== null && margin >= 10
 
     return (
       requiredFieldsFilled &&
+      priceValid &&
+      creditsValid &&
       trialValid &&
       !minCostErr &&
       !profitMarginErr &&
@@ -833,7 +862,7 @@ export default function AddMonthlyPlan({
                     Price per month
                   </label>
                   <div
-                    className={`border ${minCostErr || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                    className={`border ${minCostErr || (discountedPrice && Number(discountedPrice) === 0) || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
                   >
                     <div className="" style={styles.inputs}>
                       $
@@ -849,14 +878,29 @@ export default function AddMonthlyPlan({
                       onChange={(e) => {
                         const value = e.target.value
                         const minTotalPrice = agencyPlanCost && minutes ? Number(agencyPlanCost) * Number(minutes) : 0
-                        if (value && minTotalPrice > 0 && Number(value) < minTotalPrice) {
+                        
+                        // Validate price is greater than 0
+                        const priceNum = Number(value)
+                        if (value && !isNaN(priceNum) && priceNum === 0) {
+                          setSnackBannerMsg('Price per month must be greater than $0')
+                          setSnackBannerMsgType(SnackbarTypes.Error)
+                        } else if (value && minTotalPrice > 0 && priceNum < minTotalPrice) {
                           setSnackBannerMsg(
                             `Total price per month cannot be less than $${minTotalPrice.toFixed(2)} (${agencyPlanCost.toFixed(2)}/credit × ${minutes} credits)`,
                           )
                           setSnackBannerMsgType(SnackbarTypes.Warning)
                         } else {
-                          setSnackBannerMsg(null)
+                          // Clear error if it was about price being 0
+                          if (snackBannerMsg && snackBannerMsg.includes('Price per month must be greater than $0')) {
+                            setSnackBannerMsg(null)
+                          } else if (value && minTotalPrice > 0 && priceNum >= minTotalPrice) {
+                            // Clear warning if price is now valid
+                            if (snackBannerMsg && snackBannerMsg.includes('cannot be less than')) {
+                              setSnackBannerMsg(null)
+                            }
+                          }
                         }
+                        
                         // Allow only digits and one optional period
                         const sanitized = value.replace(/[^0-9.]/g, '')
 
@@ -901,7 +945,7 @@ export default function AddMonthlyPlan({
 
                   {/* Minutes */}
                   <label style={styles.labels}>Credits</label>
-                  <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                  <div className={`border ${(minutes && Number(minutes) === 0) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <input
                       style={styles.inputs}
                       type="text"
@@ -910,6 +954,19 @@ export default function AddMonthlyPlan({
                       value={minutes}
                       onChange={(e) => {
                         const value = e.target.value
+                        
+                        // Validate credits is greater than 0
+                        const creditsNum = Number(value)
+                        if (value && !isNaN(creditsNum) && creditsNum === 0) {
+                          setSnackBannerMsg('Credits must be greater than 0')
+                          setSnackBannerMsgType(SnackbarTypes.Error)
+                        } else {
+                          // Clear error if it was about credits being 0
+                          if (snackBannerMsg && snackBannerMsg.includes('Credits must be greater than 0')) {
+                            setSnackBannerMsg(null)
+                          }
+                        }
+                        
                         // Allow only digits and one optional period
                         const sanitized = value.replace(/[^0-9.]/g, '')
 
