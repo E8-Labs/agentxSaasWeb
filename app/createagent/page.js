@@ -428,7 +428,7 @@ const Page = () => {
               <BackgroundVideo />
             </div>
           )}
-          {pageReady && componentsReady ? (
+          
             <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
               <CurrentComp
                 handleContinue={handleContinue}
@@ -452,11 +452,7 @@ const Page = () => {
                 isAgencyContext={isAgencyUser}
               />
             </div>
-          ) : (
-            <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-              Loading...
-            </div>
-          )}
+         
         </div>
       </Suspense>
     </ErrorBoundary>

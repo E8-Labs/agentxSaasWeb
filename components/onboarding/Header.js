@@ -19,12 +19,24 @@ const Header = ({
   const router = useRouter()
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
+
+  // Check if current domain is a custom domain (not app.assignx.ai or dev.assignx.ai)
+  const checkCustomDomain = () => {
+    if (typeof window === 'undefined') return false
+    
+    const hostname = window.location.hostname
+    const isCustom = hostname !== 'app.assignx.ai' && hostname !== 'dev.assignx.ai'
+    setIsCustomDomain(isCustom)
+    return isCustom
+  }
 
   // Ensure branding variables are applied when onboarding screens mount
   useEffect(() => {
     forceApplyBranding().catch((err) =>
       console.error('Error applying branding in Header:', err),
     )
+    checkCustomDomain()
   }, [])
 
   const checkBranding = () => {
@@ -123,12 +135,15 @@ const Header = ({
         </div>
         <div className="w-4/12 flex flex-row justify-center">
           {(() => {
-            const shouldShowOrb = !isSubaccount || (isSubaccount && !hasAgencyLogo)
+            // Hide orb if it's a custom domain (not app.assignx.ai or dev.assignx.ai)
+            // Also hide if subaccount has agency logo
+            const shouldShowOrb = !isCustomDomain && (!isSubaccount || (isSubaccount && !hasAgencyLogo))
             console.log('🎯 [Header] Orb visibility:', {
               isSubaccount,
               hasAgencyLogo,
+              isCustomDomain,
               shouldShowOrb,
-              condition: !isSubaccount || (isSubaccount && !hasAgencyLogo)
+              condition: !isCustomDomain && (!isSubaccount || (isSubaccount && !hasAgencyLogo))
             })
             return shouldShowOrb ? (
               <AgentXOrb
