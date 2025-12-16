@@ -1,4 +1,5 @@
 import { cookies, headers } from 'next/headers'
+import { decodeBrandingHeader } from '@/lib/branding-transport'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
@@ -31,14 +32,9 @@ export default async function Icon() {
   // This is the primary source and prevents the "first visit" issue
   const headerStore = await headers()
   const brandingHeader = headerStore.get('x-agency-branding')
-
-  if (brandingHeader) {
-    try {
-      const branding = JSON.parse(decodeValue(brandingHeader))
-      faviconUrl = branding?.faviconUrl
-    } catch (e) {
-      // Invalid header, fall through to cookie
-    }
+  const headerBranding = decodeBrandingHeader(brandingHeader)
+  if (headerBranding) {
+    faviconUrl = headerBranding?.faviconUrl || null
   }
 
   // Fallback: Try to read from cookies (set by middleware in previous requests)
