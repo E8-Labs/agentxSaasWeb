@@ -439,7 +439,7 @@ const Creator = ({ agentId, name }) => {
 
       // Call API with lead details
       const response = await callApiPost(
-        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
         { lead_details: leadDetails },
       )
 
@@ -545,7 +545,7 @@ const Creator = ({ agentId, name }) => {
               }
 
               const response = await callApiPost(
-                `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+                `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
                 { lead_details: leadDetails },
               )
 
