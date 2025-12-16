@@ -56,11 +56,22 @@ export default function AddXBarPlan({
       setTitle(selectedPlan?.title)
       setTag(selectedPlan?.tag ?? '')
       setPlanDescription(selectedPlan?.planDescription)
-      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2))
-      const OriginalPrice = selectedPlan?.originalPrice
-      if (OriginalPrice > 0) {
-        setDiscountedPrice(OriginalPrice)
+      
+      // Safely handle null/undefined values for prices
+      const discountedPriceValue = selectedPlan?.discountedPrice
+      if (discountedPriceValue != null && !isNaN(discountedPriceValue)) {
+        setOriginalPrice(Number(discountedPriceValue).toFixed(2))
+      } else {
+        setOriginalPrice('')
       }
+      
+      const originalPriceValue = selectedPlan?.originalPrice
+      if (originalPriceValue != null && !isNaN(originalPriceValue) && Number(originalPriceValue) > 0) {
+        setDiscountedPrice(originalPriceValue)
+      } else {
+        setDiscountedPrice('')
+      }
+      
       setMinutes(selectedPlan?.minutes)
       setIsDefaultPlan(selectedPlan?.isDefault || false)
     }
@@ -168,17 +179,22 @@ export default function AddXBarPlan({
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      formData.append('originalPrice', discountedPrice || 0)
-      formData.append('discountedPrice', originalPrice)
       
-      // Calculate percentageDiscount only when both prices are valid
+      // originalPrice (backend) = strikethrough price (optional)
+      // discountedPrice (backend) = actual selling price (always required)
       if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
+        // Has strikethrough price - calculate discount
         const percentage = (
           ((Number(discountedPrice) - Number(originalPrice)) / Number(discountedPrice)) *
           100
         ).toFixed(2)
+        formData.append('originalPrice', discountedPrice) // strikethrough price
+        formData.append('discountedPrice', originalPrice) // actual selling price
         formData.append('percentageDiscount', percentage)
       } else {
+        // No strikethrough price - just set the selling price
+        formData.append('originalPrice', '') // null/empty for no strikethrough
+        formData.append('discountedPrice', originalPrice) // actual selling price (required)
         formData.append('percentageDiscount', 0)
       }
       
@@ -260,19 +276,22 @@ export default function AddXBarPlan({
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      formData.append('originalPrice', discountedPrice || 0)
       
-      // Calculate percentageDiscount only when both prices are valid
+      // originalPrice (backend) = strikethrough price (optional)
+      // discountedPrice (backend) = actual selling price (always required)
       if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
+        // Has strikethrough price - calculate discount
         const percentage = (
           ((Number(discountedPrice) - Number(originalPrice)) / Number(discountedPrice)) *
           100
         ).toFixed(2)
+        formData.append('originalPrice', discountedPrice) // strikethrough price
+        formData.append('discountedPrice', originalPrice) // actual selling price
         formData.append('percentageDiscount', percentage)
-        formData.append('discountedPrice', originalPrice)
       } else {
-        // No discount when strikethrough price is empty or invalid
-        formData.append('discountedPrice', 0)
+        // No strikethrough price - just set the selling price
+        formData.append('originalPrice', '') // null/empty for no strikethrough
+        formData.append('discountedPrice', originalPrice) // actual selling price (required)
         formData.append('percentageDiscount', 0)
       }
       
