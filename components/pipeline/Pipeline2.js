@@ -778,8 +778,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       style={{ width: '100%' }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col justify-between">
-        <div>
+      <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0">
             <Header />
@@ -825,7 +825,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           </div>
           <div
             ref={containerRef}
-            className="flex flex-col items-center px-4 w-full overflow-auto h-[68vh]"
+            className="flex flex-col items-center px-4 w-full"
             style={{ 
               scrollbarWidth: 'none',
             }}
@@ -1200,14 +1200,18 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
         {/* Modal for video */}
 
-        <div>
-          <div> <ProgressBar value={100} /> </div>
-
-          <Footer
-            handleContinue={handleNextClick}
-            handleBack={handleBack}
-            registerLoader={loader}
-          />
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
+            <ProgressBar value={100} />
+          </div>
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleNextClick}
+              handleBack={handleBack}
+              registerLoader={loader}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -762,9 +762,9 @@ const Pipeline1 = ({ handleContinue }) => {
         />
       )}
       <div
-        className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
       >
-        <div className="w-full flex-1 flex flex-col min-h-0">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
@@ -947,17 +947,20 @@ const Pipeline1 = ({ handleContinue }) => {
             </div>
           </div>
         </div>
-        <div className="w-full flex-shrink-0">
-          <div>
+
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={printAssignedLeadsData}
-            donotShowBack={true}
-            registerLoader={createPipelineLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={printAssignedLeadsData}
+              donotShowBack={true}
+              registerLoader={createPipelineLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>
