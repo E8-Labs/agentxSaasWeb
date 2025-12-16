@@ -200,6 +200,13 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   const handlePlanCreated = (response) => {
     console.log('Response received is:', response)
     let newPlan = response?.data?.data
+    console.log("New plan is", newPlan)
+    if(!newPlan) {
+      console.log("New plan is not found")
+      setSnackMsg(response?.data?.message || 'An error occurred')
+      setSnackMsgType(SnackbarTypes.Success)
+      return
+    }
 
     // Load existing plans based on type
     let localPlans = []
@@ -221,7 +228,10 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     let updatedPlans = []
     const idToCompare = newPlan.id
     const existingIndex = localPlans.findIndex(
-      (plan) => plan.id === idToCompare,
+      (plan) => {
+        console.log('Plan is', plan)
+        return plan.id === idToCompare
+      },
     )
 
     if (existingIndex !== -1) {
