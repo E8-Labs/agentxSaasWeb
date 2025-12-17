@@ -14,8 +14,19 @@ import {
  * @param {Object|null} agencyBranding - The branding data to pass
  * @returns {NextResponse} Response with modified request headers
  */
+function encodeBranding(branding) {
+  if (!branding) return null
+  try {
+    return encodeURIComponent(JSON.stringify(branding))
+  } catch (e) {
+    // If branding contains unsupported values, skip encoding to avoid crashing middleware
+    return null
+  }
+}
+
 function createResponseWithBrandingHeaders(request, agencyBranding) {
-  if (agencyBranding) {
+  const encodedBranding = encodeBranding(agencyBranding)
+  if (encodedBranding) {
     const requestHeaders = new Headers(request.headers)
     const encoded = encodeBrandingHeader(agencyBranding)
     if (encoded) {

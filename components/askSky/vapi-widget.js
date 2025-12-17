@@ -112,6 +112,12 @@ export function VapiWidget({
   const startVapiCall = async () => {
     // Check if user has sufficient minutes before starting call
     let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+    // Add agentType query parameter based on isEmbeded prop
+    if (isEmbeded) {
+      path += '?agentType=embed'
+    } else {
+      path += '?agentType=web'
+    }
     const response = await axios.get(path)
 
     console.log('api path of get user by agent id is', path)

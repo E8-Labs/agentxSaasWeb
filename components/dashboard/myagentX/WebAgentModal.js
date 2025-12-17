@@ -32,6 +32,7 @@ const WebAgentModal = ({
   selectedSmartList,
   setSelectedSmartList,
   agent, // Add agent prop to access web-specific fields
+  onAgentUpdate, // Callback to update parent's agent state
 }) => {
   const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill)
   const [requireForm, setRequireForm] = useState(false)
@@ -245,12 +246,19 @@ const WebAgentModal = ({
           // Update agent object if it exists
           if (agent) {
             const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
+            const updatedAgent = {
+              ...agent,
+            }
             if (agentType === 'webhook') {
-              agent.smartListEnabledForWebhook = false
-              agent.smartListIdForWebhook = null
+              updatedAgent.smartListEnabledForWebhook = false
+              updatedAgent.smartListIdForWebhook = null
             } else {
-              agent.smartListEnabledForWeb = false
-              agent.smartListIdForWeb = null
+              updatedAgent.smartListEnabledForWeb = false
+              updatedAgent.smartListIdForWeb = null
+            }
+            // Notify parent to update agent state
+            if (onAgentUpdate) {
+              onAgentUpdate(updatedAgent)
             }
           }
         } else {
@@ -314,7 +322,29 @@ const WebAgentModal = ({
 
         if (response.data) {
           console.log('feature type is', fetureType)
-          // return;
+          // Update local agent state if agent prop is provided
+          if (agent && selectedSmartList) {
+            const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
+            const updatedAgent = {
+              ...agent,
+            }
+            if (agentType === 'webhook') {
+              updatedAgent.smartListIdForWebhook = selectedSmartList
+              updatedAgent.smartListEnabledForWebhook = true
+            } else {
+              updatedAgent.smartListIdForWeb = selectedSmartList
+              updatedAgent.smartListEnabledForWeb = true
+            }
+            console.log('🔧 WebAgentModal - Updated local agent state:', {
+              agentType,
+              smartListId: selectedSmartList,
+              updatedAgent,
+            })
+            // Notify parent to update agent state
+            if (onAgentUpdate) {
+              onAgentUpdate(updatedAgent)
+            }
+          }
           // Success - now open the agent
           if (fetureType === 'webhook') {
             onCopyUrl()

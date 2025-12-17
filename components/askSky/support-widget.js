@@ -290,7 +290,7 @@ export function SupportWidget({
 
       // Call POST API to get assistant overrides (matching web-agent format)
       const response = await axios.post(
-        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}`,
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}?agentType=embed`,
         {
           lead_details: leadDetails,
         },
