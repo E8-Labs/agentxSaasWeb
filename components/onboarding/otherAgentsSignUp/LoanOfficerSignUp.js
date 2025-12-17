@@ -586,7 +586,7 @@ const LoanOfficerSignUp = ({
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[80%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}

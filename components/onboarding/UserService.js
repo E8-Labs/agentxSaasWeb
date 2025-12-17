@@ -151,13 +151,13 @@ const UserService = ({ handleContinue, handleBack }) => {
         className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
         style={{ scrollbarWidth: 'none' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header84svh */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[80%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%]">
             <div
               className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: 'center' }}
@@ -171,7 +171,7 @@ const UserService = ({ handleContinue, handleBack }) => {
               </div>
             ) : (
               <div
-                className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+                className="mt-2 pb-10 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col  overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
                 style={{
                   scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
                 }}
