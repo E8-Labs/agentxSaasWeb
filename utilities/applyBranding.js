@@ -173,24 +173,46 @@ export const fetchAndApplyBranding = async () => {
       return false // Not an agency or subaccount, no branding to apply
     }
 
-    const response = await fetch(Apis.getAgencyBranding, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    // Add timeout to prevent hanging on network errors
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-    if (response.ok) {
-      const data = await response.json()
-      if (data?.status === true && data?.data?.branding) {
-        const branding = data.data.branding
-        // Use the centralized function to update cookie and apply branding
-        return updateBrandingCookieAndApply(branding)
+    try {
+      const response = await fetch(Apis.getAgencyBranding, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data?.status === true && data?.data?.branding) {
+          const branding = data.data.branding
+          // Use the centralized function to update cookie and apply branding
+          return updateBrandingCookieAndApply(branding)
+        }
       }
-    }
 
-    return false
+      return false
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      // Silently handle CORS errors and network failures - don't block the page
+      if (fetchError.name === 'AbortError') {
+        console.warn('[fetchAndApplyBranding] API timeout - continuing without branding')
+      } else if (fetchError.message?.includes('CORS') || fetchError.message?.includes('Failed to fetch')) {
+        console.warn('[fetchAndApplyBranding] CORS error - continuing without branding:', fetchError.message)
+      } else {
+        console.warn('[fetchAndApplyBranding] Error fetching branding - continuing without branding:', fetchError)
+      }
+      return false
+    }
   } catch (error) {
+    // Silently handle all errors - don't block the page
+    console.warn('[fetchAndApplyBranding] Unexpected error - continuing without branding:', error)
     return false
   }
 }

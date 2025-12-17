@@ -150,37 +150,57 @@ const AppLogo = ({
 
         // Try domain lookup API first (works for custom domains without auth)
         // Always pass full hostname as customDomain - backend will check domains table
-        const lookupResponse = await fetch(
-          `${baseUrl}api/agency/lookup-by-domain`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              customDomain: hostname,
-            }),
-          },
-        )
+        // Add timeout to prevent hanging on CORS errors
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-        if (lookupResponse.ok) {
-          const lookupData = await lookupResponse.json()
-          if (lookupData.status && lookupData.data?.branding) {
-            const freshBranding = lookupData.data.branding
-            if (freshBranding?.logoUrl) {
-              setLogoUrl(freshBranding.logoUrl)
-              // Update localStorage and cookie with fresh data
-              localStorage.setItem(
-                'agencyBranding',
-                JSON.stringify(freshBranding),
-              )
-              const cookieValue = encodeURIComponent(
-                JSON.stringify(freshBranding),
-              )
-              // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-              return
+        try {
+          const lookupResponse = await fetch(
+            `${baseUrl}api/agency/lookup-by-domain`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                customDomain: hostname,
+              }),
+              signal: controller.signal,
+            },
+          )
+
+          clearTimeout(timeoutId)
+
+          if (lookupResponse.ok) {
+            const lookupData = await lookupResponse.json()
+            if (lookupData.status && lookupData.data?.branding) {
+              const freshBranding = lookupData.data.branding
+              if (freshBranding?.logoUrl) {
+                setLogoUrl(freshBranding.logoUrl)
+                // Update localStorage and cookie with fresh data
+                localStorage.setItem(
+                  'agencyBranding',
+                  JSON.stringify(freshBranding),
+                )
+                const cookieValue = encodeURIComponent(
+                  JSON.stringify(freshBranding),
+                )
+                // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+                return
+              }
             }
           }
+        } catch (fetchError) {
+          clearTimeout(timeoutId)
+          // Silently handle CORS errors and network failures - don't block the page
+          if (fetchError.name === 'AbortError') {
+            console.warn('[AppLogo] Domain lookup timeout - continuing without custom logo')
+          } else if (fetchError.message?.includes('CORS') || fetchError.message?.includes('Failed to fetch')) {
+            console.warn('[AppLogo] Domain lookup CORS error - continuing without custom logo:', fetchError.message)
+          } else {
+            console.warn('[AppLogo] Domain lookup error - continuing without custom logo:', fetchError)
+          }
+          // Continue to fallback logic below
         }
 
         // Fallback: Try getAgencyBranding API if user is logged in (for subaccounts or agency creating for subaccount)
@@ -191,39 +211,57 @@ const AppLogo = ({
             const authToken = parsedUser?.token || parsedUser?.user?.token
 
             if (authToken) {
-              // If agency is creating for subaccount, we need to get the subaccount's agency branding
-              // The API should handle this based on the subaccount's agencyId
-              const response = await fetch(Apis.getAgencyBranding, {
-                headers: {
-                  Authorization: `Bearer ${authToken}`,
-                  'Content-Type': 'application/json',
-                },
-              })
+              // Add timeout to prevent hanging
+              const fallbackController = new AbortController()
+              const fallbackTimeoutId = setTimeout(() => fallbackController.abort(), 5000) // 5 second timeout
 
-              if (response.ok) {
-                const data = await response.json()
-                if (data?.status === true && data?.data?.branding) {
-                  const freshBranding = data.data.branding
-                  if (freshBranding?.logoUrl) {
-                    setLogoUrl(freshBranding.logoUrl)
-                    // Update localStorage and cookie with fresh data
-                    localStorage.setItem(
-                      'agencyBranding',
-                      JSON.stringify(freshBranding),
-                    )
-                    const cookieValue = encodeURIComponent(
-                      JSON.stringify(freshBranding),
-                    )
-                    // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-                    return
+              try {
+                // If agency is creating for subaccount, we need to get the subaccount's agency branding
+                // The API should handle this based on the subaccount's agencyId
+                const response = await fetch(Apis.getAgencyBranding, {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                  },
+                  signal: fallbackController.signal,
+                })
+
+                clearTimeout(fallbackTimeoutId)
+
+                if (response.ok) {
+                  const data = await response.json()
+                  if (data?.status === true && data?.data?.branding) {
+                    const freshBranding = data.data.branding
+                    if (freshBranding?.logoUrl) {
+                      setLogoUrl(freshBranding.logoUrl)
+                      // Update localStorage and cookie with fresh data
+                      localStorage.setItem(
+                        'agencyBranding',
+                        JSON.stringify(freshBranding),
+                      )
+                      const cookieValue = encodeURIComponent(
+                        JSON.stringify(freshBranding),
+                      )
+                      // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
+                      return
+                    }
                   }
+                }
+              } catch (fallbackError) {
+                clearTimeout(fallbackTimeoutId)
+                // Silently handle errors - don't block the page
+                if (fallbackError.name === 'AbortError') {
+                  console.warn('[AppLogo] Fallback branding API timeout - continuing without custom logo')
+                } else {
+                  console.warn('[AppLogo] Fallback branding API error - continuing without custom logo:', fallbackError)
                 }
               }
             }
           }
         }
       } catch (error) {
-        console.log('Error fetching branding from API:', error)
+        // Silently handle all errors - don't block the page
+        console.warn('[AppLogo] Error fetching branding from API - continuing without custom logo:', error)
       }
     }
 
