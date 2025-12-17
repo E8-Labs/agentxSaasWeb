@@ -80,7 +80,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Calendar,
     },
     [HowToVideoTypes.Walkthrough]: {
-      title: 'Welcome to AgentX',
+      title: 'Welcome to AssignX',
       description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
     },
@@ -213,7 +213,7 @@ export const getTutorialVideos = () => {
       },
       {
         id: 11,
-        title: 'Welcome to AgentX',
+        title: 'Welcome to AssignX',
         description: '05:02',
         videoUrl: HowtoVideos.WalkthroughWatched,
         enabled: true,
