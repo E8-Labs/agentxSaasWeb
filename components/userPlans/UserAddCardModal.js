@@ -915,12 +915,27 @@ const UserAddCard = ({
                   {selectedPlan?.title || selectedPlan?.name || 'No Plan Selected'}
                 </div>
                 <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
-                  Total Annual Commitment: $
-                  {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                  {(() => {
+                    const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                    const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)
+                    const discountedPrice = 
+                      selectedPlan?.discountPrice ||
+                      selectedPlan?.discountedPrice ||
+                      selectedPlan?.originalPrice ||
+                      0
+                    return `${cycleLabel} Subscription $${formatFractional2(discountedPrice)}`
+                  })()}
                 </div>
               </div>
               <div style={{ fontWeight: '600', fontSize: 15 }}>
-                ${formatFractional2(selectedPlan?.originalPrice)}
+                {(() => {
+                  const discountedPrice = 
+                    selectedPlan?.discountPrice ||
+                    selectedPlan?.discountedPrice ||
+                    selectedPlan?.originalPrice ||
+                    0
+                  return `$${formatFractional2(discountedPrice)}`
+                })()}
               </div>
             </div>
 
@@ -930,7 +945,11 @@ const UserAddCard = ({
                   className="capitalize"
                   style={{ fontWeight: '600', fontSize: 15 }}
                 >
-                  {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
+                  {(() => {
+                    const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                    const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1)
+                    return `Total Billed ${cycleLabel}`
+                  })()}
                 </div>
                 <div
                   className=""
@@ -957,15 +976,20 @@ const UserAddCard = ({
                     return '$0'
                   }
                   
-                  const billingMonths = GetMonthCountFronBillingCycle(
-                    selectedPlan?.billingCycle || selectedPlan?.duration,
-                  )
-                  const monthlyPrice =
+                  const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                  const billingMonths = GetMonthCountFronBillingCycle(billingCycle)
+                  const discountedPrice =
                     selectedPlan?.discountPrice ||
                     selectedPlan?.discountedPrice ||
                     selectedPlan?.originalPrice ||
                     0
-                  return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                  
+                  // Calculate total based on billing cycle
+                  // For monthly: use discountedPrice as-is
+                  // For quarterly: discountedPrice * 3
+                  // For yearly: discountedPrice * 12
+                  const totalBilled = billingMonths * discountedPrice
+                  return `$${formatFractional2(totalBilled)}`
                 })()}
               </div>
             </div>

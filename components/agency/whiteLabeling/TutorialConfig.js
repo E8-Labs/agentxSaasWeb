@@ -129,7 +129,7 @@ const TutorialConfig = ({ selectedAgency }) => {
     },
     {
       id: 11,
-      title: 'Welcome to AgentX',
+      title: 'Welcome to AssignX',
       description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
       enabled: true,

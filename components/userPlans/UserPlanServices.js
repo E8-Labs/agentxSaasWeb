@@ -493,6 +493,7 @@ export const getTotalPrice = (selectedPlan) => {
 
 // Returns a human-friendly next charge date string based on plan billing cycle
 // monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
+// If plan has trial, adds trial days to the date
 export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
   try {
     const billingCycle =
@@ -502,20 +503,30 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
     const baseDate = new Date(fromDate)
     const nextDate = new Date(baseDate)
 
-    if (billingCycle === 'monthly') {
-      // exactly 30 days from now as requested
-      nextDate.setDate(nextDate.getDate() + 30)
-    } else if (billingCycle === 'quarterly') {
-      // add 3 calendar months
-      const month = nextDate.getMonth()
-      nextDate.setMonth(month + 3)
-    } else if (billingCycle === 'yearly') {
-      // add 12 calendar months
-      const month = nextDate.getMonth()
-      nextDate.setMonth(month + 12)
+    // Check if plan has trial and add trial days first
+    const hasTrial = selectedPlan?.hasTrial === true
+    const trialDays = selectedPlan?.trialValidForDays || 0
+    
+    if (hasTrial && trialDays > 0) {
+      // Add trial days to the base date
+      nextDate.setDate(nextDate.getDate() + trialDays)
     } else {
-      // default to 30 days if unknown
-      nextDate.setDate(nextDate.getDate() + 30)
+      // No trial, calculate based on billing cycle
+      if (billingCycle === 'monthly') {
+        // exactly 30 days from now as requested
+        nextDate.setDate(nextDate.getDate() + 30)
+      } else if (billingCycle === 'quarterly') {
+        // add 3 calendar months
+        const month = nextDate.getMonth()
+        nextDate.setMonth(month + 3)
+      } else if (billingCycle === 'yearly') {
+        // add 12 calendar months
+        const month = nextDate.getMonth()
+        nextDate.setMonth(month + 12)
+      } else {
+        // default to 30 days if unknown
+        nextDate.setDate(nextDate.getDate() + 30)
+      }
     }
 
     const formatted = nextDate.toLocaleDateString(undefined, {
