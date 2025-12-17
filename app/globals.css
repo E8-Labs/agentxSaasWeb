@@ -341,6 +341,33 @@ a.text-red:hover {
   margin-right: auto !important;
 }
 
+/* Prevent text wrapping in Sonner toasts - fit content */
+[data-sonner-toast] {
+  white-space: nowrap !important;
+  width: fit-content !important;
+  max-width: fit-content !important;
+  min-width: fit-content !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+[data-sonner-toast] > div {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  width: fit-content !important;
+}
+
+[data-sonner-toast] [data-title],
+[data-sonner-toast] [data-description] {
+  white-space: nowrap !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  width: fit-content !important;
+  max-width: none !important;
+}
+
 /* Sonner Toast Icon Colors - Target all possible icon containers */
 [data-sonner-toast][data-type="success"] [data-icon] svg,
 [data-sonner-toast][data-type="success"] svg[data-icon],

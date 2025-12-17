@@ -101,7 +101,13 @@ const AllSetModal = ({
             sx={{ fontWeight: 'bold' }}
           >
             {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} |{' '}
-            {`${fetureType === 'webhook' ? 'Webhook Agent' : 'Browser Agent'}`}
+            {`${
+              isEmbedFlow
+                ? 'Embed Agent'
+                : fetureType === 'webhook'
+                  ? 'Webhook Agent'
+                  : 'Browser Agent'
+            }`}
           </Typography>
           <CloseBtn onClick={onClose} />
         </Box>
