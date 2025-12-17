@@ -47,6 +47,7 @@ import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
@@ -168,6 +169,68 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showMainAgent, setShowMainAgent] = useState(null)
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null)
+
+  // Helper function to check if user is admin or agency
+  const isAdminOrAgency = () => {
+    if (typeof window === 'undefined') return false
+    try {
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+        const userType = parsedUser?.user?.userType || parsedUser?.userType
+        return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error)
+    }
+    return false
+  }
+
+  // Store agent state when drawer is opened (only for admin/agency users)
+  const storeAgentState = (agent) => {
+    if (!isAdminOrAgency() || !agent?.id) return
+    
+    try {
+      const existingData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      let stateObject = existingData ? JSON.parse(existingData) : {}
+      
+      if (!stateObject.restoreState) {
+        stateObject.restoreState = {}
+      }
+      
+      stateObject.restoreState.selectedAgentId = agent.id
+      
+      localStorage.setItem(
+        PersistanceKeys.isFromAdminOrAgency,
+        JSON.stringify(stateObject)
+      )
+    } catch (error) {
+      console.error('Error storing agent state:', error)
+    }
+  }
+
+  // Wrapper function to set drawer agent and store state
+  const setDrawerSelectedAgent = (agentOrUpdater) => {
+    if (typeof agentOrUpdater === 'function') {
+      // Handle function updater: (prev) => newState
+      setShowDrawerSelectedAgent((prev) => {
+        const newAgent = agentOrUpdater(prev)
+        // Store agent state for restoration (only for admin/agency users)
+        if (newAgent) {
+          storeAgentState(newAgent)
+        }
+        return newAgent
+      })
+    } else {
+      // Handle direct value
+      setShowDrawerSelectedAgent(agentOrUpdater)
+      // Store agent state for restoration (only for admin/agency users)
+      if (agentOrUpdater) {
+        storeAgentState(agentOrUpdater)
+      }
+    }
+  }
   const [activeTab, setActiveTab] = useState('Agent Info')
   const [mainAgentsList, setMainAgentsList] = useState([])
   const [agentData, setAgentData] = useState([])
@@ -371,6 +434,36 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     ad.play()
     setAudio(ad) // Play the audio
   }
+
+  // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
+  useEffect(() => {
+    if (!isAdminOrAgency() || !agentData || agentData.length === 0) return
+    
+    try {
+      const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (storedData) {
+        const stateObject = JSON.parse(storedData)
+        if (stateObject?.restoreState?.selectedAgentId) {
+          const agentId = stateObject.restoreState.selectedAgentId
+          // Find agent in mainAgentsList (which contains all agents)
+          const foundAgent = mainAgentsList.find((agent) => agent.id === agentId)
+          if (foundAgent) {
+            setDrawerSelectedAgent(foundAgent)
+            console.log('Restored agent drawer state:', agentId)
+          } else {
+            // Also check in agentData
+            const foundInAgentData = agentData.find((agent) => agent.id === agentId)
+            if (foundInAgentData) {
+              setDrawerSelectedAgent(foundInAgentData)
+              console.log('Restored agent drawer state from agentData:', agentId)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring agent drawer state:', error)
+    }
+  }, [agentData, mainAgentsList]) // Run when agents are loaded
 
   //refill the test ai popup input fields
 
@@ -1032,7 +1125,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setEmbedCode('')
     // Restore drawer if it was open before modal
     if (drawerStateBeforeModal) {
-      setShowDrawerSelectedAgent(drawerStateBeforeModal)
+      setDrawerSelectedAgent(drawerStateBeforeModal)
       setDrawerStateBeforeModal(null)
     }
   }
@@ -1086,7 +1179,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               )
 
               if (matchedAgent) {
-                setShowDrawerSelectedAgent(matchedAgent)
+                setDrawerSelectedAgent(matchedAgent)
                 console.log('Matched Agent Stored:') //, matchedAgent
               } else {
                 console.log('No matching agent found.')
@@ -1383,7 +1476,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setCalendarDetails(comparedAgent)
 
     ////console.log
-    setShowDrawerSelectedAgent(item)
+    setDrawerSelectedAgent(item)
     setSelectedImage(item?.thumb_profile_image)
     //// //console.log;
     if (item.agentType === 'inbound') {
@@ -1541,7 +1634,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1))
         setOpenCalimNumDropDown(false)
-        setShowDrawerSelectedAgent((prev) => {
+        setDrawerSelectedAgent((prev) => {
           return { ...prev, phoneNumber: item.phoneNumber }
         })
 
@@ -1822,12 +1915,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             // let updatedSubAgent = null
             if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
               if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(updateAgentData.agents[0])
+                setDrawerSelectedAgent(updateAgentData.agents[0])
               } else if (updateAgentData.agents.length > 1) {
                 if (
                   updateAgentData.agents[1].id == showDrawerSelectedAgent.id
                 ) {
-                  setShowDrawerSelectedAgent(updateAgentData.agents[1])
+                  setDrawerSelectedAgent(updateAgentData.agents[1])
                 }
               }
             }
@@ -1917,7 +2010,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (response.data.status === true) {
           setShowSuccessSnack(`Phone number assigned`)
 
-          setShowDrawerSelectedAgent((prev) => {
+          setDrawerSelectedAgent((prev) => {
             return { ...prev, phoneNumber }
           })
           setIsVisibleSnack(true)
@@ -2145,7 +2238,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           ),
         )
 
-        setShowDrawerSelectedAgent(null)
+        setDrawerSelectedAgent(null)
         setDelAgentModal(false)
 
         //updating data on localstorage
@@ -2746,10 +2839,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
             let agent = response.data.data
             if (agent.agents[0].id == showDrawerSelectedAgent.id) {
-              setShowDrawerSelectedAgent(agent.agents[0])
+              setDrawerSelectedAgent(agent.agents[0])
             } else if (agent.agents.length > 1) {
               if (agent.agents[1].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(agent.agents[1])
+                setDrawerSelectedAgent(agent.agents[1])
               }
             }
 
@@ -3394,7 +3487,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       <Modal
         open={showDrawerSelectedAgent}
-        onClose={() => setShowDrawerSelectedAgent(null)}
+        onClose={() => setDrawerSelectedAgent(null)}
         closeAfterTransition
         BackdropProps={{
           timeout: 500,
@@ -5237,7 +5330,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   fontSize: '20',
                 }}
                 onClick={() => {
-                  setShowDrawerSelectedAgent(ShowWarningModal)
+                  setDrawerSelectedAgent(ShowWarningModal)
                   setShowWarningModal(null)
                 }}
               >
@@ -6029,7 +6122,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           // Save drawer state before closing it
           if (showDrawerSelectedAgent) {
             setDrawerStateBeforeModal(showDrawerSelectedAgent)
-            setShowDrawerSelectedAgent(null)
+            setDrawerSelectedAgent(null)
           }
           setShowEmbedAllSetModal(true)
           const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
