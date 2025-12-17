@@ -596,11 +596,11 @@ const AgencyAddCard = ({
           {/* Orb */}
           {!isSmallScreen && (
             <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 flex justify-center items-center shrink-0"
+              className="absolute left-0 top-[72%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
                 width: isMediumScreen ? '170px' : '190px',
                 height: isMediumScreen ? '170px' : '190px',
-                marginLeft: '-22px',
+                marginLeft: '0px',
               }}
             >
               <Image
@@ -624,7 +624,7 @@ const AgencyAddCard = ({
               isSmallScreen
                 ? {}
                 : {
-                    paddingLeft: isMediumScreen ? '140px' : '185px',
+                    paddingLeft: isMediumScreen ? '175px' : '195px',
                   }
             }
           >
@@ -664,7 +664,7 @@ const AgencyAddCard = ({
               </div>
 
               <div
-                className="mt-1 px-3 py-1 border relative flex items-center"
+                className="mt-1 px-3 py-1 border relative flex items-center w-full"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.8)',
                   borderRadius: '8px',
