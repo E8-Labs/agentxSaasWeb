@@ -426,7 +426,21 @@ const GeneralAgentSignUp = ({
             // Use window.location.href for hard redirect to ensure clean page reload
             // This prevents DOM cleanup errors during navigation
             console.log('✅ Registration successful, redirecting to: /createagent')
-            window.location.href = '/createagent'
+            
+            // Ensure redirect happens even if there are pending operations
+            // Use setTimeout to allow any pending state updates to complete
+            setTimeout(() => {
+              window.location.href = '/createagent'
+            }, 100) // Small delay to allow state updates
+            
+            // Fallback: Force redirect after 2 seconds if something blocks it
+            setTimeout(() => {
+              if (window.location.pathname === '/onboarding') {
+                console.warn('⚠️ Redirect delayed, forcing redirect to /createagent')
+                window.location.replace('/createagent')
+              }
+            }, 2000)
+            
             return
           }
         }
