@@ -10,7 +10,7 @@ import { DEFAULT_PRIVACY_POLICY_TEXT } from '@/constants/agencyTermsPrivacy'
 
 import LabelingHeader from './LabelingHeader'
 
-const PrivacyConfig = () => {
+const PrivacyConfig = ({ selectedAgency }) => {
   const [privacyText, setPrivacyText] = useState('')
   const [originalText, setOriginalText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,10 +22,10 @@ const PrivacyConfig = () => {
   })
   const richTextEditorRef = useRef(null)
 
-  // Fetch privacy text on mount
+  // Fetch privacy text on mount or when selectedAgency changes
   useEffect(() => {
     fetchPrivacyText()
-  }, [])
+  }, [selectedAgency])
 
   const fetchPrivacyText = async () => {
     try {
@@ -48,7 +48,13 @@ const PrivacyConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getAgencyBranding, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getAgencyBranding
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -123,11 +129,18 @@ const PrivacyConfig = () => {
         return
       }
 
+      const updateData = {
+        privacyText: privacyText,
+      }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        updateData.userId = selectedAgency.id
+      }
+
       const response = await axios.put(
         Apis.updateAgencyTermsPrivacy,
-        {
-          privacyText: privacyText,
-        },
+        updateData,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

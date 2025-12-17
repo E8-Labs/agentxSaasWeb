@@ -10,6 +10,7 @@ import AgencyIntegrations from '@/components/agency/dashboard/AgencyIntegrations
 import AgencyMyAccount from '@/components/agency/myAccount/AgencyMyAccount'
 import DashboardPlans from '@/components/agency/plan/DashboardPlans'
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
+import WhiteLabel from '@/components/agency/whiteLabeling/WhiteLabel'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -78,8 +79,15 @@ function SelectedAgencyDetails({
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
     },
+    
     {
       id: 7,
+      name: 'Whitelabel',
+      selectedImage: '/agencyNavbarIcons/selectedWhitelabelling.png',
+      unSelectedImage: '/agencyNavbarIcons/unSelectedWhitelabelling.png',
+    },
+    {
+      id: 8,
       name: 'Account',
       selectedImage: '/svgIcons/selectedProfileCircle.svg',
       unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
@@ -505,6 +513,8 @@ function SelectedAgencyDetails({
                 />
               ) : selectedManu.name == 'Account' ? (
                 <AgencyMyAccount selectedAgency={selectedUser} />
+              ) : selectedManu.name == 'Whitelabel' ? (
+                <WhiteLabel selectedAgency={selectedUser} />
               ) : (
                 'Coming soon...'
               )}

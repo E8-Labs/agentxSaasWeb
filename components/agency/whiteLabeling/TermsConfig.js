@@ -10,7 +10,7 @@ import { DEFAULT_TERMS_TEXT } from '@/constants/agencyTermsPrivacy'
 
 import LabelingHeader from './LabelingHeader'
 
-const TermsConfig = () => {
+const TermsConfig = ({ selectedAgency }) => {
   const [termsText, setTermsText] = useState('')
   const [originalText, setOriginalText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,10 +22,10 @@ const TermsConfig = () => {
   })
   const richTextEditorRef = useRef(null)
 
-  // Fetch terms text on mount
+  // Fetch terms text on mount or when selectedAgency changes
   useEffect(() => {
     fetchTermsText()
-  }, [])
+  }, [selectedAgency])
 
   const fetchTermsText = async () => {
     try {
@@ -48,7 +48,13 @@ const TermsConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getAgencyBranding, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getAgencyBranding
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -124,11 +130,18 @@ const TermsConfig = () => {
         return
       }
 
+      const updateData = {
+        termsText: termsText,
+      }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        updateData.userId = selectedAgency.id
+      }
+
       const response = await axios.put(
         Apis.updateAgencyTermsPrivacy,
-        {
-          termsText: termsText,
-        },
+        updateData,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

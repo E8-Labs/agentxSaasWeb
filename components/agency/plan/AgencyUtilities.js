@@ -76,53 +76,14 @@ export function formatFractional2(price, maxDecimalPlaces = 2) {
     return '0'
   }
 
-  // Check if the number is a whole number
+  // Check if the number is a whole number (no decimal part)
   const isWholeNumber = Number.isInteger(num) || num % 1 === 0
 
   if (isWholeNumber) {
-    // Whole numbers: no decimal places
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(num)
+    // Whole numbers: return without decimal places
+    return num.toString()
   }
 
-  // For decimal numbers, preserve exact decimal places (up to maxDecimalPlaces)
-  // Use truncation instead of rounding to preserve the exact value (e.g., 0.998 stays 0.998, not 1.00)
-  
-  // If input is a string, check how many decimal places it originally had
-  let decimalPlaces = maxDecimalPlaces // default to maxDecimalPlaces
-  if (typeof price === 'string' && price.includes('.')) {
-    const decimalPart = price.split('.')[1]
-    if (decimalPart) {
-      decimalPlaces = Math.min(decimalPart.length, maxDecimalPlaces) // Preserve up to maxDecimalPlaces
-    }
-  } else {
-    // For numbers, determine decimal places by checking the string representation
-    const str = num.toString()
-    if (str.includes('.')) {
-      const decimalPart = str.split('.')[1]
-      if (decimalPart) {
-        decimalPlaces = Math.min(decimalPart.length, maxDecimalPlaces)
-      }
-    }
-  }
-
-  // Truncate (don't round) to preserve exact value
-  // Multiply by 10^decimalPlaces, floor it, then divide back
-  const multiplier = Math.pow(10, decimalPlaces)
-  const truncated = Math.floor(num * multiplier) / multiplier
-
-  // Format with the preserved decimal places, removing unnecessary trailing zeros
-  let formatted = truncated.toFixed(decimalPlaces)
-  
-  // Remove trailing zeros, but keep at least one decimal digit if it's a decimal number
-  formatted = formatted.replace(/\.?0+$/, '')
-  
-  // If we removed all decimals but the number is not whole, show at least maxDecimalPlaces decimals
-  if (!formatted.includes('.') && !isWholeNumber) {
-    formatted = truncated.toFixed(maxDecimalPlaces)
-  }
-
-  return formatted
+  // For decimal numbers, always show exactly 2 decimal places
+  return num.toFixed(2)
 }

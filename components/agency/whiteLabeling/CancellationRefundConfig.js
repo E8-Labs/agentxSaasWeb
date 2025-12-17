@@ -10,7 +10,7 @@ import { DEFAULT_CANCELLATION_REFUND_TEXT } from '@/constants/agencyTermsPrivacy
 
 import LabelingHeader from './LabelingHeader'
 
-const CancellationRefundConfig = () => {
+const CancellationRefundConfig = ({ selectedAgency }) => {
   const [cancellationRefundText, setCancellationRefundText] = useState('')
   const [originalText, setOriginalText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,10 +22,10 @@ const CancellationRefundConfig = () => {
   })
   const richTextEditorRef = useRef(null)
 
-  // Fetch cancellation & refund text on mount
+  // Fetch cancellation & refund text on mount or when selectedAgency changes
   useEffect(() => {
     fetchCancellationRefundText()
-  }, [])
+  }, [selectedAgency])
 
   const fetchCancellationRefundText = async () => {
     try {
@@ -48,7 +48,13 @@ const CancellationRefundConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getAgencyBranding, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getAgencyBranding
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -124,11 +130,18 @@ const CancellationRefundConfig = () => {
         return
       }
 
+      const updateData = {
+        cancellationRefundText: cancellationRefundText,
+      }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        updateData.userId = selectedAgency.id
+      }
+
       const response = await axios.put(
         Apis.updateAgencyTermsPrivacy,
-        {
-          cancellationRefundText: cancellationRefundText,
-        },
+        updateData,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

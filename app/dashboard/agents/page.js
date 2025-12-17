@@ -4043,7 +4043,7 @@ function Page() {
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage

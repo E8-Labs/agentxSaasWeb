@@ -119,6 +119,7 @@ export const checkCurrentUserRole = () => {
 export const copyAgencyOnboardingLink = async ({
   setLinkCopied,
   reduxUser = null,
+  selectedAgency = null,
 }) => {
   try {
     const d = localStorage.getItem('User')
@@ -129,7 +130,9 @@ export const copyAgencyOnboardingLink = async ({
 
     const Data = JSON.parse(d)
     const authToken = Data.token
-    const agencyUuid = Data.user?.agencyUuid
+    
+    // Use selectedAgency UUID if provided (admin view), otherwise use current user's UUID
+    const agencyUuid = selectedAgency?.agencyUuid || Data.user?.agencyUuid
 
     if (!agencyUuid) {
       console.error('Agency UUID not found')
@@ -202,7 +205,14 @@ export const copyAgencyOnboardingLink = async ({
           try {
             const axios = (await import('axios')).default
             const Apis = (await import('@/components/apis/Apis')).default
-            const response = await axios.get(Apis.getAgencyBranding, {
+            
+            // Add userId parameter if selectedAgency is provided (admin view)
+            let apiUrl = Apis.getAgencyBranding
+            if (selectedAgency?.id) {
+              apiUrl += `?userId=${selectedAgency.id}`
+            }
+            
+            const response = await axios.get(apiUrl, {
               headers: {
                 Authorization: `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
@@ -239,7 +249,14 @@ export const copyAgencyOnboardingLink = async ({
             try {
               const axios = (await import('axios')).default
               const Apis = (await import('@/components/apis/Apis')).default
-              const domainResponse = await axios.get(Apis.getDomainStatus, {
+              
+              // Add userId parameter if selectedAgency is provided (admin view)
+              let domainApiUrl = Apis.getDomainStatus
+              if (selectedAgency?.id) {
+                domainApiUrl += `?userId=${selectedAgency.id}`
+              }
+              
+              const domainResponse = await axios.get(domainApiUrl, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                   'Content-Type': 'application/json',

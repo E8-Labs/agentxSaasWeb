@@ -25,6 +25,7 @@ const StandardNot = ({
   notificationsData = [],
   onRefresh,
   category = 'Standard',
+  selectedAgency,
 }) => {
   const [isEditPushModalOpen, setIsEditPushModalOpen] = useState(false)
   const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false)
@@ -192,9 +193,11 @@ const StandardNot = ({
       }
 
       // Call API to save customization
+      const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(
         notificationType,
         apiData,
+        userId,
       )
 
       console.log('Push notification saved successfully')
@@ -247,9 +250,11 @@ const StandardNot = ({
       }
 
       // Call API to save customization
+      const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(
         notificationType,
         apiData,
+        userId,
       )
 
       console.log('Email notification saved successfully')
@@ -296,7 +301,8 @@ const StandardNot = ({
     try {
       setDeleting(notification.notificationType)
 
-      await deleteNotificationCustomization(notification.notificationType)
+      const userId = selectedAgency?.id || undefined
+      await deleteNotificationCustomization(notification.notificationType, userId)
 
       console.log('Notification customization deleted successfully')
 
@@ -316,7 +322,8 @@ const StandardNot = ({
     try {
       setToggling(notification.notificationType)
 
-      await toggleNotificationCustomization(notification.notificationType)
+      const userId = selectedAgency?.id || undefined
+      await toggleNotificationCustomization(notification.notificationType, userId)
 
       console.log('Notification toggled successfully')
 
@@ -336,7 +343,8 @@ const StandardNot = ({
     try {
       setTogglingEnabled(notification.notificationType)
 
-      await toggleNotificationEnabled(notification.notificationType)
+      const userId = selectedAgency?.id || undefined
+      await toggleNotificationEnabled(notification.notificationType, userId)
 
       console.log('Notification enabled status toggled successfully')
 

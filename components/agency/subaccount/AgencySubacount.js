@@ -236,15 +236,21 @@ function AgencySubacount({ selectedAgency }) {
 
   //code to close subaccount details modal
   const handleCloseModal = () => {
-    getSubAccounts()
+    // Preserve search term and applied filters when refreshing
+    const currentFilters = appliedFilters || null
+    const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+    getSubAccounts(currentFilters, currentSearch)
     setShowModal(false)
   }
 
   // /code for getting the subaccouts list
-  const getSubAccounts = async (filterData = null) => {
+  const getSubAccounts = async (filterData = null, searchTerm = null) => {
     console.log('Trigered get subaccounts')
     if (filterData) {
       console.log('Trigered get subaccounts to filter', filterData)
+    }
+    if (searchTerm) {
+      console.log('Trigered get subaccounts with search', searchTerm)
     }
     try {
       setInitialLoader(true)
@@ -254,6 +260,11 @@ function AgencySubacount({ selectedAgency }) {
 
       if (selectedAgency) {
         queryParams.push(`userId=${selectedAgency.id}`)
+      }
+
+      // Add search parameter if provided
+      if (searchTerm && searchTerm.trim()) {
+        queryParams.push(`search=${encodeURIComponent(searchTerm.trim())}`)
       }
 
       if (filterData) {
@@ -330,7 +341,10 @@ function AgencySubacount({ selectedAgency }) {
             setShowPauseConfirmationPopup(false)
             setmoreDropdown(null)
             setSelectedItem(null)
-            getSubAccounts()
+            // Preserve search term and applied filters after pause
+            const currentFilters = appliedFilters || null
+            const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+            getSubAccounts(currentFilters, currentSearch)
           }
           console.log('response.data.data', response.data)
         }
@@ -371,7 +385,10 @@ function AgencySubacount({ selectedAgency }) {
           setShowDelConfirmationPopup(false)
           setmoreDropdown(null)
           setSelectedItem(null)
-          getSubAccounts()
+          // Preserve search term and applied filters after delete
+          const currentFilters = appliedFilters || null
+          const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+          getSubAccounts(currentFilters, currentSearch)
         }
       }
     } catch (error) {
@@ -417,24 +434,39 @@ function AgencySubacount({ selectedAgency }) {
     }
   }
 
-  //search change
+  //search change with debouncing
+  const [searchTimeout, setSearchTimeout] = useState(null)
+  
   const handleSearchChange = (value) => {
     setSearchValue(value)
-
-    if (!value) {
-      setFilteredList(subAccountList) // reset if empty
-    } else {
-      const lower = value.toLowerCase()
-      setFilteredList(
-        subAccountList.filter(
-          (item) =>
-            item.name?.toLowerCase().includes(lower) ||
-            item.email?.toLowerCase().includes(lower) || // optional
-            item.phone?.toLowerCase().includes(lower), // optional
-        ),
-      )
+    
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
     }
+    
+    // If value is empty, reset immediately
+    if (!value || !value.trim()) {
+      getSubAccounts(null, null)
+      return
+    }
+    
+    // Debounce API call by 500ms
+    const timeout = setTimeout(() => {
+      getSubAccounts(null, value)
+    }, 500)
+    
+    setSearchTimeout(timeout)
   }
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout)
+      }
+    }
+  }, [searchTimeout])
 
   const refreshUserData = async () => {
     console.log('🔄 REFRESH USER DATA STARTED')
@@ -606,7 +638,6 @@ function AgencySubacount({ selectedAgency }) {
               value={searchValue}
               onChange={(e) => {
                 const value = e.target.value
-                // handleSearchChange(value);
                 setSearchValue(value)
                 handleSearchChange(value)
               }}
@@ -683,7 +714,9 @@ function AgencySubacount({ selectedAgency }) {
                             if (key === 'selectPlanId') setSelectPlanId(null)
                             if (key === 'accountStatus') setAccountStatus('')
 
-                            getSubAccounts(newFilters)
+                            // Preserve search term when removing filter tags
+                            const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+                            getSubAccounts(newFilters, currentSearch)
                           }}
                         >
                           <Image
@@ -1100,7 +1133,10 @@ function AgencySubacount({ selectedAgency }) {
         <SlideModal
           showModal={showModal}
           handleClose={() => {
-            getSubAccounts()
+            // Preserve search term and applied filters when closing modal
+            const currentFilters = appliedFilters || null
+            const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+            getSubAccounts(currentFilters, currentSearch)
             setShowModal(false)
           }}
           selectedAgency={selectedAgency}
@@ -1118,7 +1154,8 @@ function AgencySubacount({ selectedAgency }) {
             setAppliedFilters(data)
             setShowFilterModal(false)
             console.log('FilterData is', data)
-            getSubAccounts(data)
+            // Preserve search term when applying filters
+            getSubAccounts(data, searchValue && searchValue.trim() ? searchValue.trim() : null)
           }}
           minSpent={minSpent}
           maxSpent={maxSpent}
