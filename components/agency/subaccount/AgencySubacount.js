@@ -20,6 +20,7 @@ import { TwilioWarning } from '@/components/onboarding/extras/StickyModals'
 import TwillioWarning from '@/components/onboarding/extras/TwillioWarning'
 import { useUser } from '@/hooks/redux-hooks'
 import { convertSecondsToMinDuration } from '@/utilities/utility'
+import { PersistanceKeys } from '@/constants/Constants'
 
 import EditAgencyName from '../agencyExtras.js/EditAgencyName'
 import { CheckStripe, convertTime } from '../agencyServices/CheckAgencyData'
@@ -126,6 +127,70 @@ function AgencySubacount({ selectedAgency }) {
     getSubAccounts()
     fetchPlans()
   }, [])
+
+  // Restore subaccount modal state when returning from pipeline update (only for admin/agency users)
+  useEffect(() => {
+    // Helper function to check if user is admin or agency
+    const isAdminOrAgency = () => {
+      if (typeof window === 'undefined') return false
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          const userType = parsedUser?.user?.userType || parsedUser?.userType
+          return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error)
+      }
+      return false
+    }
+
+    // Only restore if user is admin/agency
+    if (!isAdminOrAgency()) return
+
+    // Wait for subAccountList to be populated
+    if (!subAccountList || subAccountList.length === 0) return
+
+    try {
+      const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (storedData) {
+        const stateObject = JSON.parse(storedData)
+        if (stateObject?.restoreState?.selectedUserId) {
+          const userId = stateObject.restoreState.selectedUserId
+          const foundUser = subAccountList.find((item) => item.id === userId)
+          if (foundUser) {
+            setSelectedUser(foundUser)
+            console.log('Restored subaccount modal state:', userId)
+            
+            // Clean up restoreState after a delay to allow all components to restore
+            setTimeout(() => {
+              try {
+                const currentData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+                if (currentData) {
+                  const currentState = JSON.parse(currentData)
+                  if (currentState.restoreState) {
+                    // Remove restoreState but keep the rest of the object for routing
+                    delete currentState.restoreState
+                    localStorage.setItem(
+                      PersistanceKeys.isFromAdminOrAgency,
+                      JSON.stringify(currentState)
+                    )
+                    console.log('Cleaned up restoreState from localStorage')
+                  }
+                }
+              } catch (error) {
+                console.error('Error cleaning up restoreState:', error)
+              }
+            }, 2000) // 2 second delay to ensure all components have restored
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring subaccount modal state:', error)
+    }
+  }, [subAccountList]) // Run when subAccountList is populated
 
   //dropdown popover functions
   const handleTogglePopover = (event, item) => {

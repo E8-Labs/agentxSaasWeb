@@ -282,9 +282,57 @@ const PipelineAndStage = ({
             }
             
             if (selectedUser) {
+              // Helper function to check if user is admin or agency
+              const isAdminOrAgency = () => {
+                if (typeof window === 'undefined') return false
+                try {
+                  const userData = localStorage.getItem('User')
+                  if (userData) {
+                    const parsedUser = JSON.parse(userData)
+                    const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+                    const userType = parsedUser?.user?.userType || parsedUser?.userType
+                    return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+                  }
+                } catch (error) {
+                  console.error('Error checking user role:', error)
+                }
+                return false
+              }
+
+              // Read existing state object (may already have restoreState from tab/agent selection)
+              let existingData = null
+              try {
+                const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+                if (storedData) {
+                  existingData = JSON.parse(storedData)
+                }
+              } catch (error) {
+                console.error('Error reading existing state:', error)
+              }
+
               let u = {
                 subAccountData: selectedUser,
                 isFrom: from,
+              }
+
+              // If user is admin/agency, add/update restoreState with selectedUserId
+              if (isAdminOrAgency()) {
+                if (!u.restoreState) {
+                  u.restoreState = {}
+                }
+                // Preserve existing restoreState if it exists
+                if (existingData?.restoreState) {
+                  u.restoreState = {
+                    ...existingData.restoreState,
+                    selectedUserId: selectedUser.id,
+                  }
+                } else {
+                  u.restoreState = {
+                    selectedUserId: selectedUser.id,
+                    selectedTabName: null,
+                    selectedAgentId: null,
+                  }
+                }
               }
 
               localStorage.setItem(

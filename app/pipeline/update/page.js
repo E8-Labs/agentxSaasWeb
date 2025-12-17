@@ -311,8 +311,38 @@ const Page = () => {
             )
           }
 
-          console.log('🔥 PIPELINE-UPDATE - Routing to dashboard')
-          router.push('/dashboard/agents')
+          // Check if user came from agency/subaccount page
+          let isFromAgencyOrAdmin = null
+          const FromAgencyOrAdmin = localStorage.getItem(
+            PersistanceKeys.isFromAdminOrAgency,
+          )
+          if (FromAgencyOrAdmin) {
+            try {
+              isFromAgencyOrAdmin = JSON.parse(FromAgencyOrAdmin)
+            } catch (error) {
+              console.error('Error parsing isFromAdminOrAgency:', error)
+            }
+          }
+
+          // Route based on where user came from
+          // Check for both isFrom and isFromAgency properties (for compatibility)
+          const isFromAdmin = isFromAgencyOrAdmin?.isFrom === 'admin' || isFromAgencyOrAdmin?.isFromAgency === 'admin'
+          const isFromSubaccount = isFromAgencyOrAdmin?.isFrom === 'subaccount' || 
+                                   isFromAgencyOrAdmin?.isFromAgency === 'subaccount' ||
+                                   (isFromAgencyOrAdmin?.subAccountData && !isFromAdmin) // If subAccountData exists and not admin, assume subaccount
+          
+          if (isFromAdmin) {
+            console.log('🔥 PIPELINE-UPDATE - Routing to admin')
+            router.push('/admin')
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          } else if (isFromSubaccount) {
+            console.log('🔥 PIPELINE-UPDATE - Routing to agency subaccounts')
+            router.push('/agency/dashboard/subAccounts')
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          } else {
+            console.log('🔥 PIPELINE-UPDATE - Routing to dashboard')
+            router.push('/dashboard/agents')
+          }
         } else {
           // setLoader(false);
         }
