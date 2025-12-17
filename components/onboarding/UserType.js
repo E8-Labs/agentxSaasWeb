@@ -272,7 +272,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[80%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%]">
             <div
               className="mt-4 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -290,7 +290,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin"
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%]  overflow-auto scrollbar-track-transparent scrollbar-thin"
               style={{
                 scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
               }}
