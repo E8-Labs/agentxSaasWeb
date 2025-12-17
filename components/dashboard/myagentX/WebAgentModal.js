@@ -458,7 +458,9 @@ const WebAgentModal = ({
               }}
             >
               <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                Require users to complete a form?
+                {fetureType === 'webhook'
+                  ? 'Add your leads to a smartlist'
+                  : 'Require users to complete a form?'}
               </div>
               <Switch
                 checked={requireForm}
@@ -477,8 +479,9 @@ const WebAgentModal = ({
               />
             </div>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              This prompts users to fill out a form before they engage in a
-              conversation with your AI.
+              {fetureType === 'webhook'
+                ? 'Organize the leads your AI talks to by adding them to a dedicated smartlist'
+                : 'This prompts users to fill out a form before they engage in a conversation with your AI.'}
             </div>
           </div>
 

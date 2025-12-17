@@ -22,7 +22,7 @@ import LabelingHeader from './LabelingHeader'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
-const EmailConfig = () => {
+const EmailConfig = ({ selectedAgency }) => {
   // Mail account state
   const [mailAccount, setMailAccount] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -40,16 +40,23 @@ const EmailConfig = () => {
   // const [smtpFromEmail, setSmtpFromEmail] = useState('')
   // const [encryption, setEncryption] = useState('')
 
-  // Fetch agency mail account on component mount
+  // Fetch agency mail account on component mount or when selectedAgency changes
   useEffect(() => {
     fetchAgencyMailAccount()
-  }, [])
+  }, [selectedAgency])
 
   const fetchAgencyMailAccount = async () => {
     try {
       setLoading(true)
       const token = AuthToken()
-      const response = await axios.get(Apis.agencyMailAccount, {
+      
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.agencyMailAccount
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+      
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -149,7 +156,7 @@ const EmailConfig = () => {
             }
 
             console.log('Google login details are', googleLoginData)
-            const response = await connectGmailAccount(googleLoginData)
+            const response = await connectGmailAccount(googleLoginData, selectedAgency)
             setConnecting(false)
 
             if (response && response.data && response.data.status == true) {

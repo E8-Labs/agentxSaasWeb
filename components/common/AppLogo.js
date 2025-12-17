@@ -149,6 +149,7 @@ const AppLogo = ({
             : 'https://apimyagentx.com/agentxtest/')
 
         // Try domain lookup API first (works for custom domains without auth)
+        // Always pass full hostname as customDomain - backend will check domains table
         const lookupResponse = await fetch(
           `${baseUrl}api/agency/lookup-by-domain`,
           {
@@ -158,9 +159,6 @@ const AppLogo = ({
             },
             body: JSON.stringify({
               customDomain: hostname,
-              subdomain: isAssignx && hostname.includes('.assignx.ai')
-                ? hostname.split('.')[0]
-                : null,
             }),
           },
         )

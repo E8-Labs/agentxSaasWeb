@@ -3,7 +3,7 @@ import React from 'react'
 import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget'
 import LabelingHeader from './LabelingHeader'
 
-const SupportWidgetConfig = () => {
+const SupportWidgetConfig = ({ selectedAgency }) => {
   return (
     <div>
       {/* Banner Section */}
@@ -20,7 +20,7 @@ const SupportWidgetConfig = () => {
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
           {/* Domain Title */}
           <div className="w-full">
-            <AgencySupportAndWidget />
+            <AgencySupportAndWidget selectedAgency={selectedAgency} />
           </div>
         </div>
       </div>

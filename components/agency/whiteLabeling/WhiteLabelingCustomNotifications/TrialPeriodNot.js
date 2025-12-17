@@ -27,6 +27,7 @@ const TrialPeriodNot = ({
   notificationsListArray,
   notificationsData = [],
   onRefresh,
+  selectedAgency,
 }) => {
   const [isEditPushModalOpen, setIsEditPushModalOpen] = useState(false)
   const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false)
@@ -264,7 +265,8 @@ const TrialPeriodNot = ({
       console.log('notificationType', notificationType)
 
       // Call API to save customization
-      await createOrUpdateNotificationCustomization(notificationType, apiData)
+      const userId = selectedAgency?.id || undefined
+      await createOrUpdateNotificationCustomization(notificationType, apiData, userId)
 
       console.log('Push notification saved successfully')
 
@@ -328,7 +330,8 @@ const TrialPeriodNot = ({
       }
 
       // Call API to save customization
-      await createOrUpdateNotificationCustomization(notificationType, apiData)
+      const userId = selectedAgency?.id || undefined
+      await createOrUpdateNotificationCustomization(notificationType, apiData, userId)
 
       console.log('Email notification saved successfully')
 
@@ -378,7 +381,8 @@ const TrialPeriodNot = ({
         return
       }
 
-      await toggleNotificationEnabled(notificationType)
+      const userId = selectedAgency?.id || undefined
+      await toggleNotificationEnabled(notificationType, userId)
 
       console.log('Notification enabled status toggled successfully')
 

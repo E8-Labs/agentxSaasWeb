@@ -13,7 +13,7 @@ import LabelingHeader from './LabelingHeader'
 import TutorialViewCard from './TutorialViewCard'
 import VideoPlayerModal from './VideoPlayerModal'
 
-const TutorialConfig = () => {
+const TutorialConfig = ({ selectedAgency }) => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [selectedTutorial, setSelectedTutorial] = useState(null)
@@ -141,7 +141,7 @@ const TutorialConfig = () => {
 
   useEffect(() => {
     getHowToVideos()
-  }, [])
+  }, [selectedAgency])
 
   // Helper function to format duration from seconds to "M:SS" or "MM:SS" format
   const formatDuration = (seconds) => {
@@ -154,7 +154,14 @@ const TutorialConfig = () => {
   const getHowToVideos = async () => {
     try {
       let token = AuthToken()
-      const response = await axios.get(Apis.getHowToVideo, {
+      
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getHowToVideo
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+      
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -284,6 +291,11 @@ const TutorialConfig = () => {
         'enabled',
         isEditMode && selectedTutorial ? selectedTutorial.enabled : true,
       )
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        formData.append('userId', selectedAgency.id)
+      }
 
       formData.forEach((value, key) => {
         console.log('key is of formData', key)

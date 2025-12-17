@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import Apis from './Apis'
-import { applyBrandingFromResponse } from '@/utilities/applyBranding'
+import { applyBrandingFromResponse, updateBrandingCookieAndApply } from '@/utilities/applyBranding'
 
 const getProfileDetails = async (selectedAgency) => {
   const maxRetries = 10
@@ -88,13 +88,15 @@ const getProfileDetails = async (selectedAgency) => {
             })
             
             if (agencyBranding && typeof agencyBranding === 'object' && Object.keys(agencyBranding).length > 0) {
-              console.log('✅ [GET-PROFILE] Agency branding found in profile, updating localStorage...', agencyBranding)
-              // Use applyBrandingFromResponse to update branding and dispatch event
-              // Pass response.data which has structure: { status: true, data: { ...userData with agencyBranding } }
-              const applied = applyBrandingFromResponse(response.data)
-              if (!applied) {
-                // If applyBrandingFromResponse didn't find it, try direct application
-                console.log('⚠️ [GET-PROFILE] applyBrandingFromResponse returned false, trying direct application...')
+              console.log('✅ [GET-PROFILE] Agency branding found in profile, updating cookies and applying...', agencyBranding)
+              // Update cookies and apply branding immediately
+              // This ensures subaccounts get updated branding when agency changes colors
+              const applied = updateBrandingCookieAndApply(agencyBranding, true)
+              if (applied) {
+                console.log('✅ [GET-PROFILE] Branding cookie updated and applied from User object')
+              } else {
+                console.warn('⚠️ [GET-PROFILE] Failed to update branding cookie, trying applyBrandingFromResponse...')
+                // Fallback to applyBrandingFromResponse
                 applyBrandingFromResponse({ data: { agencyBranding } })
               }
             } else {

@@ -6,22 +6,23 @@ import LabelingHeader from '../LabelingHeader'
 import StandardNot from './StandardNot'
 import TrialPeriodNot from './TrialPeriodNot'
 
-const NotificationConfig = () => {
+const NotificationConfig = ({ selectedAgency }) => {
   const [selectedNotificationTab, setSelectedNotificationTab] = useState(1)
   const [notificationsData, setNotificationsData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Fetch notification customizations on component mount
+  // Fetch notification customizations on component mount or when selectedAgency changes
   useEffect(() => {
     fetchNotifications()
-  }, [])
+  }, [selectedAgency])
 
   const fetchNotifications = async () => {
     try {
       setLoading(true)
       setError(null)
-      const response = await getAllNotificationCustomizations()
+      const userId = selectedAgency?.id || undefined
+      const response = await getAllNotificationCustomizations(userId)
       if (response.success) {
         setNotificationsData(response.data)
       }
@@ -91,6 +92,7 @@ const NotificationConfig = () => {
                   notificationsData={notificationsData}
                   onRefresh={fetchNotifications}
                   category="Standard"
+                  selectedAgency={selectedAgency}
                 />
               )}
               {selectedNotificationTab === 2 && (
@@ -98,6 +100,7 @@ const NotificationConfig = () => {
                   notificationsListArray={'TrialPeriod'}
                   notificationsData={notificationsData}
                   onRefresh={fetchNotifications}
+                  selectedAgency={selectedAgency}
                 />
               )}
               {selectedNotificationTab === 3 && (
@@ -105,6 +108,7 @@ const NotificationConfig = () => {
                   notificationsListArray={'PostTrialPeriod'}
                   notificationsData={notificationsData}
                   onRefresh={fetchNotifications}
+                  selectedAgency={selectedAgency}
                 />
               )}
               {selectedNotificationTab === 4 && (
@@ -112,6 +116,7 @@ const NotificationConfig = () => {
                   notificationsData={notificationsData}
                   onRefresh={fetchNotifications}
                   category="Gamification"
+                  selectedAgency={selectedAgency}
                 />
               )}
             </div>

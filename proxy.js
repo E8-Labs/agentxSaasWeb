@@ -45,59 +45,20 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Subdomain and custom domain detection
+  // Custom domain detection - all domains are treated as custom domains
+  // Subdomain logic has been removed - always check domains table
   let agencyId = null
   let agencySubdomain = null
   let isCustomDomain = false
   let agencyBranding = null
 
-  // Check if it's a subdomain of assignx.ai
-  if (hostname.includes('.assignx.ai')) {
-    // Extract subdomain: {uuid}.assignx.ai
-    const subdomainParts = hostname.split('.')
-    if (subdomainParts.length >= 3) {
-      agencySubdomain = hostname // Full subdomain
-      const subdomainValue = subdomainParts[0] // Just the UUID part
-
-      try {
-        // Call lookup API
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_API_URL ||
-          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-            ? 'https://apimyagentx.com/agentx/'
-            : 'https://apimyagentx.com/agentxtest/')
-
-        const lookupResponse = await fetch(
-          `${baseUrl}api/agency/lookup-by-domain`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ subdomain: subdomainValue }),
-          },
-        )
-
-        if (lookupResponse.ok) {
-          const lookupData = await lookupResponse.json()
-          if (lookupData.status && lookupData.data) {
-            agencyId = lookupData.data.agencyId
-            // Store branding for later use
-            if (lookupData.data.branding) {
-              agencyBranding = lookupData.data.branding
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error looking up subdomain:', error)
-      }
-    }
-  } else if (
+  // Check if it's a custom domain (not localhost and not 127.0.0.1)
+  // All domains including *.assignx.ai are now treated as custom domains
+  if (
     hostname &&
     !hostname.includes('localhost') &&
     !hostname.includes('127.0.0.1')
   ) {
-    // Check if it's a custom domain (not localhost and not assignx.ai)
     isCustomDomain = true
 
     try {
@@ -107,6 +68,8 @@ export async function proxy(request) {
           ? 'https://apimyagentx.com/agentx/'
           : 'https://apimyagentx.com/agentxtest/')
 
+      // Always pass full hostname as customDomain parameter
+      // Backend will check the domains table
       const lookupResponse = await fetch(
         `${baseUrl}api/agency/lookup-by-domain`,
         {

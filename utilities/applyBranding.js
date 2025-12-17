@@ -15,13 +15,95 @@ const isServerBrandingApplied = () => {
  * Set branding cookie for server-side access
  * This ensures middleware can read branding on subsequent requests
  */
-const setBrandingCookie = (branding) => {
+export const setBrandingCookie = (branding) => {
   if (typeof document === 'undefined') return
   try {
     const value = encodeURIComponent(JSON.stringify(branding))
     document.cookie = `agencyBranding=${value}; path=/; max-age=${60 * 60 * 24}; samesite=lax`
+    console.log('🍪 [setBrandingCookie] Cookie updated with branding')
   } catch (e) {
+    console.error('❌ [setBrandingCookie] Error setting cookie:', e)
     // Silent fail - cookie setting is best effort
+  }
+}
+
+/**
+ * Apply branding styles to the document
+ * Sets CSS variables for colors and icon filter
+ */
+const applyBrandingStyles = (branding) => {
+  if (typeof document === 'undefined') return
+  try {
+    const primaryColor = branding.primaryColor || '#7902DF'
+    const secondaryColor = branding.secondaryColor || '#8B5CF6'
+
+    // Convert hex to HSL
+    const primaryHsl = hexToHsl(primaryColor)
+    const secondaryHsl = hexToHsl(secondaryColor)
+
+    // Set CSS variables immediately
+    document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+    document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+    document.documentElement.style.setProperty('--primary', primaryHsl)
+    document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+    // Calculate and set icon filter
+    const iconFilter = calculateIconFilter(primaryColor)
+    document.documentElement.style.setProperty('--icon-filter', iconFilter)
+    
+    console.log('✅ [applyBrandingStyles] Branding styles applied:', {
+      primaryColor,
+      secondaryColor,
+    })
+  } catch (error) {
+    console.error('❌ [applyBrandingStyles] Error applying styles:', error)
+  }
+}
+
+/**
+ * Update branding cookie and apply branding immediately
+ * This is the main function to call when branding is updated
+ * @param {Object} branding - The branding object to apply
+ * @param {boolean} skipServerCheck - If true, skip server branding check
+ * @returns {boolean} - Returns true if branding was applied
+ */
+export const updateBrandingCookieAndApply = (branding, skipServerCheck = false) => {
+  if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding (unless explicitly skipped)
+  if (!skipServerCheck && isServerBrandingApplied()) {
+    console.log('✅ [updateBrandingCookieAndApply] Server already applied branding, skipping client-side application')
+    // Still update cookie for consistency
+    setBrandingCookie(branding)
+    return true
+  }
+
+  if (!branding || typeof branding !== 'object' || Object.keys(branding).length === 0) {
+    console.warn('⚠️ [updateBrandingCookieAndApply] Invalid branding object')
+    return false
+  }
+
+  try {
+    // Update localStorage
+    localStorage.setItem('agencyBranding', JSON.stringify(branding))
+    console.log('💾 [updateBrandingCookieAndApply] Updated localStorage with branding')
+
+    // Update cookie
+    setBrandingCookie(branding)
+
+    // Apply branding styles immediately
+    applyBrandingStyles(branding)
+
+    // Dispatch event for any components listening for branding updates
+    window.dispatchEvent(
+      new CustomEvent('agencyBrandingUpdated', { detail: branding })
+    )
+    console.log('📢 [updateBrandingCookieAndApply] Dispatched agencyBrandingUpdated event')
+
+    return true
+  } catch (error) {
+    console.error('❌ [updateBrandingCookieAndApply] Error updating branding:', error)
+    return false
   }
 }
 
@@ -52,39 +134,8 @@ export const applyBrandingFromResponse = (responseData) => {
 
     // If branding found, store and dispatch
     if (agencyBranding && typeof agencyBranding === 'object' && Object.keys(agencyBranding).length > 0) {
-      localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
-      setBrandingCookie(agencyBranding)
-
-      // Apply branding immediately by directly setting CSS variables
-      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-        try {
-          const primaryColor = agencyBranding.primaryColor || '#7902DF'
-          const secondaryColor = agencyBranding.secondaryColor || '#8B5CF6'
-
-          // Convert hex to HSL
-          const primaryHsl = hexToHsl(primaryColor)
-          const secondaryHsl = hexToHsl(secondaryColor)
-
-          // Set CSS variables immediately
-          document.documentElement.style.setProperty('--brand-primary', primaryHsl)
-          document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
-          document.documentElement.style.setProperty('--primary', primaryHsl)
-          document.documentElement.style.setProperty('--secondary', secondaryHsl)
-
-          // Calculate and set icon filter
-          const iconFilter = calculateIconFilter(primaryColor)
-          document.documentElement.style.setProperty('--icon-filter', iconFilter)
-        } catch (error) {
-          // Silent fail on CSS variable setting
-        }
-
-        // Dispatch event for any components listening for branding updates
-        window.dispatchEvent(
-          new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding })
-        )
-      }
-
-      return true
+      // Use the centralized function to update cookie and apply branding
+      return updateBrandingCookieAndApply(agencyBranding)
     }
     
     return false
@@ -133,42 +184,8 @@ export const fetchAndApplyBranding = async () => {
       const data = await response.json()
       if (data?.status === true && data?.data?.branding) {
         const branding = data.data.branding
-
-        localStorage.setItem('agencyBranding', JSON.stringify(branding))
-        setBrandingCookie(branding)
-
-        // Apply branding immediately by directly setting CSS variables
-        if (typeof document !== 'undefined') {
-          try {
-            const primaryColor = branding.primaryColor || '#7902DF'
-            const secondaryColor = branding.secondaryColor || '#8B5CF6'
-
-            // Convert hex to HSL
-            const primaryHsl = hexToHsl(primaryColor)
-            const secondaryHsl = hexToHsl(secondaryColor)
-
-            // Set CSS variables immediately
-            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
-            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
-            document.documentElement.style.setProperty('--primary', primaryHsl)
-            document.documentElement.style.setProperty('--secondary', secondaryHsl)
-
-            // Calculate and set icon filter
-            const iconFilter = calculateIconFilter(primaryColor)
-            document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          } catch (error) {
-            // Silent fail on CSS variable setting
-          }
-        }
-
-        // Dispatch event for any components listening for branding updates
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(
-            new CustomEvent('agencyBrandingUpdated', { detail: branding })
-          )
-        }
-
-        return true
+        // Use the centralized function to update cookie and apply branding
+        return updateBrandingCookieAndApply(branding)
       }
     }
 

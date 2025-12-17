@@ -14,21 +14,23 @@ import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails'
 
 function AdminAgencyDetails() {
   useEffect(() => {
-    getAgencyDetails()
+    getAgencyDetails(1, '', true, false)
   }, [])
 
   const [loading, setLoading] = useState(false)
   const [agencies, setAgencies] = useState([])
   const [hasMore, setHasMore] = useState(true)
   const LimitPerPage = 30
+  const [currentPage, setCurrentPage] = useState(1)
 
   //selected item
   const [selectedUser, setSelectedUser] = useState(null)
 
   //search query
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchTimeout, setSearchTimeout] = useState(null)
 
-  const getAgencyDetails = async (offset = 0, loading = true) => {
+  const getAgencyDetails = async (page = 1, searchTerm = '', loading = true, append = false) => {
     try {
       if (loading) {
         setLoading(true)
@@ -37,7 +39,17 @@ function AdminAgencyDetails() {
       const localData = localStorage.getItem('User')
       const AuthToken = localData ? JSON.parse(localData).token : null
 
-      const ApiPath = `${Apis.getAdminAgencies}?offset=${offset}`
+      // Build query parameters
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: LimitPerPage.toString(),
+      })
+      
+      if (searchTerm && searchTerm.trim()) {
+        queryParams.append('search', searchTerm.trim())
+      }
+
+      const ApiPath = `${Apis.getAdminAgencies}?${queryParams.toString()}`
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -48,11 +60,22 @@ function AdminAgencyDetails() {
 
       if (response.data?.data?.agencies) {
         const newData = response.data.data.agencies
-        console.log('reponse.data', response.data)
-        const updated = offset === 0 ? newData : [...agencies, ...newData]
-
-        setAgencies(updated)
-        if (newData.length < LimitPerPage) setHasMore(false)
+        console.log('response.data', response.data)
+        
+        if (append) {
+          setAgencies((prev) => [...prev, ...newData])
+        } else {
+          setAgencies(newData)
+        }
+        
+        // Check if there are more pages
+        const pagination = response.data?.data?.pagination
+        if (pagination) {
+          setHasMore(pagination.currentPage < pagination.totalPages)
+          setCurrentPage(pagination.currentPage)
+        } else {
+          setHasMore(newData.length >= LimitPerPage)
+        }
       }
     } catch (error) {
       console.error('Error fetching agencies:', error)
@@ -61,16 +84,38 @@ function AdminAgencyDetails() {
     }
   }
 
-  // Filter agencies based on search query
-  const filteredAgencies = agencies.filter((agency) => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (
-      agency.agencyName?.toLowerCase().includes(query) ||
-      agency.plan?.title?.toLowerCase().includes(query) ||
-      agency.email?.toLowerCase().includes(query)
-    )
-  })
+  // Handle search with debouncing
+  const handleSearchChange = (value) => {
+    setSearchQuery(value)
+    
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+    
+    // Reset to first page when search changes
+    setCurrentPage(1)
+    setHasMore(true)
+    
+    // Debounce API call by 500ms
+    const timeout = setTimeout(() => {
+      getAgencyDetails(1, value, true, false)
+    }, 500)
+    
+    setSearchTimeout(timeout)
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout)
+      }
+    }
+  }, [searchTimeout])
+
+  // Use agencies directly (no client-side filtering needed)
+  const filteredAgencies = agencies
 
   return (
     <div className="w-full items-start">
@@ -78,8 +123,8 @@ function AdminAgencyDetails() {
         <div style={{ fontSize: 24, fontWeight: '600' }}>Agency</div>
         <Searchbar
           value={searchQuery}
-          setValue={setSearchQuery}
-          placeholder="Search by agency name or email"
+          setValue={handleSearchChange}
+          placeholder="Search by agency name, email, or company"
         />
       </div>
 
@@ -120,7 +165,7 @@ function AdminAgencyDetails() {
           scrollableTarget="scrollableDiv1"
           dataLength={agencies.length}
           hasMore={hasMore}
-          next={() => getAgencyDetails(agencies.length, false)}
+          next={() => getAgencyDetails(currentPage + 1, searchQuery, false, true)}
           loader={
             <div className="w-full flex flex-row justify-center mt-8">
               <CircularProgress size={35} />

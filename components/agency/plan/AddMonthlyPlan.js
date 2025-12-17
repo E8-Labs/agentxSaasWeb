@@ -163,7 +163,12 @@ export default function AddMonthlyPlan({
     },
     {
       // label: "Allow Team Seats",
-      label: `${basicsData?.maxTeamMembers} Team Seat${basicsData?.maxTeamMembers > 1 ? 's' : ''}`,
+      label: (() => {
+        const teamSeats = configurationData?.noOfSeats ?? basicsData?.maxTeamMembers
+        return teamSeats
+          ? `${teamSeats} Team Seat${teamSeats > 1 ? 's' : ''}`
+          : 'Allow Team Seats'
+      })(),
       tooltip: 'Allow sub accounts to add and invite teams.',
       stateKey: 'allowTeamSeats',
     },

@@ -14,7 +14,7 @@ import { UpSellPhone } from '@/components/onboarding/extras/StickyModals'
 
 import LabelingHeader from '../whiteLabeling/LabelingHeader'
 
-const UPSell = () => {
+const UPSell = ({ selectedAgency }) => {
   //settings data
   const [settingsData, setSettingsData] = useState(null)
   //snack msg
@@ -88,7 +88,7 @@ const UPSell = () => {
         if (timer) clearTimeout(timer)
       })
     }
-  }, [])
+  }, [selectedAgency])
 
   // Calculate earnings using calculator API
   const calculateEarnings = async (productType, price, from) => {
@@ -209,7 +209,13 @@ const UPSell = () => {
   const getUserSettings = async () => {
     try {
       setInitialLoader(true)
-      const ApiPath = Apis.userSettings
+      let ApiPath = Apis.userSettings
+      
+      // Add userId parameter if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        ApiPath += `?userId=${selectedAgency.id}`
+      }
+      
       const Auth = AuthToken()
       const response = await axios.get(ApiPath, {
         headers: {
@@ -337,6 +343,12 @@ const UPSell = () => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        ApiData.userId = selectedAgency.id
+      }
+      
       console.log('Api data sending in user setting api is', ApiData)
       const response = await axios.put(ApiPath, ApiData, {
         headers: {

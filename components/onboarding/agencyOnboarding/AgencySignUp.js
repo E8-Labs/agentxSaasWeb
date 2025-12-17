@@ -1227,7 +1227,7 @@ const AgencySignUp = ({
               />
             */}
             <div
-              className="w-full bg-transparent flex flex-col items-center justify-end"
+              className="relative w-full bg-transparent flex flex-col items-center justify-end overflow-visible"
               style={{
                 backgroundImage: "url('/agencyIcons/signupLogo.png')",
                 backgroundSize: 'cover',
@@ -1236,8 +1236,19 @@ const AgencySignUp = ({
                 width: '580px',
               }}
             >
+              <div className="absolute top-6 sm:top-12 flex w-full justify-center pointer-events-none z-0">
+                <div className="relative h-[300px] w-[300px] sm:h-[360px] sm:w-[360px]">
+                  <div className="absolute inset-4 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.75),rgba(121,2,223,0.3),rgba(35,222,255,0.25))] blur-3xl opacity-80" />
+                  <AgentXOrb
+                    width={360}
+                    height={360}
+                    className="relative h-full w-full drop-shadow-[0_30px_90px_rgba(121,2,223,0.35)]"
+                    alt="AgentX orb"
+                  />
+                </div>
+              </div>
               <div
-                className="inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl" //absolute bottom-10 right-0 sm:right-40
+                className="relative inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl z-10" //absolute bottom-10 right-0 sm:right-40
                 // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
               >
                 <div className="inline-flex flex-col items-start w-full px-6">
