@@ -54,6 +54,22 @@ import { AudioWaveActivity } from '../askSky/askskycomponents/AudioWaveActivity'
 import { VoiceWavesComponent } from '../askSky/askskycomponents/voice-waves'
 import CloseBtn from '../globalExtras/CloseBtn'
 
+// Add style tag to override global white background for loading message
+if (typeof document !== 'undefined') {
+  const styleId = 'voice-call-loading-message-override'
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style')
+    style.id = styleId
+    style.textContent = `
+      .voice-call-ui-container {
+        background-color: transparent !important;
+        background: transparent !important;
+      }
+    `
+    document.head.appendChild(style)
+  }
+}
+
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
   backgroundSize: 'cover',
@@ -839,9 +855,34 @@ const Creator = ({ agentId, name }) => {
 
   const showCallUI = () => {
     return (
-      <div className="flex flex-col w-full items-center justify-center">
+      <div 
+        className="flex flex-col items-center justify-center voice-call-ui-container"
+        style={{ 
+          backgroundColor: 'transparent', 
+          background: 'transparent',
+          width: '100%'
+        }}
+      >
         {loading || !open ? (
-          <p className="mt-10 italic">{loadingMessage}</p>
+          <span 
+            style={{ 
+              backgroundColor: 'transparent',
+              background: 'transparent',
+              padding: 0,
+              marginTop: '40px',
+              marginBottom: 0,
+              marginLeft: 0,
+              marginRight: 0,
+              display: 'inline-block',
+              boxShadow: 'none',
+              border: 'none',
+              outline: 'none',
+              fontStyle: 'italic',
+              color: 'inherit'
+            }}
+          >
+            {loadingMessage}
+          </span>
         ) : isSpeaking ? (
           <VoiceWavesComponent className="mt-12" />
         ) : (

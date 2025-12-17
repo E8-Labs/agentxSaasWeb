@@ -61,6 +61,7 @@ const Apis = {
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
   getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+  updateAgentSupportButton: `${BasePath}api/agent/updateAgentSupportButton`,
   delSmartList: `${BasePath}api/leads/deleteList`,
   addCustomStage: `${BasePath}api/pipeline/createStage`,
   deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,

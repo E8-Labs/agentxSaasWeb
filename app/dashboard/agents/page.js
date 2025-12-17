@@ -729,16 +729,36 @@ function Page() {
           'Bring your AI agent to your website allowing them to engage with leads and customers',
         )
       } else {
+        // Merge with existing updated agent state if available (to preserve smartlist updates)
+        let agentToUse = agent
+        if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
+          // We have an updated version of this agent - merge the smartlist fields
+          agentToUse = {
+            ...agent,
+            // Preserve updated smartlist fields from state
+            smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agent.smartListIdForWeb,
+            smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agent.smartListEnabledForWeb,
+            smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agent.smartListIdForWebhook,
+            smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agent.smartListEnabledForWebhook,
+            smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agent.smartListIdForEmbed,
+            smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agent.smartListEnabledForEmbed,
+          }
+          console.log('🔍 WEB-AGENT - Merged with updated agent state:', {
+            original: agent,
+            updated: selectedAgentForWebAgent,
+            merged: agentToUse,
+          })
+        }
         console.log('🔍 WEB-AGENT - Agent data being passed to modal:', {
-          agent,
-          smartListEnabledForWeb: agent?.smartListEnabledForWeb,
-          smartListIdForWeb: agent?.smartListIdForWeb,
-          smartListEnabledForEmbed: agent?.smartListEnabledForEmbed,
-          smartListIdForEmbed: agent?.smartListIdForEmbed,
-          smartListEnabled: agent?.smartListEnabled, // Legacy field
-          smartListId: agent?.smartListId, // Legacy field
+          agent: agentToUse,
+          smartListEnabledForWeb: agentToUse?.smartListEnabledForWeb,
+          smartListIdForWeb: agentToUse?.smartListIdForWeb,
+          smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
+          smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
+          smartListEnabled: agentToUse?.smartListEnabled, // Legacy field
+          smartListId: agentToUse?.smartListId, // Legacy field
         })
-        setSelectedAgentForWebAgent(agent)
+        setSelectedAgentForWebAgent(agentToUse)
         setShowWebAgentModal(true)
         setFetureType('webagent')
       }
@@ -790,28 +810,212 @@ function Page() {
     setShowNewSmartListModal(true)
   }
 
+  // Helper function to get agent from mainAgentsList (reads from nested agents array)
+  const getAgentFromMainList = (agentId) => {
+    if (!mainAgentsList || mainAgentsList.length === 0) {
+      return null
+    }
+    
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    for (const mainAgent of mainAgentsList) {
+      if (mainAgent.agents && mainAgent.agents.length > 0) {
+        const foundAgent = mainAgent.agents.find((subAgent) => {
+          // Strict matching: check numeric id first, then UUIDs
+          if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+            return subAgent.id === agentIdNum
+          }
+          return (
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+          )
+        })
+        
+        if (foundAgent) {
+          console.log('🔍 GET-AGENT-FROM-MAIN-LIST - Found agent:', {
+            agentId,
+            agentIdNum,
+            foundAgentId: foundAgent.id,
+            foundAgentName: foundAgent.name,
+            smartListIdForEmbed: foundAgent.smartListIdForEmbed,
+            smartListEnabledForEmbed: foundAgent.smartListEnabledForEmbed,
+          })
+          return foundAgent
+        }
+      }
+    }
+    
+    console.warn('🔍 GET-AGENT-FROM-MAIN-LIST - Agent not found:', {
+      agentId,
+      agentIdNum,
+      mainAgentsListCount: mainAgentsList.length,
+    })
+    return null
+  }
+
+  // Helper function to update agent in mainAgentsList and localStorage
+  const updateAgentInMainList = (agentId, updates) => {
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    let foundAgent = null
+    let updatedCount = 0
+    
+    const updatedList = mainAgentsList.map((mainAgent) => {
+      const updatedSubAgents = mainAgent.agents.map((subAgent) => {
+        // Strict matching: check numeric id first, then UUIDs
+        let matches = false
+        
+        // For numeric IDs, do strict numeric comparison
+        if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+          matches = subAgent.id === agentIdNum
+        }
+        
+        // If not matched by numeric ID, try UUIDs (exact string match)
+        if (!matches) {
+          matches = 
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+        }
+
+        if (matches) {
+          foundAgent = subAgent
+          updatedCount++
+          console.log('🔧 AGENT-UPDATE - Found and updating agent:', {
+            agentId,
+            agentIdNum,
+            agentIdStr,
+            foundAgentId: subAgent.id,
+            foundAgentName: subAgent.name,
+            foundModelIdVapi: subAgent.modelIdVapi,
+            updates,
+          })
+          return {
+            ...subAgent,
+            ...updates,
+          }
+        }
+        return subAgent
+      })
+
+      return {
+        ...mainAgent,
+        agents: updatedSubAgents,
+      }
+    })
+
+    if (!foundAgent) {
+      console.error('🔧 AGENT-UPDATE - Agent NOT found in mainAgentsList:', {
+        agentId,
+        agentIdNum,
+        agentIdStr,
+        mainAgentsListCount: mainAgentsList.length,
+        availableAgentIds: mainAgentsList.flatMap(ma => 
+          ma.agents?.map(a => ({ id: a.id, name: a.name, modelIdVapi: a.modelIdVapi })) || []
+        ),
+      })
+      return // Don't update if agent not found
+    }
+
+    if (updatedCount > 1) {
+      console.error('🔧 AGENT-UPDATE - WARNING: Multiple agents matched! This should not happen:', {
+        agentId,
+        updatedCount,
+      })
+      return // Don't update if multiple matches (data corruption risk)
+    }
+
+    // Update state
+    setMainAgentsList(updatedList)
+
+    // Update localStorage
+    localStorage.setItem(
+      PersistanceKeys.LocalStoredAgentsListMain,
+      JSON.stringify(updatedList),
+    )
+
+    console.log('🔧 AGENT-UPDATE - Successfully updated agent in main list and localStorage:', {
+      agentId,
+      agentIdNum,
+      foundAgentId: foundAgent.id,
+      foundAgentName: foundAgent.name,
+      updates,
+    })
+  }
+
   const handleSmartListCreated = async (smartListData) => {
     console.log('🔧 WEB-AGENT - Smart list created:', smartListData)
 
     // Note: AddSmartList API already attached the smartlist with correct agentType
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
-    const smartListId = smartListData?.id || smartListData
+    const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
     const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
 
-    let agent = {
-      ...selectedAgentForWebAgent,
-      smartListId: smartListId,
+    // Determine which fields to update based on agentType
+    const updates = {
+      smartListId: smartListId, // Legacy field
     }
+
     if (agentType === 'webhook') {
-      agent.smartListIdForWebhook = smartListId
-      agent.smartListEnabledForWebhook = true
+      updates.smartListIdForWebhook = smartListId
+      updates.smartListEnabledForWebhook = true
     } else {
-      agent.smartListIdForWeb = smartListId
-      agent.smartListEnabledForWeb = true
+      updates.smartListIdForWeb = smartListId
+      updates.smartListEnabledForWeb = true
     }
-    setSelectedAgentForWebAgent(agent)
-    showDrawerSelectedAgent.smartListId = smartListId
+
+    // Update selectedAgentForWebAgent state
+    const updatedAgent = {
+      ...selectedAgentForWebAgent,
+      ...updates,
+    }
+    setSelectedAgentForWebAgent(updatedAgent)
+
+    // Update agent in mainAgentsList and localStorage
+    // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+    const agentIdToUpdate = selectedAgentForWebAgent?.id
+    if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+      console.log('🔧 WEB-AGENT - Updating agent in main list:', {
+        agentId: agentIdToUpdate,
+        agentName: selectedAgentForWebAgent?.name,
+        agentIdType: typeof agentIdToUpdate,
+        updates,
+        selectedAgentForWebAgent: {
+          id: selectedAgentForWebAgent.id,
+          name: selectedAgentForWebAgent.name,
+          modelIdVapi: selectedAgentForWebAgent.modelIdVapi,
+        },
+      })
+      updateAgentInMainList(agentIdToUpdate, updates)
+    } else {
+      console.error('🔧 WEB-AGENT - Cannot update main list: agentId is missing or invalid', {
+        agentIdToUpdate,
+        agentIdType: typeof agentIdToUpdate,
+        selectedAgentForWebAgent: {
+          id: selectedAgentForWebAgent?.id,
+          idType: typeof selectedAgentForWebAgent?.id,
+          modelIdVapi: selectedAgentForWebAgent?.modelIdVapi,
+          name: selectedAgentForWebAgent?.name,
+        },
+      })
+    }
+
+    // Update showDrawerSelectedAgent if it exists
+    if (showDrawerSelectedAgent) {
+      showDrawerSelectedAgent.smartListId = smartListId
+      if (agentType === 'webhook') {
+        showDrawerSelectedAgent.smartListIdForWebhook = smartListId
+        showDrawerSelectedAgent.smartListEnabledForWebhook = true
+      } else {
+        showDrawerSelectedAgent.smartListIdForWeb = smartListId
+        showDrawerSelectedAgent.smartListEnabledForWeb = true
+      }
+    }
+
     setFetureType('webagent')
     setShowNewSmartListModal(false)
     setShowAllSetModal(true)
@@ -824,16 +1028,94 @@ function Page() {
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
-    console.log('🔍 EMBED-CLICK - Agent data:', {
-      agent,
-      smartListEnabledForEmbed: agent?.smartListEnabledForEmbed,
-      smartListIdForEmbed: agent?.smartListIdForEmbed,
-      smartListEnabled: agent?.smartListEnabled, // Legacy
-      smartListId: agent?.smartListId, // Legacy
+    console.log('🔍 EMBED-CLICK - Starting with agent:', {
+      agentId: agent.id,
+      agentName: agent.name,
+      agentSmartListIdForEmbed: agent.smartListIdForEmbed,
+      agentSmartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+    })
+    
+    // CRITICAL: Always read from mainAgentsList (localStorage) as the source of truth
+    // This ensures we get the correct smartlist status from persisted data
+    const agentFromMainList = getAgentFromMainList(agent.id)
+    
+    // Use agent from main list if found (has latest persisted data), otherwise use the passed agent
+    let agentToUse = agentFromMainList || agent
+    
+    // CRITICAL: Only merge selectedAgentForEmbed if it's for the EXACT SAME agent
+    // This prevents cross-contamination between different agents
+    if (selectedAgentForEmbed && selectedAgentForEmbed.id === agent.id && selectedAgentForEmbed.id === agentToUse.id) {
+      // We have an updated version of THIS SPECIFIC agent - merge the smartlist fields
+      // But prioritize agentFromMainList data since it's from localStorage (persisted)
+      agentToUse = {
+        ...agentToUse,
+        // Only override if selectedAgentForEmbed has newer data (non-null/true values)
+        smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+        smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+        smartListIdForWeb: selectedAgentForEmbed.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+        smartListEnabledForWeb: selectedAgentForEmbed.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+        smartListIdForWebhook: selectedAgentForEmbed.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+        smartListEnabledForWebhook: selectedAgentForEmbed.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+      }
+      console.log('🔍 EMBED-CLICK - Merged with selectedAgentForEmbed (same agent):', {
+        original: agent,
+        fromMainList: agentFromMainList,
+        selectedAgentForEmbed: {
+          id: selectedAgentForEmbed.id,
+          name: selectedAgentForEmbed.name,
+          smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed,
+          smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed,
+        },
+        merged: {
+          id: agentToUse.id,
+          name: agentToUse.name,
+          smartListIdForEmbed: agentToUse.smartListIdForEmbed,
+          smartListEnabledForEmbed: agentToUse.smartListEnabledForEmbed,
+        },
+      })
+    } else {
+      // Clear selectedAgentForEmbed if it's for a different agent to prevent cross-contamination
+      if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
+        console.log('🔍 EMBED-CLICK - Clearing selectedAgentForEmbed (different agent):', {
+          selectedAgentId: selectedAgentForEmbed.id,
+          selectedAgentName: selectedAgentForEmbed.name,
+          currentAgentId: agent.id,
+          currentAgentName: agent.name,
+        })
+        setSelectedAgentForEmbed(null)
+      }
+      
+      if (agentFromMainList) {
+        console.log('🔍 EMBED-CLICK - Using agent from main list (source of truth from localStorage):', {
+          original: agent,
+          fromMainList: {
+            id: agentFromMainList.id,
+            name: agentFromMainList.name,
+            smartListIdForEmbed: agentFromMainList.smartListIdForEmbed,
+            smartListEnabledForEmbed: agentFromMainList.smartListEnabledForEmbed,
+          },
+        })
+      } else {
+        console.log('🔍 EMBED-CLICK - Agent not found in mainAgentsList, using original agent:', {
+          agentId: agent.id,
+          agentName: agent.name,
+          smartListIdForEmbed: agent.smartListIdForEmbed,
+          smartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+        })
+      }
+    }
+    console.log('🔍 EMBED-CLICK - Final agent data to use:', {
+      agentId: agentToUse.id,
+      agentName: agentToUse.name,
+      smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
+      smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
+      smartListEnabled: agentToUse?.smartListEnabled, // Legacy
+      smartListId: agentToUse?.smartListId, // Legacy
       hasNewFields: {
-        smartListEnabledForEmbed: agent?.smartListEnabledForEmbed !== undefined,
-        smartListIdForEmbed: agent?.smartListIdForEmbed !== undefined,
+        smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed !== undefined,
+        smartListIdForEmbed: agentToUse?.smartListIdForEmbed !== undefined,
       },
+      source: agentFromMainList ? 'mainAgentsList (localStorage)' : 'original agent prop',
     })
 
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
@@ -851,7 +1133,19 @@ function Page() {
           'Bring your AI agent to your website allowing them to engage with leads and customers',
         )
       } else {
-        setSelectedAgentForEmbed(agent)
+        // CRITICAL: Validate that agentToUse has the correct smartlist data
+        // Log a warning if we detect potential cross-contamination
+        if (agentToUse.smartListIdForEmbed && agentToUse.id !== agent.id) {
+          console.error('🔍 EMBED-CLICK - WARNING: Potential data corruption detected!', {
+            agentId: agent.id,
+            agentName: agent.name,
+            agentToUseId: agentToUse.id,
+            agentToUseName: agentToUse.name,
+            smartListIdForEmbed: agentToUse.smartListIdForEmbed,
+          })
+        }
+        
+        setSelectedAgentForEmbed(agentToUse)
         setShowEmbedModal(true)
       }
     }
@@ -868,15 +1162,54 @@ function Page() {
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // Update local agent state so the modal shows correct state if reopened
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
+    
     if (selectedAgentForEmbed && smartListId) {
-      // Update the agent object with new embed-specific fields
-      const updatedAgent = {
-        ...selectedAgentForEmbed,
+      // Determine which fields to update for embed agent
+      const updates = {
+        smartListId: smartListId, // Legacy field
         smartListIdForEmbed: smartListId,
         smartListEnabledForEmbed: true,
       }
+
+      // Update selectedAgentForEmbed state
+      const updatedAgent = {
+        ...selectedAgentForEmbed,
+        ...updates,
+      }
       setSelectedAgentForEmbed(updatedAgent)
-      console.log('🔧 EMBED-AGENT - Updated local agent state:', {
+
+      // Update agent in mainAgentsList and localStorage
+      // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+      const agentIdToUpdate = selectedAgentForEmbed?.id
+      if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+        console.log('🔧 EMBED-AGENT - Updating agent in main list:', {
+          agentId: agentIdToUpdate,
+          agentName: selectedAgentForEmbed?.name,
+          agentIdType: typeof agentIdToUpdate,
+          updates,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed.id,
+            name: selectedAgentForEmbed.name,
+            modelIdVapi: selectedAgentForEmbed.modelIdVapi,
+          },
+        })
+        updateAgentInMainList(agentIdToUpdate, updates)
+      } else {
+        console.error('🔧 EMBED-AGENT - Cannot update main list: agentId is missing or invalid', {
+          agentIdToUpdate,
+          agentIdType: typeof agentIdToUpdate,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed?.id,
+            idType: typeof selectedAgentForEmbed?.id,
+            modelIdVapi: selectedAgentForEmbed?.modelIdVapi,
+            name: selectedAgentForEmbed?.name,
+          },
+        })
+      }
+
+      console.log('🔧 EMBED-AGENT - Updated local agent state and main list:', {
+        agentId: agentIdToUpdate,
+        agentName: selectedAgentForEmbed?.name,
         smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
         smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
       })
@@ -894,7 +1227,8 @@ function Page() {
 
   const handleCloseEmbedAllSetModal = () => {
     setShowEmbedAllSetModal(false)
-    setSelectedAgentForEmbed(null)
+    // Don't clear selectedAgentForEmbed - keep it so the state persists when modal is reopened
+    // setSelectedAgentForEmbed(null)
     setEmbedCode('')
   }
 
@@ -4843,8 +5177,28 @@ function Page() {
                               'Bring your AI agent to your website allowing them to engage with leads and customers',
                             )
                           } else {
+                            // Merge with existing updated agent state if available
+                            let agentToUse = showDrawerSelectedAgent
+                            if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                              // We have an updated version of this agent - merge the smartlist fields
+                              agentToUse = {
+                                ...showDrawerSelectedAgent,
+                                // Preserve updated smartlist fields from state
+                                smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
+                                smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
+                                smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
+                                smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
+                                smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
+                                smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
+                              }
+                              console.log('🔍 WEBHOOK - Merged with updated agent state:', {
+                                original: showDrawerSelectedAgent,
+                                updated: selectedAgentForWebAgent,
+                                merged: agentToUse,
+                              })
+                            }
                             setFetureType('webhook')
-                            setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                            setSelectedAgentForWebAgent(agentToUse)
                             setShowWebAgentModal(true)
                           }
                         }
@@ -6870,6 +7224,33 @@ function Page() {
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
         agent={selectedAgentForWebAgent} // Pass full agent object
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached/detached
+          setSelectedAgentForWebAgent(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForWeb !== undefined) {
+              updates.smartListIdForWeb = updatedAgent.smartListIdForWeb
+            }
+            if (updatedAgent.smartListEnabledForWeb !== undefined) {
+              updates.smartListEnabledForWeb = updatedAgent.smartListEnabledForWeb
+            }
+            if (updatedAgent.smartListIdForWebhook !== undefined) {
+              updates.smartListIdForWebhook = updatedAgent.smartListIdForWebhook
+            }
+            if (updatedAgent.smartListEnabledForWebhook !== undefined) {
+              updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
+        }}
       />
 
       <NewSmartListModal
@@ -6905,6 +7286,23 @@ function Page() {
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached
           setSelectedAgentForEmbed(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForEmbed !== undefined) {
+              updates.smartListIdForEmbed = updatedAgent.smartListIdForEmbed
+            }
+            if (updatedAgent.smartListEnabledForEmbed !== undefined) {
+              updates.smartListEnabledForEmbed = updatedAgent.smartListEnabledForEmbed
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
         }}
         onShowAllSet={() => {
           setShowEmbedModal(false)
@@ -6921,7 +7319,7 @@ function Page() {
         open={showEmbedSmartListModal}
         onClose={() => setShowEmbedSmartListModal(false)}
         agentId={
-          selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
+          selectedAgentForEmbed?.id ?? selectedAgentForEmbed?.modelIdVapi
         }
         onSuccess={handleEmbedSmartListCreated}
         fetureType={fetureType}

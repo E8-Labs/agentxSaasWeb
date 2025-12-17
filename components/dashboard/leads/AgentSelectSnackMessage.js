@@ -12,42 +12,6 @@ export const SnackbarTypes = {
 
 const DefaultMessage = null
 
-// Calculate dynamic width based on text length
-const calculateToastWidth = (title, description) => {
-  // Base width for padding, icon, and spacing
-  const baseWidth = 60
-  // Average character width in pixels (approximate)
-  let charWidth = 7
-  if(title == "Webhook URL Copied"|| description == "Webhook URL Copied") {
-    charWidth = 8
-  }
-
-  // Calculate width for title
-  const titleLength = title ? title.length : 0
-  const titleWidth = titleLength * charWidth
-
-  // Calculate width for description (if exists)
-  const descLength = description ? description.length : 0
-  const descWidth = descLength * charWidth
-
-  // Use the longer of title or description, but consider both
-  const maxTextWidth = Math.max(titleWidth, descWidth)
-
-  // Calculate total width
-  let totalWidth = baseWidth + maxTextWidth
-
-  // Set min and max widths for better UX
-  const minWidth = 20 // Minimum readable width
-  // Max width with padding, responsive (handle SSR)
-  const maxWidth =
-    typeof window !== 'undefined' ? Math.min(window.innerWidth - 40, 600) : 600
-
-  // Clamp the width between min and max
-  totalWidth = Math.max(minWidth, Math.min(totalWidth, maxWidth))
-
-  return `${totalWidth}px`
-}
-
 export default function AgentSelectSnackMessage({
   title = null,
   message = DefaultMessage,
@@ -96,22 +60,20 @@ export default function AgentSelectSnackMessage({
         const toastMessage = title || message
         const toastDescription = title ? message : null
 
-        // Calculate dynamic width based on message length
-        const dynamicWidth = calculateToastWidth(toastMessage, toastDescription)
-
         const toastOptions = {
           duration: time,
           description: toastDescription,
           style: {
-            width: dynamicWidth,
-            maxWidth: dynamicWidth,
-            minWidth: dynamicWidth,
+            width: 'fit-content',
+            maxWidth: 'fit-content',
+            minWidth: 'fit-content',
             left: '50%',
             transform: 'translateX(-50%)',
             marginLeft: 'auto',
             marginRight: 'auto',
             whiteSpace: 'nowrap',
           },
+          className: 'toast-no-wrap',
         }
 
         // Use typed toast functions - they will use the custom icons from Toaster component
