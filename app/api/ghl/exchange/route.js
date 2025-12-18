@@ -95,8 +95,8 @@ export async function GET(req) {
   // The approved redirect URI is what was used in the initial OAuth authorization request
   const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
   const approvedRedirectUri = isProduction
-    ? 'https://app.assignx.ai/dashboard/agents'
-    : 'https://dev.assignx.ai/dashboard/agents'
+    ? 'https://app.assignx.ai/dashboard/myAgentX'
+    : 'https://dev.assignx.ai/dashboard/myAgentX'
   
   console.log('Using approved redirect URI for GHL token exchange:', approvedRedirectUri)
   console.log('Custom domain redirect URI (for redirect back):', redirectUri)
@@ -142,9 +142,9 @@ export async function GET(req) {
   
   let redirectBackUrl = originalRedirectUri
   if (!redirectBackUrl) {
-    // Fallback: use current origin + /dashboard/agents
+    // Fallback: use current origin + /dashboard/myAgentX
     const currentUrl = new URL(req.url)
-    redirectBackUrl = `${currentUrl.origin}/dashboard/agents`
+    redirectBackUrl = `${currentUrl.origin}/dashboard/myAgentX`
   }
   
   console.log('Redirecting back to:', redirectBackUrl)

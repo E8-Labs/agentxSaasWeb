@@ -85,7 +85,7 @@ const TutorialConfig = ({ selectedAgency }) => {
       enabled: true,
       videoType: HowToVideoTypes.Script,
       thumbnailSrc: '/assets/youtubeplay.png',
-      // Used in: components/pipeline/Pipeline2.js, app/dashboard/agents/page.js, components/admin/users/AdminAgentX.js
+      // Used in: components/pipeline/Pipeline2.js, app/dashboard/myAgentX/page.js, components/admin/users/AdminAgentX.js
     },
     {
       id: 7,
@@ -125,7 +125,7 @@ const TutorialConfig = ({ selectedAgency }) => {
       enabled: true,
       videoType: HowToVideoTypes.Calendar,
       thumbnailSrc: '/assets/youtubeplay.png',
-      // Used in: app/dashboard/agents/page.js, components/dashboard/myagentX/UserCallender.js, components/pipeline/AddCalender.js
+      // Used in: app/dashboard/myAgentX/page.js, components/dashboard/myagentX/UserCallender.js, components/pipeline/AddCalender.js
     },
     {
       id: 11,
