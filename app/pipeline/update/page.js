@@ -341,7 +341,7 @@ const Page = () => {
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
           } else {
             console.log('🔥 PIPELINE-UPDATE - Routing to dashboard')
-            router.push('/dashboard/agents')
+            router.push('/dashboard/myAgentX')
           }
         } else {
           // setLoader(false);
