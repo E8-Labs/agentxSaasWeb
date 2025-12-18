@@ -1132,6 +1132,23 @@ const LeadDetails = ({
     }
   }
 
+  const startDialerFlow = () => {
+    if (!selectedLeadsDetails?.phone) {
+      setShowSnackMsg({
+        type: SnackbarTypes.Error,
+        message: 'No phone number available for this lead',
+        isVisible: true,
+      })
+      return
+    }
+
+    setShowSnackMsg({
+      type: SnackbarTypes.Loading,
+      message: 'Starting dialer...',
+      isVisible: true,
+    })
+  }
+
   const callTranscript = (item, initialText) => {
     return (
       <div className="flex flex-col">
@@ -1575,117 +1592,132 @@ const LeadDetails = ({
                                 </div>
                               )}
                               {/* Send SMS Button for Phone */}
-                              <div className="relative ml-4">
-                                {/* Stars icon overlapping top-left corner of button */}
-                                {userLocalData?.planCapabilities
-                                  ?.allowTextMessages === false && (
-                                  <Image
-                                    className="absolute -top-3 -left-2 z-10"
-                                    src="/otherAssets/starsIcon2.png"
-                                    height={20}
-                                    width={20}
-                                    alt="Upgrade"
-                                  />
-                                )}
-
-                                <Tooltip
-                                  title={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages === false ? (
-                                      <div className="flex flex-col items-start gap-1">
-                                        <span>
-                                          <button
-                                            className="text-brand-primary underline hover:text-brand-primary/80 transition-colors text-left p-0 bg-transparent border-none ml-1"
-                                            onClick={() => {
-                                              console.log(
-                                                'Upgrade clicked from SMS tooltip',
-                                              )
-                                              setShowUpgradeModal(true)
-                                            }}
-                                          >
-                                            {`Upgrade `}
-                                          </button>
-                                          {' account to send text'}
-                                        </span>
-                                      </div>
-                                    ) : phoneNumbers.length == 0 ? (
-                                      'You need to complete A2P to text'
-                                    ) : (
-                                      ''
-                                    )
-                                  }
-                                  arrow
-                                  disableHoverListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  disableFocusListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  disableTouchListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  componentsProps={{
-                                    tooltip: {
-                                      sx: {
-                                        backgroundColor: '#ffffff',
-                                        color: '#333',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        padding: '12px 15px',
-                                        borderRadius: '8px',
-                                        boxShadow:
-                                          '0px 4px 20px rgba(0, 0, 0, 0.15)',
-                                        border: '1px solid #e5e7eb',
-                                        maxWidth: '250px',
-                                      },
-                                    },
-                                    arrow: {
-                                      sx: {
-                                        color: '#ffffff',
-                                      },
-                                    },
-                                  }}
-                                >
-                                  {sendSMSLoader ? (
-                                    <CircularProgress size={20} />
-                                  ) : (
-                                    <button
-                                      className={`flex flex-row border border-brand-primary items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
-                                      onClick={() => setShowSMSModal(true)}
-                                      disabled={
-                                        sendSMSLoader ||
-                                        !userLocalData?.planCapabilities
-                                          ?.allowTextMessages ||
-                                        phoneNumbers.length == 0
-                                      }
-                                    >
-                                      <div
-                                        style={{
-                                          width: 18,
-                                          height: 18,
-                                          backgroundColor: 'hsl(var(--brand-primary))',
-                                          WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                          maskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                          WebkitMaskSize: 'contain',
-                                          maskSize: 'contain',
-                                          WebkitMaskRepeat: 'no-repeat',
-                                          maskRepeat: 'no-repeat',
-                                          WebkitMaskPosition: 'center',
-                                          maskPosition: 'center',
-                                        }}
-                                      />
-                                      <span className="text-[12px] font-[400]">
-                                        Send Text
-                                      </span>
-                                    </button>
+                              <div className="flex flex-row items-center gap-2 ml-4">
+                                <div className="relative">
+                                  {/* Stars icon overlapping top-left corner of button */}
+                                  {userLocalData?.planCapabilities
+                                    ?.allowTextMessages === false && (
+                                    <Image
+                                      className="absolute -top-3 -left-2 z-10"
+                                      src="/otherAssets/starsIcon2.png"
+                                      height={20}
+                                      width={20}
+                                      alt="Upgrade"
+                                    />
                                   )}
-                                </Tooltip>
+
+                                  <Tooltip
+                                    title={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages === false ? (
+                                        <div className="flex flex-col items-start gap-1">
+                                          <span>
+                                            <button
+                                              className="text-brand-primary underline hover:text-brand-primary/80 transition-colors text-left p-0 bg-transparent border-none ml-1"
+                                              onClick={() => {
+                                                console.log(
+                                                  'Upgrade clicked from SMS tooltip',
+                                                )
+                                                setShowUpgradeModal(true)
+                                              }}
+                                            >
+                                              {`Upgrade `}
+                                            </button>
+                                            {' account to send text'}
+                                          </span>
+                                        </div>
+                                      ) : phoneNumbers.length == 0 ? (
+                                        'You need to complete A2P to text'
+                                      ) : (
+                                        ''
+                                      )
+                                    }
+                                    arrow
+                                    disableHoverListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    disableFocusListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    disableTouchListener={
+                                      userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                      phoneNumbers.length > 0
+                                    }
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: '#ffffff',
+                                          color: '#333',
+                                          fontSize: '14px',
+                                          fontWeight: '500',
+                                          padding: '12px 15px',
+                                          borderRadius: '8px',
+                                          boxShadow:
+                                            '0px 4px 20px rgba(0, 0, 0, 0.15)',
+                                          border: '1px solid #e5e7eb',
+                                          maxWidth: '250px',
+                                        },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: '#ffffff',
+                                        },
+                                      },
+                                    }}
+                                  >
+                                    {sendSMSLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
+                                      <button
+                                        className={`flex flex-row border border-brand-primary items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
+                                        onClick={() => setShowSMSModal(true)}
+                                        disabled={
+                                          sendSMSLoader ||
+                                          !userLocalData?.planCapabilities
+                                            ?.allowTextMessages ||
+                                          phoneNumbers.length == 0
+                                        }
+                                      >
+                                        <div
+                                          style={{
+                                            width: 18,
+                                            height: 18,
+                                            backgroundColor: 'hsl(var(--brand-primary))',
+                                            WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                            maskImage: 'url(/otherAssets/sendSmsIcon.png)',
+                                            WebkitMaskSize: 'contain',
+                                            maskSize: 'contain',
+                                            WebkitMaskRepeat: 'no-repeat',
+                                            maskRepeat: 'no-repeat',
+                                            WebkitMaskPosition: 'center',
+                                            maskPosition: 'center',
+                                          }}
+                                        />
+                                        <span className="text-[12px] font-[400]">
+                                          Send Text
+                                        </span>
+                                      </button>
+                                    )}
+                                  </Tooltip>
+                                </div>
+
+                                <button
+                                  className="flex flex-row border border-brand-primary items-center gap-2 px-2 py-1 text-brand-primary rounded-lg"
+                                  onClick={startDialerFlow}
+                                >
+                                  <Phone
+                                    className="w-4 h-4 text-brand-primary"
+                                    strokeWidth={2}
+                                  />
+                                  <span className="text-[12px] font-[400]">
+                                    Dialer
+                                  </span>
+                                </button>
                               </div>
                             </div>
                           )}
