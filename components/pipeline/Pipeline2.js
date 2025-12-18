@@ -617,7 +617,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             router.push('/agency/dashboard/subAccounts') //agency
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
           } else {
-            router.push('/dashboard/agents')
+            router.push('/dashboard/myAgentX')
           }
         } else {
           // setLoader(false);
