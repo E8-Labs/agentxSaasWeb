@@ -108,6 +108,16 @@ const TutorialConfig = ({ selectedAgency }) => {
       // Used in: components/dashboard/myagentX/mcp/MCPView.js
     },
     {
+      id: 12,
+      title: 'Learn about lead scoring',
+      description: '06:13',
+      videoUrl: HowtoVideos.LeadScoring,
+      enabled: true,
+      videoType: HowToVideoTypes.LeadScoring,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/dashboard/myagentX/leadScoring/LeadScoring.js
+    },
+    {
       id: 9,
       title: 'Learn how to add Twilio Trust Hub',
       description: '14:31',

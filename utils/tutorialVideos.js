@@ -13,6 +13,7 @@ const getDefaultVideoUrl = (videoType) => {
     [HowToVideoTypes.AgentConfiguration]: HowtoVideos.KycQuestions,
     [HowToVideoTypes.CRMIntegration]: HowtoVideos.Pipeline,
     [HowToVideoTypes.Script]: HowtoVideos.script,
+    [HowToVideoTypes.LeadScoring]: HowtoVideos.LeadScoring,
     [HowToVideoTypes.PhoneNumbers]: HowtoVideos.LetsTalkDigits,
     [HowToVideoTypes.Tools]: HowtoVideos.Tools,
     [HowToVideoTypes.TwilioTrustHub]: HowtoVideos.TwilioTrustHub,
@@ -58,6 +59,11 @@ const getDefaultTutorial = (videoType) => {
       title: 'Learn about creating a script',
       description: '13:56',
       videoUrl: HowtoVideos.script,
+    },
+    [HowToVideoTypes.LeadScoring]: {
+      title: 'Learn about lead scoring',
+      description: '06:13',
+      videoUrl: HowtoVideos.LeadScoring,
     },
     [HowToVideoTypes.PhoneNumbers]: {
       title: 'Learn about phone numbers',
@@ -218,6 +224,15 @@ export const getTutorialVideos = () => {
         videoUrl: HowtoVideos.WalkthroughWatched,
         enabled: true,
         videoType: HowToVideoTypes.Walkthrough,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 12,
+        title: 'Learn about lead scoring',
+        description: '06:13',
+        videoUrl: HowtoVideos.LeadScoring,
+        enabled: true,
+        videoType: HowToVideoTypes.LeadScoring,
         thumbnailSrc: '/assets/youtubeplay.png',
       },
     ]
