@@ -555,8 +555,8 @@ const UserAddCard = ({
             <div
               className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
-                width: isMediumScreen ? '180px' : '195px',
-                height: isMediumScreen ? '180px' : '195px',
+                width: isMediumScreen ? '170px' : '190px',
+                height: isMediumScreen ? '170px' : '190px',
                 marginLeft: '0px',
               }}
             >
