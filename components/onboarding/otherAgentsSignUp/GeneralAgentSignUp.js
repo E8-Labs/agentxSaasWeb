@@ -1,3 +1,5 @@
+'use client'
+
 import 'react-phone-input-2/lib/style.css'
 
 import {
@@ -25,6 +27,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
@@ -477,7 +480,7 @@ const GeneralAgentSignUp = ({
         }
       }
     } catch (error) {
-      // console.error("Error occured in register api is: ", error);
+      console.error('Error occurred in register API:', error)
     } finally {
       setRegisterLoader(false)
     }
