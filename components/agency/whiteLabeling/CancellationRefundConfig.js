@@ -63,7 +63,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
 
       if (response?.data?.status === true && response?.data?.data) {
         const branding = response.data.data.branding || {}
-        const customCancellationRefundText = branding.cancellationRefundText
+        const customCancellationRefundText = branding.cancellationText
 
         if (customCancellationRefundText) {
           // Use custom text if exists
@@ -131,7 +131,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
       }
 
       const updateData = {
-        cancellationRefundText: cancellationRefundText,
+        cancellationText: cancellationRefundText,
       }
       
       // Add userId if selectedAgency is provided (admin view)

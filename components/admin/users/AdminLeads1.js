@@ -1036,7 +1036,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   )}
               </div>
-              <div className={`flex flex-row items-start justify-start bg-blue mt-3 w-full px-4`}>
+              <div className={`flex flex-row items-center  justify-center mt-3 w-full px-4`}>
                 <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
                   <Image
                     src={'/assets/placeholder.png'}
@@ -1049,13 +1049,13 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               </div>
               <div className="flex flex-col items-center justify-center">
                 <div
-                  className="mt-12 ms-8 text-center"
+                  className="mt-2 ms-8 text-center"
                   style={{ fontSize: 30, fontWeight: '700' }}
                 >
                   {`Looks like you don't have any leads yet`}
                 </div>
 
-                <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                <div className="w-full flex flex-row gap-6 justify-center mt-4 gap-4">
                   <div className="">
                     <button
                       className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
@@ -1090,12 +1090,12 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                  <div
+                  {/* <div
                     className="mt-12 ms-8 text-center"
                     style={{ fontSize: 30, fontWeight: '700' }}
                   >
                     {`Looks like you don't have any leads yet`}
-                  </div>
+                  </div> */}
 
                   <div
                     style={{
