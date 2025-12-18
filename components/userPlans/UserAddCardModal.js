@@ -553,11 +553,11 @@ const UserAddCard = ({
           {/* Orb */}
           {!isSmallScreen && (
             <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 flex justify-center items-center shrink-0"
+              className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
                 width: isMediumScreen ? '170px' : '190px',
                 height: isMediumScreen ? '170px' : '190px',
-                marginLeft: '-22px',
+                marginLeft: '0px',
               }}
             >
               <Image
