@@ -83,6 +83,26 @@ export async function GET(req) {
   console.log('Redirect url of GHL calendar is', redirectUri)
   const code = searchParams.get('code')
   const state = searchParams.get('state')
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'pre-fix',
+      hypothesisId: 'H5',
+      location: 'app/api/ghl/exchange/route.js:entry',
+      message: 'GHL exchange route hit',
+      data: {
+        hasCode: Boolean(code),
+        hasState: Boolean(state),
+        hasRedirectUri: Boolean(redirectUri),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {})
+  // #endregion agent log
   
   if (!code)
     return NextResponse.json({ error: 'Missing code' }, { status: 400 })
@@ -100,6 +120,26 @@ export async function GET(req) {
   
   console.log('Using approved redirect URI for GHL token exchange:', approvedRedirectUri)
   console.log('Custom domain redirect URI (for redirect back):', redirectUri)
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'pre-fix',
+      hypothesisId: 'H5',
+      location: 'app/api/ghl/exchange/route.js:redirect-uri',
+      message: 'Using redirect URIs for exchange',
+      data: {
+        isProduction,
+        approvedRedirectUri,
+        hasCustomRedirectUri: Boolean(redirectUri),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {})
+  // #endregion agent log
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
@@ -124,6 +164,28 @@ export async function GET(req) {
   console.log('R of GHL Auth api simple is', r)
   console.log('GHL Token Exchange Response Status:', r.status)
   console.log('GHL Token Exchange Response Body:', JSON.stringify(json, null, 2))
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'pre-fix',
+      hypothesisId: 'H5',
+      location: 'app/api/ghl/exchange/route.js:token-response',
+      message: 'GHL token exchange response received',
+      data: {
+        ok: Boolean(r.ok),
+        status: r.status,
+        hasAccessToken: Boolean(json?.access_token),
+        hasLocationId: Boolean(json?.locationId),
+        hasRefreshToken: Boolean(json?.refresh_token),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {})
+  // #endregion agent log
   
   if (!r.ok) {
     console.error('❌ GHL Token Exchange Failed:')
@@ -155,6 +217,25 @@ export async function GET(req) {
   if (json.locationId) {
     redirectUrl.searchParams.set('locationId', json.locationId)
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      sessionId: 'debug-session',
+      runId: 'pre-fix',
+      hypothesisId: 'H5',
+      location: 'app/api/ghl/exchange/route.js:redirect-back',
+      message: 'GHL exchange computed redirect back URL',
+      data: {
+        redirectBackUrl: String(redirectBackUrl || '').slice(0, 160),
+        redirectUrl: String(redirectUrl?.toString?.() || '').slice(0, 200),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {})
+  // #endregion agent log
   
   // ALWAYS return HTML instead of server-side redirect
   // This preserves window.opener context for popups (works on dev.assignx.ai and custom domains)
