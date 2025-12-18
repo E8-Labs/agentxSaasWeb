@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -591,7 +592,7 @@ const LawAgentSignUpMobile = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -650,7 +651,7 @@ const LawAgentSignUpMobile = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -807,7 +808,7 @@ const LawAgentSignUpMobile = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily practice law?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -820,7 +821,7 @@ const LawAgentSignUpMobile = ({
               <div style={styles.headingStyle} className="mt-6">
                 Name of the firm or legal practice you work with, if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -833,7 +834,7 @@ const LawAgentSignUpMobile = ({
               <div style={styles.headingStyle} className="mt-6">
                 How many cases do you handle annually or monthly?
               </div>
-              <input
+              <Input
                 placeholder="Type here"
                 type="number"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
@@ -970,7 +971,7 @@ const LawAgentSignUpMobile = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -996,10 +997,8 @@ const LawAgentSignUpMobile = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

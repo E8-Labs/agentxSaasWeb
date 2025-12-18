@@ -707,7 +707,7 @@ const LawAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
@@ -875,7 +875,7 @@ const LawAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily practice law?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -888,7 +888,7 @@ const LawAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Name of the firm or legal practice you work with, if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -901,7 +901,7 @@ const LawAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 How many cases do you handle annually or monthly?
               </div>
-              <input
+              <Input
                 type="number"
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
@@ -1037,7 +1037,7 @@ const LawAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -1063,10 +1063,8 @@ const LawAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

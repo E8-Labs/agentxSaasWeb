@@ -247,9 +247,20 @@ input,
 textarea {
   -webkit-user-modify: read-write-plaintext-only;
   -webkit-appearance: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-clip: padding-box;
   autocorrect: off;
   autocomplete: off;
   spellcheck: false;
+}
+
+/* Safari can add an inset border/shadow on focus */
+input:focus,
+textarea:focus,
+select:focus {
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 
 /* Custom scrollbar styles for feature lists */

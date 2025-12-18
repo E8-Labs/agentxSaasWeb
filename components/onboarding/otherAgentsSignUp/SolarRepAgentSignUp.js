@@ -871,7 +871,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customer
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -884,7 +884,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Company
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -897,7 +897,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Installation Volume per Year
               </div>
-              <input
+              <Input
                 // type="number"
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
@@ -911,7 +911,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Average Project Size (kw)
               </div>
-              <input
+              <Input
                 // type="number"
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
@@ -1041,7 +1041,7 @@ const SolarRepAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -1067,10 +1067,8 @@ const SolarRepAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

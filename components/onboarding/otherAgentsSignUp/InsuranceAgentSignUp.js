@@ -808,7 +808,7 @@ const InsuranceAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 {`Market territory`}
               </div>
-              <input
+              <Input
                 placeholder="Ex: San Diego, Los Angeles, New York"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -821,7 +821,7 @@ const InsuranceAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Agency or Brokerage Name
               </div>
-              <input
+              <Input
                 placeholder="Brokerage"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 mb-6"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -900,7 +900,7 @@ const InsuranceAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -926,10 +926,8 @@ const InsuranceAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

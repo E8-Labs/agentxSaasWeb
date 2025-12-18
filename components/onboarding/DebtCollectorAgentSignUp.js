@@ -29,6 +29,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from './services/AuthVerification/AuthService'
 import SnackMessages from './services/AuthVerification/SnackMessages'
 import { getLocalLocation } from './services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -654,7 +655,7 @@ const DebtCollectorAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -713,7 +714,7 @@ const DebtCollectorAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
@@ -863,7 +864,7 @@ const DebtCollectorAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily collect debts?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -876,7 +877,7 @@ const DebtCollectorAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Name of the company or collection agency you work with, if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -889,7 +890,7 @@ const DebtCollectorAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 What is the typical balance size of debts you recover?
               </div>
-              <input
+              <Input
                 placeholder="E.g., <$1,000, $1,000-$5,000, $5,000+.)"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -1032,7 +1033,7 @@ const DebtCollectorAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -1058,10 +1059,8 @@ const DebtCollectorAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
