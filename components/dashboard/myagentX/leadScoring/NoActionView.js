@@ -54,15 +54,15 @@ function NoActionView({
         <div className="w-6/12">
           <VideoCard
             duration={(() => {
-              const tutorial = getTutorialByType(HowToVideoTypes.Scoring)
-              return tutorial?.description || '1:47'
+              const tutorial = getTutorialByType(HowToVideoTypes.LeadScoring)
+              return tutorial?.description || '06:13'
             })()}
             horizontal={false}
             playVideo={() => {
               setIntroVideoModal(true)
             }}
             title={
-              getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+              getTutorialByType(HowToVideoTypes.LeadScoring)?.title ||
               'Learn how to add Scoring'
             }
           />
@@ -71,11 +71,11 @@ function NoActionView({
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
             videoTitle={
-              getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+              getTutorialByType(HowToVideoTypes.LeadScoring)?.title ||
               'Learn how to add Scoring'
             }
             videoUrl={
-              getVideoUrlByType(HowToVideoTypes.Scoring) ||
+              getVideoUrlByType(HowToVideoTypes.LeadScoring) ||
               HowtoVideos.LeadScoring
             }
           />
