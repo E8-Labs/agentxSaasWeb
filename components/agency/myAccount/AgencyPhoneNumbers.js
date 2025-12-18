@@ -212,7 +212,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
 
   return (
     <div
-      className="w-full p-8"
+      className="flex  flex-col w-full p-8  overflow-y-hidden"
       style={{ maxWidth: '1200px', margin: '0 auto' }}
     >
       {/* Header */}
@@ -301,7 +301,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       ) : (
         <div
           className="flex flex-col gap-4 overflow-y-auto"
-          style={{ maxHeight: '600px' }}
+          style={{  }}
         >
           {phoneNumbers.map((number) => {
             const isGlobal = number.isAgencyGlobalNumber
@@ -312,7 +312,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             return (
               <div
                 key={number.id}
-                className="flex w-full px-4 py-5 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                className="flex w-7/12 px-4 py-5 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
                   borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
                   backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
