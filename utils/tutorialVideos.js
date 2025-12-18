@@ -56,7 +56,7 @@ const getDefaultTutorial = (videoType) => {
     },
     [HowToVideoTypes.Script]: {
       title: 'Learn about creating a script',
-      description: '6:10',
+      description: '13:56',
       videoUrl: HowtoVideos.script,
     },
     [HowToVideoTypes.PhoneNumbers]: {
@@ -169,7 +169,7 @@ export const getTutorialVideos = () => {
       {
         id: 6,
         title: 'Learn about creating a script',
-        description: '6:10',
+        description: '13:56',
         videoUrl: HowtoVideos.script,
         enabled: true,
         videoType: HowToVideoTypes.Script,

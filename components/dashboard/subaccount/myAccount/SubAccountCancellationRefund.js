@@ -60,7 +60,7 @@ function SubAccountCancellationRefund() {
 
             if (response?.data?.status === true && response?.data?.data) {
               const branding = response.data.data.branding || {}
-              const customCancellationRefundText = branding.cancellationRefundText
+              const customCancellationRefundText = branding.cancellationText
 
               if (customCancellationRefundText) {
                 // Agency has custom cancellation & refund text

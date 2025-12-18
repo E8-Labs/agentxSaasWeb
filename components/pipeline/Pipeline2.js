@@ -147,7 +147,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           const parsedUser = JSON.parse(userData)
           setIsSubaccount(
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
+            parsedUser?.userRole === 'AgencySubAccount',
           )
         }
       } catch (error) {
@@ -826,7 +826,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           <div
             ref={containerRef}
             className="flex flex-col items-center px-4 w-full"
-            style={{ 
+            style={{
               scrollbarWidth: 'none',
             }}
           >
@@ -937,9 +937,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               >
                 <div>{AgentDetails?.name} Script</div>
               </div>
-              <div style={styles.headingStyle} className="mt-4">Greeting</div>
-              <div className="relative w-full mt-2">
-                <div className="absolute top-2 right-2 z-10">
+              <div className="flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle} className="">Greeting</div>
+                <div className="">
                   <button
                     className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                     style={{
@@ -957,6 +957,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                     <ArrowUpRight size={20} color="white" />
                   </button>
                 </div>
+              </div>
+
+              <div className="relative w-full">
+
                 {loadingAgentDetails ? (
                   <ScriptLoader height={50} />
                 ) : (
@@ -1170,7 +1174,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                           uniqueColumns={uniqueColumns}
                           tagValue={setObjective}
                           scrollOffset={scrollOffset}
-                          // showSaveChangesBtn={showSaveChangesBtn}
+                        // showSaveChangesBtn={showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}

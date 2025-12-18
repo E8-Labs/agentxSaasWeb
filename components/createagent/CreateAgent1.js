@@ -44,6 +44,7 @@ const CreateAgent1 = ({
   // Removed Google Maps API key - no longer needed
   const router = useRouter()
   const bottomRef = useRef()
+  const scrollAreaRef = useRef(null)
   const [loaderModal, setLoaderModal] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
   const [toggleClick, setToggleClick] = useState(false)
@@ -165,8 +166,13 @@ const CreateAgent1 = ({
       let d = JSON.parse(userData)
       setUser(d)
     }
-    if (showOtherObjective && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (showOtherObjective && scrollAreaRef.current) {
+      // IMPORTANT: only scroll the inner scroll area (not the window)
+      // so we don't "jump" the page and hide the title.
+      scrollAreaRef.current.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
     }
   }, [showOtherObjective])
 
@@ -204,6 +210,45 @@ const CreateAgent1 = ({
       setShowOtherObjective('')
       setOtherObjVal('')
     }
+  }
+
+  // Branded icon renderer (same mask-image approach as notifications drawer)
+  const renderBrandedIcon = (iconPath, size = 30, isSelected = false) => {
+    if (!iconPath) return null
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return <Image src={iconPath} height={size} width={size} alt="*" />
+    }
+
+    const brandVar = getComputedStyle(document.documentElement)
+      .getPropertyValue('--brand-primary')
+      .trim()
+
+    const selectedColor = brandVar ? `hsl(${brandVar})` : 'hsl(270 75% 50%)'
+    const unselectedColor = '#000000'
+
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          backgroundColor: isSelected ? selectedColor : unselectedColor,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
   }
 
   const AgentObjective = [
@@ -836,7 +881,7 @@ const CreateAgent1 = ({
           }}
         />
 
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden flex flex-col">
           {/* Video card */}
 
           <IntroVideoModal
@@ -856,7 +901,7 @@ const CreateAgent1 = ({
           <div className="h-[10%]">
             <Header />
           </div>
-          {/* Body */}
+          {/* Video */}
           <div
             className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
             style={{
@@ -885,7 +930,7 @@ const CreateAgent1 = ({
               }
             />
           </div>
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
             <button
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
@@ -896,9 +941,12 @@ const CreateAgent1 = ({
             >
               Get started with your AI agent
             </button>
-            <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div
+              ref={scrollAreaRef}
+              className="w-full flex flex-col items-center flex-1 min-h-0 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-40"
+            >
               <div
-                className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
+                className="mt-8 w-6/12  gap-4 flex flex-col  px-2 "
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div className="w-[95%] flex flex-row items-center justify-between">
@@ -1146,20 +1194,10 @@ const CreateAgent1 = ({
                               item.id === toggleClick ? 'hsl(var(--brand-primary) / 0.1)' : '',
                           }}
                         >
-                          {item.id === toggleClick ? (
-                            <Image
-                              src={item.focusIcn}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={item.unFocusIcon}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
+                          {renderBrandedIcon(
+                            item.focusIcn || item.unFocusIcon,
+                            30,
+                            item.id === toggleClick,
                           )}
                           <div className="mt-8" style={styles.headingTitle}>
                             {item.title}

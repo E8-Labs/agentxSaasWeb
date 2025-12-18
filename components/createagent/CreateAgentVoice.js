@@ -463,13 +463,13 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       className={`overflow-y-hidden flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
     >
       <div className="bg-white rounded-2xl w-10/12 h-[100%] sm:h-[95%] py-4 flex flex-col relative">
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[80%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
@@ -479,9 +479,9 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             >
               Choose a voice for {agentDetails?.name}
             </div>
-            <div className="w-full flex flex-row justify-center flex-1 min-h-0">
+            <div className="w-full flex flex-row  justify-center min-h-0">
               <div
-                className="pt-8 pb-2 w-full max-w-2xl gap-1 flex flex-col flex-1 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="pt-8 pb-8 w-full max-w-2xl gap-1 flex flex-col flex overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: 'none' }}
               >
                 {voices.map((item, index) => (
