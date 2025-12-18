@@ -910,7 +910,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               let w = innerWidth
               
               // Determine redirect path
-              let redirectPath = '/dashboard/agents'
+              let redirectPath = '/dashboard/myAgentX'
               
               if (w < 540) {
                 redirectPath = '/createagent/desktop'
@@ -935,7 +935,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   ) {
                     redirectPath = '/agency/dashboard'
                   } else {
-                    redirectPath = '/dashboard/agents'
+                    redirectPath = '/dashboard/myAgentX'
                   }
                 }
               }

@@ -310,7 +310,7 @@ const TemFix = () => {
                         handleClose={() => {
                             setShowUnlockModal(false);
                             // Redirect back to dashboard when modal is closed
-                            router.push('/dashboard/agents');
+                            router.push('/dashboard/myAgentX');
                         }}
                         desc={modalDesc}
                     />
