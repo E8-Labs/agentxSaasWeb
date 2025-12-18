@@ -356,9 +356,10 @@ function CalendarModal(props) {
     console.log('- Is custom domain/subdomain:', isCustomDomain)
     console.log('- Domain to use:', domainToUse)
 
-    // Generate state parameter if we have a domain to redirect back to
+    // Generate state parameter (provider signal). Keep it even if agencyId is missing,
+    // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
-    if (domainToUse && agencyId) {
+    if (domainToUse) {
       stateParam = generateOAuthState({
         agencyId,
         customDomain: domainToUse,
@@ -516,9 +517,10 @@ function CalendarModal(props) {
     // This ensures state is always generated and popup context is preserved
     const domainToUse = currentHostname
 
-    // Generate state parameter if we have a domain to redirect back to
+    // Generate state parameter (provider signal). Keep it even if agencyId is missing,
+    // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
-    if (domainToUse && agencyId) {
+    if (domainToUse) {
       stateParam = generateOAuthState({
         agencyId,
         customDomain: domainToUse,

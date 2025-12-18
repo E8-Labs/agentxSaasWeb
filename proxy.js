@@ -333,8 +333,19 @@ export async function proxy(request) {
     
     // Parse state to determine if we need to redirect to custom domain
     const stateData = oauthState ? parseOAuthState(oauthState) : null
-    const provider = stateData?.provider || (oauthCode ? 'google' : 'ghl')
-    
+    // Proper provider detection is via `state.provider`.
+    // If `state` is missing, do NOT guess based on `code` (both Google & GHL use it).
+    // Fallback is only possible for known callback endpoints; otherwise we return a safe error redirect.
+    const provider =
+      stateData?.provider ||
+      (pathname.startsWith('/google-auth/callback')
+        ? 'google'
+        : pathname.startsWith('/api/ghl/exchange')
+          ? 'ghl'
+          : null)
+    console.log('🔄 Provider:', provider)
+    console.log('🔄 State data:', stateData)
+    console.log('🔄 Pathname:', pathname)
     // If state has customDomain, redirect to custom domain
     if (stateData?.customDomain) {
       const { customDomain } = stateData
@@ -411,6 +422,13 @@ export async function proxy(request) {
       return NextResponse.redirect(errorUrl.toString())
     }
     
+    // If provider couldn't be determined (missing/invalid state), redirect to a safe page.
+    if (!provider) {
+      const safeUrl = new URL('/dashboard/myAgentX', baseUrl)
+      safeUrl.searchParams.set('oauth_error', 'missing_state')
+      return NextResponse.redirect(safeUrl.toString())
+    }
+
     // Handle success - redirect to appropriate callback
     if (provider === 'google') {
       const callbackUrl = new URL('/google-auth/callback', baseUrl)
