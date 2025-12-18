@@ -1018,7 +1018,7 @@ const AgencySignUp = ({
                           style={{ display: 'flex', gap: '8px' }}
                         >
                           {Array.from({ length }).map((_, index) => (
-                            <input
+                            <Input
                               key={index}
                               ref={(el) => (verifyInputRef.current[index] = el)}
                               autoComplete="off"
@@ -1052,8 +1052,6 @@ const AgencySignUp = ({
                                 height: '40px',
                                 textAlign: 'center',
                                 fontSize: '20px',
-                                border: '1px solid #ccc',
-                                borderRadius: '5px',
                               }}
                               className="border rounded px-3 py-2.5 focus:border-black transition-colors"
                             />

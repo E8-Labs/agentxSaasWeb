@@ -653,7 +653,7 @@ const TaxAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
@@ -821,7 +821,7 @@ const TaxAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customers
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -887,7 +887,7 @@ const TaxAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -913,10 +913,8 @@ const TaxAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

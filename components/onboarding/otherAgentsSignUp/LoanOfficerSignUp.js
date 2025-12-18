@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -642,7 +643,7 @@ const LoanOfficerSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -701,7 +702,7 @@ const LoanOfficerSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 autoComplete="off"
                 autoCorrect="off"
@@ -869,7 +870,7 @@ const LoanOfficerSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily serve clients?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -883,7 +884,7 @@ const LoanOfficerSignUp = ({
                 Name of the mortgage lender, bank, or brokerage you work with,
                 if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -924,7 +925,7 @@ const LoanOfficerSignUp = ({
                         {item.title}
                       </button>
                       {ClientType === 'Other (type here)' && item.id === 6 && (
-                        <input
+                        <Input
                           placeholder="Type here"
                           className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                           style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -995,7 +996,7 @@ const LoanOfficerSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -1021,10 +1022,8 @@ const LoanOfficerSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

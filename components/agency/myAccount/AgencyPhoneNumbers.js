@@ -312,7 +312,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             return (
               <div
                 key={number.id}
-                className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                className="flex w-full px-4 py-5 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
                   borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
                   backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
@@ -320,25 +320,25 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 }}
               >
                 {/* Left Section - Phone Number Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
                     {isGlobal && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-brand-primary text-white"
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap bg-brand-primary text-white"
                       >
                         Global Number
                       </div>
                     )}
                     {isDisabled && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
                         style={{ backgroundColor: '#999', color: '#fff' }}
                       >
                         Disabled
                       </div>
                     )}
                     <div
-                      className="text-xl font-semibold"
+                      className="text-base md:text-lg font-semibold whitespace-nowrap"
                       style={{ color: isDisabled ? '#999' : '#000' }}
                     >
                       {formatPhoneNumber(number.phone)}
@@ -362,14 +362,14 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 </div>
 
                 {/* Right Section - Action Button or Subaccount Info */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 ml-auto">
                   {isSubaccountNumber ? (
                     <div
                       className="text-sm py-2 px-4 text-center rounded"
                       style={{
                         color: '#666',
                         fontWeight: '500',
-                        minWidth: '180px',
+                        minWidth: '260px',
                         backgroundColor: '#f5f5f5',
                       }}
                     >

@@ -587,7 +587,7 @@ const MarketerAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -646,7 +646,7 @@ const MarketerAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -808,7 +808,7 @@ const MarketerAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customers
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -821,7 +821,7 @@ const MarketerAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Company
               </div>
-              <input
+              <Input
                 placeholder="Company"
                 className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }} //setCompany
@@ -887,7 +887,7 @@ const MarketerAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -913,10 +913,8 @@ const MarketerAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>

@@ -29,6 +29,7 @@ import { forceApplyBranding } from '@/utilities/applyBranding'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -587,9 +588,9 @@ const SalesDevAgent = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border-2 border-[#00000020] p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
                 onChange={(e) => {
@@ -646,9 +647,9 @@ const SalesDevAgent = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
                 onChange={(e) => {
@@ -811,9 +812,9 @@ const SalesDevAgent = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customers
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
                 onChange={(e) => {
@@ -824,9 +825,9 @@ const SalesDevAgent = ({
               <div style={styles.headingStyle} className="mt-6">
                 Company
               </div>
-              <input
+              <Input
                 placeholder="Company"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={company}
                 onChange={(e) => {
@@ -925,7 +926,7 @@ const SalesDevAgent = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -951,10 +952,8 @@ const SalesDevAgent = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
                           />
                         ))}
                       </div>
