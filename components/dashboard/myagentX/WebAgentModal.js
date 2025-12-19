@@ -33,6 +33,7 @@ const WebAgentModal = ({
   setSelectedSmartList,
   agent, // Add agent prop to access web-specific fields
   onAgentUpdate, // Callback to update parent's agent state
+  selectedUser, // Add selectedUser prop for agency/admin scenarios
 }) => {
   const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill)
   const [requireForm, setRequireForm] = useState(false)
@@ -160,11 +161,25 @@ const WebAgentModal = ({
         AuthToken = UserDetails.token
       }
 
-      const response = await axios.get(`${Apis.getSheets}?type=manual`, {
+      // Include userId parameter for agency/admin scenarios (like EmbedModal does)
+      let apiUrl = `${Apis.getSheets}?type=manual`
+      if (selectedUser?.id) {
+        apiUrl += `&userId=${selectedUser.id}`
+      }
+
+      console.log('🔧 WEB-AGENT-MODAL - Fetching smartlists from:', apiUrl)
+
+      const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${AuthToken}`,
         },
+      })
+
+      console.log('🔧 WEB-AGENT-MODAL - Smartlists fetched:', {
+        count: response.data?.data?.length || 0,
+        smartlists: response.data?.data?.map(s => ({ id: s.id, name: s.sheetName })) || [],
+        selectedUserId: selectedUser?.id,
       })
 
       console.log('get sheets response is', response)

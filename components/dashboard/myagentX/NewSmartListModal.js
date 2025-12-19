@@ -11,7 +11,7 @@ import AgentSelectSnackMessage, {
 } from '../leads/AgentSelectSnackMessage'
 import TagsInput from '../leads/TagsInput'
 
-const NewSmartListModal = ({ open, onClose, agentId, onSuccess, agentType }) => {
+const NewSmartListModal = ({ open, onClose, agentId, onSuccess, agentType, selectedUser }) => {
   const [sheetName, setSheetName] = useState('')
   const [customFields, setCustomFields] = useState(['', ''])
   const [tagsValue, setTagsValue] = useState([])
@@ -91,6 +91,11 @@ const NewSmartListModal = ({ open, onClose, agentId, onSuccess, agentType }) => 
         tags: filteredTags,
         agentId: agentId,
         agentType: agentType, // Pass agentType to API so it updates correct fields
+      }
+
+      // Add userId for agency/admin scenarios (creating smartlist for subaccount agents)
+      if (selectedUser) {
+        payload.userId = selectedUser?.id
       }
 
       console.log('payload', payload)

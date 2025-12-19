@@ -1257,10 +1257,6 @@ function UpgradePlanContent({
       }
       console.log('Api data for upgrade plan', DataToSendInApi)
 
-      if (selectedUser) {
-        ApiPath = `${ApiPath}?userId=${selectedUser.id}`
-      }
-
       console.log('Api path is', ApiPath)
 
       //headers for api
