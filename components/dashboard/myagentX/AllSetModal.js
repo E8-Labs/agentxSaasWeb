@@ -28,6 +28,29 @@ const AllSetModal = ({
     type: SnackbarTypes.Error,
   })
 
+  // Determine agent type label based on fetureType and isEmbedFlow
+  const getAgentTypeLabel = () => {
+    if (isEmbedFlow || fetureType === 'embed') {
+      return 'Embed Agent'
+    } else if (fetureType === 'webhook') {
+      return 'Webhook Agent'
+    } else if (fetureType === 'webagent') {
+      return 'Browser Agent'
+    } else {
+      // Default fallback - should not happen in normal flow
+      return 'Browser Agent'
+    }
+  }
+
+  // Debug: Log fetureType when modal opens or fetureType changes
+  React.useEffect(() => {
+    if (open) {
+      console.log('🔧 AllSetModal - Modal opened with fetureType:', fetureType)
+      console.log('🔧 AllSetModal - isEmbedFlow:', isEmbedFlow)
+      console.log('🔧 AllSetModal - Will show:', getAgentTypeLabel())
+    }
+  }, [open, fetureType, isEmbedFlow])
+
   const showSnackbar = (title, message, type = SnackbarTypes.Success) => {
     setSnackbar({
       isVisible: true,
@@ -100,14 +123,7 @@ const AllSetModal = ({
             component="h2"
             sx={{ fontWeight: 'bold' }}
           >
-            {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} |{' '}
-            {`${
-              isEmbedFlow
-                ? 'Embed Agent'
-                : fetureType === 'webhook'
-                  ? 'Webhook Agent'
-                  : 'Browser Agent'
-            }`}
+            {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} | {getAgentTypeLabel()}
           </Typography>
           <CloseBtn onClick={onClose} />
         </Box>
@@ -153,7 +169,7 @@ const AllSetModal = ({
         )}
 
         {/* Button */}
-        {isEmbedFlow ? (
+        {isEmbedFlow || fetureType === 'embed' ? (
           <button
             className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple flex items-center justify-center"
             onClick={handleCopyCode}
@@ -161,14 +177,20 @@ const AllSetModal = ({
             Copy Embed Code
             <Copy size={16} className="ml-2" />
           </button>
+        ) : fetureType === 'webagent' ? (
+          <button
+            className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
+            onClick={onOpenAgent}
+          >
+            Open agent in new tab
+            <ArrowUpRight size={16} className="ml-2 inline" />
+          </button>
         ) : (
           <button
             className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
-            onClick={fetureType === 'webagent' ? onOpenAgent : onCopyUrl}
+            onClick={onCopyUrl}
           >
-            {fetureType === 'webagent'
-              ? 'Open agent in new tab'
-              : 'Copy Webhook Url'}
+            Copy Webhook Url
             <ArrowUpRight size={16} className="ml-2 inline" />
           </button>
         )}

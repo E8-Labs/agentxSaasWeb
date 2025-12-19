@@ -11,8 +11,8 @@ const ProgressBar = ({ value }) => {
   }, [value])
 
   return (
-    <div className="">
-      <div>
+    <div className="flex">
+      {/* <div> */}
         <Box sx={{ width: '100%' }}>
           <LinearProgress
             variant="determinate"
@@ -25,7 +25,7 @@ const ProgressBar = ({ value }) => {
             }}
           />
         </Box>
-      </div>
+      {/* </div> */}
     </div>
   )
 }

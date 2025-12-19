@@ -729,6 +729,7 @@ const AgencyNavBar = () => {
                     height={32}
                     width={120}
                     style={{ objectFit: 'contain', maxHeight: '32px', maxWidth: '120px' }}
+                    unoptimized={true}
                   />
                 </div>
               ) : (

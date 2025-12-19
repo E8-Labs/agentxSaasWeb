@@ -70,7 +70,7 @@ export const HowtoVideos = {
   Leads: process.env.NEXT_PUBLIC_REACT_APP_Leads || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Leads_Upload_Video_B_AgentX_155_2025_Reupload',
   LetsTalkDigits: process.env.NEXT_PUBLIC_REACT_APP_LetsTalkDigits || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Lets_Talk_Digits_Video_B_AgentX_155_2025_Reupload',
   Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Pipeline_Stages_B_AgentX_155_2025_Reupload',
-  script: process.env.NEXT_PUBLIC_REACT_APP_script || '',
+  script: process.env.NEXT_PUBLIC_REACT_APP_script || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Script_B_AgentX_155_2025_Reupload',
   LeadScoring:
     process.env.NEXT_PUBLIC_REACT_APP_LeadScoring ||
     'https://apimyagentx.com/agentx/uploads/howtos/howtos_Lead_Scoring_Video_B_AgentX_155_2025_Reupload',

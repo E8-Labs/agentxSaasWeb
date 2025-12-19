@@ -31,7 +31,14 @@ const UploadImageButton = ({
         <div
         // className="w-6 h-6 rounded-lg overflow-hidden border border-gray-200"
         >
-          <Image src={preview} alt="uploaded" width={40} height={40} />
+          <Image 
+            src={preview} 
+            alt="uploaded" 
+            width={120} 
+            height={32} 
+            style={{ objectFit: 'contain', maxWidth: '40px', maxHeight: '40px' }}
+            unoptimized={true}
+          />
         </div>
       ) : (
         <div

@@ -25,6 +25,8 @@ import CloseBtn from '../globalExtras/CloseBtn'
 import SelectYearlypopup from './SelectYearlypopup'
 import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '../ui/checkbox'
+import { logout } from '@/utilities/UserUtility'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 //code for add card
 const stripePromise = getStripe()
@@ -845,8 +847,23 @@ function AgencyPlans({
               alt="logo"
             />
 
-            <div className={`w-[100%]`}>
-              <ProgressBar value={100} />
+            <div className={`w-[100%] flex flex-row items-center gap-2`}>
+              <div className="flex-1">
+                <ProgressBar value={100} />
+              </div>
+              {/* Logout button right in front of progress line */}
+              <button
+                onClick={() => logout('User clicked logout from plans page')}
+                className="px-3 py-1.5 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '400',
+                  color: '#6b7280',
+                  backgroundColor: '#f3f4f6',
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         )}
@@ -875,8 +892,6 @@ function AgencyPlans({
               <span>😉</span>
             </div>
           </div>
-
-
         </div>
         <div className="flex flex-col items-end w-full mt-6">
           <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
@@ -1009,19 +1024,7 @@ function AgencyPlans({
                               alt="*"
                             />
                           ) : (
-                            <div
-                              className="icon-brand-primary"
-                              style={{
-                                '--icon-mask-image': `url('/svgIcons/power.svg')`,
-                              }}
-                            >
-                              <Image
-                                src="/svgIcons/power.svg"
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            </div>
+                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
                           )}
 
                           <div
@@ -1039,21 +1042,7 @@ function AgencyPlans({
                               alt="*"
                             />
                           ) : (
-                            <div
-                              className="icon-brand-primary"
-                              style={{
-                                width: '20px',
-                                height: '20px',
-                                '--icon-mask-image': `url('/svgIcons/enterArrow.svg')`,
-                              }}
-                            >
-                              <Image
-                                src="/svgIcons/enterArrow.svg"
-                                height={20}
-                                width={20}
-                                alt="*"
-                              />
-                            </div>
+                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
                           )}
                         </div>
                       ) : (

@@ -30,6 +30,8 @@ import { getUserPlans } from './UserPlanServices'
 import YearlyPlanModal from './YearlyPlanModal'
 import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '@/components/ui/checkbox'
+import { logout } from '@/utilities/UserUtility'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function UserPlans({
   handleContinue,
@@ -700,8 +702,23 @@ function UserPlans({
               alt="logo"
             />
 
-            <div className={`w-[${from === 'billing-modal' ? '80%' : '100%'}]`}>
-              <ProgressBar value={100} />
+            <div className={`w-[${from === 'billing-modal' ? '80%' : '100%'}] flex flex-row items-center gap-2`}>
+              <div className="flex-1">
+                <ProgressBar value={100} />
+              </div>
+              {/* Logout button right in front of progress line */}
+              <button
+                onClick={() => logout('User clicked logout from plans page')}
+                className="px-3 py-1.5 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '400',
+                  color: '#6b7280',
+                  backgroundColor: '#f3f4f6',
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         )}
@@ -835,17 +852,17 @@ function UserPlans({
                     <div className="pb-2">
                       {item.status ? (
                         <div className=" flex flex-row items-center gap-2">
-                          <Image
-                            src={
-                              selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
-                                ? '/svgIcons/powerWhite.svg'
-                                : '/svgIcons/power.svg'
-                            }
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
+                          {selectedPlan?.id === item.id ||
+                          (hoverPlan?.id === item.id && !isDisabled) ? (
+                            <Image
+                              src="/svgIcons/powerWhite.svg"
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          ) : (
+                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
+                          )}
 
                           <div
                             className={`text-base font-semibold ${
@@ -858,17 +875,17 @@ function UserPlans({
                           >
                             {item.status}
                           </div>
-                          <Image
-                            src={
-                              selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
-                                ? '/svgIcons/enterArrowWhite.svg'
-                                : '/svgIcons/enterArrow.svg'
-                            }
-                            height={20}
-                            width={20}
-                            alt="*"
-                          />
+                          {selectedPlan?.id === item.id ||
+                          (hoverPlan?.id === item.id && !isDisabled) ? (
+                            <Image
+                              src="/svgIcons/enterArrowWhite.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                            />
+                          ) : (
+                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
+                          )}
                         </div>
                       ) : (
                         <div className="h-[3vh]"></div>
