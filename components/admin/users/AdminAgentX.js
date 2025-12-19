@@ -715,25 +715,50 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       setShowUpgradeModal(true)
     } else {
       // Merge with existing updated agent state if available (to preserve smartlist updates)
+      // Also check mainAgentsList for the most up-to-date agent data
       let agentToUse = agent
-      if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
-        // We have an updated version of this agent - merge the smartlist fields
-        agentToUse = {
-          ...agent,
-          // Preserve updated smartlist fields from state
-          smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agent.smartListIdForWeb,
-          smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agent.smartListEnabledForWeb,
-          smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agent.smartListIdForWebhook,
-          smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agent.smartListEnabledForWebhook,
-          smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agent.smartListIdForEmbed,
-          smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agent.smartListEnabledForEmbed,
+      
+      // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+      const agentIdToFind = agent.id
+      if (agentIdToFind && typeof agentIdToFind === 'number') {
+        const updatedAgentFromList = mainAgentsList
+          .flatMap(ma => ma.agents || [])
+          .find(a => a.id === agentIdToFind)
+        
+        if (updatedAgentFromList) {
+          // Use the agent from mainAgentsList as it has the latest updates
+          agentToUse = updatedAgentFromList
+          console.log('🔍 ADMIN-WEB-AGENT - Using updated agent from mainAgentsList:', {
+            agentId: agentIdToFind,
+            smartListIdForWeb: updatedAgentFromList.smartListIdForWeb,
+            smartListIdForWebhook: updatedAgentFromList.smartListIdForWebhook,
+            smartListEnabledForWeb: updatedAgentFromList.smartListEnabledForWeb,
+            smartListEnabledForWebhook: updatedAgentFromList.smartListEnabledForWebhook,
+          })
         }
-        console.log('🔍 ADMIN-WEB-AGENT - Merged with updated agent state:', {
+      }
+      
+      // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+      if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
+        // Merge any additional updates from selectedAgentForWebAgent state
+        agentToUse = {
+          ...agentToUse,
+          // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+          smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+          smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+          smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+          smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+          smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+          smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+        }
+        console.log('🔍 ADMIN-WEB-AGENT - Merged with selectedAgentForWebAgent state:', {
           original: agent,
-          updated: selectedAgentForWebAgent,
+          fromList: agentToUse,
+          fromState: selectedAgentForWebAgent,
           merged: agentToUse,
         })
       }
+      
       setSelectedAgentForWebAgent(agentToUse)
       setShowWebAgentModal(true)
       setFetureType('webagent')
@@ -1064,7 +1089,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const handleCloseAllSetModal = () => {
     setShowAllSetModal(false)
-    setSelectedAgentForWebAgent(null)
+    // Don't clear selectedAgentForWebAgent - preserve it so modal can read updated state when reopened
+    // The state is already updated in handleSmartListCreated with the new smartlist info
+    // Only clear selectedSmartList
     setSelectedSmartList('')
   }
 
@@ -3853,25 +3880,48 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           setShowUpgradeModal(true)
                         } else {
                           // Merge with existing updated agent state if available
+                          // Also check mainAgentsList for the most up-to-date agent data
                           let agentToUse = showDrawerSelectedAgent
-                          if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                            // We have an updated version of this agent - merge the smartlist fields
-                            agentToUse = {
-                              ...showDrawerSelectedAgent,
-                              // Preserve updated smartlist fields from state
-                              smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
-                              smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
-                              smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
-                              smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
-                              smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
-                              smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
+                          
+                          // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+                          const agentIdToFind = showDrawerSelectedAgent.id
+                          if (agentIdToFind && typeof agentIdToFind === 'number') {
+                            const updatedAgentFromList = mainAgentsList
+                              .flatMap(ma => ma.agents || [])
+                              .find(a => a.id === agentIdToFind)
+                            
+                            if (updatedAgentFromList) {
+                              // Use the agent from mainAgentsList as it has the latest updates
+                              agentToUse = updatedAgentFromList
+                              console.log('🔍 ADMIN-WEBHOOK - Using updated agent from mainAgentsList:', {
+                                agentId: agentIdToFind,
+                                smartListIdForWebhook: updatedAgentFromList.smartListIdForWebhook,
+                                smartListEnabledForWebhook: updatedAgentFromList.smartListEnabledForWebhook,
+                              })
                             }
-                            console.log('🔍 ADMIN-WEBHOOK - Merged with updated agent state:', {
+                          }
+                          
+                          // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+                          if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                            // Merge any additional updates from selectedAgentForWebAgent state
+                            agentToUse = {
+                              ...agentToUse,
+                              // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+                              smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+                              smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+                              smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+                              smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+                              smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+                              smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                            }
+                            console.log('🔍 ADMIN-WEBHOOK - Merged with selectedAgentForWebAgent state:', {
                               original: showDrawerSelectedAgent,
-                              updated: selectedAgentForWebAgent,
+                              fromList: agentToUse,
+                              fromState: selectedAgentForWebAgent,
                               merged: agentToUse,
                             })
                           }
+                          
                           setFetureType('webhook')
                           setSelectedAgentForWebAgent(agentToUse)
                           setShowWebAgentModal(true)
@@ -6053,6 +6103,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
         agent={selectedAgentForWebAgent} // Pass full agent object
+        selectedUser={selectedUser} // Pass selectedUser for agency/admin scenarios
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached/detached
           setSelectedAgentForWebAgent(updatedAgent)
@@ -6090,6 +6141,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }
         onSuccess={handleSmartListCreated}
         agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
+        selectedUser={selectedUser} // Pass selectedUser for agency/admin scenarios
       />
 
       <AllSetModal

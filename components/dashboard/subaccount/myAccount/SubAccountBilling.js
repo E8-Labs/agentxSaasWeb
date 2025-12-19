@@ -346,6 +346,9 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       const ApiPath = Apis.subAgencyAndSubAccountPlans
       const formData = new FormData()
       formData.append('planId', togglePlan)
+      if (selectedUser) {
+        formData.append('userId', selectedUser.id)
+      }
       for (let [key, value] of formData.entries()) {
         console.log(`${key} = ${value}`)
       }

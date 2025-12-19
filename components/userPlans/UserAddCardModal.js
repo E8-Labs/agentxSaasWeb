@@ -432,6 +432,10 @@ const UserAddCard = ({
         ApiData = {
           planId: selectedPlan.id,
         }
+        // Add userId to body if subscribing for a subaccount (fromAdmin or selectedUser)
+        if (fromAdmin && selectedUser) {
+          ApiData.userId = selectedUser.id
+        }
       }
 
       // //console.log;

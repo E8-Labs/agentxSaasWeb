@@ -335,6 +335,10 @@ function UserPlans({
         ApiData = {
           planId: selectedPlan?.id || hoverPlan?.id,
         }
+        // Add userId to body if subscribing for a subaccount
+        if (selectedUser) {
+          ApiData.userId = selectedUser.id
+        }
       }
 
       // //console.log;

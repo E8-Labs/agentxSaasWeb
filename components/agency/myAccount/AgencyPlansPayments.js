@@ -481,6 +481,9 @@ function AgencyPlansPayments({ selectedAgency }) {
       const ApiPath = Apis.subAgencyAndSubAccountPlans
       const formData = new FormData()
       formData.append('planId', togglePlan)
+      if (selectedAgency) {
+        formData.append('userId', selectedAgency.id)
+      }
       for (let [key, value] of formData.entries()) {
         console.log(`${key} = ${value}`)
       }
