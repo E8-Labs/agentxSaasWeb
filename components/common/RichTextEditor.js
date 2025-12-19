@@ -128,8 +128,12 @@ const RichTextEditor = forwardRef(
         const editor = quillRef.current.getEditor()
         const selection = editor.getSelection()
         const cursorPosition = selection ? selection.index : 0
-        editor.insertText(cursorPosition, variable)
-        editor.setSelection(cursorPosition + variable.length)
+        // Wrap variable in curly braces if not already wrapped
+        const variableText = variable.startsWith('{') && variable.endsWith('}')
+          ? variable
+          : `{${variable}}`
+        editor.insertText(cursorPosition, variableText)
+        editor.setSelection(cursorPosition + variableText.length)
       }
     }
 

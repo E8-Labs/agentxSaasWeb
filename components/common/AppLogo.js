@@ -367,6 +367,7 @@ const AppLogo = ({
       height={height}
       width={imageWidth}
       style={logoStyle}
+      unoptimized={logoUrl ? true : false}
     />
   )
 }

@@ -981,12 +981,29 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const handleSmartListCreated = async (smartListData) => {
     console.log('🔧 ADMIN-WEB-AGENT - Smart list created:', smartListData)
+    console.log('🔧 ADMIN-WEB-AGENT - Current fetureType:', fetureType)
 
     // Note: AddSmartList API already attached the smartlist with correct agentType
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
-    const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
+    // Use agentType from the response if available, otherwise fall back to fetureType
+    const agentType = smartListData?.agentType || (fetureType === 'webhook' ? 'webhook' : 'web')
+    console.log('🔧 ADMIN-WEB-AGENT - Determined agentType:', agentType, 'from smartListData:', smartListData)
+    
+    // Explicitly set fetureType based on agentType to ensure AllSetModal shows correct type
+    // This ensures the modal title displays correctly even if fetureType state was not set properly
+    // agentType can be 'webhook' or 'web', and we map 'web' to 'webagent' for fetureType
+    if (agentType === 'webhook') {
+      console.log('🔧 ADMIN-WEB-AGENT - Setting fetureType to webhook')
+      setFetureType('webhook')
+    } else if (agentType === 'web') {
+      console.log('🔧 ADMIN-WEB-AGENT - Setting fetureType to webagent (browser agent)')
+      setFetureType('webagent')
+    } else {
+      // Fallback: preserve existing fetureType if agentType is unexpected
+      console.log('🔧 ADMIN-WEB-AGENT - Unknown agentType, preserving fetureType:', fetureType)
+    }
 
     // Determine which fields to update based on agentType
     const updates = {
@@ -1041,8 +1058,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
     setShowNewSmartListModal(false)
     setSelectedSmartList(smartListId)
+    console.log('🔧 ADMIN-WEB-AGENT - Opening AllSetModal with fetureType:', fetureType)
     setShowAllSetModal(true)
-    setFetureType('webagent')
   }
 
   const handleCloseAllSetModal = () => {

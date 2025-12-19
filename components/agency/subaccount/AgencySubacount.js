@@ -74,6 +74,7 @@ function AgencySubacount({ selectedAgency }) {
   // state variables for dropdown
   const [anchorEl, setAnchorEl] = useState(null)
   const [activeAccount, setActiveAccount] = useState(null)
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false) // Boolean to control popover visibility
 
   //filter and search variable
   const [showFilterModal, setShowFilterModal] = useState(false)
@@ -194,14 +195,14 @@ function AgencySubacount({ selectedAgency }) {
 
   //dropdown popover functions
   const handleTogglePopover = (event, item) => {
-    if (activeAccount === item.id) {
+    if (isPopoverOpen && activeAccount === item.id) {
       // same row clicked again → close
-      setAnchorEl(null)
-      setActiveAccount(null)
+      handleClosePopover()
     } else {
       // open for this row
       setAnchorEl(event.currentTarget)
       setActiveAccount(item.id)
+      setIsPopoverOpen(true)
       setUserData(item)
       setSelectedItem(item)
       setmoreDropdown(item.id)
@@ -211,6 +212,7 @@ function AgencySubacount({ selectedAgency }) {
   const handleClosePopover = () => {
     setAnchorEl(null)
     setActiveAccount(null)
+    setIsPopoverOpen(false) // Close popover using boolean
   }
 
   // get agency data from local
@@ -993,7 +995,7 @@ function AgencySubacount({ selectedAgency }) {
                     {/* Popover unique per row */}
                     <Popover
                       id={`account-popover-${item.id}`}
-                      open={activeAccount === item.id}
+                      open={isPopoverOpen && activeAccount === item.id}
                       anchorEl={anchorEl}
                       onClose={handleClosePopover}
                       anchorOrigin={{
@@ -1018,8 +1020,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4 pt-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setSelectedUser(item)
-                            handleClosePopover()
                           }}
                         >
                           View Detail
@@ -1027,8 +1029,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setOpenInvitePopup(true)
-                            handleClosePopover()
                           }}
                         >
                           Invite Team
@@ -1036,8 +1038,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setShowPlans(true)
-                            // handleClosePopover();
                           }}
                         >
                           View Plans
@@ -1046,8 +1048,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setShowXBarPlans(true)
-                            handleClosePopover()
                           }}
                         >
                           View XBar
@@ -1055,8 +1057,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4  hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setShowPauseConfirmationPopup(true)
-                            // handleClosePopover();
                           }}
                         >
                           {item?.profile_status === 'paused'
@@ -1066,8 +1068,8 @@ function AgencySubacount({ selectedAgency }) {
                         <button
                           className="px-4 pb-1 hover:bg-brand-primary/10 text-sm font-medium text-gray-800 text-start"
                           onClick={() => {
+                            handleClosePopover() // Close menu immediately
                             setShowDelConfirmationPopup(true)
-                            // handleClosePopover();
                           }}
                           disabled={item?.profile_status === 'deleted'}
                         >

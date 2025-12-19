@@ -968,11 +968,17 @@ function EmailTempletePopup({
                       <MenuItem value="" disabled>
                         <em>Insert Variable...</em>
                       </MenuItem>
-                      {uniqueColumns.map((variable, index) => (
-                        <MenuItem key={index} value={variable}>
-                          {variable}
-                        </MenuItem>
-                      ))}
+                      {uniqueColumns.map((variable, index) => {
+                        // Display with curly braces, but keep original value for insertion
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
                     </Select>
                   </FormControl>
                 )}
@@ -1025,11 +1031,17 @@ function EmailTempletePopup({
                       <MenuItem value="" disabled>
                         <em>Insert Variable...</em>
                       </MenuItem>
-                      {uniqueColumns.map((variable, index) => (
-                        <MenuItem key={index} value={variable}>
-                          {variable}
-                        </MenuItem>
-                      ))}
+                      {uniqueColumns.map((variable, index) => {
+                        // Display with curly braces, but keep original value for insertion
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
                     </Select>
                   </FormControl>
                 )}

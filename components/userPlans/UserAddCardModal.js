@@ -907,12 +907,22 @@ const UserAddCard = ({
                   {selectedPlan?.title || selectedPlan?.name || 'No Plan Selected'}
                 </div>
                 <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
-                  Total Annual Commitment: $
-                  {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                  {(() => {
+                    const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                    const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1) + ' subscription'
+                    return cycleLabel
+                  })()}: $
+                  {(() => {
+                    const price = selectedPlan?.discountedPrice || 
+                                  selectedPlan?.discountPrice || 
+                                  selectedPlan?.originalPrice || 
+                                  0
+                    return formatFractional2(price)
+                  })()}
                 </div>
               </div>
               <div style={{ fontWeight: '600', fontSize: 15 }}>
-                ${formatFractional2(selectedPlan?.originalPrice)}
+                ${formatFractional2(selectedPlan?.discountedPrice || selectedPlan?.discountPrice || selectedPlan?.originalPrice || 0)}
               </div>
             </div>
 

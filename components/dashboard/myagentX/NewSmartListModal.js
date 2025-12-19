@@ -103,7 +103,12 @@ const NewSmartListModal = ({ open, onClose, agentId, onSuccess, agentType }) => 
       })
 
       if (response.data) {
-        onSuccess(response.data.data)
+        // Pass agentType back in the success callback so parent can set fetureType correctly
+        const smartListData = response.data.data || response.data
+        onSuccess({
+          ...smartListData,
+          agentType: agentType, // Include agentType in the response
+        })
         handleClose()
       }
     } catch (error) {
