@@ -39,9 +39,9 @@ const LogoCropper = ({
 
   // Max dimensions for final cropped image (3x resolution for retina/high-DPI displays)
   // Final image will be resized to fit within these while maintaining 3:1 aspect ratio
-  // 3x resolution ensures sharp display on retina screens (120px × 32px display = 360px × 96px source)
-  const MAX_WIDTH = 360
-  const MAX_HEIGHT = 96
+  // 400px width with 3:1 aspect ratio = 133px height (400/3 = 133.33, rounded to 133)
+  const MAX_WIDTH = 400
+  const MAX_HEIGHT = 133
 
   const onCropChange = useCallback((crop) => {
     setCrop(crop)
@@ -185,7 +185,7 @@ const LogoCropper = ({
           <div className="flex flex-col gap-4">
             <div className="text-lg font-semibold">Crop Your Logo</div>
             <div className="text-sm text-gray-600">
-              Recommended: 600 × 200 px upload. Final crop: 360px width × 96px height (3x resolution for retina displays). Display: Max 120px width × 32px height (3:1 aspect ratio)
+              Recommended: 600 × 200 px upload. Final crop: 400px width × 133px height (3x resolution for retina displays). Display: Max 120px width × 32px height (3:1 aspect ratio)
             </div>
 
             <div

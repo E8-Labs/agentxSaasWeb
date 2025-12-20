@@ -96,24 +96,9 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
       </div>
 
       <div className="w-full flex flex-row justify-center items-center">
-        <div className="w-full flex flex-row items-center justify-between pt-6 px-4">
-          {/*
-                        <div className="flex flex-row items-center gap-4">
-                            <button
-                                className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
-                                onClick={() => { handleTabSelection(1) }}
-                            >
-                                Twilio
-                            </button>
-                            <button
-                                className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
-                                onClick={() => { handleTabSelection(2) }}
-                            >
-                                Stripe
-                            </button>
-                        </div>
-                    */}
-          <div className="flex flex-row items-center gap-2">
+        <div className="w-full flex flex-col items-center justify-between pt-6">
+          
+          <div className="flex flex-row items-center justify-center gap-2 w-full">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -126,6 +111,7 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
               </button>
             ))}
           </div>
+          <div className="flex flex-row items-center justify-center gap-2 w-full h-[1px] bg-gray-200"></div>
         </div>
       </div>
 

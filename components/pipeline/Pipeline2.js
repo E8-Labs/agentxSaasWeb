@@ -602,23 +602,65 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           localStorage.removeItem('AddCadenceDetails')
           // router.push("/dashboard/leads");
           let isFromAgencyOrAdmin = null
-          const FromAgencyOrAdmin = localStorage.getItem(
+          const isFromAdminOrAgency = localStorage.getItem(
             PersistanceKeys.isFromAdminOrAgency,
           )
-          if (FromAgencyOrAdmin) {
-            const R = JSON.parse(FromAgencyOrAdmin)
-            isFromAgencyOrAdmin = R
+          isFromAgencyOrAdmin = isFromAdminOrAgency
+          const returnUrl = localStorage.getItem(
+            PersistanceKeys.returnUrlAfterAgentCreation,
+          )
+
+          //If the agency/admin is creating the agent, send the event to the parent window
+          //and close this tab else route to the dashboard/myAgentX
+          if (isFromAdminOrAgency) {
+            // Parse the stored data to get subaccount info
+            let subaccountData = null
+            try {
+              const parsed = JSON.parse(isFromAdminOrAgency)
+              subaccountData = parsed?.subAccountData
+            } catch (error) {
+              console.log('Error parsing isFromAdminOrAgency:', error)
+            }
+
+            // Send event to parent window (opener) that agent was created
+            if (window.opener && subaccountData) {
+              try {
+                window.opener.postMessage(
+                  {
+                    type: 'AGENT_CREATED',
+                    userId: subaccountData.id,
+                    agentId: mainAgentId,
+                  },
+                  '*', // In production, specify the exact origin
+                )
+                console.log('Sent AGENT_CREATED event to parent window')
+              } catch (error) {
+                console.log('Error sending message to parent window:', error)
+              }
+            }
+
+            // Clean up the stored data
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+            localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+
+            // Close the tab after a short delay to allow message to be sent
+            setTimeout(() => {
+              window.close()
+            }, 500)
           }
-          console.log('Is from agency or admin', isFromAgencyOrAdmin)
-          if (isFromAgencyOrAdmin?.isFromAgency === 'admin') {
-            router.push('/admin')
-            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
-          } else if (isFromAgencyOrAdmin?.isFromAgency === 'subaccount') {
-            router.push('/agency/dashboard/subAccounts') //agency
-            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
-          } else {
+          else{
             router.push('/dashboard/myAgentX')
           }
+          // console.log('Is from agency or admin', isFromAgencyOrAdmin)
+          // if (isFromAgencyOrAdmin?.isFromAgency === 'admin') {
+          //   router.push('/admin')
+          //   localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          // } else if (isFromAgencyOrAdmin?.isFromAgency === 'subaccount') {
+          //   router.push('/agency/dashboard/subAccounts') //agency
+          //   localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          // } else {
+          //   router.push('/dashboard/myAgentX')
+          // }
         } else {
           // setLoader(false);
         }

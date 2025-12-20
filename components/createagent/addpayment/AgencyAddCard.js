@@ -598,8 +598,8 @@ const AgencyAddCard = ({
             <div
               className="absolute left-0 top-[72%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
-                width: isMediumScreen ? '170px' : '190px',
-                height: isMediumScreen ? '170px' : '190px',
+                width: isMediumScreen ? '150px' : '170px',
+                height: isMediumScreen ? '150px' : '170px',
                 marginLeft: '0px',
               }}
             >
@@ -624,7 +624,7 @@ const AgencyAddCard = ({
               isSmallScreen
                 ? {}
                 : {
-                    paddingLeft: isMediumScreen ? '175px' : '195px',
+                    paddingLeft: isMediumScreen ? '160px' : '200px',
                   }
             }
           >

@@ -680,7 +680,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          setShowSuccessSnack('Webhook URL Copied')
+          // Only show "Webhook URL Copied" for webhook agents, not for embed agents
+          const message = fetureType === 'webhook' ? 'Webhook URL Copied' : 'Embed code copied'
+          setShowSuccessSnack(message)
           setIsVisibleSnack(true)
           setShowWebAgentModal(false)
           setShowAllSetModal(false)

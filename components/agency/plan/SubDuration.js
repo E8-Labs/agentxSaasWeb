@@ -33,7 +33,7 @@ const SubDuration = ({ planDuration, setPlanDuration, isEditPlan }) => {
 
   return (
     <div className="w-full">
-      <div style={styles.labels}>Subscription Duration</div>
+      <div style={styles.labels}>Subscription Duration <span className="text-red-500">*</span></div>
       <div className="flex flex-row items-center gap-4 w-full mt-2 mb-4">
         {duration.map((item) => {
           return (

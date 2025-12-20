@@ -55,61 +55,65 @@ export default function AgentSelectSnackMessage({
         timerRef.current = null
       }
 
-      // Only show new toast if message or type changed
-      if (lastMessageRef.current !== messageKey) {
-        const toastMessage = title || message
-        const toastDescription = title ? message : null
-
-        const toastOptions = {
-          duration: time,
-          description: toastDescription,
-          style: {
-            width: 'fit-content',
-            maxWidth: 'fit-content',
-            minWidth: 'fit-content',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            whiteSpace: 'nowrap',
-          },
-          className: 'toast-no-wrap',
-        }
-
-        // Use typed toast functions - they will use the custom icons from Toaster component
-        let toastId
-        switch (type) {
-          case SnackbarTypes.Success:
-            toastId = toast.success(toastMessage, toastOptions)
-            break
-          case SnackbarTypes.Error:
-            toastId = toast.error(toastMessage, toastOptions)
-            break
-          case SnackbarTypes.Warning:
-            toastId = toast.warning(toastMessage, toastOptions)
-            break
-          case SnackbarTypes.Loading:
-            toastId = toast.loading(toastMessage, toastOptions)
-            break
-          default:
-            toastId = toast(toastMessage, toastOptions)
-        }
-
-        toastIdRef.current = toastId
-        lastMessageRef.current = messageKey
-
-        // Auto-dismiss after timer and call hide callback
-        timerRef.current = setTimeout(() => {
-          if (toastIdRef.current) {
-            // toast.dismiss(toastIdRef.current);
-            toastIdRef.current = null
-          }
-          if (hide) {
-            hide()
-          }
-          timerRef.current = null
-        }, time)
+      // Show toast - allow showing same message again if isVisible was reset
+      // Reset lastMessageRef if we're showing again (means user clicked again)
+      if (lastMessageRef.current === messageKey) {
+        // Same message being shown again - reset the ref to allow it to show
+        lastMessageRef.current = null
       }
+
+      const toastMessage = title || message
+      const toastDescription = title ? message : null
+
+      const toastOptions = {
+        duration: time,
+        description: toastDescription,
+        style: {
+          width: 'fit-content',
+          maxWidth: 'fit-content',
+          minWidth: 'fit-content',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          whiteSpace: 'nowrap',
+        },
+        className: 'toast-no-wrap',
+      }
+
+      // Use typed toast functions - they will use the custom icons from Toaster component
+      let toastId
+      switch (type) {
+        case SnackbarTypes.Success:
+          toastId = toast.success(toastMessage, toastOptions)
+          break
+        case SnackbarTypes.Error:
+          toastId = toast.error(toastMessage, toastOptions)
+          break
+        case SnackbarTypes.Warning:
+          toastId = toast.warning(toastMessage, toastOptions)
+          break
+        case SnackbarTypes.Loading:
+          toastId = toast.loading(toastMessage, toastOptions)
+          break
+        default:
+          toastId = toast(toastMessage, toastOptions)
+      }
+
+      toastIdRef.current = toastId
+      lastMessageRef.current = messageKey
+
+      // Auto-dismiss after timer and call hide callback
+      timerRef.current = setTimeout(() => {
+        if (toastIdRef.current) {
+          // toast.dismiss(toastIdRef.current);
+          toastIdRef.current = null
+        }
+        if (hide) {
+          hide()
+        }
+        timerRef.current = null
+      }, time)
     }
 
     return () => {

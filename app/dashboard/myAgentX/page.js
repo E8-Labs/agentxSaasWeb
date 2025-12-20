@@ -4116,8 +4116,9 @@ function Page() {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          // alert("Embed code copied to clipboard!");
-          setShowSuccessSnack('Webhook URL Copied')
+          // Only show "Webhook URL Copied" for webhook agents, not for embed agents
+          const message = fetureType === 'webhook' ? 'Webhook URL Copied' : 'Embed code copied'
+          setShowSuccessSnack(message)
           setIsVisibleSnack(true)
           setShowWebAgentModal(false)
           setShowAllSetModal(false)
@@ -4145,7 +4146,7 @@ function Page() {
         .writeText(iframeCode)
         .then(() => {
           // alert("Embed code copied to clipboard!");
-          setShowSuccessSnack('Embed widget copied')
+          setShowSuccessSnack('Embed code copied')
           setIsVisibleSnack(true)
         })
         .catch((err) => {

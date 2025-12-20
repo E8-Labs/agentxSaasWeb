@@ -16,7 +16,7 @@ import WhiteLAbelTooltTip from './WhiteLAbelTooltTip'
 const BrandConfig = ({ selectedAgency }) => {
   //tool tip
   const Logo1Tip =
-    'Recommended upload: 600 × 200 px (max 2MB). Final crop: 360px × 96px (3x resolution for retina displays). Display: Max 120px width × 32px height. Logo will be cropped to fit.'
+    'Recommended upload: 600 × 200 px (max 2MB). Final crop: 400px × 133px (3x resolution for retina displays). Display: Max 120px width × 32px height. Logo will be cropped to fit.'
   const FaviconTip = 'Image should be maximum 512kb and should be square'
 
   const [logoPreview, setLogoPreview] = useState(null)
@@ -362,7 +362,7 @@ const BrandConfig = ({ selectedAgency }) => {
 
         setShowSnackMessage({
           type: SnackbarTypes.Success,
-          message: 'Brand colors reset to defaults',
+          message: 'Brand colors reset to default',
           isVisible: true,
         })
       }

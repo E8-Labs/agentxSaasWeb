@@ -19,6 +19,7 @@ const Page = () => {
   const [index, setIndex] = useState(0)
   const [width, setWidth] = useState(410)
   const [isSubAccount, setIsSubAccount] = useState(false)
+  const [isAgencyCreatingForSubaccount, setIsAgencyCreatingForSubaccount] = useState(false)
   // let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice];
 
   useEffect(() => {
@@ -31,6 +32,23 @@ const Page = () => {
       const userData = JSON.parse(localData)
       if (userData?.user?.userRole === 'AgencySubAccount') {
         setIsSubAccount(true)
+      }
+      
+      // Check if current user is Agency and creating agent for subaccount
+      const isAgency = userData?.user?.userRole === 'Agency' || userData?.userRole === 'Agency'
+      if (isAgency) {
+        // Check if there's subaccount data in isFromAdminOrAgency
+        const fromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        if (fromAdminOrAgency) {
+          try {
+            const parsed = JSON.parse(fromAdminOrAgency)
+            if (parsed?.subAccountData) {
+              setIsAgencyCreatingForSubaccount(true)
+            }
+          } catch (error) {
+            console.log('Error parsing isFromAdminOrAgency:', error)
+          }
+        }
       }
     }
     // Also check SubaccoutDetails
@@ -75,7 +93,7 @@ const Page = () => {
         alt="logo"
       />
       <div className="-mt-4 w-full ">
-        <DesktopView width={width} isSubAccount={isSubAccount} />
+        <DesktopView width={width} isSubAccount={isSubAccount} isAgencyCreatingForSubaccount={isAgencyCreatingForSubaccount} />
       </div>
       <div
         style={{ width: '100%' }}
@@ -151,7 +169,10 @@ const Page = () => {
 
 export default Page
 
-const DesktopView = ({ width, isSubAccount = false }) => {
+const DesktopView = ({ width, isSubAccount = false, isAgencyCreatingForSubaccount = false }) => {
+  // Hide orb if user is subaccount OR if agency is creating for subaccount
+  const shouldHideOrb = isSubAccount || isAgencyCreatingForSubaccount
+  
   return (
     <div className="">
       <div
@@ -178,7 +199,7 @@ const DesktopView = ({ width, isSubAccount = false }) => {
         />
       </div>
 
-      {!isSubAccount && (
+      {!shouldHideOrb && (
         <>
           <div
             style={{
