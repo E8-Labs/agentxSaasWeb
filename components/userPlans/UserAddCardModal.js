@@ -559,8 +559,8 @@ const UserAddCard = ({
             <div
               className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
-                width: isMediumScreen ? '170px' : '190px',
-                height: isMediumScreen ? '170px' : '190px',
+                width: isMediumScreen ? '150px' : '170px',
+                height: isMediumScreen ? '150px' : '170px',
                 marginLeft: '0px',
               }}
             >
@@ -585,7 +585,7 @@ const UserAddCard = ({
               isSmallScreen
                 ? {}
                 : {
-                    paddingLeft: isMediumScreen ? '140px' : '185px',
+                    paddingLeft: isMediumScreen ? '160px' : '200px',
                   }
             }
           >
@@ -955,13 +955,13 @@ const UserAddCard = ({
               >
                 {(() => {
                   // Check if plan has trial and user is subscribing for the first time
-                  const hasTrial = selectedPlan?.hasTrial === true
-                  const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                  // const hasTrial = selectedPlan?.hasTrial === true
+                  // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
                   
                   // If plan has trial and user has no previous plan, show $0
-                  if (hasTrial && isFirstTimeSubscription) {
-                    return '$0'
-                  }
+                  // if (hasTrial && isFirstTimeSubscription) {
+                  //   return '$0'
+                  // }
                   
                   const billingMonths = GetMonthCountFronBillingCycle(
                     selectedPlan?.billingCycle || selectedPlan?.duration,

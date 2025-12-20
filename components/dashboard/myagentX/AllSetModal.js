@@ -68,11 +68,21 @@ const AllSetModal = ({
     try {
       await navigator.clipboard.writeText(embedCode)
       setCodeCopied(true)
-      showSnackbar('Success', 'Code Copied!', SnackbarTypes.Success)
+      // Reset snackbar state first to ensure it shows again on subsequent clicks
+      // This ensures the toast component resets its internal state (lastMessageRef)
+      hideSnackbar()
+      // Use a small delay to ensure state reset completes before showing new snackbar
+      // This allows the useEffect in AgentSelectSnackMessage to reset lastMessageRef
+      setTimeout(() => {
+        showSnackbar('Success', 'Embed code copied', SnackbarTypes.Success)
+      }, 100)
       setTimeout(() => setCodeCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy code:', error)
-      showSnackbar('Error', 'Failed to copy code', SnackbarTypes.Error)
+      hideSnackbar()
+      setTimeout(() => {
+        showSnackbar('Error', 'Failed to copy embed code', SnackbarTypes.Error)
+      }, 100)
     }
   }
   return (
@@ -163,7 +173,7 @@ const AllSetModal = ({
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>
             <Typography variant="body1" className="text-green-600 font-medium">
-              Code Copied!
+              Embed code copied!
             </Typography>
           </Box>
         )}

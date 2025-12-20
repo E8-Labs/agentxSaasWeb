@@ -995,7 +995,9 @@ export default function PlanConfiguration({
               <div className="w-full flex flex-row items-center justify-center gap-2">
                 {/* Plan Name */}
                 <div className="w-1/2">
-                  <label style={styles.labels}>Number of Agents</label>
+                  <label style={styles.labels}>
+                    Number of Agents <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
                   <input
                     style={styles.inputs}
                     className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -1020,7 +1022,9 @@ export default function PlanConfiguration({
                 {/* Tag Option */}
                 <div className="w-1/2">
                   <div className="flex flex-row items-center gap-2">
-                    <label style={styles.labels}>Price Additional Agents</label>
+                    <label style={styles.labels}>
+                      Price Additional Agents <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
                     <Tooltip
                       title={
                         "Your cost for additional agents are $5. We don't charge you for this, we bill the customer when they optin to add additional agents."
@@ -1151,7 +1155,9 @@ export default function PlanConfiguration({
                                 </div>
                             */}
               <div className="w-full">
-                <label style={styles.labels}>Number of Contacts</label>
+                <label style={styles.labels}>
+                  Number of Contacts <span style={{ color: '#ef4444' }}>*</span>
+                </label>
                 <input
                   style={styles.inputs}
                   className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"

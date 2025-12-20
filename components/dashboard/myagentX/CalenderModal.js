@@ -301,6 +301,15 @@ function CalendarModal(props) {
     getGHLENVVariables()
   }, [])
 
+  // Reset all calendar type states when modal opens to always show selection view first
+  useEffect(() => {
+    if (open) {
+      setShowAddNewCalender(false)
+      setShowAddNewGoogleCalender(false)
+      setShowAddNewGHLCalender(false)
+    }
+  }, [open])
+
   const getGHLENVVariables = () => {
     const ghlVariables = {
       NEXT_PUBLIC_GHL_CLIENT_ID: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,

@@ -409,7 +409,8 @@ const Page = () => {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}>
+      {/* <Suspense fallback={<div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}> */}
+      <Suspense>
         <div
           style={backgroundImage}
           className={`main-div overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}

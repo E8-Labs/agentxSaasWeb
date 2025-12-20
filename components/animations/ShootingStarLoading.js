@@ -2,6 +2,8 @@ import dynamic from 'next/dynamic'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { AgentXOrb } from '@/components/common/AgentXOrb'
+import { getAgencyUUID, hasAgencyUUID } from '@/utilities/AgencyUtility'
+import { PersistanceKeys } from '@/constants/Constants'
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
@@ -78,16 +80,63 @@ function ShootingStarLoading({ open }) {
     if (!open) return
 
     try {
+      // Method 1: Check if user is already registered as agency or subaccount
       const raw = localStorage.getItem('User')
-      if (!raw) {
-        setIsSubaccount(false)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        const role =
+          parsed?.user?.userRole || parsed?.userRole || parsed?.role || null
+        if (role === 'AgencySubAccount' || role === 'Agency') {
+          setIsSubaccount(true)
+          return
+        }
+      }
+
+      // Method 2: Check if user is signing up as subaccount (before registration)
+      // Check for agency UUID in localStorage (set when visiting /onboarding/{uuid})
+      // This works on localhost too - if UUID is present, show subaccount loader
+      const hasAgencyUuid = hasAgencyUUID()
+      if (hasAgencyUuid) {
+        console.log('🎯 [ShootingStarLoading] Agency UUID detected, showing subaccount loader')
+        setIsSubaccount(true)
         return
       }
-      const parsed = JSON.parse(raw)
-      const role =
-        parsed?.user?.userRole || parsed?.userRole || parsed?.role || null
-      setIsSubaccount(role === 'AgencySubAccount')
+
+      // Method 3: Check for custom domain (hostname-based detection)
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname
+        // If hostname is not localhost/127.0.0.1 and not the default domain,
+        // it might be a custom agency domain
+        const isCustomDomain =
+          hostname &&
+          !hostname.includes('localhost') &&
+          !hostname.includes('127.0.0.1') &&
+          !hostname.includes('assignx.ai') &&
+          !hostname.includes('app.assignx.ai') &&
+          !hostname.includes('dev.assignx.ai')
+        
+        if (isCustomDomain) {
+          console.log('🎯 [ShootingStarLoading] Custom domain detected:', hostname)
+          setIsSubaccount(true)
+          return
+        }
+      }
+
+      // Method 4: Check URL path for agency UUID pattern
+      if (typeof window !== 'undefined') {
+        const pathname = window.location.pathname
+        const uuidPattern = /\/onboarding\/([^\/]+)/
+        if (uuidPattern.test(pathname)) {
+          console.log('🎯 [ShootingStarLoading] Agency UUID in URL path detected')
+          setIsSubaccount(true)
+          return
+        }
+      }
+
+      // No subaccount indicators found
+      setIsSubaccount(false)
     } catch (e) {
+      console.error('Error detecting subaccount status:', e)
       setIsSubaccount(false)
     }
   }, [open])

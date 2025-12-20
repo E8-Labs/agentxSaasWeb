@@ -319,11 +319,6 @@ export default function CreateSubAccountModal({
   useEffect(() => {
     let loc = getLocalLocation()
     setCountryCode(loc)
-    let storedData = localStorage.getItem(PersistanceKeys.RegisterDetails)
-    if (storedData) {
-      let data = JSON.parse(storedData)
-      setUserData(data)
-    }
   }, [])
 
   //code for add memeber array input fields

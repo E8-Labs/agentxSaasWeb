@@ -81,6 +81,7 @@ const CreateAgent1 = ({
 
   const [user, setUser] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [isAgencyCreatingForSubaccount, setIsAgencyCreatingForSubaccount] = useState(false)
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
@@ -108,10 +109,25 @@ const CreateAgent1 = ({
         const userData = localStorage.getItem('User')
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          setIsSubaccount(
-            parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
-          )
+          const isSub = parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+          
+          // Check if current user is Agency and creating agent for subaccount
+          const isAgency = parsedUser?.user?.userRole === 'Agency' || parsedUser?.userRole === 'Agency'
+          if (isAgency) {
+            const fromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+            if (fromAdminOrAgency) {
+              try {
+                const parsed = JSON.parse(fromAdminOrAgency)
+                if (parsed?.subAccountData) {
+                  setIsAgencyCreatingForSubaccount(true)
+                }
+              } catch (error) {
+                console.log('Error parsing isFromAdminOrAgency:', error)
+              }
+            }
+          }
         }
       } catch (error) {
         console.log('Error parsing user data:', error)
@@ -353,23 +369,42 @@ const CreateAgent1 = ({
   ]
 
   function canShowObjectives() {
+    // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-    let FromAdminOrAgency = null
+    let targetUserType = null
+    
     if (U) {
-      const Data = JSON.parse(U)
-      FromAdminOrAgency = Data.subAccountData
+      try {
+        const Data = JSON.parse(U)
+        // Check if there's subAccountData (when agency/admin creates for subaccount)
+        if (Data.subAccountData) {
+          targetUserType = Data.subAccountData?.userType || Data.subAccountData?.user?.userType
+        }
+        // Also check selectedUser state as fallback
+        if (!targetUserType && selectedUser) {
+          targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+        }
+      } catch (error) {
+        console.log('Error parsing isFromAdminOrAgency:', error)
+      }
     }
-    // console.log("U_Ser type is", FromAdminOrAgency);
-    if (
-      (FromAdminOrAgency &&
-        FromAdminOrAgency?.userType &&
-        FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) ||
-      (user && user.user.userType == UserTypes.RealEstateAgent)
-    ) {
-      return true
-    } else {
-      return false
+    
+    // If we have a target user type (agency/admin creating for another user), use that
+    if (targetUserType) {
+      return targetUserType === UserTypes.RealEstateAgent
     }
+    
+    // Otherwise, check the logged-in user's type (normal user or subaccount creating for themselves)
+    if (user && user.user && user.user.userType) {
+      return user.user.userType === UserTypes.RealEstateAgent
+    }
+    
+    // Fallback: check redux user
+    if (reduxUser && reduxUser.userType) {
+      return reduxUser.userType === UserTypes.RealEstateAgent
+    }
+    
+    return false
   }
 
   function canContinue() {
@@ -935,7 +970,7 @@ const CreateAgent1 = ({
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
                 textAlign: 'center',
-                marginTop: isSubaccount ? '-40px' : undefined,
+                marginTop: (isSubaccount || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
               }}
               // onClick={handleContinue}
             >

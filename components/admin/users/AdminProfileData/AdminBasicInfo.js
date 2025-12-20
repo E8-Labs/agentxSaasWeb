@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react'
 import Apis from '@/components/apis/Apis'
 import { UpdateProfile } from '@/components/apis/UpdateProfile'
 import { UserTypes } from '@/constants/UserTypes'
+import { getAreaOfFocusTitle } from '@/utilities/getAreaOfFocusTitle'
 
 import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 
@@ -205,6 +206,10 @@ function AdminBasicInfo({ selectedUser }) {
 
   //fetching the data
   useEffect(() => {
+    // Initialize userType from selectedUser if available (fallback)
+    if (selectedUser?.userType && !userType) {
+      setUserType(selectedUser.userType)
+    }
     // //console.log;
     getProfile()
   }, [selectedUser])
@@ -1347,7 +1352,7 @@ function AdminBasicInfo({ selectedUser }) {
               }}
             >
               {agentAreasOfFocus.length > 0
-                ? 'What area of real estate do you focus on?'
+                ? getAreaOfFocusTitle(userType || selectedUser?.userType) || 'What area do you focus on?'
                 : 'What industries do you specialize in?'}
             </div>
           </div>

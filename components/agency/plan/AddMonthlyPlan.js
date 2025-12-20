@@ -805,7 +805,7 @@ export default function AddMonthlyPlan({
                 {/* Plan Name */}
                 <div className="w-1/2">
                   <div className="w-full flex flex-row items-center justify-between pe-2">
-                    <label style={styles.labels}>Plan Name</label>
+                    <label style={styles.labels}>Plan Name <span className="text-red-500">*</span></label>
                     <div style={styles.labels}>{title?.length || 0}/12</div>
                   </div>
                   <input
@@ -837,7 +837,7 @@ export default function AddMonthlyPlan({
 
               {/* Description */}
               <div className="w-full flex flex-row items-center justify-between">
-                <label style={styles.labels}>Description</label>
+                <label style={styles.labels}>Description <span className="text-red-500">*</span></label>
                 <div style={styles.labels}>
                   ({planDescription?.length || 0}/30)
                 </div>
@@ -864,7 +864,7 @@ export default function AddMonthlyPlan({
                 <div className="w-6/12">
                   {/* Price - Now Total Price Per Month */}
                   <label style={styles.labels}>
-                    Price per month
+                    Price per month <span className="text-red-500">*</span>
                   </label>
                   <div
                     className={`border ${minCostErr || (discountedPrice && Number(discountedPrice) === 0) || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
@@ -949,7 +949,7 @@ export default function AddMonthlyPlan({
                   )*/}
 
                   {/* Minutes */}
-                  <label style={styles.labels}>Credits</label>
+                  <label style={styles.labels}>Credits <span className="text-red-500">*</span></label>
                   <div className={`border ${(minutes && Number(minutes) === 0) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <input
                       style={styles.inputs}
