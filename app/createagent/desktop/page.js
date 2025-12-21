@@ -141,7 +141,7 @@ const Page = () => {
                 desktop.
               </div>
               <div
-                className="text-purple"
+                className="text-brand-primary"
                 style={{
                   fontWeight: '500',
                   fontSize: 11,

@@ -99,7 +99,7 @@ const DocumentCard = ({ kb }) => {
 
   return (
     <div>
-      <a href={safeUrl} target="_blank" className="text-purple font-medium ">
+      <a href={safeUrl} target="_blank" className="text-brand-primary font-medium ">
         {kb.title.trim()}
       </a>
       {/* {kb.uploading && <Progress value={kb.progress} className="mt-2" />} */}
@@ -120,7 +120,7 @@ const UrlCard = ({ kb }) => {
         console.log('Web url link is', url)
         window.open(url, '_blank')
       }}
-      className="text-purple underline border-none outline-none text-start"
+      className="text-brand-primary underline border-none outline-none text-start"
       style={{
         flexWrap: 'wrap',
         width: '100%',
@@ -148,7 +148,7 @@ const YoutubeCard = ({ kb }) => {
         console.log('Web url link is', url)
         window.open(url, '_blank')
       }}
-      className="text-purple underline border-none outline-none text-start"
+      className="text-brand-primary underline border-none outline-none text-start"
       style={{
         flexWrap: 'wrap',
         width: '100%',
@@ -174,7 +174,7 @@ const TextCard = ({ kb }) => {
       </p>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="text-purple-600 mt-2"
+        className="text-brand-primary-600 mt-2"
       >
         {expanded ? 'Show Less' : 'Show More'}
       </button>

@@ -130,7 +130,7 @@ function EditVoicemailModal({
 
               <button onClick={() => setMessage('')}>
                 <div
-                  className="text-purple"
+                  className="text-brand-primary"
                   style={{
                     fontSize: 15,
                     fontWeight: '500',
@@ -279,7 +279,7 @@ function EditVoicemailModal({
               </div>
             ) : (
               <button
-                className="text-white bg-purple outline-none rounded-xl  mt-4"
+                className="text-white bg-brand-primary outline-none rounded-xl  mt-4"
                 style={{
                   height: '50px',
                   width: '100px',

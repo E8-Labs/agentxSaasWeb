@@ -591,6 +591,49 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setOpenGptManu(null)
   }
 
+  // Function to render icon with branding using mask-image (same logic as myAgentX/page.js)
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    // Check for empty string, null, undefined, or if it doesn't contain valid color values
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   //handle duplicate agent
   const handleDuplicate = async () => {
     console.log('Duplicate agent clicked')
@@ -3845,12 +3888,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         handleWebAgentClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/assets/openVoice.png'}
-                        alt="*"
-                        height={18}
-                        width={18}
-                      />
+                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
                     </button>
                     <button
                       style={{ paddingLeft: '3px' }}
@@ -3858,12 +3896,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         handleEmbedClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/embedIcon.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
                     </button>
 
                     <button
@@ -3930,12 +3963,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         }
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/webhook.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
                     </button>
                   </div>
                 </div>
@@ -3956,8 +3984,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     )
                   }
                   icon="/svgIcons/selectedCallIcon.svg"
-                  bgColor="bg-blue-100"
-                  iconColor="text-blue-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Convos"
@@ -3983,8 +4011,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   }
                   icon="/otherAssets/hotLeadsIcon2.png"
-                  bgColor="bg-orange-100"
-                  iconColor="text-orange-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Booked"
@@ -3996,8 +4024,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   }
                   icon="/otherAssets/greenCalenderIcon.png"
-                  bgColor="bg-green-100"
-                  iconColor="text-green-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Time"
@@ -4020,8 +4048,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     )
                   }
                   icon="/otherAssets/minsCounter.png"
-                  bgColor="bg-green-100"
-                  iconColor="text-green-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
               </div>
               {/* Bottom Agent Info */}
@@ -6229,10 +6257,51 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 }
 
 const Card = ({ name, value, icon, bgColor, iconColor }) => {
+  // Render icon with branding using mask-image approach (same logic as myAgentX/page.js)
+  const renderIcon = () => {
+    if (typeof window === 'undefined') {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: 24,
+          height: 24,
+          minWidth: 24,
+          minHeight: 24,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${icon})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${icon})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
+      {renderIcon()}
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}
