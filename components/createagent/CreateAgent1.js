@@ -82,6 +82,8 @@ const CreateAgent1 = ({
   const [user, setUser] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [isAgencyCreatingForSubaccount, setIsAgencyCreatingForSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
@@ -103,6 +105,14 @@ const CreateAgent1 = ({
     localStorage.removeItem('AddCadenceDetails')
     refreshUserData()
     getSelectedUser()
+    
+    // Check if custom domain
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const isCustom = hostname !== 'app.assignx.ai' && hostname !== 'dev.assignx.ai'
+      setIsCustomDomain(isCustom)
+    }
+    
     // Check if user is subaccount
     if (typeof window !== 'undefined') {
       try {
@@ -128,6 +138,30 @@ const CreateAgent1 = ({
               }
             }
           }
+          
+          // Check if agency has branding logo
+          let branding = null
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            try {
+              branding = JSON.parse(storedBranding)
+            } catch (error) {
+              console.log('Error parsing agencyBranding from localStorage:', error)
+            }
+          }
+          
+          // Also check user data for agencyBranding
+          if (parsedUser?.user?.agencyBranding) {
+            branding = parsedUser.user.agencyBranding
+          } else if (parsedUser?.agencyBranding) {
+            branding = parsedUser.agencyBranding
+          } else if (parsedUser?.user?.agency?.agencyBranding) {
+            branding = parsedUser.user.agency.agencyBranding
+          }
+          
+          // Set hasAgencyLogo if logoUrl exists
+          const hasLogo = branding?.logoUrl
+          setHasAgencyLogo(hasLogo)
         }
       } catch (error) {
         console.log('Error parsing user data:', error)
@@ -149,6 +183,45 @@ const CreateAgent1 = ({
   useEffect(() => {
     setAddress(address?.label)
   }, [addressSelected])
+
+  // Listen for branding updates to update title position
+  useEffect(() => {
+    const handleBrandingUpdate = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            let branding = null
+            const storedBranding = localStorage.getItem('agencyBranding')
+            if (storedBranding) {
+              try {
+                branding = JSON.parse(storedBranding)
+              } catch (error) {
+                console.log('Error parsing agencyBranding:', error)
+              }
+            }
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+            const hasLogo = branding?.logoUrl
+            setHasAgencyLogo(hasLogo)
+          }
+        } catch (error) {
+          console.log('Error updating branding:', error)
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
 
   useEffect(() => {
     let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
@@ -408,17 +481,46 @@ const CreateAgent1 = ({
   }
 
   function canContinue() {
-    if (!user) {
+    // If agency/admin is creating agent for another user (subaccount), check that user's type
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    let targetUserType = null
+    
+    if (U) {
+      try {
+        const Data = JSON.parse(U)
+        // Check if there's subAccountData (when agency/admin creates for subaccount)
+        if (Data.subAccountData) {
+          targetUserType = Data.subAccountData?.userType || Data.subAccountData?.user?.userType
+        }
+        // Also check selectedUser state as fallback
+        if (!targetUserType && selectedUser) {
+          targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+        }
+      } catch (error) {
+        console.log('Error parsing isFromAdminOrAgency:', error)
+      }
+    }
+    
+    // Determine which user type to check
+    let userTypeToCheck = null
+    if (targetUserType) {
+      // Use target user type (agency/admin creating for another user)
+      userTypeToCheck = targetUserType
+    } else if (user && user.user && user.user.userType) {
+      // Use logged-in user's type (normal user or subaccount creating for themselves)
+      userTypeToCheck = user.user.userType
+    } else if (reduxUser && reduxUser.userType) {
+      // Fallback: check redux user
+      userTypeToCheck = reduxUser.userType
+    }
+    
+    if (!userTypeToCheck) {
       return false
     }
-    // console.log("Details ", {
-    //   agentName,
-    //   agentRole,
-    //   agentObjective,
-    //   InBoundCalls,
-    //   OutBoundCalls,
-    // });
-    if (user.user.userType == UserTypes.RealEstateAgent) {
+    
+    // Check requirements based on user type
+    if (userTypeToCheck === UserTypes.RealEstateAgent) {
+      // Real estate agents need: name, role, objective, and call type
       if (
         agentName &&
         agentRole &&
@@ -430,6 +532,7 @@ const CreateAgent1 = ({
         return false
       }
     } else {
+      // Other user types need: name, role, and call type (no objective required)
       if (agentName && agentRole && (InBoundCalls || OutBoundCalls)) {
         return true
       }
@@ -970,7 +1073,9 @@ const CreateAgent1 = ({
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
                 textAlign: 'center',
-                marginTop: (isSubaccount || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
+                // Move title up when orb is hidden (same logic as Header component)
+                // Orb is hidden when: custom domain OR (subaccount with logo) OR (agency creating for subaccount)
+                marginTop: (isCustomDomain || (isSubaccount && hasAgencyLogo) || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
               }}
               // onClick={handleContinue}
             >
