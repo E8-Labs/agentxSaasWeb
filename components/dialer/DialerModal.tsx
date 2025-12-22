@@ -51,6 +51,7 @@ export default function DialerModal({
   const [initializing, setInitializing] = useState(false)
   const [deviceRegistered, setDeviceRegistered] = useState(false)
   const dialogJustOpened = useRef(false)
+  const isClosingRef = useRef(false)
   
   // Global error handler for uncaught Twilio errors
   useEffect(() => {
@@ -101,41 +102,43 @@ export default function DialerModal({
   // Initialize device when modal opens
   useEffect(() => {
     if (open) {
+      console.log('[DialerModal] Modal opened, setting dialogJustOpened flag')
       dialogJustOpened.current = true
-      // Reset flag after a short delay to allow dialog to fully open
-      setTimeout(() => {
+      isClosingRef.current = false
+      
+      // Reset flag after a delay to allow dialog to fully open
+      const timeoutId = setTimeout(() => {
+        console.log('[DialerModal] Dialog fully opened, clearing protection flag')
         dialogJustOpened.current = false
-      }, 300)
+      }, 1000) // Increased to 1 second
+      
       checkDialerNumber()
+      
+      return () => {
+        clearTimeout(timeoutId)
+      }
     } else {
-      // Cleanup when modal closes
-      if (activeCall) {
-        try {
-          activeCall.disconnect()
-        } catch (e) {
-          console.error('Error disconnecting call:', e)
+      // Only cleanup if we're actually closing (not just re-rendering)
+      if (isClosingRef.current || !dialogJustOpened.current) {
+        console.log('[DialerModal] Modal closing, cleaning up device')
+        if (activeCall) {
+          try {
+            activeCall.disconnect()
+          } catch (e) {
+            console.error('Error disconnecting call:', e)
+          }
+          setActiveCall(null)
         }
-        setActiveCall(null)
-      }
-      if (device) {
-        try {
-          device.destroy()
-        } catch (e) {
-          console.error('Error destroying device:', e)
+        if (device) {
+          try {
+            device.destroy()
+          } catch (e) {
+            console.error('Error destroying device:', e)
+          }
+          setDevice(null)
         }
-        setDevice(null)
-      }
-      setDeviceRegistered(false)
-      setCallStatus('idle')
-    }
-
-    return () => {
-      if (device) {
-        try {
-          device.destroy()
-        } catch (e) {
-          // Ignore cleanup errors
-        }
+        setDeviceRegistered(false)
+        setCallStatus('idle')
       }
     }
   }, [open])
@@ -630,17 +633,27 @@ export default function DialerModal({
     )
   }
 
+  const handleOpenChange = (isOpen: boolean) => {
+    // Prevent closing if dialog just opened
+    if (!isOpen && dialogJustOpened.current) {
+      console.log('[DialerModal] Ignoring close event - dialog just opened')
+      return
+    }
+    
+    // Only close if explicitly closing
+    if (!isOpen && !isClosingRef.current) {
+      isClosingRef.current = true
+      onClose()
+    } else if (isOpen) {
+      isClosingRef.current = false
+    }
+  }
+
   return (
     <Dialog 
       open={open} 
-      onOpenChange={(isOpen) => {
-        // Only close if dialog is being closed (isOpen === false)
-        // Ignore if dialog just opened (prevents immediate close)
-        if (!isOpen && !dialogJustOpened.current) {
-          onClose()
-        }
-      }} 
-      modal={false}
+      onOpenChange={handleOpenChange}
+      modal={true}
     >
       <DialogContent 
         className="sm:max-w-[500px]"
