@@ -81,7 +81,7 @@ export const createOrUpdateNotificationCustomization = async (
   userId?: number
 ) => {
   try {
-    const requestData = { ...data }
+    const requestData: NotificationCustomizationData & { userId?: number } = { ...data }
     if (userId) {
       requestData.userId = userId
     }
@@ -183,7 +183,7 @@ export const previewNotificationTemplate = async (
   userId?: number
 ) => {
   try {
-    const requestData = { ...data }
+    const requestData: NotificationCustomizationData & { userId?: number } = { ...data }
     if (userId) {
       requestData.userId = userId
     }

@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button as ButtonBase } from '../ui/button'
+import { Input as InputBase } from '../ui/input'
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+  DialogContent as DialogContentBase,
+  DialogDescription as DialogDescriptionBase,
+  DialogHeader as DialogHeaderBase,
+  DialogTitle as DialogTitleBase,
 } from '../ui/dialog'
 import { Badge } from '../ui/badge'
 import { toast } from 'sonner'
@@ -16,6 +16,14 @@ import DialerSettings from './DialerSettings'
 
 // @ts-ignore - Twilio Voice SDK types
 import { Device, Call } from '@twilio/voice-sdk'
+
+// Type assertions for components from .jsx files
+const DialogContent = DialogContentBase as any
+const DialogDescription = DialogDescriptionBase as any
+const DialogHeader = DialogHeaderBase as any
+const DialogTitle = DialogTitleBase as any
+const Button = ButtonBase as any
+const Input = InputBase as any
 
 type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
 
@@ -287,12 +295,10 @@ export default function DialerModal({
           logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
           // Disable automatic error alerts
           allowIncomingWhileBusy: false,
-          // Set codec preferences
-          codecPreferences: ['opus', 'pcmu'],
-        })
+        } as any)
         
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:270',message:'Device created, checking state',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:270',message:'Device created, checking state',data:{state:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
         // #endregion
       } catch (deviceError: any) {
         // #region agent log
@@ -304,11 +310,11 @@ export default function DialerModal({
       // Set a timeout for device registration (10 seconds)
       const registrationTimeout = setTimeout(() => {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:266',message:'Device registration timeout check',data:{deviceRegistered,deviceState:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:266',message:'Device registration timeout check',data:{deviceRegistered,deviceState:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
         // #endregion
         if (!deviceRegistered) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:269',message:'Device registration timeout - not registered',data:{deviceState:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:269',message:'Device registration timeout - not registered',data:{deviceState:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
           // #endregion
           toast.error('Device registration timed out. Please check your connection and try again.')
           setInitializing(false)
@@ -319,7 +325,7 @@ export default function DialerModal({
         console.log('Twilio Device registered')
         clearTimeout(registrationTimeout)
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:311',message:'Device registered successfully',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:311',message:'Device registered successfully',data:{state:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
         // #endregion
         setDeviceRegistered(true)
         setInitializing(false)
@@ -345,18 +351,18 @@ export default function DialerModal({
       const stateCheckInterval = setInterval(() => {
         checkCount++
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:360',message:'Device state check',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered,deviceRegistered,checkCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:360',message:'Device state check',data:{state:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered,deviceRegistered,checkCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
         // #endregion
         
         // Check if device state changed (might indicate registration attempt)
         if (twilioDevice.state === 'registering' || (twilioDevice.state === 'registered' && !deviceRegistered)) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:368',message:'Device state changed',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered,deviceRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:368',message:'Device state changed',data:{state:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered,deviceRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
           // #endregion
         }
         
         // Update deviceRegistered state if device is registered
-        if (twilioDevice.isRegistered && !deviceRegistered) {
+        if ((twilioDevice as any).isRegistered && !deviceRegistered) {
           clearInterval(stateCheckInterval)
           clearTimeout(registrationTimeout)
           // #region agent log
@@ -425,7 +431,7 @@ export default function DialerModal({
 
       setDevice(twilioDevice)
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:404',message:'Device initialized and set, attempting explicit registration',data:{hasDevice:!!twilioDevice,state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:404',message:'Device initialized and set, attempting explicit registration',data:{hasDevice:!!twilioDevice,state:twilioDevice.state,isRegistered:(twilioDevice as any).isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       
       // Explicitly register the device (required by some browsers for audio access)
@@ -506,7 +512,7 @@ export default function DialerModal({
           To: phoneNumber,
           tenantId: user.agencyId || user.id,
           userId: user.id,
-          leadId: leadId || '',
+          leadId: leadId ? String(leadId) : '',
           leadName: leadName || '',
         },
       })
@@ -581,7 +587,7 @@ export default function DialerModal({
     }
 
     return (
-      <Badge className={statusColors[callStatus] || 'bg-gray-500'}>
+      <Badge variant="outline" className={statusColors[callStatus] || 'bg-gray-500'}>
         {callStatus.replace('-', ' ').toUpperCase()}
       </Badge>
     )

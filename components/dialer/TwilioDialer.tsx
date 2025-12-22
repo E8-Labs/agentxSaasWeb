@@ -1,15 +1,24 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Button as ButtonBase } from '../ui/button'
+import { Input as InputBase } from '../ui/input'
+import { Card as CardBase, CardContent as CardContentBase, CardDescription as CardDescriptionBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { toast } from 'sonner'
 import DialerSettings from './DialerSettings'
 
 // @ts-ignore - Twilio Voice SDK types
 import { Device, Call } from '@twilio/voice-sdk'
+
+// Type assertions for components from .jsx files
+const Button = ButtonBase as any
+const Input = InputBase as any
+const Card = CardBase as any
+const CardContent = CardContentBase as any
+const CardDescription = CardDescriptionBase as any
+const CardHeader = CardHeaderBase as any
+const CardTitle = CardTitleBase as any
 
 type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
 
@@ -199,7 +208,7 @@ export default function TwilioDialer() {
     }
 
     return (
-      <Badge className={statusColors[callStatus] || 'bg-gray-500'}>
+      <Badge variant="outline" className={statusColors[callStatus] || 'bg-gray-500'}>
         {callStatus.replace('-', ' ').toUpperCase()}
       </Badge>
     )

@@ -1,18 +1,26 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Button } from '../ui/button'
+import { Button as ButtonBase } from '../ui/button'
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogContent as DialogContentBase,
+  DialogDescription as DialogDescriptionBase,
+  DialogHeader as DialogHeaderBase,
+  DialogTitle as DialogTitleBase,
+  DialogTrigger as DialogTriggerBase,
 } from '../ui/dialog'
 import { Badge } from '../ui/badge'
 import { toast } from 'sonner'
 import Apis from '../apis/Apis'
+
+// Type assertions for components from .jsx files
+const Button = ButtonBase as any
+const DialogContent = DialogContentBase as any
+const DialogDescription = DialogDescriptionBase as any
+const DialogHeader = DialogHeaderBase as any
+const DialogTitle = DialogTitleBase as any
+const DialogTrigger = DialogTriggerBase as any
 
 interface PhoneNumber {
   id: number
@@ -114,13 +122,13 @@ export default function DialerSettings() {
   const getUsageTypeBadge = (usageType: string) => {
     switch (usageType) {
       case 'internal_dialer':
-        return <Badge className="bg-blue-500">Dialer</Badge>
+        return <Badge variant="outline" className="bg-blue-500">Dialer</Badge>
       case 'vapi':
-        return <Badge className="bg-green-500">VAPI</Badge>
+        return <Badge variant="outline" className="bg-green-500">VAPI</Badge>
       case 'internal':
-        return <Badge className="bg-gray-500">Internal</Badge>
+        return <Badge variant="outline" className="bg-gray-500">Internal</Badge>
       default:
-        return <Badge className="bg-gray-300">Unassigned</Badge>
+        return <Badge variant="outline" className="bg-gray-300">Unassigned</Badge>
     }
   }
 
