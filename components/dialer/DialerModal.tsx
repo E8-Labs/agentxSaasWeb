@@ -41,6 +41,46 @@ export default function DialerModal({
   const [hasDialerNumber, setHasDialerNumber] = useState(false)
   const [checkingDialerNumber, setCheckingDialerNumber] = useState(true)
   const [initializing, setInitializing] = useState(false)
+  const [deviceRegistered, setDeviceRegistered] = useState(false)
+  
+  // Global error handler for uncaught Twilio errors
+  useEffect(() => {
+    if (!open) return
+    
+    const handleError = (event: ErrorEvent) => {
+      const message = event.message || ''
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:48',message:'Global error caught',data:{message,error:event.error?.message,filename:event.filename,lineno:event.lineno},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      if (message.includes('application error') || message.includes('goodbye')) {
+        event.preventDefault() // Prevent default error handling
+        toast.error('Connection error. Please check your internet and try again.')
+        setCallStatus('error')
+        if (device) {
+          try {
+            device.destroy()
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+          setDevice(null)
+        }
+      }
+    }
+    
+    // Also listen for unhandled promise rejections
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:67',message:'Unhandled promise rejection',data:{reason:event.reason?.message || event.reason,type:typeof event.reason},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+    }
+    
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleRejection)
+    return () => {
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleRejection)
+    }
+  }, [open, device])
 
   // Update phone number when initialPhoneNumber changes
   useEffect(() => {
@@ -53,31 +93,66 @@ export default function DialerModal({
   useEffect(() => {
     if (open) {
       checkDialerNumber()
-      initializeDevice()
     } else {
       // Cleanup when modal closes
       if (activeCall) {
-        activeCall.disconnect()
+        try {
+          activeCall.disconnect()
+        } catch (e) {
+          console.error('Error disconnecting call:', e)
+        }
         setActiveCall(null)
       }
       if (device) {
-        device.destroy()
+        try {
+          device.destroy()
+        } catch (e) {
+          console.error('Error destroying device:', e)
+        }
         setDevice(null)
       }
+      setDeviceRegistered(false)
       setCallStatus('idle')
     }
 
     return () => {
       if (device) {
-        device.destroy()
+        try {
+          device.destroy()
+        } catch (e) {
+          // Ignore cleanup errors
+        }
       }
     }
   }, [open])
 
+  // Initialize device only after we confirm we have a dialer number
+  useEffect(() => {
+    if (open && hasDialerNumber && !device && !initializing && !checkingDialerNumber) {
+      // Small delay to ensure state is settled
+      const timer = setTimeout(() => {
+        initializeDevice()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [open, hasDialerNumber, device, initializing, checkingDialerNumber])
+
   const checkDialerNumber = async () => {
     try {
       setCheckingDialerNumber(true)
-      const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
+      // Try multiple ways to get the token
+      let token = localStorage.getItem('token')
+      if (!token) {
+        try {
+          const userStr = localStorage.getItem('User')
+          if (userStr) {
+            const userData = JSON.parse(userStr)
+            token = userData?.token || userData?.user?.token
+          }
+        } catch (e) {
+          console.error('Error parsing User from localStorage:', e)
+        }
+      }
       if (!token) {
         setHasDialerNumber(false)
         return
@@ -94,7 +169,7 @@ export default function DialerModal({
         const hasDialer = data.data.some((pn: any) => pn.usageType === 'internal_dialer')
         setHasDialerNumber(hasDialer)
         if (!hasDialer) {
-          toast.error('No internal dialer number set. Please configure one first.')
+          // Don't show error toast here - let the UI show the message
         }
       } else {
         setHasDialerNumber(false)
@@ -109,14 +184,34 @@ export default function DialerModal({
 
   const initializeDevice = async () => {
     if (initializing) return
+    if (!hasDialerNumber) {
+      // Don't initialize if no dialer number is configured
+      return
+    }
 
     try {
       setInitializing(true)
-      const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
+      // Try multiple ways to get the token
+      let token = localStorage.getItem('token')
       if (!token) {
-        toast.error('Not authenticated')
+        try {
+          const userStr = localStorage.getItem('User')
+          if (userStr) {
+            const userData = JSON.parse(userStr)
+            token = userData?.token || userData?.user?.token
+          }
+        } catch (e) {
+          console.error('Error parsing User from localStorage:', e)
+        }
+      }
+      if (!token) {
+        toast.error('Not authenticated. Please log in again.')
         return
       }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:168',message:'Requesting access token',data:{hasToken:!!token},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
 
       // Get access token from backend
       const response = await fetch('/api/dialer/calls/token', {
@@ -136,6 +231,9 @@ export default function DialerModal({
       const data = await response.json()
 
       if (!response.ok) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:184',message:'Token request failed',data:{status:response.status,message:data.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
         if (response.status === 409) {
           setHasDialerNumber(false)
           toast.error('No internal dialer number set. Please configure one in settings.')
@@ -144,20 +242,172 @@ export default function DialerModal({
         }
         return
       }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:192',message:'Token received',data:{hasToken:!!data.token},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
 
       // Initialize Twilio Device
-      const twilioDevice = new Device(data.token, {
-        logLevel: 1,
-      })
+      // #region agent log
+      // Try to decode token to check if it's valid (just check structure, not signature)
+      let tokenPreview = 'invalid'
+      try {
+        const tokenParts = data.token.split('.')
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]))
+          tokenPreview = {
+            hasGrants: !!payload.grants,
+            hasVoiceGrant: !!payload.grants?.voice,
+            hasOutgoingApp: !!payload.grants?.voice?.outgoing?.application_sid,
+            identity: payload.grants?.identity,
+            exp: payload.exp,
+            iat: payload.iat,
+          }
+        }
+      } catch (e) {
+        tokenPreview = 'decode_error'
+      }
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:201',message:'Creating Twilio Device',data:{tokenLength:data.token.length,tokenPreview},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      
+      let twilioDevice: Device
+      try {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:260',message:'About to create Device',data:{tokenLength:data.token.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        
+        twilioDevice = new Device(data.token, {
+          logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
+          // Disable automatic error alerts
+          allowIncomingWhileBusy: false,
+          // Set codec preferences
+          codecPreferences: ['opus', 'pcmu'],
+        })
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:270',message:'Device created, checking state',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+      } catch (deviceError: any) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:273',message:'Device creation error',data:{errorMessage:deviceError.message,errorName:deviceError.name,errorStack:deviceError.stack?.substring(0,300)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        throw new Error(`Failed to create device: ${deviceError.message}`)
+      }
+
+      // Set a timeout for device registration (10 seconds)
+      const registrationTimeout = setTimeout(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:266',message:'Device registration timeout check',data:{deviceRegistered,deviceState:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        if (!deviceRegistered) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:269',message:'Device registration timeout - not registered',data:{deviceState:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          // #endregion
+          toast.error('Device registration timed out. Please check your connection and try again.')
+          setInitializing(false)
+        }
+      }, 10000)
 
       twilioDevice.on('registered', () => {
         console.log('Twilio Device registered')
+        clearTimeout(registrationTimeout)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:311',message:'Device registered successfully',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        setDeviceRegistered(true)
+        setInitializing(false)
+      })
+      
+      // Note: The Device should automatically register when created with a valid token
+      // If registration fails, check browser console for errors
+      // Common issues:
+      // 1. Invalid API key credentials (even if token structure is correct)
+      // 2. Network connectivity issues
+      // 3. CORS or firewall blocking Twilio servers
+      
+      // Listen for token expiration which might prevent registration
+      twilioDevice.on('tokenWillExpire', () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:285',message:'Token will expire soon',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        console.log('Token will expire soon, refreshing...')
+      })
+      
+      // Check device state periodically to see if it's trying to register
+      let checkCount = 0
+      const stateCheckInterval = setInterval(() => {
+        checkCount++
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:360',message:'Device state check',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered,deviceRegistered,checkCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        
+        // Check if device state changed (might indicate registration attempt)
+        if (twilioDevice.state === 'registering' || (twilioDevice.state === 'registered' && !deviceRegistered)) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:368',message:'Device state changed',data:{state:twilioDevice.state,isRegistered:twilioDevice.isRegistered,deviceRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          // #endregion
+        }
+        
+        // Update deviceRegistered state if device is registered
+        if (twilioDevice.isRegistered && !deviceRegistered) {
+          clearInterval(stateCheckInterval)
+          clearTimeout(registrationTimeout)
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:376',message:'Device registered via state check',data:{state:twilioDevice.state},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+          // #endregion
+          setDeviceRegistered(true)
+          setInitializing(false)
+        } else if (twilioDevice.state === 'registered' && !deviceRegistered) {
+          // Also check state property directly
+          setDeviceRegistered(true)
+          setInitializing(false)
+        }
+        
+        // Stop checking after 15 seconds
+        if (checkCount >= 15) {
+          clearInterval(stateCheckInterval)
+        }
+      }, 1000)
+      
+      twilioDevice.on('unregistered', (reason: string) => {
+        console.log('Twilio Device unregistered:', reason)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:330',message:'Device unregistered',data:{reason,state:twilioDevice.state},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        setDeviceRegistered(false)
       })
 
       twilioDevice.on('error', (error: any) => {
         console.error('Twilio Device error:', error)
+        clearTimeout(registrationTimeout)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:322',message:'Device error event',data:{errorCode:error.code,errorMessage:error.message,errorName:error.name,errorTwilioError:error.twilioError?.message,errorTwilioCode:error.twilioError?.code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        setDeviceRegistered(false)
+        setInitializing(false)
         setCallStatus('error')
-        toast.error(`Device error: ${error.message}`)
+        // Provide user-friendly error messages
+        let errorMsg = 'Device error occurred'
+        if (error.code === 31005) {
+          errorMsg = 'Connection error. The call could not be established. Please check your connection and try again.'
+        } else if (error.code === 31000) {
+          errorMsg = 'Connection error. Please check your internet connection.'
+        } else if (error.code === 31205) {
+          errorMsg = 'Invalid access token. Please refresh and try again.'
+        } else if (error.code === 31208) {
+          errorMsg = 'Registration error. Please check your Twilio configuration.'
+        } else if (error.message) {
+          errorMsg = `Device error: ${error.message}`
+        }
+        toast.error(errorMsg)
+      })
+      
+      // Listen for warning events (might indicate registration issues)
+      twilioDevice.on('warning', (name: string, data: any) => {
+        console.warn('Twilio Device warning:', name, data)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:343',message:'Device warning event',data:{warningName:name,warningData:data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
       })
 
       twilioDevice.on('incoming', (call: Call) => {
@@ -165,11 +415,40 @@ export default function DialerModal({
         // Handle incoming calls if needed
       })
 
+
       setDevice(twilioDevice)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:404',message:'Device initialized and set, attempting explicit registration',data:{hasDevice:!!twilioDevice,state:twilioDevice.state,isRegistered:twilioDevice.isRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      
+      // Explicitly register the device (required by some browsers for audio access)
+      // This is called after user interaction (modal open), so it should work
+      try {
+        twilioDevice.register()
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:411',message:'Explicit device.register() called',data:{state:twilioDevice.state},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+      } catch (registerError: any) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:414',message:'Error calling device.register()',data:{errorMessage:registerError.message,errorName:registerError.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        console.error('Error registering device:', registerError)
+      }
+      
+      // Note: Don't set initializing to false here - wait for 'registered' event or timeout
     } catch (error: any) {
       console.error('Error initializing device:', error)
-      toast.error('Failed to initialize dialer')
-    } finally {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:310',message:'Error initializing device',data:{errorMessage:error.message,errorName:error.name,errorStack:error.stack?.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      setDeviceRegistered(false)
+      let errorMsg = 'Failed to initialize dialer'
+      if (error.message?.includes('token')) {
+        errorMsg = 'Invalid access token. Please try again.'
+      } else if (error.message) {
+        errorMsg = `Initialization error: ${error.message}`
+      }
+      toast.error(errorMsg)
       setInitializing(false)
     }
   }
@@ -177,6 +456,14 @@ export default function DialerModal({
   const handleCall = async () => {
     if (!device) {
       toast.error('Device not initialized. Please wait...')
+      return
+    }
+
+    if (!deviceRegistered) {
+      toast.error('Device not ready. Please wait for connection...')
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:325',message:'Call attempted before device registered',data:{hasDevice:!!device,deviceRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
       return
     }
 
@@ -192,6 +479,9 @@ export default function DialerModal({
 
     try {
       setCallStatus('requesting-mic')
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:340',message:'Starting call',data:{phoneNumber,hasDevice:!!device,deviceRegistered},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
 
       // Request microphone permission
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -200,6 +490,10 @@ export default function DialerModal({
       setCallStatus('connecting')
 
       const user = JSON.parse(localStorage.getItem('User') || '{}')
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:350',message:'Calling device.connect',data:{phoneNumber,userId:user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      
       const call = await device.connect({
         params: {
           To: phoneNumber,
@@ -209,6 +503,10 @@ export default function DialerModal({
           leadName: leadName || '',
         },
       })
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:361',message:'Call connected',data:{hasCall:!!call},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
 
       setActiveCall(call)
       setCallStatus('ringing')
@@ -232,9 +530,22 @@ export default function DialerModal({
 
       call.on('error', (error: any) => {
         console.error('Call error:', error)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:377',message:'Call error event',data:{errorCode:error.code,errorMessage:error.message,errorName:error.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
         setCallStatus('error')
         setActiveCall(null)
-        toast.error(`Call error: ${error.message}`)
+        let errorMsg = 'Call failed'
+        if (error.code === 31005) {
+          errorMsg = 'Connection error. The call could not be established. This may be due to network issues or an invalid phone number.'
+        } else if (error.code === 31008) {
+          errorMsg = 'Call rejected. The number may be invalid or unreachable.'
+        } else if (error.code === 31205) {
+          errorMsg = 'Invalid access token. Please refresh and try again.'
+        } else if (error.message) {
+          errorMsg = `Call error: ${error.message}`
+        }
+        toast.error(errorMsg)
       })
     } catch (error: any) {
       console.error('Error making call:', error)
@@ -270,8 +581,17 @@ export default function DialerModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={open} onOpenChange={onClose} modal={true}>
+      <DialogContent 
+        className="sm:max-w-[500px]"
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if inside a drawer
+          e.preventDefault()
+        }}
+        onEscapeKeyDown={(e) => {
+          // Allow escape to close
+        }}
+      >
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -280,7 +600,11 @@ export default function DialerModal({
                 {leadName ? `Calling ${leadName}` : 'Make a call directly from your browser'}
               </DialogDescription>
             </div>
-            <DialerSettings />
+            {hasDialerNumber && (
+              <div className="flex items-center gap-2">
+                <DialerSettings />
+              </div>
+            )}
           </div>
         </DialogHeader>
 
@@ -290,11 +614,13 @@ export default function DialerModal({
               <div className="text-sm text-gray-500">Initializing dialer...</div>
             </div>
           ) : !hasDialerNumber ? (
-            <div className="text-center py-8">
+            <div className="text-center py-8 space-y-4">
               <p className="text-gray-500 mb-4">
                 No internal dialer number configured. Please set one to start making calls.
               </p>
-              <DialerSettings />
+              <div className="flex justify-center">
+                <DialerSettings />
+              </div>
             </div>
           ) : (
             <>
@@ -316,8 +642,8 @@ export default function DialerModal({
 
               <div className="flex gap-2">
                 {callStatus === 'idle' || callStatus === 'ended' || callStatus === 'error' ? (
-                  <Button onClick={handleCall} className="flex-1" disabled={!device || initializing}>
-                    {initializing ? 'Initializing...' : 'Call'}
+                  <Button onClick={handleCall} className="flex-1" disabled={!device || !deviceRegistered || initializing}>
+                    {initializing ? 'Initializing...' : !deviceRegistered ? 'Connecting...' : 'Call'}
                   </Button>
                 ) : (
                   <Button onClick={handleEndCall} className="flex-1" variant="destructive">

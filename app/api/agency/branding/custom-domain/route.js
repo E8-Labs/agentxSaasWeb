@@ -32,7 +32,7 @@ export async function GET(req) {
 
     if (!token) {
       return NextResponse.json(
-        { status: false, message: 'Not authenticated' },
+        { status: false, message: 'Not authenticated custom-domain frontend route.js' },
         { status: 401 }
       )
     }

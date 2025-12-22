@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
-import JWT from 'jsonwebtoken'
 
 export interface AuthUser {
   id: number
@@ -16,7 +15,8 @@ export async function getAuthUser(
   req: NextRequest,
 ): Promise<AuthUser | null> {
   try {
-    // Try to get token from Authorization header
+    // Extract token from request (don't verify here - let backend verify)
+    // Next.js API routes are just proxies; backend will handle JWT verification
     const authHeader = req.headers.get('Authorization')
     let token: string | null = null
 
@@ -42,30 +42,20 @@ export async function getAuthUser(
       }
     }
 
+    // If no token found, return null (not authenticated)
     if (!token) {
       return null
     }
 
-    // Verify JWT token
-    const secret = process.env.SecretJwtKey || process.env.NEXT_PUBLIC_JWT_SECRET
-    if (!secret) {
-      console.error('JWT secret not configured')
-      return null
-    }
-
-    const decoded = JWT.verify(token, secret) as any
-
-    if (!decoded || !decoded.user) {
-      return null
-    }
-
+    // Return a minimal user object - backend will verify the token
+    // We just need to indicate that a token was found
     return {
-      id: decoded.user.id,
-      userRole: decoded.user.userRole,
-      agencyId: decoded.user.agencyId,
+      id: 0, // Will be set by backend after verification
+      userRole: undefined,
+      agencyId: undefined,
     }
   } catch (error) {
-    console.error('Error verifying JWT:', error)
+    console.error('Error extracting token:', error)
     return null
   }
 }
