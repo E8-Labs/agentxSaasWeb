@@ -50,6 +50,7 @@ export default function DialerModal({
   const [checkingDialerNumber, setCheckingDialerNumber] = useState(true)
   const [initializing, setInitializing] = useState(false)
   const [deviceRegistered, setDeviceRegistered] = useState(false)
+  const dialogJustOpened = useRef(false)
   
   // Global error handler for uncaught Twilio errors
   useEffect(() => {
@@ -100,6 +101,11 @@ export default function DialerModal({
   // Initialize device when modal opens
   useEffect(() => {
     if (open) {
+      dialogJustOpened.current = true
+      // Reset flag after a short delay to allow dialog to fully open
+      setTimeout(() => {
+        dialogJustOpened.current = false
+      }, 300)
       checkDialerNumber()
     } else {
       // Cleanup when modal closes
@@ -629,7 +635,8 @@ export default function DialerModal({
       open={open} 
       onOpenChange={(isOpen) => {
         // Only close if dialog is being closed (isOpen === false)
-        if (!isOpen) {
+        // Ignore if dialog just opened (prevents immediate close)
+        if (!isOpen && !dialogJustOpened.current) {
           onClose()
         }
       }} 
@@ -638,8 +645,9 @@ export default function DialerModal({
       <DialogContent 
         className="sm:max-w-[500px]"
         onInteractOutside={(e) => {
-          // Prevent closing when clicking outside if inside a drawer or during active call
-          if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+          // Prevent closing when dialog just opened (prevents MUI Drawer conflicts)
+          // or during active call
+          if (dialogJustOpened.current || callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
             e.preventDefault()
           }
         }}
@@ -650,9 +658,9 @@ export default function DialerModal({
           }
         }}
         onPointerDownOutside={(e) => {
-          // Prevent focus trap conflicts with MUI Drawer
-          // Only prevent if we're in an active call
-          if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+          // Prevent closing when dialog just opened (prevents MUI Drawer conflicts)
+          // or during active call
+          if (dialogJustOpened.current || callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
             e.preventDefault()
           }
         }}
