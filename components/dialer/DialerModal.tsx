@@ -250,7 +250,14 @@ export default function DialerModal({
       // Initialize Twilio Device
       // #region agent log
       // Try to decode token to check if it's valid (just check structure, not signature)
-      let tokenPreview = 'invalid'
+      let tokenPreview: string | {
+        hasGrants: boolean
+        hasVoiceGrant: boolean
+        hasOutgoingApp: boolean
+        identity: any
+        exp: any
+        iat: any
+      } = 'invalid'
       try {
         const tokenParts = data.token.split('.')
         if (tokenParts.length === 3) {
