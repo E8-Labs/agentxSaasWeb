@@ -625,7 +625,16 @@ export default function DialerModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose} modal={false}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(isOpen) => {
+        // Only close if dialog is being closed (isOpen === false)
+        if (!isOpen) {
+          onClose()
+        }
+      }} 
+      modal={false}
+    >
       <DialogContent 
         className="sm:max-w-[500px]"
         onInteractOutside={(e) => {
