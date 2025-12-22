@@ -137,14 +137,14 @@ export default function DialerSettings() {
       <DialogTrigger asChild>
         <Button variant="outline">Configure Dialer Number</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Select Internal Dialer Number</DialogTitle>
           <DialogDescription>
             Choose a Twilio number to use for the dialer. This number will be used as the caller ID for all dialer calls.
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
+        <div className="mt-4 flex-1 overflow-y-auto min-h-0">
           {loading && phoneNumbers.length === 0 ? (
             <div className="text-center py-8">Loading phone numbers...</div>
           ) : phoneNumbers.length === 0 ? (
@@ -152,7 +152,7 @@ export default function DialerSettings() {
               No phone numbers available. Please purchase a Twilio number first.
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 pr-2">
               {phoneNumbers.map((pn) => (
                 <div
                   key={pn.id}

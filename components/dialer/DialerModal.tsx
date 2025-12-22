@@ -606,15 +606,15 @@ export default function DialerModal({
         }}
       >
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4 pr-8">
+            <div className="flex-1 min-w-0">
               <DialogTitle>Twilio Dialer</DialogTitle>
               <DialogDescription>
                 {leadName ? `Calling ${leadName}` : 'Make a call directly from your browser'}
               </DialogDescription>
             </div>
             {hasDialerNumber && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <DialerSettings />
               </div>
             )}
@@ -643,7 +643,7 @@ export default function DialerModal({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Phone Number (E.164 format)</label>
+                <label className="text-sm font-medium">Phone Number</label>
                 <Input
                   type="tel"
                   placeholder="+1234567890"
