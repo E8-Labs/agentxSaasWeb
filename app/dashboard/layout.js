@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
 import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
-// import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOAuthWatcher";
+// import GhlOauthWatcher from "../components/dashboard/oAuthWatcher/GhlOAuthWatcher";
+// import GhlOauthWatcher from '../components/dashboard/oAuthWatcher/GhlOauthWatcher'
 import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
 
 const shouldShowServiceBanner =

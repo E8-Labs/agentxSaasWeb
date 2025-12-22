@@ -69,6 +69,7 @@ import ConfirmPerplexityModal from './CofirmPerplexityModal'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import NoPerplexity from './NoPerplexity'
 import Perplexity from './Perplexity'
+import DialerModal from '@/components/dialer/DialerModal'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -193,6 +194,9 @@ const LeadDetails = ({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [currentFullPlan, setCurrentFullPlan] = useState(null)
+
+  // Dialer modal state
+  const [showDialerModal, setShowDialerModal] = useState(false)
 
   const [creditCost, setCreditCost] = useState(null)
 
@@ -1142,11 +1146,27 @@ const LeadDetails = ({
       return
     }
 
-    setShowSnackMsg({
-      type: SnackbarTypes.Loading,
-      message: 'Starting dialer...',
-      isVisible: true,
-    })
+    // Format phone number to E.164 format if needed
+    let phoneNumber = selectedLeadsDetails.phone
+    try {
+      // Try to parse and format the phone number
+      const parsed = parsePhoneNumberFromString(phoneNumber, 'US')
+      if (parsed && parsed.isValid()) {
+        phoneNumber = parsed.format('E.164')
+      } else {
+        // If parsing fails, try to clean and add + if missing
+        phoneNumber = phoneNumber.replace(/\D/g, '')
+        if (phoneNumber && !phoneNumber.startsWith('+')) {
+          phoneNumber = '+' + phoneNumber
+        }
+      }
+    } catch (error) {
+      console.warn('Error parsing phone number:', error)
+      // Use phone number as-is if parsing fails
+    }
+
+    // Open dialer modal with the phone number
+    setShowDialerModal(true)
   }
 
   const callTranscript = (item, initialText) => {
@@ -3471,6 +3491,15 @@ const LeadDetails = ({
         isLeadSMS={true}
         leadPhone={selectedLeadsDetails?.phone}
         leadId={selectedLeadsDetails?.id}
+      />
+
+      {/* Dialer Modal */}
+      <DialerModal
+        open={showDialerModal}
+        onClose={() => setShowDialerModal(false)}
+        initialPhoneNumber={selectedLeadsDetails?.phone || ''}
+        leadId={selectedLeadsDetails?.id}
+        leadName={selectedLeadsDetails?.name || selectedLeadsDetails?.firstName || ''}
       />
 
       {/* Upgrade Plan Modal */}
