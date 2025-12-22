@@ -502,16 +502,29 @@ export default function DialerModal({
 
       setCallStatus('connecting')
 
-      const user = JSON.parse(localStorage.getItem('User') || '{}')
+      const userStr = localStorage.getItem('User')
+      if (!userStr) {
+        toast.error('User not found. Please log in again.')
+        setCallStatus('idle')
+        return
+      }
+      
+      const user = JSON.parse(userStr)
+      if (!user || !user.id) {
+        toast.error('Invalid user data. Please log in again.')
+        setCallStatus('idle')
+        return
+      }
+      
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:350',message:'Calling device.connect',data:{phoneNumber,userId:user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:350',message:'Calling device.connect',data:{phoneNumber,userId:user.id,hasAgencyId:!!user.agencyId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       
       const call = await device.connect({
         params: {
           To: phoneNumber,
-          tenantId: user.agencyId || user.id,
-          userId: user.id,
+          tenantId: user.agencyId ? String(user.agencyId) : String(user.id),
+          userId: String(user.id),
           leadId: leadId ? String(leadId) : '',
           leadName: leadName || '',
         },
