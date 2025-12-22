@@ -143,7 +143,8 @@ export default function DialerModal({
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [open, hasDialerNumber, device, initializing, checkingDialerNumber])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, hasDialerNumber])
 
   const checkDialerNumber = async () => {
     try {
@@ -504,15 +505,26 @@ export default function DialerModal({
 
       const userStr = localStorage.getItem('User')
       if (!userStr) {
-        toast.error('User not found. Please log in again.')
+        console.error('User not found in localStorage')
         setCallStatus('idle')
+        toast.error('User not found. Please log in again.')
         return
       }
       
-      const user = JSON.parse(userStr)
-      if (!user || !user.id) {
-        toast.error('Invalid user data. Please log in again.')
+      let user
+      try {
+        user = JSON.parse(userStr)
+      } catch (e) {
+        console.error('Error parsing user data:', e)
         setCallStatus('idle')
+        toast.error('Invalid user data. Please log in again.')
+        return
+      }
+      
+      if (!user || !user.id) {
+        console.error('User data missing id:', user)
+        setCallStatus('idle')
+        toast.error('Invalid user data. Please log in again.')
         return
       }
       
@@ -612,10 +624,15 @@ export default function DialerModal({
         className="sm:max-w-[500px]"
         onInteractOutside={(e) => {
           // Prevent closing when clicking outside if inside a drawer
-          e.preventDefault()
+          if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+            e.preventDefault()
+          }
         }}
         onEscapeKeyDown={(e) => {
-          // Allow escape to close
+          // Allow escape to close unless in active call
+          if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+            e.preventDefault()
+          }
         }}
       >
         <DialogHeader>
