@@ -199,8 +199,10 @@ const ConversationView = ({
   selectedThread,
   messages,
   messagesLoading,
+  loadingOlderMessages = false,
   messagesContainerRef,
   messagesEndRef,
+  messagesTopRef,
   sanitizeHTML,
   getLeadName,
   getAgentAvatar,
@@ -320,6 +322,16 @@ const ConversationView = ({
       className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-white"
       style={{ scrollBehavior: 'smooth', paddingRight: '1.5rem' }}
     >
+      {/* Loader for older messages at top */}
+      {loadingOlderMessages && (
+        <div ref={messagesTopRef} className="text-center text-gray-500 py-4">
+          <div className="flex items-center justify-center gap-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-primary"></div>
+            <span className="text-sm">Loading older messages...</span>
+          </div>
+        </div>
+      )}
+      
       {messagesLoading && messages.length === 0 ? (
         <div className="text-center text-gray-500 py-8">Loading messages...</div>
       ) : messages.length === 0 ? (
