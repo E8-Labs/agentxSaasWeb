@@ -28,7 +28,7 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef(
-  ({ className, children, onInteractOutside, onEscapeKeyDown, ...props }, ref) => (
+  ({ className, children, onInteractOutside, onEscapeKeyDown, onPointerDownOutside, ...props }, ref) => (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Content
@@ -39,6 +39,7 @@ const DialogContent = React.forwardRef(
         )}
         onInteractOutside={onInteractOutside}
         onEscapeKeyDown={onEscapeKeyDown}
+        onPointerDownOutside={onPointerDownOutside}
         {...props}
       >
         {children}

@@ -511,9 +511,9 @@ export default function DialerModal({
         return
       }
       
-      let user
+      let userData
       try {
-        user = JSON.parse(userStr)
+        userData = JSON.parse(userStr)
       } catch (e) {
         console.error('Error parsing user data:', e)
         setCallStatus('idle')
@@ -521,22 +521,28 @@ export default function DialerModal({
         return
       }
       
+      // Handle nested user structure: {token: '...', user: {id: ...}} or {id: ...}
+      const user = userData.user || userData
+      
       if (!user || !user.id) {
-        console.error('User data missing id:', user)
+        console.error('User data missing id:', userData)
         setCallStatus('idle')
         toast.error('Invalid user data. Please log in again.')
         return
       }
       
+      const userId = user.id
+      const agencyId = user.agencyId
+      
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:350',message:'Calling device.connect',data:{phoneNumber,userId:user.id,hasAgencyId:!!user.agencyId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DialerModal.tsx:350',message:'Calling device.connect',data:{phoneNumber,userId,hasAgencyId:!!agencyId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       
       const call = await device.connect({
         params: {
           To: phoneNumber,
-          tenantId: user.agencyId ? String(user.agencyId) : String(user.id),
-          userId: String(user.id),
+          tenantId: agencyId ? String(agencyId) : String(userId),
+          userId: String(userId),
           leadId: leadId ? String(leadId) : '',
           leadName: leadName || '',
         },
@@ -619,17 +625,24 @@ export default function DialerModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose} modal={true}>
+    <Dialog open={open} onOpenChange={onClose} modal={false}>
       <DialogContent 
         className="sm:max-w-[500px]"
         onInteractOutside={(e) => {
-          // Prevent closing when clicking outside if inside a drawer
+          // Prevent closing when clicking outside if inside a drawer or during active call
           if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
             e.preventDefault()
           }
         }}
         onEscapeKeyDown={(e) => {
           // Allow escape to close unless in active call
+          if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+            e.preventDefault()
+          }
+        }}
+        onPointerDownOutside={(e) => {
+          // Prevent focus trap conflicts with MUI Drawer
+          // Only prevent if we're in an active call
           if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
             e.preventDefault()
           }
