@@ -1,0 +1,131 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuthUser } from '../auth-helper'
+
+const BASE_API_URL =
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+    ? 'https://apimyagentx.com/agentx/'
+    : 'https://apimyagentx.com/agentxtest/')
+
+/**
+ * GET /api/dialer/phone-numbers
+ * List phone numbers for the authenticated user/agency
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const user = await getAuthUser(req)
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: 'Not authenticated' },
+        { status: 401 },
+      )
+    }
+
+    // Get token from request
+    const authHeader = req.headers.get('Authorization')
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : null
+
+    if (!token) {
+      return NextResponse.json(
+        { status: false, message: 'No token provided' },
+        { status: 401 },
+      )
+    }
+
+    // Call backend API to get phone numbers
+    const response = await fetch(
+      `${BASE_API_URL}api/dialer/phone-numbers`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      },
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('Error in GET /api/dialer/phone-numbers:', error)
+    return NextResponse.json(
+      { status: false, message: 'Internal server error', error: error.message },
+      { status: 500 },
+    )
+  }
+}
+
+/**
+ * POST /api/dialer/phone-numbers
+ * Set a phone number as internal dialer number
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getAuthUser(req)
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: 'Not authenticated' },
+        { status: 401 },
+      )
+    }
+
+    const body = await req.json()
+    const { phoneNumberId } = body
+
+    if (!phoneNumberId) {
+      return NextResponse.json(
+        { status: false, message: 'phoneNumberId is required' },
+        { status: 400 },
+      )
+    }
+
+    // Get token from request
+    const authHeader = req.headers.get('Authorization')
+    const token = authHeader?.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : null
+
+    if (!token) {
+      return NextResponse.json(
+        { status: false, message: 'No token provided' },
+        { status: 401 },
+      )
+    }
+
+    // Call backend API to set internal dialer number
+    const response = await fetch(
+      `${BASE_API_URL}api/dialer/phone-numbers`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phoneNumberId }),
+        cache: 'no-store',
+      },
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status })
+    }
+
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('Error in POST /api/dialer/phone-numbers:', error)
+    return NextResponse.json(
+      { status: false, message: 'Internal server error', error: error.message },
+      { status: 500 },
+    )
+  }
+}

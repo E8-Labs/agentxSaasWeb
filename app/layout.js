@@ -4,17 +4,17 @@ import './globals.css'
 import localFont from 'next/font/local'
 import Script from 'next/script'
 
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '../components/ui/sonner'
 
 import { ReduxProvider } from '../components/providers/redux-provider'
 import DynamicTitle from '../components/common/DynamicTitle'
-import { getServerBranding } from '@/lib/getServerBranding'
+import { getServerBranding } from '../lib/getServerBranding'
 import {
   hexToHsl,
   getDefaultPrimaryColor,
   getDefaultSecondaryColor,
   calculateIconFilter,
-} from '@/utilities/colorUtils'
+} from '../utilities/colorUtils'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',

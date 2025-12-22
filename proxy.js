@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { parseOAuthState } from '@/utils/oauthState'
+import { parseOAuthState } from './utils/oauthState'
 import {
   encodeBrandingHeader,
   encodeBrandingCookie,
-} from '@/lib/branding-transport'
+} from './lib/branding-transport'
 
 /**
  * Creates a NextResponse.next() with branding data passed via request headers.
