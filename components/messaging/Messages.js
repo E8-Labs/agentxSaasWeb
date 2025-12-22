@@ -44,9 +44,11 @@ const Messages = () => {
   const [ccInput, setCcInput] = useState('')
   const [bccInput, setBccInput] = useState('')
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
-  const [messageOffset, setMessageOffset] = useState(0)
+  const [messageOffset, setMessageOffset] = useState(0) // Offset of the oldest message currently loaded
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
+  const messagesTopRef = useRef(null)
   const richTextEditorRef = useRef(null)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [phoneNumbers, setPhoneNumbers] = useState([])
@@ -415,23 +417,106 @@ const Messages = () => {
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
-    async (threadId, offset = 0, append = false) => {
+    async (threadId, offset = null, append = false) => {
       if (!threadId) return
 
       try {
-        setMessagesLoading(true)
+        if (append) {
+          setLoadingOlderMessages(true)
+        } else {
+          setMessagesLoading(true)
+        }
+        
         const localData = localStorage.getItem('User')
         if (!localData) return
 
         const userData = JSON.parse(localData)
         const token = userData.token
 
+        let actualOffset = offset
+        
+        // For initial load, fetch a larger batch to get the most recent messages
+        if (!append && offset === null) {
+          // Fetch a large batch to get the most recent messages
+          // We'll take the last 30 from the fetched batch
+          const response = await axios.get(
+            `${Apis.getMessagesForThread}/${threadId}/messages`,
+            {
+              params: {
+                limit: 500, // Fetch a large batch to ensure we get recent messages
+                offset: 0,
+              },
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+
+          if (response.data?.status && response.data?.data) {
+            const allMessages = response.data.data
+            // Take the last 30 messages (most recent)
+            const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
+            // Calculate the offset of the oldest message we're showing
+            // If we fetched 500 and took last 30, the oldest is at offset 470 (if there are 500+ messages)
+            // If we fetched less than 500, it means we got all messages, so offset is 0
+            const oldestMessageOffset = allMessages.length >= 500 
+              ? Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+              : 0
+            
+            // Debug: Log messages with attachments and metadata structure
+            fetchedMessages.forEach((msg) => {
+              console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
+                hasMetadata: !!msg.metadata,
+                metadataType: typeof msg.metadata,
+                hasAttachments: !!msg.metadata?.attachments,
+                attachmentsCount: msg.metadata?.attachments?.length || 0,
+                metadataKeys: msg.metadata ? Object.keys(msg.metadata) : [],
+              })
+              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {
+                console.log(
+                  `📎 Message ${msg.id} has ${msg.metadata.attachments.length} attachments:`,
+                  msg.metadata.attachments,
+                )
+              } else if (msg.metadata && !msg.metadata.attachments) {
+                console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
+              }
+            })
+            
+            // Set messages (newest at bottom)
+            setMessages(fetchedMessages)
+            
+            // Check if there are more older messages
+            // If we got exactly 500, there might be more. If less, we got all messages.
+            setHasMoreMessages(allMessages.length >= 500)
+            setMessageOffset(oldestMessageOffset)
+            
+            // Scroll to bottom after loading
+            setTimeout(() => {
+              if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
+              }
+            }, 100)
+            
+            setMessagesLoading(false)
+            return
+          }
+        }
+        
+        // For loading older messages (append = true)
+        if (append && actualOffset !== null) {
+          // Calculate offset for older messages (before current oldest)
+          actualOffset = Math.max(0, actualOffset - MESSAGES_PER_PAGE)
+        } else if (actualOffset === null) {
+          actualOffset = 0
+        }
+
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${threadId}/messages`,
           {
             params: {
               limit: MESSAGES_PER_PAGE,
-              offset: offset,
+              offset: actualOffset,
             },
             headers: {
               Authorization: `Bearer ${token}`,
@@ -441,7 +526,6 @@ const Messages = () => {
         )
 
         if (response.data?.status && response.data?.data) {
-          // API returns messages in ASC order, but we want them in DESC for display (newest at bottom)
           const fetchedMessages = response.data.data
           
           // Debug: Log messages with attachments and metadata structure
@@ -464,8 +548,27 @@ const Messages = () => {
           })
           
           if (append) {
-            // Prepend older messages
+            // Store scroll position before prepending
+            const container = messagesContainerRef.current
+            const scrollHeight = container?.scrollHeight || 0
+            const scrollTop = container?.scrollTop || 0
+            
+            // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
+            
+            // Restore scroll position after prepending (maintain scroll position)
+            setTimeout(() => {
+              if (container) {
+                const newScrollHeight = container.scrollHeight
+                const heightDifference = newScrollHeight - scrollHeight
+                container.scrollTop = scrollTop + heightDifference
+              }
+            }, 0)
+            
+            // Update offset to the oldest message now loaded
+            setMessageOffset(actualOffset)
+            // Check if there are more older messages
+            setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
@@ -475,16 +578,20 @@ const Messages = () => {
                 messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
               }
             }, 100)
+            
+            // Check if there are more messages
+            setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
+            setMessageOffset(actualOffset + fetchedMessages.length)
           }
-
-          // Check if there are more messages
-          setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
-          setMessageOffset(offset + fetchedMessages.length)
         }
       } catch (error) {
         console.error('Error fetching messages:', error)
       } finally {
-        setMessagesLoading(false)
+        if (append) {
+          setLoadingOlderMessages(false)
+        } else {
+          setMessagesLoading(false)
+        }
       }
     },
     []
@@ -492,15 +599,16 @@ const Messages = () => {
 
   // Load older messages when scrolling to top
   const handleScroll = useCallback(() => {
-    if (!messagesContainerRef.current || messagesLoading || !hasMoreMessages) {
+    if (!messagesContainerRef.current || messagesLoading || loadingOlderMessages || !hasMoreMessages) {
       return
     }
 
     const container = messagesContainerRef.current
-    if (container.scrollTop === 0 && selectedThread) {
+    // Load when near the top (within 100px)
+    if (container.scrollTop <= 100 && selectedThread) {
       fetchMessages(selectedThread.id, messageOffset, true)
     }
-  }, [messagesLoading, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
+  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
 
   // Mark thread as read
   const markThreadAsRead = useCallback(async (threadId) => {
@@ -535,7 +643,7 @@ const Messages = () => {
     setMessageOffset(0)
     setHasMoreMessages(true)
     setMessages([])
-    fetchMessages(thread.id, 0, false)
+    fetchMessages(thread.id, null, false) // null means initial load
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
@@ -1043,7 +1151,7 @@ const Messages = () => {
 
           // Refresh messages and threads
           setTimeout(() => {
-            fetchMessages(selectedThread.id, 0, false)
+            fetchMessages(selectedThread.id, null, false)
             fetchThreads(searchValue || "")
           }, 500)
         } else {
@@ -1207,7 +1315,7 @@ const Messages = () => {
 
           // Refresh messages and threads
           setTimeout(() => {
-            fetchMessages(selectedThread.id, 0, false)
+            fetchMessages(selectedThread.id, null, false)
             fetchThreads(searchValue || "")
           }, 500)
         } else {
@@ -1361,7 +1469,7 @@ const Messages = () => {
       setMessageOffset(0)
       setHasMoreMessages(true)
       setMessages([])
-      fetchMessages(firstThread.id, 0, false)
+      fetchMessages(firstThread.id, null, false)
       if (firstThread.unreadCount > 0) {
         markThreadAsRead(firstThread.id)
       }
@@ -1608,8 +1716,10 @@ const Messages = () => {
                 selectedThread={selectedThread}
                 messages={messages}
                 messagesLoading={messagesLoading}
+                loadingOlderMessages={loadingOlderMessages}
                 messagesContainerRef={messagesContainerRef}
                 messagesEndRef={messagesEndRef}
+                messagesTopRef={messagesTopRef}
                 sanitizeHTML={sanitizeHTML}
                 getLeadName={getLeadName}
                 getAgentAvatar={getAgentAvatar}
