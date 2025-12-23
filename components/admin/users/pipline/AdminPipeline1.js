@@ -2605,9 +2605,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 </button>
               </div>
             </div>
-              </div>
-            )}
           </div>
+            </div>
+          )}
         </>
       )}
 
