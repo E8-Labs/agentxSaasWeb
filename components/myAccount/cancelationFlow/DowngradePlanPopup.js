@@ -4,6 +4,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { Checkbox } from '@/components/ui/checkbox'
 import { next30Days } from '@/constants/Constants'
 
 // Helper function to get brand primary color as hex
@@ -112,12 +113,21 @@ function DowngradePlanPopup({
               <CloseBtn onClick={handleClose} />
             </div>
             <div className="flex flex-col items-center gap-2 h-full py-4 ">
-              <Image
+              <div
                 className="-mt-5"
-                src={'/otherAssets/IconAccount.png'}
-                height={48}
-                width={48}
-                alt="*"
+                style={{
+                  width: 48,
+                  height: 48,
+                  backgroundColor: 'hsl(var(--brand-primary))',
+                  WebkitMaskImage: 'url(/otherAssets/IconAccount.png)',
+                  maskImage: 'url(/otherAssets/IconAccount.png)',
+                  WebkitMaskSize: 'contain',
+                  maskSize: 'contain',
+                  WebkitMaskRepeat: 'no-repeat',
+                  maskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskPosition: 'center',
+                }}
               />
               <div className="text-center text-xl font-semibold">
                 {downgradeTitle}
@@ -150,11 +160,9 @@ function DowngradePlanPopup({
                             key={index}
                             className="flex flex-row items-center gap-2 w-full"
                           >
-                            <Image
-                              src="/svgIcons/selectedTickBtn.svg"
-                              height={16}
-                              width={16}
-                              alt="cross"
+                            <Checkbox
+                              checked={true}
+                              className="h-4 w-4 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                             <div className="text-[13px] font-normal flex flex-row items-center gap-2">
                               <span>{item?.text}</span>
@@ -209,11 +217,9 @@ function DowngradePlanPopup({
                             key={index}
                             className="flex flex-row items-center gap-2 w-full"
                           >
-                            <Image
-                              src="/svgIcons/selectedTickBtn.svg"
-                              height={16}
-                              width={16}
-                              alt="cross"
+                            <Checkbox
+                              checked={true}
+                              className="h-4 w-4 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                             />
                             <div className="text-[13px] font-normal">
                               {item}

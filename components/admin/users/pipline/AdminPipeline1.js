@@ -60,6 +60,7 @@ import {
 } from '@/utilities/utility'
 
 import AdminLeadDetails from '../AdminLeadDetails'
+import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef()
@@ -92,6 +93,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const stageId = StageAnchorel ? 'stageAnchor' : undefined
 
   const [initialLoader, setInitialLoader] = useState(false)
+  const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false)
 
   const [SelectedPipeline, setSelectedPipeline] = useState(null)
   let selectedPipelineIndex = useRef(0)
@@ -1999,11 +2001,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
           <CircularProgress size={35} />
         </div>
       ) : (
-        <div className="flex flex-col items-center w-full">
-          <div
-            className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8"
-            style={{ scrollbarWidth: 'none' }}
-          >
+        <>
+          {pipelineDetailLoader ? (
+            <PipelineLoading fullScreen={false} />
+          ) : (
+            <div className="flex flex-col items-center w-full">
+              <div
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
+            scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            "
+              >
             <div className="flex flex-row items-center gap-4"></div>
 
             <div className="flex flex-row items-start gap-2">
@@ -2598,8 +2605,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 </button>
               </div>
             </div>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
 
       {/* code for delete pipeline modal */}
