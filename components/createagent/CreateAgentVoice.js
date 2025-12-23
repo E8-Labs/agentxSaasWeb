@@ -556,12 +556,21 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     </div>
                     <div className="flex flex-row items-center gap-4">
                       <div>
-                        <Image
-                          src={'/assets/voice.png'}
-                          height={15}
-                          width={23}
-                          alt="*"
-                        />
+                        <svg
+                          width="23"
+                          height="15"
+                          viewBox="0 0 23 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="text-brand-primary"
+                          style={{ color: 'hsl(var(--brand-primary))' }}
+                        >
+                          <rect x="0" y="10" width="3" height="5" rx="1.5" fill="currentColor" />
+                          <rect x="5" y="7" width="3" height="8" rx="1.5" fill="currentColor" />
+                          <rect x="10" y="4" width="3" height="11" rx="1.5" fill="currentColor" />
+                          <rect x="15" y="6" width="3" height="9" rx="1.5" fill="currentColor" />
+                          {/* <rect x="20" y="9" width="3" height="6" rx="1.5" fill="currentColor" /> */}
+                        </svg>
                       </div>
                       {item.preview ? (
                         <div>

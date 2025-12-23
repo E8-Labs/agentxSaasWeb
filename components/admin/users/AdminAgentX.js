@@ -57,6 +57,7 @@ import { EditPhoneNumberModal } from '@/components/dashboard/myagentX/EditPhoneN
 import EmbedModal from '@/components/dashboard/myagentX/EmbedModal'
 import EmbedSmartListModal from '@/components/dashboard/myagentX/EmbedSmartListModal'
 import Knowledgebase from '@/components/dashboard/myagentX/Knowledgebase'
+import MoreAgentsPopup from '@/components/dashboard/MoreAgentsPopup'
 import NewSmartListModal from '@/components/dashboard/myagentX/NewSmartListModal'
 import PiepelineAdnStage from '@/components/dashboard/myagentX/PiepelineAdnStage'
 import UserCalender from '@/components/dashboard/myagentX/UserCallender'
@@ -407,6 +408,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAddScoringModal, setShowAddScoringModal] = useState(false)
+  const [showMoreAgentsPopup, setShowMoreAgentsPopup] = useState(false)
+  const [moreAgentsPopupType, setMoreAgentsPopupType] = useState('newagent')
 
   // Web Agent Modal states
   const [showWebAgentModal, setShowWebAgentModal] = useState(false)
@@ -2631,24 +2634,34 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   }
 
-  //function to add new agent
-  const handleAddNewAgent = (event) => {
-    event.preventDefault()
-    console.log('selectedUser create agent', selectedUser)
-    // return
-    if (selectedUser?.plan) {
+  //function to add new agent by more agents popup
+  const handleAddAgentByMoreAgentsPopup = () => {
+    try {
+      setShowMoreAgentsPopup(false)
+      console.log('handleAddAgentByMoreAgentsPopup is called (admin side)')
       const data = {
         status: true,
       }
       localStorage.setItem('fromDashboard', JSON.stringify(data))
+
+      localStorage.setItem(
+        'AddAgentByPayingPerMonth',
+        JSON.stringify({
+          status: true,
+        }),
+      )
+      //remove data from local storage after 2 minutes
+      setTimeout(
+        () => {
+          localStorage.removeItem('AddAgentByPayingPerMonth')
+          console.log('AddAgentByPayingPerMonth removed from local storage')
+        },
+        2 * 60 * 1000,
+      )
+
       const d = {
         subAccountData: selectedUser,
         isFromAgency: from,
-      }
-
-      let u = {
-        user: selectedUser,
-        isFrom: from,
       }
 
       localStorage.setItem(
@@ -2673,7 +2686,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         const userType = reduxUser?.userType
         const userRole = reduxUser?.userRole
         isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
-        console.log('handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
+        console.log('handleAddAgentByMoreAgentsPopup - Redux user check:', { userType, userRole, isAdminOrAgency })
       }
 
       // Fallback to localStorage if Redux doesn't have the data
@@ -2685,12 +2698,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             const userType = parsedUser?.user?.userType || parsedUser?.userType
             const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
             isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
-            console.log('handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
+            console.log('handleAddAgentByMoreAgentsPopup - localStorage user check:', { userType, userRole, isAdminOrAgency })
           }
         } catch (error) {
           console.log('Error parsing localStorage User data:', error)
         }
       }
+
+      console.log('routing to createagent from add new agent function (admin side)')
 
       // Open in new tab if current user is Admin or Agency
       if (isAdminOrAgency) {
@@ -2698,13 +2713,120 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         window.open('/createagent', '_blank')
       } else {
         console.log('Opening /createagent in same tab')
-        // router.push("/createagent");
-        window.location.href = '/createagent'
+        setTimeout(() => {
+          window.location.href = '/createagent'
+        }, 100)
       }
-    } else {
+    } catch (error) {
+      console.error('Error in handleAddAgentByMoreAgentsPopup:', error)
+    }
+  }
+
+  //function to add new agent
+  const handleAddNewAgent = (event) => {
+    event.preventDefault()
+    console.log('selectedUser create agent', selectedUser)
+    
+    if (!selectedUser?.plan) {
       console.log('User has no plan subscribed')
       setIsVisibleSnack2(true)
       setShowErrorSnack('User has no plan subscribed')
+      return
+    }
+
+    // Check agent limits before proceeding
+    const currentAgents = selectedUser?.currentUsage?.maxAgents || 0
+    const maxAgents = selectedUser?.planCapabilities?.maxAgents || 0
+    const isFreePlan = selectedUser?.plan === null || selectedUser?.plan?.price === 0
+
+    console.log('Agent limit check:', {
+      currentAgents,
+      maxAgents,
+      isFreePlan,
+      planCapabilities: selectedUser?.planCapabilities,
+    })
+
+    // Check if user is on free plan and has reached their limit
+    if (isFreePlan && currentAgents >= 1) {
+      console.log('🚫 [ADMIN] Free plan subaccount has reached limit')
+      setShowUpgradeModal(true)
+      return
+    }
+
+    // Check if paid plan user has reached their agent limit
+    // Only check if maxAgents is less than 1000 (1000+ indicates unlimited)
+    if (currentAgents >= maxAgents && maxAgents > 0 && maxAgents < 1000) {
+      console.log('🚫 [ADMIN] Paid plan subaccount has reached limit')
+      setShowMoreAgentsPopup(true)
+      setMoreAgentsPopupType('newagent')
+      return
+    }
+
+    // User can create agent - proceed to creation
+    console.log('✅ [ADMIN] Subaccount can create agent - proceeding to /createagent')
+    const data = {
+      status: true,
+    }
+    localStorage.setItem('fromDashboard', JSON.stringify(data))
+    const d = {
+      subAccountData: selectedUser,
+      isFromAgency: from,
+    }
+
+    let u = {
+      user: selectedUser,
+      isFrom: from,
+    }
+
+    localStorage.setItem(
+      PersistanceKeys.isFromAdminOrAgency,
+      JSON.stringify(d),
+    )
+
+    // Save current URL for redirect after agent creation
+    if (typeof window !== 'undefined') {
+      const currentUrl = window.location.href
+      localStorage.setItem(
+        PersistanceKeys.returnUrlAfterAgentCreation,
+        currentUrl,
+      )
+    }
+
+    // Check if current logged-in user is Admin or Agency
+    let isAdminOrAgency = false
+
+    // Check from Redux first
+    if (reduxUser) {
+      const userType = reduxUser?.userType
+      const userRole = reduxUser?.userRole
+      isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+      console.log('handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
+    }
+
+    // Fallback to localStorage if Redux doesn't have the data
+    if (!isAdminOrAgency && typeof window !== 'undefined') {
+      try {
+        const localUserData = localStorage.getItem('User')
+        if (localUserData) {
+          const parsedUser = JSON.parse(localUserData)
+          const userType = parsedUser?.user?.userType || parsedUser?.userType
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+          console.log('handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
+        }
+      } catch (error) {
+        console.log('Error parsing localStorage User data:', error)
+      }
+    }
+
+    // Open in new tab if current user is Admin or Agency
+    if (isAdminOrAgency) {
+      console.log('Opening /createagent in new tab (user is Admin or Agency)')
+      window.open('/createagent', '_blank')
+    } else {
+      console.log('Opening /createagent in same tab')
+      // router.push("/createagent");
+      window.location.href = '/createagent'
     }
   }
 
@@ -6100,6 +6222,37 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         title="Unlock More Features"
         subTitle="Upgrade to access advanced features and capabilities"
         featureTitle={featureTitle}
+      />
+
+      <MoreAgentsPopup
+        open={showMoreAgentsPopup}
+        onClose={() => {
+          setShowMoreAgentsPopup(false)
+        }}
+        onUpgrade={() => {
+          // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          setTimeout(() => {
+            setShowUpgradePlanModal(true)
+          }, 150)
+        }}
+        onAddAgent={() => {
+          console.log('moreAgentsPopupType', moreAgentsPopupType)
+          // Close modal first to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          // Execute action after a small delay
+          setTimeout(() => {
+            if (moreAgentsPopupType === 'newagent') {
+              handleAddAgentByMoreAgentsPopup()
+            } else {
+              handleAddAgentByMoreAgentsPopup()
+            }
+          }, 150)
+        }}
+        costPerAdditionalAgent={
+          selectedUser?.planCapabilities?.costPerAdditionalAgent || 10
+        }
+        from={'agents'}
       />
 
       <AddScoringModal
