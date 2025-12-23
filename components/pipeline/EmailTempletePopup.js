@@ -8,7 +8,7 @@ import {
   Select,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Plus, Trash2, Paperclip, X } from 'lucide-react'
+import { Plus, Trash2, Paperclip, X, Send } from 'lucide-react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
@@ -16,6 +16,7 @@ import RichTextEditor from '@/components/common/RichTextEditor'
 import ChipInput from '@/constants/ChipsInput'
 import { PersistanceKeys } from '@/constants/Constants'
 import { Input } from '@/components/ui/input'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData'
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices'
@@ -48,6 +49,7 @@ function EmailTempletePopup({
   isLeadEmail = false,
   leadEmail = null,
   selectedUser,
+  bodyHeight = null, // Optional prop for custom body text field height
 }) {
   const richTextEditorRef = useRef(null)
   const [selectedVariable, setSelectedVariable] = useState('')
@@ -666,12 +668,35 @@ function EmailTempletePopup({
     <Modal open={open} onClose={onClose}>
       <Box
         className="w-full h-[100vh] py-4 flex flex-col items-center justify-center"
-        sx={{ ...styles.modalsStyle }}
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          boxShadow: 24,
+          p: 0,
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'visible',
+          zIndex: 1300,
+        }}
       >
-        <div className="flex flex-col justify-between w-auto max-w-2xl min-w-[600px] px-6 py-4 bg-white max-h-[80svh] rounded-2xl gap-2 overflow-y-hidden">
+        <div className={`flex flex-col w-full h-full p-0 bg-white rounded-lg overflow-visible`}>
+          {/* Header - Unified design for both cases */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-xl font-semibold">
+              {!isLeadEmail && (addRow || isEditing) ? 'Email Template' : 'New Message'}
+            </h2>
+            <CloseBtn onClick={onClose} />
+          </div>
+          
           <div
-            className="flex flex-col w-full h-[80%] gap-2 overflow-y-auto"
-            style={{ scrollbarWidth: 'none' }}
+            className="flex flex-col w-full flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4"
+            style={{ scrollbarWidth: 'none', position: 'relative' }}
           >
             <AgentSelectSnackMessage
               isVisible={true}
@@ -683,216 +708,237 @@ function EmailTempletePopup({
                 })
               }}
             />
-            <div className="flex flex-row items-center justify-between border-b pb-2">
-              <div className="text-xl font-semibold color-black">
-                {isLeadEmail
-                  ? `Send Email to ${leadEmail}`
-                  : (isEditing && !IsdefaultCadence) || selectedTemp
-                    ? 'Edit Email'
-                    : 'Email'}
-              </div>
 
-              <FormControl>
-                <Select
-                  value={selectedTemp || ''}
-                  onChange={(e) => handleSelect(e.target.value)}
-                  displayEmpty
-                  renderValue={(selected) =>
-                    selected?.templateName || (
-                      <div style={{ color: '#aaa' }}>Select Template</div>
-                    )
-                  }
-                  sx={{
-                    border: 'none', // Default border
-                    '&:hover': {
-                      border: 'none', // Same border on hover
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      border: 'none', // Remove the default outline
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      border: 'none', // Remove outline on focus
-                    },
-                    '&.MuiSelect-select': {
-                      py: 0, // Optional padding adjustments
-                    },
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: '30vh', // Limit dropdown height
-                        overflow: 'auto', // Enable scrolling in dropdown
-                        scrollbarWidth: 'none',
-                        // borderRadius: "10px"
+
+
+            {/* Select Template and CC/BCC toggle buttons - Unified design */}
+            <div className="flex items-center justify-between border-b">
+              <div className="flex items-center gap-2">
+                <FormControl size="small" sx={{ minWidth: 180 }}>
+                  <Select
+                    value={selectedTemp || ''}
+                    onChange={(e) => handleSelect(e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) =>
+                      selected?.templateName || (
+                        <div style={{ color: '#aaa' }}>Select Template</div>
+                      )
+                    }
+                    sx={{
+                      fontSize: '0.875rem',
+                      height: '36px',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#d1d5db',
                       },
-                    },
-                  }}
-                >
-                  {templetes?.length > 0 ? (
-                    templetes?.map((item, index) =>
-                      detailsLoader?.id === item.id ? (
-                        <CircularProgress key={item.id} size={20} />
-                      ) : (
-                        <MenuItem
-                          key={index}
-                          // className="hover:bg-[#402FFF10]"
-                          value={item}
-                        >
-                          <div className="flex flex-row items-center gap-2">
-                            <div className="text-[15] font-[500] w-64">
-                              {item.templateName}
-                            </div>
-                            {delTempLoader?.id === item.id ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  handleDelete(e, item)
-                                }}
-                                className="text-brand-primary hover:text-brand-primary/80 transition-colors"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </MenuItem>
-                      ),
-                    )
-                  ) : (
-                    <div className="ml-2">No template found</div>
-                  )}
-                </Select>
-              </FormControl>
-            </div>
-
-
-
-            {/* From Field with Dropdown */}
-            <div className="flex items-center gap-2 mt-1">
-              <label className="text-sm font-medium whitespace-nowrap">From:</label>
-              <div className="flex-1 relative">
-                {googleAccountLoader ? (
-                  <div className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg flex items-center justify-center">
-                    <CircularProgress size={20} />
-                  </div>
-                ) : googleAccounts.length === 0 ? (
-                  <button
-                    onClick={addNewAccount}
-                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-black rounded-lg text-brand-primary hover:bg-gray-100 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-                    style={{ height: '42px' }}
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
+                        },
+                      },
+                    }}
                   >
-                    Connect Gmail
-                  </button>
-                ) : (
-                  <FormControl fullWidth>
-                    <Select
-                      value={selectedGoogleAccount?.id || ''}
-                      onChange={(e) => {
-                        const account = googleAccounts.find((a) => a.id === parseInt(e.target.value))
-                        if (account) {
-                          setAccountChanged(true)
-                          setSelectedGoogleAccount(account)
-                        } else if (e.target.value === 'add-account') {
-                          addNewAccount()
-                        }
-                      }}
-                      displayEmpty
-                      renderValue={(selected) => {
-                        if (!selected) {
-                          return <span style={{ color: '#9ca3af' }}>Select email account</span>
-                        }
-                        const account = googleAccounts.find((a) => a.id === parseInt(selected))
-                        return account?.email || 'Select email account'
-                      }}
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#00000020',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Select email account</em>
-                      </MenuItem>
-                      {googleAccounts.map((account) => (
-                        <MenuItem key={account.id} value={account.id}>
-                          {account.email || account.name}
-                        </MenuItem>
-                      ))}
-                      <MenuItem
-                        value="add-account"
-                        sx={{
-                          color: 'hsl(var(--brand-primary))',
-                          fontWeight: 500,
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Plus size={16} />
-                          Add Account
-                        </div>
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                )}
+                    {templetes?.length > 0 ? (
+                      templetes?.map((item, index) =>
+                        detailsLoader?.id === item.id ? (
+                          <CircularProgress key={item.id} size={20} />
+                        ) : (
+                          <MenuItem
+                            key={index}
+                            value={item}
+                          >
+                            <div className="flex flex-row items-center gap-2 w-full">
+                              <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                {item.templateName}
+                              </div>
+                              {delTempLoader?.id === item.id ? (
+                                <CircularProgress size={20} className="flex-shrink-0" />
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    handleDelete(e, item)
+                                  }}
+                                  className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          </MenuItem>
+                        ),
+                      )
+                    ) : (
+                      <div className="ml-2">No template found</div>
+                    )}
+                  </Select>
+                </FormControl>
               </div>
-              {/* CC and BCC toggle buttons - above From field */}
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Cc
                 </button>
                 <button
                   onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
                 >
                   Bcc
                 </button>
               </div>
             </div>
 
-            {/* CC and BCC fields - shown when toggled */}
+            {/* From and To Fields - Unified layout */}
+            <div className="flex items-center gap-4">
+              {/* From Field */}
+              <div className="flex items-center gap-2 flex-1">
+                <label className="text-sm font-medium whitespace-nowrap">From:</label>
+                <div className="flex-1 relative">
+                  {googleAccountLoader ? (
+                    <div className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg flex items-center justify-center">
+                      <CircularProgress size={20} />
+                    </div>
+                  ) : googleAccounts.length === 0 ? (
+                    <button
+                      onClick={addNewAccount}
+                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                      style={{ height: '42px' }}
+                    >
+                      Connect Gmail
+                    </button>
+                  ) : (
+                    <FormControl fullWidth>
+                      <Select
+                        value={selectedGoogleAccount?.id || ''}
+                        onChange={(e) => {
+                          const account = googleAccounts.find((a) => a.id === parseInt(e.target.value))
+                          if (account) {
+                            setAccountChanged(true)
+                            setSelectedGoogleAccount(account)
+                          } else if (e.target.value === 'add-account') {
+                            addNewAccount()
+                          }
+                        }}
+                        displayEmpty
+                        renderValue={(selected) => {
+                          if (!selected) {
+                            return <span style={{ color: '#9ca3af' }}>Select email account</span>
+                          }
+                          const account = googleAccounts.find((a) => a.id === parseInt(selected))
+                          return account?.email || 'Select email account'
+                        }}
+                        sx={{
+                          fontSize: '0.875rem',
+                          height: '42px',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e5e7eb',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      >
+                        <MenuItem value="" disabled>
+                          <em>Select email account</em>
+                        </MenuItem>
+                        {googleAccounts.map((account) => (
+                          <MenuItem key={account.id} value={account.id}>
+                            {account.email || account.name}
+                          </MenuItem>
+                        ))}
+                        <MenuItem
+                          value="add-account"
+                          sx={{
+                            color: 'hsl(var(--brand-primary))',
+                            fontWeight: 500,
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Plus size={16} />
+                            Add Account
+                          </div>
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                </div>
+              </div>
+
+              {/* To Field - Only show for lead email */}
+              {isLeadEmail && (
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
+                  <Input
+                    value={leadEmail || ''}
+                    readOnly
+                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-gray-50"
+                    style={{ height: '42px' }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* CC and BCC fields - shown when toggled - Unified design */}
             {(showCC || showBCC) && (
-              <div className="flex flex-col items-start w-full gap-4 mt-2">
+              <div className="flex items-center gap-4">
                 {showCC && (
                   <div className="flex items-center gap-2 flex-1 w-full">
                     <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
-                    <div className="flex-1 ml-2 h-[42px] border border-[#00000020] focus-within:mr-1 rounded-lg px-2 flex items-center overflow-hidden w-full ml-2 focus-within:ring-1 focus-within:ring-black focus-within:border-black transition-colors">
-                      <ChipInput
-                        ccEmails={ccEmails}
-                        setccEmails={(emails) => {
+                    <Input
+                      value={Array.isArray(ccEmails) ? ccEmails.join(', ') : (ccEmails || '')}
+                      onChange={(e) => {
+                        const emailString = e.target.value
+                        if (!emailString.trim()) {
+                          setccEmails([])
+                        } else {
+                          const emails = emailString.split(',').map(email => email.trim()).filter(email => email)
                           setccEmails(emails)
-                          setccEmailsChanged(true)
-                        }}
-                        placeholder="Add CC recipients"
-                      />
-                    </div>
+                        }
+                        setccEmailsChanged(true)
+                      }}
+                      placeholder="Add CC recipients"
+                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                      style={{ height: '42px', minHeight: '42px' }}
+                    />
                   </div>
                 )}
                 {showBCC && (
                   <div className="flex items-center gap-2 flex-1 w-full">
                     <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
-                    <div className="flex-1 ml-2 focus-within:mr-1 h-[42px] border border-[#00000020] rounded-lg px-2 flex items-center overflow-hidden w-full focus-within:ring-1 focus-within:ring-black focus-within:border-black transition-colors">
-                      <ChipInput
-                        ccEmails={bccEmails}
-                        setccEmails={(emails) => {
+                    <Input
+                      value={Array.isArray(bccEmails) ? bccEmails.join(', ') : (bccEmails || '')}
+                      onChange={(e) => {
+                        const emailString = e.target.value
+                        if (!emailString.trim()) {
+                          setBccEmails([])
+                        } else {
+                          const emails = emailString.split(',').map(email => email.trim()).filter(email => email)
                           setBccEmails(emails)
-                          setBccEmailsChanged(true)
-                        }}
-                        placeholder="Add BCC recipients"
-                      />
-                    </div>
+                        }
+                        setBccEmailsChanged(true)
+                      }}
+                      placeholder="Add BCC recipients"
+                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                      style={{ height: '42px', minHeight: '42px' }}
+                    />
                   </div>
                 )}
               </div>
@@ -926,147 +972,58 @@ function EmailTempletePopup({
               </>
             )}
 
-            <div className="space-y-2 mt-3">
-              <div className="flex flex-row items-center justify-between">
-                <label className="text-[15px] font-[400] text-[#00000080]">
-                  Subject
-                </label>
-                {uniqueColumns && uniqueColumns.length > 0 && (
-                  <FormControl size="small" sx={{ minWidth: 180 }}>
-                    <Select
-                      value={selectedVariable}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setSelectedVariable('')
-                        if (value) {
-                          // Insert variable into subject field
-                          // Handle both formats: with or without curly braces
-                          const variableText = value.startsWith('{') && value.endsWith('}')
-                            ? value
-                            : `{${value}}`
-                          const currentSubject = subject || ''
-                          const newSubject = currentSubject + (currentSubject ? ' ' : '') + variableText
-                          setSubject(newSubject)
-                          setSubjectChanged(true)
-                        }
-                      }}
-                      displayEmpty
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '36px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Insert Variable...</em>
-                      </MenuItem>
-                      {uniqueColumns.map((variable, index) => {
-                        // Display with curly braces, but keep original value for insertion
-                        const displayText = variable.startsWith('{') && variable.endsWith('}')
-                          ? variable
-                          : `{${variable}}`
-                        return (
-                          <MenuItem key={index} value={variable}>
-                            {displayText}
-                          </MenuItem>
-                        )
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              </div>
-              <div className="w-full px-[0.5%]">
-                <Input
-                  placeholder="Subject"
-                  value={subject}
-                  onChange={(e) => {
-                    setSubject(e.target.value)
-                    setSubjectChanged(true)
+            {/* Subject Field - Unified design */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium w-16">Subject:</label>
+              <Input
+                value={subject}
+                onChange={(e) => {
+                  setSubject(e.target.value)
+                  setSubjectChanged(true)
+                }}
+                placeholder="Email subject"
+                className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                style={{ height: '42px' }}
+              />
+            </div>
+
+            {/* Message Body - Unified design */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Message:</label>
+              <div 
+                style={bodyHeight ? { 
+                  height: bodyHeight,
+                  display: 'flex',
+                  flexDirection: 'column'
+                } : {}}
+                className={bodyHeight ? 'overflow-hidden' : ''}
+              >
+                <RichTextEditor
+                  ref={richTextEditorRef}
+                  value={body}
+                  onChange={(html) => {
+                    setBody(html)
+                    setBodyChanged(true)
                   }}
-                  className="w-full h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
-                  style={{ height: '42px' }}
+                  placeholder="Type your message..."
+                  availableVariables={[]}
+                  toolbarPosition="bottom"
                 />
               </div>
             </div>
 
-            <div className="space-y-2 mt-3">
-              <div className="flex flex-row items-center justify-between">
-                <label className="text-[15px] font-[400] text-[#00000080]">
-                  Body
-                </label>
-                {uniqueColumns && uniqueColumns.length > 0 && (
-                  <FormControl size="small" sx={{ minWidth: 180 }}>
-                    <Select
-                      value={selectedVariable}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setSelectedVariable('')
-                        if (value && richTextEditorRef.current) {
-                          richTextEditorRef.current.insertVariable(value)
-                        }
-                      }}
-                      displayEmpty
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '36px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#000000',
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Insert Variable...</em>
-                      </MenuItem>
-                      {uniqueColumns.map((variable, index) => {
-                        // Display with curly braces, but keep original value for insertion
-                        const displayText = variable.startsWith('{') && variable.endsWith('}')
-                          ? variable
-                          : `{${variable}}`
-                        return (
-                          <MenuItem key={index} value={variable}>
-                            {displayText}
-                          </MenuItem>
-                        )
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              </div>
-              <RichTextEditor
-                ref={richTextEditorRef}
-                value={body}
-                onChange={(html) => {
-                  setBody(html)
-                  setBodyChanged(true)
-                }}
-                placeholder="Type here..."
-                availableVariables={uniqueColumns || []}
-              />
-            </div>
-
-            <div className="mt-3 flex flex-row items-center justify-between">
-              <label className="flex flex-row items-center gap-2 cursor-pointer">
-                <div className="text-[15px] font-[500] text-brand-primary underline">
-                  Add Attachments
-                </div>
-                <Paperclip className="text-brand-primary" size={24} />
-                <input
-                  type="file"
-                  accept="
+            {/* Attachments - Only show in body for pipeline emails */}
+            {!isLeadEmail && (
+              <>
+                <div className="mt-3 flex flex-row items-center justify-between">
+                  <label className="flex flex-row items-center gap-2 cursor-pointer">
+                    <div className="text-[15px] font-[500] text-brand-primary underline">
+                      Add Attachments
+                    </div>
+                    <Paperclip className="text-brand-primary" size={24} />
+                    <input
+                      type="file"
+                      accept="
                                 image/*,
                                 application/pdf,
                                 application/msword,
@@ -1077,60 +1034,150 @@ function EmailTempletePopup({
                                 application/vnd.ms-excel,
                                 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
                               "
-                  multiple
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-              <div className="text-[12px] font-[400] text-[#00000060]">
-                Max 5 files, 10 MB total
-              </div>
-            </div>
-
-            <div className="mt-2 flex flex-col gap-1">
-              {attachments?.map((file, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-row gap-4 items-center p-2 text-sm"
-                >
-                  <div className="flex flex-col min-w-4/12 max-w-/12 truncate">
-                    <span>{file.name || file.originalName}</span>
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  <div className="text-[12px] font-[400] text-[#00000060]">
+                    Max 5 files, 10 MB total
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {formatDecimalValue(file.size / 1024)} KB
-                  </span>
-                  <button
-                    onClick={() => removeAttachment(idx)}
-                    className="text-brand-primary hover:text-brand-primary/80 transition-colors"
-                  >
-                    <X size={14} />
-                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="w-full flex flex-row items-center justify-between gap-6 mt-3 pt-3 border-t">
-            <button className="text-[#6b7280] outline-none  h-[50px] outline-none"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            {saveEmailLoader ? (
-              <CircularProgress size={30} />
-            ) : (
-              <button
-                className={`w-1/2 h-[53px] text-[15px] font-[700] 
-                                    ${isSaveDisabled ? 'bg-black/50' : 'bg-brand-primary'} rounded-lg text-white`}
-                disabled={isSaveDisabled}
-                onClick={saveEmail}
-              >
-                {isLeadEmail
-                  ? 'Send Email'
-                  : isEditing && !IsdefaultCadence
-                    ? 'Update'
-                    : 'Save Email'}
-              </button>
+
+                <div className="mt-2 flex flex-col gap-1">
+                  {attachments?.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-row gap-4 items-center p-2 text-sm"
+                    >
+                      <div className="flex flex-col min-w-4/12 max-w-/12 truncate">
+                        <span>{file.name || file.originalName}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {formatDecimalValue(file.size / 1024)} KB
+                      </span>
+                      <button
+                        onClick={() => removeAttachment(idx)}
+                        className="text-brand-primary hover:text-brand-primary/80 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
+          </div>
+          {/* Footer - Unified design */}
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+            <div className="flex items-center gap-2">
+              {/* Insert Variable dropdown */}
+              {uniqueColumns && uniqueColumns.length > 0 && (
+                <FormControl size="small" sx={{ minWidth: 180 }}>
+                  <Select
+                    value={selectedVariable}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setSelectedVariable('')
+                      if (value && richTextEditorRef.current) {
+                        richTextEditorRef.current.insertVariable(value)
+                      }
+                    }}
+                    displayEmpty
+                    sx={{
+                      fontSize: '0.875rem',
+                      height: '36px',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                    }}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Insert Variable...</em>
+                    </MenuItem>
+                    {uniqueColumns.map((variable, index) => {
+                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                        ? variable
+                        : `{${variable}}`
+                      return (
+                        <MenuItem key={index} value={variable}>
+                          {displayText}
+                        </MenuItem>
+                      )
+                    })}
+                  </Select>
+                </FormControl>
+              )}
+              
+              {/* Attachment button - Only show for lead email */}
+              {isLeadEmail && (
+                <>
+                  <label className="cursor-pointer">
+                    <button
+                      type="button"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                      onClick={() => document.getElementById('lead-email-attachment-input')?.click()}
+                    >
+                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                    </button>
+                    <input
+                      id="lead-email-attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  
+                  {/* Show attachment count if any */}
+                  {attachments && attachments.length > 0 && (
+                    <span className="text-sm text-gray-600">
+                      {attachments.length} file{attachments.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-4">
+              {/* Cancel button - Only show for pipeline email */}
+              {!isLeadEmail && (
+                <button 
+                  className="text-[#6b7280] outline-none h-[50px]"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+              )}
+              
+              <button
+                onClick={saveEmail}
+                disabled={isSaveDisabled || saveEmailLoader}
+                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              >
+                {saveEmailLoader ? (
+                  <>
+                    <CircularProgress size={16} className="text-white" />
+                    {isLeadEmail ? 'Sending...' : 'Saving...'}
+                  </>
+                ) : (
+                  <>
+                    {isLeadEmail 
+                      ? 'Send' 
+                      : (isEditing && !IsdefaultCadence ? 'Update' : 'Save Email')
+                    }
+                    {isLeadEmail && <Send size={16} />}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </Box>

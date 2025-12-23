@@ -164,6 +164,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     }
   }, [])
 
+  // Update showGlobalBtn for subaccounts based on agency global number availability
+  useEffect(() => {
+    if (userData?.userRole === 'AgencySubAccount') {
+      const globalNumber = getGlobalPhoneNumber(userData)
+      // Only show global button if agency has a global number
+      // Don't override if it was already set to false for inbound agents
+      const localAgentsData = localStorage.getItem('agentDetails')
+      if (localAgentsData) {
+        const agetnDetails = JSON.parse(localAgentsData)
+        if (agetnDetails?.agents[0]?.agentType !== 'inbound') {
+          setShowGlobalBtn(globalNumber !== null)
+        }
+      } else {
+        setShowGlobalBtn(globalNumber !== null)
+      }
+    }
+  }, [userData])
+
   useEffect(() => {
     // //console.log;
     // //console.log;
@@ -782,19 +800,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               )}
                             </MenuItem>
                           ))}
-                          <MenuItem
-                            style={styles.dropdownMenu}
-                            value={
-                              showGlobalBtn
-                                ? getGlobalPhoneNumber(userData).replace('+', '')
-                                : ''
-                            }
-                          >
-                            {getGlobalPhoneNumber(userData)}
-                            {showGlobalBtn && ' (available for testing calls only)'}
-                            {showGlobalBtn == false &&
-                              ' (Only for outbound agents. You must buy a number)'}
-                          </MenuItem>
+                          {showGlobalBtn && getGlobalPhoneNumber(userData) && (
+                            <MenuItem
+                              style={styles.dropdownMenu}
+                              value={
+                                getGlobalPhoneNumber(userData)?.replace('+', '') || ''
+                              }
+                            >
+                              {getGlobalPhoneNumber(userData)}
+                              {' (available for testing calls only)'}
+                            </MenuItem>
+                          )}
                           <div
                             className="ms-4"
                             style={{ ...styles.inputStyle, color: '#00000070' }}

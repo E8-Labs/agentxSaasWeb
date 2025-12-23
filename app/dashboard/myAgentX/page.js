@@ -2222,7 +2222,13 @@ function Page() {
       // }
     } else if (item.agentType === 'outbound') {
       setShowReassignBtn(false)
-      setShowGlobalBtn(true)
+      // For subaccounts, only show global button if agency global number exists
+      if (reduxUser?.userRole === 'AgencySubAccount') {
+        const globalNumber = getGlobalPhoneNumber(reduxUser)
+        setShowGlobalBtn(globalNumber !== null)
+      } else {
+        setShowGlobalBtn(true)
+      }
     }
   }
 
@@ -6285,44 +6291,43 @@ function Page() {
                                   </MenuItem>
                                 )
                               })}
-                              <MenuItem
-                                style={styles.dropdownMenu}
-                                value={
-                                  showGlobalBtn
-                                    ? getGlobalPhoneNumber(reduxUser).replace(
+                              {showGlobalBtn && getGlobalPhoneNumber(reduxUser) && (
+                                <MenuItem
+                                  style={styles.dropdownMenu}
+                                  value={
+                                    getGlobalPhoneNumber(reduxUser)?.replace(
                                       '+',
                                       '',
-                                    )
-                                    : ''
-                                }
-                                // disabled={!showGlobalBtn}
-                                disabled={
-                                  (assignNumber &&
-                                    assignNumber.replace('+', '') ===
-                                    getGlobalPhoneNumber(reduxUser).replace(
-                                      '+',
-                                      '',
-                                    )) ||
-                                  (showDrawerSelectedAgent &&
-                                    showDrawerSelectedAgent.agentType ===
-                                    'inbound')
-                                }
-                                onClick={() => {
-                                  // console.log(
-                                  //   "This triggers when user clicks on assigning global number",
-                                  //   assignNumber
-                                  // );
-                                  // return;
-                                  AssignNumber(getGlobalPhoneNumber(reduxUser))
-                                  // handleReassignNumber(showConfirmationModal);
-                                }}
-                              >
-                                {getGlobalPhoneNumber(reduxUser)}
-                                {showGlobalBtn &&
-                                  ' (available for testing calls only)'}
-                                {showGlobalBtn == false &&
-                                  ' (Only for outbound agents. You must buy a number)'}
-                              </MenuItem>
+                                    ) || ''
+                                  }
+                                  disabled={
+                                    (assignNumber &&
+                                      assignNumber.replace('+', '') ===
+                                      getGlobalPhoneNumber(reduxUser)?.replace(
+                                        '+',
+                                        '',
+                                      )) ||
+                                    (showDrawerSelectedAgent &&
+                                      showDrawerSelectedAgent.agentType ===
+                                      'inbound')
+                                  }
+                                  onClick={() => {
+                                    // console.log(
+                                    //   "This triggers when user clicks on assigning global number",
+                                    //   assignNumber
+                                    // );
+                                    // return;
+                                    const globalNumber = getGlobalPhoneNumber(reduxUser)
+                                    if (globalNumber) {
+                                      AssignNumber(globalNumber)
+                                    }
+                                    // handleReassignNumber(showConfirmationModal);
+                                  }}
+                                >
+                                  {getGlobalPhoneNumber(reduxUser)}
+                                  {' (available for testing calls only)'}
+                                </MenuItem>
+                              )}
                               <div
                                 className="ms-4 pe-4"
                                 style={{

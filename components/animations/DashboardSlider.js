@@ -202,10 +202,10 @@ const DashboardSlider = ({
   //get position bassed on the components
   const getPosition = () => {
     if (onTop) {
-      const style = { position: 'fixed', top: 50, right: 8, zIndex: 999 }
+      const style = { position: 'fixed', top: 50, right: 8, zIndex: 1000 }
       return style
     } else {
-      const style = { position: 'fixed', bottom: 20, right: 8, zIndex: 999 }
+      const style = { position: 'fixed', bottom: 20, right: 8, zIndex: 1000 }
       return style
     }
   }
@@ -506,7 +506,7 @@ const DashboardSlider = ({
 
       {/* Icon Button (bottom-left) */}
       <AnimatePresence>
-        {showIcon && !showAskSkyModal && (
+        {showIcon && !showAskSkyModal && !visible && (
           <motion.div
             initial={{ opacity: 0, x: '100%' }}
             animate={{ opacity: 1, x: 0 }}
@@ -517,7 +517,7 @@ const DashboardSlider = ({
               position: 'fixed',
               bottom: 30,
               right: 10,
-              zIndex: 999,
+              zIndex: 998,
 
               border: 'none',
 

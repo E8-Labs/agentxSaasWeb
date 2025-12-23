@@ -1576,7 +1576,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // }
     } else if (item.agentType === 'outbound') {
       setShowReassignBtn(false)
-      setShowGlobalBtn(true)
+      // For subaccounts, only show global button if agency global number exists
+      if (selectedUser?.userRole === 'AgencySubAccount') {
+        const globalNumber = getGlobalPhoneNumber(selectedUser)
+        setShowGlobalBtn(globalNumber !== null)
+      } else {
+        setShowGlobalBtn(true)
+      }
     }
   }
 
@@ -4938,46 +4944,43 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     </MenuItem>
                                   )
                                 })}
-                                <MenuItem
-                                  style={styles.dropdownMenu}
-                                  value={
-                                    showGlobalBtn
-                                      ? getGlobalPhoneNumber(selectedUser).replace(
+                                {showGlobalBtn && getGlobalPhoneNumber(selectedUser) && (
+                                  <MenuItem
+                                    style={styles.dropdownMenu}
+                                    value={
+                                      getGlobalPhoneNumber(selectedUser)?.replace(
                                         '+',
                                         '',
+                                      ) || ''
+                                    }
+                                    disabled={
+                                      (assignNumber &&
+                                        assignNumber.replace('+', '') ===
+                                        getGlobalPhoneNumber(selectedUser)?.replace(
+                                          '+',
+                                          '',
+                                        )) ||
+                                      (showDrawerSelectedAgent &&
+                                        showDrawerSelectedAgent.agentType ===
+                                        'inbound')
+                                    }
+                                    onClick={() => {
+                                      console.log(
+                                        'This triggers when user clicks on assigning global number',
+                                        assignNumber,
                                       )
-                                      : ''
-                                  }
-                                  // disabled={!showGlobalBtn}
-                                  disabled={
-                                    (assignNumber &&
-                                      assignNumber.replace('+', '') ===
-                                      getGlobalPhoneNumber(selectedUser).replace(
-                                        '+',
-                                        '',
-                                      )) ||
-                                    (showDrawerSelectedAgent &&
-                                      showDrawerSelectedAgent.agentType ===
-                                      'inbound')
-                                  }
-                                  onClick={() => {
-                                    console.log(
-                                      'This triggers when user clicks on assigning global number',
-                                      assignNumber,
-                                    )
-                                    // return;
-                                    AssignNumber(
-                                      getGlobalPhoneNumber(selectedUser),
-                                    )
-                                    // handleReassignNumber(showConfirmationModal);
-                                  }}
-                                >
-                                  {getGlobalPhoneNumber(selectedUser)}
-                                  {showGlobalBtn &&
-                                    ' (available for testing calls only)'}
-                                  {showGlobalBtn == false &&
-                                    ' (Only for outbound agents. You must buy a number)'}
-                                </MenuItem>
+                                      // return;
+                                      const globalNumber = getGlobalPhoneNumber(selectedUser)
+                                      if (globalNumber) {
+                                        AssignNumber(globalNumber)
+                                      }
+                                      // handleReassignNumber(showConfirmationModal);
+                                    }}
+                                  >
+                                    {getGlobalPhoneNumber(selectedUser)}
+                                    {' (available for testing calls only)'}
+                                  </MenuItem>
+                                )}
                                 <div
                                   className="ms-4 pe-4"
                                   style={{
